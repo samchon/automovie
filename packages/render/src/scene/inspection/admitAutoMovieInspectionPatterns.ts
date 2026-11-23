@@ -10,7 +10,10 @@ import { listAutoMovieInspectionKindOptions } from "./listAutoMovieInspectionKin
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 
 /**
- * Check kind patterns before measuring scene geometry. Return the remaining path and colour check for the drawn paths, measured marks and selected supplied kinds. Both checks throw with the unmatched patterns before the inspection changes scene state.
+ * Check kind patterns before measuring scene geometry. Return the remaining
+ * path and colour check for the drawn paths, measured marks and selected
+ * supplied kinds. Both checks throw with the unmatched patterns before the
+ * inspection changes scene state.
  */
 export function admitAutoMovieInspectionPatterns(
   request: IAutoMovieInspectionRequest,
@@ -63,7 +66,9 @@ export function admitAutoMovieInspectionPatterns(
     );
     const unlabelled: string[] = request.label.filter(missesPath);
     const uncoloured: string[] = request.color
-      .map((entry: IAutoMovieInspectionColorAssignment): string => entry.pattern)
+      .map(
+        (entry: IAutoMovieInspectionColorAssignment): string => entry.pattern,
+      )
       .filter(
         (pattern: string): boolean =>
           missesPath(pattern) &&

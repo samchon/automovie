@@ -4,7 +4,10 @@ const { cosines: COSINES, blurs: BLURS }: typeof SUBSURFACE_TEXTURE_SIZE =
   SUBSURFACE_TEXTURE_SIZE;
 
 /**
- * Compute a 32-by-64 diffuse lookup: the zero-blur row is a clamped cosine, and other rows use 720 midpoint samples with five Gaussian wrap images. This conventional approximation is not a measured tissue diffusion profile or an exact infinite-wrap integral.
+ * Compute a 32-by-64 diffuse lookup: the zero-blur row is a clamped cosine, and
+ * other rows use 720 midpoint samples with five Gaussian wrap images. This
+ * conventional approximation is not a measured tissue diffusion profile or an
+ * exact infinite-wrap integral.
  */
 export function subsurfaceTable(): number[][] {
   const table: number[][] = [];

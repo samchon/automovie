@@ -12,10 +12,10 @@ import { AutoMovieSkinPose } from "./AutoMovieSkinPose.js";
  * while a dual-quaternion skin draws with the patched vertex shader. This mesh
  * keeps one selected result for every CPU consumer: morph targets first
  * (Three's `Mesh.getVertexPosition`, relative or absolute as the geometry
- * declares), then the skin's own method over the joint transforms
- * `K_j = bindMatrixInverse * boneWorld_j * boneInverse_j * bindMatrix` that the
- * shader blends, giving a point in the mesh's own frame. The world placement
- * cancels inside `K_j`, so moving the model root changes no local result.
+ * declares), then the skin's own method over the joint transforms `K_j =
+ * bindMatrixInverse * boneWorld_j * boneInverse_j * bindMatrix` that the shader
+ * blends, giving a point in the mesh's own frame. The world placement cancels
+ * inside `K_j`, so moving the model root changes no local result.
  *
  * The posed positions are cached, three floats per vertex, under a key of
  * everything they depend on: the geometry object and the versions of its
@@ -35,9 +35,9 @@ import { AutoMovieSkinPose } from "./AutoMovieSkinPose.js";
  * `m`, the least `|q_k . q_l|` over the weighted joints, bounds the blended
  * rotation's norm from below because the aligned weights sum to one; a linear
  * blend is a convex combination of rigid images and needs no `m`. When `m`
- * falls to 0.25 or below, or a morph is live, the sphere is the
- * exact one instead. Both tiers grow by {@link AutoMovieSkinnedMesh.tolerance}'s
- * float32 bound, so culling and framing never cut a vertex the GPU draws.
+ * falls to 0.25 or below, or a morph is live, the sphere is the exact one
+ * instead. Both tiers grow by {@link AutoMovieSkinnedMesh.tolerance}'s float32
+ * bound, so culling and framing never cut a vertex the GPU draws.
  *
  * Precision: the CPU blend runs in double precision and agrees with the
  * engine's `skinAutoMovieMesh` to double rounding; the cache stores float32,
@@ -59,7 +59,8 @@ export class AutoMovieSkinnedMesh<
   /**
    * @param geometry Geometry with skin indices and weights.
    * @param material Material, patched for dual quaternions by its builder.
-   * @param method The skin's blend; omitted it is linear, as `Object3D.clone` constructs before `copy`.
+   * @param method The skin's blend; omitted it is linear, as `Object3D.clone`
+   *   constructs before `copy`.
    */
   public constructor(
     geometry?: THREE.BufferGeometry,
@@ -94,8 +95,8 @@ export class AutoMovieSkinnedMesh<
    * Clear a skinned mesh's object-level bounds, so every Three consumer
    * recomputes them on next read. Three's runtime documents both as nullable
    * (`@default null`, recomputed when null by Frustum, Raycaster and Box3),
-   * while `@types/three` declares them non-null; the widened write states
-   * that runtime contract rather than hiding a type error.
+   * while `@types/three` declares them non-null; the widened write states that
+   * runtime contract rather than hiding a type error.
    *
    * @param mesh Any skinned mesh, including a foreign `THREE.SkinnedMesh`.
    */
@@ -110,9 +111,7 @@ export class AutoMovieSkinnedMesh<
     nullable.boundingSphere = null;
   }
 
-  /**
-   * Posed local vertex position: morphs, then this skin's method.
-   */
+  /** Posed local vertex position: morphs, then this skin's method. */
   public override getVertexPosition(
     index: number,
     target: THREE.Vector3,
@@ -121,9 +120,7 @@ export class AutoMovieSkinnedMesh<
     return target.fromArray(this.cpu.posed, index * 3);
   }
 
-  /**
-   * Apply this skin's blend to an already morphed point or direction.
-   */
+  /** Apply this skin's blend to an already morphed point or direction. */
   public override applyBoneTransform(
     index: number,
     target: THREE.Vector3,
@@ -176,9 +173,7 @@ export class AutoMovieSkinnedMesh<
     return target;
   }
 
-  /**
-   * Exact posed local box of the current key, grown by {@link tolerance}.
-   */
+  /** Exact posed local box of the current key, grown by {@link tolerance}. */
   public override computeBoundingBox(): void {
     this.cpu.evaluate();
     const previous: THREE.Box3 | null = (
@@ -211,9 +206,7 @@ export class AutoMovieSkinnedMesh<
     this.boundingSphere = sphere;
   }
 
-  /**
-   * Raycast the posed surface of the current key.
-   */
+  /** Raycast the posed surface of the current key. */
   public override raycast(
     raycaster: THREE.Raycaster,
     intersects: THREE.Intersection[],
@@ -231,9 +224,7 @@ export class AutoMovieSkinnedMesh<
     super.raycast(raycaster, intersects);
   }
 
-  /**
-   * Copy Three's skinned state and the blend method; the cache recomputes.
-   */
+  /** Copy Three's skinned state and the blend method; the cache recomputes. */
   public override copy(source: this, recursive?: boolean): this {
     super.copy(source, recursive);
     this.method = source.method;

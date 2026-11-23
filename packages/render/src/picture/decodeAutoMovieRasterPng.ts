@@ -7,7 +7,10 @@ const SIGNATURE: readonly number[] = [
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
 ];
 
-/** Samples per pixel of each PNG colour type, with the bit depths the specification allows for it. */
+/**
+ * Samples per pixel of each PNG colour type, with the bit depths the
+ * specification allows for it.
+ */
 const COLOUR_TYPES: Readonly<
   Record<number, { channels: number; depths: readonly number[] }>
 > = {
@@ -19,11 +22,24 @@ const COLOUR_TYPES: Readonly<
 };
 
 /**
- * Decode a PNG file into the picture record the sheet, the comparison and the content hash take: 8-bit RGBA rows from the top.
+ * Decode a PNG file into the picture record the sheet, the comparison and the
+ * content hash take: 8-bit RGBA rows from the top.
  *
- * It reads every non-interlaced PNG the specification allows: grey, RGB, palette, grey with alpha and RGBA, at every bit depth of each, so a still this package encoded and a still FFmpeg wrote read alike. A sample of 16 bits keeps its high byte and a sample under 8 bits is scaled to the full byte. Alpha comes from an alpha channel when the file has one and is 255 otherwise; transparency chunks are ignored, because the picture record is opaque and no consumer reads alpha. The zlib stream is inflated by `DecompressionStream("deflate")`, a global of Node 22 and every current browser, so the call is asynchronous and imports no Node built-in.
+ * It reads every non-interlaced PNG the specification allows: grey, RGB,
+ * palette, grey with alpha and RGBA, at every bit depth of each, so a still
+ * this package encoded and a still FFmpeg wrote read alike. A sample of 16 bits
+ * keeps its high byte and a sample under 8 bits is scaled to the full byte.
+ * Alpha comes from an alpha channel when the file has one and is 255 otherwise;
+ * transparency chunks are ignored, because the picture record is opaque and no
+ * consumer reads alpha. The zlib stream is inflated by
+ * `DecompressionStream("deflate")`, a global of Node 22 and every current
+ * browser, so the call is asynchronous and imports no Node built-in.
  *
- * It rejects a file that is not a PNG, a chunk whose CRC disagrees, a missing header, palette or image data, an interlaced file, an unknown colour type, bit depth, compression, filter method or row filter, and image data that does not inflate to the size the header states, each with the reason; the caller adds the file's name.
+ * It rejects a file that is not a PNG, a chunk whose CRC disagrees, a missing
+ * header, palette or image data, an interlaced file, an unknown colour type,
+ * bit depth, compression, filter method or row filter, and image data that does
+ * not inflate to the size the header states, each with the reason; the caller
+ * adds the file's name.
  */
 export async function decodeAutoMovieRasterPng(
   bytes: Uint8Array,
@@ -194,7 +210,10 @@ export async function decodeAutoMovieRasterPng(
   return { width, height, pixels };
 }
 
-/** The Paeth predictor of the PNG specification, section 9.4: the neighbour nearest to left + up - corner. */
+/**
+ * The Paeth predictor of the PNG specification, section 9.4: the neighbour
+ * nearest to left + up - corner.
+ */
 function paeth(left: number, up: number, corner: number): number {
   const estimate: number = left + up - corner;
   const toLeft: number = Math.abs(estimate - left);

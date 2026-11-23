@@ -3,11 +3,21 @@ import * as THREE from "three";
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 
 /**
- * Measure the world-space box of what a scene draws now, so a view can be framed on the selection instead of on the whole scene.
+ * Measure the world-space box of what a scene draws now, so a view can be
+ * framed on the selection instead of on the whole scene.
  *
- * An object counts when it and its ancestors are visible and it is on some layer, which is how an inspection leaves an object out. Meshes are measured by their posed vertices, morph targets and linear-blend skinning included. An instanced mesh is measured by the corners of its posed box under each instance, which contains the instances and can exceed them. Lines and points are measured by their position buffers, and a screen-space `LineSegments2`, such as an inspection mark, by its segment ends. Sprites and batched meshes are not measured, and neither is a vertex that is not finite. A section does not reduce the box.
+ * An object counts when it and its ancestors are visible and it is on some
+ * layer, which is how an inspection leaves an object out. Meshes are measured
+ * by their posed vertices, morph targets and linear-blend skinning included. An
+ * instanced mesh is measured by the corners of its posed box under each
+ * instance, which contains the instances and can exceed them. Lines and points
+ * are measured by their position buffers, and a screen-space `LineSegments2`,
+ * such as an inspection mark, by its segment ends. Sprites and batched meshes
+ * are not measured, and neither is a vertex that is not finite. A section does
+ * not reduce the box.
  *
- * It returns null when nothing measured is drawn. World matrices are brought up to date first.
+ * It returns null when nothing measured is drawn. World matrices are brought up
+ * to date first.
  */
 export function measureAutoMovieInspectionBounds(
   root: THREE.Object3D,

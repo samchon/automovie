@@ -3,12 +3,13 @@ import * as THREE from "three";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Capture the public framebuffer selection and raster rectangle state.
- * A target bind changes effective viewport/scissor. Preserve both configured
- * logical renderer fields and the effective framebuffer's physical rectangle.
- * A temporary target rectangle supplies the captured physical values to the
+ * Capture the public framebuffer selection and raster rectangle state. A target
+ * bind changes effective viewport/scissor. Preserve both configured logical
+ * renderer fields and the effective framebuffer's physical rectangle. A
+ * temporary target rectangle supplies the captured physical values to the
  * supported bind operation, then its authored fields are restored immediately.
- * Every independent restoration is attempted after a native resource operation.
+ * Every independent restoration is attempted after a native resource
+ * operation.
  */
 export const captureAutoMovieFramebufferRestore: (
   renderer: THREE.WebGLRenderer,

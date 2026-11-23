@@ -7,8 +7,8 @@ import { restoreAutoMovieRenderModeState } from "../scene/restoreAutoMovieRender
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 
 /**
- * Route soft prop surfaces from a producer into the draw subject's scene.
- * Each requested second is read after the subject has placed its other objects.
+ * Route soft prop surfaces from a producer into the draw subject's scene. Each
+ * requested second is read after the subject has placed its other objects.
  */
 export function bindAutoMovieDrawSceneSoftProps(
   subject: IAutoMovieDrawScene,

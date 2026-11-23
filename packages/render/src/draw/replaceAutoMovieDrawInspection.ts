@@ -5,11 +5,15 @@ import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieI
 import { applyAutoMovieInspection } from "../scene/inspection/applyAutoMovieInspection.js";
 
 /**
- * End the old inspection before placement and bind a new one to its actual objects.
+ * End the old inspection before placement and bind a new one to its actual
+ * objects.
  *
- * @param props The previous handle, actual scene and request, optional renderer and lifetime kind declarations, and asynchronous placement that returns current marks.
+ * @param props The previous handle, actual scene and request, optional renderer
+ *   and lifetime kind declarations, and asynchronous placement that returns
+ *   current marks.
  * @returns An inspection of the scene graph that placement actually produced.
- * @throws {Error} When placement or inspection fails; the previous handle has already been restored.
+ * @throws {Error} When placement or inspection fails; the previous handle has
+ *   already been restored.
  */
 export async function replaceAutoMovieDrawInspection(props: {
   previous: IAutoMovieInspectionHandle | null;

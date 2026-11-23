@@ -25,17 +25,28 @@ import { unresolvedOf } from "./unresolvedOf.js";
 /**
  * Paint a built scene with its stable semantic palette.
  *
- * An attached palette assigns stable semantic colours instead of a top-level traversal ramp. The nearest claimed root determines each mesh's identity; a correctly rebuilt design can preserve those palette colours despite changed traversal order. This describes material state rather than independently observed pixels.
+ * An attached palette assigns stable semantic colours instead of a top-level
+ * traversal ramp. The nearest claimed root determines each mesh's identity; a
+ * correctly rebuilt design can preserve those palette colours despite changed
+ * traversal order. This describes material state rather than independently
+ * observed pixels.
  *
  * Resolution walks each mesh up to the nearest ancestor the mask names:
  *
- * - Staged nodes match design.nodes by the buildScene top-level construction order.
+ * - Staged nodes match design.nodes by the buildScene top-level construction
+ *   order.
  * - Named objects match palette roots, including ground and instance-set groups.
- * - Compiled slots use instanceColor so members keep separate identities without separate scene nodes.
+ * - Compiled slots use instanceColor so members keep separate identities without
+ *   separate scene nodes.
  *
- * A mesh no entry claims is painted the reserved background colour rather than left showing its beauty material: a segmentation consumer must never read a lit surface as a class, and an unpainted mesh would be exactly that.
+ * A mesh no entry claims is painted the reserved background colour rather than
+ * left showing its beauty material: a segmentation consumer must never read a
+ * lit surface as a class, and an unpainted mesh would be exactly that.
  *
- * A formation's supplied baked cycle is carried onto each replacement material through the same hook used by beauty. This preserves the requested deformation route; actual shader compilation, frame correspondence and delivered pixels remain rendering observations.
+ * A formation's supplied baked cycle is carried onto each replacement material
+ * through the same hook used by beauty. This preserves the requested
+ * deformation route; actual shader compilation, frame correspondence and
+ * delivered pixels remain rendering observations.
  */
 export const applyAutoMovieSemanticMask: (props: {
   /** The built scene. */

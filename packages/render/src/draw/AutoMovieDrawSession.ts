@@ -22,14 +22,37 @@ import { planAutoMovieDrawCall } from "./planAutoMovieDrawCall.js";
 import { stampAutoMovieDrawLegend } from "./stampAutoMovieDrawLegend.js";
 
 /**
- * A host's hold on one draw page: the props injected before it loaded, the subject it described, and the calls that turn cells and frames into pictures through its draw function.
+ * A host's hold on one draw page: the props injected before it loaded, the
+ * subject it described, and the calls that turn cells and frames into pictures
+ * through its draw function.
  *
- * Every picture a host saves comes through `draw`, `drawing` or `frame`, which call the page's draw function and decode what it returns; the session never screenshots the page and injects no style into it. Each call is bounded by the session's timeout, so a subject that never reports ready fails the call with the cell or frame it was drawing instead of holding the host forever. Calls must not overlap.
+ * Every picture a host saves comes through `draw`, `drawing` or `frame`, which
+ * call the page's draw function and decode what it returns; the session never
+ * screenshots the page and injects no style into it. Each call is bounded by
+ * the session's timeout, so a subject that never reports ready fails the call
+ * with the cell or frame it was drawing instead of holding the host forever.
+ * Calls must not overlap.
  *
  * ```ts
- * const session = await AutoMovieDrawSession.open({ page, url, props: { subject: "starter", props: null }, backend: "swiftshader; Chromium 131", timeout: 120_000 });
- * const plan = planAutoMovieCapture({ request, subject: session.subject, cuts: [] });
- * await runAutoMovieCapture({ plan, draw: (cell) => session.drawing(cell, plan), folder, revision, match: "cell" });
+ * const session = await AutoMovieDrawSession.open({
+ *   page,
+ *   url,
+ *   props: { subject: "starter", props: null },
+ *   backend: "swiftshader; Chromium 131",
+ *   timeout: 120_000,
+ * });
+ * const plan = planAutoMovieCapture({
+ *   request,
+ *   subject: session.subject,
+ *   cuts: [],
+ * });
+ * await runAutoMovieCapture({
+ *   plan,
+ *   draw: (cell) => session.drawing(cell, plan),
+ *   folder,
+ *   revision,
+ *   match: "cell",
+ * });
  * await session.close();
  * ```
  */
@@ -46,7 +69,10 @@ export class AutoMovieDrawSession {
   /** The WebGL renderer string the page reported. */
   public readonly renderer: string;
 
-  /** What every drawn row records as its backend: the host's launch description, then the renderer string. */
+  /**
+   * What every drawn row records as its backend: the host's launch description,
+   * then the renderer string.
+   */
   public readonly backend: string;
 
   /** Hold an opened page; `open` prepares it. */
@@ -64,9 +90,12 @@ export class AutoMovieDrawSession {
   }
 
   /**
-   * Inject the props, load the draw page, wait for its draw function and describe its subject.
+   * Inject the props, load the draw page, wait for its draw function and
+   * describe its subject.
    *
-   * It rejects when the page does not install the draw function within the timeout, naming the address, and when describing the subject fails or outlasts the timeout. A rejected open leaves the page with the caller.
+   * It rejects when the page does not install the draw function within the
+   * timeout, naming the address, and when describing the subject fails or
+   * outlasts the timeout. A rejected open leaves the page with the caller.
    */
   public static async open(props: {
     /** A fresh page, which the session owns once open resolves. */
@@ -78,7 +107,10 @@ export class AutoMovieDrawSession {
     /** What the page's draw function creates. */
     props: IAutoMovieDrawProps;
 
-    /** The host's description of how the browser draws, such as `swiftshader; Chromium 131.0.6778.33`. */
+    /**
+     * The host's description of how the browser draws, such as `swiftshader;
+     * Chromium 131.0.6778.33`.
+     */
     backend: string;
 
     /** Milliseconds any one page call may take. */
@@ -127,7 +159,8 @@ export class AutoMovieDrawSession {
   /**
    * Draw one call and decode its picture.
    *
-   * It rejects when the page's draw throws, when it does not answer within the timeout, naming `what`, and when the picture is not the call's raster.
+   * It rejects when the page's draw throws, when it does not answer within the
+   * timeout, naming `what`, and when the picture is not the call's raster.
    */
   public async draw(
     call: IAutoMovieDrawCall,
@@ -153,7 +186,12 @@ export class AutoMovieDrawSession {
   }
 
   /**
-   * The capture run's draw function: draw one planned cell through `planAutoMovieDrawCall`, returning its picture with the legend of its marks in the top-left corner by `stampAutoMovieDrawLegend`, the legend texts and the inspection's labels for the run to stamp, the session's backend, the resolved camera as JSON with the fixed view text that draws it again, and the paths each pattern resolved to.
+   * The capture run's draw function: draw one planned cell through
+   * `planAutoMovieDrawCall`, returning its picture with the legend of its marks
+   * in the top-left corner by `stampAutoMovieDrawLegend`, the legend texts and
+   * the inspection's labels for the run to stamp, the session's backend, the
+   * resolved camera as JSON with the fixed view text that draws it again, and
+   * the paths each pattern resolved to.
    */
   public async drawing(
     cell: IAutoMovieCaptureCell,
@@ -178,7 +216,8 @@ export class AutoMovieDrawSession {
   }
 
   /**
-   * Draw one delivered frame in every given pass through the subject's own camera, at its raster, one draw call per pass in the order given.
+   * Draw one delivered frame in every given pass through the subject's own
+   * camera, at its raster, one draw call per pass in the order given.
    */
   public async frame(
     seconds: number,
@@ -216,15 +255,16 @@ export class AutoMovieDrawSession {
     return pictures;
   }
 
-  /**
-   * Close the page.
-   */
+  /** Close the page. */
   public async close(): Promise<void> {
     await this.page.close();
   }
 }
 
-/** Settle with `task`, or reject naming `what` once `timeout` milliseconds pass first. */
+/**
+ * Settle with `task`, or reject naming `what` once `timeout` milliseconds pass
+ * first.
+ */
 function bounded<T>(
   timeout: number,
   what: string,

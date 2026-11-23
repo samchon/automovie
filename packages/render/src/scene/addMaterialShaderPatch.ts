@@ -4,14 +4,15 @@ import type { IMaterialShaderPatch } from "./IMaterialShaderPatch.js";
 import { applyMaterialShaderPatches } from "./applyMaterialShaderPatches.js";
 
 /**
- * Add a shader patch to a material, keeping the ones already on it: three
- * calls one `onBeforeCompile`, so every patch a material carries runs in the
- * order it was added and the program key names them all.
+ * Add a shader patch to a material, keeping the ones already on it: three calls
+ * one `onBeforeCompile`, so every patch a material carries runs in the order it
+ * was added and the program key names them all.
  *
- * This owner installs the material's compile and program-key hooks; an unrelated
- * preexisting hook is not composed. Registered keys must avoid ambiguous `+`
- * concatenation, and registration should finish before first compilation since
- * this helper does not set needsUpdate for an already-compiled material.
+ * This owner installs the material's compile and program-key hooks; an
+ * unrelated preexisting hook is not composed. Registered keys must avoid
+ * ambiguous `+` concatenation, and registration should finish before first
+ * compilation since this helper does not set needsUpdate for an
+ * already-compiled material.
  */
 export const addMaterialShaderPatch: (
   material: THREE.Material,

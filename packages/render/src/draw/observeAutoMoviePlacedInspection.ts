@@ -3,18 +3,21 @@ import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 
 /**
- * Read production diagnostics once from a settled scene and its delivery camera.
+ * Read production diagnostics once from a settled scene and its delivery
+ * camera.
  *
  * Call after the outer seek is ready, before inspection changes the scene. The
  * subject's raster determines the delivery projection regardless of the review
- * view. The offscreen capture and delivery hosts supply the actual raster
- * audit context; the Viewer never does.
+ * view. The offscreen capture and delivery hosts supply the actual raster audit
+ * context; the Viewer never does.
  *
  * @param subject Subject whose placement has completed.
  * @param seconds Film second at which the subject was placed.
  * @param mode Host that requested this observation.
- * @param auditRaster Optional offscreen renderer and sample factor for a capture or delivery.
- * @returns The producer's findings and coverage at the subject clock, or undefined when diagnostics are absent.
+ * @param auditRaster Optional offscreen renderer and sample factor for a
+ *   capture or delivery.
+ * @returns The producer's findings and coverage at the subject clock, or
+ *   undefined when diagnostics are absent.
  * @throws {Error} If the producer returns another sample's time or frame.
  */
 export function observeAutoMoviePlacedInspection(

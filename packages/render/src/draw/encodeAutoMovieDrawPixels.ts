@@ -1,12 +1,22 @@
-/** Bytes turned into one string at a time, kept under the argument limit of `String.fromCharCode`. */
+/**
+ * Bytes turned into one string at a time, kept under the argument limit of
+ * `String.fromCharCode`.
+ */
 const CHUNK: number = 0x8000;
 
 /**
- * Turn the bytes WebGL read from a drawn target into the base64 text a draw page returns: rows flipped to start at the top, and a supersampled target reduced to the picture's size by averaging each `factor` by `factor` block.
+ * Turn the bytes WebGL read from a drawn target into the base64 text a draw
+ * page returns: rows flipped to start at the top, and a supersampled target
+ * reduced to the picture's size by averaging each `factor` by `factor` block.
  *
- * `bytes` holds `width * height * 4` RGBA bytes of the drawn target, rows from the bottom as `readPixels` writes them. The result holds `(width / factor) * (height / factor) * 4` bytes, rows from the top. Averaging is the area filter: each output pixel is the mean of the target pixels it covers, rounded to the nearest byte.
+ * `bytes` holds `width * height * 4` RGBA bytes of the drawn target, rows from
+ * the bottom as `readPixels` writes them. The result holds `(width / factor) *
+ * (height / factor) * 4` bytes, rows from the top. Averaging is the area
+ * filter: each output pixel is the mean of the target pixels it covers, rounded
+ * to the nearest byte.
  *
- * It throws when the byte count is not the size's, or the factor is not a whole number dividing both sides.
+ * It throws when the byte count is not the size's, or the factor is not a whole
+ * number dividing both sides.
  */
 export function encodeAutoMovieDrawPixels(
   bytes: Uint8Array,

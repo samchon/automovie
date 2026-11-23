@@ -21,7 +21,8 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
  * shot changed their material.
  *
  * @throws {RangeError} The tracked shot sample is outside its local interval.
- * @throws {Error} A target has no distinct single-material mesh, or its selected variant is unavailable.
+ * @throws {Error} A target has no distinct single-material mesh, or its
+ *   selected variant is unavailable.
  */
 export function applyPracticalSurfaceMaterials(
   shot: IAutoMovieShot,

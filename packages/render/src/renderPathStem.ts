@@ -34,12 +34,12 @@ const WINDOWS_RESERVED_NAMES: ReadonlySet<string> = new Set<string>([
  *
  * Every run of characters outside `A-Z a-z 0-9 _ . -` becomes one `_`, which
  * also replaces every space, and trailing dots are removed because Windows
- * strips them when it writes a name. An empty result, including `.` and `..`, becomes `render`,
- * so `renders/<stem>` can never name the parent directory. A stem whose first
- * dot-separated segment is a Windows device name, such as `con` or `nul.mp4`,
- * gains a leading `_`. Distinct targets may share a stem, such as `a/b` and
- * `a_b`; callers that need distinct paths must keep their targets distinct
- * after this mapping.
+ * strips them when it writes a name. An empty result, including `.` and `..`,
+ * becomes `render`, so `renders/<stem>` can never name the parent directory. A
+ * stem whose first dot-separated segment is a Windows device name, such as
+ * `con` or `nul.mp4`, gains a leading `_`. Distinct targets may share a stem,
+ * such as `a/b` and `a_b`; callers that need distinct paths must keep their
+ * targets distinct after this mapping.
  */
 export const renderPathStem: (target: string) => string = (
   target: string,

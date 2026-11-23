@@ -13,7 +13,8 @@ const TOPOLOGY: WeakMap<
  * Read the drawn triangle list of a resident geometry once per buffer version.
  *
  * @param geometry The drawn geometry.
- * @returns Its drawn triangles, rest bounds and closure, or null when the buffers or draw range cannot be read.
+ * @returns Its drawn triangles, rest bounds and closure, or null when the
+ *   buffers or draw range cannot be read.
  */
 export function readAutoMovieCollisionTopology(
   geometry: THREE.BufferGeometry,
@@ -40,12 +41,11 @@ export function readAutoMovieCollisionTopology(
 }
 
 /**
- * Drawn triangles, bounds, closure, lazy posing and world boxes shared by every collision source.
+ * Drawn triangles, bounds, closure, lazy posing and world boxes shared by every
+ * collision source.
  */
 export namespace readAutoMovieCollisionTopology {
-  /**
-   * The drawn triangle list of one geometry in its own space.
-   */
+  /** The drawn triangle list of one geometry in its own space. */
   export interface ITopology {
     /** Rest positions of the geometry. */
     readonly positions:
@@ -58,14 +58,18 @@ export namespace readAutoMovieCollisionTopology {
     /** Rest bounds of the drawn vertices. */
     readonly bounds: THREE.Box3;
 
-    /** Every drawn edge, merged by rest position, is traversed equally in both directions. */
+    /**
+     * Every drawn edge, merged by rest position, is traversed equally in both
+     * directions.
+     */
     readonly closed: boolean;
   }
 
   /**
    * Pose a surface once, on first use, within the shared vertex allowance.
    *
-   * @param budget Posed vertices the frame may still spend; charged on first read.
+   * @param budget Posed vertices the frame may still spend; charged on first
+   *   read.
    * @param topology The drawn triangles to pose.
    * @param pose World position of one rest vertex.
    * @param error Pose error of each position in world metres.

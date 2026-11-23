@@ -37,7 +37,10 @@ type AutoMoviePreparedPolygonCue = IAutoMoviePolygonCueTiming &
       }
   );
 
-/** Admit a finite quaternion with the same squared-norm tolerance as a polygon pose. */
+/**
+ * Admit a finite quaternion with the same squared-norm tolerance as a polygon
+ * pose.
+ */
 function unitRotation(
   x: number,
   y: number,
@@ -65,7 +68,10 @@ function finitePosition(
   return new Vector3(x, y, z);
 }
 
-/** Copy one source joint frame for arithmetic without mutating the evaluated pose. */
+/**
+ * Copy one source joint frame for arithmetic without mutating the evaluated
+ * pose.
+ */
 function boneFrame(
   placement: IAutoMovieHumanBonePlacement,
 ): IAutoMoviePolygonFrame {
@@ -98,9 +104,7 @@ function actorFrame(
   };
 }
 
-/**
- * Prepare rigid visual cues for one polygon drawing on its source clock.
- */
+/** Prepare rigid visual cues for one polygon drawing on its source clock. */
 export function prepareHumanPolygonPresentation(
   presentation: AutoMovieHumanPolygon.IPresentation,
   bones: ReadonlyMap<string, IAutoMovieHumanBindBone>,

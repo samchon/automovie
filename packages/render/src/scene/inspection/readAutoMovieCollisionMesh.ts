@@ -11,7 +11,8 @@ import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
 /**
- * Read one ordinary drawn mesh: an exact box, a closed static surface or a stock skin.
+ * Read one ordinary drawn mesh: an exact box, a closed static surface or a
+ * stock skin.
  *
  * A box is an exact displayed solid. A closed static mesh and a stock skin are
  * conservative world envelopes whose drawn surface is posed only when a
@@ -20,7 +21,8 @@ import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
  *
  * @param mesh The drawn mesh.
  * @param identity Its collision identity and ownership.
- * @param budget Posed vertices the frame may still spend; charged when a surface is read.
+ * @param budget Posed vertices the frame may still spend; charged when a
+ *   surface is read.
  * @param add Receives the part, its lazy surface and any unsupported reason.
  */
 export function readAutoMovieCollisionMesh(
@@ -91,11 +93,12 @@ export function readAutoMovieCollisionMesh(
   );
 }
 
-/**
- * The callback shape every collision source reports parts through.
- */
+/** The callback shape every collision source reports parts through. */
 export namespace readAutoMovieCollisionMesh {
-  /** Receives one part, its optional lazy surface and an optional unsupported reason. */
+  /**
+   * Receives one part, its optional lazy surface and an optional unsupported
+   * reason.
+   */
   export type IAdd = (
     part: Collision.IPart,
     surface?: collectAutoMovieCollisionParts.IPartSurface,
@@ -104,8 +107,8 @@ export namespace readAutoMovieCollisionMesh {
 }
 
 /**
- * A stock skin's drawn surface, posed by its owner's draw method and charged
- * to the vertex budget only when a candidate pair reads it.
+ * A stock skin's drawn surface, posed by its owner's draw method and charged to
+ * the vertex budget only when a candidate pair reads it.
  */
 function readSkin(
   mesh: AutoMovieSkinnedMesh,
@@ -132,7 +135,10 @@ function readSkin(
   );
 }
 
-/** Name the joint with the largest weight of each vertex, from the drawn skin buffers. */
+/**
+ * Name the joint with the largest weight of each vertex, from the drawn skin
+ * buffers.
+ */
 function dominantJoints(
   mesh: AutoMovieSkinnedMesh,
 ): ((vertex: number) => string | undefined) | undefined {

@@ -20,9 +20,9 @@ import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTak
  * turned over.
  *
  * A take that carries a body nowhere is played on its own period instead, which
- * is the difference between a crowd standing at ease and a crowd frozen.
- * This integration uses the bake's stride estimate; it does not prove exact
- * foot contact or no-slip motion for arbitrary gait paths.
+ * is the difference between a crowd standing at ease and a crowd frozen. This
+ * integration uses the bake's stride estimate; it does not prove exact foot
+ * contact or no-slip motion for arbitrary gait paths.
  */
 export const formationCycleCadence: (
   cycle: IAutoMovieFormationCycle,

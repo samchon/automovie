@@ -1,8 +1,8 @@
 /**
- * The capture URL of a local review page: the requested URL with its path
- * and unrelated options kept, the given capture parameters set, and
- * autoplay (`play`) removed because capture seeks each frame. Only an HTTP
- * loopback host is admitted, so capture never drives a remote page.
+ * The capture URL of a local review page: the requested URL with its path and
+ * unrelated options kept, the given capture parameters set, and autoplay
+ * (`play`) removed because capture seeks each frame. Only an HTTP loopback host
+ * is admitted, so capture never drives a remote page.
  *
  * @param requested The review page URL.
  * @param parameters Capture parameters to set, such as raster and range.

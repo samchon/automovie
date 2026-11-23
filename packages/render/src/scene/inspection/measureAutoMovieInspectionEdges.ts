@@ -5,11 +5,20 @@ import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 
 /**
- * Read a mesh's triangle edges and return them as one mark lying on the mesh as it is posed, so the triangles are drawn over the shaded surface or alone.
+ * Read a mesh's triangle edges and return them as one mark lying on the mesh as
+ * it is posed, so the triangles are drawn over the shaded surface or alone.
  *
- * Every mesh has edges, so the inspection measures them itself on the meshes it draws. Each edge of a triangle is drawn once, however many triangles share it. Corners are welded by their stored positions, so an indexed geometry and a non-indexed one of the same form give the same edges, and a triangle side between two corners at one place draws nothing. The mark's kind is `edge`, its path the mesh's path followed by `edge`, its label `mesh edge` and its colour the palette's dark blue, which no shade uses.
+ * Every mesh has edges, so the inspection measures them itself on the meshes it
+ * draws. Each edge of a triangle is drawn once, however many triangles share
+ * it. Corners are welded by their stored positions, so an indexed geometry and
+ * a non-indexed one of the same form give the same edges, and a triangle side
+ * between two corners at one place draws nothing. The mark's kind is `edge`,
+ * its path the mesh's path followed by `edge`, its label `mesh edge` and its
+ * colour the palette's dark blue, which no shade uses.
  *
- * The coordinates are read from the mesh as three.js poses it, morph targets and linear-blend skinning included, through the first stored vertex of each welded corner.
+ * The coordinates are read from the mesh as three.js poses it, morph targets
+ * and linear-blend skinning included, through the first stored vertex of each
+ * welded corner.
  */
 export function measureAutoMovieInspectionEdges(props: {
   /** The mesh to read, drawn and with a position buffer. */

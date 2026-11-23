@@ -13,11 +13,20 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Measure one caller-supplied compiled shot against an explicitly supplied budget, renderer identity, settings, assets and decoded texture/residency facts. The subject feeds both mask ownership and inventory measurement; the sealed target names those supplied inputs rather than proving that a renderer drew a frame.
+ * Measure one caller-supplied compiled shot against an explicitly supplied
+ * budget, renderer identity, settings, assets and decoded texture/residency
+ * facts. The subject feeds both mask ownership and inventory measurement; the
+ * sealed target names those supplied inputs rather than proving that a renderer
+ * drew a frame.
  *
- * A null renderer produces not-run without inventing graphics identity. The helper performs no draw, capture-host acquisition or texture allocation, and the caller owns the provenance of its observation records.
+ * A null renderer produces not-run without inventing graphics identity. The
+ * helper performs no draw, capture-host acquisition or texture allocation, and
+ * the caller owns the provenance of its observation records.
  *
- * Maintained callers are tests and the internal budget-helper chain. ProductionDesign.renderBudgets has no current execution reader wiring this assessment into an automatic render-job gate; accepting an explicit budget here does not establish that integration.
+ * Maintained callers are tests and the internal budget-helper chain.
+ * ProductionDesign.renderBudgets has no current execution reader wiring this
+ * assessment into an automatic render-job gate; accepting an explicit budget
+ * here does not establish that integration.
  */
 export const assessAutoMovieRenderBudget: (
   props: IAutoMovieAssessRenderBudgetProps,

@@ -26,8 +26,10 @@ const MEDIA: readonly Media[] = ["video", "audio"];
  * waives authored approval. Findings retain the effective thresholds and the
  * source evidence needed to reproduce the audit.
  *
- * @param props The hashed artifact, commissioned clock, decoded stream evidence and the reference measurement of the encoder's input.
- * @returns The coverage and content findings and whether they permit delivering the artifact.
+ * @param props The hashed artifact, commissioned clock, decoded stream evidence
+ *   and the reference measurement of the encoder's input.
+ * @returns The coverage and content findings and whether they permit delivering
+ *   the artifact.
  */
 export function auditAutoMovieDeliveryContent(
   props: Audit,
@@ -170,7 +172,10 @@ export function auditAutoMovieDeliveryContent(
   };
 }
 
-/** Checks that decoded evidence starts at zero and continuously covers the commissioned presentation. */
+/**
+ * Checks that decoded evidence starts at zero and continuously covers the
+ * commissioned presentation.
+ */
 function coversFilm(
   media: Media,
   stream: Decoded,
@@ -190,8 +195,8 @@ function coversFilm(
 
 /**
  * Indexes the drawn source's own detector intervals for one medium, clipped to
- * the film. Returns null when the reference does not completely cover the
- * film, so no interval can be attributed to it.
+ * the film. Returns null when the reference does not completely cover the film,
+ * so no interval can be attributed to it.
  */
 function referenceWindows(
   media: Media,

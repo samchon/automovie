@@ -1,7 +1,13 @@
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Report completed retirement causes synchronously, without opening another settlement window. The existing restoration policy owns cause order and identity; this reporter supplies aggregate descriptions to callers whose status transport displays Error.message. Opaque empty aggregates and a sole primary cause retain their original object. Description expects an Error's message to be a string: an invalid runtime message with throwing string coercion can still replace the aggregate during the final join.
+ * Report completed retirement causes synchronously, without opening another
+ * settlement window. The existing restoration policy owns cause order and
+ * identity; this reporter supplies aggregate descriptions to callers whose
+ * status transport displays Error.message. Opaque empty aggregates and a sole
+ * primary cause retain their original object. Description expects an Error's
+ * message to be a string: an invalid runtime message with throwing string
+ * coercion can still replace the aggregate during the final join.
  */
 export function reportAutoMovieResourceRetirement(
   reporting: readonly (() => void)[],

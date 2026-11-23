@@ -52,9 +52,7 @@ interface IProps {
   triangleBudget: number;
 }
 
-/**
- * Finds bounded depth-order witnesses on ordinary rigid, opaque mesh surfaces.
- */
+/** Finds bounded depth-order witnesses on ordinary rigid, opaque mesh surfaces. */
 export function sampleAutoMovieCameraOcclusion(
   props: IProps,
 ): IAutoMovieCameraInspection.IWitnesses | undefined {
@@ -245,7 +243,10 @@ interface IRectangle {
   maxY: number;
 }
 
-/** The delivery rectangle enclosing box corners, with a safe whole-frame fallback. */
+/**
+ * The delivery rectangle enclosing box corners, with a safe whole-frame
+ * fallback.
+ */
 function projectedRectangle(bounds: Box3, projection: Matrix4): IRectangle {
   const corner: Vector4 = new Vector4();
   let minX: number = 1;

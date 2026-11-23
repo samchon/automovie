@@ -26,8 +26,8 @@ const FLOAT_SUBFORMAT: string = "00000003-0000-0010-8000-00aa00389b71";
  * same width; the speakers must be front-center for mono and front-left,
  * front-right for stereo; a legacy header must carry no mask or SubFormat, and
  * an extensible one mask `0x4` or `0x3` and the PCM or float SubFormat GUID.
- * The processing must fold to one channel at 48 kHz with `[[1]]` or
- * `[[0.5, 0.5]]` and name the stage that the rates and channels imply.
+ * The processing must fold to one channel at 48 kHz with `[[1]]` or `[[0.5,
+ * 0.5]]` and name the stage that the rates and channels imply.
  */
 export const validWaveAudioIdentity: (
   asset: Extract<IAutoMovieProductionAudioAssetIdentity, { kind: "wave" }>,

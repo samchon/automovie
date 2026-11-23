@@ -21,13 +21,22 @@ import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
 /** The delivery camera and a required subject's admitted meshes. */
 interface IProps {
-  /** Delivery camera with its world matrices and projection, crop included, already current. */
+  /**
+   * Delivery camera with its world matrices and projection, crop included,
+   * already current.
+   */
   camera: Camera;
 
-  /** Meshes from listAutoMovieCameraSubjectMeshes with current world matrices and poses, or undefined when it refused the subject. */
+  /**
+   * Meshes from listAutoMovieCameraSubjectMeshes with current world matrices
+   * and poses, or undefined when it refused the subject.
+   */
   meshes: readonly Mesh[] | undefined;
 
-  /** Optional independently certified world envelope of the whole placed subject, metres. */
+  /**
+   * Optional independently certified world envelope of the whole placed
+   * subject, metres.
+   */
   bounds?: IAutoMovieSubjectBox;
 
   /** Largest number of drawn triangles this call may examine. */
@@ -57,11 +66,13 @@ interface IRange {
  * (Sutherland-Hodgman); signed distance to the near plane is linear over the
  * remaining convex polygon, so its deepest point is a polygon vertex.
  *
- * @param props Delivery camera, admitted subject meshes and the triangle budget.
+ * @param props Delivery camera, admitted subject meshes and the triangle
+ *   budget.
  * @returns `clear` when no drawn surface crosses, `clipped` with the deepest
- * intrusion in metres, its world surface point and the near-plane point at the
- * same delivered pixel, `over-budget` when the triangles to examine exceed the
- * budget, or `unmeasured` with the reason the subject cannot be checked.
+ *   intrusion in metres, its world surface point and the near-plane point at
+ *   the same delivered pixel, `over-budget` when the triangles to examine
+ *   exceed the budget, or `unmeasured` with the reason the subject cannot be
+ *   checked.
  */
 export function measureAutoMovieCameraNearClip(
   props: IProps,
@@ -222,16 +233,15 @@ export function measureAutoMovieCameraNearClip(
   };
 }
 
-/**
- * Outcomes of one near-plane clip measurement.
- */
+/** Outcomes of one near-plane clip measurement. */
 export namespace measureAutoMovieCameraNearClip {
-  /**
-   * Clear, clipped with its deepest witness, or unmeasured with a reason.
-   */
+  /** Clear, clipped with its deepest witness, or unmeasured with a reason. */
   export type IResult =
     | {
-        /** Every examined triangle stays on or beyond the near plane inside the frame. */
+        /**
+         * Every examined triangle stays on or beyond the near plane inside the
+         * frame.
+         */
         status: "clear";
 
         /** Drawn triangles examined. */
@@ -250,21 +260,33 @@ export namespace measureAutoMovieCameraNearClip {
         /** World surface point of that intrusion, metres. */
         point: IAutoMovieVector3;
 
-        /** World point on the near plane at the same delivered pixel, metres, where the cut shows in the frame. */
+        /**
+         * World point on the near plane at the same delivered pixel, metres,
+         * where the cut shows in the frame.
+         */
         cut: IAutoMovieVector3;
 
-        /** Whether the reported intrusion lies on an opaque stock surface; false means the cut part may be invisible anyway. */
+        /**
+         * Whether the reported intrusion lies on an opaque stock surface; false
+         * means the cut part may be invisible anyway.
+         */
         opaque: boolean;
       }
     | {
-        /** The drawn triangles in front of the near plane exceed the caller's budget; a larger budget completes the check. */
+        /**
+         * The drawn triangles in front of the near plane exceed the caller's
+         * budget; a larger budget completes the check.
+         */
         status: "over-budget";
 
         /** How far the budget fell short. */
         reason: string;
       }
     | {
-        /** The surface cannot be checked: an unreadable drawable, a non-finite vertex or projection, or an invalid budget. */
+        /**
+         * The surface cannot be checked: an unreadable drawable, a non-finite
+         * vertex or projection, or an invalid budget.
+         */
         status: "unmeasured";
 
         /** Why the check cannot run. */
@@ -325,8 +347,9 @@ function rounding(plane: Plane, point: Vector3): number {
 }
 
 /**
- * Keep the part of a convex polygon on the plane's inner side (Sutherland-Hodgman).
- * A triangle clipped by four planes has at most seven vertices, within the eight-slot scratch.
+ * Keep the part of a convex polygon on the plane's inner side
+ * (Sutherland-Hodgman). A triangle clipped by four planes has at most seven
+ * vertices, within the eight-slot scratch.
  */
 function clip(
   polygon: readonly Vector3[],

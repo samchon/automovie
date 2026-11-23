@@ -58,11 +58,11 @@ interface IKept {
  * Each picture draws a translucent red wire cube at every confirmed error's
  * measured point and an amber one at every possible error's, in world space,
  * through the existing stroke renderer. Findings with interval-only or
- * other-time evidence remain in the report for review at their own time.
- * While the number of cubes, their colours and the stroke stay the same, the
- * cubes are moved by rewriting their vertices in place; otherwise they are
- * built again and the previous ones released. The overlay is attached to the
- * scene only for the caller's render, including when it throws.
+ * other-time evidence remain in the report for review at their own time. While
+ * the number of cubes, their colours and the stroke stay the same, the cubes
+ * are moved by rewriting their vertices in place; otherwise they are built
+ * again and the previous ones released. The overlay is attached to the scene
+ * only for the caller's render, including when it throws.
  *
  * @returns The overlay; dispose it when the pictures end.
  */
@@ -133,7 +133,10 @@ export function createAutoMovieInspectionDiagnosticOverlay(): IAutoMovieInspecti
   };
 }
 
-/** The located error witnesses of the sample's own time, in finding order, with their colours. */
+/**
+ * The located error witnesses of the sample's own time, in finding order, with
+ * their colours.
+ */
 function select(
   diagnostics: IAutoMovieInspectionDiagnostics | undefined,
 ): { point: IAutoMovieVector3; color: number }[] {

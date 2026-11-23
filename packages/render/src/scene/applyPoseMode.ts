@@ -16,10 +16,10 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * frames follows the pose. The links are the ones the scene holds at
  * application: a bone attached or detached afterwards is not followed.
  * Anonymous instanced members without Bone objects have no pose overlay.
- * Returned restore retires line geometry/material and restores exact prior
- * mesh visibility. Active or failed scene retirement refuses before setup;
- * failed restore keeps its overlay resources, prior visibility and original
- * cause reachable.
+ * Returned restore retires line geometry/material and restores exact prior mesh
+ * visibility. Active or failed scene retirement refuses before setup; failed
+ * restore keeps its overlay resources, prior visibility and original cause
+ * reachable.
  */
 export const applyPoseMode: (
   scene: THREE.Scene,

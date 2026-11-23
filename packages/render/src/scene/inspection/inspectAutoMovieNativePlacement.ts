@@ -45,7 +45,8 @@ type INativeField = keyof typeof NATIVE_ISSUES;
  * identity, and the camera as `camera`.
  *
  * @param scene The settled scene; its visible nodes are inspected.
- * @param camera The delivery camera, inspected once whether or not it is in the scene.
+ * @param camera The delivery camera, inspected once whether or not it is in the
+ *   scene.
  * @param findings Receives one finding per failed field.
  */
 export function inspectAutoMovieNativePlacement(
@@ -59,9 +60,7 @@ export function inspectAutoMovieNativePlacement(
   inspectNode(scene, camera, true, findings);
 }
 
-/**
- * Append the findings of one node's failed placement fields.
- */
+/** Append the findings of one node's failed placement fields. */
 function inspectNode(
   scene: Object3D,
   object: Object3D,
@@ -119,7 +118,8 @@ function inspectNode(
 }
 
 /**
- * Whether a matrix can be drawn: affine and finite, and invertible for a camera.
+ * Whether a matrix can be drawn: affine and finite, and invertible for a
+ * camera.
  */
 function drawable(matrix: Matrix4, isCamera: boolean): boolean {
   const determinant: number = isCamera ? matrix.determinant() : 1;

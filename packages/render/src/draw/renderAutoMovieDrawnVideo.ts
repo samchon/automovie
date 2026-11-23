@@ -14,11 +14,25 @@ import { reduceAutoMovieInspectionEpisodes } from "../scene/inspection/reduceAut
 import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
 
 /**
- * Render a drawn subject into one video: draw every frame of its clock through the draw page's function, write each as a PNG, then encode them once.
+ * Render a drawn subject into one video: draw every frame of its clock through
+ * the draw page's function, write each as a PNG, then encode them once.
  *
- * The clock and raster are the subject's, read from the session, so the spec takes no frame format. The encoding is admitted and planned by `planAutoMovieVideoEncoding` before the first frame is drawn, so a clock that is not a whole number of frames or an odd raster costs no drawing. Frame `i` is drawn at `frameTimes`' second `i / fps` in the `beauty` pass through the subject's own camera, and written as `<frameDir>/frame_<i>.png`; frames are drawn and written one at a time, in order. The encoder then runs once with the planned arguments. When a frame supplies diagnostics, the output clock binds the sample to that frame and the audit reports coverage against the full schedule.
+ * The clock and raster are the subject's, read from the session, so the spec
+ * takes no frame format. The encoding is admitted and planned by
+ * `planAutoMovieVideoEncoding` before the first frame is drawn, so a clock that
+ * is not a whole number of frames or an odd raster costs no drawing. Frame `i`
+ * is drawn at `frameTimes`' second `i / fps` in the `beauty` pass through the
+ * subject's own camera, and written as `<frameDir>/frame_<i>.png`; frames are
+ * drawn and written one at a time, in order. The encoder then runs once with
+ * the planned arguments. When a frame supplies diagnostics, the output clock
+ * binds the sample to that frame and the audit reports coverage against the
+ * full schedule.
  *
- * Files and processes are the host's: `write` stores a file and `encode` runs FFmpeg, so the order of every step runs under a unit test. `encode` is handed the frame receipts and scene audit with its arguments, so they survive an encoder failure. A draw, write or encode failure rejects at once and leaves the files written so far to the host.
+ * Files and processes are the host's: `write` stores a file and `encode` runs
+ * FFmpeg, so the order of every step runs under a unit test. `encode` is handed
+ * the frame receipts and scene audit with its arguments, so they survive an
+ * encoder failure. A draw, write or encode failure rejects at once and leaves
+ * the files written so far to the host.
  */
 export async function renderAutoMovieDrawnVideo(props: {
   /** The opened draw session of the subject. */
@@ -41,8 +55,8 @@ export async function renderAutoMovieDrawnVideo(props: {
 
   /**
    * Run FFmpeg with the arguments, resolving once it succeeded. It also
-   * receives the drawn frames and scene audit, already complete, so a host
-   * can keep them when encoding fails.
+   * receives the drawn frames and scene audit, already complete, so a host can
+   * keep them when encoding fails.
    */
   encode: (
     args: readonly string[],

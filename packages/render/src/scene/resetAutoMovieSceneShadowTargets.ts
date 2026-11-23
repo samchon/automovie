@@ -8,7 +8,21 @@ import { retireAutoMovieCubeShadowDepth } from "./retireAutoMovieCubeShadowDepth
 /**
  * Retire every scene light's retained shadow attachment after a filter change.
  *
- * PCF comparison depth and VSM ordinary depth/distribution attachments are different GPU products. Three's previous filter is renderer-global while targets belong to individual lights, so a light hidden during a switch can retain the wrong product. Include hidden lights, clear public target slots, and mark their next shadow draw dirty. Disposal attempts every unique target and depth texture even if an independent resource listener fails. Retained targets belong exclusively to this renderer context and the scene's complete light population. External depth borrowers must be detached before retirement; an observable caller destination borrowing these resources is rejected before mutation. Native cube depth is queried before disposal and its still-live handle is released once without changing SDK bookkeeping. A cube depth with version zero is known uninitialized in Three r186 and is disposed without binding or allocating it. Positive version is not evidence of GPU residency; all other queried cubes must be actual retained draws in this context, not manually assigned CPU-only maps dirtied with needsUpdate.
+ * PCF comparison depth and VSM ordinary depth/distribution attachments are
+ * different GPU products. Three's previous filter is renderer-global while
+ * targets belong to individual lights, so a light hidden during a switch can
+ * retain the wrong product. Include hidden lights, clear public target slots,
+ * and mark their next shadow draw dirty. Disposal attempts every unique target
+ * and depth texture even if an independent resource listener fails. Retained
+ * targets belong exclusively to this renderer context and the scene's complete
+ * light population. External depth borrowers must be detached before
+ * retirement; an observable caller destination borrowing these resources is
+ * rejected before mutation. Native cube depth is queried before disposal and
+ * its still-live handle is released once without changing SDK bookkeeping. A
+ * cube depth with version zero is known uninitialized in Three r186 and is
+ * disposed without binding or allocating it. Positive version is not evidence
+ * of GPU residency; all other queried cubes must be actual retained draws in
+ * this context, not manually assigned CPU-only maps dirtied with needsUpdate.
  */
 export const resetAutoMovieSceneShadowTargets: (
   scene: THREE.Scene,

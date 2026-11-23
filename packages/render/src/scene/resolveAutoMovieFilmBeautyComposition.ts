@@ -6,7 +6,9 @@ import type {
 /**
  * Resolve a builder-sampled beauty layer list into one explicit compositor.
  *
- * One fractional layer means color over black, while two complementary layers retain the existing cross-dissolve. Invalid weights and cardinalities are refused by name instead of being clamped or rendered as an opaque shot.
+ * One fractional layer means color over black, while two complementary layers
+ * retain the existing cross-dissolve. Invalid weights and cardinalities are
+ * refused by name instead of being clamped or rendered as an opaque shot.
  */
 export const resolveAutoMovieFilmBeautyComposition: <
   Layer extends IAutoMovieFilmBeautyLayer,

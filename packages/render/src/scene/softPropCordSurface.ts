@@ -5,8 +5,8 @@ import type {
 import * as THREE from "three";
 
 /**
- * Use a ring of the Three.js tube at each distinct adjoining particle.
- * The input is an unindexed one-wide surface in world metres.
+ * Use a ring of the Three.js tube at each distinct adjoining particle. The
+ * input is an unindexed one-wide surface in world metres.
  */
 export function softPropCordSurface(
   surface: IAutoMovieSoftBodySurface,
@@ -103,7 +103,10 @@ class ParticlePath extends THREE.Curve<THREE.Vector3> {
     );
   }
 
-  /** Tube rings use the authored particle spacing in place of arc-length spacing. */
+  /**
+   * Tube rings use the authored particle spacing in place of arc-length
+   * spacing.
+   */
   public override getPointAt(u: number, target?: THREE.Vector3): THREE.Vector3 {
     return this.getPoint(u, target);
   }

@@ -1,10 +1,10 @@
 /**
  * Encode two equally long normalized channels as a canonical 44-byte-header
- * RIFF/WAVE file of 16-bit little-endian PCM stereo. Each sample is
- * quantized by `round(x * 32767)` for nonnegative and `round(x * 32768)` for
- * negative amplitudes, the inverse of the 1/32768 decode scale up to
- * rounding; a nonfinite or out-of-range amplitude is refused rather than
- * clipped. Deterministic: equal channels give equal bytes.
+ * RIFF/WAVE file of 16-bit little-endian PCM stereo. Each sample is quantized
+ * by `round(x * 32767)` for nonnegative and `round(x * 32768)` for negative
+ * amplitudes, the inverse of the 1/32768 decode scale up to rounding; a
+ * nonfinite or out-of-range amplitude is refused rather than clipped.
+ * Deterministic: equal channels give equal bytes.
  *
  * @param left Left channel, amplitudes in [-1, 1].
  * @param right Right channel, the same length.

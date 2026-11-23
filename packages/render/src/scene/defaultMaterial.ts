@@ -2,7 +2,8 @@ import * as THREE from "three";
 
 /**
  * Neutral linear-gray rough dielectric used for a part without a material.
- * Caller owns this new material; no decoded texture or shader table is acquired.
+ * Caller owns this new material; no decoded texture or shader table is
+ * acquired.
  */
 export const defaultMaterial: () => THREE.MeshStandardMaterial =
   (): THREE.MeshStandardMaterial =>

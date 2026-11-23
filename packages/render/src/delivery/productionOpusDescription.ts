@@ -9,17 +9,16 @@ import type {
  *
  * `boxes` is the sample entry's child-box list as mp4box parses it, `codec` its
  * four-character code, and `trackChannels` the `AudioSampleEntry` channel
- * count. The result reports the box as
- * observed; whether it matches the delivery profile is
- * `assertProductionOpusProfile`'s question.
+ * count. The result reports the box as observed; whether it matches the
+ * delivery profile is `assertProductionOpusProfile`'s question.
  *
  * Family 0 serializes no stream counts or mapping table and supports mono or
  * stereo, so it reports null counts, an empty mapping and the implied channel
- * order. Families 1 and 255 report their stream counts and ordered mapping
- * with a null channel order, because family 255 defines no speaker meaning and
- * this parser does not expand the family 1 order. `InputSampleRate` is
- * reported but not compared with any track rate, because RFC 7845 makes it the
- * informational rate of the original input.
+ * order. Families 1 and 255 report their stream counts and ordered mapping with
+ * a null channel order, because family 255 defines no speaker meaning and this
+ * parser does not expand the family 1 order. `InputSampleRate` is reported but
+ * not compared with any track rate, because RFC 7845 makes it the informational
+ * rate of the original input.
  *
  * Throws `unsupported-audio-profile.sampleEntry` for a non-Opus code and
  * `malformed-dOps` for anything else RFC 7845 section 5.1 or its MP4

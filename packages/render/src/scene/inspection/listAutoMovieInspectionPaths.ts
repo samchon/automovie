@@ -4,12 +4,17 @@ import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import { autoMovieInspectionPathOf } from "./autoMovieInspectionPathOf.js";
 
 /**
- * List every object of a scene that three.js draws, each with its inspection path, in traversal order.
+ * List every object of a scene that three.js draws, each with its inspection
+ * path, in traversal order.
  *
- * Meshes, lines, points and sprites are listed whether or not they are visible, because a path names a part of the scene, not a state of it. Groups, bones, lights and cameras are not listed; their names appear as segments of the paths beneath them.
+ * Meshes, lines, points and sprites are listed whether or not they are visible,
+ * because a path names a part of the scene, not a state of it. Groups, bones,
+ * lights and cameras are not listed; their names appear as segments of the
+ * paths beneath them.
  *
  * ```ts
- * for (const { path } of listAutoMovieInspectionPaths(scene)) console.log(path);
+ * for (const { path } of listAutoMovieInspectionPaths(scene))
+ *   console.log(path);
  * ```
  */
 export function listAutoMovieInspectionPaths(

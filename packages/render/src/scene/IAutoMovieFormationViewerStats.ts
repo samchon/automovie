@@ -1,11 +1,10 @@
 import type { IAutoMovieCompiledFormationLod } from "@automovie/interface";
 
-/**
- * Per-frame bounded debug summary for one formation.
- */
+/** Per-frame bounded debug summary for one formation. */
 export interface IAutoMovieFormationViewerStats {
   /**
-   * Slots assigned to visible batches per tier after chunk culling, without observing draw submissions or pixels.
+   * Slots assigned to visible batches per tier after chunk culling, without
+   * observing draw submissions or pixels.
    *
    * `near` and `far` count anonymous instance slots. `hero` counts promoted
    * hero objects still inside the frustum instead, because an anonymous slot

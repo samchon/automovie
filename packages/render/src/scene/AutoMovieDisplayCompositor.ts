@@ -11,8 +11,8 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * its scene-owned display transform and each material's toneMapped policy.
  * FramebufferTexture copies those resolved bytes without a CPU readback. The
  * raw quad then applies the delivered byte operator without another tone or
- * encoding transform. Source renders retain the renderer's own antialiasing.
- * A caller-owned destination receives this display product, not scene radiance;
+ * encoding transform. Source renders retain the renderer's own antialiasing. A
+ * caller-owned destination receives this display product, not scene radiance;
  * its canvas backing is saved and restored while that destination is active.
  * Scalar interpolation uses highp Float32: opaque rounding thresholds can
  * differ by one byte from Float64 delivery. Endpoints and identical sources
@@ -35,7 +35,10 @@ export class AutoMovieDisplayCompositor {
     new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   private disposed: boolean = false;
   private disposalFailure: { error: unknown } | undefined;
-  /** Disposal callbacks cannot allocate a replacement while old-copy retirement runs. */
+  /**
+   * Disposal callbacks cannot allocate a replacement while old-copy retirement
+   * runs.
+   */
   private resizing: Error | undefined;
 
   public constructor(
@@ -93,8 +96,8 @@ export class AutoMovieDisplayCompositor {
   }
 
   /**
-   * Resize owned copies only; drawing-buffer pixels remain the source unit.
-   * New extents publish only after every old-copy retirement succeeds. A failed
+   * Resize owned copies only; drawing-buffer pixels remain the source unit. New
+   * extents publish only after every old-copy retirement succeeds. A failed
    * retirement closes this owner, retains its old potential extent and cause,
    * and independently retires the remaining quad resources without retries.
    */
@@ -143,9 +146,15 @@ export class AutoMovieDisplayCompositor {
   }
 
   /**
-   * Draw one fade or two complementary sources, independently attempting host-state restoration after source, copy or composite failure. An aggregate retains the original failure first. The previous canvas picture is saved before source drawing and its restoration is attempted after failed composition; a failed restoration cannot guarantee the previous display survives.
+   * Draw one fade or two complementary sources, independently attempting
+   * host-state restoration after source, copy or composite failure. An
+   * aggregate retains the original failure first. The previous canvas picture
+   * is saved before source drawing and its restoration is attempted after
+   * failed composition; a failed restoration cannot guarantee the previous
+   * display survives.
    *
-   * Caller callbacks keep this owner and borrowed renderer alive through the call; a previously closed owner refuses before native observation.
+   * Caller callbacks keep this owner and borrowed renderer alive through the
+   * call; a previously closed owner refuses before native observation.
    */
   public render(
     renderer: THREE.WebGLRenderer,
@@ -270,9 +279,9 @@ export class AutoMovieDisplayCompositor {
   }
 
   /**
-   * Release only compositor-owned textures, geometry and material once.
-   * Closed instances refuse resize/render; repeated disposal preserves its
-   * original success or failure and never retries physical resource release.
+   * Release only compositor-owned textures, geometry and material once. Closed
+   * instances refuse resize/render; repeated disposal preserves its original
+   * success or failure and never retries physical resource release.
    */
   public dispose(): void {
     if (this.resizing !== undefined) throw this.resizing;

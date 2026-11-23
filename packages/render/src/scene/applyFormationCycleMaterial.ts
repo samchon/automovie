@@ -9,8 +9,8 @@ import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
  * more than one material over a shot's life: the lit beauty material, and the
  * shadow depth/distance materials and depth, normal, mask and outline overrides
  * a guide pass swaps in. A pass that kept the rest pose while beauty marched
- * would make a review frame describe a
- * film that does not exist, so every one of them goes through here.
+ * would make a review frame describe a film that does not exist, so every one
+ * of them goes through here.
  *
  * The transform is applied in model space, before three's own instancing step
  * consumes `transformed`, so the member is posed and then placed rather than
@@ -18,9 +18,9 @@ import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
  * shading and the silhouette shells honest about the moving surface.
  *
  * The bake stores affine part transforms in three Float32 texture rows. Shader
- * interpolation blends adjacent matrices, so rotations are approximated and
- * can lose orthogonality between samples. The installed compile/key hooks own
- * this material; unrelated existing hooks are not composed.
+ * interpolation blends adjacent matrices, so rotations are approximated and can
+ * lose orthogonality between samples. The installed compile/key hooks own this
+ * material; unrelated existing hooks are not composed.
  */
 export const applyFormationCycleMaterial: (
   material: THREE.Material,

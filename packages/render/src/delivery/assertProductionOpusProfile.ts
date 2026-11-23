@@ -14,8 +14,8 @@ import { AUTOMOVIE_PRODUCTION_OPUS_PROFILE } from "./AUTOMOVIE_PRODUCTION_OPUS_P
  * parsed priming, and the clocks must describe one full-rate edit that starts
  * at the pre-skip, presents a whole number of media samples, and is covered by
  * the coded samples. The reported runtime must equal movie duration over movie
- * timescale. The first difference, in the order above, throws an `Error`
- * whose message starts with `unsupported-audio-profile.<field>` and names the
+ * timescale. The first difference, in the order above, throws an `Error` whose
+ * message starts with `unsupported-audio-profile.<field>` and names the
  * expected and observed values.
  */
 export const assertProductionOpusProfile: (

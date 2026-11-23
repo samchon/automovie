@@ -7,9 +7,9 @@ import type {
 import type * as THREE from "three";
 
 /**
- * Compiled formation, prototype models and sparse scene participants.
- * Model and scene-object maps stay caller-owned; construction binds compact
- * membership and motion inputs before creating persistent tier batches.
+ * Compiled formation, prototype models and sparse scene participants. Model and
+ * scene-object maps stay caller-owned; construction binds compact membership
+ * and motion inputs before creating persistent tier batches.
  */
 export interface IBuildInstancedFormationProps {
   /** Compiled compact identity, layout, anchor and available tiers. */

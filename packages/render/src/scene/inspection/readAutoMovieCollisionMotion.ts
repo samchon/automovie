@@ -7,8 +7,8 @@ import type {
 import * as THREE from "three";
 
 /**
- * Read the feature points, world box and thickness of one collision part at
- * one placed instant, for comparing its motion between instants.
+ * Read the feature points, world box and thickness of one collision part at one
+ * placed instant, for comparing its motion between instants.
  *
  * A shape's features are its defining points: a sphere's centre, a capsule's
  * axis ends, a box's corners or a hull's points, placed by the collider pose
@@ -72,13 +72,9 @@ export function readAutoMovieCollisionMotion(
   };
 }
 
-/**
- * Feature poses and their comparison between instants.
- */
+/** Feature poses and their comparison between instants. */
 export namespace readAutoMovieCollisionMotion {
-  /**
-   * A part's features, world box and thickness at one instant.
-   */
+  /** A part's features, world box and thickness at one instant. */
   export interface IPose {
     /** Feature points in world metres. */
     readonly points: readonly { x: number; y: number; z: number }[];
@@ -107,10 +103,10 @@ export namespace readAutoMovieCollisionMotion {
   }
 
   /**
-   * Conservative swept bounds between two instants: both world boxes,
-   * enlarged by half the largest feature displacement. A feature turning by
-   * up to half a revolution leaves its chord by at most half the chord, so
-   * the enlargement covers rigid rotation and deformation of that size.
+   * Conservative swept bounds between two instants: both world boxes, enlarged
+   * by half the largest feature displacement. A feature turning by up to half a
+   * revolution leaves its chord by at most half the chord, so the enlargement
+   * covers rigid rotation and deformation of that size.
    *
    * @param a The earlier pose.
    * @param b The later pose.

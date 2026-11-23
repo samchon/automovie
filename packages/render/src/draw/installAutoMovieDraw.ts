@@ -37,26 +37,53 @@ import { replaceAutoMovieDrawInspection } from "./replaceAutoMovieDrawInspection
 import { selectAutoMovieDrawSubject } from "./selectAutoMovieDrawSubject.js";
 
 /**
- * Side of the block the beauty pass is drawn at and averaged down from, so its edges are antialiased by area: two, the supersampling the motion harness drew its stills at.
+ * Side of the block the beauty pass is drawn at and averaged down from, so its
+ * edges are antialiased by area: two, the supersampling the motion harness drew
+ * its stills at.
  */
 const SUPERSAMPLE = 2 as const;
 
 /**
- * Install the draw-only function on a page: read the props the host injected, and answer `describe` and `draw` for the subject they name, drawing offscreen with no interface.
+ * Install the draw-only function on a page: read the props the host injected,
+ * and answer `describe` and `draw` for the subject they name, drawing offscreen
+ * with no interface.
  *
- * The page's script calls it once with its module's `subjects`. The subject is created on the first call, with one WebGL renderer on a canvas that is never attached to the document, without antialiasing. A draw then:
+ * The page's script calls it once with its module's `subjects`. The subject is
+ * created on the first call, with one WebGL renderer on a canvas that is never
+ * attached to the document, without antialiasing. A draw then:
  *
- * 1. restores the previous inspection before placement, so a subject may replace its objects during a seek;
- * 2. for a fitted view, places and inspects each framing second and frames the union of what the current inspection leaves drawn, or its focus, measured once per view and selection;
- * 3. for each `trail` pattern of the request, samples the matched objects over `planAutoMovieInspectionTrailTimes` with `sampleAutoMovieInspectionTrails`, then seeks the call's second and awaits readiness. When the subject supplies diagnostics, the draw observes the settled delivery scene before applying a fresh inspection to the resulting objects with their current marks and sampled trails; no seek occurs between this application and drawing;
- * 4. draws through the camera `resolveAutoMovieInspectionView` gives, at the call's raster, or for the `beauty` shade at twice each side with mark lines twice as wide;
- * 5. reads the drawn pixels back, flips them to rows from the top and averages a supersampled picture down, places the request's labels at the label scale, copies the inspection's legend of the marks drawn, and resolves every pattern of the request and view by `resolveAutoMovieCapturePatterns` against the scene's object paths and the selected mark paths, so the record names what each matched.
+ * 1. Restores the previous inspection before placement, so a subject may replace
+ *    its objects during a seek;
+ * 2. For a fitted view, places and inspects each framing second and frames the
+ *    union of what the current inspection leaves drawn, or its focus, measured
+ *    once per view and selection;
+ * 3. For each `trail` pattern of the request, samples the matched objects over
+ *    `planAutoMovieInspectionTrailTimes` with
+ *    `sampleAutoMovieInspectionTrails`, then seeks the call's second and awaits
+ *    readiness. When the subject supplies diagnostics, the draw observes the
+ *    settled delivery scene before applying a fresh inspection to the resulting
+ *    objects with their current marks and sampled trails; no seek occurs
+ *    between this application and drawing;
+ * 4. Draws through the camera `resolveAutoMovieInspectionView` gives, at the
+ *    call's raster, or for the `beauty` shade at twice each side with mark
+ *    lines twice as wide;
+ * 5. Reads the drawn pixels back, flips them to rows from the top and averages a
+ *    supersampled picture down, places the request's labels at the label scale,
+ *    copies the inspection's legend of the marks drawn, and resolves every
+ *    pattern of the request and view by `resolveAutoMovieCapturePatterns`
+ *    against the scene's object paths and the selected mark paths, so the
+ *    record names what each matched.
  *
- * It draws to the renderer's own canvas and reads it back in the same task, so colour conversion and tone mapping are the ones the interactive page applies to its canvas; a render target would skip both. The film camera's aspect is set to the picture's, as the page sets it to its canvas.
+ * It draws to the renderer's own canvas and reads it back in the same task, so
+ * colour conversion and tone mapping are the ones the interactive page applies
+ * to its canvas; a render target would skip both. The film camera's aspect is
+ * set to the picture's, as the page sets it to its canvas.
  *
  * ```ts
  * import { installAutoMovieDraw } from "@automovie/render";
+ *
  * import { subjects } from "./subjects";
+ *
  * installAutoMovieDraw(subjects);
  * ```
  */

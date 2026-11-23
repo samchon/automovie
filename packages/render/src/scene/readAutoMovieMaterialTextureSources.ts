@@ -9,11 +9,27 @@ import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
 type RuntimeSource = NonNullable<
   IAutoMovieRenderTextureResidency["runtimeTextures"]
 >[number];
-/** Returned rows always carry the current live-scope list, including an empty list. */
+/**
+ * Returned rows always carry the current live-scope list, including an empty
+ * list.
+ */
 type ObservedRuntimeSource = RuntimeSource & { residents: string[] };
 
 /**
- * Read actual implicit material and area-light lookup objects for one scope. Shader factories publish the same Texture reference they bind. The area pair follows WebGLLights' real extension choice without initializing tables. Caller-retained rows belong to this same renderer, survive material removal, and are dropped only after actual texture/context release. Current scope use labels are replaced on each observation; obsolete rows remain retained-only. Each row follows an actual Texture wrapper, not mutable UUIDs. Distinct wrappers retain their own current upload keys; the engine shares equivalent Source/key pairs. Reobserving one wrapper replaces its old state, matching native cache-key reference retirement after upload. This is a reachable current-state bound; a host requiring upload-transition peak storage supplies the previous phase separately until that phase's native release is observed. These are reachable-storage bounds, never a claim of current GLuint count. No shader, texture state or GPU lifetime is changed by the observation.
+ * Read actual implicit material and area-light lookup objects for one scope.
+ * Shader factories publish the same Texture reference they bind. The area pair
+ * follows WebGLLights' real extension choice without initializing tables.
+ * Caller-retained rows belong to this same renderer, survive material removal,
+ * and are dropped only after actual texture/context release. Current scope use
+ * labels are replaced on each observation; obsolete rows remain retained-only.
+ * Each row follows an actual Texture wrapper, not mutable UUIDs. Distinct
+ * wrappers retain their own current upload keys; the engine shares equivalent
+ * Source/key pairs. Reobserving one wrapper replaces its old state, matching
+ * native cache-key reference retirement after upload. This is a reachable
+ * current-state bound; a host requiring upload-transition peak storage supplies
+ * the previous phase separately until that phase's native release is observed.
+ * These are reachable-storage bounds, never a claim of current GLuint count. No
+ * shader, texture state or GPU lifetime is changed by the observation.
  */
 export function readAutoMovieMaterialTextureSources(props: {
   scope: string;

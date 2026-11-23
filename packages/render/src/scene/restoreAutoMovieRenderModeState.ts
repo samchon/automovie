@@ -1,5 +1,7 @@
 /**
- * Attempt independent pass-state restorations before reporting any failure. A primary setup failure stays first, and nested restoration aggregates are flattened so no failed owned resource disappears behind another error.
+ * Attempt independent pass-state restorations before reporting any failure. A
+ * primary setup failure stays first, and nested restoration aggregates are
+ * flattened so no failed owned resource disappears behind another error.
  */
 export function restoreAutoMovieRenderModeState(
   operations: readonly (() => void)[],

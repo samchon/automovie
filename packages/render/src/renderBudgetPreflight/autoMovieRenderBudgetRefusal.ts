@@ -6,11 +6,19 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Format the caller-supplied budget evidence as an over-limit or unknown-required-texture diagnostic, or return null when neither condition is recorded. This helper returns text; it raises no job refusal and does not verify the provenance of supplied reports.
+ * Format the caller-supplied budget evidence as an over-limit or
+ * unknown-required-texture diagnostic, or return null when neither condition is
+ * recorded. This helper returns text; it raises no job refusal and does not
+ * verify the provenance of supplied reports.
  *
- * Every recorded over-limit and required-texture count/byte gap remains visible together; absent storage facts do not become clearance. Other incomplete analyses retain their owning contract's outcome, so a null result is not blanket admission.
+ * Every recorded over-limit and required-texture count/byte gap remains visible
+ * together; absent storage facts do not become clearance. Other incomplete
+ * analyses retain their owning contract's outcome, so a null result is not
+ * blanket admission.
  *
- * Maintained consumers are internal budget helpers and tests. ProductionDesign.renderBudgets has no execution reader connecting this text to automatic render-job refusal.
+ * Maintained consumers are internal budget helpers and tests.
+ * ProductionDesign.renderBudgets has no execution reader connecting this text
+ * to automatic render-job refusal.
  */
 export const autoMovieRenderBudgetRefusal: (
   evidence: IAutoMovieRenderBudgetEvidence,

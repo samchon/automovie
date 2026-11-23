@@ -1,8 +1,6 @@
 import type { IAutoMovieRenderSoftPropFrame } from "@automovie/interface";
 
-/**
- * The soft meshes one scene projection owns for its current film instant.
- */
+/** The soft meshes one scene projection owns for its current film instant. */
 export interface IAutoMovieSceneSoftProps {
   /**
    * Replace the projected set from the given film instant. Existing subjects
@@ -10,8 +8,6 @@ export interface IAutoMovieSceneSoftProps {
    */
   update(frames: readonly IAutoMovieRenderSoftPropFrame[]): void;
 
-  /**
-   * Remove and release the meshes held by the projection, then close updates.
-   */
+  /** Remove and release the meshes held by the projection, then close updates. */
   dispose(): void;
 }

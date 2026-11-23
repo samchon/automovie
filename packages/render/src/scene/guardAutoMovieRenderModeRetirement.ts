@@ -2,14 +2,22 @@ import type * as THREE from "three";
 
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/** One active or failed installation retains its original restoration population. */
+/**
+ * One active or failed installation retains its original restoration
+ * population.
+ */
 const retiring: WeakMap<
   THREE.Scene,
   { run: () => void; active: boolean; error: unknown }
 > = new WeakMap();
 
 /**
- * Refuse another pass on a scene whose owned material restoration is active or failed. The callback closes over the original swaps and created materials, retaining uncertain owners even when setup returns no handle or a scene-pass caller discards its failed handle. Successful cleanup withdraws the record; an original setup refusal still propagates without marking healthy cleanup as uncertain.
+ * Refuse another pass on a scene whose owned material restoration is active or
+ * failed. The callback closes over the original swaps and created materials,
+ * retaining uncertain owners even when setup returns no handle or a scene-pass
+ * caller discards its failed handle. Successful cleanup withdraws the record;
+ * an original setup refusal still propagates without marking healthy cleanup as
+ * uncertain.
  */
 export function guardAutoMovieRenderModeRetirement(
   scene: THREE.Scene,

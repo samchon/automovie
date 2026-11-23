@@ -1,7 +1,11 @@
 import * as THREE from "three";
 
 /**
- * Read supported R16F, RG16F and RGBA storage from the actual upload declaration. An explicit internal format owns storage width; otherwise format and component type identifies it. Unsupported formats stay unknown rather than becoming an assumed four-byte texel. This does not certify dimensions or allocation.
+ * Read supported R16F, RG16F and RGBA storage from the actual upload
+ * declaration. An explicit internal format owns storage width; otherwise format
+ * and component type identifies it. Unsupported formats stay unknown rather
+ * than becoming an assumed four-byte texel. This does not certify dimensions or
+ * allocation.
  */
 export function readAutoMovieTextureUploadFormat(
   texture: THREE.Texture,

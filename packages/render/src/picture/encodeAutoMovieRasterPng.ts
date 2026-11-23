@@ -8,14 +8,23 @@ const SIGNATURE: readonly number[] = [
 ];
 
 /**
- * Encode a picture, such as a drawn still, a contact sheet or a difference image, as a lossless 8-bit RGB PNG.
+ * Encode a picture, such as a drawn still, a contact sheet or a difference
+ * image, as a lossless 8-bit RGB PNG.
  *
- * The picture is opaque, so alpha is dropped. Rows use filter type 0 and one zlib stream made by `CompressionStream("deflate")`, which Node 22 and every current browser provide as a global, so this module imports no Node built-in and runs in a page as in a Node host. Encoding is therefore asynchronous. `decodeAutoMovieRasterPng` and every PNG reader decode the result.
+ * The picture is opaque, so alpha is dropped. Rows use filter type 0 and one
+ * zlib stream made by `CompressionStream("deflate")`, which Node 22 and every
+ * current browser provide as a global, so this module imports no Node built-in
+ * and runs in a page as in a Node host. Encoding is therefore asynchronous.
+ * `decodeAutoMovieRasterPng` and every PNG reader decode the result.
  *
- * It rejects a size that is not a positive whole number of pixels and a pixel buffer whose length disagrees with the size.
+ * It rejects a size that is not a positive whole number of pixels and a pixel
+ * buffer whose length disagrees with the size.
  *
  * ```ts
- * await storage.writeFile(`${root}/still.png`, await encodeAutoMovieRasterPng(picture));
+ * await storage.writeFile(
+ *   `${root}/still.png`,
+ *   await encodeAutoMovieRasterPng(picture),
+ * );
  * ```
  */
 export async function encodeAutoMovieRasterPng(

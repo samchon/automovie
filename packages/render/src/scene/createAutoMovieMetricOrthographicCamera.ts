@@ -1,13 +1,13 @@
 import * as THREE from "three";
 
 /**
- * Construct a native camera for a supplied horizontal metric pixel chart.
- * Pixel centres use column+0.5,row+0.5. Image U projects cos(a) X + sin(a) Z;
- * image V projects negative Y, with pitch in metres per pixel and principal
- * point in pixel-edge coordinates. No image distortion, pose estimation or
- * resizing is performed. Distance and near/far only select orthographic depth
- * admission; image scale is supplied independently by pitch. Native projection
- * and inverse matrices must remain finite and nonsingular at the supplied gauge.
+ * Construct a native camera for a supplied horizontal metric pixel chart. Pixel
+ * centres use column+0.5,row+0.5. Image U projects cos(a) X + sin(a) Z; image V
+ * projects negative Y, with pitch in metres per pixel and principal point in
+ * pixel-edge coordinates. No image distortion, pose estimation or resizing is
+ * performed. Distance and near/far only select orthographic depth admission;
+ * image scale is supplied independently by pitch. Native projection and inverse
+ * matrices must remain finite and nonsingular at the supplied gauge.
  */
 export function createAutoMovieMetricOrthographicCamera(input: {
   width: number;

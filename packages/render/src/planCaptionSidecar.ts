@@ -16,11 +16,22 @@ import { frameTimes } from "./frameTimes.js";
 import { shotBeat } from "./shotBeat.js";
 
 /**
- * Plan the caption sidecar of one sequence render: which beat's shot is live at every output frame, grouped into spans, each joined to its beat's caption and enclosing scene slug.
+ * Plan the caption sidecar of one sequence render: which beat's shot is live at
+ * every output frame, grouped into spans, each joined to its beat's caption and
+ * enclosing scene slug.
  *
- * The cut is laid on the output clock by `sequenceTimeline`, and the output frames are the `frameTimes` schedule `planSequenceRender` captures, so span boundaries land on the same frames as the render. A frame inside a transition belongs to the incoming shot, as in playback. A shot id `shot:<beat>` names that beat; an unprefixed id is taken as the beat id itself. A beat with no caption, or a script without a tree, yields null `caption` and `slug` while the frame-to-beat spans remain.
+ * The cut is laid on the output clock by `sequenceTimeline`, and the output
+ * frames are the `frameTimes` schedule `planSequenceRender` captures, so span
+ * boundaries land on the same frames as the render. A frame inside a transition
+ * belongs to the incoming shot, as in playback. A shot id `shot:<beat>` names
+ * that beat; an unprefixed id is taken as the beat id itself. A beat with no
+ * caption, or a script without a tree, yields null `caption` and `slug` while
+ * the frame-to-beat spans remain.
  *
- * Throws when `fps` is not a finite positive number, when the runtime rounds to zero output frames (the same refusal `planSequenceRender` makes), or when `sequenceTimeline` refuses the cut. Planning only: the host writes the file through `renderCaptionSidecar`.
+ * Throws when `fps` is not a finite positive number, when the runtime rounds to
+ * zero output frames (the same refusal `planSequenceRender` makes), or when
+ * `sequenceTimeline` refuses the cut. Planning only: the host writes the file
+ * through `renderCaptionSidecar`.
  */
 export const planCaptionSidecar: (
   props: IAutoMoviePlanCaptionSidecarProps,

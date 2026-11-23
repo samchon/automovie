@@ -4,7 +4,10 @@ let table: Uint32Array | undefined;
 /**
  * The CRC-32 a PNG chunk carries, over the chunk's type and data bytes.
  *
- * PNG's CRC is the ISO 3309 / ITU-T V.42 polynomial `0xedb88320` (reflected), initial value and final XOR `0xffffffff`, which the PNG specification's section 5.5 gives with this table method. The encoder writes it and the decoder checks it, so both share this one implementation.
+ * PNG's CRC is the ISO 3309 / ITU-T V.42 polynomial `0xedb88320` (reflected),
+ * initial value and final XOR `0xffffffff`, which the PNG specification's
+ * section 5.5 gives with this table method. The encoder writes it and the
+ * decoder checks it, so both share this one implementation.
  */
 export function crcAutoMoviePngChunk(bytes: Uint8Array): number {
   if (table === undefined) {

@@ -19,7 +19,13 @@ import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Inverted-hull shell material: extrude by edgeWidth along the normalized model-space normal after native morph targets and then skinning, the beauty pass's order, then apply instance/object and camera transforms. White back faces exposed beyond the black fill form contours; subsequent scaling and perspective determine their world and screen thickness. Both stages include three's clipping chunks, so a clipping plane given to the material cuts the shell as it cuts the fill.
+ * Inverted-hull shell material: extrude by edgeWidth along the normalized
+ * model-space normal after native morph targets and then skinning, the beauty
+ * pass's order, then apply instance/object and camera transforms. White back
+ * faces exposed beyond the black fill form contours; subsequent scaling and
+ * perspective determine their world and screen thickness. Both stages include
+ * three's clipping chunks, so a clipping plane given to the material cuts the
+ * shell as it cuts the fill.
  */
 const makeEdgeShellMaterial: (edgeWidth: number) => THREE.ShaderMaterial = (
   edgeWidth: number,
@@ -60,7 +66,10 @@ const makeEdgeShellMaterial: (edgeWidth: number) => THREE.ShaderMaterial = (
       }`,
   });
 
-/** The culling volumes a skinned or instanced mesh carries on itself, which a plain mesh does not have. */
+/**
+ * The culling volumes a skinned or instanced mesh carries on itself, which a
+ * plain mesh does not have.
+ */
 interface IPosedVolumes {
   /** Sphere the renderer culls the mesh by, or null until it is computed. */
   boundingSphere?: THREE.Sphere | null;
@@ -70,7 +79,10 @@ interface IPosedVolumes {
 }
 
 /**
- * Bring a shell to its mesh as the mesh stands now, by rewriting every value the shallow clone took by value: the local transform, the visibility flag, the morph target influences, an instanced mesh's count and instance matrices, and the culling volumes of a skinned or instanced mesh.
+ * Bring a shell to its mesh as the mesh stands now, by rewriting every value
+ * the shallow clone took by value: the local transform, the visibility flag,
+ * the morph target influences, an instanced mesh's count and instance matrices,
+ * and the culling volumes of a skinned or instanced mesh.
  */
 const followEdgeShell: (
   mesh: AutoMovieRenderModeMesh,
@@ -121,17 +133,20 @@ const followEdgeShell: (
 };
 
 /**
- * Inverted-hull outline pass: each mesh gets a white back-face shell extruded along its model-space normals and a black fill, over black background. The exposed shell forms a contour without host post-processing; it is a surface-dependent projection rather than a fixed pixel-width edge detector.
+ * Inverted-hull outline pass: each mesh gets a white back-face shell extruded
+ * along its model-space normals and a black fill, over black background. The
+ * exposed shell forms a contour without host post-processing; it is a
+ * surface-dependent projection rather than a fixed pixel-width edge detector.
  *
  * Width is a finite nonnegative model-space extrusion; object scaling affects
  * its world-space thickness. Returned restore removes shells, disposes their
  * materials and restores original fill/background state. A clipping plane
- * assigned to the shell and fill materials cuts both, so a section of the
- * scene is a section of its outline.
+ * assigned to the shell and fill materials cuts both, so a section of the scene
+ * is a section of its outline.
  *
  * A shell is a shallow copy of its mesh, so it shares the geometry and the
- * skeleton and follows a skinned pose by itself. What the copy took by value
- * is brought up to date by the handle's `update()`: the local transform, the
+ * skeleton and follows a skinned pose by itself. What the copy took by value is
+ * brought up to date by the handle's `update()`: the local transform, the
  * visibility flag, the morph target influences, an instanced mesh's count and
  * instance matrices, and the culling volumes a skinned or instanced mesh
  * carries. A mesh attached, detached or moved to another parent after

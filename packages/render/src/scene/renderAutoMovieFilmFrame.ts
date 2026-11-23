@@ -9,9 +9,16 @@ import { resolveAutoMovieFilmBeautyComposition } from "./resolveAutoMovieFilmBea
 /**
  * Render already sampled film layers through one beauty/guide boundary.
  *
- * Layer sample fields are opaque to this owner. An optional preparation callback samples the selected source before its draw, including each source of a dissolve. The render callback owns its reversible pass configuration. Beauty preserves direct, fade and dissolve weights; structural passes consume the Engine's single full-weight dominant layer with incoming winning a tie. Input admission happens before either callback can alter the display.
+ * Layer sample fields are opaque to this owner. An optional preparation
+ * callback samples the selected source before its draw, including each source
+ * of a dissolve. The render callback owns its reversible pass configuration.
+ * Beauty preserves direct, fade and dissolve weights; structural passes consume
+ * the Engine's single full-weight dominant layer with incoming winning a tie.
+ * Input admission happens before either callback can alter the display.
  *
- * The sampled film inputs are explicit. Interactive display-clock updates and inspection CLI timestamp filenames remain host observations rather than deterministic delivered-frame identity.
+ * The sampled film inputs are explicit. Interactive display-clock updates and
+ * inspection CLI timestamp filenames remain host observations rather than
+ * deterministic delivered-frame identity.
  */
 export const renderAutoMovieFilmFrame: <Layer extends { weight: number }>(
   renderer: THREE.WebGLRenderer,

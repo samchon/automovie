@@ -3,11 +3,20 @@ import * as THREE from "three";
 import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "./AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 
 /**
- * Make the points object inspection marks draw their places with: one screen-sized square per vertex, one colour per vertex, unlit and outside fog and tone mapping.
+ * Make the points object inspection marks draw their places with: one
+ * screen-sized square per vertex, one colour per vertex, unlit and outside fog
+ * and tone mapping.
  *
- * A point is three stroke widths across, in the same pixels as a line's width, so a joint stays visible where the lines of its bones meet it. Its size does not shrink with distance. three.js draws it that many pixels times the renderer's pixel ratio, as it draws a line's width.
+ * A point is three stroke widths across, in the same pixels as a line's width,
+ * so a joint stays visible where the lines of its bones meet it. Its size does
+ * not shrink with distance. three.js draws it that many pixels times the
+ * renderer's pixel ratio, as it draws a line's width.
  *
- * `positions` holds one xyz vertex per point and `colors` the matching linear rgb, kept by the geometry, not copied, so the caller rewrites `positions` in place to move the points. Depth follows `createAutoMovieInspectionStrokes`: ignored with `xray`, and otherwise led `AUTO_MOVIE_INSPECTION_DEPTH_LEAD` toward the camera.
+ * `positions` holds one xyz vertex per point and `colors` the matching linear
+ * rgb, kept by the geometry, not copied, so the caller rewrites `positions` in
+ * place to move the points. Depth follows `createAutoMovieInspectionStrokes`:
+ * ignored with `xray`, and otherwise led `AUTO_MOVIE_INSPECTION_DEPTH_LEAD`
+ * toward the camera.
  */
 export function createAutoMovieInspectionDots(
   positions: Float32Array,

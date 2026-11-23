@@ -2,7 +2,10 @@ import type { AutoMovieViewerSubjectKind } from "./AutoMovieViewerSubjectKind.js
 import type { IAutoMovieViewerSubject } from "./IAutoMovieViewerSubject.js";
 
 /**
- * Parse the first colon as category boundary and last @ as revision boundary. Unknown category, missing id and empty explicit revision refuse; this grammar does not resolve source existence or unambiguously represent a revision containing @.
+ * Parse the first colon as category boundary and last @ as revision boundary.
+ * Unknown category, missing id and empty explicit revision refuse; this grammar
+ * does not resolve source existence or unambiguously represent a revision
+ * containing @.
  */
 export function parseAutoMovieViewerSubjectKey(
   key: string,

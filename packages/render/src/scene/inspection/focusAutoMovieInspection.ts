@@ -10,9 +10,13 @@ import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js"
 import { measureAutoMovieInspectionPaths } from "./measureAutoMovieInspectionPaths.js";
 
 /**
- * Measure the world-space box a view's focus frames: the drawn objects and marks a path pattern matches, or every drawn flagged mark, so a close-up on a part or on a defect's region is one request.
+ * Measure the world-space box a view's focus frames: the drawn objects and
+ * marks a path pattern matches, or every drawn flagged mark, so a close-up on a
+ * part or on a defect's region is one request.
  *
- * The boxes are those `measureAutoMovieInspectionPaths` measures, joined into one. It throws when a pattern matches nothing drawn, and when the flagged focus finds no flagged mark, saying no mark is flagged.
+ * The boxes are those `measureAutoMovieInspectionPaths` measures, joined into
+ * one. It throws when a pattern matches nothing drawn, and when the flagged
+ * focus finds no flagged mark, saying no mark is flagged.
  */
 export function focusAutoMovieInspection(props: {
   /** What to frame. */

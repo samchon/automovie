@@ -39,24 +39,66 @@ import { placeAutoMovieInspectionLabels } from "./placeAutoMovieInspectionLabels
 import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionColors.js";
 
 /**
- * Turn a built scene into the picture an inspection request asks for, in place, and return the handle that keeps its shade and marks current and puts the scene back.
+ * Turn a built scene into the picture an inspection request asks for, in place,
+ * and return the handle that keeps its shade and marks current and puts the
+ * scene back.
  *
- * The applied scene is drawn by three.js like any other, so the inspector page and the draw-only function show the same picture. In order:
+ * The applied scene is drawn by three.js like any other, so the inspector page
+ * and the draw-only function show the same picture. In order:
  *
- * 1. **Kinds.** `listAutoMovieInspectionKindOptions` admits lifetime declarations, supplied kinds, and kinds the inspection measures under the request. A `marks` pattern that matches none throws and lists the available names. Matching supplied or measured marks provide the geometry to draw.
- * 2. **Measured marks.** Asked edges and defect kinds are measured on every drawn, visible mesh that `hide` does not leave out; batched meshes are not measured. Edges drawn over a surface show how its triangles follow the form, and with `surface` off they are drawn alone; no material is switched to wireframe.
- * 3. **Selection.** Every drawn object and every mark of an asked kind has a path, and a mark's path extends the path of the object it belongs to, so one pattern selects, hides, labels and colours objects and marks alike: `parts=hero/torso/section/3` draws one curve. An object or a mark is selected when `parts` is empty or one of its patterns matches, and no `hide` pattern matches; a mark whose anchor object is invisible or matched by `hide` is left out too. A `parts`, `hide`, `label` or `color` pattern that matches no object, mark or kind throws before anything changes, so a mistyped name is not an empty picture.
- * 4. **Isolation.** Unselected objects, and every mesh when `surface` is off, are taken off all layers. A layer is tested per object, so the objects beneath an isolated one stay as they were selected, which hiding it would not allow.
- * 5. **Shade.** Surfaces are coloured by `shade`. The `outline` pass draws its shells around the selected meshes only. The `pose` pass draws the skeleton of the whole scene, since a bone is not a drawn object and has no path to select.
- * 6. **Colours and marks.** Meshes a `color` pattern matches take its colour as `colorAutoMovieInspectionObjects` draws it. Selected marks are drawn in their kind's colour, or the `color` a pattern gives the kind, or the flag colour when flagged, as lines `stroke` pixels wide and points three strokes across. Two kinds in one picture never share a colour, and no kind takes the flag colour or the active shade's surface colours; a clash throws naming both. With `xray` marks ignore depth.
- * 7. **Section.** With `section`, the plane is given to every material in the scene, marks included. It cuts three.js's built-in materials, the guide passes and inspection shades, and the marks. A film's own shader material is cut only when its shader includes three.js's clipping chunks.
+ * 1. **Kinds.** `listAutoMovieInspectionKindOptions` admits lifetime declarations,
+ *    supplied kinds, and kinds the inspection measures under the request. A
+ *    `marks` pattern that matches none throws and lists the available names.
+ *    Matching supplied or measured marks provide the geometry to draw.
+ * 2. **Measured marks.** Asked edges and defect kinds are measured on every drawn,
+ *    visible mesh that `hide` does not leave out; batched meshes are not
+ *    measured. Edges drawn over a surface show how its triangles follow the
+ *    form, and with `surface` off they are drawn alone; no material is switched
+ *    to wireframe.
+ * 3. **Selection.** Every drawn object and every mark of an asked kind has a path,
+ *    and a mark's path extends the path of the object it belongs to, so one
+ *    pattern selects, hides, labels and colours objects and marks alike:
+ *    `parts=hero/torso/section/3` draws one curve. An object or a mark is
+ *    selected when `parts` is empty or one of its patterns matches, and no
+ *    `hide` pattern matches; a mark whose anchor object is invisible or matched
+ *    by `hide` is left out too. A `parts`, `hide`, `label` or `color` pattern
+ *    that matches no object, mark or kind throws before anything changes, so a
+ *    mistyped name is not an empty picture.
+ * 4. **Isolation.** Unselected objects, and every mesh when `surface` is off, are
+ *    taken off all layers. A layer is tested per object, so the objects beneath
+ *    an isolated one stay as they were selected, which hiding it would not
+ *    allow.
+ * 5. **Shade.** Surfaces are coloured by `shade`. The `outline` pass draws its
+ *    shells around the selected meshes only. The `pose` pass draws the skeleton
+ *    of the whole scene, since a bone is not a drawn object and has no path to
+ *    select.
+ * 6. **Colours and marks.** Meshes a `color` pattern matches take its colour as
+ *    `colorAutoMovieInspectionObjects` draws it. Selected marks are drawn in
+ *    their kind's colour, or the `color` a pattern gives the kind, or the flag
+ *    colour when flagged, as lines `stroke` pixels wide and points three
+ *    strokes across. Two kinds in one picture never share a colour, and no kind
+ *    takes the flag colour or the active shade's surface colours; a clash
+ *    throws naming both. With `xray` marks ignore depth.
+ * 7. **Section.** With `section`, the plane is given to every material in the
+ *    scene, marks included. It cuts three.js's built-in materials, the guide
+ *    passes and inspection shades, and the marks. A film's own shader material
+ *    is cut only when its shader includes three.js's clipping chunks.
  *
- * The legend lists each drawn kind once with its number of marks, a flag entry per kind with flagged marks, and under the faces shade the two surface colours with the number of surfaces shaded. `selected` lists the paths the request selected, and `labels` places the names the `label` patterns ask for on a picture.
+ * The legend lists each drawn kind once with its number of marks, a flag entry
+ * per kind with flagged marks, and under the faces shade the two surface
+ * colours with the number of surfaces shaded. `selected` lists the paths the
+ * request selected, and `labels` places the names the `label` patterns ask for
+ * on a picture.
  *
- * A failure at any step undoes the steps before it and throws. An engine refusal while measuring a mesh is rethrown naming the mesh's path.
+ * A failure at any step undoes the steps before it and throws. An engine
+ * refusal while measuring a mesh is rethrown naming the mesh's path.
  *
  * ```ts
- * const inspection = applyAutoMovieInspection({ scene, request, marks: production.marks?.(2.4) });
+ * const inspection = applyAutoMovieInspection({
+ *   scene,
+ *   request,
+ *   marks: production.marks?.(2.4),
+ * });
  * try {
  *   production.seek(2.4);
  *   inspection.update(production.marks?.(2.4));
@@ -424,7 +466,10 @@ export function applyAutoMovieInspection(
   }
 }
 
-/** Supplied marks a picture draws, and the same marks grouped by the object their frame belongs to, `null` for world space. */
+/**
+ * Supplied marks a picture draws, and the same marks grouped by the object
+ * their frame belongs to, `null` for world space.
+ */
 interface IChosen {
   /** The marks drawn, in the order supplied. */
   marks: IAutoMovieMark[];
@@ -455,7 +500,10 @@ function memo(decide: (key: string) => boolean): (key: string) => boolean {
   };
 }
 
-/** The two surface colours of the faces shade with the number of surfaces shaded, or nothing under any other shade or with surfaces off. */
+/**
+ * The two surface colours of the faces shade with the number of surfaces
+ * shaded, or nothing under any other shade or with surfaces off.
+ */
 function surfaceLegend(
   request: IAutoMovieInspectionRequest,
   count: number,

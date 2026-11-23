@@ -16,26 +16,27 @@ export interface IBakeFormationCycleProps {
   model: IAutoMovieModel;
 
   /**
-   * Mutable built model initially at rest with world matrices current; the
-   * bake samples poses through applyPose and leaves the final sample applied.
+   * Mutable built model initially at rest with world matrices current; the bake
+   * samples poses through applyPose and leaves the final sample applied.
    */
   built: IAutoMovieModelObject;
 
   /**
    * Rigid meshes in instancedModelParts traversal order, matching the flattened
-   * geometry's part attribute. Their world-rest matrices are read before poses.
+   * geometry's part attribute. Their world-rest matrices are read before
+   * poses.
    */
   parts: readonly THREE.Mesh[];
 
   /**
-   * Even samples across one cycle; omission uses AUTOMOVIE_FORMATION_CYCLE_SAMPLES.
+   * Even samples across one cycle; omission uses
+   * AUTOMOVIE_FORMATION_CYCLE_SAMPLES.
    */
   samples?: number;
 
   /**
-   * Cycles of given poses to bake instead of the model's gaits, each sampled
-   * at its own poses' count (all the same count); the model's gaits when
-   * absent.
+   * Cycles of given poses to bake instead of the model's gaits, each sampled at
+   * its own poses' count (all the same count); the model's gaits when absent.
    */
   takes?: readonly IAutoMovieFormationPoseTake[];
 }

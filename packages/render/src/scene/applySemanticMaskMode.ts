@@ -15,8 +15,9 @@ import {
  * renderables. {@link applyAutoMovieSemanticMask} snapshots those already
  * suspended values for its own install. Inner restoration returns the outer
  * boundary's black background and suspended state, then outer restoration
- * returns the original background, atmosphere and helper visibility. Coverage counts scene
- * membership and palette resolution, not visible or rasterized pixels.
+ * returns the original background, atmosphere and helper visibility. Coverage
+ * counts scene membership and palette resolution, not visible or rasterized
+ * pixels.
  */
 export const applySemanticMaskMode: (
   scene: THREE.Scene,

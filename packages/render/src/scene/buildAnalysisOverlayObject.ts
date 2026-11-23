@@ -12,12 +12,12 @@ import { autoMovieAnalysisRampColor } from "./autoMovieAnalysisRampColor.js";
  * Draw one analysis result as a field of coloured points.
  *
  * The overlay consumes the artifact's selected metric samples rather than
- * recomputing the measurement. That is also why it
- * refuses more than it draws: an `unsupported` or `not-run` run, a metric key
- * the run never carried, a metric that produced no value, and a metric with no
- * spatial field each throw with the run's own reason attached. A picture is the
- * most persuasive artifact a review sees, and a heatmap of an analysis nobody
- * ran would be the most effective way to launder a missing result.
+ * recomputing the measurement. That is also why it refuses more than it draws:
+ * an `unsupported` or `not-run` run, a metric key the run never carried, a
+ * metric that produced no value, and a metric with no spatial field each throw
+ * with the run's own reason attached. A picture is the most persuasive artifact
+ * a review sees, and a heatmap of an analysis nobody ran would be the most
+ * effective way to launder a missing result.
  *
  * The ramp is normalized over the drawn samples unless the caller pins a
  * domain, which is what lets two instants of the same study be compared against

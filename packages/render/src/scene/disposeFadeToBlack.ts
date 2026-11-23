@@ -5,7 +5,8 @@ import { AutoMovieFadeCompositorState as states } from "./AutoMovieFadeComposito
 /**
  * Release one renderer's fade resources with the compositor's shared outcome.
  * Only successful disposal removes its registry entry. A failed owner remains
- * closed and retained until renderer lifetime ends; later draws cannot reopen it.
+ * closed and retained until renderer lifetime ends; later draws cannot reopen
+ * it.
  */
 export const disposeFadeToBlack: (renderer: THREE.WebGLRenderer) => void = (
   renderer: THREE.WebGLRenderer,

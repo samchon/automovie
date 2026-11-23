@@ -1,8 +1,8 @@
 import type * as THREE from "three";
 
 /**
- * Public renderer facts needed to bound its native shadow target factory.
- * A real WebGLRenderer satisfies this boundary; no drawing capability or GPU
+ * Public renderer facts needed to bound its native shadow target factory. A
+ * real WebGLRenderer satisfies this boundary; no drawing capability or GPU
  * resource ownership is transferred to the observer.
  */
 export interface IAutoMovieShadowTextureHost {

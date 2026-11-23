@@ -42,7 +42,10 @@ const CHECK_NAMES: Readonly<Record<IInput["kind"], string>> = {
   track: "authored-track",
 };
 
-/** Source checks reported as optional and unsupported when no rule supplies them. */
+/**
+ * Source checks reported as optional and unsupported when no rule supplies
+ * them.
+ */
 const SOURCE_CHECKS: readonly string[] = [
   "support",
   "grip",

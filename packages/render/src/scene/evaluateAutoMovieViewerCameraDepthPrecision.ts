@@ -4,8 +4,8 @@ import type * as THREE from "three";
 import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieViewerCameraDepthPrecisionReport.js";
 
 /**
- * Observe the currently bound draw framebuffer and compare it with one
- * resolved camera.
+ * Observe the currently bound draw framebuffer and compare it with one resolved
+ * camera.
  *
  * The engine's metric is conservative at `minimumDepthBits`; a standard viewer
  * with at least that many actual bits can only provide equal or finer adjacent
@@ -13,8 +13,9 @@ import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieVie
  * a different metric rather than silently appearing as extra capability.
  *
  * This compares near/far properties and the currently bound framebuffer's bits,
- * not the camera matrix contents, shader depth writes or measured surface error.
- * The caller must have installed the declared standard projection before use.
+ * not the camera matrix contents, shader depth writes or measured surface
+ * error. The caller must have installed the declared standard projection before
+ * use.
  */
 export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
   renderer: THREE.WebGLRenderer;

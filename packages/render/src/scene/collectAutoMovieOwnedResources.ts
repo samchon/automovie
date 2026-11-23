@@ -4,10 +4,10 @@ import type * as THREE from "three";
  * Collect the resources a subtree owner may retire, before any disposal event
  * can mutate that subtree. Geometry, standard materials, custom shadow
  * materials and skinned meshes' skeletons are distinct by object identity,
- * including sharing across meshes. A skeleton is collected because its
- * disposal releases the bone texture the renderer allocates on first draw;
- * omitting it left that texture to the GPU until context loss. Skeletons come
- * last, after every geometry, material and texture.
+ * including sharing across meshes. A skeleton is collected because its disposal
+ * releases the bone texture the renderer allocates on first draw; omitting it
+ * left that texture to the GPU until context loss. Skeletons come last, after
+ * every geometry, material and texture.
  *
  * Textures are included only for a decoded subtree that owns them. A group
  * backed by a texture cache leaves those wrappers to the cache's independent

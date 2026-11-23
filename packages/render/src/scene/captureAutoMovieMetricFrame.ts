@@ -4,12 +4,12 @@ import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebuffe
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Capture the caller's current scene through an explicit calibrated camera.
- * The requested dimensions are physical output pixels, independent of the
- * borrowed renderer's device ratio. A silhouette pass uses black meshes on
- * white, separately from neutral-lit surface judgment. The caller selects which
- * scene subjects/construction are visible and redraws its ordinary camera after
- * this operation restores renderer dimensions, framebuffer selection/raster and
+ * Capture the caller's current scene through an explicit calibrated camera. The
+ * requested dimensions are physical output pixels, independent of the borrowed
+ * renderer's device ratio. A silhouette pass uses black meshes on white,
+ * separately from neutral-lit surface judgment. The caller selects which scene
+ * subjects/construction are visible and redraws its ordinary camera after this
+ * operation restores renderer dimensions, framebuffer selection/raster and
  * scene state. Logical and effective physical rectangles remain distinct.
  */
 export function captureAutoMovieMetricFrame(input: {

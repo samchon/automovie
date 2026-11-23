@@ -1,6 +1,4 @@
-/**
- * Captured viewer frame.
- */
+/** Captured viewer frame. */
 export interface IAutoMovieViewerSnapshot {
   /** Canvas pixel width. */
   width: number;

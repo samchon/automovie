@@ -57,19 +57,19 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  * what every pre-texture production still renders. The resolver must answer
  * with a texture object PER BINDING, because {@link buildMaterial} writes that
  * binding's color space, UV transform and sampler onto whatever it is given,
- * and two slots sharing one object would fight over one repeat.
- * Every returned geometry and material is registered as soon as it is acquired,
- * before a later part, binding or attachment can fail. Failure independently
- * retires those owned objects, including objects not yet attached to the group;
- * successful return transfers them to the caller. Texture wrappers stay with
- * the resolver's owner. A nested producer retires its own failed allocation.
- * An anisotropic rigid mesh without morph targets or normal maps receives
- * native computed tangents when its indexed normal/UV geometry supports them.
- * Mapped and deforming meshes retain their derivative frame: a rest tangent
- * cannot follow a morph or replace a transformed normal-map frame. This
- * changes no source arrays or material coefficients, is not a MikkTSpace bake
- * guarantee and leaves degenerate UVs on their existing fallback.
- * Fully transparent, non-transmissive parts stay hidden when a guide swaps materials.
+ * and two slots sharing one object would fight over one repeat. Every returned
+ * geometry and material is registered as soon as it is acquired, before a later
+ * part, binding or attachment can fail. Failure independently retires those
+ * owned objects, including objects not yet attached to the group; successful
+ * return transfers them to the caller. Texture wrappers stay with the
+ * resolver's owner. A nested producer retires its own failed allocation. An
+ * anisotropic rigid mesh without morph targets or normal maps receives native
+ * computed tangents when its indexed normal/UV geometry supports them. Mapped
+ * and deforming meshes retain their derivative frame: a rest tangent cannot
+ * follow a morph or replace a transformed normal-map frame. This changes no
+ * source arrays or material coefficients, is not a MikkTSpace bake guarantee
+ * and leaves degenerate UVs on their existing fallback. Fully transparent,
+ * non-transmissive parts stay hidden when a guide swaps materials.
  */
 export const buildModel: (
   model: IAutoMovieModel,

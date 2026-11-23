@@ -13,13 +13,31 @@ const objectIdentities: WeakMap<object, string> = new WeakMap<object, string>();
 let nextObjectIdentity: number = 0;
 
 /**
- * Observe positive two-dimensional decoded texture extents and current supported upload declarations without changing image, sampling or GPU state. Compressed, array/volume, depth, framebuffer and render-target products remain unsupported or allocation-uncertain under this ordinary decoded-image path. Manual mip data and intrinsic/factory extent disagreement cannot certify native history.
+ * Observe positive two-dimensional decoded texture extents and current
+ * supported upload declarations without changing image, sampling or GPU state.
+ * Compressed, array/volume, depth, framebuffer and render-target products
+ * remain unsupported or allocation-uncertain under this ordinary decoded-image
+ * path. Manual mip data and intrinsic/factory extent disagreement cannot
+ * certify native history.
  *
- * Weak object tokens describe actual Source/Texture sharing in this host, independently of mutable UUID text. Engine retains the sharing relation rather than token spelling; current representation and upload-state metadata still determine allocation equivalence.
+ * Weak object tokens describe actual Source/Texture sharing in this host,
+ * independently of mutable UUID text. Engine retains the sharing relation
+ * rather than token spelling; current representation and upload-state metadata
+ * still determine allocation equivalence.
  *
- * Cache and environment owners are consulted before extent checks so malformed image data cannot hide either sticky input history. They acknowledge only supported owned writes and successful exclusive transitions. Restoring observed uncontrolled drift does not repair its history; writes fully restored between observation boundaries are not detected. Unregistered objects retain this observer's prospective before-upload premise.
+ * Cache and environment owners are consulted before extent checks so malformed
+ * image data cannot hide either sticky input history. They acknowledge only
+ * supported owned writes and successful exclusive transitions. Restoring
+ * observed uncontrolled drift does not repair its history; writes fully
+ * restored between observation boundaries are not detected. Unregistered
+ * objects retain this observer's prospective before-upload premise.
  *
- * Environment conversion reports configured and factory sampler intent because sharp conversion can temporarily upload with another sampler without a later version change. Current properties do not prove an old native state was retired. Hosts retain previous upload phases until their owning release/transition is observed; this read reports neither GLuint count nor independent kernel storage.
+ * Environment conversion reports configured and factory sampler intent because
+ * sharp conversion can temporarily upload with another sampler without a later
+ * version change. Current properties do not prove an old native state was
+ * retired. Hosts retain previous upload phases until their owning
+ * release/transition is observed; this read reports neither GLuint count nor
+ * independent kernel storage.
  */
 export function readAutoMovieTextureSource(
   asset: string,

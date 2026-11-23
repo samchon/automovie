@@ -7,9 +7,7 @@ import type * as THREE from "three";
 import type { IAutoMovieExpressionTarget } from "./IAutoMovieExpressionTarget.js";
 import type { IAutoMovieViewerFrame } from "./IAutoMovieViewerFrame.js";
 
-/**
- * A built model: its `three.js` root object and a lookup of its bones.
- */
+/** A built model: its `three.js` root object and a lookup of its bones. */
 export interface IAutoMovieModelObject {
   /** Root group; add this to a scene (or a node group) to display the model. */
   object: THREE.Group;
@@ -28,9 +26,7 @@ export interface IAutoMovieModelObject {
    */
   parts: ReadonlyMap<string, THREE.Object3D>;
 
-  /**
-   * Optional expression sinks: morph managers, VRM expression managers, etc.
-   */
+  /** Optional expression sinks: morph managers, VRM expression managers, etc. */
   expressionTargets?: readonly IAutoMovieExpressionTarget[];
 
   /**
@@ -41,8 +37,6 @@ export interface IAutoMovieModelObject {
    */
   lookAt?: IAutoMovieLookAt;
 
-  /**
-   * Optional imported-runtime flush after pose and expression are written.
-   */
+  /** Optional imported-runtime flush after pose and expression are written. */
   afterAutoMovieFrame?: (frame: IAutoMovieViewerFrame) => void;
 }

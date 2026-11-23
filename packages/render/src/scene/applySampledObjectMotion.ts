@@ -4,7 +4,12 @@ import type * as THREE from "three";
 /**
  * Write an already-authoritative sample table to borrowed Three scene objects.
  *
- * Transforms use engine vector/quaternion order and write parent-local fields; the caller supplies samples in that frame, with no world-to-local conversion here. Morph weights address each descendant mesh's glTF index order, stop at its influence count and preserve omitted entries. Missing objects and non-node channels are skipped. The current four-path switch does not assert exhaustiveness for future unions.
+ * Transforms use engine vector/quaternion order and write parent-local fields;
+ * the caller supplies samples in that frame, with no world-to-local conversion
+ * here. Morph weights address each descendant mesh's glTF index order, stop at
+ * its influence count and preserve omitted entries. Missing objects and
+ * non-node channels are skipped. The current four-path switch does not assert
+ * exhaustiveness for future unions.
  */
 export const applySampledObjectMotion: (
   sampled: ReadonlyMap<string, IAutoMovieSampledChannel>,

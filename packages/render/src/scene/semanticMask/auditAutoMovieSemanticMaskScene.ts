@@ -10,7 +10,14 @@ import { nearest } from "./nearest.js";
 import { unresolvedOf } from "./unresolvedOf.js";
 
 /**
- * Join a supplied palette to assembled scene roots in both directions without painting or mutating the scene. Unresolved lists drawable entries with no claimed object root; unaddressed counts Mesh objects lacking a nearest semantic owner, including hidden geometry. Ownership-only room/opening/slot entries do not require their own drawable. Empty unresolved establishes root membership, while actual visibility, submission and pixels remain separate observations; a cached build audit needs renewal after relevant graph changes.
+ * Join a supplied palette to assembled scene roots in both directions without
+ * painting or mutating the scene. Unresolved lists drawable entries with no
+ * claimed object root; unaddressed counts Mesh objects lacking a nearest
+ * semantic owner, including hidden geometry. Ownership-only room/opening/slot
+ * entries do not require their own drawable. Empty unresolved establishes root
+ * membership, while actual visibility, submission and pixels remain separate
+ * observations; a cached build audit needs renewal after relevant graph
+ * changes.
  */
 export const auditAutoMovieSemanticMaskScene: (props: {
   /** The built scene. */

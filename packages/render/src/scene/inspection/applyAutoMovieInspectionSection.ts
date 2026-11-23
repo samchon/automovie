@@ -5,9 +5,14 @@ import type { IAutoMovieSectionRenderer } from "../IAutoMovieSectionRenderer.js"
 import { applyAutoMovieSectionPlanes } from "../applyAutoMovieSectionPlanes.js";
 
 /**
- * Cut every material of a scene by one section plane, and return the call that puts each material's clipping state and the renderer's clipping switch back as they were.
+ * Cut every material of a scene by one section plane, and return the call that
+ * puts each material's clipping state and the renderer's clipping switch back
+ * as they were.
  *
- * The plane owner, `applyAutoMovieSectionPlanes`, overwrites each material's planes and intersection flag and switches the renderer's local clipping on, so the prior state of every material under the scene is recorded first. A material whose plane count changes back is marked for recompilation.
+ * The plane owner, `applyAutoMovieSectionPlanes`, overwrites each material's
+ * planes and intersection flag and switches the renderer's local clipping on,
+ * so the prior state of every material under the scene is recorded first. A
+ * material whose plane count changes back is marked for recompilation.
  */
 export function applyAutoMovieInspectionSection(props: {
   /** The scene to cut. */

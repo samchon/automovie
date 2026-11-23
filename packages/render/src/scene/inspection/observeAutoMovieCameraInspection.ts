@@ -39,13 +39,14 @@ interface IProps {
   /** Maximum total triangles admitted to the optional, nine-ray witness pass. */
   triangleBudget?: number;
 
-  /** Matching exact pixel observations, when a capture or delivery audit obtained them. */
+  /**
+   * Matching exact pixel observations, when a capture or delivery audit
+   * obtained them.
+   */
   pixels?: IAutoMovieCameraInspection.IPixels;
 }
 
-/**
- * Observes required-subject framing from the original delivered projection.
- */
+/** Observes required-subject framing from the original delivered projection. */
 export function observeAutoMovieCameraInspection(
   props: IProps,
 ): IAutoMovieCameraInspection.IResult {

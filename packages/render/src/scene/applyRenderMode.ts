@@ -61,7 +61,10 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
  * the scene's animation does not move:
  *
  * - `beauty`: no override (the ordinary shaded render).
- * - `depth`: meshes use clamp(1-viewZ/range,0,1) with camera-space depth and a shared {@link DEPTH_NORMALIZATION_RANGE}, independent of near/far normalization. Camera changes can change a world point's viewZ; black is the far-range/background convention.
+ * - `depth`: meshes use clamp(1-viewZ/range,0,1) with camera-space depth and a
+ *   shared {@link DEPTH_NORMALIZATION_RANGE}, independent of near/far
+ *   normalization. Camera changes can change a world point's viewZ; black is
+ *   the far-range/background convention.
  * - `mask`: the segmentation pass. A scene handed its palette by
  *   {@link attachAutoMovieSemanticMask} is painted by
  *   {@link applyAutoMovieSemanticMask}, so every colour is the one that entity's
@@ -71,7 +74,10 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
  *   identity, because inserting one node repaints everything after it.
  * - `normal`: every mesh swapped to `MeshNormalMaterial`: the unlit
  *   surface-normal conditioning pass (#1166).
- * - `outline`: black fills plus inverted-hull back-face shells extruded by {@link EDGE_WIDTH} in model space, leaving white contours on black. Object/instance scaling and camera projection affect world thickness and screen line weight.
+ * - `outline`: black fills plus inverted-hull back-face shells extruded by
+ *   {@link EDGE_WIDTH} in model space, leaving white contours on black.
+ *   Object/instance scaling and camera projection affect world thickness and
+ *   screen line weight.
  * - `pose`: meshes hidden, and a line-segment overlay of every bone→child bone
  *   connection drawn over a black background: the skeleton pose pass.
  *
@@ -81,12 +87,16 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
  * an anonymous member has no bones in the scene for the overlay to draw, which
  * is the same gap it had before the crowd could move at all.
  *
- * An unknown mode is a caller bug and throws.
- * Active or failed scene retirement refuses every mode before setup, including
- * beauty. Failed restoration retains its complete owner callback and cause;
- * nested owned cleanup still runs independently beneath the active boundary.
+ * An unknown mode is a caller bug and throws. Active or failed scene retirement
+ * refuses every mode before setup, including beauty. Failed restoration retains
+ * its complete owner callback and cause; nested owned cleanup still runs
+ * independently beneath the active boundary.
  *
- * Direct embedders can override depthRange and edgeWidth. The bundled __afPass capture path uses the defaults, keeping the camera-space depth normalization consistent while preserving differences caused by camera pose. Depth beyond the default range clamps to black; changing that range requires a direct call.
+ * Direct embedders can override depthRange and edgeWidth. The bundled __afPass
+ * capture path uses the defaults, keeping the camera-space depth normalization
+ * consistent while preserving differences caused by camera pose. Depth beyond
+ * the default range clamps to black; changing that range requires a direct
+ * call.
  */
 export const applyRenderMode: (
   scene: THREE.Scene,
@@ -104,7 +114,9 @@ export const applyRenderMode: (
     depthRange?: number;
 
     /**
-     * Model-space normal extrusion for the outline pass; defaults to {@link EDGE_WIDTH} (0.02). Object/instance scale changes its world thickness; the capture path keeps the default.
+     * Model-space normal extrusion for the outline pass; defaults to
+     * {@link EDGE_WIDTH} (0.02). Object/instance scale changes its world
+     * thickness; the capture path keeps the default.
      */
     edgeWidth?: number;
   },

@@ -14,13 +14,13 @@ import type { AutoMovieHumanPolygon } from "./AutoMovieHumanPolygon.js";
 import { buildHumanPolygon } from "./buildHumanPolygon.js";
 
 /**
- * Build a polygon actor and its source-frame sampler for a compiled shot.
- * A film host mounts the drawing in the shot scene and supplies `drawLayer`
- * as a layer preparation callback. Its source frame accounts for cuts and
- * trims. If an actor frame is supplied, the sampler also places the drawing
- * at that world frame under its rigid parent. Without a supplied frame the
- * cue's shot axes coincide with the drawing's axes at the origin.
- * Dispose the drawing with the usual polygon drawing owner.
+ * Build a polygon actor and its source-frame sampler for a compiled shot. A
+ * film host mounts the drawing in the shot scene and supplies `drawLayer` as a
+ * layer preparation callback. Its source frame accounts for cuts and trims. If
+ * an actor frame is supplied, the sampler also places the drawing at that world
+ * frame under its rigid parent. Without a supplied frame the cue's shot axes
+ * coincide with the drawing's axes at the origin. Dispose the drawing with the
+ * usual polygon drawing owner.
  */
 export function buildPolygonShotActor(input: {
   /** Compiled shot and its optional body presentation cues. */
@@ -31,7 +31,10 @@ export function buildPolygonShotActor(input: {
   opening: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">;
   /** Canonical body-frame pose at a shot-local time. */
   poseAt: (seconds: number) => Pick<IAutoMovieHumanSkeleton.IOutput, "posed">;
-  /** Deterministic, synchronous actor rigid frame at shot-local time in scene-world axes. Detach sampling can read the same time again. */
+  /**
+   * Deterministic, synchronous actor rigid frame at shot-local time in
+   * scene-world axes. Detach sampling can read the same time again.
+   */
   actorFrameAt?: (seconds: number) => IAutoMovieRigidTransform;
   /** Production frame grid used by the layer's source frame. */
   frameRate: IAutoMovieProductionFrameRate;

@@ -4,9 +4,7 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-/**
- * Canonical surface and its actual analysis outcome for one cloth projection.
- */
+/** Canonical surface and its actual analysis outcome for one cloth projection. */
 export interface IBuildSoftBodyObjectProps {
   /** Surface emitted by the Engine, including its drawn-panel bounds. */
   surface: IAutoMovieSoftBodySurface;

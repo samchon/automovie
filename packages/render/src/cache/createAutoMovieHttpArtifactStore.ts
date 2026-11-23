@@ -6,14 +6,13 @@ import type { IAutoMovieArtifactStore } from "@automovie/interface";
  * production's development server.
  *
  * A page computing an expensive deterministic stage (a prepared figure, a
- * physics bake) cannot write files, and a fresh headless capture browser has
- * no persistent browser storage, so the cache lives with the server: one
- * directory serves the interactive Viewer and every render capture alike.
- * `GET <base>/<hex>` returns the bytes with header
- * `x-automovie-artifact-digest` or 404, `PUT` stores them with that header and
- * `DELETE` removes them, where `<hex>` is the key without `sha256:`. Digests
- * use `crypto.subtle`, available in secure contexts, which include
- * `http://localhost` and `http://127.0.0.1`.
+ * physics bake) cannot write files, and a fresh headless capture browser has no
+ * persistent browser storage, so the cache lives with the server: one directory
+ * serves the interactive Viewer and every render capture alike. `GET
+ * <base>/<hex>` returns the bytes with header `x-automovie-artifact-digest` or
+ * 404, `PUT` stores them with that header and `DELETE` removes them, where
+ * `<hex>` is the key without `sha256:`. Digests use `crypto.subtle`, available
+ * in secure contexts, which include `http://localhost` and `http://127.0.0.1`.
  *
  * @param base Route prefix or absolute URL, such as `/__automovie/artifacts`.
  * @returns A store; a network failure or a non-success status rejects.

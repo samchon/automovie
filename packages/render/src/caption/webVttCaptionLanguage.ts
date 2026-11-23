@@ -6,8 +6,8 @@ import { parseAutoMovieCaptionLanguage } from "./parseAutoMovieCaptionLanguage.j
  *
  * A tag that is not well-formed RFC 5646 throws an `Error` naming the tag
  * rather than reaching the caption file, so a player never receives a language
- * span it cannot interpret. The authored case is kept; only identity
- * comparison folds case.
+ * span it cannot interpret. The authored case is kept; only identity comparison
+ * folds case.
  */
 export const webVttCaptionLanguage: (value: string) => string = (
   value: string,

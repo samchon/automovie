@@ -1,8 +1,6 @@
 import type * as THREE from "three";
 
-/**
- * The articulation subtrees one scene's props contribute.
- */
+/** The articulation subtrees one scene's props contribute. */
 export interface IAutoMovieBuiltPropArticulation {
   /**
    * Every lowered joint by its scene id (`<placement>/<joint>`), which is the

@@ -7,10 +7,10 @@ import type {
  * Admit a decoder's framemd5 listing against a commissioned half-open frame
  * clock: exactly one stream-zero time base, exactly `expectedFrames` video
  * rows, and frame `i` presenting precisely `[i / fps, (i + 1) / fps)` in that
- * time base, checked by exact BigInt cross products. Adjacent identical
- * images are reported as holds, never rejected. Malformed rows, gaps,
- * overlaps, reordering, excess frames and a nonzero start are refused. This
- * proves presentation continuity of decoded bytes, not motion or quality.
+ * time base, checked by exact BigInt cross products. Adjacent identical images
+ * are reported as holds, never rejected. Malformed rows, gaps, overlaps,
+ * reordering, excess frames and a nonzero start are refused. This proves
+ * presentation continuity of decoded bytes, not motion or quality.
  *
  * @param text Complete FFmpeg framemd5 output.
  * @param expectedFrames Commissioned frame count, a positive safe integer.

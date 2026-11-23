@@ -20,9 +20,7 @@ export interface IAutoMovieFormationCycle {
   /** Even samples across one cycle; sample `samples` wraps to sample zero. */
   samples: number;
 
-  /**
-   * Rigid part names in the order the `automoviePart` attribute indexes them.
-   */
+  /** Rigid part names in the order the `automoviePart` attribute indexes them. */
   names: readonly string[];
 
   /** Every gait this figure declares, by name. */

@@ -1,15 +1,15 @@
 import * as THREE from "three";
 
 /**
- * Update a matched parallel comparison from a standalone centred camera.
- * The target-plane height follows its effective perspective field of view, while
+ * Update a matched parallel comparison from a standalone centred camera. The
+ * target-plane height follows its effective perspective field of view, while
  * one native orthographic camera removes depth-dependent magnification. Equal
  * offsets along camera screen-right preserve the same view direction, scale and
- * vertical framing for both unchanged subjects, including profile views.
- * World coordinates and separation use model metres. Parented/scaled cameras,
- * manual source matrices and off-axis source lenses are outside this contract.
- * Supply distinct input and output objects.
- * The output camera and vector are mutable scratch; a refused output is unqualified.
+ * vertical framing for both unchanged subjects, including profile views. World
+ * coordinates and separation use model metres. Parented/scaled cameras, manual
+ * source matrices and off-axis source lenses are outside this contract. Supply
+ * distinct input and output objects. The output camera and vector are mutable
+ * scratch; a refused output is unqualified.
  */
 export function updateAutoMovieComparisonCamera(input: {
   perspective: THREE.PerspectiveCamera;

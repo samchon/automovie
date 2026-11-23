@@ -1,12 +1,10 @@
 /**
- * The original polygon display's ring zipper and crown fan connectivity.
- * Copied without arithmetic changes from Human's numerical loft emitter;
- * this optional renderer does not import that generator implementation.
+ * The original polygon display's ring zipper and crown fan connectivity. Copied
+ * without arithmetic changes from Human's numerical loft emitter; this optional
+ * renderer does not import that generator implementation.
  */
 export namespace humanPolygonTopology {
-  /**
-   * Caller-owned numerical buffers; positions retain the caller's units.
-   */
+  /** Caller-owned numerical buffers; positions retain the caller's units. */
   export interface IContext {
     /** Flat Cartesian positions in the assembler's metre frame. */
     positions: number[];
@@ -15,9 +13,7 @@ export namespace humanPolygonTopology {
     indices: number[];
   }
 
-  /**
-   * Read one existing indexed vertex in the caller's unchanged units.
-   */
+  /** Read one existing indexed vertex in the caller's unchanged units. */
   export function position(
     context: IContext,
     index: number,
@@ -29,9 +25,7 @@ export namespace humanPolygonTopology {
     ];
   }
 
-  /**
-   * Join monotone cyclic phase rings using the original advancing-edge zipper.
-   */
+  /** Join monotone cyclic phase rings using the original advancing-edge zipper. */
   export function zipper(
     context: IContext,
     lower: readonly number[],
@@ -63,13 +57,17 @@ export namespace humanPolygonTopology {
   /**
    * Preserve original phase reduction and cyclic-start selection.
    *
-   * Principled implementation: Reduces every phase into [0,2pi), rotates indices to the minimum and unwraps one period using the existing strict comparison.
-   * Clear and simple design: A private ordering helper serves the single zipper algorithm.
-   * Prohibited implementation shortcuts: No sorting, tolerance, sample deletion or phase fitting alters correspondence.
-   * Meaningful documentation: Names phase reduction and cyclic rotation; zipper documents ordering premises.
-   * Efficient algorithms: Three O(N) passes and O(N) temporary scalar/vertex records.
-   * Reuse equivalent work: Reads supplied vertex indices without copying positions.
-   * Bound retention and release resources: Temporary reduction records transfer only to the caller zipper and die after emission.
+   * Principled implementation: Reduces every phase into [0,2pi), rotates
+   * indices to the minimum and unwraps one period using the existing strict
+   * comparison. Clear and simple design: A private ordering helper serves the
+   * single zipper algorithm. Prohibited implementation shortcuts: No sorting,
+   * tolerance, sample deletion or phase fitting alters correspondence.
+   * Meaningful documentation: Names phase reduction and cyclic rotation; zipper
+   * documents ordering premises. Efficient algorithms: Three O(N) passes and
+   * O(N) temporary scalar/vertex records. Reuse equivalent work: Reads supplied
+   * vertex indices without copying positions. Bound retention and release
+   * resources: Temporary reduction records transfer only to the caller zipper
+   * and die after emission.
    */
   function ascending(
     ring: readonly number[],
@@ -93,9 +91,7 @@ export namespace humanPolygonTopology {
     return out;
   }
 
-  /**
-   * Close an existing ring with the original oriented crown fan.
-   */
+  /** Close an existing ring with the original oriented crown fan. */
   export function cap(
     context: IContext,
     ring: readonly number[],

@@ -14,15 +14,15 @@ const PLACEHOLDER_SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_
 const PLACEHOLDER_CHANNELS: IAutoMovieProductionSoundPlan["channels"] = 2;
 
 /**
- * Copy the planned audio asset identities sorted by path, refusing any that
- * is invalid.
+ * Copy the planned audio asset identities sorted by path, refusing any that is
+ * invalid.
  *
  * Paths sort by UTF-16 code unit, so one input yields one plan on every host.
  * Throws when a path is blank or repeated, the digest is not a SHA-256 content
  * digest, the sample rate, channel count or sample-frame count is not a
  * positive safe integer, `durationSeconds` is not exactly `sourceFrames /
- * sampleRate`, the kind is unknown, a placeholder stem is not 48 kHz stereo,
- * or a WAVE identity fails `validWaveAudioIdentity`. The input is not changed.
+ * sampleRate`, the kind is unknown, a placeholder stem is not 48 kHz stereo, or
+ * a WAVE identity fails `validWaveAudioIdentity`. The input is not changed.
  */
 export const normalizeAudioAssets: (
   assets: readonly IAutoMovieProductionAudioAssetIdentity[],

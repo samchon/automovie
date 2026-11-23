@@ -1,11 +1,19 @@
 import type { IAutoMovieCaptureVideoSource } from "@automovie/interface";
 
 /**
- * Read the report of `planAutoMovieVideoSceneCuts` into the file's scene cuts: the second each new scene starts and its `scdet` score, in the report's order.
+ * Read the report of `planAutoMovieVideoSceneCuts` into the file's scene cuts:
+ * the second each new scene starts and its `scdet` score, in the report's
+ * order.
  *
- * The report is FFmpeg's `metadata` print: a `frame:<n> pts:<t> pts_time:<seconds>` line per marked frame, followed by `key=value` lines among which `lavfi.scd.score` and `lavfi.scd.time`. A frame's second is its `lavfi.scd.time`, or its `pts_time` when that key is missing. Line endings may be `\n` or `\r\n`, and other keys are ignored. An empty report means the file has no cut at the threshold used.
+ * The report is FFmpeg's `metadata` print: a `frame:<n> pts:<t>
+ * pts_time:<seconds>` line per marked frame, followed by `key=value` lines
+ * among which `lavfi.scd.score` and `lavfi.scd.time`. A frame's second is its
+ * `lavfi.scd.time`, or its `pts_time` when that key is missing. Line endings
+ * may be `\n` or `\r\n`, and other keys are ignored. An empty report means the
+ * file has no cut at the threshold used.
  *
- * It throws naming the frame for a marked frame without a readable second or score.
+ * It throws naming the frame for a marked frame without a readable second or
+ * score.
  */
 export function readAutoMovieVideoSceneCuts(
   report: string,

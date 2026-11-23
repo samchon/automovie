@@ -6,11 +6,11 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
 
 /**
  * Clone rigid parts into world-rest geometry in their shared traversal order.
- * Reject skin, morph and multi-material sources before merging; normalize
- * mixed colour and relief presence on the owned clones while retaining the
- * original material objects. No source buffers or materials are mutated.
- * Intermediate clones retire after the merge or any refusal; a cleanup refusal
- * also retires the untransferred merged geometry and preserves all causes.
+ * Reject skin, morph and multi-material sources before merging; normalize mixed
+ * colour and relief presence on the owned clones while retaining the original
+ * material objects. No source buffers or materials are mutated. Intermediate
+ * clones retire after the merge or any refusal; a cleanup refusal also retires
+ * the untransferred merged geometry and preserves all causes.
  */
 
 export const flattenRigidParts: (

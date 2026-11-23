@@ -11,7 +11,8 @@ import type * as THREE from "three";
  * projection exactly.
  *
  * The camera must have a finite positive source aspect. This changes its view
- * offset and projection, while leaving pose and output raster sizing to the host.
+ * offset and projection, while leaving pose and output raster sizing to the
+ * host.
  */
 export const applyAutoMovieDeliveryCrop: (
   camera: THREE.PerspectiveCamera,

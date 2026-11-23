@@ -1,5 +1,9 @@
 /**
- * One reversible semantic installation with scene-graph coverage metadata. Painted and unaddressed count Mesh objects, not visible pixels; unresolved names absent drawable roots. Restoration owns its original scene/material/color snapshot and created materials, with sticky failure rather than a successful repeated no-op.
+ * One reversible semantic installation with scene-graph coverage metadata.
+ * Painted and unaddressed count Mesh objects, not visible pixels; unresolved
+ * names absent drawable roots. Restoration owns its original
+ * scene/material/color snapshot and created materials, with sticky failure
+ * rather than a successful repeated no-op.
  */
 export interface IAutoMovieSemanticMaskHandle {
   /**
@@ -17,8 +21,8 @@ export interface IAutoMovieSemanticMaskHandle {
 
   /**
    * Drawable ids with no resolved scene object root, in palette order (the
-   * canonical producer's ascending order). Ownership-only entries do not need
-   * a drawable of their own. Empty establishes root membership rather than
+   * canonical producer's ascending order). Ownership-only entries do not need a
+   * drawable of their own. Empty establishes root membership rather than
    * proving visibility, submission or any actual pixel.
    */
   unresolved: string[];

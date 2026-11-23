@@ -1,16 +1,18 @@
 import * as THREE from "three";
 
 /**
- * Create a complete sphere with one exact positional sample at its periodic seam.
+ * Create a complete sphere with one exact positional sample at its periodic
+ * seam.
  *
  * Finite segment counts use Three's floor/minimum normalization. The two UV
  * columns still have separate indices and texture coordinates, but the last
  * column reuses the first column's position and normal at the same longitude.
- * This preserves exact closure after a shared rigid world transform.
- * Nonfinite Float32 output, zero normals or collapsed indexed triangles refuse;
- * the admissible radius therefore also depends on the requested tessellation.
+ * This preserves exact closure after a shared rigid world transform. Nonfinite
+ * Float32 output, zero normals or collapsed indexed triangles refuse; the
+ * admissible radius therefore also depends on the requested tessellation.
  *
- * @param radius Positive finite local-metre radius with representable, nondegenerate output.
+ * @param radius Positive finite local-metre radius with representable,
+ *   nondegenerate output.
  * @param widthSegments Finite longitude count, floored with minimum three.
  * @param heightSegments Finite latitude count, floored with minimum two.
  * @returns Caller-owned SphereGeometry; dispose it when its consumers retire.

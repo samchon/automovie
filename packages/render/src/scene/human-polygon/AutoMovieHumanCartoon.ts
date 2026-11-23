@@ -3,9 +3,7 @@
  * These marks express selected action units; they are not anatomical skin.
  */
 export namespace AutoMovieHumanCartoon {
-  /**
-   * Sided FACS intensities and optional named mouth actions.
-   */
+  /** Sided FACS intensities and optional named mouth actions. */
   export interface IExpression {
     /** Omitted units are neutral; overlapping unit/side activations refuse. */
     units: {
@@ -54,9 +52,7 @@ export namespace AutoMovieHumanCartoon {
     };
   }
 
-  /**
-   * Already admitted finite eye and jaw articulation for face marks.
-   */
+  /** Already admitted finite eye and jaw articulation for face marks. */
   export interface IHeadPose {
     /** Gaze of each eye; omitted coordinates are zero degrees. */
     eyes?: {

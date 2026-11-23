@@ -35,7 +35,8 @@ interface IProps {
 }
 
 /**
- * Measure target-only and composited pixel occupancy for an admitted Draw frame.
+ * Measure target-only and composited pixel occupancy for an admitted Draw
+ * frame.
  *
  * Only the delivered pixels the subject's projected bounds can reach are
  * rendered. The scratch framebuffer covers that rectangle, and the viewport
@@ -45,9 +46,10 @@ interface IProps {
  * budget: it runs only in the capture and delivery hosts, which must complete
  * it, so any refusal is a scene or renderer the binary masks cannot reproduce.
  *
- * @param props Renderer, original scene and camera, required subject and delivered raster.
+ * @param props Renderer, original scene and camera, required subject and
+ *   delivered raster.
  * @returns The isolated and visible pixel counts with the passes rendered, or
- * the reason the frame cannot be audited this way.
+ *   the reason the frame cannot be audited this way.
  */
 export function measureAutoMovieCameraOcclusionPixels(
   props: IProps,
@@ -248,19 +250,18 @@ export function measureAutoMovieCameraOcclusionPixels(
   });
 }
 
-/**
- * Outcomes of one delivery pixel audit.
- */
+/** Outcomes of one delivery pixel audit. */
 export namespace measureAutoMovieCameraOcclusionPixels {
-  /**
-   * An exact matched count, or the reason the frame cannot be audited.
-   */
+  /** An exact matched count, or the reason the frame cannot be audited. */
   export type IResult =
     | {
         /** The subject's pixels were counted. */
         status: "measured";
 
-        /** Delivered pixels of the subject alone, and the subset still visible in the composite. */
+        /**
+         * Delivered pixels of the subject alone, and the subset still visible
+         * in the composite.
+         */
         pixels: IAutoMovieCameraInspection.IPixels;
 
         /** Passes rendered: zero when the subject's box misses the raster. */

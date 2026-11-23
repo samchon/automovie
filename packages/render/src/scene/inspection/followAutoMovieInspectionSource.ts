@@ -1,9 +1,13 @@
 import * as THREE from "three";
 
 /**
- * Place an object so that its local space is the world space of a source object, wherever the object itself is attached.
+ * Place an object so that its local space is the world space of a source
+ * object, wherever the object itself is attached.
  *
- * The object must not update its own matrix. `local` is applied inside the source's space, which is how marks follow one instance of an instanced mesh. The source's world matrix and the world matrix of the object's parent must be current.
+ * The object must not update its own matrix. `local` is applied inside the
+ * source's space, which is how marks follow one instance of an instanced mesh.
+ * The source's world matrix and the world matrix of the object's parent must be
+ * current.
  */
 export function followAutoMovieInspectionSource(
   object: THREE.Object3D,

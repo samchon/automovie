@@ -1,7 +1,10 @@
 import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 
 /**
- * Compare allocation facts while leaving scope, phase and owner labels aside. An identical retained native product already bounds the upcoming factory; a changed representation, extent or attachment requires a separate planned row. No storage is measured and no caller-owned target is changed here.
+ * Compare allocation facts while leaving scope, phase and owner labels aside.
+ * An identical retained native product already bounds the upcoming factory; a
+ * changed representation, extent or attachment requires a separate planned row.
+ * No storage is measured and no caller-owned target is changed here.
  */
 export const matchesAutoMovieShadowTextureProfile: (
   actual: IAutoMovieRenderTextureTarget,

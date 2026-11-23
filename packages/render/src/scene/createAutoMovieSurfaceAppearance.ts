@@ -5,14 +5,21 @@ import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
 import { createAutoMovieSurfaceVertexAdapter } from "./createAutoMovieSurfaceVertexAdapter.js";
 
 /**
- * Apply provider-local color and compression to actual vertices, with owned resources.
+ * Apply provider-local color and compression to actual vertices, with owned
+ * resources.
  */
 export function createAutoMovieSurfaceAppearance(input: {
   /** Actual local surfaces and the physical bones carrying their vertices. */
   surfaces: { bone: string; mesh: THREE.Mesh }[];
-  /** Default bone-local rigid vertices; posed-mesh samples the actual linear/DQ skin and inverts its displacement. */
+  /**
+   * Default bone-local rigid vertices; posed-mesh samples the actual linear/DQ
+   * skin and inverts its displacement.
+   */
   space?: "bone-local" | "posed-mesh";
-  /** Sampler in the selected metre frame; mesh.matrixWorld maps posed-mesh points into scene world. */
+  /**
+   * Sampler in the selected metre frame; mesh.matrixWorld maps posed-mesh
+   * points into scene world.
+   */
   sample: (
     bone: string,
     point: IAutoMovieVector3,

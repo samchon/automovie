@@ -11,7 +11,8 @@ import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.j
  * witness. Any other pair is decided by a drawn-surface witness, a complete
  * search proving clearance, an exhausted budget or an incomplete search.
  *
- * @param props The hit, the frame's parts and surfaces, the solid memo, the named windows and the shared budget.
+ * @param props The hit, the frame's parts and surfaces, the solid memo, the
+ *   named windows and the shared budget.
  * @returns The resolution of the pair.
  */
 export function resolveAutoMovieCollisionHit(
@@ -36,13 +37,9 @@ export function resolveAutoMovieCollisionHit(
   });
 }
 
-/**
- * Inputs and resolutions of one candidate pair.
- */
+/** Inputs and resolutions of one candidate pair. */
 export namespace resolveAutoMovieCollisionHit {
-  /**
-   * One hit and the frame state that decides it.
-   */
+  /** One hit and the frame state that decides it. */
   export interface IProps {
     /** The Engine search's observation of the pair. */
     readonly hit: Collision.IFinding;

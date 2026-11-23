@@ -10,9 +10,7 @@ const KEY: string = "automovieCollisionSource";
  * and segments the frame shows.
  */
 export namespace AutoMovieCollisionSource {
-  /**
-   * Drawn members of one instanced batch.
-   */
+  /** Drawn members of one instanced batch. */
   export interface IInstances {
     /** Stable path prefix of the members, such as the formation's identity. */
     readonly id: string;
@@ -27,14 +25,15 @@ export namespace AutoMovieCollisionSource {
     readonly slots: readonly number[];
   }
 
-  /**
-   * The solver particles a cord tube was drawn through.
-   */
+  /** The solver particles a cord tube was drawn through. */
   export interface ICord {
     /** Positive tube radius in object-local metres. */
     readonly radius: number;
 
-    /** Particle coordinates x, y, z in object-local metres, at least two distinct points. */
+    /**
+     * Particle coordinates x, y, z in object-local metres, at least two
+     * distinct points.
+     */
     readonly points: readonly number[];
   }
 
@@ -55,7 +54,8 @@ export namespace AutoMovieCollisionSource {
    * Record or clear the particles of a drawn cord.
    *
    * @param object The tube mesh drawn for the cord.
-   * @param source Its particles and radius, or null for a surface that is not a cord.
+   * @param source Its particles and radius, or null for a surface that is not a
+   *   cord.
    */
   export function bindCord(object: THREE.Object3D, source: ICord | null): void {
     if (source === null) delete object.userData[KEY];
@@ -85,7 +85,8 @@ export namespace AutoMovieCollisionSource {
    * Read a rigid assembly whose parts still hold their built placement.
    *
    * @param root A visible object, after the frame's world-matrix update.
-   * @returns The assembly's parts, or undefined when none was built or any part moved relative to the root.
+   * @returns The assembly's parts, or undefined when none was built or any part
+   *   moved relative to the root.
    */
   export function assembly(
     root: THREE.Object3D,

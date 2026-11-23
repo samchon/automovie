@@ -2,16 +2,16 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
 
 /**
  * One owned retirement with one completion, shared by repeated and reentrant
- * requests. Every operation starts independently, so a synchronous failure or
- * a pending asynchronous owner cannot prevent another owner from being asked
- * to retire. Completion waits for all attempts before reporting their results.
+ * requests. Every operation starts independently, so a synchronous failure or a
+ * pending asynchronous owner cannot prevent another owner from being asked to
+ * retire. Completion waits for all attempts before reporting their results.
  *
  * The primary cause, when supplied, remains first. Original failure identities,
  * ordered nested aggregate causes and opaque empty aggregates follow the same
  * policy as render-state restoration. A fulfilled completion means all public
- * operations fulfilled; it is not proof that native allocations were freed.
- * The caller retains failed or indeterminate resource ownership until its
- * supported physical lifetime boundary ends.
+ * operations fulfilled; it is not proof that native allocations were freed. The
+ * caller retains failed or indeterminate resource ownership until its supported
+ * physical lifetime boundary ends.
  */
 export function createAutoMovieResourceRetirement(
   operations: readonly ((() => void) | (() => Promise<void>))[],

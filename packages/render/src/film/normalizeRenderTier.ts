@@ -11,10 +11,10 @@ const FINAL_TIER: Readonly<IAutoMovieProductionRenderTier> = {
  * Return a copy of the declared render tier, or the final tier when none is
  * declared, refusing any other shape.
  *
- * Final must be scale 1 and step 1. A proxy must have a finite scale in
- * `(0, 1]` and an integer step from 1 through 16, and reduce at least one of
- * them, so a proxy cannot claim final's output and final cannot be spelled as
- * a proxy. Throws one error naming both admitted shapes.
+ * Final must be scale 1 and step 1. A proxy must have a finite scale in `(0,
+ * 1]` and an integer step from 1 through 16, and reduce at least one of them,
+ * so a proxy cannot claim final's output and final cannot be spelled as a
+ * proxy. Throws one error naming both admitted shapes.
  */
 export const normalizeRenderTier: (
   tier: IAutoMovieProductionRenderTier | undefined,

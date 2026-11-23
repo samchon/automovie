@@ -16,19 +16,23 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
 /**
  * Flatten one runtime model for a chunked instancing consumer.
  *
- * buildModel creates this entry's materials; the returned representation hands
+ * BuildModel creates this entry's materials; the returned representation hands
  * them to the consumer along with the owned merged geometry. Lower-level
  * flattening retains those objects rather than allocating a second material.
  *
- * The merge produces one geometry per LOD tier with a group and retained material for each source part, so one chunk can require several renderer submissions. Every vertex also carries a Float32 rigid-part index for the cycle shader, costing four bytes per vertex of shared geometry rather than per member; actual submission counts belong to renderer observation.
+ * The merge produces one geometry per LOD tier with a group and retained
+ * material for each source part, so one chunk can require several renderer
+ * submissions. Every vertex also carries a Float32 rigid-part index for the
+ * cycle shader, costing four bytes per vertex of shared geometry rather than
+ * per member; actual submission counts belong to renderer observation.
  *
  * Passing `bake` additionally bakes the model's whole repertoire
  * ({@link bakeFormationCycle}); a model that declares no gait, or carries no
- * skeleton to move, returns a null cycle and renders exactly as before.
- * The generated model's original geometries/skeletons are temporary extraction
+ * skeleton to move, returns a null cycle and renders exactly as before. The
+ * generated model's original geometries/skeletons are temporary extraction
  * inputs and retire after successful merge/bake; materials and emitted tables
- * transfer to the returned representation. Refusal independently rolls back
- * all acquisitions that this child completed before its parent receives a result.
+ * transfer to the returned representation. Refusal independently rolls back all
+ * acquisitions that this child completed before its parent receives a result.
  */
 export const flattenInstancedModel: (
   model: IAutoMovieModel,

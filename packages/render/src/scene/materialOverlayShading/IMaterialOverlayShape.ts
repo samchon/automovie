@@ -1,5 +1,6 @@
 /**
- * What decides an overlay's shader code: its blend and which of its parts it carries.
+ * What decides an overlay's shader code: its blend and which of its parts it
+ * carries.
  */
 export interface IMaterialOverlayShape {
   /** Whether the colour tints the base colour or replaces it. */

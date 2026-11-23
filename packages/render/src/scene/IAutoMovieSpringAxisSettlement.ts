@@ -7,7 +7,8 @@ import type { IAutoMovieSpringStep } from "@automovie/interface";
  */
 export interface IAutoMovieSpringAxisSettlement {
   /**
-   * Sprung pose angle in degrees, or null when both target and spring history are absent.
+   * Sprung pose angle in degrees, or null when both target and spring history
+   * are absent.
    */
   angle: number | null;
 

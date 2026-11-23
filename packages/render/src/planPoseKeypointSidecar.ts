@@ -32,9 +32,24 @@ import { shotBeat } from "./shotBeat.js";
 /**
  * Plan the pose-keypoint sidecar of one sequence render.
  *
- * The cut is laid on the output clock by `sequenceTimeline`, the output frames are the `frameTimes` schedule the render captures at `fps`, and a forward `playbackCursor` finds the live shot and its shot-local time on each frame. Every performance of that shot whose motion, skeleton and scene node resolve is sampled at `max(0, time - startOffset)`, and its joints are projected through the shot's camera by `resolvePoseKeypoints` with the given aspect and crop. A frame whose scene or camera does not resolve, and a performance without a motion or with an unresolved reference, contribute no keypoints rather than throwing, so the sidecar still covers every output frame; an unresolved cut shot is refused by the timeline builder.
+ * The cut is laid on the output clock by `sequenceTimeline`, the output frames
+ * are the `frameTimes` schedule the render captures at `fps`, and a forward
+ * `playbackCursor` finds the live shot and its shot-local time on each frame.
+ * Every performance of that shot whose motion, skeleton and scene node resolve
+ * is sampled at `max(0, time - startOffset)`, and its joints are projected
+ * through the shot's camera by `resolvePoseKeypoints` with the given aspect and
+ * crop. A frame whose scene or camera does not resolve, and a performance
+ * without a motion or with an unresolved reference, contribute no keypoints
+ * rather than throwing, so the sidecar still covers every output frame; an
+ * unresolved cut shot is refused by the timeline builder.
  *
- * When the scene declares fog, each actor also carries the fog transmittance at the camera depth of its world root, its staged placement with the sampled pose root folded in, through the engine's `sceneFogTransmittance`, the law the viewer hands its shader. Throws for an `fps` that is not a finite positive number, for a cut `sequenceTimeline` cannot lay out, and for a runtime that rounds to zero frames. The host writes the result through `renderPoseKeypointSidecar`.
+ * When the scene declares fog, each actor also carries the fog transmittance at
+ * the camera depth of its world root, its staged placement with the sampled
+ * pose root folded in, through the engine's `sceneFogTransmittance`, the law
+ * the viewer hands its shader. Throws for an `fps` that is not a finite
+ * positive number, for a cut `sequenceTimeline` cannot lay out, and for a
+ * runtime that rounds to zero frames. The host writes the result through
+ * `renderPoseKeypointSidecar`.
  */
 export const planPoseKeypointSidecar: (
   props: IAutoMoviePlanPoseKeypointSidecarProps,
@@ -158,7 +173,10 @@ const stageShot: (
   };
 };
 
-/** Project every resolvable performing actor of one shot at a shot-local instant. */
+/**
+ * Project every resolvable performing actor of one shot at a shot-local
+ * instant.
+ */
 const actorsAt: (
   shot: IAutoMovieShot,
   staging: IShotStaging,
@@ -225,13 +243,13 @@ const actorsAt: (
 };
 
 /**
- * The distance of `point` along the camera's forward axis at `time`, the
- * length the fog is integrated over and what the fog shader interpolates as
+ * The distance of `point` along the camera's forward axis at `time`, the length
+ * the fog is integrated over and what the fog shader interpolates as
  * `vFogDepth`.
  *
  * `projectToNdc` computes that depth as `-localZ` before its perspective
- * divide, so the frustum half-height and aspect, which only scale the
- * discarded `ndcX` and `ndcY`, are passed as 1.
+ * divide, so the frustum half-height and aspect, which only scale the discarded
+ * `ndcX` and `ndcY`, are passed as 1.
  */
 const cameraDepth: (
   camera: IAutoMovieCamera,

@@ -6,9 +6,7 @@ import type * as THREE from "three";
 
 import type { IAutoMovieFormationViewerStats } from "./IAutoMovieFormationViewerStats.js";
 
-/**
- * Built instance runtime consumed by a viewer host.
- */
+/** Built instance runtime consumed by a viewer host. */
 export interface IAutoMovieFormationViewerObject {
   /** Add this group to the current scene. */
   object: THREE.Group;
@@ -34,9 +32,7 @@ export interface IAutoMovieFormationViewerObject {
    */
   dispose(): void;
 
-  /**
-   * Recompute chunk visibility for the current camera.
-   */
+  /** Recompute chunk visibility for the current camera. */
   update(
     camera: THREE.PerspectiveCamera,
     viewportHeight: number,

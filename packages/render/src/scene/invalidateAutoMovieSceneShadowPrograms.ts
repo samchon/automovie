@@ -1,7 +1,11 @@
 import type * as THREE from "three";
 
 /**
- * Invalidate unique scene materials after the effective shadow enablement or filter changes. Three's program keys include shadow state, but changing the renderer flag alone does not always reevaluate an existing material program. The public needsUpdate boundary makes that changed state observable without touching SDK methods or caches. Shared materials are marked only once.
+ * Invalidate unique scene materials after the effective shadow enablement or
+ * filter changes. Three's program keys include shadow state, but changing the
+ * renderer flag alone does not always reevaluate an existing material program.
+ * The public needsUpdate boundary makes that changed state observable without
+ * touching SDK methods or caches. Shared materials are marked only once.
  */
 export const invalidateAutoMovieSceneShadowPrograms: (
   scene: THREE.Scene,

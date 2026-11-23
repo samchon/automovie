@@ -1,15 +1,35 @@
 import type { IAutoMoviePlanInspectionTrailTimesProps } from "@automovie/interface";
 
 /**
- * The seconds a trail is sampled at for one drawn second: a grid of `ticks` per second through the drawn second, reaching `reach` seconds before and after it, clipped to the subject's running time.
+ * The seconds a trail is sampled at for one drawn second: a grid of `ticks` per
+ * second through the drawn second, reaching `reach` seconds before and after
+ * it, clipped to the subject's running time.
  *
- * The drawn second is always one of the times, so `markAutoMovieInspectionTrails` emphasises exactly the place drawn, and every other time is the drawn second plus a whole number of tick intervals. Times are ascending. A host passes them, with the request's `trail` patterns, to `sampleAutoMovieInspectionTrails`.
+ * The drawn second is always one of the times, so
+ * `markAutoMovieInspectionTrails` emphasises exactly the place drawn, and every
+ * other time is the drawn second plus a whole number of tick intervals. Times
+ * are ascending. A host passes them, with the request's `trail` patterns, to
+ * `sampleAutoMovieInspectionTrails`.
  *
- * It throws for a drawn second outside `[0, durationSeconds]`, a running time that is not positive and finite, and a reach or tick rate that is not positive and finite.
+ * It throws for a drawn second outside `[0, durationSeconds]`, a running time
+ * that is not positive and finite, and a reach or tick rate that is not
+ * positive and finite.
  *
  * ```ts
- * const times = planAutoMovieInspectionTrailTimes({ request, seconds, durationSeconds });
- * const trails = request.trail.length === 0 ? [] : await sampleAutoMovieInspectionTrails({ scene, pattern, times, seek });
+ * const times = planAutoMovieInspectionTrailTimes({
+ *   request,
+ *   seconds,
+ *   durationSeconds,
+ * });
+ * const trails =
+ *   request.trail.length === 0
+ *     ? []
+ *     : await sampleAutoMovieInspectionTrails({
+ *         scene,
+ *         pattern,
+ *         times,
+ *         seek,
+ *       });
  * ```
  */
 export function planAutoMovieInspectionTrailTimes(

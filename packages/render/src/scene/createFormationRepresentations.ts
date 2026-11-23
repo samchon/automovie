@@ -14,8 +14,8 @@ import { flattenInstancedModel } from "./flattenInstancedModel.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
- * Construct the tier resources and bind their declared repertoire once.
- * A rejected model or cue releases tiers already constructed before refusing;
+ * Construct the tier resources and bind their declared repertoire once. A
+ * rejected model or cue releases tiers already constructed before refusing;
  * chunk instances are created only after this boundary succeeds.
  */
 export const createFormationRepresentations: (

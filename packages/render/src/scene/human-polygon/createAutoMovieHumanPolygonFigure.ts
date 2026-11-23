@@ -14,17 +14,20 @@ import { buildHumanPolygon } from "./buildHumanPolygon.js";
  * `place` applies an evaluated pose to the existing groups and rebuilds the
  * face only when the head pose or expression changes by value, disposing the
  * previous face, so a held expression costs no geometry. The evaluator is a
- * structural function (a Human skeleton evaluator fits); the Viewer imports
- * no figure generator.
+ * structural function (a Human skeleton evaluator fits); the Viewer imports no
+ * figure generator.
  *
- * The figure stays deliberately simple: a fix corrects a wrong value within
- * the same primitives, never adds geometry, detail or realism, because its job
- * is a cheap, deterministic silhouette for motion checks and diffusion hints.
+ * The figure stays deliberately simple: a fix corrects a wrong value within the
+ * same primitives, never adds geometry, detail or realism, because its job is a
+ * cheap, deterministic silhouette for motion checks and diffusion hints.
  *
  * @returns The figure's root object, its drawing, the pose port and disposal.
  */
 export function createAutoMovieHumanPolygonFigure(input: {
-  /** Evaluate a pose to rest bones and placements; called once with the neutral pose. */ evaluate: (
+  /**
+   * Evaluate a pose to rest bones and placements; called once with the neutral
+   * pose.
+   */ evaluate: (
     pose: Readonly<Record<string, never>>,
   ) => Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">;
   /** RGB overrides by emitted bone. */ partColors?: Readonly<
@@ -78,9 +81,7 @@ export function createAutoMovieHumanPolygonFigure(input: {
   };
   return figure;
 }
-/**
- * Companion types of {@link createAutoMovieHumanPolygonFigure}.
- */
+/** Companion types of {@link createAutoMovieHumanPolygonFigure}. */
 export namespace createAutoMovieHumanPolygonFigure {
   /** A posed polygon figure. */
   export interface IFigure {
@@ -90,7 +91,10 @@ export namespace createAutoMovieHumanPolygonFigure {
     /** The underlying drawing, for colours, bone groups and attachments. */
     readonly drawing: AutoMovieHumanPolygon.IDrawing;
 
-    /** Requested face fields outside the cartoon's supported subset, after the latest rebuild. */
+    /**
+     * Requested face fields outside the cartoon's supported subset, after the
+     * latest rebuild.
+     */
     unsupported: readonly string[];
 
     /**

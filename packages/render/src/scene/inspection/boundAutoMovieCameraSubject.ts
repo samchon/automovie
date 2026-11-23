@@ -10,9 +10,10 @@ import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
  * GPU tolerance, under its world matrix; Three keeps posed skinned positions in
  * the mesh's local frame, so the same world transform applies to both.
  *
- * @param meshes Meshes from listAutoMovieCameraSubjectMeshes, with current world matrices.
+ * @param meshes Meshes from listAutoMovieCameraSubjectMeshes, with current
+ *   world matrices.
  * @returns A finite world box in metres, or undefined when the list is empty or
- * any contribution is empty or non-finite.
+ *   any contribution is empty or non-finite.
  */
 export function boundAutoMovieCameraSubject(
   meshes: readonly Mesh[],

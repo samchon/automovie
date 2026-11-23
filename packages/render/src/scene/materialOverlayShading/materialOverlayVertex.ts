@@ -1,8 +1,6 @@
 import type { IMaterialOverlayShape } from "./IMaterialOverlayShape.js";
 
-/**
- * The vertex shader passing each overlay image's transformed UV.
- */
+/** The vertex shader passing each overlay image's transformed UV. */
 export const materialOverlayVertex: (
   vertexShader: string,
   shapes: readonly IMaterialOverlayShape[],

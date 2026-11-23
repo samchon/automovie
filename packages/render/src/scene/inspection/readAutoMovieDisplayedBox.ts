@@ -40,7 +40,10 @@ const LOCAL_BOXES: WeakMap<
   { key: string; box: THREE.Box3 | null }
 > = new WeakMap();
 
-/** Prove the twelve local triangles form one closed box, once per buffer version. */
+/**
+ * Prove the twelve local triangles form one closed box, once per buffer
+ * version.
+ */
 function readLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
   const position = geometry.getAttribute("position");
   const index: THREE.BufferAttribute | null = geometry.getIndex();
@@ -168,7 +171,10 @@ function placeBox(
   };
 }
 
-/** Only a finite, nonsingular affine world matrix preserves these representations. */
+/**
+ * Only a finite, nonsingular affine world matrix preserves these
+ * representations.
+ */
 function finiteAffine(matrix: THREE.Matrix4): boolean {
   const e = matrix.elements;
   const determinant: number = matrix.determinant();
@@ -191,13 +197,9 @@ function finite(point: THREE.Vector3): boolean {
   );
 }
 
-/**
- * Stock display admission shared with the posed vertex reader.
- */
+/** Stock display admission shared with the posed vertex reader. */
 export namespace readAutoMovieDisplayedBox {
-  /**
-   * Admit original opaque stock vertex paths with unchanged geometric output.
-   */
+  /** Admit original opaque stock vertex paths with unchanged geometric output. */
   export function supportsStockMaterial(mesh: THREE.Mesh): boolean {
     const material: THREE.Material | THREE.Material[] = mesh.material;
     return (
@@ -209,7 +211,8 @@ export namespace readAutoMovieDisplayedBox {
   }
 
   /**
-   * Admit one opaque stock surface material, leaving its vertex program to the caller.
+   * Admit one opaque stock surface material, leaving its vertex program to the
+   * caller.
    */
   export function supportsStockSurface(material: THREE.Material): boolean {
     return (
@@ -229,7 +232,10 @@ export namespace readAutoMovieDisplayedBox {
     );
   }
 
-  /** A skinned surface must use the same admitted method in its draw path and pose owner. */
+  /**
+   * A skinned surface must use the same admitted method in its draw path and
+   * pose owner.
+   */
   function matchesStockShader(
     mesh: THREE.Mesh,
     material: THREE.Material,
@@ -251,7 +257,8 @@ export namespace readAutoMovieDisplayedBox {
   }
 
   /**
-   * Project the stock skin's owned conservative sphere by each world affine row.
+   * Project the stock skin's owned conservative sphere by each world affine
+   * row.
    */
   export function skinEnvelope(
     mesh: AutoMovieSkinnedMesh,

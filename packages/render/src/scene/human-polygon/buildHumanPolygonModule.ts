@@ -11,11 +11,12 @@ import { humanPolygonTopology as LoftMesh } from "./humanPolygonTopology.js";
  *
  * The caller owns shape selection, shared boundaries, materials and every
  * emitted geometry. This module only emits their local mesh and diagnostics,
- * preserving the existing source sequence, zipper, winding and crown cap.
- * A band between two rings is the side of their convex hull: each ring's
- * edges taken in order of direction, each closed on the other ring's vertex
- * that supports it, so the drawn surface is the one the module's collider
- * hull takes from the same ring points. Its front query intersects those same emitted triangles for face attachment.
+ * preserving the existing source sequence, zipper, winding and crown cap. A
+ * band between two rings is the side of their convex hull: each ring's edges
+ * taken in order of direction, each closed on the other ring's vertex that
+ * supports it, so the drawn surface is the one the module's collider hull takes
+ * from the same ring points. Its front query intersects those same emitted
+ * triangles for face attachment.
  */
 export function buildHumanPolygonModule(
   bone: IAutoMovieHumanBindBone,
@@ -109,13 +110,15 @@ export function buildHumanPolygonModule(
   /**
    * Preserve triangle orientation selected from the actual source ring winding.
    *
-   * Principled implementation: Appends original triangle indices and reverses their last two slots only when the source-ring area requires it.
-   * Clear and simple design: One oriented emitter serves procedural bands and flat end fans.
-   * Prohibited implementation shortcuts: No vertex or topology correction is added during promotion.
-   * Meaningful documentation: States original source-winding ownership.
-   * Efficient algorithms: Three index appends in constant time.
-   * Reuse equivalent work: Appends to the existing module index buffer.
-   * Bound retention and release resources: Retains no extra records or native resource.
+   * Principled implementation: Appends original triangle indices and reverses
+   * their last two slots only when the source-ring area requires it. Clear and
+   * simple design: One oriented emitter serves procedural bands and flat end
+   * fans. Prohibited implementation shortcuts: No vertex or topology correction
+   * is added during promotion. Meaningful documentation: States original
+   * source-winding ownership. Efficient algorithms: Three index appends in
+   * constant time. Reuse equivalent work: Appends to the existing module index
+   * buffer. Bound retention and release resources: Retains no extra records or
+   * native resource.
    */
   const triangle: (a: number, b: number, c: number) => void = (
     a: number,
@@ -260,19 +263,22 @@ export function buildHumanPolygonModule(
   return { group, diagnostic, part };
 }
 
-/** Explicit section inputs shared by the display selector and mesh assembler.
- */
+/** Explicit section inputs shared by the display selector and mesh assembler. */
 export namespace buildHumanPolygonModule {
   /**
    * One original polygon section, with physical half dimensions.
    *
-   * Principled implementation: Carries registered metre centre/half-extents and optional actual points with independent display correspondence.
-   * Clear and simple design: One section contract serves original shape selection and mesh assembly.
-   * Prohibited implementation shortcuts: Optional source points retain surface authority instead of being replaced by an ellipse.
-   * Meaningful documentation: Gives metric centre/half dimensions, point ownership and display-coordinate purpose.
-   * Efficient algorithms: This section record performs no computation.
-   * Reuse equivalent work: The caller shares section records where original module boundaries coincide.
-   * Bound retention and release resources: The construction caller owns these temporary vectors/records.
+   * Principled implementation: Carries registered metre centre/half-extents and
+   * optional actual points with independent display correspondence. Clear and
+   * simple design: One section contract serves original shape selection and
+   * mesh assembly. Prohibited implementation shortcuts: Optional source points
+   * retain surface authority instead of being replaced by an ellipse.
+   * Meaningful documentation: Gives metric centre/half dimensions, point
+   * ownership and display-coordinate purpose. Efficient algorithms: This
+   * section record performs no computation. Reuse equivalent work: The caller
+   * shares section records where original module boundaries coincide. Bound
+   * retention and release resources: The construction caller owns these
+   * temporary vectors/records.
    */
   export interface ISection {
     /** Centre in the skeleton's registered rest frame. */
@@ -292,19 +298,24 @@ export namespace buildHumanPolygonModule {
   }
 
   /**
-   * Query the frontmost local triangle X for a face attachment at Y/Z.
-   * The caller supplies the emitted indexed triangle geometry and its actual
-   * local bounds. A +X ray starts behind those bounds, accepts either winding
-   * and selects the greatest hit X. Nonfinite Y+Z or no hit returns undefined.
-   * The query borrows the mesh and does not apply its posed placement again.
+   * Query the frontmost local triangle X for a face attachment at Y/Z. The
+   * caller supplies the emitted indexed triangle geometry and its actual local
+   * bounds. A +X ray starts behind those bounds, accepts either winding and
+   * selects the greatest hit X. Nonfinite Y+Z or no hit returns undefined. The
+   * query borrows the mesh and does not apply its posed placement again.
    *
-   * Principled implementation: Intersects the actual indexed triangles double-sided along local +X and returns the greatest hit X; invalid query coordinates and no hit return undefined.
-   * Clear and simple design: One actual-surface query serves the original cartoon attachment without another head representation.
-   * Prohibited implementation shortcuts: No primitive fit, silhouette fallback or second pose replaces the supplied triangle surface.
-   * Meaningful documentation: Documents local frame, ray direction, indexed-geometry premise and undefined results.
-   * Efficient algorithms: Scans T emitted triangles once with constant-size vector/ray scratch.
-   * Reuse equivalent work: Borrows original buffers and reuses triangle vectors throughout the scan.
-   * Bound retention and release resources: All scratch is call-local; the query retains no geometry or native resource.
+   * Principled implementation: Intersects the actual indexed triangles
+   * double-sided along local +X and returns the greatest hit X; invalid query
+   * coordinates and no hit return undefined. Clear and simple design: One
+   * actual-surface query serves the original cartoon attachment without another
+   * head representation. Prohibited implementation shortcuts: No primitive fit,
+   * silhouette fallback or second pose replaces the supplied triangle surface.
+   * Meaningful documentation: Documents local frame, ray direction,
+   * indexed-geometry premise and undefined results. Efficient algorithms: Scans
+   * T emitted triangles once with constant-size vector/ray scratch. Reuse
+   * equivalent work: Borrows original buffers and reuses triangle vectors
+   * throughout the scan. Bound retention and release resources: All scratch is
+   * call-local; the query retains no geometry or native resource.
    */
   export function frontAt(
     geometry: THREE.BufferGeometry,

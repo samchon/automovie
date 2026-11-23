@@ -2,9 +2,7 @@ import * as THREE from "three";
 
 import type { AutoMovieHumanPolygon } from "./AutoMovieHumanPolygon.js";
 
-/**
- * Bake and mount the original cartoon marks on the actual polygon front.
- */
+/** Bake and mount the original cartoon marks on the actual polygon front. */
 export function mountHumanCartoonFace(
   object: THREE.Group,
   head: Pick<AutoMovieHumanPolygon.IDrawing["head"], "min" | "max" | "frontAt">,

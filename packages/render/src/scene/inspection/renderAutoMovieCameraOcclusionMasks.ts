@@ -34,7 +34,10 @@ interface IProps {
   /** Every admitted drawable of the delivery scene. */
   drawables: readonly renderAutoMovieCameraOcclusionMasks.IDrawable[];
 
-  /** One isolated pass, or a second composite pass when a blocker may cover the subject. */
+  /**
+   * One isolated pass, or a second composite pass when a blocker may cover the
+   * subject.
+   */
   passes: 1 | 2;
 }
 
@@ -49,7 +52,7 @@ interface IProps {
  *
  * @param props The admitted scene, drawables, region and pass count.
  * @returns The measured isolated and visible pixel counts, or the reason the
- * scratch framebuffer could not reproduce the delivered raster.
+ *   scratch framebuffer could not reproduce the delivered raster.
  */
 export function renderAutoMovieCameraOcclusionMasks(
   props: IProps,
@@ -113,7 +116,10 @@ export function renderAutoMovieCameraOcclusionMasks(
   restoreAutoMovieRenderModeState(restore);
   return result;
 
-  /** Reads one indistinguishable-depth output raster without changing the camera. */
+  /**
+   * Reads one indistinguishable-depth output raster without changing the
+   * camera.
+   */
   function draw(): measureAutoMovieCameraOcclusionPixels.IResult {
     renderer.setRenderTarget(renderTarget);
     if (
@@ -184,13 +190,9 @@ export function renderAutoMovieCameraOcclusionMasks(
   }
 }
 
-/**
- * Types shared between the pixel audit's admission and its mask rendering.
- */
+/** Types shared between the pixel audit's admission and its mask rendering. */
 export namespace renderAutoMovieCameraOcclusionMasks {
-  /**
-   * Native sample rectangle of the delivery raster, origin at the bottom left.
-   */
+  /** Native sample rectangle of the delivery raster, origin at the bottom left. */
   export interface IRegion {
     /** Left edge in native samples. */
     x: number;
@@ -205,9 +207,7 @@ export namespace renderAutoMovieCameraOcclusionMasks {
     height: number;
   }
 
-  /**
-   * Conservative clip-space interval of a drawable's world envelope.
-   */
+  /** Conservative clip-space interval of a drawable's world envelope. */
   export interface IRange {
     /** Left, bottom and near extents in divided clip coordinates. */
     min: THREE.Vector3;
@@ -216,9 +216,7 @@ export namespace renderAutoMovieCameraOcclusionMasks {
     max: THREE.Vector3;
   }
 
-  /**
-   * Borrowed drawable state and its admitted semantic membership.
-   */
+  /** Borrowed drawable state and its admitted semantic membership. */
   export interface IDrawable {
     /** Original ordinary rigid mesh. */
     mesh: THREE.Mesh;

@@ -4,7 +4,10 @@ import type { IAutoMovieViewerSubjectViewRequest } from "./IAutoMovieViewerSubje
 import { applyAutoMovieViewerSubjectPose } from "./applyAutoMovieViewerSubjectPose.js";
 
 /**
- * Apply pose, resolve populations, then synchronously draw/encode one inspection image. Subject and pose are supplied labels and borrowed references; equal labels do not guarantee equal scene pixels, source freshness or actual hardware readiness.
+ * Apply pose, resolve populations, then synchronously draw/encode one
+ * inspection image. Subject and pose are supplied labels and borrowed
+ * references; equal labels do not guarantee equal scene pixels, source
+ * freshness or actual hardware readiness.
  */
 export function captureAutoMovieViewerSubjectView(
   request: IAutoMovieViewerSubjectViewRequest,

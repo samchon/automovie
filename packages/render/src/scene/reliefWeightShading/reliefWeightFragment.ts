@@ -3,7 +3,9 @@ import * as THREE from "three";
 import { RELIEF_WEIGHT_TARGET } from "./RELIEF_WEIGHT_TARGET.js";
 
 /**
- * Multiply base normal-map slopes by interpolated relief after their native scale. The native chunk is expanded only when still present; a shader with no scale boundary is refused rather than leaving the material unmodified.
+ * Multiply base normal-map slopes by interpolated relief after their native
+ * scale. The native chunk is expanded only when still present; a shader with no
+ * scale boundary is refused rather than leaving the material unmodified.
  */
 export const reliefWeightFragment: (fragmentShader: string) => string = (
   fragmentShader: string,

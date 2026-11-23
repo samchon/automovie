@@ -6,7 +6,8 @@ import { evaluateAutoMovieViewerCameraDepthPrecision } from "./evaluateAutoMovie
  * engine's declared fixed-point capability gate, preserving a passing report.
  *
  * The evaluator checks properties and actual bits, not rendered error or custom
- * shader behavior. Failure includes the status, clips, mode and requested bits.
+ * shader behavior. Failure includes the status, clips, mode and requested
+ * bits.
  */
 export const assertAutoMovieViewerCameraDepthPrecision: (
   props: Parameters<typeof evaluateAutoMovieViewerCameraDepthPrecision>[0],

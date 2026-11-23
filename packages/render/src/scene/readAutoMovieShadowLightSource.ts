@@ -2,7 +2,11 @@ import type { IAutoMovieLight } from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
- * Project one actual punctual light into the Engine's shadow-caster identity. The caller supplies the authored or runtime identity. Native class markers own the kind and castShadow owns participation, independent of visibility. Other scene objects and non-punctual lights return null rather than a fabricated shadow source. Admission and allocation formulas stay in Engine.
+ * Project one actual punctual light into the Engine's shadow-caster identity.
+ * The caller supplies the authored or runtime identity. Native class markers
+ * own the kind and castShadow owns participation, independent of visibility.
+ * Other scene objects and non-punctual lights return null rather than a
+ * fabricated shadow source. Admission and allocation formulas stay in Engine.
  */
 export const readAutoMovieShadowLightSource: (
   id: string,

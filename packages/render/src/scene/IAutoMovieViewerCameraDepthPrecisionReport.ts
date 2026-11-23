@@ -1,6 +1,4 @@
-/**
- * Observable viewer capability result for one resolved production camera.
- */
+/** Observable viewer capability result for one resolved production camera. */
 export interface IAutoMovieViewerCameraDepthPrecisionReport {
   /** Stable resolved camera identity. */
   camera: string;

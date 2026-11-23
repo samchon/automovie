@@ -14,11 +14,12 @@ import { normalizeRenderTier } from "./normalizeRenderTier.js";
  * Project a production's frame format through a render tier.
  *
  * The final tier returns a copy of the source unchanged. A proxy scales width
- * and height by `resolutionScale`, rounding each down to an even pixel count
- * of at least 2, divides the exact frame rate by `frameStep` and reduces it,
- * sets `fps` to that rate's decimal value, and keeps the color space and crop.
+ * and height by `resolutionScale`, rounding each down to an even pixel count of
+ * at least 2, divides the exact frame rate by `frameStep` and reduces it, sets
+ * `fps` to that rate's decimal value, and keeps the color space and crop.
  * Throws when the tier is not admissible under `normalizeRenderTier` or the
- * source frame rate is invalid on the proxy branch. Final returns the source copy before rate resolution and performs no raster or rate admission.
+ * source frame rate is invalid on the proxy branch. Final returns the source
+ * copy before rate resolution and performs no raster or rate admission.
  */
 export const resolveProductionRenderTierFrameFormat: (
   source: IAutoMovieProductionDesign["frameFormat"],

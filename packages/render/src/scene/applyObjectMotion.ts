@@ -5,9 +5,18 @@ import type * as THREE from "three";
 import { applySampledObjectMotion } from "./applySampledObjectMotion.js";
 
 /**
- * Drive scene objects from a world-space node clip: a shot's `objectMotion` (a projectile's baked flight, a prop following a bone) or its `cameraMotion`. Sample the clip at `seconds` and write each node channel straight onto the `THREE.Object3D` that `resolve` returns for that node: translation, rotation and scale onto the object's local transform, `weights` onto the morph influences of every morphable mesh beneath it. A node with no object or a non-node channel is skipped. Light changes ride the shot's `lightMotions` through {@link applyLightMotion}; the artifact gate refuses pointer tracks on a transform clip.
+ * Drive scene objects from a world-space node clip: a shot's `objectMotion` (a
+ * projectile's baked flight, a prop following a bone) or its `cameraMotion`.
+ * Sample the clip at `seconds` and write each node channel straight onto the
+ * `THREE.Object3D` that `resolve` returns for that node: translation, rotation
+ * and scale onto the object's local transform, `weights` onto the morph
+ * influences of every morphable mesh beneath it. A node with no object or a
+ * non-node channel is skipped. Light changes ride the shot's `lightMotions`
+ * through {@link applyLightMotion}; the artifact gate refuses pointer tracks on
+ * a transform clip.
  *
- * World-space clip values therefore require matching parent coordinates, or a host conversion before this writer; it does not invert parent matrices.
+ * World-space clip values therefore require matching parent coordinates, or a
+ * host conversion before this writer; it does not invert parent matrices.
  *
  * The shared writer switches on all four current node paths, including morph
  * weights (#1357). Its void-returning switch has no exhaustive-type assertion;

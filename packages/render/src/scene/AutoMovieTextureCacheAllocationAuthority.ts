@@ -54,15 +54,17 @@ type BindingWrites = {
  *
  * A successful exclusive environment retirement may refresh that wrapper's
  * same-capacity tuple; it cannot repair an original or another issued wrapper.
- * Detached Source history cannot certify native retirement: r186 disposal
- * looks up the current Source and can leave the previous allocation alive.
- * Listeners never throw or assert physical release; owners mark uncertainty
- * before disposal and report indeterminate history after independent attempts.
- * These are owned object inputs, not native keys, handles or byte estimates.
- * A binding-issued wrapper cannot become a decoder original, including within
- * its own cache; this prevents an alias from laundering its earlier history.
+ * Detached Source history cannot certify native retirement: r186 disposal looks
+ * up the current Source and can leave the previous allocation alive. Listeners
+ * never throw or assert physical release; owners mark uncertainty before
+ * disposal and report indeterminate history after independent attempts. These
+ * are owned object inputs, not native keys, handles or byte estimates. A
+ * binding-issued wrapper cannot become a decoder original, including within its
+ * own cache; this prevents an alias from laundering its earlier history.
  *
- * History is observed at these transition/read boundaries, not by intercepting every texture write. A mutation fully restored between observations is not detected; only observed drift becomes sticky uncertainty.
+ * History is observed at these transition/read boundaries, not by intercepting
+ * every texture write. A mutation fully restored between observations is not
+ * detected; only observed drift becomes sticky uncertainty.
  */
 export class AutoMovieTextureCacheAllocationAuthority {
   private static readonly originals: WeakMap<THREE.Texture, Claim> =
@@ -70,9 +72,7 @@ export class AutoMovieTextureCacheAllocationAuthority {
   private static readonly wrappers: WeakMap<THREE.Texture, Wrapper> =
     new WeakMap<THREE.Texture, Wrapper>();
 
-  /**
-   * Transfer a returned original once, before a decode becomes cache-owned.
-   */
+  /** Transfer a returned original once, before a decode becomes cache-owned. */
   public static claim(owner: object, texture: THREE.Texture): void {
     const issued: Wrapper | undefined = this.wrappers.get(texture);
     if (issued !== undefined)
@@ -104,9 +104,7 @@ export class AutoMovieTextureCacheAllocationAuthority {
     });
   }
 
-  /**
-   * Fix the original before native copy can evaluate host userData accessors.
-   */
+  /** Fix the original before native copy can evaluate host userData accessors. */
   public static beginIssue(original: THREE.Texture): IssueReceipt {
     const claim: Claim = this.originals.get(original)!;
     const before: Inputs = inputs(original);
@@ -114,9 +112,7 @@ export class AutoMovieTextureCacheAllocationAuthority {
     return { claim, before, clean: this.originalCurrent(claim) };
   }
 
-  /**
-   * Observe completion or failure and validate the actual copied fields.
-   */
+  /** Observe completion or failure and validate the actual copied fields. */
   public static finishIssue(
     receipt: IssueReceipt,
     texture?: THREE.Texture,
@@ -142,9 +138,7 @@ export class AutoMovieTextureCacheAllocationAuthority {
     });
   }
 
-  /**
-   * Unmanaged objects retain the reader's documented before-upload contract.
-   */
+  /** Unmanaged objects retain the reader's documented before-upload contract. */
   public static current(texture: THREE.Texture): boolean {
     const original: Claim | undefined = this.originals.get(texture);
     if (original !== undefined) {
@@ -158,17 +152,13 @@ export class AutoMovieTextureCacheAllocationAuthority {
     return wrapper === undefined || this.wrapperCurrent(wrapper);
   }
 
-  /**
-   * Stable environment reuse concerns its own tuple, not another user's drift.
-   */
+  /** Stable environment reuse concerns its own tuple, not another user's drift. */
   public static environmentStable(texture: THREE.Texture): boolean {
     const wrapper: Wrapper | undefined = this.wrappers.get(texture);
     return wrapper === undefined || this.wrapperOwnCurrent(wrapper);
   }
 
-  /**
-   * Only a clean pre-write tuple can acknowledge ordinary binding changes.
-   */
+  /** Only a clean pre-write tuple can acknowledge ordinary binding changes. */
   public static beginBinding(
     texture: THREE.Texture,
   ): BindingReceipt | undefined {
@@ -182,9 +172,7 @@ export class AutoMovieTextureCacheAllocationAuthority {
         };
   }
 
-  /**
-   * Fixed inputs cannot be blessed by changing sampler, decoding or UVs.
-   */
+  /** Fixed inputs cannot be blessed by changing sampler, decoding or UVs. */
   public static finishBinding(
     receipt: BindingReceipt | undefined,
     writes: BindingWrites,
@@ -218,9 +206,7 @@ export class AutoMovieTextureCacheAllocationAuthority {
     wrapper.inputs = after;
   }
 
-  /**
-   * Mark uncertainty before the exclusive scene owner starts retirement.
-   */
+  /** Mark uncertainty before the exclusive scene owner starts retirement. */
   public static beginEnvironment(
     texture: THREE.Texture,
   ): EnvironmentReceipt | undefined {
@@ -237,9 +223,7 @@ export class AutoMovieTextureCacheAllocationAuthority {
     return { wrapper, before, permitted };
   }
 
-  /**
-   * A successful same-capacity retirement refreshes this environment only.
-   */
+  /** A successful same-capacity retirement refreshes this environment only. */
   public static finishEnvironment(
     receipt: EnvironmentReceipt | undefined,
   ): boolean {
@@ -260,9 +244,7 @@ export class AutoMovieTextureCacheAllocationAuthority {
     return true;
   }
 
-  /**
-   * Call before a cache's public disposal, including originals with listeners.
-   */
+  /** Call before a cache's public disposal, including originals with listeners. */
   public static beginRetirement(texture: THREE.Texture): void {
     const original: Claim | undefined = this.originals.get(texture);
     if (original !== undefined) {
@@ -279,9 +261,7 @@ export class AutoMovieTextureCacheAllocationAuthority {
     }
   }
 
-  /**
-   * Preserve an old detached footprint even after public dispose returns.
-   */
+  /** Preserve an old detached footprint even after public dispose returns. */
   public static finishRetirement(texture: THREE.Texture): Error | undefined {
     const original: Claim | undefined = this.originals.get(texture);
     if (original !== undefined) {

@@ -5,7 +5,12 @@ import { SPACE_GROUP_NAME } from "./buildSpace.js";
 /**
  * Say which objects cast a shadow and which receive one.
  *
- * `stageScene` validates a light's `castShadow` and refuses shadow settings without it; the render inventory counts casters and its budget constrains that count. {@link buildLight} applies the flag and shadow camera settings, while {@link applyRendererEnvironment} sets the renderer shadow policy reversibly. This adapter supplies the remaining mesh participation flags; enabled maps and casting lights alone do not make a mesh participate.
+ * `stageScene` validates a light's `castShadow` and refuses shadow settings
+ * without it; the render inventory counts casters and its budget constrains
+ * that count. {@link buildLight} applies the flag and shadow camera settings,
+ * while {@link applyRendererEnvironment} sets the renderer shadow policy
+ * reversibly. This adapter supplies the remaining mesh participation flags;
+ * enabled maps and casting lights alone do not make a mesh participate.
  *
  * That absence is not visible as an absence. A benchmark authored a fascia and
  * soffit band with a deliberate dark recess above the wall, and the darkening
@@ -18,9 +23,10 @@ import { SPACE_GROUP_NAME } from "./buildSpace.js";
  * than blanket-enabled, and the product knows the difference at exactly one
  * place, which is here. A model's parts are solids: they cast and they receive.
  * The standable surfaces under {@link SPACE_GROUP_NAME} are open patches for
- * structural guides and optional flat color. They neither cast nor receive.
- * A volume-free patch casting onto its own plane produces depth acne, and its
- * basic material has no shadow response. Objects without geometry are untouched.
+ * structural guides and optional flat color. They neither cast nor receive. A
+ * volume-free patch casting onto its own plane produces depth acne, and its
+ * basic material has no shadow response. Objects without geometry are
+ * untouched.
  *
  * Exported, and separate from {@link buildScene}, for the reason
  * {@link applySceneFog} is: a host that assembles its own scene graph — a

@@ -34,7 +34,10 @@ interface ILayer extends collectAutoMovieCollisionParts.ILayer {
   localSeconds: number;
   /** The layer's shot path, when known. */
   shotPath?: string;
-  /** Whether delivery requires every collision obligation of this layer to be resolved. */
+  /**
+   * Whether delivery requires every collision obligation of this layer to be
+   * resolved.
+   */
   required?: boolean;
   /** Named permitted contact, applied alike to placed frames and motion cells. */
   allowances?: readonly Collision.IAllowance[];
@@ -63,12 +66,12 @@ interface IProps {
  * interval violations. The caller supplies its active world layers.
  *
  * Every drawn object of a layer is collected once and the Engine layer search
- * proposes candidate pairs. Displayed shapes that only touch within the
- * native query's precision are clear. Any other candidate is confirmed by a
- * drawn surface point inside the other part's solid beyond the allowance at
- * that point, or cleared when both directions are searched completely; a
- * budget or a missing solid leaves it unresolved with its reason. Every
- * unresolved row inherits the layer's delivery requirement.
+ * proposes candidate pairs. Displayed shapes that only touch within the native
+ * query's precision are clear. Any other candidate is confirmed by a drawn
+ * surface point inside the other part's solid beyond the allowance at that
+ * point, or cleared when both directions are searched completely; a budget or a
+ * missing solid leaves it unresolved with its reason. Every unresolved row
+ * inherits the layer's delivery requirement.
  *
  * @param props The clock, layers, contact query, refinement and work limits.
  * @returns Findings and coverage rows for the frame.

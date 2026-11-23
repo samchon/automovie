@@ -17,23 +17,28 @@ import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 /** Program key installed by the formation cycle material owner. */
 const CYCLE_PROGRAM: string = "automovie-formation-cycle";
 
-/** Union of every part's rest bounds over the baked samples of one take, per geometry. */
+/**
+ * Union of every part's rest bounds over the baked samples of one take, per
+ * geometry.
+ */
 const CYCLE_BOUNDS: WeakMap<
   IAutoMovieFormationCycleTake,
   WeakMap<THREE.BufferGeometry, THREE.Box3 | null>
 > = new WeakMap();
 
 /**
- * Read each drawn instance of a batch, named by the generator's slot when it recorded one.
+ * Read each drawn instance of a batch, named by the generator's slot when it
+ * recorded one.
  *
  * A static stock box instance is an exact displayed solid. Any other admitted
  * instance is a world envelope over its static geometry or every baked sample
- * of its playing cycle, with a surface posed by the vertex stage's own law.
- * A zero-scale instance draws nothing and is skipped.
+ * of its playing cycle, with a surface posed by the vertex stage's own law. A
+ * zero-scale instance draws nothing and is skipped.
  *
  * @param mesh The drawn batch.
  * @param identity Path prefix for instances without a generator record.
- * @param budget Posed vertices the frame may still spend; charged when a surface is read.
+ * @param budget Posed vertices the frame may still spend; charged when a
+ *   surface is read.
  * @param add Receives each part, its lazy surface and any unsupported reason.
  */
 export function readAutoMovieCollisionInstances(
@@ -139,7 +144,10 @@ export function readAutoMovieCollisionInstances(
   }
 }
 
-/** Admit stock surfaces drawn by the default program, or by the formation cycle program when the batch has a cycle. */
+/**
+ * Admit stock surfaces drawn by the default program, or by the formation cycle
+ * program when the batch has a cycle.
+ */
 function admits(mesh: THREE.InstancedMesh, cyclic: boolean): boolean {
   const materials: THREE.Material[] = Array.isArray(mesh.material)
     ? mesh.material
@@ -204,7 +212,10 @@ function cyclePose(
   };
 }
 
-/** Linear mixes of two samples keep each point inside their segment, so the samples bound every phase. */
+/**
+ * Linear mixes of two samples keep each point inside their segment, so the
+ * samples bound every phase.
+ */
 function cycleBounds(
   geometry: THREE.BufferGeometry,
   topology: readAutoMovieCollisionTopology.ITopology,

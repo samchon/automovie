@@ -1,5 +1,6 @@
 /**
- * Authored subject categories used by the inspection identity parser; these categories carry no shot or delivery identity.
+ * Authored subject categories used by the inspection identity parser; these
+ * categories carry no shot or delivery identity.
  */
 export type AutoMovieViewerSubjectKind =
   | "built-environment"

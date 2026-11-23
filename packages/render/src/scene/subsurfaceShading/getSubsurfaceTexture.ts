@@ -9,7 +9,9 @@ const { cosines: COSINES, blurs: BLURS }: typeof SUBSURFACE_TEXTURE_SIZE =
 
 let shared: THREE.DataTexture | null = null;
 /**
- * Return the module-shared 64-by-32 red half-float subsurface lookup wrapper. Consumers borrow its immutable sampling/content state; module retention has no explicit final disposal boundary.
+ * Return the module-shared 64-by-32 red half-float subsurface lookup wrapper.
+ * Consumers borrow its immutable sampling/content state; module retention has
+ * no explicit final disposal boundary.
  */
 export function getSubsurfaceTexture(): THREE.DataTexture {
   if (shared !== null) return shared;

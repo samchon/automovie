@@ -28,18 +28,27 @@ import { textureBindingAsset } from "./textureBindingAsset.js";
  * state private. Within one WebGL renderer, that source can share a GPU texture
  * when the renderer's texture-state keys match. UV repeat and offset alone do
  * not change that key; different sampler, format, flip or color-space state can
- * allocate and upload separate textures for the same pixels. GPU resources
- * also belong to their renderer, so sharing a decoded source does not promise
- * one upload across bindings, updates or renderers.
+ * allocate and upload separate textures for the same pixels. GPU resources also
+ * belong to their renderer, so sharing a decoded source does not promise one
+ * upload across bindings, updates or renderers.
  *
  * The cache is per shot rather than per model because a shot is the lifetime a
- * host can actually end: {@link dispose} attempts every distinct Texture it
- * owns once and preserves failed retirement, however many times it is called. A
+ * host can actually end: {@link dispose} attempts every distinct Texture it owns
+ * once and preserves failed retirement, however many times it is called. A
  * cache that has been disposed refuses further work rather than quietly
- * decoding into a bucket nobody will empty.
- * The first issuance fixes the original's inputs before native copy starts and verifies its successful or failed completion. Later observed original or uncontrolled issued-wrapper changes make its facts uncertified, even after properties are restored. Unobserved round trips between checks are not detected. Normal material and exclusive environment owners acknowledge their own supported transitions.
+ * decoding into a bucket nobody will empty. The first issuance fixes the
+ * original's inputs before native copy starts and verifies its successful or
+ * failed completion. Later observed original or uncontrolled issued-wrapper
+ * changes make its facts uncertified, even after properties are restored.
+ * Unobserved round trips between checks are not detected. Normal material and
+ * exclusive environment owners acknowledge their own supported transitions.
  *
- * A different live cache cannot acquire this cache's original or issued wrapper; distinct wrappers may still share decoded pixels. A detached Source can leave an earlier native upload alive after public disposal and therefore makes completion indeterminate. An issued binding wrapper cannot return through the loader as a decoder original, including an alias inside this same cache.
+ * A different live cache cannot acquire this cache's original or issued
+ * wrapper; distinct wrappers may still share decoded pixels. A detached Source
+ * can leave an earlier native upload alive after public disposal and therefore
+ * makes completion indeterminate. An issued binding wrapper cannot return
+ * through the loader as a decoder original, including an alias inside this same
+ * cache.
  */
 export class AutoMovieTextureCache {
   private readonly pending: Map<string, Promise<THREE.Texture>> = new Map<
@@ -50,13 +59,19 @@ export class AutoMovieTextureCache {
     string,
     THREE.Texture
   >();
-  /** Where each primed asset id's pixels come from: carried base64 data, or null for the host loader. */
+  /**
+   * Where each primed asset id's pixels come from: carried base64 data, or null
+   * for the host loader.
+   */
   private readonly origins: Map<string, string | null> = new Map<
     string,
     string | null
   >();
   private readonly issued: THREE.Texture[] = [];
-  /** Actual failed or indeterminate wrappers retained after public bookkeeping closes. */
+  /**
+   * Actual failed or indeterminate wrappers retained after public bookkeeping
+   * closes.
+   */
   private readonly uncertainRetirements: Set<THREE.Texture> =
     new Set<THREE.Texture>();
   private readonly allocationOwner: object = {};
@@ -94,10 +109,10 @@ export class AutoMovieTextureCache {
    * Decode every distinct asset the given bindings name, at most once each.
    *
    * An asset id that names one of `images`, the images the binding's model
-   * carries, is decoded from those bytes by {@link decodeAutoMovieImage};
-   * every other id goes to the host loader. One id names one image for the
-   * whole shot: priming it again from different carried bytes, or once carried
-   * and once from the loader, rejects before anything is decoded, because
+   * carries, is decoded from those bytes by {@link decodeAutoMovieImage}; every
+   * other id goes to the host loader. One id names one image for the whole
+   * shot: priming it again from different carried bytes, or once carried and
+   * once from the loader, rejects before anything is decoded, because
    * {@link resolve} sees only the id.
    *
    * Awaiting this is what makes {@link resolve} synchronous, which is what lets
@@ -167,18 +182,17 @@ export class AutoMovieTextureCache {
   public readonly resolve: (binding: AutoMovieTextureBinding) => THREE.Texture;
 
   /**
-   * A material wrapper shared by every equal binding, for {@link buildModel}
-   * and {@link buildMaterial} when one shot builds several models or rebuilds
-   * one.
+   * A material wrapper shared by every equal binding, for {@link buildModel} and
+   * {@link buildMaterial} when one shot builds several models or rebuilds one.
    *
-   * Two object bindings that carry the same fields (asset, coordinate set
-   * and source, colour space, UV transform and sampler) make
-   * `resolveAutoMovieMaterialTexture` write the same state onto their
-   * wrapper, so they can share it; each distinct binding still receives its
-   * own wrapper, issued once by {@link resolve}. A legacy string binding takes
-   * its colour space from the slot it fills, which the binding does not
-   * name, so it always receives a fresh wrapper. Environment scenes need a
-   * wrapper of their own and must keep using {@link resolve}.
+   * Two object bindings that carry the same fields (asset, coordinate set and
+   * source, colour space, UV transform and sampler) make
+   * `resolveAutoMovieMaterialTexture` write the same state onto their wrapper,
+   * so they can share it; each distinct binding still receives its own wrapper,
+   * issued once by {@link resolve}. A legacy string binding takes its colour
+   * space from the slot it fills, which the binding does not name, so it always
+   * receives a fresh wrapper. Environment scenes need a wrapper of their own
+   * and must keep using {@link resolve}.
    */
   public readonly resolveShared: (
     binding: AutoMovieTextureBinding,
@@ -205,8 +219,8 @@ export class AutoMovieTextureCache {
   }
 
   /**
-   * Read host-decoded upload facts for preflight before the first GPU draw.
-   * The source object supplies its dimensions, component width and inherited
+   * Read host-decoded upload facts for preflight before the first GPU draw. The
+   * source object supplies its dimensions, component width and inherited
    * sampling; material bindings still select their separate resident variants.
    * The texture token names the cache's original object. For environment
    * derivative ownership, call {@link readAutoMovieTextureSource} on the actual

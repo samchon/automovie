@@ -13,20 +13,21 @@ import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
 /**
- * List the drawables of a required subject whose current geometry the CPU can read.
+ * List the drawables of a required subject whose current geometry the CPU can
+ * read.
  *
  * Admits two vertex paths. A rigid `Mesh` keeps the stock pre-render callbacks,
- * has no position morphs and no material that moves vertices on the GPU, so
- * its buffer positions times its world matrix are what the delivery draws. An
- * `AutoMovieSkinnedMesh` with a stock surface whose shader matches its
- * skinning method reads posed positions from the skin's own CPU evaluation,
- * which agrees with the GPU blend within the mesh's stated float32 tolerance.
+ * has no position morphs and no material that moves vertices on the GPU, so its
+ * buffer positions times its world matrix are what the delivery draws. An
+ * `AutoMovieSkinnedMesh` with a stock surface whose shader matches its skinning
+ * method reads posed positions from the skin's own CPU evaluation, which agrees
+ * with the GPU blend within the mesh's stated float32 tolerance.
  *
  * @param target Resolved displayed root of the required subject.
  * @param camera Delivery camera; only objects on its layers are drawn by it.
  * @returns Every visible drawable mesh of the subject, or undefined when one
- * visible drawable has a vertex path the CPU cannot reproduce. An empty list
- * means the subject draws no mesh.
+ *   visible drawable has a vertex path the CPU cannot reproduce. An empty list
+ *   means the subject draws no mesh.
  */
 export function listAutoMovieCameraSubjectMeshes(
   target: Object3D,

@@ -5,11 +5,13 @@ import type { IAutoMovieSectionRenderer } from "./IAutoMovieSectionRenderer.js";
 
 /**
  * Inspection clipping applied to existing material state without deleting or
- * rebuilding source geometry. One converted plane set is shared by the subtree.
+ * rebuilding source geometry. One converted plane set is shared by the
+ * subtree.
  */
 export interface IApplyAutoMovieSectionPlanesProps {
   /**
-   * Renderer switch mutated to reflect whether the supplied plane list is empty.
+   * Renderer switch mutated to reflect whether the supplied plane list is
+   * empty.
    */
   renderer: IAutoMovieSectionRenderer;
 
@@ -20,8 +22,9 @@ export interface IApplyAutoMovieSectionPlanesProps {
   root: THREE.Object3D;
 
   /**
-   * World-space engine half-spaces; an empty list releases clipping. The runtime
-   * converts their remove-side normal once without changing these records.
+   * World-space engine half-spaces; an empty list releases clipping. The
+   * runtime converts their remove-side normal once without changing these
+   * records.
    */
   planes: readonly IAutoMovieSectionPlane[];
 }

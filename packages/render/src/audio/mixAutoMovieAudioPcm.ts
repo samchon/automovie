@@ -13,12 +13,12 @@ import type {
  * `round(seconds * sampleRate)` and lasting `round(durationSeconds *
  * sampleRate)` samples (the rest of the source by default). It is shaped by
  * symmetric linear edge fades of `fadeSeconds` (at most half the cue) and
- * placed by equal-power pan, left `cos((pan + 1) pi / 4)` and right
- * `sin((pan + 1) pi / 4)`, times its gain and the master gain. Samples past
- * the soundtrack's end are dropped. The sum is clipping-safe by refusal: a
- * nonfinite sample or a peak above 1 throws instead of limiting, so a mix
- * never ships silently distorted. Cost is linear in audible cue samples and
- * the output length.
+ * placed by equal-power pan, left `cos((pan + 1) pi / 4)` and right `sin((pan +
+ * 1) pi / 4)`, times its gain and the master gain. Samples past the
+ * soundtrack's end are dropped. The sum is clipping-safe by refusal: a
+ * nonfinite sample or a peak above 1 throws instead of limiting, so a mix never
+ * ships silently distorted. Cost is linear in audible cue samples and the
+ * output length.
  *
  * @returns Both channels the caller owns, and the peak absolute amplitude.
  */

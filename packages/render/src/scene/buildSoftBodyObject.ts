@@ -7,7 +7,17 @@ import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Project one canonical Engine cloth surface into an owned Three mesh. Positions, normals and UVs become Float32 attributes; installed SDK setIndex chooses index representation. Engine drawn-panel bounds define the sphere and null bounds hide a cord, while required userData.status preserves solved/rest/derived/not-run/unsupported meaning. Default material and DoubleSide values are unchanged and supplied material is borrowed. Compatible buffers update in place; changed dimensions/index width transfer geometry ownership and retire the prior geometry once. Failed retirement blocks further updates and keeps its cause/owner for independent final close. Current maintained consumers are the existing viewer units; no production rendering route or native appearance is certified here.
+ * Project one canonical Engine cloth surface into an owned Three mesh.
+ * Positions, normals and UVs become Float32 attributes; installed SDK setIndex
+ * chooses index representation. Engine drawn-panel bounds define the sphere and
+ * null bounds hide a cord, while required userData.status preserves
+ * solved/rest/derived/not-run/unsupported meaning. Default material and
+ * DoubleSide values are unchanged and supplied material is borrowed. Compatible
+ * buffers update in place; changed dimensions/index width transfer geometry
+ * ownership and retire the prior geometry once. Failed retirement blocks
+ * further updates and keeps its cause/owner for independent final close.
+ * Current maintained consumers are the existing viewer units; no production
+ * rendering route or native appearance is certified here.
  */
 export const buildSoftBodyObject: (
   props: IBuildSoftBodyObjectProps,

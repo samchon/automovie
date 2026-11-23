@@ -5,7 +5,8 @@ import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
 /**
- * Apply solved world bone frames to an existing complete skin rig, retaining unlisted bones' authored local transforms.
+ * Apply solved world bone frames to an existing complete skin rig, retaining
+ * unlisted bones' authored local transforms.
  */
 export function createAutoMoviePhysicalPoseAdapter(
   model: IAutoMovieModelObject,

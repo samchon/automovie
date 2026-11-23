@@ -4,7 +4,9 @@ import {
 } from "@automovie/interface";
 
 /**
- * Every texture binding one material declares, in slot order, then the thickness and anisotropy maps, then each overlay's colour and normal map, nulls dropped.
+ * Every texture binding one material declares, in slot order, then the
+ * thickness and anisotropy maps, then each overlay's colour and normal map,
+ * nulls dropped.
  */
 export const materialTextureBindings: (
   material: IAutoMovieMaterial,

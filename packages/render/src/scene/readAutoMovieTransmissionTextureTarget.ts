@@ -2,7 +2,14 @@ import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import * as THREE from "three";
 
 /**
- * Bound the r186 scene/camera transmission target from the current host state. The native factory uses the physical viewport times transmission scale, a half-float color attachment when supported, full mips and at least four requested samples. D24/D24S8 depth is bounded by four bytes per sample. This is a conservative factory profile, not a driver allocation measurement. The host retains one record per live native scene/camera target, including earlier cameras whose cache survives material removal, until context release.
+ * Bound the r186 scene/camera transmission target from the current host state.
+ * The native factory uses the physical viewport times transmission scale, a
+ * half-float color attachment when supported, full mips and at least four
+ * requested samples. D24/D24S8 depth is bounded by four bytes per sample. This
+ * is a conservative factory profile, not a driver allocation measurement. The
+ * host retains one record per live native scene/camera target, including
+ * earlier cameras whose cache survives material removal, until context
+ * release.
  */
 export function readAutoMovieTransmissionTextureTarget(
   owner: string,

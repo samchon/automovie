@@ -24,12 +24,12 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  *
  * Each admitted id is built once and shared by every borrowing surface. Texture
  * assets are primed through the shot cache before synchronous material
- * construction, together with the images carried by the models that declare
- * the requested materials; that cache owns binding-private texture clones and decoded
- * sources, while the returned library owns only the `THREE.Material` objects.
- * Construction refusal retires already-built materials independently. Disposal
- * attempts every material once, retains failed ownership and preserves the same
- * failure for repeated callers.
+ * construction, together with the images carried by the models that declare the
+ * requested materials; that cache owns binding-private texture clones and
+ * decoded sources, while the returned library owns only the `THREE.Material`
+ * objects. Construction refusal retires already-built materials independently.
+ * Disposal attempts every material once, retains failed ownership and preserves
+ * the same failure for repeated callers.
  */
 export const buildAutoMovieMaterialLibrary: (
   props: IBuildAutoMovieMaterialLibraryProps,

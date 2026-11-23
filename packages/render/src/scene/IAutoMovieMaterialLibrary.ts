@@ -1,8 +1,6 @@
 import type * as THREE from "three";
 
-/**
- * A shot-owned table of model-declared materials lent to non-model drawables.
- */
+/** A shot-owned table of model-declared materials lent to non-model drawables. */
 export interface IAutoMovieMaterialLibrary {
   /**
    * Return the one built material selected by an id, or `undefined` for the

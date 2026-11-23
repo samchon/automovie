@@ -4,7 +4,15 @@ import * as THREE from "three";
 import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
 
 /**
- * Read a host-owned 2D target's complete attachment profile before drawing. Cube targets retain six color/depth faces; array and volume targets stay unknown. Depth without a custom texture uses the r186 D24/D24S8 four-byte bound; custom float-depth plus stencil uses the eight-byte D32FS8 profile. Native GL dimensions truncate positive fractional target declarations; the reported extents follow that physical pixel population rather than preserving a fractional JavaScript width as an unmeasurable texture. The target owns allocation identity independently of its texture's Source. No target state, pixels or caller lifetime is changed.
+ * Read a host-owned 2D target's complete attachment profile before drawing.
+ * Cube targets retain six color/depth faces; array and volume targets stay
+ * unknown. Depth without a custom texture uses the r186 D24/D24S8 four-byte
+ * bound; custom float-depth plus stencil uses the eight-byte D32FS8 profile.
+ * Native GL dimensions truncate positive fractional target declarations; the
+ * reported extents follow that physical pixel population rather than preserving
+ * a fractional JavaScript width as an unmeasurable texture. The target owns
+ * allocation identity independently of its texture's Source. No target state,
+ * pixels or caller lifetime is changed.
  */
 export function readAutoMovieRenderTextureTarget(
   owner: string,

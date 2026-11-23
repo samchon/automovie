@@ -5,11 +5,11 @@ import { isGuidePass } from "../guidePasses.js";
 /**
  * Return the one structural pass a guide-pass deliverable declares, or throw.
  *
- * Every entry must be a known guide pass other than `beauty`, and after
- * folding repeats exactly one distinct pass must remain, so one deliverable's
- * failure can never hide inside another's output. `normalizeGuidePasses` is
- * the different, wider rule of the sequence planners, which keeps any number
- * of passes and admits `beauty`.
+ * Every entry must be a known guide pass other than `beauty`, and after folding
+ * repeats exactly one distinct pass must remain, so one deliverable's failure
+ * can never hide inside another's output. `normalizeGuidePasses` is the
+ * different, wider rule of the sequence planners, which keeps any number of
+ * passes and admits `beauty`.
  */
 export const assertSingleGuidePass: (
   passes: readonly Exclude<AutoMovieGuidePass, "beauty">[],

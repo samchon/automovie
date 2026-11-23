@@ -11,26 +11,43 @@ import type { IAutoMovieViewerViewpoint } from "../subjectViewpoint/IAutoMovieVi
 import { autoMovieViewerNamedViewpoints } from "../subjectViewpoint/autoMovieViewerNamedViewpoints.js";
 import { frameAutoMovieViewerSubject } from "../subjectViewpoint/frameAutoMovieViewerSubject.js";
 
-/** Smallest half extent a fitted view frames, metres, the framing owner's floor for a box without size. */
+/**
+ * Smallest half extent a fitted view frames, metres, the framing owner's floor
+ * for a box without size.
+ */
 const FLOOR: number = 0.5;
 
 /**
- * Turn an inspection view into the camera that draws it and the record that repeats it, for a picture of `width` by `height` pixels at film second `seconds`.
+ * Turn an inspection view into the camera that draws it and the record that
+ * repeats it, for a picture of `width` by `height` pixels at film second
+ * `seconds`.
  *
- * | View | Camera |
- * | --- | --- |
- * | `film` | The subject's own `camera`, returned unchanged |
- * | Fixed | A perspective camera at the position looking at the target, with the subject camera's field of view and clips, rolled to the view's up when it states one |
- * | Fixed with a scale | An orthographic camera at the position looking at the target, the picture's height spanning the scale times its pixels, with clips at a quarter and three and a half times the eye's distance to the target |
- * | A name the subject's `views` holds | A perspective camera where that view places it at `seconds`, with the subject camera's field of view and clips |
- * | A named viewpoint | A perspective camera from the viewpoint's direction fitted to `bounds` by `frameAutoMovieViewerSubject`, with the subject camera's field of view |
- * | A named viewpoint with `orthographic` | An orthographic camera from the same direction whose frame holds every corner of `bounds`, by the same margin |
+ * | View                                  | Camera                                                                                                                                                                                                      |
+ * | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+ * | `film`                                | The subject's own `camera`, returned unchanged                                                                                                                                                              |
+ * | Fixed                                 | A perspective camera at the position looking at the target, with the subject camera's field of view and clips, rolled to the view's up when it states one                                                   |
+ * | Fixed with a scale                    | An orthographic camera at the position looking at the target, the picture's height spanning the scale times its pixels, with clips at a quarter and three and a half times the eye's distance to the target |
+ * | A name the subject's `views` holds    | A perspective camera where that view places it at `seconds`, with the subject camera's field of view and clips                                                                                              |
+ * | A named viewpoint                     | A perspective camera from the viewpoint's direction fitted to `bounds` by `frameAutoMovieViewerSubject`, with the subject camera's field of view                                                            |
+ * | A named viewpoint with `orthographic` | An orthographic camera from the same direction whose frame holds every corner of `bounds`, by the same margin                                                                                               |
  *
- * `bounds` is what the view frames: the host measures it on what is drawn, or on the focus the view names through the inspection handle's `bounds`. A subject's view wins a name over a named viewpoint, because the subject knows its own staging. A vertical named view takes the up direction its viewpoint documents, `-Z` from the top and `+Z` from the bottom; every other view takes `+Y`. The record's `metresPerPixel` is the orthographic frame's height over `height`.
+ * `bounds` is what the view frames: the host measures it on what is drawn, or
+ * on the focus the view names through the inspection handle's `bounds`. A
+ * subject's view wins a name over a named viewpoint, because the subject knows
+ * its own staging. A vertical named view takes the up direction its viewpoint
+ * documents, `-Z` from the top and `+Z` from the bottom; every other view takes
+ * `+Y`. The record's `metresPerPixel` is the orthographic frame's height over
+ * `height`.
  *
- * `@follow` changes only which seconds a host measures `bounds` over, the drawn second alone, so it resolves as the fit it modifies. A fixed camera with a scale repeats a fitted orthographic view exactly, because that view stands twice its frame's radius from its target with clips at half and seven times the radius.
+ * `@follow` changes only which seconds a host measures `bounds` over, the drawn
+ * second alone, so it resolves as the fit it modifies. A fixed camera with a
+ * scale repeats a fitted orthographic view exactly, because that view stands
+ * twice its frame's radius from its target with clips at half and seven times
+ * the radius.
  *
- * It throws for a size that is not positive, an unknown name with the accepted names listed, a subject view asked to be orthographic, followed or focused, and a fitted view without bounds, which means nothing is drawn to frame.
+ * It throws for a size that is not positive, an unknown name with the accepted
+ * names listed, a subject view asked to be orthographic, followed or focused,
+ * and a fitted view without bounds, which means nothing is drawn to frame.
  *
  * ```ts
  * const { camera, record } = resolveAutoMovieInspectionView({
@@ -55,7 +72,10 @@ export function resolveAutoMovieInspectionView(props: {
   /** World box a fitted view frames, or null when nothing is drawn. */
   bounds: IAutoMovieViewerSubjectBounds | null;
 
-  /** The subject's delivery camera: the film view itself, and the field of view and clips the other views take. */
+  /**
+   * The subject's delivery camera: the film view itself, and the field of view
+   * and clips the other views take.
+   */
   camera: THREE.PerspectiveCamera;
 
   /** The subject's own views by name, each placing a camera at a second. */
@@ -268,7 +288,10 @@ export function resolveAutoMovieInspectionView(props: {
   };
 }
 
-/** The picture-up a viewpoint documents: `-Z` from the top, `+Z` from the bottom, `+Y` otherwise. */
+/**
+ * The picture-up a viewpoint documents: `-Z` from the top, `+Z` from the
+ * bottom, `+Y` otherwise.
+ */
 function upOf(viewpoint: IAutoMovieViewerViewpoint): IAutoMovieVector3 {
   if (Math.abs(viewpoint.elevationDeg) !== 90) return { x: 0, y: 1, z: 0 };
   const sign: number = Math.sign(viewpoint.elevationDeg);
@@ -294,7 +317,10 @@ function aim(
   camera.updateMatrixWorld(true);
 }
 
-/** The record of a placed camera, its target one metre ahead when the camera was not aimed here. */
+/**
+ * The record of a placed camera, its target one metre ahead when the camera was
+ * not aimed here.
+ */
 function record(
   text: string,
   camera: THREE.PerspectiveCamera | THREE.OrthographicCamera,

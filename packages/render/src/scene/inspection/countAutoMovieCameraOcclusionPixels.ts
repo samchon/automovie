@@ -25,9 +25,7 @@ interface ICount {
   occupancy: Uint8Array;
 }
 
-/**
- * Count membership after the same box reduction as the Draw picture.
- */
+/** Count membership after the same box reduction as the Draw picture. */
 export function countAutoMovieCameraOcclusionPixels(
   props: IProps,
 ): ICount | undefined {

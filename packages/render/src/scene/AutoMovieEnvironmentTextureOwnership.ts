@@ -11,9 +11,19 @@ type State = {
 };
 
 /**
- * Own the exclusive scene handoff and immutable allocation inputs of an image. Public disposal requests withdrawal of earlier native cube/PMREM conversions before a new tuple is certified; failed retirement stays unknown and unchanged application retains those caches. This stores factual owned inputs, never SDK cache keys, GPU handles or byte estimates. Capacity drift detected by prepare invalidates that wrapper and, when its Source is unchanged, marks the Source invalid. The read-only current query does not record drift, and changes fully restored between prepare calls are not independently detected here.
+ * Own the exclusive scene handoff and immutable allocation inputs of an image.
+ * Public disposal requests withdrawal of earlier native cube/PMREM conversions
+ * before a new tuple is certified; failed retirement stays unknown and
+ * unchanged application retains those caches. This stores factual owned inputs,
+ * never SDK cache keys, GPU handles or byte estimates. Capacity drift detected
+ * by prepare invalidates that wrapper and, when its Source is unchanged, marks
+ * the Source invalid. The read-only current query does not record drift, and
+ * changes fully restored between prepare calls are not independently detected
+ * here.
  *
- * For cache-issued clones, the allocation owner acknowledges only a successful same-capacity retirement completion. Source detachment and unrelated original or issued-wrapper uncertainty remain outside that recovery receipt.
+ * For cache-issued clones, the allocation owner acknowledges only a successful
+ * same-capacity retirement completion. Source detachment and unrelated original
+ * or issued-wrapper uncertainty remain outside that recovery receipt.
  */
 export class AutoMovieEnvironmentTextureOwnership {
   private static readonly states: WeakMap<THREE.Texture, State> = new WeakMap<
@@ -25,9 +35,7 @@ export class AutoMovieEnvironmentTextureOwnership {
   private static readonly invalidSources: WeakSet<object> =
     new WeakSet<object>();
 
-  /**
-   * A material binding cannot take the same wrapper claimed by a scene.
-   */
+  /** A material binding cannot take the same wrapper claimed by a scene. */
   public static material(texture: THREE.Texture): void {
     if (this.states.has(texture))
       throw new Error(
@@ -36,9 +44,7 @@ export class AutoMovieEnvironmentTextureOwnership {
     this.materials.add(texture);
   }
 
-  /**
-   * Claim or refresh a dedicated environment wrapper before scene mutation.
-   */
+  /** Claim or refresh a dedicated environment wrapper before scene mutation. */
   public static prepare(
     scene: THREE.Scene,
     texture: THREE.Texture,
@@ -104,9 +110,7 @@ export class AutoMovieEnvironmentTextureOwnership {
       AutoMovieTextureCacheAllocationAuthority.finishEnvironment(allocation);
   }
 
-  /**
-   * Read authority without changing metadata, texture state or GPU lifetime.
-   */
+  /** Read authority without changing metadata, texture state or GPU lifetime. */
   public static current(texture: THREE.Texture): boolean {
     if (this.invalidSources.has(texture.source)) return false;
     const state: State | undefined = this.states.get(texture);

@@ -7,9 +7,7 @@ import type { IAutoMovieSceneSoftProps } from "./IAutoMovieSceneSoftProps.js";
  * default), and its lights indexed by id.
  */
 export interface IAutoMovieSceneObject {
-  /**
-   * Viewer-built scene whose leading children retain the compiled node order.
-   */
+  /** Viewer-built scene whose leading children retain the compiled node order. */
   scene: THREE.Scene;
 
   /** Perspective cameras in declared order; the first is the host's default. */
@@ -24,6 +22,9 @@ export interface IAutoMovieSceneObject {
    */
   lights: Map<string, THREE.Light>;
 
-  /** Present when a caller supplies soft props to buildScene, including an empty initial frame. */
+  /**
+   * Present when a caller supplies soft props to buildScene, including an empty
+   * initial frame.
+   */
   softProps?: IAutoMovieSceneSoftProps;
 }

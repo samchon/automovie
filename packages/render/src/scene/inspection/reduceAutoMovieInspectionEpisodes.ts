@@ -26,12 +26,15 @@ interface IOpenScope {
  * Group ordered scene observations into episodes and coalesce their coverage.
  *
  * A repeat of the same scoped sample must carry the same serialized packet. It
- * counts once, even when several capture cells draw it. Only consecutive
- * output indices within one continuity occurrence can extend a range.
+ * counts once, even when several capture cells draw it. Only consecutive output
+ * indices within one continuity occurrence can extend a range.
  *
- * @param packets Packets in nondecreasing film time for one inspection run. The producers supply every expected obligation within the visited samples.
- * @param expectedOutputFrames Size of the zero-based delivery frame schedule when the run must cover it. Sparse capture can omit it.
- * @returns The first and worst witnesses, observed coverage ranges and independent delivery gate facts.
+ * @param packets Packets in nondecreasing film time for one inspection run. The
+ *   producers supply every expected obligation within the visited samples.
+ * @param expectedOutputFrames Size of the zero-based delivery frame schedule
+ *   when the run must cover it. Sparse capture can omit it.
+ * @returns The first and worst witnesses, observed coverage ranges and
+ *   independent delivery gate facts.
  */
 export function reduceAutoMovieInspectionEpisodes(
   packets: Iterable<IAutoMovieInspectionDiagnostics>,
@@ -179,7 +182,10 @@ function appendCoverage(
   return current;
 }
 
-/** Extend witnessed episodes only if this and the preceding sample checked the evidence. */
+/**
+ * Extend witnessed episodes only if this and the preceding sample checked the
+ * evidence.
+ */
 function appendEpisodes(
   packet: IAutoMovieInspectionDiagnostics,
   coverage: ReadonlyMap<string, IMutableCoverage>,

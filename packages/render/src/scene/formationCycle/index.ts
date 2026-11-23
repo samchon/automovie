@@ -1,4 +1,7 @@
-/** Cycle bake, cadence and shader public identities, each owned by its declaration file. */
+/**
+ * Cycle bake, cadence and shader public identities, each owned by its
+ * declaration file.
+ */
 export * from "../IBakeFormationCycleProps.js";
 export * from "../AUTOMOVIE_FORMATION_CYCLE_SAMPLES.js";
 export * from "../IAutoMovieFormationCycleUniforms.js";

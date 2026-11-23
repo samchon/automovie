@@ -15,13 +15,13 @@ import { applySubsurfaceShading } from "./subsurfaceShading/index.js";
 /**
  * Build a `three.js` physical PBR material from an automovie material, mapping
  * each optional lobe to the `MeshPhysicalMaterial` property of the same glTF
- * meaning and leaving an omitted lobe at its neutral value. It
- * carries the material's name, or its id when unnamed, as the glTF export
- * does, so a preview can recognise a finish by it.
- * A fully transparent blended surface with no transmission skips color, depth and shadow draws.
- * The producer owns its new material before resolving texture bindings. Setup
- * failure retires that material and preserves cleanup causes; resolver textures
- * and shared shader tables remain owned by their actual producers.
+ * meaning and leaving an omitted lobe at its neutral value. It carries the
+ * material's name, or its id when unnamed, as the glTF export does, so a
+ * preview can recognise a finish by it. A fully transparent blended surface
+ * with no transmission skips color, depth and shadow draws. The producer owns
+ * its new material before resolving texture bindings. Setup failure retires
+ * that material and preserves cleanup causes; resolver textures and shared
+ * shader tables remain owned by their actual producers.
  */
 export const buildMaterial: (
   material: IAutoMovieMaterial,

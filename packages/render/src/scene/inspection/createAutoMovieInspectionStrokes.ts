@@ -10,13 +10,28 @@ const VIEW_SPACE_ENDS: string =
   "vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );";
 
 /**
- * Make the line object inspection marks are drawn with: segments taken in vertex pairs, one colour per vertex, `stroke` pixels wide in every renderer, unlit and outside fog and tone mapping, so a mark's colour on screen is the colour the legend gives.
+ * Make the line object inspection marks are drawn with: segments taken in
+ * vertex pairs, one colour per vertex, `stroke` pixels wide in every renderer,
+ * unlit and outside fog and tone mapping, so a mark's colour on screen is the
+ * colour the legend gives.
  *
- * The object is three.js's `LineSegments2` with a `LineMaterial`, which draws each segment as a screen-space quad, because WebGL draws a plain line one pixel wide whatever its width says. The width is in pixels of the material's `resolution`: three.js sets it to the renderer's viewport before every draw, and the inspection handle's `resize` sets it for a reader that needs it before one.
+ * The object is three.js's `LineSegments2` with a `LineMaterial`, which draws
+ * each segment as a screen-space quad, because WebGL draws a plain line one
+ * pixel wide whatever its width says. The width is in pixels of the material's
+ * `resolution`: three.js sets it to the renderer's viewport before every draw,
+ * and the inspection handle's `resize` sets it for a reader that needs it
+ * before one.
  *
- * `positions` holds two xyz vertices per segment and `colors` the matching linear rgb. Both buffers are kept by the geometry, not copied, so the caller rewrites `positions` in place and marks it changed to move the marks. The object does not update its own matrix and is never frustum-culled, because its owner places it and its vertices move.
+ * `positions` holds two xyz vertices per segment and `colors` the matching
+ * linear rgb. Both buffers are kept by the geometry, not copied, so the caller
+ * rewrites `positions` in place and marks it changed to move the marks. The
+ * object does not update its own matrix and is never frustum-culled, because
+ * its owner places it and its vertices move.
  *
- * With `xray` the marks ignore depth and draw after everything else. Without it they are depth-tested `AUTO_MOVIE_INSPECTION_DEPTH_LEAD` nearer the camera than they lie, through a patch to the line shader that leads both ends toward the eye, so a mark on a surface is not lost to that surface.
+ * With `xray` the marks ignore depth and draw after everything else. Without it
+ * they are depth-tested `AUTO_MOVIE_INSPECTION_DEPTH_LEAD` nearer the camera
+ * than they lie, through a patch to the line shader that leads both ends toward
+ * the eye, so a mark on a surface is not lost to that surface.
  */
 export function createAutoMovieInspectionStrokes(
   positions: Float32Array,

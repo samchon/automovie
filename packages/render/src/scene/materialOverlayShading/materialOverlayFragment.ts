@@ -1,9 +1,7 @@
 import { spliceTangentNormal } from "../detailNormalShading/index.js";
 import type { IMaterialOverlayShape } from "./IMaterialOverlayShape.js";
 
-/**
- * The fragment shader compositing each overlay's colour, roughness and slopes.
- */
+/** The fragment shader compositing each overlay's colour, roughness and slopes. */
 export const materialOverlayFragment: (
   fragmentShader: string,
   shapes: readonly IMaterialOverlayShape[],

@@ -7,15 +7,29 @@ import type {
 import { ffmpegArgs } from "../ffmpegArgs.js";
 import { framePattern } from "../framePattern.js";
 
-/** Most frames one video may hold: a million, eleven hours at 25 fps, which bounds the frame files a render writes before it starts. */
+/**
+ * Most frames one video may hold: a million, eleven hours at 25 fps, which
+ * bounds the frame files a render writes before it starts.
+ */
 const MAXIMUM_FRAMES: number = 1_000_000;
 
 /**
- * Admit a drawn video's exact clock and raster and plan the one FFmpeg run that encodes its frames, with an optional soundtrack.
+ * Admit a drawn video's exact clock and raster and plan the one FFmpeg run that
+ * encodes its frames, with an optional soundtrack.
  *
- * The frame count is `durationSeconds × fps` and must be a whole number from 1 to a million, so the clock has no partial frame to round. The raster must be positive and even on both sides, which the `yuv420p` chroma layout needs. The encoder and following audit share the exact rational rate selected for the commissioned numeric frame rate. The arguments are `ffmpegArgs` over the frame pattern in `frameDir`, quiet below warnings, with four encoder threads and the `medium` preset, `-frames:v` and `-t` pinned to the clock, and the video stream mapped explicitly; a soundtrack is the second input, padded with silence (`apad`) and cut at the clock as 48 kHz stereo AAC at 192 kb/s, and without one the output has no audio stream.
+ * The frame count is `durationSeconds × fps` and must be a whole number from 1
+ * to a million, so the clock has no partial frame to round. The raster must be
+ * positive and even on both sides, which the `yuv420p` chroma layout needs. The
+ * encoder and following audit share the exact rational rate selected for the
+ * commissioned numeric frame rate. The arguments are `ffmpegArgs` over the
+ * frame pattern in `frameDir`, quiet below warnings, with four encoder threads
+ * and the `medium` preset, `-frames:v` and `-t` pinned to the clock, and the
+ * video stream mapped explicitly; a soundtrack is the second input, padded with
+ * silence (`apad`) and cut at the clock as 48 kHz stereo AAC at 192 kb/s, and
+ * without one the output has no audio stream.
  *
- * It throws naming what is refused: a clock that is not a whole number of frames in range, an odd or empty raster, and a blank soundtrack path.
+ * It throws naming what is refused: a clock that is not a whole number of
+ * frames in range, an odd or empty raster, and a blank soundtrack path.
  */
 export function planAutoMovieVideoEncoding(
   props: IAutoMoviePlanVideoEncodingProps,
@@ -105,8 +119,8 @@ const MAXIMUM_AVRATIONAL_TERM = 2_147_483_647n;
  * Selects the rational presentation rate FFmpeg uses for a numeric frame rate.
  * The decimal spelling passed by legacy callers round-trips to that same
  * binary64 value. FFmpeg first scales it to a power-of-two denominator, then
- * uses bounded continued fractions. Preserve its finite positive fallback
- * when an exceptionally low or high rate would otherwise give zero or infinity.
+ * uses bounded continued fractions. Preserve its finite positive fallback when
+ * an exceptionally low or high rate would otherwise give zero or infinity.
  */
 function encodingFrameRate(
   fps: number,
@@ -127,7 +141,10 @@ function encodingFrameRate(
   return rate;
 }
 
-/** Finds the nearest rational under simultaneous numerator and denominator bounds. */
+/**
+ * Finds the nearest rational under simultaneous numerator and denominator
+ * bounds.
+ */
 function boundedRate(
   numerator: bigint,
   denominator: bigint,

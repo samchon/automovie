@@ -34,7 +34,8 @@ type IInput = IObserveAutoMoviePlacedScene.ICheck["input"];
  * carries its film interval.
  *
  * @param scene The settled scene that owns the native nodes.
- * @param matrices A request-local index of displayed matrices, shared across obligations.
+ * @param matrices A request-local index of displayed matrices, shared across
+ *   obligations.
  * @param input The obligation's observations and limits.
  * @returns The measured violations and witness, or the coverage reason.
  */
@@ -57,9 +58,7 @@ export function measureAutoMoviePlacedObligation(
   return measureContinuity(input);
 }
 
-/**
- * A checked outcome without a witness.
- */
+/** A checked outcome without a witness. */
 function checked(
   violations: readonly IAutoMovieConstraintViolation[],
 ): IAutoMoviePlacedObligation {
@@ -129,8 +128,8 @@ function nativeContact(
 }
 
 /**
- * The displayed world matrix of a node beneath `scene`, as the host settled
- * it, or undefined when the node is elsewhere or its matrix is not affine.
+ * The displayed world matrix of a node beneath `scene`, as the host settled it,
+ * or undefined when the node is elsewhere or its matrix is not affine.
  */
 function placedMatrix(
   scene: Object3D,

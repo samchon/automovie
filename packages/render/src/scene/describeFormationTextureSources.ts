@@ -10,10 +10,11 @@ import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
 /**
  * Describe every retained, reachable gait table from its actual owned texture.
  * The bound includes declared takes that have not yet been uploaded, because a
- * later seek can retain them in this context. It is not an observed GLuint count.
- * Owner tuples preserve arbitrary formation and gait names without collisions.
- * Successful formation release clears the owning tier map, making observations
- * empty. Failed release retains that map as conservative potential ownership.
+ * later seek can retain them in this context. It is not an observed GLuint
+ * count. Owner tuples preserve arbitrary formation and gait names without
+ * collisions. Successful formation release clears the owning tier map, making
+ * observations empty. Failed release retains that map as conservative potential
+ * ownership.
  */
 export const describeFormationTextureSources: (
   formation: string,

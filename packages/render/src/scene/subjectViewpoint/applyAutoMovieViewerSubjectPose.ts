@@ -3,7 +3,10 @@ import type * as THREE from "three";
 import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.js";
 
 /**
- * Apply an admitted inspection pose to a borrowed perspective camera and update its projection and world matrix. World position is written as local position, requiring an unparented camera or identity parent transform; failure does not roll back earlier mutations.
+ * Apply an admitted inspection pose to a borrowed perspective camera and update
+ * its projection and world matrix. World position is written as local position,
+ * requiring an unparented camera or identity parent transform; failure does not
+ * roll back earlier mutations.
  */
 export function applyAutoMovieViewerSubjectPose(
   camera: THREE.PerspectiveCamera,

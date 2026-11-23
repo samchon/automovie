@@ -5,14 +5,10 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * target (a tail, ears) and the spring that drives them.
  */
 export interface IAutoMovieSpringConfig {
-  /**
-   * Humanoid slots whose sampled pose axes use this player's secondary springs.
-   */
+  /** Humanoid slots whose sampled pose axes use this player's secondary springs. */
   joints: AutoMovieHumanoidBone[];
 
-  /**
-   * Stiffness parameter passed verbatim to the engine's dampedSpring solver.
-   */
+  /** Stiffness parameter passed verbatim to the engine's dampedSpring solver. */
   stiffness: number;
 
   /** Damping parameter passed with the same stiffness to that solver. */

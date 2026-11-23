@@ -10,13 +10,26 @@ import { createAutoMovieInspectionStrokes } from "./createAutoMovieInspectionStr
 import { followAutoMovieInspectionSource } from "./followAutoMovieInspectionSource.js";
 
 /**
- * Build marks into drawable lines and points, one line object and one points object per anchor, that follow their anchors.
+ * Build marks into drawable lines and points, one line object and one points
+ * object per anchor, that follow their anchors.
  *
- * Each shape is drawn as the mark type defines it: a polyline joins its places in order and closes back to its first when closed, segments are taken in pairs, an arrow is a shaft from its origin to its tip with a head of four short lines, and points are dots. Every vertex takes its mark's colour. An anchored set takes its anchor's world matrix, through the first instance when the anchor is an instanced mesh; a set without an anchor stays in world space wherever its object is attached.
+ * Each shape is drawn as the mark type defines it: a polyline joins its places
+ * in order and closes back to its first when closed, segments are taken in
+ * pairs, an arrow is a shaft from its origin to its tip with a head of four
+ * short lines, and points are dots. Every vertex takes its mark's colour. An
+ * anchored set takes its anchor's world matrix, through the first instance when
+ * the anchor is an instanced mesh; a set without an anchor stays in world space
+ * wherever its object is attached.
  *
- * Vertices are written from the marks' own coordinate arrays on build and on every `update`, so an owner that rewrites a mark's coordinates in place moves its drawing. The number of vertices a mark has may not change after the build.
+ * Vertices are written from the marks' own coordinate arrays on build and on
+ * every `update`, so an owner that rewrites a mark's coordinates in place moves
+ * its drawing. The number of vertices a mark has may not change after the
+ * build.
  *
- * It throws, naming the mark's path, for coordinates that are not whole finite xyz triples, a polyline of fewer than two places, segments that do not pair up, arrows whose origins and vectors differ in number, and a mark without coordinates.
+ * It throws, naming the mark's path, for coordinates that are not whole finite
+ * xyz triples, a polyline of fewer than two places, segments that do not pair
+ * up, arrows whose origins and vectors differ in number, and a mark without
+ * coordinates.
  */
 export function buildAutoMovieInspectionMarks(
   sets: readonly IAutoMovieInspectionMarkSet[],
@@ -103,7 +116,10 @@ export function buildAutoMovieInspectionMarks(
   };
 }
 
-/** One anchor's built marks: the marks, their vertex buffers and the objects drawing them. */
+/**
+ * One anchor's built marks: the marks, their vertex buffers and the objects
+ * drawing them.
+ */
 interface IBuilt {
   /** The anchor, or null for world space. */
   anchor: THREE.Object3D | null;
@@ -258,7 +274,10 @@ function markChanged(geometry: THREE.BufferGeometry): void {
   else attribute.needsUpdate = true;
 }
 
-/** Give a drawn object its anchor's world placement, or world space when it has none. */
+/**
+ * Give a drawn object its anchor's world placement, or world space when it has
+ * none.
+ */
 function place(
   object: THREE.Object3D,
   anchor: THREE.Object3D | null,

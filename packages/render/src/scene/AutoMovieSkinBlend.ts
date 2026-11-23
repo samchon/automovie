@@ -2,8 +2,8 @@ import * as THREE from "three";
 
 /**
  * The per-vertex arithmetic of {@link AutoMovieSkinnedMesh}'s CPU skin, over a
- * joint table of {@link AutoMovieSkinBlend.STRIDE} numbers per joint: `K_j`
- * (16, column-major), its rotation quaternion (4) and its dual part (4).
+ * joint table of {@link AutoMovieSkinBlend.STRIDE} numbers per joint: `K_j` (16,
+ * column-major), its rotation quaternion (4) and its dual part (4).
  */
 export namespace AutoMovieSkinBlend {
   /** Numbers per joint in a table: `K_j`, rotation, dual part. */
@@ -94,9 +94,9 @@ export namespace AutoMovieSkinBlend {
   }
 
   /**
-   * Weighted sum of `K_j p` over the four influences at offsets `a..d`,
-   * Three's linear blend over normalized weights. Writes three numbers into
-   * `out` at `at`.
+   * Weighted sum of `K_j p` over the four influences at offsets `a..d`, Three's
+   * linear blend over normalized weights. Writes three numbers into `out` at
+   * `at`.
    */
   export function linear(
     t: Float64Array,
@@ -131,9 +131,7 @@ export namespace AutoMovieSkinBlend {
       affine(t, d, 2, px, py, pz) * wd;
   }
 
-  /**
-   * Skeleton slots with a nonzero weight on some vertex, ascending.
-   */
+  /** Skeleton slots with a nonzero weight on some vertex, ascending. */
   export function usedJoints(
     indices: THREE.BufferAttribute,
     weights: THREE.BufferAttribute,
@@ -165,9 +163,7 @@ export namespace AutoMovieSkinBlend {
       : null;
   }
 
-  /**
-   * An attribute's version; an interleaved one reports its buffer's.
-   */
+  /** An attribute's version; an interleaved one reports its buffer's. */
   export function versionOf(
     attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
   ): number {
@@ -194,7 +190,10 @@ function affine(
   );
 }
 
-/** -1 when the rotation at `o` lies in the other hemisphere from the pivot's at `p`, else 1. */
+/**
+ * -1 when the rotation at `o` lies in the other hemisphere from the pivot's at
+ * `p`, else 1.
+ */
 function aligned(t: Float64Array, o: number, p: number): number {
   return t[o + 16]! * t[p + 16]! +
     t[o + 17]! * t[p + 17]! +

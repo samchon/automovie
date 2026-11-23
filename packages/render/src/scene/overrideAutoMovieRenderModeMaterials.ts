@@ -16,9 +16,14 @@ import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Swap every mesh material for `make()`'s, restoring the originals and disposing the created overrides.
+ * Swap every mesh material for `make()`'s, restoring the originals and
+ * disposing the created overrides.
  *
- * A formation's animated instance meshes carry their cycle on themselves, and the override inherits it: a guide pass that kept the rest pose while the beauty pass marched would describe a film nobody is going to see. A dual-quaternion skin's override takes the same skinning patch for the same reason.
+ * A formation's animated instance meshes carry their cycle on themselves, and
+ * the override inherits it: a guide pass that kept the rest pose while the
+ * beauty pass marched would describe a film nobody is going to see. A
+ * dual-quaternion skin's override takes the same skinning patch for the same
+ * reason.
  */
 export const overrideAutoMovieRenderModeMaterials: (
   scene: THREE.Scene,

@@ -29,7 +29,8 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * transform, so node placement and a pose's own root transform compose
  * cleanly.
  *
- * Cameras and the four light kinds (point, area, directional and spot) map onto their `three.js` equivalents.
+ * Cameras and the four light kinds (point, area, directional and spot) map onto
+ * their `three.js` equivalents.
  *
  * **The first `scene.nodes.length` top-level children ARE the designed nodes,
  * in design order.** Both mask passes read that: the legacy ramp colours the
@@ -44,14 +45,17 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * {@link buildSpaceObject}), so guide passes describe a world instead of actors
  * floating in a void. Their ordinary material writes no beauty colour or depth,
  * because a semantic support declaration is not evidence that physical floor
- * geometry exists. The group follows the nodes and lights so the whole
- * ground reads as one mask colour rather than one per surface.
+ * geometry exists. The group follows the nodes and lights so the whole ground
+ * reads as one mask colour rather than one per surface.
  *
- * An optional frame of soft props follows the designed scene objects.
- * Its returned handle updates plain surfaces at later times and releases
- * the meshes. Pass an empty frame to opt in before the first prop appears.
+ * An optional frame of soft props follows the designed scene objects. Its
+ * returned handle updates plain surfaces at later times and releases the
+ * meshes. Pass an empty frame to opt in before the first prop appears.
  *
- * The cited refusal contribution covers the supplied shadow profile and unresolved node model. Complete hierarchy, material and numeric admission, lowering receipts and structured safe-retry policy remain with their corresponding owners.
+ * The cited refusal contribution covers the supplied shadow profile and
+ * unresolved node model. Complete hierarchy, material and numeric admission,
+ * lowering receipts and structured safe-retry policy remain with their
+ * corresponding owners.
  */
 export const buildScene: (
   scene: IAutoMovieScene,

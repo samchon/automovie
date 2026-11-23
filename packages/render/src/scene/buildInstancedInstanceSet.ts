@@ -28,7 +28,8 @@ import { regenerateInstanceSlot } from "./regenerateInstanceSlot.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
- * One chunk's prototype tier meshes and the hysteretic tier selected by its last update.
+ * One chunk's prototype tier meshes and the hysteretic tier selected by its
+ * last update.
  */
 interface IInstancePrototypeChunkObject {
   /** Supplied unscaled prototype radius estimate used by projected-size LOD. */
@@ -47,9 +48,7 @@ interface IInstancePrototypeChunkObject {
   selected: IAutoMovieCompiledFormationLod["tier"] | null;
 }
 
-/**
- * One flattened prototype tier ready to be cloned into a chunk batch.
- */
+/** One flattened prototype tier ready to be cloned into a chunk batch. */
 interface IInstanceRepresentation {
   /** Flattened rest geometry cloned separately for each chunk batch. */
   geometry: THREE.BufferGeometry;
@@ -58,14 +57,15 @@ interface IInstanceRepresentation {
   materials: THREE.Material[];
 }
 
-/**
- * One compiled chunk and its persistent prototype visibility state.
- */
+/** One compiled chunk and its persistent prototype visibility state. */
 interface IInstanceChunkObject {
   /** Immutable compiled member span, bounds and centroid. */
   runtime: IAutoMovieCompiledInstanceSet["chunks"][number];
 
-  /** Metre radius of the chunk's slot-origin bounds before prototype enlargement. */
+  /**
+   * Metre radius of the chunk's slot-origin bounds before prototype
+   * enlargement.
+   */
   radius: number;
 
   /** Chunk-owned tier meshes and selection state, updated in the existing order. */
@@ -86,9 +86,13 @@ interface IInstanceChunkObject {
  * takes. Rigid is the whole condition: a skinned, morphed, or multi-material
  * source mesh is refused by name rather than instanced as something else.
  * Generated prototype materials are owned and reused as white instance-only
- * variants; loaded prototype materials are borrowed and cloned before whitening.
+ * variants; loaded prototype materials are borrowed and cloned before
+ * whitening.
  *
- * The Medieval Manor's createManorInstanceConsumer calls this builder during scene assembly and supplies a camera-update route. Its website also bakes supported meshes before mounting; this source connection establishes neither an observed instanced frame nor compiled-shot capture integration.
+ * The Medieval Manor's createManorInstanceConsumer calls this builder during
+ * scene assembly and supplies a camera-update route. Its website also bakes
+ * supported meshes before mounting; this source connection establishes neither
+ * an observed instanced frame nor compiled-shot capture integration.
  */
 export const buildInstancedInstanceSet: (
   input: IBuildInstancedInstanceSetProps,
@@ -606,9 +610,8 @@ const vector: (value: IAutoMovieVector3) => THREE.Vector3 = (
 
 /**
  * Instance colors multiply the material's diffuse color in Three.js. General
- * instance palettes are exact overrides, so instance-only materials use
- * white as the neutral multiplier while retaining roughness and other
- * channels.
+ * instance palettes are exact overrides, so instance-only materials use white
+ * as the neutral multiplier while retaining roughness and other channels.
  */
 const exactPaletteMaterial: (
   material: THREE.Material,

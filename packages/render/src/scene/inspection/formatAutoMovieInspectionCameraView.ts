@@ -2,13 +2,27 @@ import type { IAutoMovieInspectionCamera } from "@automovie/interface";
 
 import { formatAutoMovieInspectionView } from "./formatAutoMovieInspectionView.js";
 
-/** Tolerance on unit vectors below which two up directions are one, or a line of sight counts as vertical. */
+/**
+ * Tolerance on unit vectors below which two up directions are one, or a line of
+ * sight counts as vertical.
+ */
 const SAME: number = 1e-9;
 
 /**
- * Write the view text that draws a resolved camera again: a fixed view at its eye looking at its target, with `@ortho=<metres per pixel>` for an orthographic camera and `@up=` when world `+Y` would roll the picture otherwise, written by `formatAutoMovieInspectionView`.
+ * Write the view text that draws a resolved camera again: a fixed view at its
+ * eye looking at its target, with `@ortho=<metres per pixel>` for an
+ * orthographic camera and `@up=` when world `+Y` would roll the picture
+ * otherwise, written by `formatAutoMovieInspectionView`.
  *
- * A record keeps this text beside each cell's camera, so a later round copies it as is and draws through the same camera even when what is drawn changes, as when a surface is hidden and a fitted view would frame a smaller box. The up is written only when needed: when the line of sight is vertical, so `+Y` cannot orient the picture, or when the recorded up differs from the one `+Y` gives. A perspective camera repeats with the subject's own lens and clips; an orthographic one repeats its scale exactly, and its clips by the fixed view's rule of a quarter and three and a half times the eye's distance to the target, which are a fitted orthographic view's own clips.
+ * A record keeps this text beside each cell's camera, so a later round copies
+ * it as is and draws through the same camera even when what is drawn changes,
+ * as when a surface is hidden and a fitted view would frame a smaller box. The
+ * up is written only when needed: when the line of sight is vertical, so `+Y`
+ * cannot orient the picture, or when the recorded up differs from the one `+Y`
+ * gives. A perspective camera repeats with the subject's own lens and clips; an
+ * orthographic one repeats its scale exactly, and its clips by the fixed view's
+ * rule of a quarter and three and a half times the eye's distance to the
+ * target, which are a fitted orthographic view's own clips.
  */
 export function formatAutoMovieInspectionCameraView(
   camera: IAutoMovieInspectionCamera,

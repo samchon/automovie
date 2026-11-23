@@ -2,7 +2,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import * as THREE from "three";
 
 /**
- * Share one mesh's posed-point queries and inverse skin differential without changing its bones or weights.
+ * Share one mesh's posed-point queries and inverse skin differential without
+ * changing its bones or weights.
  */
 export function createAutoMovieSurfaceVertexAdapter(mesh: THREE.Mesh): {
   /** Current posed mesh-local position before contact displacement. */ point: (

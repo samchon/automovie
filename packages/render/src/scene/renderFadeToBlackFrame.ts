@@ -4,7 +4,13 @@ import { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
 import { AutoMovieFadeCompositorState as states } from "./AutoMovieFadeCompositorState.js";
 
 /**
- * Fade one directly resolved display frame over opaque black. The weight acts on captured display bytes, including source-local tone and exposure, once. Target and clear-state restoration are independently attempted on exit, with native restoration failures reported rather than certified restored. Highp Float32 scalar thresholds permit one opaque byte of rounding versus Float64 delivery; weight one retains identity. Transparent straight delivery uses an unassociated target, not low-alpha premultiplied canvas extraction.
+ * Fade one directly resolved display frame over opaque black. The weight acts
+ * on captured display bytes, including source-local tone and exposure, once.
+ * Target and clear-state restoration are independently attempted on exit, with
+ * native restoration failures reported rather than certified restored. Highp
+ * Float32 scalar thresholds permit one opaque byte of rounding versus Float64
+ * delivery; weight one retains identity. Transparent straight delivery uses an
+ * unassociated target, not low-alpha premultiplied canvas extraction.
  */
 export const renderFadeToBlackFrame: (
   renderer: THREE.WebGLRenderer,

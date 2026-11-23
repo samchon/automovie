@@ -5,11 +5,12 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
 import { createAutoMovieResourceRetirement } from "./createAutoMovieResourceRetirement.js";
 
 /**
- * Display caller-supplied generating polylines in model metres without refitting.
- * Closed lines omit the repeated endpoint. The builder owns one material and one
- * geometry per line, registers allocations before attachment and transfers an
- * idempotent asynchronous disposer. Public disposal attempts every owned resource;
- * it does not certify physical GPU-driver retirement. The caller owns mounting.
+ * Display caller-supplied generating polylines in model metres without
+ * refitting. Closed lines omit the repeated endpoint. The builder owns one
+ * material and one geometry per line, registers allocations before attachment
+ * and transfers an idempotent asynchronous disposer. Public disposal attempts
+ * every owned resource; it does not certify physical GPU-driver retirement. The
+ * caller owns mounting.
  */
 export function buildAutoMovieConstruction(
   lines: readonly IAutoMovieConstructionPolyline[],

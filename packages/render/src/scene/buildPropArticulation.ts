@@ -10,9 +10,7 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IBuildPropArticulationProps } from "./IBuildPropArticulationProps.js";
 import { applyTransform } from "./applyTransform.js";
 
-/**
- * One prop joint's rest placement, restored before every frame.
- */
+/** One prop joint's rest placement, restored before every frame. */
 interface IJointRest {
   /** Joint object mutated by playback and restored before the next sample. */
   object: THREE.Object3D;
