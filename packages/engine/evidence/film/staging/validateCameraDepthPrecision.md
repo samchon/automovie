@@ -6,7 +6,7 @@ Bounds the bit count by exact representability of the largest zero-based code in
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One validator for the camera's depth-precision field, called by `stageScene` beside the other camera checks, so the evaluator downstream can assume both numbers are usable.
+One validator for the camera's depth-precision field, called by `validateStageCamera` beside the other camera checks, so the evaluator downstream can assume both numbers are usable.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

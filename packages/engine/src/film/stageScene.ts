@@ -20,7 +20,6 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
-import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { collectNonEmptyId } from "../validation/collectNonEmptyId";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
@@ -36,18 +35,14 @@ import { resolveStagedFog } from "./staging/resolveStagedFog";
 import { resolveStagedMedium } from "./staging/resolveStagedMedium";
 import { setPieceScale } from "./staging/setPieceScale";
 import { setPieceTransform } from "./staging/setPieceTransform";
-import { validateCameraClearanceEnvelope } from "./staging/validateCameraClearanceEnvelope";
-import { validateCameraDepthPrecision } from "./staging/validateCameraDepthPrecision";
 import { validateLightPlacementShape } from "./staging/validateLightPlacementShape";
+import { validateStageCamera } from "./staging/validateStageCamera";
 
 /** World up, the axis an actor's `facingDeg` turns about. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /** Largest accepted deviation of a set rotation's length from one. */
 const UNIT_QUATERNION_TOLERANCE: number = 1e-6;
-
-/** A camera and its target closer than this, in metres, have no look axis. */
-const LOOK_DISTANCE_EPSILON: number = 1e-9;
 
 /**
  * The STAGING consumer: fold the script's cast and the staging write's
@@ -328,100 +323,13 @@ export function stageScene(
   staging.cameras.forEach((camera: IAutoMovieStageCamera, i: number): void => {
     const path: string = `$input.cameras[${i}]`;
     claim(camera.node, `${path}.node`, "camera node id");
-    const positionFinite: boolean = isFiniteStageVector3(camera.position);
-    if (!positionFinite)
-      out.push(
-        "range",
-        `${path}.position`,
-        "camera position must be a finite vector",
-        camera.position,
-      );
-    if (
-      typeof camera.fovDeg !== "number" ||
-      !(camera.fovDeg > 0 && camera.fovDeg < 180)
-    )
-      out.push(
-        "range",
-        `${path}.fovDeg`,
-        `vertical field of view must be within (0, 180)°, but was ${describeInvalidValue(camera.fovDeg)}`,
-        camera.fovDeg,
-      );
-    if (!Number.isFinite(camera.near) || camera.near <= 0)
-      out.push(
-        "range",
-        `${path}.near`,
-        "camera near distance must be finite and greater than zero metres",
-        camera.near,
-      );
-    if (
-      !Number.isFinite(camera.far) ||
-      (Number.isFinite(camera.near) &&
-        camera.near > 0 &&
-        camera.far <= camera.near)
-    )
-      out.push(
-        "range",
-        `${path}.far`,
-        "camera far distance must be finite and greater than near",
-        camera.far,
-      );
-    validateCameraDepthPrecision(
-      camera.depthPrecision,
-      `${path}.depthPrecision`,
+    const direction: IAutoMovieVector3 | undefined = validateStageCamera(
+      camera,
+      path,
+      placedPoints,
       out,
     );
-    if (camera.lookAt.kind === "node" && !placedPoints.has(camera.lookAt.node))
-      out.push(
-        "type",
-        `${path}.lookAt.node`,
-        `camera target "${describeInvalidValue(camera.lookAt.node)}" must be a placed actor, set piece, or camera`,
-        camera.lookAt.node,
-      );
-    if (
-      camera.lookAt.kind === "point" &&
-      !isFiniteStageVector3(camera.lookAt.point)
-    )
-      out.push(
-        "range",
-        `${path}.lookAt.point`,
-        "camera point target must be a finite vector",
-        camera.lookAt.point,
-      );
-    const target: IAutoMovieVector3 | undefined =
-      camera.lookAt.kind === "node"
-        ? placedPoints.get(camera.lookAt.node)
-        : camera.lookAt.point;
-    if (
-      target !== undefined &&
-      positionFinite &&
-      isFiniteStageVector3(target)
-    ) {
-      const direction: IAutoMovieVector3 = Vector3.subtract(
-        target,
-        camera.position,
-      );
-      if (!isFiniteStageVector3(direction))
-        out.push(
-          "range",
-          `${path}.lookAt`,
-          "camera look direction must have finite components",
-          camera.lookAt,
-        );
-      else if (Vector3.length(direction) < LOOK_DISTANCE_EPSILON)
-        out.push(
-          "range",
-          `${path}.lookAt`,
-          "camera lookAt must not equal the camera position",
-          camera.lookAt,
-        );
-      else cameraDirections.set(camera, direction);
-    }
-    if (camera.clearance !== undefined)
-      validateCameraClearanceEnvelope(
-        camera.clearance,
-        `${path}.clearance`,
-        out,
-      );
+    if (direction !== undefined) cameraDirections.set(camera, direction);
   });
 
   staging.lights.forEach((light: IAutoMovieStageLight, i: number): void => {

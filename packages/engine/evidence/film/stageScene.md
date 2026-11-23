@@ -6,7 +6,7 @@ Validates the whole write before composing; conversions use quaternion axis-angl
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The rung that owns scene composition delegates each field family to its staging validator and lowering helper, the space, fog, medium and environment gates to their shared validators, and set-piece placement to `setPieceTransform`, so the same rule is never stated twice and the function reads as the list of checks and conversions.
+The rung that owns scene composition delegates each field family to its staging validator and lowering helper, each camera's lens, aim and envelope checks to `validateStageCamera`, the space, fog, medium and environment gates to their shared validators, and set-piece placement to `setPieceTransform`, so the same rule is never stated twice and the function reads as the list of checks and conversions.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
