@@ -31,7 +31,6 @@ import { HumanSegmentPlant } from "./HumanSegmentPlant";
 import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 import { HumanSegmentStop } from "./HumanSegmentStop";
-import { clearHumanCutArms } from "./clearHumanCutArms";
 import { observableHumanSegment } from "./observableHumanSegment";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
@@ -303,14 +302,8 @@ export namespace HumanSegmentPose {
 
       // The offset pose is clamped first and the planted limbs re-solved last,
       // so no later step moves a plant (the limb fit keeps its own angles in range).
-      // A free arm the decaying offset carries into the body is let out at
-      // the shoulder no deeper than the target holds it (`clearHumanCutArms`).
-      pose = clearHumanCutArms(
-        body,
-        clamp(transition.offset(Math.max(0, seconds - transition.cut), pose)),
-        pose,
-        posture,
-        prepared.resolution,
+      pose = clamp(
+        transition.offset(Math.max(0, seconds - transition.cut), pose),
       );
       plain = false;
     }
