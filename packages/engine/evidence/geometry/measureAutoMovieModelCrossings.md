@@ -6,7 +6,7 @@ Crossing is a property of placed geometry, so every mesh is moved into the model
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Placement comes from `autoMovieModelPartMatrices`, the triangle census from `measureAutoMovieMeshCrossings`; this function only places parts, prunes pairs by box and aggregates counts into `IAutoMovieModelCrossing` records.
+Placement comes from `autoMovieModelPartMatrices` applied by `placeAutoMovieModelPartMesh`, which model contacts and the form expectation check share, and the triangle census from `measureAutoMovieMeshCrossings`; this function only selects mesh parts, prunes pairs by box and aggregates counts into `IAutoMovieModelCrossing` records.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
