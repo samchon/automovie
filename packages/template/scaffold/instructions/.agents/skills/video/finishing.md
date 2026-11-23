@@ -17,7 +17,7 @@ A dubbing model regenerates the head and body around the mouth, follows the take
 
 Compare untouched frames at matched times and step through the repair boundaries. Re-encoding can affect both.
 
-Composite legible text, signs, screens and logos in post from their own clean render, because models garble lettering. For surface graphics, flat lettering included, that render is the `graphics` pass, which `pnpm run render --subject <film> --passes graphics` writes as RGBA frames into `videos/controls/`. Its straight alpha is the surface graphics' coverage, with everything in front of them held out. Raised lettering is ordinary geometry and stays out of that pass; lift it from the beauty pass through its node's mask region.
+Composite legible text, signs, screens and logos in post from their own clean render, because models garble lettering. For surface graphics, flat lettering included, that render is the `graphics` pass, which `pnpm run render --subject <film> --passes graphics` writes as RGBA frames into `videos/controls/`. Its straight alpha is the surface graphics' coverage, with everything in front of them held out, and a see-through blended glass only by its opacity. Raised lettering is ordinary geometry and stays out of that pass; lift it from the beauty pass through its node's mask region.
 
 To composite whole 3D subjects over a generated take, render the film with `pnpm run render --subject <film> --background transparent`, which writes a straight-alpha `film.mov` with no audio into `media/automovie/<film>/transparent/`. Use either render only under the [render report check](../production/media-records.md#render-reports) of its folder.
 

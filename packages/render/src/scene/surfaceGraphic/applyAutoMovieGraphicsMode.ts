@@ -13,6 +13,10 @@ import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "./AUTOMOVIE_SURFACE_GRAPHIC_KEY.j
  * writes depth but no colour, through the shared material override, so a body,
  * a prop's case or a flame in front of a screen still hides it, and a marching
  * formation or a dual-quaternion skin holds out where the beauty pass draws it.
+ * A blended material whose opacity is below one, such as a lantern's glass
+ * globe, holds out only that opacity, as beauty shows a screen through it: its
+ * holdout writes no depth and scales the stored colour and alpha beneath it by
+ * one minus its opacity, so the straight colour is kept and the coverage drops.
  * The graphics keep their own materials, exposure, tone curve and fog. The
  * scene's background is removed, so with a clear alpha of 0 a pixel's alpha is
  * the graphics' coverage. Because graphic materials blend colour by alpha onto
@@ -36,8 +40,10 @@ export function applyAutoMovieGraphicsMode(
     overrideAutoMovieRenderModeMaterials(
       scene,
       "graphics",
-      (): THREE.MeshBasicMaterial =>
-        new THREE.MeshBasicMaterial({ colorWrite: false }),
+      (
+        original: THREE.Material | THREE.Material[],
+      ): THREE.Material | THREE.Material[] =>
+        Array.isArray(original) ? original.map(holdOut) : holdOut(original),
       (mesh: THREE.Mesh): boolean => graphics.has(mesh),
     );
   const background: THREE.Scene["background"] = scene.background;
@@ -51,3 +57,26 @@ export function applyAutoMovieGraphicsMode(
     }),
   };
 }
+
+/**
+ * The holdout of one material: for a blended material below full opacity, a
+ * depth-free material that multiplies the colour and alpha beneath it by one
+ * minus that opacity; for any other, a depth-only material.
+ */
+const holdOut = (original: THREE.Material): THREE.MeshBasicMaterial =>
+  original.transparent &&
+  original.blending === THREE.NormalBlending &&
+  original.opacity < 1
+    ? new THREE.MeshBasicMaterial({
+        transparent: true,
+        opacity: original.opacity,
+        depthWrite: false,
+        side: original.side,
+        blending: THREE.CustomBlending,
+        blendEquation: THREE.AddEquation,
+        blendSrc: THREE.ZeroFactor,
+        blendDst: THREE.OneMinusSrcAlphaFactor,
+        blendSrcAlpha: THREE.ZeroFactor,
+        blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
+      })
+    : new THREE.MeshBasicMaterial({ colorWrite: false });

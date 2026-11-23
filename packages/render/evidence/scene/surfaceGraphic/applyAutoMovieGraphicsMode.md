@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what draws, what holds out, that formations and dual-quaternion skins hold out where beauty draws them, the backdrop, the associated colour the capture divides back, and the one-time restore.
+States what draws, what holds out, that a blended material holds out only its opacity, that formations and dual-quaternion skins hold out where beauty draws them, the backdrop, the associated colour the capture divides back, and the one-time restore.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A colorless depth-writing material on every non-graphic mesh is a holdout: it occludes the graphics behind it and contributes no colour or alpha, so the plate's alpha is the visible graphics' coverage. The holdouts come from the shared material override, which carries a formation's baked cycle and a dual-quaternion skinning patch onto each replacement, so a held-out mesh occludes where the beauty pass draws it.
+A colorless depth-writing material on every non-graphic mesh is a holdout: it occludes the graphics behind it and contributes no colour or alpha, so the plate's alpha is the visible graphics' coverage. A blended material below full opacity is see-through in beauty, so its holdout writes no depth and blends a zero source over a one-minus-source-alpha destination at that opacity: the associated colour and alpha beneath it both scale by one minus the opacity, which keeps the straight colour and lowers the coverage to what beauty shows through the glass. The holdouts come from the shared material override, which carries a formation's baked cycle and a dual-quaternion skinning patch onto each replacement, so a held-out mesh occludes where the beauty pass draws it.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

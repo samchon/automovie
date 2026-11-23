@@ -26,18 +26,23 @@ import { renderFixtureNode } from "../internal/renderFixtureNode";
  *
  * 1. `graphics` is a listed guide pass.
  * 2. Under the pass, the phone's graphic meshes keep their beauty materials, and
- *    every other mesh, the phone's case included, takes a material that writes
- *    depth but no colour, so an occluder still hides the screen.
+ *    every other opaque mesh, the phone's case included, takes a material that
+ *    writes depth but no colour, so an occluder still hides the screen.
  * 3. A mesh `buildModel` bound with a dual-quaternion skin holds out on a holdout
  *    of its own that carries the skinning patch, so it occludes where beauty
  *    draws it; a plain mesh's holdout carries no such patch.
  * 4. The scene's backdrop is removed and its fog kept.
  * 5. Restoring the pass puts back every material, the backdrop and the fog.
+ * 6. A blended glass mesh of opacity 0.15, such as a lantern globe before a
+ *    screen, holds out only its opacity: its holdout writes no depth and blends
+ *    with a zero source and a one-minus-source-alpha destination at alpha 0.15,
+ *    so a graphic seen through it keeps 0.85 of its coverage, as beauty shows
+ *    it through the glass.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the pass membership, material, skinning, backdrop and restore facts the test pins.
  * @evidence contracts/development/testing.md#behavioral-verification Applies the pass through applyRenderMode to a mounted phone with a prepared graphic and reads materials, background and fog.
  * @evidence contracts/development/testing.md#independent-expectations The pass rules come from issue #4100: graphics as in beauty, everything else depth-only, transparent background; the skinning rule is applyRenderMode's, that every pass which swaps a material carries a mesh's deformation onto the replacement.
- * @evidence contracts/development/testing.md#distinguishing-cases A case drawn in colour, a graphic replaced, a skin held out without its skinning patch or sharing one holdout, a black backdrop or a lost fog fails. Alpha readback and the occluder's half-screen matte need a WebGL host and belong to the visual check.
+ * @evidence contracts/development/testing.md#distinguishing-cases A case drawn in colour, a glass held out as opaque, a graphic replaced, a skin held out without its skinning patch or sharing one holdout, a black backdrop or a lost fog fails. Alpha readback and the occluder's half-screen matte need a WebGL host and belong to the visual check.
  * @evidence contracts/development/testing.md#execution-ownership In-memory Three scene graph; no renderer.
  */
 export async function test_render_graphics_plate(): Promise<void> {
@@ -108,7 +113,12 @@ export async function test_render_graphics_plate(): Promise<void> {
     new THREE.BoxGeometry(0.1, 0.1, 0.1),
     new THREE.MeshStandardMaterial(),
   );
-  mounted.scene.add(skinned, plain);
+  // A blended glass, as buildModel draws a blend material, before the screen.
+  const glass: THREE.Mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(0.1, 0.1, 0.1),
+    new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.15 }),
+  );
+  mounted.scene.add(skinned, plain, glass);
   before.set(skinned, skinned.material);
   before.set(plain, plain.material);
 
@@ -130,9 +140,22 @@ export async function test_render_graphics_plate(): Promise<void> {
   );
   let graphicsKept: boolean = true;
   let othersHeldOut: boolean = true;
+  const glassHoldout: THREE.Material = glass.material as THREE.Material;
+  TestValidator.predicate(
+    "a blended glass holds out only its opacity and writes no depth",
+    glassHoldout.depthWrite === false &&
+      glassHoldout.transparent === true &&
+      glassHoldout.opacity === 0.15 &&
+      glassHoldout.blending === THREE.CustomBlending &&
+      glassHoldout.blendEquation === THREE.AddEquation &&
+      glassHoldout.blendSrc === THREE.ZeroFactor &&
+      glassHoldout.blendDst === THREE.OneMinusSrcAlphaFactor &&
+      glassHoldout.blendSrcAlpha === THREE.ZeroFactor &&
+      glassHoldout.blendDstAlpha === THREE.OneMinusSrcAlphaFactor,
+  );
   for (const [mesh, material] of before) {
     if (graphicMeshes.has(mesh)) graphicsKept &&= mesh.material === material;
-    else
+    else if (mesh !== glass)
       othersHeldOut &&=
         (mesh.material as THREE.Material).colorWrite === false &&
         (mesh.material as THREE.Material).depthWrite === true;
