@@ -13,6 +13,7 @@ Use [entity work](../development/entities.md#coarse-first) for people and provid
 
 | Read | To |
 | --- | --- |
+| [Environments](environments.md) | Build a place: a furnished room, a terrain or an outdoor set |
 | [Coarse forms](coarse-forms.md) | Build a subject no package provides from a few primitives |
 | [Modularization](modularization.md) | Define parts, groups, placements or shared boundaries |
 | [Inspecting a form](inspection.md) | Inspect a form's measures, coverage or light |
