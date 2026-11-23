@@ -52,6 +52,9 @@ export namespace HumanArmMirror {
       ...(base.restsOwn === undefined
         ? {}
         : { restsOwn: base.restsOwn.map(opposite) }),
+      // Each arm's own view, in the same arm order: a mirrored problem keeps
+      // its arms' order and turns each to the other side.
+      ...(base.arms === undefined ? {} : { arms: base.arms.map(mirrored) }),
     };
   }
 

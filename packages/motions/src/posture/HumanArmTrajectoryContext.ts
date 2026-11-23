@@ -219,11 +219,15 @@ export namespace HumanArmTrajectoryContext {
                 return reader;
               }
             : undefined;
+        // Each arm reads its own view of the base where it has one
+        // (`IBase.arms`): its own rests, never the other hand's.
+        const base: IProblem["bases"][number] = problem.bases[k]!;
         const frames: IAutoMovieMotionHumanArmGeometry.IFrame[] = setups.map(
           (
             setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+            a: number,
           ): IAutoMovieMotionHumanArmGeometry.IFrame =>
-            HumanArmFrame.of(setup, problem.bases[k]!, alone, prepared),
+            HumanArmFrame.of(setup, base.arms?.[a] ?? base, alone, prepared),
         );
         const sites: (M.ISite | undefined)[] = problem.arms.map(
           (arm: IProblem["arms"][number]): M.ISite | undefined => arm.sites[k],
@@ -569,12 +573,15 @@ export namespace HumanArmTrajectoryContext {
               frame: (
                 a: number,
                 seconds: number,
-              ): IAutoMovieMotionHumanArmGeometry.IFrame =>
-                HumanArmFrame.of(
+              ): IAutoMovieMotionHumanArmGeometry.IFrame => {
+                const base: IProblem["bases"][number] =
+                  problem.material!.at(seconds);
+                return HumanArmFrame.of(
                   setups[a]!,
-                  problem.material!.at(seconds),
+                  base.arms?.[a] ?? base,
                   alone,
-                ),
+                );
+              },
             },
           }),
       n,
