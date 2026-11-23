@@ -6,7 +6,7 @@ Builds admitted semantic bone rest TR and part TRS, binds skin joints or rigid a
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Owns one model graph plus semantic bone/part registries, one skeleton per ordered joint list, material variants by definition id with vertex-color/relief/skinning-method flags and one patched shadow pair per dual quaternion mesh; geometry, physical-vertex mapping, material shading and imported appearances remain separate producers.
+Owns one model graph plus semantic bone/part registries, one skeleton per ordered joint list, material variants by definition id with vertex-color/relief/skinning-method flags (a worn definition takes one material per part, since its edge texture belongs to that geometry) and one patched shadow pair per dual quaternion mesh; geometry, physical-vertex mapping, material shading and imported appearances remain separate producers.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

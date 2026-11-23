@@ -23,6 +23,8 @@ export * from "./detailNormalShading/index.js";
 export * from "./dualQuaternionSkinning/index.js";
 export * from "./filmResponse/index.js";
 export * from "./materialOverlayShading/index.js";
+export * from "./proceduralShading/index.js";
+export * from "./wearShading/index.js";
 export * from "./reliefWeightShading/index.js";
 export * from "./addMaterialShaderPatch.js";
 export * from "./IMaterialShaderPatch.js";

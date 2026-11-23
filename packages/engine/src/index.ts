@@ -42,6 +42,7 @@ export * from "./formationSlotRecord";
 export * from "./geometry";
 export * from "./kinematics";
 export * from "./lerp";
+export * from "./material";
 export * from "./math";
 export * from "./measureAutoMovieGeometry";
 export * from "./measureAutoMovieGeometryCamera";

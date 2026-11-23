@@ -35,6 +35,8 @@ export type { IAutoMovieLimitSubdivisionLevel } from "./IAutoMovieLimitSubdivisi
 export type { IAutoMovieLimitSubdivisionRing } from "./IAutoMovieLimitSubdivisionRing";
 export type { IAutoMovieMark } from "./IAutoMovieMark";
 export type { IAutoMovieMarkMeshClearance } from "./IAutoMovieMarkMeshClearance";
+export type { IAutoMovieFeatureEdgeDistance } from "./IAutoMovieFeatureEdgeDistance";
+export type { IAutoMovieMeasureFeatureEdges } from "./IAutoMovieMeasureFeatureEdges";
 export type { IAutoMovieMeasureMeshClearance } from "./IAutoMovieMeasureMeshClearance";
 export type { IAutoMovieMeasureMeshDefects } from "./IAutoMovieMeasureMeshDefects";
 export type { IAutoMovieMeasureModelContacts } from "./IAutoMovieMeasureModelContacts";

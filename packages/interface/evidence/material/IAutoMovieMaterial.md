@@ -14,4 +14,4 @@ No finish name selects a numerical preset; explicit alpha mode overrides opacity
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States coefficient bounds, linear colour, texture slot colour and channel roles, alpha defaults, normal-map composition, lobe directions and omission defaults, metre-valued transmission and subsurface properties, image resolution order and resolver ownership.
+States coefficient bounds, linear colour, texture slot colour and channel roles, alpha defaults, normal-map composition, lobe directions and omission defaults, metre-valued transmission and subsurface properties, image resolution order and resolver ownership, and that a procedural surface replaces base colour and roughness and is refused beside the images stating them.

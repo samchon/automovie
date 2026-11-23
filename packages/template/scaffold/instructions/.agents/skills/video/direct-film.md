@@ -18,7 +18,7 @@ Cloth and hair follow the body only as far as the installed packages simulate th
 
 Use the look adopted in [project context](../production/project-context.md#overview-and-look), including the cinematography record on long work.
 
-Use record and canon materials in the installed format. Get textures and environment maps from [sources](../3d-modeling/sources.md). Use clay for form and beauty for materials under [form inspection](../3d-modeling/inspection.md#light-and-material).
+Use record and canon materials in the installed format. Generate wood, stone, plaster, clay, fabric and brushed-metal finishes as `procedural` material surfaces, and give handled objects edge `wear` and crease grime, under [3D modeling](../3d-modeling/SKILL.md#commissioned-detail); get other textures and environment maps from [sources](../3d-modeling/sources.md). Use clay for form and beauty for materials under [form inspection](../3d-modeling/inspection.md#light-and-material).
 
 [Staging](../motion/staging.md#the-view) places each light at its motivated source. A motivated practical shows its source, a flame or a lit screen, as [entity work](../development/entities.md#flames-screens-and-lettering) authors it. An emissive surface lights nothing, so a screen that should light its surroundings needs a staged area light. A detailed film keys from that source, then adds a fill that sets the look's contrast and an edge or back light where a figure would merge with its background.
 

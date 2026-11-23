@@ -70,6 +70,8 @@ export * from "./validateJointConstraint";
 export * from "./validateLookAt";
 export * from "./validateMaterialLobes";
 export * from "./validateMaterialOverlays";
+export * from "./validateMaterialProcedural";
+export * from "./validateMaterialWear";
 export * from "./validateMesh";
 export * from "./validateMeshTopology";
 export * from "./validateModel";

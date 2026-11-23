@@ -48,6 +48,8 @@ export * from "./integrateAutoMovieRadialField";
 export * from "./intersectAutoMovieConvexPolygons";
 export * from "./limitSubdivisionLevel";
 export * from "./limitSubdivisionRing";
+export * from "./autoMovieFeatureEdgeDistance";
+export * from "./measureAutoMovieFeatureEdges";
 export * from "./measureAutoMovieMeshClearance";
 export * from "./measureAutoMovieMeshCrossings";
 export * from "./measureAutoMovieMeshDefects";

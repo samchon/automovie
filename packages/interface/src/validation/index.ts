@@ -43,6 +43,7 @@ export type { IAutoMovieValidateFormationOverlap } from "./IAutoMovieValidateFor
 export type { IAutoMovieValidateFormationSlotMotions } from "./IAutoMovieValidateFormationSlotMotions";
 export type { IAutoMovieValidateGroundContact } from "./IAutoMovieValidateGroundContact";
 export type { IAutoMovieValidateMaterialLobes } from "./IAutoMovieValidateMaterialLobes";
+export type { IAutoMovieValidateMaterialProcedural } from "./IAutoMovieValidateMaterialProcedural";
 export type { IAutoMovieValidateModel } from "./IAutoMovieValidateModel";
 export type { IAutoMovieValidateMotion } from "./IAutoMovieValidateMotion";
 export type { IAutoMovieValidatePose } from "./IAutoMovieValidatePose";
