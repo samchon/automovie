@@ -26,6 +26,8 @@ export type { IAutoMovieExtrudeRegion } from "./IAutoMovieExtrudeRegion";
 export type { IAutoMovieFilmEffectClock } from "./IAutoMovieFilmEffectClock";
 export type { IAutoMovieFitSubdivisionDomain } from "./IAutoMovieFitSubdivisionDomain";
 export type { IAutoMovieFitSubdivisionRegions } from "./IAutoMovieFitSubdivisionRegions";
+export type { IAutoMovieFormCheck } from "./IAutoMovieFormCheck";
+export type { IAutoMovieFormExpectation } from "./IAutoMovieFormExpectation";
 export type { IAutoMovieGroundQueryPoint } from "./IAutoMovieGroundQueryPoint";
 export type { IAutoMovieHeightRule } from "./IAutoMovieHeightRule";
 export type { IAutoMovieIntegrateRadialField } from "./IAutoMovieIntegrateRadialField";

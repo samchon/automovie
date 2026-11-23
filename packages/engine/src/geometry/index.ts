@@ -14,6 +14,7 @@ export * from "./buildAutoMovieRegionFace";
 export * from "./buildAutoMovieWall";
 export * from "./buildSubdivisionTopology";
 export * from "./canonicalRegion";
+export * from "./checkAutoMovieFormExpectation";
 export * from "./collectAutoMovieSpatialQueryCandidates";
 export * from "./constants";
 export * from "./construction";
