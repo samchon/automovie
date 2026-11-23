@@ -5,9 +5,6 @@ import type {
 
 import { rotationBetween } from "../math/rotationBetween";
 
-/** Components checked for finiteness, in message order. */
-const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
-
 /**
  * The shortest-arc rotation that turns the direction of `from` onto the
  * direction of `to`.
@@ -18,22 +15,22 @@ const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
  * the bone's rest forward axis as `from` and `target - bonePosition` as `to`,
  * and the result orients the bone at the target.
  *
- * Inputs are validated as finite, normalized, and passed to the engine's
- * single shortest-arc primitive {@link rotationBetween}, the same deadzone-free
- * `atan2` helper the world-driver IK path uses, so the analytic and iterative
- * IK families use the same turn. Representable nonzero cross products remain
- * active, subject to binary64 precision in the normalized directions and result.
+ * Inputs are validated as finite, normalized, and passed to the engine's single
+ * shortest-arc primitive {@link rotationBetween}, the same deadzone-free `atan2`
+ * helper the world-driver IK path uses, so the analytic and iterative IK
+ * families use the same turn. Representable nonzero cross products remain
+ * active, subject to binary64 precision in the normalized directions and
+ * result.
  *
- * Aligned inputs return the identity, and antiparallel inputs a 180 degree
- * turn about a deterministic perpendicular. A zero-length input has no
- * direction and also returns the identity, which keeps a projectile at rest
- * facing its authored forward axis.
+ * Aligned inputs return the identity, and antiparallel inputs a 180 degree turn
+ * about a deterministic perpendicular. A zero-length input has no direction and
+ * also returns the identity, which keeps a projectile at rest facing its
+ * authored forward axis.
  *
  * @param from Direction to turn, any finite length.
  * @param to Direction to turn onto, any finite length.
  * @returns A unit quaternion.
  * @throws Error naming the vector and component when a component is not finite.
- *
  * @evidence contracts/development/implementation.md#principled-implementation The shortest arc between two unit vectors is the rotation about their cross product by `atan2(|a x b|, a . b)`, which `rotationBetween` computes without a near-parallel deadzone; normalizing first removes the magnitudes the angle does not depend on, and the documented zero-vector identity is `rotationBetween`'s degenerate branch rather than a separate rule.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct and prepare entries own named finite refusal and delegate every numerical turn to rotationBetween's same core; the prepared reader adds only lazy successful source admission/normalization for the two-bone workload.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonfinite inputs retain named refusal, every target still validates, and no small angle is snapped. Preparation stores nothing until original source-then-target validation succeeds and requires an unchanged borrowed source; direct calls keep live reads.
@@ -86,14 +83,30 @@ export namespace aimRotation {
   }
 }
 
-/** Refuse a vector with a non-finite component, naming the argument and axis. */
+/**
+ * Refuse a vector with a non-finite component, naming the argument and axis, in
+ * `x`, `y`, `z` order. The three components are read directly, so an admitted
+ * vector costs three tests and builds nothing.
+ */
 const validateVector: (
   label: "from" | "to",
   value: IAutoMovieVector3,
 ) => void = (label: "from" | "to", value: IAutoMovieVector3): void => {
-  for (const axis of VECTOR_AXES)
-    if (!Number.isFinite(value[axis]))
-      throw new Error(
-        `aimRotation ${label}.${axis} must be finite, but was ${value[axis]}`,
-      );
+  if (!Number.isFinite(value.x)) refuse(label, "x", value.x);
+  if (!Number.isFinite(value.y)) refuse(label, "y", value.y);
+  if (!Number.isFinite(value.z)) refuse(label, "z", value.z);
 };
+
+/** Throw the named refusal of one non-finite component. */
+const refuse: (
+  label: "from" | "to",
+  axis: VectorAxis,
+  value: number,
+) => never = (label: "from" | "to", axis: VectorAxis, value: number): never => {
+  throw new Error(
+    `aimRotation ${label}.${axis} must be finite, but was ${value}`,
+  );
+};
+
+/** A vector component's name. */
+type VectorAxis = "x" | "y" | "z";

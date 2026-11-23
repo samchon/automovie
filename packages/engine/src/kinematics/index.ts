@@ -4,6 +4,7 @@ export * from "./aimYawPitch";
 export * from "./alternateRigJointAngles";
 export * from "./armChainFault";
 export * from "./boxExcludedSwivels";
+export * from "./boxLeastSwivels";
 export * from "./clinicalDeviation";
 export * from "./constants";
 export * from "./curlChainUntilContact";

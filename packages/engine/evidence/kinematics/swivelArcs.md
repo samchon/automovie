@@ -10,7 +10,7 @@ A sinusoid is its three coefficients and an arc its two ends, degrees; a union i
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The two records and the fit, the two combinations, the arc of one sinusoid, the union and its two readings: what `boxExcludedSwivels` and a point's bound share.
+The two records and the fit, the two combinations, the arc and the least swivel of one sinusoid, the union and its two readings: what `boxExcludedSwivels`, `boxLeastSwivels` and a point's bound share.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -127,6 +127,64 @@ Constant work.
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
 Shared by every bound.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A pure function that retains nothing.
+
+# src/kinematics/swivelArcs.ts#swivelArcs.least
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the result's unit and range and the constant case.
+
+## @evidence contracts/development/implementation.md#principled-implementation `a + R cos(ψ - φ)` is least where the cosine is -1, at `φ + 180`, which `atan2(-c, -b)` gives in one call.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One test and one `atan2`.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Exact; a constant returns none rather than an arbitrary swivel.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+Constant work.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure function of its argument.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A pure function that retains nothing.
+
+# src/kinematics/swivelArcs.ts#swivelArcs.lowest
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the result and when the trough is taken.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+A sinusoid has one trough a turn, so over an interval it is least at that trough when the interval holds it, and otherwise at an end.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One test and two evaluations.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Exact; never sampled between the ends.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+Constant work.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure function of its arguments.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
