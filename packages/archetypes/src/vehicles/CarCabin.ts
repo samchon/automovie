@@ -394,7 +394,7 @@ function door(
 }
 
 /**
- * Add one seat: a cushion and a back, its `seat` affordance on the cushion's front edge facing forward, and the back's reclining hinge.
+ * Add one seat: a cushion and a back, its `seat` affordance on the cushion's front edge facing forward, and the back's reclining hinge where `recline` is positive.
  *
  * @param builder The car under construction.
  * @param l The layout.
@@ -436,18 +436,21 @@ function seat(
     width,
     back: 0.6,
   });
-  builder.affordance({
-    id: `${id}Back`,
-    kind: "hinge",
-    frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(reference.x, reference.y, rear),
-      Vector3.create(-1, 0, 0),
-      Vector3.create(0, 1, 0),
-    ),
-    extent: null,
-    travel: l.d.recline!,
-    parts: [`backrest-${name}`],
-  });
+
+  // A back whose recline is 0 does not recline, so it has no hinge: a hinge's travel must be positive.
+  if (l.d.recline! > 0)
+    builder.affordance({
+      id: `${id}Back`,
+      kind: "hinge",
+      frame: AutoMovieArchetypeFrame.facing(
+        Vector3.create(reference.x, reference.y, rear),
+        Vector3.create(-1, 0, 0),
+        Vector3.create(0, 1, 0),
+      ),
+      extent: null,
+      travel: l.d.recline!,
+      parts: [`backrest-${name}`],
+    });
 }
 
 /** Each door's name in part ids, as the front doors' were before the rear doors came. */

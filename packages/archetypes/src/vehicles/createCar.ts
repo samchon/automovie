@@ -224,7 +224,7 @@ export namespace createCar {
    * - `driverDoorHandle`, `passengerDoorHandle`, `rearLeftDoorHandle`, `rearRightDoorHandle`: the outside handles, each riding its door.
    * - `driverAperture`, `passengerAperture`, `rearLeftAperture`, `rearRightAperture`: the door openings, passed through into the car.
    * - `driverWindow`, `passengerWindow`, `rearLeftWindow`, `rearRightWindow`: each door's glass, sliding down into it, riding the door; and `driverWindowOpening` and the rest, the opening above the glass, its threshold riding the glass's top edge, clear to `height` with the glass fully down.
-   * - `driverSeat`, `passengerSeat`, and except in a van `rearSeat`: the seats, facing forward; `driverSeatBack` and the rest, each back's reclining hinge, a positive travel tipping it back.
+   * - `driverSeat`, `passengerSeat`, and except in a van `rearSeat`: the seats, facing forward; `driverSeatBack` and the rest, each back's reclining hinge, a positive travel tipping it back; absent where `recline` is 0, a back that does not recline.
    * - `wheel`: the steering wheel, its axis toward the driver; its travel is half the lock-to-lock turn to either side, positive to the left.
    * - `frontLeftWheel`, `frontRightWheel`: the front road wheels' steering, each about the upright through its centre, positive to the left, following `wheel` by its Ackermann angle (`ackermann`), so the inner wheel of a turn steers more than the outer; a `wheel` articulation because a road wheel steers to either side of straight, which a `knob`'s range from 0 does not allow.
    * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: each road wheel's roll about its axle, a positive travel rolling it forward, the front pair riding their steering.

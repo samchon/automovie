@@ -82,6 +82,10 @@ Hand a change of bone lengths to [motion](../motion/SKILL.md). The generating de
 
 A few fixed variants need no parameter: generate or fetch each as its own frozen source, accepting that their shared features will not match exactly.
 
+### Band ends
+
+Let the params fix every dimension a band varies, because a band's ends are where a part most often detaches or stops moving. Build the form at its middle and at both ends of each band, one dimension at a time. Fix every end where the form fails admission, a part loses its area or detaches, or nothing changes that the dimension should change. A dimension that moves no rest geometry by design, such as an articulation's limit or a mass property, is recorded with its reason.
+
 ## Final check
 
 Load the conditioned derivative through its consumer and judge it under [form inspection](inspection.md), beside the frozen source, at the views and motion it is used for.

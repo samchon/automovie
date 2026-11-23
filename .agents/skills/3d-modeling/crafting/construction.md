@@ -77,6 +77,8 @@ Audit invariants generically over every section and join of the finished form: e
 
 Check each input on the finished form at its own definition, such as a measurement taken at its site the way it is defined, because a per-part test that recomputes the construction's formulas passes whatever the construction does.
 
+Drive every banded dimension to both ends as [band ends](../conditioning.md#band-ends) sets.
+
 ## Stylization
 
 Apply stylization as separate transforms over the generating curves and parts. Record it as a project decision.
