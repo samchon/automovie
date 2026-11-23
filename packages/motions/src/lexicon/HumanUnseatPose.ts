@@ -10,7 +10,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
@@ -420,86 +419,6 @@ export namespace HumanUnseatPose {
     ).get(bone)!.worldPosition;
   }
 
-  /**
-   * The first of a span's samples at which a hand is placed (`placed`): the
-   * still problem a planned arm course solves at an instant of its hold, so
-   * what is admitted here is what the course can place.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param from The span's start, local seconds.
-   * @param to The span's end, local seconds.
-   * @param posture The posture at a local second, the hand's goal on its target as the law writes it (its rests and clearances with it).
-   * @param target The hand's target at a local second, world metres.
-   * @returns The first placeable second, or undefined when none is.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the reading, what it agrees with and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Sixteen even samples of the span, each read by `placed`.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target never placeable yields none; nothing is stretched or excused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most seventeen posture fits.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function placeable(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    from: number,
-    to: number,
-    posture: (t: number) => IAutoMovieMotionHumanPosture,
-    target: (t: number) => IAutoMovieVector3,
-  ): number | undefined {
-    for (let k: number = 0; k <= 16; ++k) {
-      const t: number = from + ((to - from) * k) / 16;
-      if (placed(body, side, posture(t), target(t))) return t;
-    }
-    return undefined;
-  }
-
-  /**
-   * Whether the posture's own fit of a hand's goal puts the hand on its
-   * target: the wrist within the course's default site disc of it. The fit
-   * keeps the arm clear of the body and of what the goal names to clear or
-   * rest on, giving up the target where it cannot, so a hand it places is
-   * placed clear.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param posture The posture, the hand's goal on its target as the law writes it.
-   * @param point The hand's target, world metres.
-   * @returns Whether the hand is placed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the reading and its result.
-   * @evidence contracts/development/implementation.md#principled-implementation The posture's own fit (`resolveHumanPosture`), the same goal, rests and clearances the course fits at its hold, read against the course's default site disc (`AutoMovieMotionHumanAuditTangle.BUILT`).
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One fit, one miss.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is stretched or excused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture fit demanding only the hand's bone.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function placed(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    posture: IAutoMovieMotionHumanPosture,
-    point: IAutoMovieVector3,
-  ): boolean {
-    const hand: AutoMovieHumanoidBone = `${side}Hand`;
-    const pose: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture(
-      body,
-      posture,
-    );
-    return (
-      Vector3.distance(
-        poseBones(
-          body,
-          pose,
-          undefined,
-          new Set<AutoMovieHumanoidBone>([hand]),
-        ).get(hand)!.worldPosition,
-        point,
-      ) <= AutoMovieMotionHumanAuditTangle.BUILT
-    );
-  }
   /**
    * The first of a span's samples at which a hand's target comes within the arm's reach of its shoulder.
    *

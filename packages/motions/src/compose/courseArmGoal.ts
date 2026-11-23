@@ -81,6 +81,11 @@ export function courseArmGoal(
   let last: courseArmGoal.IRead | undefined;
   const kept: Map<courseArmGoal.Limb, IAutoMovieMotionHumanPosture["joints"]> =
     new Map();
+  // Each arm's return target, read once before the composition is laid.
+  const returned: Map<
+    courseArmGoal.Limb,
+    IAutoMovieMotionHumanPosture["joints"]
+  > = new Map();
   const read = (
     seconds: number,
     resolution?: courseArmGoal.Resolution,
@@ -184,22 +189,28 @@ export function courseArmGoal(
         // course that starts after the action does takes over from the arm
         // the plan shows, never from a frozen rest.
         if (seconds < span.start) continue;
-        // After its course the arm is the plan's own again, its goal fitted on
-        // the body as it moves on, unless the law asks the arm to keep the
-        // angles its course ended with (`after: "angles"`).
-        if (seconds > span.end && props.after !== "angles") continue;
-        delete limbs[limb];
-        if (seconds <= span.end) continue;
+        if (seconds <= span.end) {
+          delete limbs[limb];
+          continue;
+        }
 
         // After its course the arm keeps the angles the course ended with,
-        // carried by the body as it moves on.
+        // carried by the body as it moves on (`after: "angles"`), or is the
+        // plan's own again, its goal fitted on the body as it moves on from
+        // the arm the course ended on: the posture's arm joints carry that
+        // arm, so the fit and the display's course of the goal both continue
+        // its swivel and branch (Tolani, Goswami and Badler 2000: the
+        // feasible swivel nearest the previous solution), never another
+        // elbow side for the same goal at the seam.
+        if (props.after === "angles") delete limbs[limb];
         let angles: IAutoMovieMotionHumanPosture["joints"] | undefined =
-          kept.get(limb);
+          laid ? kept.get(limb) : returned.get(limb);
         if (angles === undefined) {
           // Until the composition is laid, another arm of the group whose
           // span runs on is planned on this base past this arm's end, before
           // the composition exists: the arm then stands where its course
-          // returns it, the plan's own arm at the span's end (its `back`).
+          // returns it, the plan's own arm at the span's end (its `back`),
+          // resolved once.
           angles = {};
           if (laid) {
             const ended: IAutoMovieMotionHumanPosture["joints"] =
@@ -208,19 +219,20 @@ export function courseArmGoal(
               if (ended[bone] !== undefined) angles[bone] = ended[bone];
             kept.set(limb, angles);
           } else {
-            const returned: IAutoMoviePose = resolveHumanPosture(
+            const back: IAutoMoviePose = resolveHumanPosture(
               props.body,
               read(span.end),
             );
             const chain: ReadonlySet<AutoMovieHumanoidBone> =
               new Set<AutoMovieHumanoidBone>(courseArmGoal.bones(arm.side));
-            for (const joint of returned.joints)
+            for (const joint of back.joints)
               if (chain.has(joint.bone))
                 angles[joint.bone] = [
                   joint.flexion ?? 0,
                   joint.abduction ?? 0,
                   joint.twist ?? 0,
                 ];
+            returned.set(limb, angles);
           }
         }
         joints = { ...joints, ...angles };

@@ -6,6 +6,7 @@ import {
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -14,6 +15,7 @@ import type {
   IAutoMovieMotionHumanMounted,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -73,7 +75,7 @@ export const HumanMounted: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanM
      * Admit the figures, solve each seat once in the carrier contact's frame, then sample the carried key postures and the hands' holds.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals the plan raises: a non-seated entry, no figure or a final bench, a bad transfer or hold, a support the seat kind lacks or does not read, a hand that changes contact, and a transfer that holds no support through it.
-     * @evidence contracts/development/implementation.md#principled-implementation Each figure's key posture is solved once by `HumanMountedSeats` in the carrier contact's frame at the start; a second blends the keys by the minimum-jerk transfer share, swings a foot over the carrier where its straight way would pass through it, and is carried by the contact's moving frame (`HumanMountedFrame`); hands hold their contacts by `HumanMountRider.hold` with the ride's grip reader and closure.
+     * @evidence contracts/development/implementation.md#principled-implementation Each figure's key posture is solved once by `HumanMountedSeats` in the carrier contact's frame at the start; a second blends the keys by the minimum-jerk transfer share, each limb end's turn slerped by the same share and a foot kept on its rest turned about its ball, swings a foot over the carrier where its straight way would pass through it, and is carried by the contact's moving frame (`HumanMountedFrame`); hands hold their contacts by `HumanMountRider.hold` with the ride's grip reader and closure.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, keys, arcs, clock and windows, hands, then the sampler.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Supports out of reach are refused by the seats; nothing is clamped onto a contact.
      * @evidence contracts/development/implementation.md#efficient-algorithms Planning solves one key per figure and four clearance queries per leg per transfer; a sample blends two keys, reads one carrier frame and fits each holding hand once.
@@ -241,6 +243,25 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const middles: IAutoMovieVector3[] = keys.map(hipsOf);
   const arcs: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>[] =
     HumanMountedPaths.arcs(seats, entry, keys, figures, planted);
+  // The ball each foot kept on its rest pivots about through each transfer.
+  const pivots: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>[] =
+    keys.map(
+      (
+        key: IAutoMovieMotionHumanPosture,
+        i: number,
+      ): Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> => {
+        const out: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
+        for (const side of ["left", "right"] as const) {
+          const ball: IAutoMovieVector3 | undefined = HumanMountedPaths.rested(
+            i === 0 ? entry : keys[i - 1]!,
+            key,
+            side,
+          );
+          if (ball !== undefined) out[side] = ball;
+        }
+        return out;
+      },
+    );
 
   // The windows each support holds.
   // The entry's planted feet are held on the stirrups the first figure names, or on whatever they rest on.
@@ -359,6 +380,51 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         keys[index]!,
         share,
       );
+      // A transfer between two keys turns each limb's end the same share as it moves it, rather than holding the earlier key's turn until it snaps at the arrival; a foot kept on its rest turns about the ball on it, so the ball stays on the rest.
+      if (share > 0 && share < 1)
+        for (const limb of [
+          "leftArm",
+          "rightArm",
+          "leftLeg",
+          "rightLeg",
+        ] as const) {
+          const a: IAutoMovieHumanLimbGoal | undefined = from.limbs[limb];
+          const b: IAutoMovieHumanLimbGoal | undefined =
+            keys[index]!.limbs[limb];
+          const goal: IAutoMovieHumanLimbGoal | undefined = local.limbs[limb];
+          if (
+            goal === undefined ||
+            a?.rotation === undefined ||
+            b?.rotation === undefined
+          )
+            continue;
+          const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+            a.rotation,
+            b.rotation,
+            share,
+          );
+          const ball: IAutoMovieVector3 | undefined =
+            limb === "leftLeg"
+              ? pivots[index]!.left
+              : limb === "rightLeg"
+                ? pivots[index]!.right
+                : undefined;
+          local.limbs = {
+            ...local.limbs,
+            [limb]: {
+              ...goal,
+              rotation,
+              ...(ball === undefined || goal.contact === undefined
+                ? {}
+                : {
+                    point: Vector3.subtract(
+                      ball,
+                      Quaternion.rotateVector(rotation, goal.contact),
+                    ),
+                  }),
+            },
+          };
+        }
       // The hips travel between the keys while the pelvis turns about them, swinging about feet kept on their stirrups so no leg is stretched or folded past both ends.
       if (share > 0 && share < 1)
         local.root = Vector3.add(

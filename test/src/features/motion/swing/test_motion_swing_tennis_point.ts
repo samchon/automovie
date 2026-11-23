@@ -1,4 +1,4 @@
-﻿import { createBall, createRacket } from "@automovie/archetypes";
+import { createBall, createRacket } from "@automovie/archetypes";
 import { AutoMovieComposition, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
@@ -72,7 +72,14 @@ interface IStation {
  *    forehand into the diagonal service box.
  * 2. Each later forehand is staged where the previous shot, after its
  *    bounce, comes down through the forehand's contact height; the hitter
- *    walks there first and strikes at that instant.
+ *    runs there from the relax of their own last stroke, which cuts it, so
+ *    the run ends before the forehand must start, and strikes at that
+ *    instant. The take that measures a station has no shot yet for the
+ *    player waiting on the one after it, so that player recovers behind
+ *    their baseline's centre: left standing at their old station, they
+ *    stood in the measured shot's path and the ball rebounded off their
+ *    chest, which no flight continues (a displayed person certifies no
+ *    departure from a resolved contact).
  * 3. Every shot passes over the net's centre tape between the singles
  *    sidelines and first lands inside its opponent's
  *    singles court, and every racket face meets the ball's surface at its
@@ -207,7 +214,25 @@ export function test_motion_swing_tennis_point(): void {
     }),
   });
 
-  const film = (shots: readonly IShot[]): HumanPerformance => {
+  // A player waiting for a shot not yet staged recovers behind the centre of
+  // their own baseline, facing the net, as a player recovers between strokes.
+  const home = (player: Player): IAutoMovieVector3 => ({
+    x: 0,
+    y: 0,
+    z: player === "a" ? -12.2 : 12.2,
+  });
+  const recover = (
+    chain: IAutoMovieMotionHumanChain,
+    player: Player,
+  ): IAutoMovieMotionHumanChain =>
+    chain
+      .run({ to: home(player), pace: "run", face: player === "a" ? 0 : 180 })
+      .stand({ hold: 2.5, sway: 0 });
+
+  const film = (
+    shots: readonly IShot[],
+    measuring: boolean,
+  ): HumanPerformance => {
     const chains: Record<Player, IAutoMovieMotionHumanChain> = {
       a: HumanChain.subject("a")
         .registered(`tennisHold-a`, { hold: 0.3, sway: 0 })
@@ -232,15 +257,20 @@ export function test_motion_swing_tennis_point(): void {
     // The serve and the first return ride the players' own chains. Each
     // later shot is its own branch, composed after the shot it answers, so
     // the scheduler places that shot's flight before this one reads it: the
-    // hitter runs from the end of their own last shot to the station.
+    // hitter's own last stroke is cut at its relax and the hitter runs from
+    // there to the station, so the run ends before the stroke must start.
+    // In a measuring take the player who hit the shot before the last one
+    // waits for a shot not staged yet; standing at their old station they
+    // would stand in the last shot's path, so they recover to their baseline.
     const branches: IAutoMovieComposition[] = [];
-    const later: Record<Player, boolean> = { a: false, b: false };
+    const waiting: number = measuring ? shots.length - 2 : -1;
+    const ended: Record<Player, boolean> = { a: false, b: false };
     shots.forEach((shot: IShot, index: number): void => {
       if (shot.station === undefined) return;
       const stroke = (
         chain: IAutoMovieMotionHumanChain,
-      ): IAutoMovieMotionHumanChain =>
-        chain.registered(
+      ): IAutoMovieMotionHumanChain => {
+        const struck: IAutoMovieMotionHumanChain = chain.registered(
           "tennisForehandReturn",
           {
             tool: `racket-${shot.hitter}`,
@@ -251,12 +281,25 @@ export function test_motion_swing_tennis_point(): void {
           },
           `shot${index}`,
         );
+        return index + 2 < shots.length
+          ? struck.until({ event: "relax" })
+          : struck;
+      };
+      const settle = (
+        chain: IAutoMovieMotionHumanChain,
+      ): IAutoMovieMotionHumanChain => {
+        if (index !== waiting) return chain;
+        ended[shot.hitter] = true;
+        return recover(chain, shot.hitter);
+      };
       if (index === 0) {
-        chains.a = stroke(chains.a).sync({
-          of: "toss",
-          event: "stroke",
-          offset: tossSeconds - impact,
-        });
+        chains.a = settle(
+          stroke(chains.a).sync({
+            of: "toss",
+            event: "stroke",
+            offset: tossSeconds - impact,
+          }),
+        );
         return;
       }
       const answer: IAutoMovieMotionHumanChainCore.ISync = {
@@ -265,19 +308,19 @@ export function test_motion_swing_tennis_point(): void {
         offset: shot.station.seconds - launchOf(shots, index - 1) - impact,
       };
       if (index === 1) {
-        chains.b = stroke(chains.b).sync(answer);
+        chains.b = settle(stroke(chains.b).sync(answer));
         return;
       }
-      later[shot.hitter] = true;
+      ended[shot.hitter] = true;
       const run: IAutoMovieMotionHumanChain = HumanChain.subject(shot.hitter)
         .run({ to: shot.station.at, pace: "run", face: shot.station.yaw })
-        .sync({ of: `shot${index - 2}`, event: "end" })
+        .sync({ of: `shot${index - 2}`, event: "relax" })
         .stand({ hold: 0.05, sway: 0 });
       const struck: IAutoMovieMotionHumanChain = stroke(run).sync(answer);
       branches.push(
         (index === shots.length - 1
           ? struck.stand({ hold: 2.5, sway: 0 })
-          : struck
+          : settle(struck)
         ).node,
       );
     });
@@ -384,8 +427,8 @@ export function test_motion_swing_tennis_point(): void {
         ),
       ],
       composition: AutoMovieComposition.parallel(
-        (later.a ? chains.a : chains.a.stand({ hold: 2.5, sway: 0 })).node,
-        (later.b ? chains.b : chains.b.stand({ hold: 2.5, sway: 0 })).node,
+        (ended.a ? chains.a : chains.a.stand({ hold: 2.5, sway: 0 })).node,
+        (ended.b ? chains.b : chains.b.stand({ hold: 2.5, sway: 0 })).node,
         ...branches,
       ),
     });
@@ -404,7 +447,7 @@ export function test_motion_swing_tennis_point(): void {
     { hitter: "b", toward: { x: 0, y: 0, z: -5 }, speed: 15 },
   ];
   shots[0]!.station = { at: serverAt, yaw: 0, seconds: 0 };
-  let take: HumanPerformance = film(shots.slice(0, 1));
+  let take: HumanPerformance = film(shots.slice(0, 1), true);
   for (let index: number = 0; index + 1 < shots.length; ++index) {
     const play: IAutoMovieMotionHumanBallPlay = take.play("ball");
     const shot: IAutoMovieMotionHumanBallPlay.ILaunch = play.events.filter(
@@ -443,14 +486,14 @@ export function test_motion_swing_tennis_point(): void {
     const next: IShot = shots[index + 1]!;
     const yaw: number = face(down.point, next.toward);
     next.station = { at: place(down.point, yaw), yaw, seconds: down.seconds };
-    if (index + 2 < shots.length) take = film(shots.slice(0, index + 2));
+    if (index + 2 < shots.length) take = film(shots.slice(0, index + 2), true);
   }
   const rally = (last: number): HumanPerformance => {
     const ending: IShot[] = [
       ...shots.slice(0, -1),
       { ...shots.at(-1)!, speed: last },
     ];
-    const film4: HumanPerformance = film(ending);
+    const film4: HumanPerformance = film(ending, false);
     launches[ending.length - 1] = film4
       .play("ball")
       .events.filter(

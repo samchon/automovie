@@ -323,6 +323,35 @@ export namespace HumanFoot {
   export const prepareOffset: typeof humanFootOffset.prepare =
     humanFootOffset.prepare;
 
+  /** A point a foot pivots about: a named sole point, or a point in the foot's rest frame from the ankle (an edge, `edge`). */
+  export type Pivot = "heel" | "ball" | "toe" | "sole" | "mtp" | IAutoMovieVector3;
+
+  /**
+   * A forefoot edge in the foot's rest frame from the ankle: the ball's
+   * sole point carried across the foot by half its breadth across the
+   * metatarsal heads (`IAutoMovieBodyMeasure.footBreadth`), toward its +X
+   * border or its -X one. A foot rolled past the ankle's range bears on
+   * that edge, so a contact window declares it as the point held
+   * (`IAutoMovieMotionHumanContactWindow.socket`) and the foot pivots about
+   * it.
+   *
+   * @param body The body.
+   * @param side The foot.
+   * @param border +1 for the +X border, -1 for the -X one.
+   * @returns The edge, metres in the foot's rest frame from the ankle.
+   */
+  export function edge(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+    border: number,
+  ): IAutoMovieVector3 {
+    const ball: IAutoMovieVector3 = offset(body, side, "ball", 0);
+    return {
+      ...ball,
+      x: ball.x + (Math.sign(border) * body.measure.footBreadth) / 2,
+    };
+  }
+
   /**
    * The foot placed by pivoting about a sole point fixed on the floor.
    *
@@ -346,7 +375,7 @@ export namespace HumanFoot {
   export function pivot(
     body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    pivot: "heel" | "ball" | "toe" | "sole" | "mtp",
+    pivot: Pivot,
     at: IAutoMovieVector3,
     heading: number,
     pitch: number,
@@ -354,7 +383,8 @@ export namespace HumanFoot {
     roll: number = 0,
   ): IAutoMovieMotionHumanFoot.IPlacement {
     const r: IAutoMovieQuaternion = rotation(heading, pitch, roll);
-    const local: IAutoMovieVector3 = offset(body, side, pivot, toes);
+    const local: IAutoMovieVector3 =
+      typeof pivot === "string" ? offset(body, side, pivot, toes) : pivot;
     return {
       ankle: Vector3.subtract(at, Quaternion.rotateVector(r, local)),
       rotation: r,

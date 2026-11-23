@@ -13,6 +13,7 @@ import type {
 
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanMount } from "./HumanMount";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import type { HumanMountedSeats } from "./HumanMountedSeats";
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
@@ -398,7 +399,49 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The feet that swing over the carrier into each figure: a foot whose straight way to its next place would pass through the carrier's colliders passes instead through a point above the higher end, `RISE` thighs up, midway along; a foot kept on the same stirrup stays on it.
+   * The ball a foot pivots about between two keys: the foot planted on its ball in both, the ball on the same place within the campaign's 5 mm contact bound (`HumanMount.ON`), as a foot kept in its stirrup while the seat turns; none otherwise.
+   *
+   * @param from The earlier key.
+   * @param to The later key.
+   * @param side The foot.
+   * @returns The ball, in the keys' frame, or none.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when a foot pivots and about what.
+   * @evidence contracts/development/implementation.md#principled-implementation A planted goal's contact is its sole socket in the foot's frame, so the ball is the ankle plus the foot's rotation of it; equal balls at both ends mean the foot stays on its rest.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One comparison.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bound is the campaign's contact bound, not a tuned one.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function rested(
+    from: IAutoMovieMotionHumanPosture,
+    to: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieVector3 | undefined {
+    const ball = (
+      goal: IAutoMovieHumanLimbGoal | undefined,
+    ): IAutoMovieVector3 | undefined =>
+      goal?.planted === true &&
+      goal.contact !== undefined &&
+      goal.rotation !== undefined &&
+      goal.on === undefined
+        ? Vector3.add(
+            goal.point,
+            Quaternion.rotateVector(goal.rotation, goal.contact),
+          )
+        : undefined;
+    const a: IAutoMovieVector3 | undefined = ball(from.limbs[`${side}Leg`]);
+    const b: IAutoMovieVector3 | undefined = ball(to.limbs[`${side}Leg`]);
+    return a !== undefined &&
+      b !== undefined &&
+      Vector3.distance(a, b) <= HumanMount.ON
+      ? b
+      : undefined;
+  }
+
+  /**
+   * The feet that swing over the carrier into each figure: a foot whose straight way to its next place would pass through the carrier's colliders passes instead through a point above the higher end, `RISE` thighs up, midway along; a foot kept on the same stirrup, or planted on its ball at the same place at both ends (`rested`), stays on it.
    *
    * @param seats The seats' context, for the body and the colliders.
    * @param entry The entered posture in the carrier frame.
@@ -445,7 +488,9 @@ export namespace HumanMountedPaths {
             a === undefined ||
             b === undefined ||
             Vector3.distance(a, b) < 1e-6 ||
-            (was !== undefined && was === figures[i]!.supports?.[`${side}Foot`])
+            (was !== undefined &&
+              was === figures[i]!.supports?.[`${side}Foot`]) ||
+            rested(i === 0 ? entry : keys[i - 1]!, key, side) !== undefined
           )
             continue;
           let clear: boolean = true;

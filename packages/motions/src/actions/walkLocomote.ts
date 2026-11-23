@@ -1,4 +1,8 @@
-import { AutoMovieGravity, preparePoseResolution } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  Vector3,
+  preparePoseResolution,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -359,6 +363,44 @@ export function walkLocomote(
       .filter((s: IAutoMovieMotionHumanWalkSteps.IStance): boolean => s.inPlace === true)
       .map((s: IAutoMovieMotionHumanWalkSteps.IStance): string => `${s.side}:${s.from}`),
   );
+  // Each swing's departure excess: how far its leg's reach moves the stance
+  // it leaves, settled at its toe-off; none for a stance left inside it. A
+  // constant of the step, settled once per swing and kept by its foot and
+  // toe-off.
+  const leavings: Map<string, IAutoMovieVector3> = new Map();
+  function leaving(
+    side: "left" | "right",
+    swing: NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>,
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+  ): IAutoMovieVector3 {
+    const key: string = `${side}:${swing.off}`;
+    let known: IAutoMovieVector3 | undefined = leavings.get(key);
+    if (known === undefined) {
+      const departure: IAutoMovieMotionHumanWalkFoot.IFoot = reachedAt(
+        side,
+        swing,
+        resolution,
+      )(0);
+      known = Vector3.subtract(
+        (ranged[side] ??= walkReach.prepareSwing(body, side))(
+          settle(
+            swing.off,
+            {
+              left: steps.foot("left", swing.off),
+              right: steps.foot("right", swing.off),
+            },
+            undefined,
+            undefined,
+            resolution,
+          ),
+          departure,
+        ).ankle,
+        departure.placement.ankle,
+      );
+      leavings.set(key, known);
+    }
+    return known;
+  }
   function solve(
     t: number,
     legs: readonly ("left" | "right")[],
@@ -408,6 +450,7 @@ export function walkLocomote(
         steps.inPlace === true || turning.has(`${side}:${swing.on}`)
           ? swing.u
           : Math.min(swing.u, 0.5),
+        leaving(side, swing, resolution),
       );
     }
     return { feet, hips, settled, reached };

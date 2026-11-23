@@ -1,7 +1,9 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -13,6 +15,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanWireFlight,
+  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -334,6 +337,91 @@ export namespace wireFlight {
         };
       },
     );
+    // A touch's ramp starts from the flight's own limb: its joint and its
+    // knee or elbow, read at each ramp's two ends on the first read of the
+    // ramp, in the root's frame, and interpolated between them, carried by
+    // the root as the flight moves on: keys solved once and read many times,
+    // as an animation curve's are, never a posture resolved per second.
+    const keys: Map<IPlaced, IRampKeys> = new Map();
+    const local = (
+      posture: IAutoMovieMotionHumanPosture,
+      point: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
+      Quaternion.rotateVector(
+        Quaternion.inverse(resolveHumanPosture.heading(posture)),
+        Vector3.subtract(point, posture.root),
+      );
+    const key = (
+      side: AutoMovieHumanSide,
+      leg: boolean,
+      limb: AutoMovieHumanLimb,
+      at: number,
+    ): IRampKey => {
+      const posture: IAutoMovieMotionHumanPosture = held.posture(
+        Math.min(seconds, Math.max(0, at)),
+      );
+      const own: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
+      if (own !== undefined)
+        return {
+          point: local(posture, own.point),
+          bend: local(posture, own.bend),
+        };
+      const end: AutoMovieHumanoidBone = `${side}${leg ? "Foot" : "Hand"}`;
+      const middle: AutoMovieHumanoidBone = `${side}${leg ? "LowerLeg" : "LowerArm"}`;
+      const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(
+          context.body,
+          resolveHumanPosture(context.body, posture),
+          undefined,
+          new Set<AutoMovieHumanoidBone>([end, middle]),
+        );
+      return {
+        point: local(posture, shown.get(end)!.worldPosition),
+        bend: local(posture, shown.get(middle)!.worldPosition),
+      };
+    };
+    const ramped = (
+      p: IPlaced,
+      side: AutoMovieHumanSide,
+      limb: AutoMovieHumanLimb,
+      posture: IAutoMovieMotionHumanPosture,
+      coming: boolean,
+      w: number,
+    ): IAutoMovieHumanLimbGoal => {
+      let found: IRampKeys | undefined = keys.get(p);
+      if (found === undefined) {
+        const plateau: number = window / 4;
+        found = {
+          in: [
+            key(side, p.leg, limb, p.at - plateau - window),
+            key(side, p.leg, limb, p.at - plateau),
+          ],
+          out: [
+            key(side, p.leg, limb, p.at + plateau),
+            key(side, p.leg, limb, p.at + plateau + window),
+          ],
+        };
+        keys.set(p, found);
+      }
+      // The ramp's share of its way from one end to the other.
+      const [a, b]: readonly [IRampKey, IRampKey] = coming
+        ? found.in
+        : found.out;
+      const u: number = coming ? w : 1 - w;
+      const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
+      const world = (
+        from: IAutoMovieVector3,
+        to: IAutoMovieVector3,
+      ): IAutoMovieVector3 =>
+        Vector3.add(
+          posture.root,
+          Quaternion.rotateVector(
+            turn,
+            Vector3.add(from, Vector3.scale(Vector3.subtract(to, from), u)),
+          ),
+        );
+      return { point: world(a.point, b.point), bend: world(a.bend, b.bend) };
+    };
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...held.contacts,
       ...placed.flatMap((p: IPlaced): IAutoMovieMotionHumanContactWindow[] =>
@@ -383,27 +471,16 @@ export namespace wireFlight {
           // would leap onto the surface as the ramp starts. Where the flight
           // writes no goal of its own for the limb, its shaped joints place
           // the joint and the knee or elbow the ramp leaves.
-          if (posture.limbs[limb] === undefined && w < 1) {
-            const end: AutoMovieHumanoidBone = `${side}${p.leg ? "Foot" : "Hand"}`;
-            const middle: AutoMovieHumanoidBone = `${side}${p.leg ? "LowerLeg" : "LowerArm"}`;
-            const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-              poseBones(
-                context.body,
-                resolveHumanPosture(context.body, posture),
-                undefined,
-                new Set<AutoMovieHumanoidBone>([end, middle]),
-              );
+          // The limb is read at the ramp's ends once, in the root's frame,
+          // and carried by the root between them (`ramped`).
+          if (posture.limbs[limb] === undefined && w < 1)
             posture = {
               ...posture,
               limbs: {
                 ...posture.limbs,
-                [limb]: {
-                  point: shown.get(end)!.worldPosition,
-                  bend: shown.get(middle)!.worldPosition,
-                },
+                [limb]: ramped(p, side, limb, posture, seconds_ < p.at, w),
               },
             };
-          }
           posture = mixHumanPosture(
             posture,
             {
@@ -443,6 +520,22 @@ export namespace wireFlight {
 
   /** How far the wrist stands off a surface the palm lies on, metres: a palm's half thickness. */
   export const PALM: number = 0.015;
+
+  /** A ramp's end: the flight's own limb joint and its knee or elbow, in the root's frame, metres. */
+  interface IRampKey {
+    /** The wrist or ankle. */
+    point: IAutoMovieVector3;
+    /** The elbow or knee. */
+    bend: IAutoMovieVector3;
+  }
+
+  /** A touch's ramp keys: the two ends of its ramp in and of its ramp out. */
+  interface IRampKeys {
+    /** The ramp in's start and end. */
+    in: readonly [IRampKey, IRampKey];
+    /** The ramp out's start and end. */
+    out: readonly [IRampKey, IRampKey];
+  }
 
   /** One touch placed on the flight. */
   interface IPlaced {

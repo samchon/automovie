@@ -98,14 +98,14 @@ export function crutchHeldLeg(
       },
     };
   };
-  // The least hip flexion that keeps the held foot's every sole point a
-  // swing's clearance (`walkFoot.CLEARANCE`) above the level beneath it,
-  // in closed form: in the leg's sagittal plane the ankle hangs
+  // The hip flexion nearest the asked one that keeps the held foot's every
+  // sole point a swing's clearance (`walkFoot.CLEARANCE`) above the level
+  // beneath it, in closed form: in the leg's sagittal plane the ankle hangs
   // L1 cos θ + L2 cos(θ − k) = A cos(θ − φ) below the hip, θ the thigh's
   // angle forward of vertical (the hip's flexion plus the pelvis's forward
-  // tilt) and k the knee's flexion, so it rises to a drop D at
-  // θ = φ + acos(D / A). The hip joint is the posture's own rigid offset of
-  // the rest hip from the root; nothing is resolved.
+  // tilt) and k the knee's flexion, so it hangs lower than a drop D only
+  // within acos(D / A) of φ. The hip joint is the posture's own rigid offset
+  // of the rest hip from the root; nothing is resolved.
   const thigh: number = body.measure.thigh;
   const shank: number = body.measure.shank;
   const restHip: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
@@ -121,12 +121,14 @@ export function crutchHeldLeg(
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
     knee: number,
+    hip: number,
   ) => number = (
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
     knee: number,
+    hip: number,
   ): number => {
-    if (props.floor === undefined) return -Infinity;
+    if (props.floor === undefined) return hip;
     const hipY: number =
       posture.root.y +
       Quaternion.rotateVector(resolveHumanPosture.heading(posture), restHip).y;
@@ -138,10 +140,15 @@ export function crutchHeldLeg(
       thigh + shank * Math.cos(k),
       shank * Math.sin(k),
     );
-    if (drop >= a) return -Infinity;
+    if (drop >= a) return hip;
+    // The ankle is too low within acos(D / A) of φ, the angle of its
+    // lowest hang: the thigh is moved to the nearer edge of that band.
     const phi: number = Math.atan2(shank * Math.sin(k), thigh + shank * Math.cos(k));
-    const theta: number = phi + Math.acos(Math.max(-1, drop / a));
-    return theta / Quaternion.DEG2RAD - posture.pitch;
+    const band: number = Math.acos(Math.max(-1, drop / a));
+    const theta: number = (hip + posture.pitch) * Quaternion.DEG2RAD;
+    if (Math.abs(theta - phi) >= band) return hip;
+    const edge: number = theta >= phi ? phi + band : phi - band;
+    return edge / Quaternion.DEG2RAD - posture.pitch;
   };
   return (
     base: IAutoMovieMotionHumanPosture,
@@ -175,10 +182,11 @@ export function crutchHeldLeg(
       Math.min(1, (seconds - start) / (held - start)),
     ).s;
     const knee: number = from.lower[0] + (props.knee - from.lower[0]) * s;
-    const hip: number = Math.max(
-      from.upper[0] + (props.hip - from.upper[0]) * s,
-      clearing(base, seconds, knee),
-    );
+    // The clearance comes in with the fold, so the fold starts where the rise
+    // left the leg and is held clear of the level beneath once it is held.
+    const folded: number = from.upper[0] + (props.hip - from.upper[0]) * s;
+    const hip: number =
+      folded + (clearing(base, seconds, knee, folded) - folded) * s;
     const tilt: number = knee - from.lower[0] - (hip - from.upper[0]);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...base.limbs };
     delete limbs[leg];

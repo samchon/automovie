@@ -26,6 +26,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { GymnasticsWheel } from "./GymnasticsWheel";
 import { GymnasticsWheelPlants } from "./GymnasticsWheelPlants";
+import { edgeGymnasticsWheelFeet } from "./edgeGymnasticsWheelFeet";
 
 /**
  * A cartwheel (#3377): the body turns once about its front-to-back axis,
@@ -271,8 +272,11 @@ export namespace cartwheel {
       origin: { x: 0, y: 0, z: 0 },
       yaw: standing.yaw,
     };
+    // A foot rolled past the ankle's range bears on its forefoot's edge.
+    const borne: IAutoMovieMotionHumanContactWindow[] =
+      edgeGymnasticsWheelFeet(body, contacts, duration, carried);
     const lay: ReturnType<typeof GymnasticsWheelPlants.of> =
-      GymnasticsWheelPlants.of(body, contacts, duration, carried, {
+      GymnasticsWheelPlants.of(body, borne, duration, carried, {
         first: HumanFrame.point(frame, { x: -sign, y: 0, z: 0 }),
         second: HumanFrame.point(frame, { x: 0, y: 0, z: 1 }),
       });
@@ -289,7 +293,7 @@ export namespace cartwheel {
     const goals: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
-      contacts,
+      contacts: borne,
       contact: inverted,
       posture: (seconds: number): IAutoMovieMotionHumanPosture =>
         seconds >= duration ? landed() : turning(seconds),

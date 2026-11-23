@@ -159,24 +159,37 @@ export namespace pickUpPosture {
       );
       // The pick-up shows its key as solved, so a key that folds the trunk
       // into the thighs past the tangle audit's skin is lowered into a squat
-      // instead: the knees and hips lower the trunk, not the lumbar spine
-      // folding it on (`bendLower.fold`; Kingma et al. 2010).
-      if (
-        solved.strategy !== "squat" &&
-        bendLower.fold(context.body, entry, lateral, solved) >
-          AutoMovieMotionHumanAuditSkin.BUILT
-      )
-        solved = bend.lowering(
-          context.body,
-          entry,
-          grip,
-          side,
-          "squat",
-          reach,
-          undefined,
-          undefined,
-          lateral,
-        );
+      // instead, the knees and hips lowering the trunk rather than the lumbar
+      // spine folding it on (`bendLower.fold`; Kingma et al. 2010), where the
+      // squat folds it less: a long-thighed body's squat folds its thighs
+      // further onto the trunk than its semi-squat does.
+      const folded: number =
+        solved.strategy === "squat"
+          ? 0
+          : bendLower.fold(context.body, entry, lateral, solved);
+      if (folded > AutoMovieMotionHumanAuditSkin.BUILT) {
+        let squat: IAutoMovieMotionHumanBendLower.ISolved | undefined;
+        try {
+          squat = bend.lowering(
+            context.body,
+            entry,
+            grip,
+            side,
+            "squat",
+            reach,
+            undefined,
+            undefined,
+            lateral,
+          );
+        } catch (error) {
+          if (!(error instanceof HumanRefusal)) throw error;
+        }
+        if (
+          squat !== undefined &&
+          bendLower.fold(context.body, entry, lateral, squat) < folded
+        )
+          solved = squat;
+      }
     } catch (error) {
       throw new HumanRefusal({
         kind: "reach",

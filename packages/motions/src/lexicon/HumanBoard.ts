@@ -7,6 +7,7 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -23,6 +24,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
@@ -311,35 +313,54 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     hand?.partner === undefined
       ? undefined
       : HumanBoardHandover.plan(
-          context.body,
           hand,
           context.performer(hand.partner),
           flight,
           context.start,
-          // A hand's hold on the partner as the plan's posture writes it:
-          // the boarding, the hand reached to the point, the partner's trunk
-          // and thighs the rests the arm keeps clear of up to the wrist.
-          (
-            t: number,
-            side: IAutoMovieMotionHumanBoard.IHand["side"],
-            point: IAutoMovieVector3,
-          ): IAutoMovieMotionHumanPosture => {
-            const reached: IAutoMovieMotionHumanPosture =
-              HumanUnseatPose.reach(boarding(t), side, point, 1);
+          // The holds as the plan's posture writes a hand on the partner (the
+          // hand reached to its point on the boarding, the partner's trunk
+          // and thighs the rests the arm keeps clear of up to the wrist),
+          // admitted by the course's own still problem there.
+          (t: number, holds: readonly HumanBoardHandover.IHold[]): boolean => {
             const other: IAutoMovieMotionHumanPerformerReader =
               context.performer(hand.partner!);
-            return {
-              ...reached,
-              limbs: {
-                ...reached.limbs,
-                [`${side}Arm`]: {
-                  ...reached.limbs[`${side}Arm`]!,
-                  rests: HumanColliders.preparePlaced(other.body, PARTNER)(
-                    other.bones(context.start + t, PARTNER),
-                  ),
-                },
+            const resting: ReturnType<
+              ReturnType<typeof HumanColliders.preparePlaced>
+            > = HumanColliders.preparePlaced(other.body, PARTNER)(
+              other.bones(context.start + t, PARTNER),
+            );
+            return AutoMovieMotionHumanArmPlanned.stands(
+              context.body,
+              {
+                seconds: t,
+                carries: holds.map(
+                  (
+                    held: HumanBoardHandover.IHold,
+                  ): IAutoMovieMotionHumanArmPlanned.IPlanned => ({
+                    side: held.side,
+                    rest: AutoMovieMotionHumanArm.angles(
+                      context.entry.pose,
+                      held.side,
+                    ),
+                    weight: (): number => 1,
+                    goal: (
+                      _posture: IAutoMovieMotionHumanPosture,
+                      seconds: number,
+                    ): IAutoMovieHumanLimbGoal => ({
+                      ...HumanUnseatPose.reach(
+                        boarding(seconds),
+                        held.side,
+                        held.point,
+                        1,
+                      ).limbs[`${held.side}Arm`]!,
+                      rests: resting,
+                    }),
+                  }),
+                ),
               },
-            };
+              (seconds: number): IAutoMovieMotionHumanPosture =>
+                boarding(seconds),
+            );
           },
         );
   const lets: number =

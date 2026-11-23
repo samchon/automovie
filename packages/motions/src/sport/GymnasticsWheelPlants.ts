@@ -262,6 +262,7 @@ export namespace GymnasticsWheelPlants {
                     1,
                     true,
                     true,
+                    typeof c.socket === "object" ? c.socket : undefined,
                   ),
                   true,
                 ),

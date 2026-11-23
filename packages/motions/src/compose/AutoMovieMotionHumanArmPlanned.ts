@@ -19,7 +19,10 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmGeometry } from "../posture/HumanArmGeometry";
+import { HumanArmSeed } from "../posture/HumanArmSeed";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
+import { HumanArmTrajectoryContext } from "../posture/HumanArmTrajectoryContext";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { certifyHumanArmTracks } from "../posture/certifyHumanArmTracks";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -195,6 +198,66 @@ export namespace AutoMovieMotionHumanArmPlanned {
    */
   export const reaching: typeof AutoMovieMotionHumanArmObservation.reaching =
     AutoMovieMotionHumanArmObservation.reaching;
+  /** One instant of a hold to check: the arms holding there and the second. */
+  export interface IStill {
+    /** The arms, each with its goal on its hold at the second. */
+    carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[];
+
+    /** The second, the plan's own. */
+    seconds: number;
+  }
+
+  /**
+   * Whether the arms can hold at one instant: the course's own still
+   * problem there (`HumanArmSeed.held`), on the bases, sites and starts the
+   * course would read at that instant (`planned` with `still`), so what a law
+   * admits by it is what the course can place.
+   *
+   * @param body The body.
+   * @param still The arms and the second.
+   * @param before The prefix posture at any second, the arms' goals read off it.
+   * @returns Whether a configuration holds every hand on its site with every arm clear there.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, on what and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The necessary condition the trajectory planner itself tests before optimising, on the very readings it would make.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One span of a frame either side of the instant, one still solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The course's own refusal is the answer; nothing is relaxed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three bases and sites and one still problem from its starts; no course is laid or optimised.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `planned`'s own readers and `HumanArmSeed.held`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function stands(
+    body: IAutoMovieMotionHumanBody,
+    still: IStill,
+    before: IAutoMovieMotionHumanActionPlan["posture"],
+  ): boolean {
+    const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+      start: still.seconds - STEP,
+      ready: still.seconds,
+      relax: still.seconds,
+      end: still.seconds + STEP,
+    };
+    try {
+      planned(
+        body,
+        span,
+        still.carries.map(
+          (
+            c: IAutoMovieMotionHumanArmPlanned.IPlanned,
+          ): IAutoMovieMotionHumanArmPlanned.IPlanned => ({ ...c, span }),
+        ),
+        before,
+        undefined,
+        undefined,
+        true,
+      );
+      return true;
+    } catch (error: unknown) {
+      if (error instanceof HumanRefusal) return false;
+      throw error;
+    }
+  }
+
   /**
    * Arms solved as one trajectory problem over their span
    * (`HumanArmTrajectory`), against the posture so far with every one of
@@ -221,6 +284,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @param before The prefix posture at any second, accepting this same-body plan's synchronous FK/ROM loans through the shared posture signature.
    * @param plan The group's handover: its `warm` read for an earlier plan's solution of these arms, its `last` written with this plan's own when the optimiser ran, or with the path a refusal for time was reached at (`IMirrorTold.state`), which the replan at the slower time starts from. Absent, nothing is read or kept.
    * @param inheritedPace Exact original group pace, supplied only for a trial of one member.
+   * @param still Whether only the hold's instant (`span.ready`) is solved as the course's still problem, refusing as the course would there, and no course is laid (`stands`).
    * @returns Each arm's trajectory.
    * @throws {HumanRefusal} When no trajectory meets the constraints (`HumanArmTrajectory.solve`).
    *
@@ -242,6 +306,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
       "warm" | "last" | "stretches" | "tempo" | "ordinal"
     >,
     inheritedPace?: (seconds: number) => number,
+    still?: boolean,
   ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
@@ -656,6 +721,36 @@ export namespace AutoMovieMotionHumanArmPlanned {
         (t: number): HumanArmTrajectory.IProblem["bases"][number] => base(t),
       ),
     });
+    // A still check (`stands`) solves the hold's one instant as the course's
+    // own still problem (`HumanArmSeed.held`), on the course's own bases and
+    // sites, from each arm's own fit there, and lays no course.
+    if (still === true) {
+      const instants: number[] = [span.start, span.ready, span.end];
+      const read: HumanArmTrajectory.IProblem = problem(instants);
+      const context: ReturnType<
+        ReturnType<typeof HumanArmTrajectoryContext.prepare>
+      > = HumanArmTrajectoryContext.prepare(
+        body,
+        carries.map(
+          (c: IAutoMovieMotionHumanArmPlanned.IPlanned): AutoMovieHumanSide =>
+            c.side,
+        ),
+      )(read);
+      HumanArmSeed.held(
+        read,
+        context,
+        carries.map(
+          (c: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): number[][] =>
+            instants.map((t: number): number[] =>
+              HumanArmGeometry.encode(
+                context.setups[a]!,
+                t === span.ready ? fitted(a, t) : c.rest,
+              ),
+            ),
+        ),
+      );
+      return new Map();
+    }
     // The course an animation system lays (`AutoMovieMotionHumanArmCourse`),
     // kept when the model's own reading admits it; otherwise the
     // optimiser's seed.

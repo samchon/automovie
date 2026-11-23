@@ -1,6 +1,8 @@
 import {
   ANKLE_DORSIFLEXION,
   DEFAULT_HUMANOID_ROM,
+  Quaternion,
+  Vector3,
   minimumJerk,
 } from "@automovie/engine";
 import type {
@@ -87,6 +89,7 @@ export namespace AutoMovieMotionHumanFootRelax {
    * @param share The share of the weight the foot bears, 0 to 1; none when absent.
    * @param grounded Whether the forefoot is on the floor, so the heel rises about it; a foot in the air turns about its ankle instead.
    * @param ball Whether the heel rises about the ball the foot bears on, for a support held under the ball (a line, a stirrup); about the toes' joint when false.
+   * @param edge The forefoot edge a foot rolled past the ankle's range bears on and turns about, in the foot's rest frame from the ankle (`HumanFoot.edge`); the pivot above when absent.
    * @returns The placement with its heel raised about the toes' joint where the ask would pass the limit, else the ask.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the correction.
@@ -105,6 +108,7 @@ export namespace AutoMovieMotionHumanFootRelax {
     share: number = 0,
     grounded: boolean = true,
     ball: boolean = false,
+    edge?: IAutoMovieVector3,
   ): IAutoMovieMotionHumanFoot.IPlacement {
     const hip: IAutoMovieVector3 = hipJoints(
       body,
@@ -158,11 +162,19 @@ export namespace AutoMovieMotionHumanFootRelax {
       if (!(excess > 1e-6) && !(Math.abs(over) > 1e-6)) break;
       if (excess > 1e-6) pitch -= excess;
       roll = asked + over;
+      // A foot rolled past the range bears on the edge it rolls onto, where
+      // the law names one (`HumanFoot.edge`), and turns about it there.
+      const rolled: boolean = edge !== undefined && Math.abs(over) > 1e-6;
       foot = HumanFoot.pivot(
         body,
         side,
-        pivot,
-        forefoot,
+        rolled ? edge! : pivot,
+        rolled
+          ? Vector3.add(
+              placement.ankle,
+              Quaternion.rotateVector(placement.rotation, edge!),
+            )
+          : forefoot,
         direction.heading,
         pitch,
         0,

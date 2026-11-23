@@ -109,6 +109,7 @@ export * from "./physicalShapePairContact";
 export * from "./physicalShapePairDistance";
 export * from "./physicalShapeSegmentDistance";
 export * from "./physicalShapeSpan";
+export * from "./physicalShapeSupport";
 export * from "./physicalShapeSurfaceAnchor";
 export * from "./physicalSingularBudget";
 export * from "./physicalSupportPoint";

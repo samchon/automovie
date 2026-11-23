@@ -26,6 +26,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { GymnasticsWheel } from "./GymnasticsWheel";
 import { GymnasticsWheelPlants } from "./GymnasticsWheelPlants";
+import { edgeGymnasticsWheelFeet } from "./edgeGymnasticsWheelFeet";
 import { cartwheel } from "./cartwheel";
 
 /**
@@ -246,15 +247,18 @@ export namespace roundOff {
       origin: { x: 0, y: 0, z: 0 },
       yaw: standing.yaw,
     };
+    // A foot rolled past the ankle's range bears on its forefoot's edge.
+    const borne: IAutoMovieMotionHumanContactWindow[] =
+      edgeGymnasticsWheelFeet(body, contacts, duration, carried);
     const lay: ReturnType<typeof GymnasticsWheelPlants.of> =
-      GymnasticsWheelPlants.of(body, contacts, duration, carried, {
+      GymnasticsWheelPlants.of(body, borne, duration, carried, {
         first: HumanFrame.point(frame, { x: -sign, y: 0, z: 0 }),
         second: HumanFrame.point(frame, { x: 0, y: 0, z: 1 }),
       });
     const goals: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
-      contacts,
+      contacts: borne,
       contact: feetDown * duration,
       posture: (seconds: number): IAutoMovieMotionHumanPosture =>
         lay(carried(seconds), Math.min(duration, Math.max(0, seconds))),

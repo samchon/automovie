@@ -13,6 +13,7 @@ import type {
 import {
   AutoMovieMotionHumanSleep,
   HumanChain,
+  HumanColliders,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
@@ -59,8 +60,11 @@ interface IWay {
  * clean:
  * 1. Through the hold, the performer's chest lies on the partner's back
  *    (spooning, at the height the performer's own lying width gives its
- *    midline) or its lower cheek on the partner's chest, as the partner
- *    breathes.
+ *    midline) or its lower cheek on the partner's surface by the chest, as
+ *    the partner breathes. With the head on the chest the performer is
+ *    staged out to the partner's side along the shoulders, its head toward
+ *    the partner, since a chest's level normal on a body lying on its back
+ *    points along the body.
  * 2. Both bodies stay on the floor: no bone under it.
  * 3. The resting region bears on the partner in a window.
  * 4. Lying far from the partner is refused.
@@ -113,13 +117,18 @@ export function test_motion_sleep_lie_together(): void {
       w.way === "spoon"
         ? lain(a, w.own, w.mine).point.y - lain(b, w.partner, w.theirs).point.y
         : 0;
+    // With the head on the chest, the cheek rests on the partner's surface
+    // by the shoulder, wherever the body beside the partner lets it reach,
+    // so it is read against the partner's colliders, not a region's centre.
     const misses: readonly number[] = [0, 0.5, 1].map((k: number): number => {
       const t: number = from + k * (act.end - from);
+      const mine: IAutoMovieVector3 = region(film, "a", a, w.mine, t);
+      if (w.way === "chest")
+        return Math.abs(
+          HumanColliders.distance(b, film.bones("b", t), mine).distance,
+        );
       const theirs: IAutoMovieVector3 = region(film, "b", b, w.theirs, t);
-      return Vector3.distance(region(film, "a", a, w.mine, t), {
-        ...theirs,
-        y: theirs.y + raised,
-      });
+      return Vector3.distance(mine, { ...theirs, y: theirs.y + raised });
     });
     TestValidator.predicate(
       `${label}: the ${w.mine} stays on the partner's ${w.theirs} (${misses.map((m: number): string => (m * 1000).toFixed(1)).join(", ")} mm)`,
@@ -156,11 +165,12 @@ export function test_motion_sleep_lie_together(): void {
   );
 }
 
-/** Where a body's region lies, and which way it faces, once the body has lain down alone from the origin. */
+/** Where a body's region lies, and which way it faces, once the body has lain down alone from the origin at a heading, degrees. */
 function lain(
   body: IAutoMovieMotionHumanBody,
   position: IAutoMovieMotionHumanLieDown.Position,
   name: AutoMovieHumanoidRegion,
+  yaw: number = 0,
 ): ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> {
   const alone: HumanPerformance = new HumanPerformance({
     seed: "lie-alone",
@@ -169,7 +179,7 @@ function lain(
         subject: "x",
         body,
         at: { x: 0, y: 0, z: 0 },
-        yaw: 0,
+        yaw,
         proficiency: { level: "trained" },
       },
     ],
@@ -191,13 +201,21 @@ function scene(
 ): HumanPerformance {
   // The partner lies from the origin; the performer is staged so that its
   // resting region lies `apart` from the partner's region across the floor.
+  // Spooning, that is out from the partner's back, along its normal. With
+  // the head on the chest, a chest's normal stands nearly upright on a body
+  // lying on its back, so its level part points anywhere (mostly along the
+  // body, which staged the performer over the partner's legs): the performer
+  // is staged out to the partner's side instead, along the shoulders' axis
+  // toward that chest, and lies down with its head toward the partner (a
+  // body lying beside the partner along it puts its own trunk where the
+  // partner's chest is, since a lying cheek is nearly on the body's midline).
   const theirs: ReturnType<typeof lain> = lain(b, w.partner, w.theirs);
-  const mine: IAutoMovieVector3 = lain(a, w.own, w.mine).point;
-  const out: IAutoMovieVector3 = Vector3.normalize({
-    x: theirs.normal.x,
-    y: 0,
-    z: theirs.normal.z,
-  });
+  const out: IAutoMovieVector3 =
+    w.way === "chest" ? side(b, w.partner, w.theirs) : flatten(theirs.normal);
+  // A body lies down with its head behind its standing heading.
+  const yaw: number =
+    w.way === "chest" ? (Math.atan2(out.x, out.z) * 180) / Math.PI : 0;
+  const mine: IAutoMovieVector3 = lain(a, w.own, w.mine, yaw).point;
   const offset: IAutoMovieVector3 = {
     x: theirs.point.x + out.x * apart - mine.x,
     y: 0,
@@ -211,7 +229,7 @@ function scene(
         subject: "a",
         body: a,
         at: offset,
-        yaw: 0,
+        yaw,
         proficiency: { level: "trained" },
       },
       {
@@ -237,6 +255,23 @@ function scene(
           }),
       ).node,
   });
+}
+
+/** A direction's level part, normalized. */
+function flatten(v: IAutoMovieVector3): IAutoMovieVector3 {
+  return Vector3.normalize({ x: v.x, y: 0, z: v.z });
+}
+
+/** The level direction out to a lying body's side of a chest region, along its shoulders' axis. */
+function side(
+  body: IAutoMovieMotionHumanBody,
+  position: IAutoMovieMotionHumanLieDown.Position,
+  chest: AutoMovieHumanoidRegion,
+): IAutoMovieVector3 {
+  const left: IAutoMovieVector3 = lain(body, position, "shoulderLeft").point;
+  const right: IAutoMovieVector3 = lain(body, position, "shoulderRight").point;
+  const leftward: IAutoMovieVector3 = flatten(Vector3.subtract(left, right));
+  return chest === "chestLeft" ? leftward : Vector3.scale(leftward, -1);
 }
 
 /** A body region's displayed point. */

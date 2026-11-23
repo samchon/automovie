@@ -65,6 +65,7 @@ export function prepareWalkReachSwing(
   settled: walkReach.IGround,
   foot: IAutoMovieMotionHumanWalkFoot.IFoot,
   share?: number,
+  leaving?: IAutoMovieVector3,
 ) => walkFoot.IEnd {
   const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
   const limit: number = Math.sqrt(
@@ -84,6 +85,7 @@ export function prepareWalkReachSwing(
     settled: walkReach.IGround,
     foot: IAutoMovieMotionHumanWalkFoot.IFoot,
     share?: number,
+    leaving?: IAutoMovieVector3,
   ): walkFoot.IEnd => {
     const h: IAutoMovieVector3 = settled.hips[side];
 
@@ -91,29 +93,41 @@ export function prepareWalkReachSwing(
     const frame: IAutoMovieQuaternion =
       settled.pelvis ??
       resolveHumanPosture.heading({ yaw: settled.yaw, pitch: 0, roll: 0 });
-    let v: IAutoMovieVector3 = Vector3.subtract(foot.placement.ankle, h);
-    const d: number = Vector3.length(v);
-    if (d > limit) v = Vector3.scale(v, limit / d);
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(frame),
-      v,
-    );
-
-    // The leg's own plane includes its abduction; projecting on the same
-    // reach sphere preserves the knee angle at the extension boundary.
-    const down: number = Math.hypot(local.x, local.y);
-    const beta: number = Math.atan2(local.x, -local.y);
-    const extension: number = extensionAt + behind(Vector3.length(v));
-    if (local.y < 0 && Math.atan2(-local.z, down) > extension) {
-      const reach: number = Math.hypot(local.z, down);
-      const y: number = -reach * Math.cos(extension);
-      v = Quaternion.rotateVector(frame, {
-        x: -y * Math.sin(beta),
-        y: y * Math.cos(beta),
-        z: -reach * Math.sin(extension),
-      });
-    }
-    let ankle: IAutoMovieVector3 = Vector3.add(h, v);
+    // The ankle the leg reaches nearest a point: within the leg's length,
+    // and, past the thigh's extension and the knee's bend behind the hip,
+    // the thigh stopped at its extension and the shank folded toward the
+    // point, the early swing's heel recovery, the knee bending as the foot
+    // trails (on the boundary itself it is the point).
+    const reachOf = (point: IAutoMovieVector3): IAutoMovieVector3 => {
+      let v: IAutoMovieVector3 = Vector3.subtract(point, h);
+      const d: number = Vector3.length(v);
+      if (d > limit) v = Vector3.scale(v, limit / d);
+      const local: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.inverse(frame),
+        v,
+      );
+      // The leg's own plane includes its abduction.
+      const down: number = Math.hypot(local.x, local.y);
+      const beta: number = Math.atan2(local.x, -local.y);
+      const extension: number = extensionAt + behind(Vector3.length(v));
+      if (local.y < 0 && Math.atan2(-local.z, down) > extension) {
+        const knee: IAutoMovieVector3 = {
+          x: m.thigh * Math.cos(extensionAt) * Math.sin(beta),
+          y: -m.thigh * Math.cos(extensionAt) * Math.cos(beta),
+          z: -m.thigh * Math.sin(extensionAt),
+        };
+        const shank: IAutoMovieVector3 = Vector3.subtract(local, knee);
+        const length: number = Vector3.length(shank);
+        v = Quaternion.rotateVector(
+          frame,
+          length > 0
+            ? Vector3.add(knee, Vector3.scale(shank, m.shank / length))
+            : knee,
+        );
+      }
+      return Vector3.add(h, v);
+    };
+    let ankle: IAutoMovieVector3 = reachOf(foot.placement.ankle);
     let rotation: IAutoMovieQuaternion = foot.placement.rotation;
     const off: number = wrapDegrees(HumanFoot.heading(rotation) - settled.yaw);
     if (Math.abs(off) > bounds.twist)
@@ -276,7 +290,7 @@ export function prepareWalkReachSwing(
       held,
     );
     const ranged: IAutoMovieQuaternion = ankleRange(h, joined, asked);
-    const turned: IAutoMovieQuaternion =
+    let turned: IAutoMovieQuaternion =
       share > 0.5 ? Quaternion.slerp(asked, ranged, held) : ranged;
     const low: number = lowest({ ankle: joined, rotation: turned });
     if (low < target) joined = { ...joined, y: joined.y + target - low };
@@ -324,6 +338,26 @@ export function prepareWalkReachSwing(
         y: joined.y,
         z: joined.z + (scheduled.z - reached.z) * anchored,
       };
+    }
+    // Given the departing stance's own excess outside the reach (its reach
+    // less its ankle), the departure half holds the reach from the toe-off
+    // and fades out only that excess, an offset decaying from the departure
+    // where the reach equals the stance it leaves: a stance left inside the
+    // reach (a sprint's trailing foot at its thigh's extension) is never
+    // left behind it while the hip runs on; the ankle's range then turns the
+    // foot where the ankle stands.
+    if (leaving !== undefined && share < 0.5) {
+      const reached: IAutoMovieVector3 = Vector3.subtract(
+        reachOf(joined),
+        Vector3.scale(leaving, 1 - held),
+      );
+      if (Vector3.distance(reached, joined) > 0) {
+        joined = reached;
+        turned = ankleRange(h, joined, asked);
+        const under: number = lowest({ ankle: joined, rotation: turned });
+        if (under < target)
+          joined = { ...joined, y: joined.y + target - under };
+      }
     }
     return { ankle: joined, rotation: turned, toes: foot.toes };
   };

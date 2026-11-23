@@ -216,13 +216,15 @@ export namespace courseLimbSwivels {
         from === undefined ? {} : near(from.seeds, prescribed);
       // A limb whose goal begins after the knot before (a hand laid on the
       // floor mid-turn, a fist taking its grip), the plan writing it no goal
-      // there, has no fit there to continue: it is placed at the swivel,
-      // branch and forearm turn its arm has in the plan's own posture at
-      // this second, its joints without the goal, as the first knot is
-      // placed at the arm the entry shows (`IPrepare.entry`), so the course
-      // takes the limb on from the arm the plan showed rather than from a
-      // cold fit, which may split the arm's turn between the upper arm and
-      // the forearm otherwise. A limb whose goal the knot before held but
+      // there, has no fit there to continue: its fit starts from the swivel
+      // and branch its arm has in the plan's own posture at this second,
+      // its joints without the goal, refined from there as a continued knot
+      // is (the warm start a display holds a limb's branch by), so the
+      // course takes the limb on from the arm the plan showed rather than
+      // from a cold fit, which may take another solution of the same goal
+      // (an elbow swung most of a half turn away); refined, not placed
+      // exactly there, so the fit still settles where the goal is best
+      // reached near that arm. A limb whose goal the knot before held but
       // whose fit reported no seed there keeps its own fit.
       if (from !== undefined) {
         const posture: IAutoMovieMotionHumanPosture = goals(seconds);
@@ -248,7 +250,6 @@ export namespace courseLimbSwivels {
               swivel: seed.swivel,
               branch: seed.branch,
               tolerance: hingedArmSwivel.RESOLUTION,
-              prescribed: true,
             };
         }
       }

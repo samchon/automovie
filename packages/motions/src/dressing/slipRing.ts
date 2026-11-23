@@ -363,10 +363,11 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
           ],
           contact: "strokeEnd",
         });
-      // The ring hand leaves its rest once the steadying hand holds, and is
-      // back at it before the steadying hand lets go.
+      // The ring hand arrives once the steadying hand holds, its reach taking
+      // twice as long from the action's start, and is back at rest before the
+      // steadying hand lets go.
       const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
-        start: prepare,
+        start: 0,
         ready: clock.at("ready"),
         relax: clock.at("relax"),
         end: clock.at("relax") + prepare,

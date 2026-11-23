@@ -414,7 +414,7 @@ export namespace HumanHandShape {
 }
 
 /** The flat hand's thumb carpometacarpal flexion, degrees: the retroposition that lays the rest thumb in the palm's plane (measured on the rig: the thumb tip 22-26 mm palmar of the knuckles' plane at 0, 3 mm at this angle), inside the joint's admitted -25 (`DEFAULT_HUMANOID_ROM`). */
-const FLAT_THUMB: number = -20;
+const FLAT_THUMB: number = -25;
 
 /** Digit tip and pad frames by body, keyed by side, surface, shape and curl. */
 const TIPS: WeakMap<
