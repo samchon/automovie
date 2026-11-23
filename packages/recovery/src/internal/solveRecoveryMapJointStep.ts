@@ -10,11 +10,11 @@ import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
 
 /**
  * Eliminate independent landmark coordinates from an original bundle design.
- * Point-local Givens QR retains the caller's gauge-fixed camera columns.
- * This is orthogonal variable elimination,
- * avoiding the squared conditioning of a normal-matrix Schur complement.
- * Optional metric retention exposes inverse/transpose actions from the same
- * damped arrowhead design; the caller separately admits and charges its factor.
+ * Point-local Givens QR retains the caller's gauge-fixed camera columns. This
+ * is orthogonal variable elimination, avoiding the squared conditioning of a
+ * normal-matrix Schur complement. Optional metric retention exposes
+ * inverse/transpose actions from the same damped arrowhead design; the caller
+ * separately admits and charges its factor.
  */
 export function solveRecoveryMapJointStep(
   blocks: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[0],

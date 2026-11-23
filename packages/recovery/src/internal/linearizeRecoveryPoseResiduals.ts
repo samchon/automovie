@@ -3,9 +3,10 @@ import type { IAutoMovieRecoveryPoseResidualsLinearizeOperation } from "@automov
 
 /**
  * Signed pixel Sampson residuals and analytic five-coordinate local Jacobian.
- * With e=x2-transpose F x1 and d the joint epipolar-normal norm, each derivative
- * is de/d - (e/d)*sum((line/d)*(derivativeLine/d)). This differentiates both the
- * incidence and its pixel normalization; zero/undefined lines refuse the fit.
+ * With e=x2-transpose F x1 and d the joint epipolar-normal norm, each
+ * derivative is de/d - (e/d)_sum((line/d)_(derivativeLine/d)). This
+ * differentiates both the incidence and its pixel normalization; zero/undefined
+ * lines refuse the fit.
  */
 export function linearizeRecoveryPoseResiduals(
   model: Parameters<IAutoMovieRecoveryPoseResidualsLinearizeOperation.Operation>[0],

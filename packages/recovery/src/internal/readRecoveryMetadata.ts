@@ -1,8 +1,8 @@
 /**
  * Read own JSON data fields without trusting a locally rejected declaration.
- * Missing fields, scalar parents and accessor properties produce undefined;
- * no prototype property or getter supplies a saved coefficient identity.
- * Numerical owners still admit their original inputs independently.
+ * Missing fields, scalar parents and accessor properties produce undefined; no
+ * prototype property or getter supplies a saved coefficient identity. Numerical
+ * owners still admit their original inputs independently.
  */
 export function readRecoveryMetadata(
   value: unknown,

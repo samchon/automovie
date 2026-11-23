@@ -17,7 +17,8 @@ type Component = ReturnType<
 >["components"][number];
 
 /**
- * Observe component incidence, orientation parity, links and boundary cycles in one query.
+ * Observe component incidence, orientation parity, links and boundary cycles in
+ * one query.
  */
 export function RecoveryEventRegionTopology(
   _source: Parameters<IAutoMovieRecoveryEventRegionTopology.Operation>[0],

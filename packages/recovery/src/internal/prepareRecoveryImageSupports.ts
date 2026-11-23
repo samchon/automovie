@@ -10,7 +10,8 @@ import { assertRecoveryImageChart } from "./assertRecoveryImageChart";
  * Admit measured image supports and prepare their common physical row chart.
  * Retain every original row inside the shared interval; interpolate other views
  * linearly only within their measured domains. This changes neither image bytes
- * nor the meaning of a recorded row. Cameras and rigidity remain supplied inputs.
+ * nor the meaning of a recorded row. Cameras and rigidity remain supplied
+ * inputs.
  */
 export function prepareRecoveryImageSupports(
   observation: Parameters<IAutoMovieRecoveryImageSupportsPreparationOperation.Operation>[0],

@@ -7,9 +7,7 @@ import type {
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
-/**
- * Acquire scene diagnostic retention inside the existing seed transaction try.
- */
+/** Acquire scene diagnostic retention inside the existing seed transaction try. */
 export function prepareRecoverySceneReportCapacity(
   routing: IAutoMovieRecoverySceneFeasibleRouting,
   work: IAutoMovieRecoverySceneWork,

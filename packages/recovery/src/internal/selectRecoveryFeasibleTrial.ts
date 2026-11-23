@@ -8,10 +8,11 @@ import type {
 
 /**
  * Compare qualified full candidates and one half on the same accelerated arc.
- * Tfull precedes Mfull; only a refused Mfull may request one SOCfull. A qualified
- * accelerated full permits one half, with the same base and correction. Exact
- * cost ties retain the earlier candidate. If every full fails, original tilted
- * halving starts at one half without evaluating its failed full again.
+ * Tfull precedes Mfull; only a refused Mfull may request one SOCfull. A
+ * qualified accelerated full permits one half, with the same base and
+ * correction. Exact cost ties retain the earlier candidate. If every full
+ * fails, original tilted halving starts at one half without evaluating its
+ * failed full again.
  */
 export function selectRecoveryFeasibleTrial<State>(
   problem: IAutoMovieRecoveryFeasibleProblem<State>,

@@ -2,10 +2,11 @@ import { AutoMovieMatrix3 } from "@automovie/engine";
 import type { IAutoMovieRecoveryCameraChartCreationOperation } from "@automovie/interface";
 
 /**
- * Build a supplied pinhole K and its analytic inverse in the resident pixel chart.
- * Check pixel-step round trips before any correspondence is normalized. A large
- * principal offset may destroy pixel differences even when each scalar is finite.
- * Such a chart refuses rather than being recentered with unknown provenance.
+ * Build a supplied pinhole K and its analytic inverse in the resident pixel
+ * chart. Check pixel-step round trips before any correspondence is normalized.
+ * A large principal offset may destroy pixel differences even when each scalar
+ * is finite. Such a chart refuses rather than being recentered with unknown
+ * provenance.
  */
 export function createRecoveryCameraChart(
   view: Parameters<IAutoMovieRecoveryCameraChartCreationOperation.Operation>[0],

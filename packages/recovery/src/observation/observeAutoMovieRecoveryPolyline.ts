@@ -11,11 +11,12 @@ import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecove
 import { RecoveryBezierFit } from "../internal/RecoveryBezierFit";
 
 /**
- * Fit one caller-ordered polyline through the shared tangent-constrained cubic solver.
- * Closure and correspondence are input facts. The result bounds only the supplied
- * finite polyline, not an unknown continuous surface. Adaptive smooth joins are G1;
- * physical span widths do not imply C1. Hermite conversion retains those widths.
- * Cancellation/progress checkpoints occur before fitting and after basis conversion.
+ * Fit one caller-ordered polyline through the shared tangent-constrained cubic
+ * solver. Closure and correspondence are input facts. The result bounds only
+ * the supplied finite polyline, not an unknown continuous surface. Adaptive
+ * smooth joins are G1; physical span widths do not imply C1. Hermite conversion
+ * retains those widths. Cancellation/progress checkpoints occur before fitting
+ * and after basis conversion.
  */
 export function observeAutoMovieRecoveryPolyline<
   Format extends AutoMovieRecoveryCurveFormat,

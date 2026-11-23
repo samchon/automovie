@@ -8,11 +8,12 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Generate new geometry, normal fans and construction from saved support curves.
- * Independent coordinate edits transform the support equations by the inverse
- * diagonal map and renormalize each plane, preserving other axis extents.
- * No source image, measurement row, source mesh or source normal is consulted.
- * Partial denotes inferred finite-view coverage, regardless of completed emission.
+ * Generate new geometry, normal fans and construction from saved support
+ * curves. Independent coordinate edits transform the support equations by the
+ * inverse diagonal map and renormalize each plane, preserving other axis
+ * extents. No source image, measurement row, source mesh or source normal is
+ * consulted. Partial denotes inferred finite-view coverage, regardless of
+ * completed emission.
  */
 export function compileAutoMovieRecoverySupportLoft(
   recipe: IAutoMovieRecoverySupportLoft,

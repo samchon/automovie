@@ -9,7 +9,8 @@ import type {
 import { RecoveryChartBoxSolve as S } from "./RecoveryChartBoxSolve";
 
 /**
- * Solve the normalized box problem and reconstruct the original coefficient registry.
+ * Solve the normalized box problem and reconstruct the original coefficient
+ * registry.
  */
 export function RecoveryChartFitSolve(
   input: Parameters<IAutoMovieRecoveryChartFitSolve.Operation>[0],

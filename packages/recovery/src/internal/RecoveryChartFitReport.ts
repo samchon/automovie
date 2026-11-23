@@ -12,7 +12,8 @@ import { RecoveryChartFitRows as O } from "./RecoveryChartFitRows";
 import { RecoveryChartReachableBox as W } from "./RecoveryChartReachableBox";
 
 /**
- * Measure residuals, the first strict worst witness and optimality from the solved chart.
+ * Measure residuals, the first strict worst witness and optimality from the
+ * solved chart.
  */
 export function RecoveryChartFitReport(
   input: Parameters<IAutoMovieRecoveryChartFitReport.Operation>[0],

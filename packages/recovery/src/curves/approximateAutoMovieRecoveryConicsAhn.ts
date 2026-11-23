@@ -8,7 +8,8 @@ import type {
 import { AutoMovieRecoveryConicApproximation as C } from "./AutoMovieRecoveryConicApproximation";
 
 /**
- * Construct G1 bitangent conics using Ahn's control-triangle subdivision scheme.
+ * Construct G1 bitangent conics using Ahn's control-triangle subdivision
+ * scheme.
  *
  * Basis: Y. J. Ahn, Conic approximation of planar curves, CAD 33 (2001),
  * 867-872, doi:10.1016/S0010-4485(00)00110-X. The public primary abstract and
@@ -31,10 +32,10 @@ import { AutoMovieRecoveryConicApproximation as C } from "./AutoMovieRecoveryCon
  * toleranceMm of it (a bend below its coordinates' roundoff, between close
  * inflections, refused at every depth otherwise). Such a primitive's end
  * tangents are its chord's, so G1 holds there only to that tolerance's bend.
- * Source callbacks are borrowed and must
- * be deterministic; callback failures or nonfinite data refuse the whole call.
- * Incident endpoint jets request exact right/left limits so supplied breaks
- * preserve genuine source corners without finite-difference displacements.
+ * Source callbacks are borrowed and must be deterministic; callback failures or
+ * nonfinite data refuse the whole call. Incident endpoint jets request exact
+ * right/left limits so supplied breaks preserve genuine source corners without
+ * finite-difference displacements.
  */
 export function approximateAutoMovieRecoveryConicsAhn(
   curve: IAutoMoviePlanarCurveSource,

@@ -14,12 +14,12 @@ import type {
  * Isotropic centroid/RMS normalization in both charts conditions the original
  * 2N-by-12 DLT. The proper rotation is projected from its calibrated block,
  * then that same rotation reverses world centering in the translation. This
- * preserves origin/unit covariance even when the noisy block is not rigid.
- * This nonminimal initializer does not support planar or rank-unresolved designs.
- * The DLT/nonplanar distinction is described by OpenCV's official solvePnP guide:
- * https://docs.opencv.org/4.x/d5/d1f/calib3d_solvePnP.html
- * An optional fresh caller-owned trace receives computed stage evidence only;
- * diagnostic projective or pre-gate rigid coefficients never imply acceptance.
+ * preserves origin/unit covariance even when the noisy block is not rigid. This
+ * nonminimal initializer does not support planar or rank-unresolved designs.
+ * The DLT/nonplanar distinction is described by OpenCV's official solvePnP
+ * guide: https://docs.opencv.org/4.x/d5/d1f/calib3d_solvePnP.html An optional
+ * fresh caller-owned trace receives computed stage evidence only; diagnostic
+ * projective or pre-gate rigid coefficients never imply acceptance.
  */
 export function fitRecoveryResectionDesign(
   points: readonly (readonly [number, number, number])[],

@@ -3,9 +3,7 @@ import type {
   IAutoMovieRecoveryAtlasObservationInput,
 } from "@automovie/interface";
 
-/**
- * Compute the original unnormalized source face cross products in index order.
- */
+/** Compute the original unnormalized source face cross products in index order. */
 export function RecoveryAtlasObservationNormals(
   input: IAutoMovieRecoveryAtlasObservationInput,
 ): number[][] {

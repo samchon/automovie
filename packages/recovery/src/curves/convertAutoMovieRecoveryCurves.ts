@@ -12,15 +12,17 @@ import type {
 import { rebindRecoveryCurveAuthorities } from "../internal/rebindRecoveryCurveAuthorities";
 
 /**
- * Copy a plain saved recovery artifact into the selected cubic coefficient basis.
- * Every nested cubic occurrence is converted, including open arcs and overrides.
- * Original phase widths, directions, names and metadata survive unchanged. Endpoint
- * derivatives are 3(B1-B0)/h and 3(B3-B2)/h; inverse handles multiply by h/3.
- * This is an algebraic basis change in real arithmetic, with binary64 rounding,
- * not fitting or a bitwise round-trip guarantee. Invalid widths, nonfinite converted coefficients,
- * cycles, and noncubic or rational curves requested as Hermite refuse conversion.
- * Recognized cubic records are validated in either basis before arithmetic. Surface nets
- * retain their own representation. Plain metadata must have no accessors or hosts.
+ * Copy a plain saved recovery artifact into the selected cubic coefficient
+ * basis. Every nested cubic occurrence is converted, including open arcs and
+ * overrides. Original phase widths, directions, names and metadata survive
+ * unchanged. Endpoint derivatives are 3(B1-B0)/h and 3(B3-B2)/h; inverse
+ * handles multiply by h/3. This is an algebraic basis change in real
+ * arithmetic, with binary64 rounding, not fitting or a bitwise round-trip
+ * guarantee. Invalid widths, nonfinite converted coefficients, cycles, and
+ * noncubic or rational curves requested as Hermite refuse conversion.
+ * Recognized cubic records are validated in either basis before arithmetic.
+ * Surface nets retain their own representation. Plain metadata must have no
+ * accessors or hosts.
  */
 export function convertAutoMovieRecoveryCurves<
   T,

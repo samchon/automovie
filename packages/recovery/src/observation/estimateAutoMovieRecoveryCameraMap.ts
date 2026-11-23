@@ -23,7 +23,8 @@ import { observeRecoveryCameraSet } from "../internal/observeRecoveryCameraSet";
  * surface, physical scale, covariance or proof of material correspondence.
  * Cancellation is synchronous and cooperative between bounded observation,
  * matching, proposal and complete local-fit phases. A blocked event loop cannot
- * deliver a later event-loop cancellation. Keep borrowed RGB bytes stable until return.
+ * deliver a later event-loop cancellation. Keep borrowed RGB bytes stable until
+ * return.
  */
 export function estimateAutoMovieRecoveryCameraMap(
   input: IAutoMovieRecoveryCameraMapInput,

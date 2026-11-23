@@ -20,12 +20,14 @@ import { cutExact } from "../internal/mesh-observations/cutExact";
 import { planeFrame } from "../internal/mesh-observations/planeFrame";
 
 /**
- * Source observation of open-curve continuation without repeating numerical fitting.
+ * Source observation of open-curve continuation without repeating numerical
+ * fitting.
  */
 export namespace AutoMovieRecoveryOpenContinuation {
   /**
-   * Reobserve automatically saved stations, preserving their complete cubic coefficients.
-   * The command caller must bind both the fixed source bytes and the original bundle hash.
+   * Reobserve automatically saved stations, preserving their complete cubic
+   * coefficients. The command caller must bind both the fixed source bytes and
+   * the original bundle hash.
    */
   export function observe(
     input: IAutoMovieRecoveryInput,

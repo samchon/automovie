@@ -22,7 +22,8 @@ type PortReference = Parameters<
   ReturnType<IAutoMovieRecoveryEventRegion.Operation>
 >[0]["ports"][number]["reference"];
 /**
- * Attach contact and port ownership evidence after component topology is complete.
+ * Attach contact and port ownership evidence after component topology is
+ * complete.
  */
 export function RecoveryEventRegionPorts(
   source: Parameters<IAutoMovieRecoveryEventRegionPorts.Operation>[0],

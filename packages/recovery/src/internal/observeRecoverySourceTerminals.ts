@@ -12,7 +12,14 @@ import { critical } from "./mesh-observations/critical";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 
 /**
- * Observe actual distal extrema and PL critical brackets from existing source-loop incidence. The open half-space is bounded above by the next representable value beyond the source maximum. Private vertex-face probes let the existing slab graph identify exactly the seeded indexed-source component; original point positions are published only as measured extrema and critical event observations. A one-tip result requires unique incidence, two-use original edges, one nonflat manifold maximum and no other critical event; branch and plateau observations remain explicit.
+ * Observe actual distal extrema and PL critical brackets from existing
+ * source-loop incidence. The open half-space is bounded above by the next
+ * representable value beyond the source maximum. Private vertex-face probes let
+ * the existing slab graph identify exactly the seeded indexed-source component;
+ * original point positions are published only as measured extrema and critical
+ * event observations. A one-tip result requires unique incidence, two-use
+ * original edges, one nonflat manifold maximum and no other critical event;
+ * branch and plateau observations remain explicit.
  */
 export function observeRecoverySourceTerminals(
   input: Parameters<IAutoMovieRecoverySourceTerminalsObservationOperation.Operation>[0],

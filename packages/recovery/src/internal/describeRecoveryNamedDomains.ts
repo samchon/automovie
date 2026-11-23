@@ -6,10 +6,11 @@ import type {
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
 
 /**
- * Bind planned named domains only to unique actual reports with the same identity.
- * Repeated or missing names keep admission and generation unknown, even if an
- * operator report exists at the same array ordinal. All original reports and
- * geometry stay in the reconstruction result, including unbound observations.
+ * Bind planned named domains only to unique actual reports with the same
+ * identity. Repeated or missing names keep admission and generation unknown,
+ * even if an operator report exists at the same array ordinal. All original
+ * reports and geometry stay in the reconstruction result, including unbound
+ * observations.
  */
 export function describeRecoveryNamedDomains(
   input: Parameters<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation>[0],

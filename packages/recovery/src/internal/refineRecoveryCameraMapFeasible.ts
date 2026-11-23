@@ -41,13 +41,13 @@ import { stepRecoveryMapSeedPose } from "./stepRecoveryMapSeedPose";
 import { updateRecoveryRegularization } from "./updateRecoveryRegularization";
 
 /**
- * Refine a fixed camera map while retaining every hard pixel observation.
- * This internal opt-in method uses the same robust objective, seven-freedom
- * gauge, independent original ranks and actual point qualification. Pixel KKT
- * is claimed only while nonpixel gates remain strictly interior; other gate
+ * Refine a fixed camera map while retaining every hard pixel observation. This
+ * internal opt-in method uses the same robust objective, seven-freedom gauge,
+ * independent original ranks and actual point qualification. Pixel KKT is
+ * claimed only while nonpixel gates remain strictly interior; other gate
  * blockage is incomplete, and the coordinator still owns atomic acceptance.
- * Current-radius models prepay512 extra chart visits and each seed trial256;
- * 64 separate numerical slots cover raw/differentiated chart scratch.
+ * Current-radius models prepay512 extra chart visits and each seed trial256; 64
+ * separate numerical slots cover raw/differentiated chart scratch.
  */
 export function refineRecoveryCameraMapFeasible(
   initialPoses: readonly IAutoMovieRecoveryMapPose[],

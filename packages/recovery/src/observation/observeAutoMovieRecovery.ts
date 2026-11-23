@@ -14,15 +14,16 @@ import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecove
 import { AutoMovieRecoveryMeshSections } from "./AutoMovieRecoveryMeshSections";
 
 /**
- * Observe a registered mesh and return source-free cubic coefficients and incidence.
- * Inputs are borrowed and remain unchanged. Numerical fitting failures are reported
- * by the observation owner; unsupported local components retain their diagnostics.
- * No original position, triangle, normal or rig array enters the returned bundle.
- * curveFormat selects every nested cubic basis; omitted means bezier. Conversion
- * retains original phase widths and binary64 arithmetic limitations.
- * onSourceLineage optionally observes copied original face incidence during fitting;
- * those provisional acquisition records never enter the source-free result. Observer
- * exceptions fail the operation, and cooperative cancellation stops further delivery.
+ * Observe a registered mesh and return source-free cubic coefficients and
+ * incidence. Inputs are borrowed and remain unchanged. Numerical fitting
+ * failures are reported by the observation owner; unsupported local components
+ * retain their diagnostics. No original position, triangle, normal or rig array
+ * enters the returned bundle. curveFormat selects every nested cubic basis;
+ * omitted means bezier. Conversion retains original phase widths and binary64
+ * arithmetic limitations. onSourceLineage optionally observes copied original
+ * face incidence during fitting; those provisional acquisition records never
+ * enter the source-free result. Observer exceptions fail the operation, and
+ * cooperative cancellation stops further delivery.
  */
 export function observeAutoMovieRecovery<
   Format extends AutoMovieRecoveryCurveFormat,

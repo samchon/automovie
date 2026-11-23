@@ -1,6 +1,4 @@
-/**
- * Validate every original column scale, including sparse-array holes.
- */
+/** Validate every original column scale, including sparse-array holes. */
 export function validateRecoveryMapMetricScales(
   cameraScales: readonly number[],
   pointScales: readonly (readonly number[])[],

@@ -1,20 +1,21 @@
 import type { IAutoMovieRecoveryChartControlRelations } from "@automovie/interface";
 
 /**
- * Eliminate acyclic affine control relations without changing their coefficients.
- * Original control IDs remain the independent term addresses; they are never
- * replaced by compact solver slots. Fixed positions and returned constants are
- * millimetres. Relations may have signed weights or sums other than one.
- * Equal terms combine, exact zero sums disappear, and fixed terms fold into the
- * constant. No epsilon deletion, weight normalization or convexity repair occurs.
+ * Eliminate acyclic affine control relations without changing their
+ * coefficients. Original control IDs remain the independent term addresses;
+ * they are never replaced by compact solver slots. Fixed positions and returned
+ * constants are millimetres. Relations may have signed weights or sums other
+ * than one. Equal terms combine, exact zero sums disappear, and fixed terms
+ * fold into the constant. No epsilon deletion, weight normalization or
+ * convexity repair occurs.
  *
- * maxTerms bounds each intermediate flattened provenance map, including fixed
+ * MaxTerms bounds each intermediate flattened provenance map, including fixed
  * sources, and every final independent expression. maxDepth counts relation
  * edges; fixed and independent controls have depth zero. Cycles are rejected
- * even when a declared dependency has zero weight or later cancels.
- * Weight diagnostics describe flattened fixed and independent source weights
- * before fixed-position folding. They do not certify a dependent enclosure.
- * Invalid identities, conflicts, budget exhaustion or nonfinite arithmetic throw
+ * even when a declared dependency has zero weight or later cancels. Weight
+ * diagnostics describe flattened fixed and independent source weights before
+ * fixed-position folding. They do not certify a dependent enclosure. Invalid
+ * identities, conflicts, budget exhaustion or nonfinite arithmetic throw
  * without mutating input or returning a partial relation system.
  */
 export function RecoveryChartControlRelations(

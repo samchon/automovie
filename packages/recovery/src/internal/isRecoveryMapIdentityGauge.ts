@@ -1,8 +1,6 @@
 import type { IAutoMovieRecoveryMapPose } from "@automovie/interface";
 
-/**
- * Check the original exact first-pose identity gauge with indexed coefficients.
- */
+/** Check the original exact first-pose identity gauge with indexed coefficients. */
 export function isRecoveryMapIdentityGauge(
   pose: IAutoMovieRecoveryMapPose,
 ): boolean {

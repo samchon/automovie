@@ -14,12 +14,13 @@ import { reconstructRecovery } from "../internal/reconstructRecovery";
 import { restoreRecoveryCurveBasis } from "../internal/restoreRecoveryCurveBasis";
 
 /**
- * Reconstruct saved cubic and domain coefficients without access to source geometry.
- * Hermite input is converted to the same Bernstein engine coefficients using its
- * saved phase widths; finite arithmetic may round handles.
- * The legacy operator is explicit so another triangulator is not substituted during
- * package migration. Local unsupported incidence remains a partial usable result;
- * strip quality diagnostics do not discard finite geometry or certify smoothness.
+ * Reconstruct saved cubic and domain coefficients without access to source
+ * geometry. Hermite input is converted to the same Bernstein engine
+ * coefficients using its saved phase widths; finite arithmetic may round
+ * handles. The legacy operator is explicit so another triangulator is not
+ * substituted during package migration. Local unsupported incidence remains a
+ * partial usable result; strip quality diagnostics do not discard finite
+ * geometry or certify smoothness.
  */
 export function reconstructAutoMovieRecoveryModel(
   input:

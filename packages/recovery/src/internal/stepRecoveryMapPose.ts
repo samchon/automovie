@@ -5,9 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
- * Apply an independent left SO3 and additive translation resection step.
- */
+/** Apply an independent left SO3 and additive translation resection step. */
 export function stepRecoveryMapPose(
   pose: IAutoMovieRecoveryMapPose,
   step: readonly number[],

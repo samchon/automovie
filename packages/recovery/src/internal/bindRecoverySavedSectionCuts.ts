@@ -6,7 +6,8 @@ import type {
 
 import { collectRecoveryContourFaceSupport } from "./collectRecoveryContourFaceSupport";
 
-/** Compare a complete saved raw-contour population with one fresh exact cut.
+/**
+ * Compare a complete saved raw-contour population with one fresh exact cut.
  * Address sets and admitted closure verify contour identity only; curve names
  * and output indices remain caller-attested references. Newly emitted exact
  * faces are used even when the saved artifact retained broad incidence only.

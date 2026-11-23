@@ -5,9 +5,10 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Normalize the saved open-course phase and optionally reverse its declared direction.
- * Physical coefficients remain unchanged; reversing a span reverses its control order
- * and widths together. The last normalized width closes the binary64 prefix exactly.
+ * Normalize the saved open-course phase and optionally reverse its declared
+ * direction. Physical coefficients remain unchanged; reversing a span reverses
+ * its control order and widths together. The last normalized width closes the
+ * binary64 prefix exactly.
  */
 export function normalizeRecoveryCourse(
   curve: IAutoMovieCubicBezierCurve64,

@@ -1,8 +1,9 @@
 /**
  * Trials for an all-inlier, unique-index sample under the ideal independent
  * uniform-trial RANSAC model. Within a trial, sampling is without replacement;
- * across trials, a subset may recur. Deterministic pseudorandom proposals do not
- * turn this conditional stopping calculation into a probability of pose truth.
+ * across trials, a subset may recur. Deterministic pseudorandom proposals do
+ * not turn this conditional stopping calculation into a probability of pose
+ * truth.
  */
 export function requiredRecoveryCameraTrials(
   population: number,

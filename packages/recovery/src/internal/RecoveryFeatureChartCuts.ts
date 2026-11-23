@@ -15,20 +15,21 @@ import { RecoveryFeatureChartCutsTopology } from "./RecoveryFeatureChartCutsTopo
  * Materialize declared feature cuts as private manifold observation charts.
  * Ordinals and unique occurrence keys own topology; repeated physical keys must
  * name exactly equal millimetre coordinates. Source-face pairs admit features,
- * independently of a supplied angle's classification, which belongs to the caller.
- * Incident-face fans are split across every feature. A cut whose banks otherwise
- * share both endpoint ordinals first receives one conforming midpoint observation.
- * Ideal midpoint subdivision preserves PL geometry in real arithmetic; diagnostics
- * separately report upward coordinate-rounding bounds and measured area changes.
- * observationDisplacementUpperMm is the largest midpoint displacement bound only;
- * later quarter/chord subdivision and fitting errors require separate accounting.
- * Positive areas, coherent winding, links and actual cut-bank incidence are checked.
- * Outputs can be disks, annuli, slits or closed surfaces; no UV map is certified.
- * Both banks follow physicalPath; their coherent boundary directions are opposite.
- * Chains stop at physical boundaries as well as feature junctions; isolated
- * interior degree-two cycles repeat their first path vertex. Source topology,
- * physical words, midpoint witnesses and all outputs stay private to observation.
- * Public fitted curves, compactness, boundary authority and normals belong elsewhere.
+ * independently of a supplied angle's classification, which belongs to the
+ * caller. Incident-face fans are split across every feature. A cut whose banks
+ * otherwise share both endpoint ordinals first receives one conforming midpoint
+ * observation. Ideal midpoint subdivision preserves PL geometry in real
+ * arithmetic; diagnostics separately report upward coordinate-rounding bounds
+ * and measured area changes. observationDisplacementUpperMm is the largest
+ * midpoint displacement bound only; later quarter/chord subdivision and fitting
+ * errors require separate accounting. Positive areas, coherent winding, links
+ * and actual cut-bank incidence are checked. Outputs can be disks, annuli,
+ * slits or closed surfaces; no UV map is certified. Both banks follow
+ * physicalPath; their coherent boundary directions are opposite. Chains stop at
+ * physical boundaries as well as feature junctions; isolated interior
+ * degree-two cycles repeat their first path vertex. Source topology, physical
+ * words, midpoint witnesses and all outputs stay private to observation. Public
+ * fitted curves, compactness, boundary authority and normals belong elsewhere.
  */
 export function RecoveryFeatureChartCuts(
   input: Parameters<IAutoMovieRecoveryFeatureChartCuts.Operation>[0],

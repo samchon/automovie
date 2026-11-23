@@ -2,19 +2,19 @@ import type { IAutoMovieRecoveryChartCollar } from "@automovie/interface";
 
 /**
  * Partition one unit UV square into an affine boundary collar and local leaves.
- * Side knots are bottom, right, top and left, increasing in chart u or v.
- * Every outer leaf edge lies within one supplied side interval. The initial
- * partition has at most the four side span counts plus five leaves. This bound
- * does not cover later splits, fitted controls or generated vertices.
+ * Side knots are bottom, right, top and left, increasing in chart u or v. Every
+ * outer leaf edge lies within one supplied side interval. The initial partition
+ * has at most the four side span counts plus five leaves. This bound does not
+ * cover later splits, fitted controls or generated vertices.
  *
  * Roots are center, corner.bottom-left, corner.bottom-right, corner.top-left,
- * corner.top-right, or bottom/right/top/left followed by their interval ordinal.
- * A split replaces its leaf by .0 and .1 children in increasing axis order;
- * parameter is a global UV coordinate, not a relative child parameter.
+ * corner.top-right, or bottom/right/top/left followed by their interval
+ * ordinal. A split replaces its leaf by .0 and .1 children in increasing axis
+ * order; parameter is a global UV coordinate, not a relative child parameter.
  * Bounds are [u0,u1,v0,v1]. Thin positive spans remain present; their physical
- * conditioning and quadrature representability belong to the consumer.
- * Invalid input or an unrepresentable or over-budget partition throws without
- * mutating input. No source, boundary authority or physical curve is inferred.
+ * conditioning and quadrature representability belong to the consumer. Invalid
+ * input or an unrepresentable or over-budget partition throws without mutating
+ * input. No source, boundary authority or physical curve is inferred.
  */
 export function RecoveryChartCollar(
   input: Parameters<IAutoMovieRecoveryChartCollar.Operation>[0],

@@ -4,9 +4,10 @@ import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecove
 
 /**
  * Restore saved Hermite curves for the Bernstein reconstruction operators.
- * Bernstein-only artifacts retain the reconstruction owner's local admission and
- * partial-result policy. A Hermite artifact instead passes complete basis admission.
- * The scan reads only own data descriptors and never executes accessors.
+ * Bernstein-only artifacts retain the reconstruction owner's local admission
+ * and partial-result policy. A Hermite artifact instead passes complete basis
+ * admission. The scan reads only own data descriptors and never executes
+ * accessors.
  */
 export function restoreRecoveryCurveBasis<T>(
   input: T,

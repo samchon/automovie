@@ -2,11 +2,12 @@ import type { IAutoMovieRecoveryScalarProfilesFittingOperation } from "@automovi
 
 /**
  * Fit co-charted scalar profiles in one clamped uniform cubic B-spline space.
- * Unpivoted Householder QR acts on the original design and all right-hand sides;
- * the diagonal ratio is an operational rank test, not a certified condition.
- * Endpoint values and derivatives convert each polynomial interval exactly to
- * Bernstein controls before binary64 rounding. Input coordinates/values use
- * millimetres; returned physical intervals and controls use metres.
+ * Unpivoted Householder QR acts on the original design and all right-hand
+ * sides; the diagonal ratio is an operational rank test, not a certified
+ * condition. Endpoint values and derivatives convert each polynomial interval
+ * exactly to Bernstein controls before binary64 rounding. Input
+ * coordinates/values use millimetres; returned physical intervals and controls
+ * use metres.
  */
 export function fitRecoveryScalarProfiles(
   samples: Parameters<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation>[0],

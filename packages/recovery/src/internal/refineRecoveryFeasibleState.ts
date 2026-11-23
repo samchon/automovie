@@ -19,19 +19,20 @@ import { selectRecoveryFeasibleTrial } from "./selectRecoveryFeasibleTrial";
 import { solveRecoveryFeasibleDirection } from "./solveRecoveryFeasibleDirection";
 
 /**
- * Refine a feasible fixed-population recovery state with strictly inward models.
- * A pure tilted QP supplies descent and active-constraint inwardness. Actual
- * retraction, all nonlinear gates and Armijo decrease must also pass. Only an
- * original-coordinate normal KKT certificate terminates successfully.
+ * Refine a feasible fixed-population recovery state with strictly inward
+ * models. A pure tilted QP supplies descent and active-constraint inwardness.
+ * Actual retraction, all nonlinear gates and Armijo decrease must also pass.
+ * Only an original-coordinate normal KKT certificate terminates successfully.
  * Optional acceleration separately certifies an untilted affine QP, mixes its
  * physical step with this baseline, and may reuse its factor for one same-base
- * curvature arc with a 2.5 ceiling and dual-priced descent cap. Qualified same-base full candidates and one half on
- * the accelerated arc compete by original cost; ties retain the earlier one.
- * A mixture is not the baseline QP minimizer. Every evaluated candidate,
- * including qualified unselected candidates, consumes maxTrials allowance.
- * The last accepted endpoint receives a charged model check, not another step.
- * An optional owner notification consumes the exact selected increment before
- * changing the current state; it cannot replace candidate or normal checks.
+ * curvature arc with a 2.5 ceiling and dual-priced descent cap. Qualified
+ * same-base full candidates and one half on the accelerated arc compete by
+ * original cost; ties retain the earlier one. A mixture is not the baseline QP
+ * minimizer. Every evaluated candidate, including qualified unselected
+ * candidates, consumes maxTrials allowance. The last accepted endpoint receives
+ * a charged model check, not another step. An optional owner notification
+ * consumes the exact selected increment before changing the current state; it
+ * cannot replace candidate or normal checks.
  */
 export function refineRecoveryFeasibleState<State>(
   problem: IAutoMovieRecoveryFeasibleProblem<State>,

@@ -14,8 +14,8 @@ import { mixRecoveryFeasibleSqpStep } from "./mixRecoveryFeasibleSqpStep";
 /**
  * Try a complete affine-QP direction and one same-base curvature correction.
  * Positive baseline weights only propose a working set. Every original affine
- * row and physical quadratic stationarity still qualify the untilted step.
- * The mixture is not the pure tilted-QP minimizer or a nonlinear certificate.
+ * row and physical quadratic stationarity still qualify the untilted step. The
+ * mixture is not the pure tilted-QP minimizer or a nonlinear certificate.
  */
 export function createRecoveryFeasibleSqpArc(
   model: IAutoMovieRecoveryFeasibleModel,

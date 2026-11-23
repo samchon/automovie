@@ -4,8 +4,7 @@ import type {
   IAutoMovieRecoverySavedSection,
 } from "@automovie/interface";
 
-/** Admit complete saved cuts and distinct failed-target policies before fitting.
- */
+/** Admit complete saved cuts and distinct failed-target policies before fitting. */
 
 export function validateRecoveryContourResume(
   input: IAutoMovieRecoveryContourResumeInput,

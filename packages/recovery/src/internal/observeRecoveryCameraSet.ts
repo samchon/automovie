@@ -10,7 +10,8 @@ import { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
 import { matchRecoveryImageFeatures } from "./matchRecoveryImageFeatures";
 
 /**
- * Observe each fixed chart once and match every admitted pair in both directions.
+ * Observe each fixed chart once and match every admitted pair in both
+ * directions.
  */
 export function observeRecoveryCameraSet(
   views: readonly IAutoMovieRecoveryCameraView[],

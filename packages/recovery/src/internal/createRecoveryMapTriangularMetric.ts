@@ -6,9 +6,7 @@ import type {
 import { validateRecoveryMapMetricRow } from "./validateRecoveryMapMetricRow";
 import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";
 
-/**
- * Bind one point-first upper factor and original column scales to its actions.
- */
+/** Bind one point-first upper factor and original column scales to its actions. */
 export function createRecoveryMapTriangularMetric(
   triangles: readonly (readonly (readonly number[])[])[],
   camera: readonly (readonly number[])[],

@@ -30,7 +30,16 @@ import { observeRecoverySourceTerminals } from "../internal/observeRecoverySourc
 import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
 
 /**
- * Observe all source contours at a finite collection of caller-defined physical planes. Admission, scalar face indexing, incidence, cutting and material orientation are prepared once for the collection. Original coordinates and request order survive. Optional terminalSeeds follow existing source-loop incidence toward increasing coordinates and append actual source critical coordinates and brackets; default requests add no planes. Semantic component selection and between-plane continuation are not inferred. Hermite selection uses the official algebraic converter. Delivered lineage records remain provisional until the terminal result; observer exceptions fail the collection and cancellation is checked at each plane and lineage callback.
+ * Observe all source contours at a finite collection of caller-defined physical
+ * planes. Admission, scalar face indexing, incidence, cutting and material
+ * orientation are prepared once for the collection. Original coordinates and
+ * request order survive. Optional terminalSeeds follow existing source-loop
+ * incidence toward increasing coordinates and append actual source critical
+ * coordinates and brackets; default requests add no planes. Semantic component
+ * selection and between-plane continuation are not inferred. Hermite selection
+ * uses the official algebraic converter. Delivered lineage records remain
+ * provisional until the terminal result; observer exceptions fail the
+ * collection and cancellation is checked at each plane and lineage callback.
  */
 export function observeAutoMovieRecoverySections<
   Format extends AutoMovieRecoveryCurveFormat,

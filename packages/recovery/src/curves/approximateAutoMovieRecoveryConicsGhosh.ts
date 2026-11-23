@@ -24,12 +24,13 @@ import { AutoMovieRecoveryConicApproximation as C } from "./AutoMovieRecoveryCon
  * Endpoint bisection then selects an interval meeting the requested tolerance.
  * Unlike the paper's symbolic implementation, this experiment uses finite
  * admission/extremum samples, so neither Hausdorff certification nor global
- * minimum arc count is claimed. Collinear charts are an explicit line extension.
- * A zero-curvature chart endpoint uses the compactified infinite-weight limit
- * only to bracket finite positive weights. This is an explicit numerical
- * boundary extension, not a proof that the paper's theorem admits that endpoint.
- * Source callback failures refuse the whole call and discard all coefficients;
- * sampled mathematical admission failures may leave explicitly partial coverage.
+ * minimum arc count is claimed. Collinear charts are an explicit line
+ * extension. A zero-curvature chart endpoint uses the compactified
+ * infinite-weight limit only to bracket finite positive weights. This is an
+ * explicit numerical boundary extension, not a proof that the paper's theorem
+ * admits that endpoint. Source callback failures refuse the whole call and
+ * discard all coefficients; sampled mathematical admission failures may leave
+ * explicitly partial coverage.
  */
 export function approximateAutoMovieRecoveryConicsGhosh(
   curve: IAutoMoviePlanarCurveSource,
@@ -62,7 +63,10 @@ export function approximateAutoMovieRecoveryConicsGhosh(
   let sourceFailure: string | undefined;
   const roundoff: number = 128 * Number.EPSILON;
 
-  /** Root-rounding residual admission changes the decision, never the source jet. */
+  /**
+   * Root-rounding residual admission changes the decision, never the source
+   * jet.
+   */
   function zeroCurvature(
     t: number,
     v: Readonly<AutoMovieVector2Tuple>,

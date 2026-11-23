@@ -12,8 +12,8 @@ import type {
  * Project a pixel fundamental matrix onto the supplied-calibration essential
  * manifold and return all four relative-pose candidates. Arrays are row-major;
  * each candidate maps first-camera coordinates to second-camera coordinates.
- * Translation has unit norm and carries no physical length measurement.
- * The equal-singular projection and four-pose ambiguity follow HZ chapter 9:
+ * Translation has unit norm and carries no physical length measurement. The
+ * equal-singular projection and four-pose ambiguity follow HZ chapter 9:
  * https://www.robots.ox.ac.uk/~vgg/hzbook/hzbook2/HZepipolar.pdf
  */
 export function calibrateRecoveryEpipolarMatrix(

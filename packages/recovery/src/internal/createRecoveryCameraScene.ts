@@ -32,8 +32,8 @@ import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
  * camera uses only existing points, then proposes registered-view point growth
  * and common-gauge joint refinement. Only a complete transaction is committed.
  * Explicit internal feasible options are copied before callbacks and reach both
- * seed and candidate closure fits; public callers continue omitting them.
- * A refused seed retains its last completed fit report separately from the
+ * seed and candidate closure fits; public callers continue omitting them. A
+ * refused seed retains its last completed fit report separately from the
  * accepted-only joint report, without retaining failed geometry.
  */
 export function createRecoveryCameraScene(

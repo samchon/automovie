@@ -7,13 +7,15 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Intersect a triangle surface with a plane without epsilon displacement or branch loss.
- * Equal signed zero vertices retain exact source positions. Coplanar triangles contribute
- * only qualified patch-boundary edges; binary64 signs are not exact predicates. Every graph edge is
- * visited once in maximal degree-two chains, so junctions terminate separate open chains.
- * Isolated tangent contacts return one-point open polylines instead of disappearing.
- * A supplied scalar chart shares the exact height samples used for PL topology;
- * its signs and edge fractions use height minus level without reprojecting an origin.
+ * Intersect a triangle surface with a plane without epsilon displacement or
+ * branch loss. Equal signed zero vertices retain exact source positions.
+ * Coplanar triangles contribute only qualified patch-boundary edges; binary64
+ * signs are not exact predicates. Every graph edge is visited once in maximal
+ * degree-two chains, so junctions terminate separate open chains. Isolated
+ * tangent contacts return one-point open polylines instead of disappearing. A
+ * supplied scalar chart shares the exact height samples used for PL topology;
+ * its signs and edge fractions use height minus level without reprojecting an
+ * origin.
  */
 export function cutExact(
   skin: Parameters<IAutoMovieMeshPlaneCut.Operation>[0],
@@ -39,22 +41,23 @@ export function cutExact(
 }
 
 /**
- * Reusable admission for deterministic source-plane observations.
- * Prepared queries consume one immutable source and scalar chart, with optional complete face candidates.
+ * Reusable admission for deterministic source-plane observations. Prepared
+ * queries consume one immutable source and scalar chart, with optional complete
+ * face candidates.
  */
 export namespace cutExact {
   /**
-   * Admit immutable source positions, incidence and scalar heights once.
-   * The caller keeps every supplied array unchanged until all queries finish.
-   * Each query accepts original face IDs in strictly increasing order; candidates
-   * must include every face whose scalar interval contains level, including ties.
-   * Omitting candidates scans every face. The optional filter sees original IDs.
-   * The supplied plane retains the physical chart, while heights minus level own predicates.
-   * retainSourceFaces copies actual emitting faces, excluding endpoint-star neighbors.
-   * retainOrderedSource additionally preserves directed segments and original edge
-   * alias witnesses. Both default false; omitted mode retains original properties
-   * and numeric paths. Binary64 predicates are not certified exact arithmetic.
-   *
+   * Admit immutable source positions, incidence and scalar heights once. The
+   * caller keeps every supplied array unchanged until all queries finish. Each
+   * query accepts original face IDs in strictly increasing order; candidates
+   * must include every face whose scalar interval contains level, including
+   * ties. Omitting candidates scans every face. The optional filter sees
+   * original IDs. The supplied plane retains the physical chart, while heights
+   * minus level own predicates. retainSourceFaces copies actual emitting faces,
+   * excluding endpoint-star neighbors. retainOrderedSource additionally
+   * preserves directed segments and original edge alias witnesses. Both default
+   * false; omitted mode retains original properties and numeric paths. Binary64
+   * predicates are not certified exact arithmetic.
    */
   export function prepare(
     skin: Parameters<IAutoMovieMeshPlaneCut.Prepare>[0],

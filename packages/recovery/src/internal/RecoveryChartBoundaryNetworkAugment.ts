@@ -11,7 +11,8 @@ type Cut = {
   aliases: Set<string>;
 };
 /**
- * Augment copied chart banks with their registered physical cuts in original triangle order.
+ * Augment copied chart banks with their registered physical cuts in original
+ * triangle order.
  */
 export function RecoveryChartBoundaryNetworkAugment(
   input: Parameters<IAutoMovieRecoveryChartBoundaryNetworkAugment.Operation>[0],

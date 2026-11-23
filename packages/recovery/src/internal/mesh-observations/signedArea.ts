@@ -1,7 +1,8 @@
 import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
 /**
- * Shoelace signed area in squared input units; translation reduces cancellation for tiny distant contours.
+ * Shoelace signed area in squared input units; translation reduces cancellation
+ * for tiny distant contours.
  */
 export function signedArea(points: AutoMovieVector2Tuple[]): number {
   if (points.length < 3) return 0;

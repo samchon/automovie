@@ -7,16 +7,15 @@ import type {
 
 import { RecoverySlabGraph as G } from "./RecoverySlabGraph";
 
-/**
- * Observe ordinary open-arc transport without exporting source addresses.
- */
+/** Observe ordinary open-arc transport without exporting source addresses. */
 export namespace RecoveryOpenSlabGraph {
   /**
-   * Prepare boundary incidence once and observe critical-free ordinary open pairs.
-   * Binary64 zero-area checks and combinatorial paths do not certify embedding.
-   * Source winding conflicts warn separately from undirected sheet admission.
-   * The producer must supply every critical-event face as a defect; this helper
-   * alone does not certify a height-product structure from endpoint counts.
+   * Prepare boundary incidence once and observe critical-free ordinary open
+   * pairs. Binary64 zero-area checks and combinatorial paths do not certify
+   * embedding. Source winding conflicts warn separately from undirected sheet
+   * admission. The producer must supply every critical-event face as a defect;
+   * this helper alone does not certify a height-product structure from endpoint
+   * counts.
    */
   export function prepare(
     source: IAutoMovieRecoveryOpenSlabGraph.Source,

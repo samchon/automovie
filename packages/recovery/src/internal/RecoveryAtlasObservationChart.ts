@@ -22,7 +22,8 @@ type Run = { side: "before" | "after" | "physical"; nodes: string[] };
 type Prepared =
   Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];
 /**
- * Prepare an annular, natural-side or general disk chart without changing its declared correspondence.
+ * Prepare an annular, natural-side or general disk chart without changing its
+ * declared correspondence.
  */
 export function RecoveryAtlasObservationChart(
   context: Parameters<IAutoMovieRecoveryAtlasObservationChart.Operation>[0],

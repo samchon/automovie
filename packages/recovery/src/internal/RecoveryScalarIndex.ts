@@ -1,13 +1,12 @@
 import type { IAutoMovieRecoveryScalarIndex } from "@automovie/interface";
 
-/**
- * Immutable face-height interval queries for one admitted observation mesh.
- */
+/** Immutable face-height interval queries for one admitted observation mesh. */
 export namespace RecoveryScalarIndex {
   /**
-   * Prepare height intervals once; the caller keeps source arrays unchanged until queries finish.
-   * Results contain original face IDs in ascending order. Plane queries include both endpoints;
-   * slab queries require positive overlap with the open interval, retaining internal components.
+   * Prepare height intervals once; the caller keeps source arrays unchanged
+   * until queries finish. Results contain original face IDs in ascending order.
+   * Plane queries include both endpoints; slab queries require positive overlap
+   * with the open interval, retaining internal components.
    */
   export function create(
     triangles: Parameters<IAutoMovieRecoveryScalarIndex.Create>[0],

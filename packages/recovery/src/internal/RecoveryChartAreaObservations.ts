@@ -8,17 +8,18 @@ import type {
 import { RecoveryChartPhysicalJet as P } from "./RecoveryChartPhysicalJet";
 
 /**
- * Integrate private piecewise-affine source observations inside axis-aligned leaves.
- * Positive UV triangles are clipped at the tensor knots before a seven-by-seven
- * Gauss rule on a Duffy triangle supplies physical-area weighted correspondences.
- * An optional rectangular leaf partition replaces the tensor product; its open
- * interiors must cover the unit square once. Every local map remains affine.
- * For a bicubic field minus an affine source this integrates its squared residual
- * exactly in real arithmetic. Binary64 arithmetic and continuous maximum error
- * remain separate qualifications. No private source triangle leaves this operation.
- * Optional physical-gradient frames are computed once per source-triangle/leaf
- * intersection by thin QR. The same samples then stream two derivative rows;
- * their squared polynomial degree is at most ten, within the same Gauss rule.
+ * Integrate private piecewise-affine source observations inside axis-aligned
+ * leaves. Positive UV triangles are clipped at the tensor knots before a
+ * seven-by-seven Gauss rule on a Duffy triangle supplies physical-area weighted
+ * correspondences. An optional rectangular leaf partition replaces the tensor
+ * product; its open interiors must cover the unit square once. Every local map
+ * remains affine. For a bicubic field minus an affine source this integrates
+ * its squared residual exactly in real arithmetic. Binary64 arithmetic and
+ * continuous maximum error remain separate qualifications. No private source
+ * triangle leaves this operation. Optional physical-gradient frames are
+ * computed once per source-triangle/leaf intersection by thin QR. The same
+ * samples then stream two derivative rows; their squared polynomial degree is
+ * at most ten, within the same Gauss rule.
  */
 export function RecoveryChartAreaObservations(
   input: Parameters<IAutoMovieRecoveryChartAreaObservations.Operation>[0],

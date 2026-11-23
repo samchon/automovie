@@ -5,12 +5,12 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Pixel epipolar model and its five local calibrated-pose derivatives.
- * Rotation increments act on the left in radians; translation increments use
- * two raw directions of the admitted near-unit translation. The complete signed
- * Sampson quotient cancels the positive translation-normalization scale, so its
- * derivative uses these raw directions even when DN(t)B differs from B.
- * No camera covariance or global optimum follows.
+ * Pixel epipolar model and its five local calibrated-pose derivatives. Rotation
+ * increments act on the left in radians; translation increments use two raw
+ * directions of the admitted near-unit translation. The complete signed Sampson
+ * quotient cancels the positive translation-normalization scale, so its
+ * derivative uses these raw directions even when DN(t)B differs from B. No
+ * camera covariance or global optimum follows.
  */
 export function createRecoveryPoseModel(
   pose: Parameters<IAutoMovieRecoveryPoseModelCreationOperation.Operation>[0],

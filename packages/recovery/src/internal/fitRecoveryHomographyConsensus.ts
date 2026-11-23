@@ -15,8 +15,8 @@ import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
  * Search a planar explanation of the final fixed epipolar-inlier population.
  * Four-point homographies compete with symmetric pixel transfer. Absence of a
  * dominant model requires the conditional trial target for the forbidden
- * overlap fraction, not the much weaker best homography's own support ratio.
- * A found forbidden overlap is sufficient refusal evidence and ends the search.
+ * overlap fraction, not the much weaker best homography's own support ratio. A
+ * found forbidden overlap is sufficient refusal evidence and ends the search.
  */
 export function fitRecoveryHomographyConsensus(
   first: Parameters<IAutoMovieRecoveryHomographyConsensusFittingOperation.Operation>[0],

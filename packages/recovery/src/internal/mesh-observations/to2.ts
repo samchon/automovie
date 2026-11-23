@@ -8,7 +8,8 @@ import { dot } from "./dot";
 import { sub } from "./sub";
 
 /**
- * Projects a point into the plane's physical u/v coordinates; the normal residual is discarded.
+ * Projects a point into the plane's physical u/v coordinates; the normal
+ * residual is discarded.
  */
 export const to2: (
   plane: IAutoMoviePlaneFrame,

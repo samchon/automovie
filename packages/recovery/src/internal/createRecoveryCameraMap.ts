@@ -24,7 +24,8 @@ import { triangulateRecoveryCameraPoint } from "./triangulateRecoveryCameraPoint
  * Build one conditional three-camera map from automatic shared observations.
  * Only qualified seed pairs create 3D points. Third-image observations cannot
  * influence those points before resection, preventing circular registration.
- * Joint fitting subsequently uses only seed observations and resection inliers.
+ * Joint fitting subsequently uses only seed observations and resection
+ * inliers.
  */
 export function createRecoveryCameraMap(
   input: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[0],

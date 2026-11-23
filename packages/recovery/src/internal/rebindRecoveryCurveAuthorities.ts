@@ -13,8 +13,10 @@ import type {
  * The generic converter calls this only after admitting and copying plain data.
  * Original bindings must match exactly before a new basis can supply a control.
  * A Hermite publication owns the Bernstein coefficients obtained from its saved
- * endpoints, derivatives and original phase widths; finite round trips can differ
- * from a previous Bernstein publication. Shared control IDs must agree exactly. Reissued bound point records and per-geometry control lists prevent unrelated metadata aliases from propagating coordinate writes.
+ * endpoints, derivatives and original phase widths; finite round trips can
+ * differ from a previous Bernstein publication. Shared control IDs must agree
+ * exactly. Reissued bound point records and per-geometry control lists prevent
+ * unrelated metadata aliases from propagating coordinate writes.
  */
 export function rebindRecoveryCurveAuthorities(
   source: unknown,

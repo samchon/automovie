@@ -15,8 +15,8 @@ import { measureRecoveryFeasibleArithmetic } from "./measureRecoveryFeasibleArit
  * Solve a pure tilted feasible-direction model in common metric coordinates.
  * The first atom is the actual objective gradient with zero offset. Each later
  * atom is an unweighted inequality gradient with offset minus its feasible g.
- * Min half ||d||^2+gamma subject to a_i*d-gamma<=offset_i has simplex dual
- * min half ||sum(lambda_i*a_i)||^2+sum(lambda_i*offset_i).
+ * Min half ||d||^2+gamma subject to a_i_d-gamma<=offset_i has simplex dual min
+ * half ||sum(lambda_i_a_i)||^2+sum(lambda_i*offset_i).
  */
 export function solveRecoveryFeasibleDirection(
   width: number,

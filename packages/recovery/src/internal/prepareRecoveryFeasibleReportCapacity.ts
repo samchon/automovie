@@ -2,9 +2,7 @@ import type { IAutoMovieRecoveryFeasibleReportCapacity } from "@automovie/interf
 
 import { RecoveryFeasibleCapacityError } from "./RecoveryFeasibleCapacityError";
 
-/**
- * Partition one reporting scope before growth or joint scratch is formed.
- */
+/** Partition one reporting scope before growth or joint scratch is formed. */
 export function prepareRecoveryFeasibleReportCapacity(
   sceneEntries: number,
   fitEntries: number,

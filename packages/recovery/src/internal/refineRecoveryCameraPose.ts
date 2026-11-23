@@ -13,10 +13,11 @@ import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
 
 /**
  * Bounded local calibrated-pose least squares on a fixed correspondence subset.
- * Soft-L1 loss has caller-supplied pixel scale. A column-scaled original Jacobian
- * is rank-checked before a damped augmented least-squares step is solved by SVD;
- * damping cannot repair an unobservable local parameter direction. Accepted
- * steps update SO3 and the unit translation sphere. Termination is local only.
+ * Soft-L1 loss has caller-supplied pixel scale. A column-scaled original
+ * Jacobian is rank-checked before a damped augmented least-squares step is
+ * solved by SVD; damping cannot repair an unobservable local parameter
+ * direction. Accepted steps update SO3 and the unit translation sphere.
+ * Termination is local only.
  */
 export function refineRecoveryCameraPose(
   initial: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[0],

@@ -1,20 +1,20 @@
 import type { IAutoMovieRecoveryChartPhysicalJet } from "@automovie/interface";
 
 /**
- * Form two physical tangent observations for one affine source triangle.
- * For physical edges K=Q R and UV edges U, T=U R^-1 maps orthonormal
- * physical tangent coordinates to global UV. A leaf basis contributes
- * lengthMm*(phi_s*T[0,a]/hu + phi_t*T[1,a]/hv), with target lengthMm*Q[:,a].
+ * Form two physical tangent observations for one affine source triangle. For
+ * physical edges K=Q R and UV edges U, T=U R^-1 maps orthonormal physical
+ * tangent coordinates to global UV. A leaf basis contributes
+ * lengthMm*(phi_s_T[0,a]/hu + phi_t_T[1,a]/hv), with target lengthMm*Q[:,a].
  * Thus the two rows measure the source-metric first derivative residual.
  * Targets are millimetres and receive no position-origin subtraction.
  *
- * The original triangle may cross the leaf bounds. Its frame is reusable
- * by every clipped child and quadrature point. UV orientation must be
- * positive. A second physical edge unresolved at machine-relative angular
- * precision, nonrepresentable positive area or nonfinite arithmetic throws.
- * The diagonal scale ratio and edge reconstruction residual are diagnostics,
- * not condition numbers, rank certificates or continuous source-error bounds.
- * Input arrays are not mutated and no geometry or normal is published.
+ * The original triangle may cross the leaf bounds. Its frame is reusable by
+ * every clipped child and quadrature point. UV orientation must be positive. A
+ * second physical edge unresolved at machine-relative angular precision,
+ * nonrepresentable positive area or nonfinite arithmetic throws. The diagonal
+ * scale ratio and edge reconstruction residual are diagnostics, not condition
+ * numbers, rank certificates or continuous source-error bounds. Input arrays
+ * are not mutated and no geometry or normal is published.
  */
 export function RecoveryChartPhysicalJet(
   input: Parameters<IAutoMovieRecoveryChartPhysicalJet.Operation>[0],

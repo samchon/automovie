@@ -13,18 +13,19 @@ import { createRecoveryCameraScene } from "../internal/createRecoveryCameraScene
 import { observeRecoveryCameraSet } from "../internal/observeRecoveryCameraSet";
 
 /**
- * Estimate one bounded sparse component from fixed calibrated RGB images.
- * Views zero/one are the explicit seed. Further images are selected by existing
- * map support, registered independently, then committed with new registered-view
+ * Estimate one bounded sparse component from fixed calibrated RGB images. Views
+ * zero/one are the explicit seed. Further images are selected by existing map
+ * support, registered independently, then committed with new registered-view
  * points and a complete gauge-fixed joint fit. Failed transactions preserve the
  * last accepted component and remain in its bounded attempt/work ledger.
  *
  * Completion stays partial: accepted-sparse-component does not mean all images
  * registered, metric dimensions, material truth or an editable surface. Inspect
- * null poses, coverage and stopReason. Supplied corrected pinhole K and rigidity
- * remain caller assertions. Keep borrowed RGB bytes stable until return.
- * Cancellation/progress are synchronous cooperative checkpoints; a blocked
- * event loop cannot deliver a later event-loop cancellation. Observer exceptions publish no value.
+ * null poses, coverage and stopReason. Supplied corrected pinhole K and
+ * rigidity remain caller assertions. Keep borrowed RGB bytes stable until
+ * return. Cancellation/progress are synchronous cooperative checkpoints; a
+ * blocked event loop cannot deliver a later event-loop cancellation. Observer
+ * exceptions publish no value.
  */
 export function estimateAutoMovieRecoveryCameraScene(
   input: IAutoMovieRecoveryCameraSceneInput,

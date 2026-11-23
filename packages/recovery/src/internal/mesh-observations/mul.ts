@@ -1,8 +1,6 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-/**
- * Scales a vector by a scalar without changing its frame.
- */
+/** Scales a vector by a scalar without changing its frame. */
 export const mul: (
   a: AutoMovieVector3Tuple,
   scale: number,

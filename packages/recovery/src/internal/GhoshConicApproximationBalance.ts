@@ -6,8 +6,8 @@ import { GhoshConicApproximationDisplacement as displacement } from "./GhoshConi
  * Balance a bitangent conic's signed normal extrema with numerical exchange.
  * Initial source nodes bracket witnessed displacement peaks. Golden-section
  * refinement locates each such peak between nodes, then its source coordinate
- * joins the coefficient bisection and the two signed lobes are rebalanced.
- * This implements the extrema/equioscillation criterion of Ghosh et al. (2007),
+ * joins the coefficient bisection and the two signed lobes are rebalanced. This
+ * implements the extrema/equioscillation criterion of Ghosh et al. (2007),
  * sections 3.2–3.3 and 6, without treating a fixed grid maximum as a supremum.
  *
  * The returned tuple is [rho, refined maximum displacement in millimetres].
@@ -25,7 +25,10 @@ export function GhoshConicApproximationBalance(
   /** A cached source point/normal already expressed in the tangent triangle. */
   type Coordinate = { value: readonly number[]; normal: readonly number[] };
 
-  /** A fitting witness has a source parameter so its neighboring peaks can be bracketed. */
+  /**
+   * A fitting witness has a source parameter so its neighboring peaks can be
+   * bracketed.
+   */
   interface Witness {
     t: number;
     coordinate: Coordinate;
@@ -45,7 +48,10 @@ export function GhoshConicApproximationBalance(
     Number.EPSILON *
     Math.max(Math.abs(domain[0]), Math.abs(domain[1]), domain[1] - domain[0]);
 
-  /** Reuse deterministic borrowed callbacks, retaining only call-local snapshots. */
+  /**
+   * Reuse deterministic borrowed callbacks, retaining only call-local
+   * snapshots.
+   */
   function coordinate(t: number): Coordinate | undefined {
     const existing: Coordinate | undefined = cache.get(t);
     if (existing !== undefined) return existing;

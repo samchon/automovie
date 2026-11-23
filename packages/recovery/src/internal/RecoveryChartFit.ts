@@ -11,16 +11,17 @@ import { RecoveryChartFitSolve } from "./RecoveryChartFitSolve";
 import { RecoveryChartFitSystem } from "./RecoveryChartFitSystem";
 
 /**
- * Joint Bernstein fitting with fixed shared coefficients and explicit box constraints.
+ * Joint Bernstein fitting with fixed shared coefficients and explicit box
+ * constraints.
  */
 export namespace RecoveryChartFit {
   /**
    * Solve one constrained chart with assembled shared-control normal equations.
-   * A positive diagonal congruence scales the original symmetric Gram problem and
-   * its feasible box. The original projected-gradient mapping, not a transformed
-   * residual, determines numerical termination. Each accelerated step
-   * projects unknown coefficients onto the declared box; objective increase
-   * restarts momentum. No geometry is sampled or tessellated here.
+   * A positive diagonal congruence scales the original symmetric Gram problem
+   * and its feasible box. The original projected-gradient mapping, not a
+   * transformed residual, determines numerical termination. Each accelerated
+   * step projects unknown coefficients onto the declared box; objective
+   * increase restarts momentum. No geometry is sampled or tessellated here.
    */
   export function fit(
     input: IAutoMovieRecoveryChartFit.Input,

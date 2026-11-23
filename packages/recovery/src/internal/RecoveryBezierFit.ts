@@ -17,16 +17,18 @@ const add: typeof M.add = M.add,
 
 /**
  * Fits physical ordered observations with adaptive tangent-constrained cubics.
- * Schneider's original Graphics Gems implementation is the algorithmic reference:
+ * Schneider's original Graphics Gems implementation is the algorithmic
+ * reference:
  * https://github.com/erich666/GraphicsGems/blob/master/gems/FitCurves.c .
  */
 export namespace RecoveryBezierFit {
   /**
-   * Solve endpoint handle lengths, refine monotone parameters and split the worst interval.
-   * Smooth adaptive joins are G1; physical phase widths do not enforce equal derivative magnitude.
-   * Declared corners retain independent one-sided tangents. Repeated adjacent points reject.
-   * An optional observer receives accepted span-local parameters and private input-point
-   * ranges without changing coefficients or adding source addresses to the result.
+   * Solve endpoint handle lengths, refine monotone parameters and split the
+   * worst interval. Smooth adaptive joins are G1; physical phase widths do not
+   * enforce equal derivative magnitude. Declared corners retain independent
+   * one-sided tangents. Repeated adjacent points reject. An optional observer
+   * receives accepted span-local parameters and private input-point ranges
+   * without changing coefficients or adding source addresses to the result.
    */
   export function fit(
     input: IAutoMoviePolylineFitInput,
@@ -264,10 +266,7 @@ export namespace RecoveryBezierFit {
     };
   }
 
-  /**
-   * Solve arclength-weighted two-handle normal equations in the physical chart.
-   *
-   */
+  /** Solve arclength-weighted two-handle normal equations in the physical chart. */
   function solve(
     p: AutoMovieVector3Tuple[],
     u: number[],
@@ -324,8 +323,8 @@ export namespace RecoveryBezierFit {
   }
 
   /**
-   * Restrict each matched chord interval and bound its elevated polynomial difference.
-   *
+   * Restrict each matched chord interval and bound its elevated polynomial
+   * difference.
    */
   function error(
     p: AutoMovieVector3Tuple[],
@@ -362,18 +361,12 @@ export namespace RecoveryBezierFit {
     return { sample, bound, split };
   }
 
-  /**
-   * Dot product for the physical least-squares and Newton equations.
-   *
-   */
+  /** Dot product for the physical least-squares and Newton equations. */
   function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
-  /**
-   * Euclidean point distance in millimetres.
-   *
-   */
+  /** Euclidean point distance in millimetres. */
   function distance(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -381,10 +374,7 @@ export namespace RecoveryBezierFit {
     return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
 
-  /**
-   * Normalize a measurable tangent without inventing a direction at degeneracy.
-   *
-   */
+  /** Normalize a measurable tangent without inventing a direction at degeneracy. */
   function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     const length: number = Math.hypot(...a);
     if (!(length > 0) || !Number.isFinite(length))

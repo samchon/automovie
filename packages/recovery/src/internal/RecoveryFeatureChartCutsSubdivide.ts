@@ -7,7 +7,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Subdivide colliding feature edges using the unchanged exact midpoint arithmetic.
+ * Subdivide colliding feature edges using the unchanged exact midpoint
+ * arithmetic.
  */
 export function RecoveryFeatureChartCutsSubdivide(
   input: Parameters<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation>[0],

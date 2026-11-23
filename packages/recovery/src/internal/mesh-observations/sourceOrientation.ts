@@ -16,9 +16,10 @@ import { sub } from "./sub";
 import { to2 } from "./to2";
 
 /**
- * Builds a private supporting-face orientation witness; its result distinguishes outer from cavity contours.
- * An explicit registered sign bypasses global-volume inference and retains the supplied
- * material-side convention for open or independently oriented source shells.
+ * Builds a private supporting-face orientation witness; its result
+ * distinguishes outer from cavity contours. An explicit registered sign
+ * bypasses global-volume inference and retains the supplied material-side
+ * convention for open or independently oriented source shells.
  */
 export function sourceOrientation(
   skin: Parameters<IAutoMovieMeshSectionOrientation.Operation>[0],

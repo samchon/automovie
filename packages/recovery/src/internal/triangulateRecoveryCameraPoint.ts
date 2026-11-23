@@ -10,11 +10,12 @@ import type {
 
 /**
  * Triangulate one observation pair in the first-camera, unit-baseline gauge.
- * Original 4-by-4 DLT uses calibrated rays and P1=[I|0], P2=[R|t]. An unresolved
- * third design direction, point at infinity or nonfinite divided coordinate
- * returns null; a finite point behind a camera remains explicitly nonpositive.
- * Invalid or overflowing matrix actions and SVD nonconvergence throw.
- * This algebraic point is fitting evidence, not an independently observed surface.
+ * Original 4-by-4 DLT uses calibrated rays and P1=[I|0], P2=[R|t]. An
+ * unresolved third design direction, point at infinity or nonfinite divided
+ * coordinate returns null; a finite point behind a camera remains explicitly
+ * nonpositive. Invalid or overflowing matrix actions and SVD nonconvergence
+ * throw. This algebraic point is fitting evidence, not an independently
+ * observed surface.
  */
 export function triangulateRecoveryCameraPoint(
   firstPoint: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[0],

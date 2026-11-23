@@ -12,7 +12,8 @@ import { normalizeRecoveryImagePoints } from "./normalizeRecoveryImagePoints";
 /**
  * Fit a normalized DLT image homography and its independently representable
  * inverse for a competing planar/pure-rotation explanation. It maps first-image
- * pixel centres to second-image pixel centres; it does not identify scene depth.
+ * pixel centres to second-image pixel centres; it does not identify scene
+ * depth.
  */
 export function fitRecoveryHomography(
   first: Parameters<IAutoMovieRecoveryHomographyFittingOperation.Operation>[0],

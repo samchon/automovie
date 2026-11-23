@@ -20,9 +20,9 @@ import { sampleRecoveryCameraIndices } from "./sampleRecoveryCameraIndices";
  * eligible proposals receive bounded local refinement in draw order. Final
  * support must stabilize and satisfy its recomputed conditional trial target.
  * onProposal runs exactly once before each six-point draw; checkpoint also runs
- * around refinement and therefore does not count proposals.
- * Optional diagnostic events snapshot actual intermediate results outside the
- * numerical catches; observer errors propagate and no event history is retained.
+ * around refinement and therefore does not count proposals. Optional diagnostic
+ * events snapshot actual intermediate results outside the numerical catches;
+ * observer errors propagate and no event history is retained.
  */
 export function fitRecoveryResectionConsensus(
   points: Parameters<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation>[0],

@@ -8,8 +8,9 @@ import { fitRecoveryScalarProfiles } from "./fitRecoveryScalarProfiles";
 
 /**
  * Fit the aligned ellipse's four scalar fields with shared cubic algebra.
- * Radius Bernstein controls must all remain positive; this sufficient whole-span
- * condition rejects a candidate instead of clamping its fitted field.
+ * Radius Bernstein controls must all remain positive; this sufficient
+ * whole-span condition rejects a candidate instead of clamping its fitted
+ * field.
  */
 export function fitRecoveryImageProfiles(
   samples: Parameters<IAutoMovieRecoveryImageProfilesFittingOperation.Operation>[0],

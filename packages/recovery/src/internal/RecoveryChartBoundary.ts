@@ -9,11 +9,12 @@ import type {
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 
 /**
- * Own one fitted curve and accepted pointwise phase chart per private boundary path.
- * Private incidence words identify equality, including reversed order; equal positions
- * on different words never weld. Public boundary IDs are new sequential identities.
- * Each returned orientation uses the same canonical coefficients and registration.
- * Partial path overlaps remain distinct and require a separate segmentation authority.
+ * Own one fitted curve and accepted pointwise phase chart per private boundary
+ * path. Private incidence words identify equality, including reversed order;
+ * equal positions on different words never weld. Public boundary IDs are new
+ * sequential identities. Each returned orientation uses the same canonical
+ * coefficients and registration. Partial path overlaps remain distinct and
+ * require a separate segmentation authority.
  */
 export function RecoveryChartBoundary(
   policy: Parameters<IAutoMovieRecoveryChartBoundary.Operation>[0],

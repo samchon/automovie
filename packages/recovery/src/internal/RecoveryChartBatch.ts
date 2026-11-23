@@ -13,8 +13,8 @@ import { refineRecoveryChartBoundaryChords as R } from "./refineRecoveryChartBou
  * Fit a selected private chart batch after one common boundary-network pass.
  * All chart families enter the same network before any coefficient solve, so
  * observed quarter cuts and maximal physical arcs can be reconciled across
- * selected slabs. Chart names retain the caller's private ownership metadata.
- * A failed global network falls back to explicitly unqualified independent
+ * selected slabs. Chart names retain the caller's private ownership metadata. A
+ * failed global network falls back to explicitly unqualified independent
  * networks, preserving finite siblings without claiming shared-bank continuity.
  * Failed maps and fits remain local results and never supply a source mesh.
  */

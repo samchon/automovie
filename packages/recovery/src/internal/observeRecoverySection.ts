@@ -13,7 +13,10 @@ import { collectRecoveryContourFaceSupport } from "./collectRecoveryContourFaceS
 import { signedArea } from "./mesh-observations/signedArea";
 
 /**
- * Observe and fit every contour on one fixed private section. An optional collection name prefixes curve identities; an optional acquisition observer receives copied original face incidence after local fitting, including rejected contours. Observer exceptions escape the fitting catch.
+ * Observe and fit every contour on one fixed private section. An optional
+ * collection name prefixes curve identities; an optional acquisition observer
+ * receives copied original face incidence after local fitting, including
+ * rejected contours. Observer exceptions escape the fitting catch.
  */
 export function observeRecoverySection(
   input: Parameters<IAutoMovieRecoverySectionObservationOperation.Operation>[0],
@@ -54,8 +57,9 @@ export function observeRecoverySection(
     );
     let publication: IAutoMovieRecoverySourceLineage["publication"] | undefined;
 
-    /** Current optional callback record; this alias makes no historical parameter claim.
-     *
+    /**
+     * Current optional callback record; this alias makes no historical
+     * parameter claim.
      */
     type Accepted = Parameters<NonNullable<typeof input.onAcceptedFit>>[0];
     const accepted: Accepted["spans"] | undefined =

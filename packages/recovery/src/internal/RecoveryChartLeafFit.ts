@@ -18,17 +18,19 @@ import { RecoveryChartRefinementClosure as E } from "./RecoveryChartRefinementCl
 import { prepareRecoveryChartLeafBoundary } from "./prepareRecoveryChartLeafBoundary";
 
 /**
- * Fit a boundary collar with affine hanging-control constraints against private PL observations.
- * Each leaf is an axis-aligned UV rectangle, so clipping and local coordinates preserve
- * the physical-area polynomial objective. Adaptive attempts split residual-marked leaves at their observed UV locations and close
- * opposed interface intervals. Exhausted or incompatible attempts retain the previous field.
- * Returned edge identities are coefficient relations, not source topology or G1 claims.
- * Optional physical-gradient observations change the declared fitting objective.
- * Their millimetre exchange length scales with physical units. Refinement retains
- * the preceding candidate unless the combined objective improves without worsening
- * its original physical-area position RMS. Every attempt reuses the initial coefficient
- * enclosure; restricting a boundary cubic cannot silently shrink the feasible box.
- * Point fallback supplies no gradient fit.
+ * Fit a boundary collar with affine hanging-control constraints against private
+ * PL observations. Each leaf is an axis-aligned UV rectangle, so clipping and
+ * local coordinates preserve the physical-area polynomial objective. Adaptive
+ * attempts split residual-marked leaves at their observed UV locations and
+ * close opposed interface intervals. Exhausted or incompatible attempts retain
+ * the previous field. Returned edge identities are coefficient relations, not
+ * source topology or G1 claims. Optional physical-gradient observations change
+ * the declared fitting objective. Their millimetre exchange length scales with
+ * physical units. Refinement retains the preceding candidate unless the
+ * combined objective improves without worsening its original physical-area
+ * position RMS. Every attempt reuses the initial coefficient enclosure;
+ * restricting a boundary cubic cannot silently shrink the feasible box. Point
+ * fallback supplies no gradient fit.
  */
 export function RecoveryChartLeafFit(
   input: Parameters<IAutoMovieRecoveryChartLeafFit.Operation>[0],

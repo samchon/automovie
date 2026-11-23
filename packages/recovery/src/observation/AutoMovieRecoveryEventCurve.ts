@@ -15,13 +15,12 @@ import { readRecoveryEventCurveControls } from "../internal/readRecoveryEventCur
 import { readRecoveryEventCurveParent } from "../internal/readRecoveryEventCurveParent";
 
 /**
- * Named cubic occurrences retain native coefficient owners and oriented parameter intervals.
- * Millimetre coefficients remain independent of source topology and material correspondence.
+ * Named cubic occurrences retain native coefficient owners and oriented
+ * parameter intervals. Millimetre coefficients remain independent of source
+ * topology and material correspondence.
  */
 export namespace AutoMovieRecoveryEventCurve {
-  /**
-   * Derive an occurrence from its original coefficient owner.
-   */
+  /** Derive an occurrence from its original coefficient owner. */
   export function controls(
     piece: IAutoMovieRecoveryEventCurvePiece,
     nativeEndpoints: boolean = false,
@@ -29,18 +28,14 @@ export namespace AutoMovieRecoveryEventCurve {
     return readRecoveryEventCurveControls(piece, nativeEndpoints);
   }
 
-  /**
-   * Read the original complete Bernstein coefficient owner.
-   */
+  /** Read the original complete Bernstein coefficient owner. */
   export function fullparentControls(
     source: IAutoMovieRecoveryEventCurveSource,
   ): AutoMovieCubicBezierControls3 {
     return readRecoveryEventCurveParent(source);
   }
 
-  /**
-   * Compare three coefficient components exactly, accepting either signed zero.
-   */
+  /** Compare three coefficient components exactly, accepting either signed zero. */
   export const same: (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
@@ -50,7 +45,8 @@ export namespace AutoMovieRecoveryEventCurve {
   ): boolean => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 
   /**
-   * Admit saved cubic continuity and retain its original native controls and names.
+   * Admit saved cubic continuity and retain its original native controls and
+   * names.
    */
   export function fromCurve(
     curve: IAutoMovieRecoveryEventCurveCoefficients,
@@ -116,7 +112,8 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Return the retained normalized partition or normalize the supplied positive widths.
+   * Return the retained normalized partition or normalize the supplied positive
+   * widths.
    */
   export function knots(arc: IAutoMovieRecoveryEventCurveArc): number[] {
     if (
@@ -164,9 +161,7 @@ export namespace AutoMovieRecoveryEventCurve {
     return q;
   }
 
-  /**
-   * Resolve an oriented occurrence endpoint to its exact native P0 or P3 name.
-   */
+  /** Resolve an oriented occurrence endpoint to its exact native P0 or P3 name. */
   export function endpointAuthority(
     piece: IAutoMovieRecoveryEventCurvePiece,
     endpoint: 0 | 1,
@@ -199,7 +194,8 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Restrict a nonempty chart interval while retaining oriented native provenance.
+   * Restrict a nonempty chart interval while retaining oriented native
+   * provenance.
    */
   export function portion(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -234,7 +230,8 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Reverse path occurrence order and native intervals without renaming parent endpoints.
+   * Reverse path occurrence order and native intervals without renaming parent
+   * endpoints.
    */
   export function reverse(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -265,9 +262,7 @@ export namespace AutoMovieRecoveryEventCurve {
     return out;
   }
 
-  /**
-   * Return exactly one original-span occurrence for a declared chart cell.
-   */
+  /** Return exactly one original-span occurrence for a declared chart cell. */
   export function piece(
     arc: IAutoMovieRecoveryEventCurveArc,
     a: number,
@@ -280,7 +275,8 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Evaluate one declared phase using the maintained Bernstein endpoint contract.
+   * Evaluate one declared phase using the maintained Bernstein endpoint
+   * contract.
    */
   export function evaluate(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -309,7 +305,8 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Concatenate exactly meeting paths while preserving every native piece boundary.
+   * Concatenate exactly meeting paths while preserving every native piece
+   * boundary.
    */
   export function concatenate(
     arcs: readonly IAutoMovieRecoveryEventCurveArc[],
@@ -339,9 +336,7 @@ export namespace AutoMovieRecoveryEventCurve {
     };
   }
 
-  /**
-   * Construct a named straight cubic between two explicit physical endpoints.
-   */
+  /** Construct a named straight cubic between two explicit physical endpoints. */
   export function line(
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
@@ -364,7 +359,8 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Move a closed path's chart origin to an existing knot without altering native owners.
+   * Move a closed path's chart origin to an existing knot without altering
+   * native owners.
    */
   export function rotateAtKnot(
     arc: IAutoMovieRecoveryEventCurveArc,

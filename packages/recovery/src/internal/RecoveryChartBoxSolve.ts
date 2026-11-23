@@ -3,27 +3,30 @@ import type { IAutoMovieRecoveryChartBoxSolve } from "@automovie/interface";
 /**
  * Minimize sum_axis(0.5*x' H x - rhs' x) on the supplied original control box.
  * H is an exactly symmetric sparse positive-semidefinite Gram matrix supplied
- * by the caller. This helper validates finite entries, distinct sparse addresses,
- * reciprocal symmetry and nonnegative diagonals; it does not certify PSD or rank.
- * An exactly zero diagonal requires an exactly zero row and three zero RHS entries.
- * Such an unseen coordinate uses scale one and retains its feasible initial value.
+ * by the caller. This helper validates finite entries, distinct sparse
+ * addresses, reciprocal symmetry and nonnegative diagonals; it does not certify
+ * PSD or rank. An exactly zero diagonal requires an exactly zero row and three
+ * zero RHS entries. Such an unseen coordinate uses scale one and retains its
+ * feasible initial value.
  *
- * Dii=1/sqrt(Hii), x=Dy, Hs=DHD and bs=Db give the same real-arithmetic objective
- * and box after scaling. FISTA projects in y, with objective-based momentum restarts.
- * Numeric scaling is binary64; failed finite/feasible transformations throw rather
- * than adding a regularizer or perturbing H. Active bounds retain original endpoints.
- * Termination uses the original infinity norm of G_L(x)=L*(x-proj(x-gradient/L)).
- * An equivalent component formula avoids cancellation of two nearly equal x values.
- * The best finite feasible original objective is returned, with its own gradient
- * metric; exhausting the attempt budget is not convergence. Iterations counts all
- * projected proposals, including rejected momentum attempts. Empty systems return empty.
- * The attempt budget is a positive safe integer and gradient tolerance is finite
- * and nonnegative. Reported gradients/objectives are binary64 evaluations, not
- * exact KKT, uniqueness, eigenvalue or geometric accuracy certificates.
- * Optional initialValues are copied original normalized coordinates, interleaved
- * by three axes per control. They must be finite and feasible without clipping;
- * omission starts at projected zero. initialObjective records their original Q,
- * and every invocation starts with fresh momentum and retains that feasible best.
+ * Dii=1/sqrt(Hii), x=Dy, Hs=DHD and bs=Db give the same real-arithmetic
+ * objective and box after scaling. FISTA projects in y, with objective-based
+ * momentum restarts. Numeric scaling is binary64; failed finite/feasible
+ * transformations throw rather than adding a regularizer or perturbing H.
+ * Active bounds retain original endpoints. Termination uses the original
+ * infinity norm of G_L(x)=L*(x-proj(x-gradient/L)). An equivalent component
+ * formula avoids cancellation of two nearly equal x values. The best finite
+ * feasible original objective is returned, with its own gradient metric;
+ * exhausting the attempt budget is not convergence. Iterations counts all
+ * projected proposals, including rejected momentum attempts. Empty systems
+ * return empty. The attempt budget is a positive safe integer and gradient
+ * tolerance is finite and nonnegative. Reported gradients/objectives are
+ * binary64 evaluations, not exact KKT, uniqueness, eigenvalue or geometric
+ * accuracy certificates. Optional initialValues are copied original normalized
+ * coordinates, interleaved by three axes per control. They must be finite and
+ * feasible without clipping; omission starts at projected zero.
+ * initialObjective records their original Q, and every invocation starts with
+ * fresh momentum and retains that feasible best.
  */
 export function RecoveryChartBoxSolve(
   input: Parameters<IAutoMovieRecoveryChartBoxSolve.Operation>[0],

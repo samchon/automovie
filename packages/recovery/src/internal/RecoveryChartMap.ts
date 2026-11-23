@@ -7,9 +7,10 @@ import type { IAutoMovieRecoveryChartMap } from "@automovie/interface";
 export namespace RecoveryChartMap {
   /**
    * Solve a positive-weight Dirichlet graph Laplacian with diagonal PCG.
-   * Anchoring every connected component makes the free matrix positive definite.
-   * The caller still establishes disk topology and a compatible boundary map;
-   * positive computed triangle areas are checked rather than assumed from that premise.
+   * Anchoring every connected component makes the free matrix positive
+   * definite. The caller still establishes disk topology and a compatible
+   * boundary map; positive computed triangle areas are checked rather than
+   * assumed from that premise.
    */
   export function parameterize(
     input: IAutoMovieRecoveryChartMap.Input,

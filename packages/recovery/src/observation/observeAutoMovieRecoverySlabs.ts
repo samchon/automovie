@@ -19,20 +19,23 @@ import { planeFrame } from "../internal/mesh-observations/planeFrame";
 import { observeRecoverySourceSlabs } from "../internal/observeRecoverySourceSlabs";
 import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
 
-/** Observe exact source slabs without reading, converting or fitting coefficients.
- * One prepared source/scalar chart recuts every saved endpoint plane and binds
- * its complete raw-contour population to caller-attested saved publications.
- * Source identities, selected original ordinal space, registration and artifact
- * byte commitments must already be verified by the caller. Matching strings,
- * frames, raw addresses and admitted closure do not verify a curve's geometry,
- * physical phase, direction, approximation error or transverse jets. All source
- * components and unsupported contacts survive. Failed curve resume is absent.
+/**
+ * Observe exact source slabs without reading, converting or fitting
+ * coefficients. One prepared source/scalar chart recuts every saved endpoint
+ * plane and binds its complete raw-contour population to caller-attested saved
+ * publications. Source identities, selected original ordinal space,
+ * registration and artifact byte commitments must already be verified by the
+ * caller. Matching strings, frames, raw addresses and admitted closure do not
+ * verify a curve's geometry, physical phase, direction, approximation error or
+ * transverse jets. All source components and unsupported contacts survive.
+ * Failed curve resume is absent.
  *
  * Source arrays and saved records must remain unchanged during this synchronous
  * call. Progress and slab observers are cooperative checkpoints; throwing fails
  * the operation without a value. Slab callbacks receive independent copies,
- * provisional until success; callback-requested cancellation stops later work/delivery. No timer,
- * listener, filesystem, host, source normal or coefficient payload is involved.
+ * provisional until success; callback-requested cancellation stops later
+ * work/delivery. No timer, listener, filesystem, host, source normal or
+ * coefficient payload is involved.
  */
 export function observeAutoMovieRecoverySlabs(
   input: IAutoMovieRecoverySlabsInput,

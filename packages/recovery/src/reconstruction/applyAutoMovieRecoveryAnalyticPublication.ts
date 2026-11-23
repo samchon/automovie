@@ -8,11 +8,12 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Bind a source-free coefficient extension to its exact original curve and graph bytes.
- * Named replacements are atomic across closed and open consumers. Original observation
- * reports stay immutable and explicitly describe the prior coefficient publication;
- * each replacement supplies its own numerical PL-data upper estimate. Neither record
- * establishes interior fidelity, material phase, regularity or original skin coverage.
+ * Bind a source-free coefficient extension to its exact original curve and
+ * graph bytes. Named replacements are atomic across closed and open consumers.
+ * Original observation reports stay immutable and explicitly describe the prior
+ * coefficient publication; each replacement supplies its own numerical PL-data
+ * upper estimate. Neither record establishes interior fidelity, material phase,
+ * regularity or original skin coverage.
  */
 export function applyAutoMovieRecoveryAnalyticPublication(
   bundle: IAutoMovieRecoveryTensorFamiliesInput,

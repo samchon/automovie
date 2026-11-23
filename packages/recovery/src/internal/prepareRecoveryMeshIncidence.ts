@@ -4,9 +4,7 @@ import type {
   IAutoMovieRecoveryMeshIncidencePreparationOperation,
 } from "@automovie/interface";
 
-/**
- * Prepare declared source aliases and original edge/vertex face incidence.
- */
+/** Prepare declared source aliases and original edge/vertex face incidence. */
 export function prepareRecoveryMeshIncidence(
   input: Parameters<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation>[0],
   vertices: Parameters<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation>[1],

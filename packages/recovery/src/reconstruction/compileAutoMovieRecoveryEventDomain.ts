@@ -16,11 +16,12 @@ import type {
 import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecoveryEventCurve";
 
 /**
- * Compile declared cubic sides into a piecewise bicubic Coons coefficient atlas.
- * Opposite-side knot unions partition this domain only. Exact corner agreement
- * and shared coefficient IDs give C0 authority, independently of surface fit,
- * derivative continuity, regularity, embedding or physical material phase.
- * Input arcs and native parents must remain immutable during this synchronous call.
+ * Compile declared cubic sides into a piecewise bicubic Coons coefficient
+ * atlas. Opposite-side knot unions partition this domain only. Exact corner
+ * agreement and shared coefficient IDs give C0 authority, independently of
+ * surface fit, derivative continuity, regularity, embedding or physical
+ * material phase. Input arcs and native parents must remain immutable during
+ * this synchronous call.
  */
 export function compileAutoMovieRecoveryEventDomain(
   input: IAutoMovieRecoveryEventChartInput,

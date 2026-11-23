@@ -11,11 +11,12 @@ import type {
 /**
  * Generate an ordinary AutoMovie bicubic model and its actual construction from
  * saved section coefficients alone. Positive axis scales preserve the other two
- * coordinate extents; height edits anchor at the lowest saved station. Construction
- * evaluates the generated atlas coefficients, including its declared circular-cubic
- * approximation. The viewer and numerical mesh consumer use that same atlas.
- * Partial describes unobserved caps/interior, independently of the engine's later
- * tessellation completion or source/image fidelity.
+ * coordinate extents; height edits anchor at the lowest saved station.
+ * Construction evaluates the generated atlas coefficients, including its
+ * declared circular-cubic approximation. The viewer and numerical mesh consumer
+ * use that same atlas. Partial describes unobserved caps/interior,
+ * independently of the engine's later tessellation completion or source/image
+ * fidelity.
  */
 export function compileAutoMovieRecoveryImageLoft(
   recipe: IAutoMovieRecoveryImageLoft,

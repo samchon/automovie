@@ -5,7 +5,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Collect each target's distinct existing-map support once per accepted revision.
+ * Collect each target's distinct existing-map support once per accepted
+ * revision.
  */
 export function collectRecoverySceneSupport(
   landmarks: Parameters<IAutoMovieRecoverySceneSupportCollectionOperation.Operation>[0],

@@ -1,11 +1,12 @@
 import type { IAutoMovieRecoveryRegularizationUpdate } from "@automovie/interface";
 
 /**
- * React to one selected increment using its undamped computed agreement.
- * The multiplier is the unclamped reciprocal accepted-radius rule from Ceres
- * levenberg_marquardt_strategy.cc, blob 9e25466e61e0cc6a2c1136131c48c841bd365fcc,
- * lines162-168. Radius caps, diagonal clamps and rejected-step rules are absent.
- * Source: https://ceres-solver.googlesource.com/ceres-solver/+/master/internal/ceres/levenberg_marquardt_strategy.cc
+ * React to one selected increment using its undamped computed agreement. The
+ * multiplier is the unclamped reciprocal accepted-radius rule from Ceres
+ * levenberg_marquardt_strategy.cc, blob
+ * 9e25466e61e0cc6a2c1136131c48c841bd365fcc, lines162-168. Radius caps, diagonal
+ * clamps and rejected-step rules are absent. Source:
+ * https://ceres-solver.googlesource.com/ceres-solver/+/master/internal/ceres/levenberg_marquardt_strategy.cc
  * This rule alone supplies no standard LM or constrained convergence theorem.
  */
 export function updateRecoveryRegularization(

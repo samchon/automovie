@@ -17,7 +17,8 @@ type Result = IAutoMovieRecoveryOpenSlabGraph.Result;
 type Arc = IAutoMovieRecoveryOpenArcIncidence;
 
 /**
- * Prepare ordinary open-slab observations without exposing original mesh addresses.
+ * Prepare ordinary open-slab observations without exposing original mesh
+ * addresses.
  */
 export function prepareRecoveryOpenSlabGraph(
   source: Source,

@@ -9,12 +9,13 @@ import type {
 import { assertRecoveryImageChart } from "../internal/assertRecoveryImageChart";
 
 /**
- * Measure opaque row supports using a supplied fixed RGB background and cameras.
- * This deterministic threshold is suitable for controlled-background captures;
- * shadows, reflections and foreground colours close to the background remain
- * acquisition limitations. No morphology, hole filling or component deletion
- * changes the measured mask. Quantization reports assume correctly classified
- * binary pixels and do not certify segmentation, rigidity or calibration.
+ * Measure opaque row supports using a supplied fixed RGB background and
+ * cameras. This deterministic threshold is suitable for controlled-background
+ * captures; shadows, reflections and foreground colours close to the background
+ * remain acquisition limitations. No morphology, hole filling or component
+ * deletion changes the measured mask. Quantization reports assume correctly
+ * classified binary pixels and do not certify segmentation, rigidity or
+ * calibration.
  */
 export function observeAutoMovieRecoveryImages(
   input: IAutoMovieRecoveryImageInput,

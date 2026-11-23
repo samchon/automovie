@@ -6,7 +6,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Prepare immutable saved open-arc continuation maps before local surface emission.
+ * Prepare immutable saved open-arc continuation maps before local surface
+ * emission.
  */
 export function prepareRecoveryLocalContinuation(
   bundle: Parameters<IAutoMovieRecoveryLocalContinuationPreparationOperation.Operation>[0],

@@ -10,17 +10,18 @@ import { prepareRecoveryDiskBoundary } from "./prepareRecoveryDiskBoundary";
  * Divide one coherent private triangle disk into four physical-arclength sides.
  * A maximum boundary turn meeting cornerDegrees anchors the chart, with stable
  * physical-key ties followed by the complete coherent cyclic key-word context;
- * indistinguishable contexts fail. Without a feature the smallest key anchors it.
- * Repeated physical keys require exactly equal coordinates; private occurrences
- * retain distinct ordinals, including paired cut edges and their observations.
- * Quarter observations subdivide only the unique incident boundary triangles.
- * Coordinates remain millimetres in the input frame, and input arrays are immutable.
- * Sides are bottom/right/top/left, with top and left reversed for increasing UV.
- * Invalid incidence, links, orientation or unrepresentable subdivision throws an
- * explicit unsupported error. PL geometry is preserved in real arithmetic;
- * binary64 interpolation and global source embedding are not certified.
- * Keys, triangles and corner diagnostics remain private fitting observations.
- * Partial boundary-arc authority and all field/consumer publication belong elsewhere.
+ * indistinguishable contexts fail. Without a feature the smallest key anchors
+ * it. Repeated physical keys require exactly equal coordinates; private
+ * occurrences retain distinct ordinals, including paired cut edges and their
+ * observations. Quarter observations subdivide only the unique incident
+ * boundary triangles. Coordinates remain millimetres in the input frame, and
+ * input arrays are immutable. Sides are bottom/right/top/left, with top and
+ * left reversed for increasing UV. Invalid incidence, links, orientation or
+ * unrepresentable subdivision throws an explicit unsupported error. PL geometry
+ * is preserved in real arithmetic; binary64 interpolation and global source
+ * embedding are not certified. Keys, triangles and corner diagnostics remain
+ * private fitting observations. Partial boundary-arc authority and all
+ * field/consumer publication belong elsewhere.
  */
 export function RecoveryDiskChart(
   input: Parameters<IAutoMovieRecoveryDiskChart.Operation>[0],

@@ -3,9 +3,10 @@ import type { IAutoMovieRecoveryOpenRunDescriptionOperation } from "@automovie/i
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
 
 /**
- * Gather saved open-run metadata without preempting its local numerical refusal.
- * Known names and confirmed fit misses remain literal observations. Missing fit
- * fields are counted separately; an incomplete estimate inventory has no maximum.
+ * Gather saved open-run metadata without preempting its local numerical
+ * refusal. Known names and confirmed fit misses remain literal observations.
+ * Missing fit fields are counted separately; an incomplete estimate inventory
+ * has no maximum.
  */
 export function describeRecoveryOpenRun(
   bundle: Parameters<IAutoMovieRecoveryOpenRunDescriptionOperation.Operation>[0],

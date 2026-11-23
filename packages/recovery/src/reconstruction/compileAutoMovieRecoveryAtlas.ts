@@ -6,9 +6,10 @@ import {
 } from "@automovie/interface";
 
 /**
- * Compile one public coefficient authority into its recipe and generated-mesh models.
- * Domain completeness and analytic approximation acceptance remain distinct;
- * finite coarse cells retain their measured field-error estimates and UV ranges.
+ * Compile one public coefficient authority into its recipe and generated-mesh
+ * models. Domain completeness and analytic approximation acceptance remain
+ * distinct; finite coarse cells retain their measured field-error estimates and
+ * UV ranges.
  */
 export function compileAutoMovieRecoveryAtlas(
   geometry: IAutoMovieBicubicAtlasGeometry,

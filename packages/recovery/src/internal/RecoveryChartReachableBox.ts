@@ -11,9 +11,10 @@ import type { IAutoMovieAffineBoxBound } from "@automovie/interface";
  * view; only infeasibleAtTolerance uses the exact comparison. A false decision
  * does not establish that several observations can be fitted simultaneously.
  * Row identities do not identify source vertices, and this box is not generated
- * geometry, continuous source support or a closest-surface distance certificate.
- * Nonfinite input, conflicting bounds, invalid IDs, exhausted raw term budgets,
- * nonfinite duplicate sums or nonrepresentable number views throw atomically.
+ * geometry, continuous source support or a closest-surface distance
+ * certificate. Nonfinite input, conflicting bounds, invalid IDs, exhausted raw
+ * term budgets, nonfinite duplicate sums or nonrepresentable number views throw
+ * atomically.
  */
 export function RecoveryChartReachableBox(
   input: Parameters<IAutoMovieAffineBoxBound.Operation>[0],

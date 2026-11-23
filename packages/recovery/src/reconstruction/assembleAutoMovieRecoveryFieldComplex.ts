@@ -15,13 +15,14 @@ import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecove
 import { compileAutoMovieRecoveryNativeNamedChart as compile } from "./compileAutoMovieRecoveryNativeNamedChart";
 
 /**
- * Assemble named native-parent Coons charts and quarantine conflicting incidents.
- * Every boundary name owns its complete four coefficients. Endpoint names own
- * native endpoint values independently of occurrence direction. Valid connected
- * components retain their local chart partitions; no opposite-edge fixed point
- * propagates knots through the complex. Input arrays stay immutable during the call.
- * The returned diagnostic reason is mandatory; a producer may retain its complete
- * observation or compiler record in detail without losing the textual cause.
+ * Assemble named native-parent Coons charts and quarantine conflicting
+ * incidents. Every boundary name owns its complete four coefficients. Endpoint
+ * names own native endpoint values independently of occurrence direction. Valid
+ * connected components retain their local chart partitions; no opposite-edge
+ * fixed point propagates knots through the complex. Input arrays stay immutable
+ * during the call. The returned diagnostic reason is mandatory; a producer may
+ * retain its complete observation or compiler record in detail without losing
+ * the textual cause.
  */
 export function assembleAutoMovieRecoveryFieldComplex(
   input: IAutoMovieRecoveryFieldComplexInput,

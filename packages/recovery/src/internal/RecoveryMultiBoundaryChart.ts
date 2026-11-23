@@ -13,13 +13,13 @@ import { analyzeRecoveryMultiBoundarySurface } from "./analyzeRecoveryMultiBound
  * Dijkstra joins the nearest remaining boundary through interior edges only.
  * Removing those edges from incident-face links duplicates disconnected fans.
  * Input source keys are unique. Coordinates stay in input millimetres and
- * duplicated fans share source keys, while their private vertex ordinals differ.
- * The output boundary starts at its smallest source-key and incident-face pair.
- * All input arrays stay immutable.
- * The result retains every affine source triangle exactly, solely for subsequent
- * curve/field fitting. It is not a source-free reconstruction or a publication.
- * Nonmanifold, disconnected, positive-genus, incomplete-boundary and arithmetic
- * cases fail explicitly. No embedding, surface fit, or shared-arc C0 is certified.
+ * duplicated fans share source keys, while their private vertex ordinals
+ * differ. The output boundary starts at its smallest source-key and
+ * incident-face pair. All input arrays stay immutable. The result retains every
+ * affine source triangle exactly, solely for subsequent curve/field fitting. It
+ * is not a source-free reconstruction or a publication. Nonmanifold,
+ * disconnected, positive-genus, incomplete-boundary and arithmetic cases fail
+ * explicitly. No embedding, surface fit, or shared-arc C0 is certified.
  */
 export function RecoveryMultiBoundaryChart(
   input: Parameters<IAutoMovieRecoveryMultiBoundaryChart.Operation>[0],

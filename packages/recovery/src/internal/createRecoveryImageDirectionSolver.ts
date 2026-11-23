@@ -2,8 +2,8 @@ import type { IAutoMovieRecoveryImageDirectionSolverCreationOperation } from "@a
 
 /**
  * Factor a two-column camera-direction design without normal equations.
- * Reorthogonalized modified Gram-Schmidt supplies the small QR factors; the
- * two singular values of R give the same direction rank as the original design.
+ * Reorthogonalized modified Gram-Schmidt supplies the small QR factors; the two
+ * singular values of R give the same direction rank as the original design.
  * Their ratio is a binary64 diagnostic under the supplied numeric threshold,
  * not a certified interval bound or uncertainty distribution.
  */

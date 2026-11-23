@@ -8,9 +8,7 @@ import type {
 import { admitRecoveryCameraMap } from "./admitRecoveryCameraMap";
 import { admitRecoveryCameraPair } from "./admitRecoveryCameraPair";
 
-/**
- * Admit a closed bounded calibrated image set before observing any raster.
- */
+/** Admit a closed bounded calibrated image set before observing any raster. */
 export function admitRecoveryCameraScene(
   input: Parameters<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation> {

@@ -33,7 +33,8 @@ import { approximateAutoMovieRecoveryConicsAhn } from "./approximateAutoMovieRec
  * bidirectional geometric witnesses at those nodes, not a continuous bound.
  * Conics additionally use independent source-apex radial correspondences in
  * both directions. Finite samples cannot certify missed features, embedding,
- * Hausdorff error or likeness. No source observation is retained in the result.
+ * Hausdorff error or likeness. No source observation is retained in the
+ * result.
  */
 export function approximateAutoMovieRecoveryCompactCurves(
   curve: IAutoMoviePiecewisePlanarCurveSource,

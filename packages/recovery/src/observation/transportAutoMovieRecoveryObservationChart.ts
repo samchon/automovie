@@ -11,13 +11,14 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Transport a closed observation chart through uniquely ordered persistent anchors.
- * Incoming anchor phases stay fixed; intervening observations use physical PL arc
- * fractions. A crossing of the incoming seam inserts one observed-edge point.
- * This is an inferred geometric parameter map, not measured material motion or a
- * longitudinal source guide. Refusal leaves the original course with its caller.
- * Points use millimetres, phases use a normalized periodic chart and tangents are
- * unit directions. Source arrays remain immutable during and after the call.
+ * Transport a closed observation chart through uniquely ordered persistent
+ * anchors. Incoming anchor phases stay fixed; intervening observations use
+ * physical PL arc fractions. A crossing of the incoming seam inserts one
+ * observed-edge point. This is an inferred geometric parameter map, not
+ * measured material motion or a longitudinal source guide. Refusal leaves the
+ * original course with its caller. Points use millimetres, phases use a
+ * normalized periodic chart and tangents are unit directions. Source arrays
+ * remain immutable during and after the call.
  */
 export function transportAutoMovieRecoveryObservationChart(
   previous: IAutoMovieRecoveryObservationChartSeed,

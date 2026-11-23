@@ -1,8 +1,6 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-/**
- * Euclidean inner product; units are the product of the operands' units.
- */
+/** Euclidean inner product; units are the product of the operands' units. */
 export const dot: (
   a: AutoMovieVector3Tuple,
   b: AutoMovieVector3Tuple,

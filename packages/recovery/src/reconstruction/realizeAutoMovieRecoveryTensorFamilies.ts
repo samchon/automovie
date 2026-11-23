@@ -10,13 +10,14 @@ import type {
 import { readRecoveryMetadata as read } from "../internal/readRecoveryMetadata";
 
 /**
- * Admit ordinary-family ownership and generate saved analytic tensors through the engine.
- * Each published endpoint curve references the tensor's coefficient IDs and uses the
- * same forward millimetre-to-metre conversion. Equality is declared coefficient
- * ownership, never a nearest-coordinate merge. Shared end curves establish an
- * analytic C0 boundary only; different operators can still use different polygonal
- * subdivisions, and transverse derivatives, embedding and source fit remain unqualified.
- * Construction is the stored Bernstein control net, not a sampled limit-surface cage.
+ * Admit ordinary-family ownership and generate saved analytic tensors through
+ * the engine. Each published endpoint curve references the tensor's coefficient
+ * IDs and uses the same forward millimetre-to-metre conversion. Equality is
+ * declared coefficient ownership, never a nearest-coordinate merge. Shared end
+ * curves establish an analytic C0 boundary only; different operators can still
+ * use different polygonal subdivisions, and transverse derivatives, embedding
+ * and source fit remain unqualified. Construction is the stored Bernstein
+ * control net, not a sampled limit-surface cage.
  */
 export function realizeAutoMovieRecoveryTensorFamilies(
   bundle: IAutoMovieRecoveryTensorFamiliesInput,

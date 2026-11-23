@@ -12,9 +12,10 @@ import { describeRecoveryOpenRun } from "./describeRecoveryOpenRun";
 import { reconstructRecovery } from "./reconstructRecovery";
 
 /**
- * Consume saved open cubics and their explicit adjacent endpoint transport through the engine.
- * One maximal ordinary run owns its common parameter grid, shared station boundaries and
- * PCHIP station fields. Course joins and the emitted PL surface are not certified C1/G1.
+ * Consume saved open cubics and their explicit adjacent endpoint transport
+ * through the engine. One maximal ordinary run owns its common parameter grid,
+ * shared station boundaries and PCHIP station fields. Course joins and the
+ * emitted PL surface are not certified C1/G1.
  */
 export function reconstructRecoveryOpen(
   bundle: Parameters<IAutoMovieRecoveryOpenReconstructionOperation.Operation>[0],

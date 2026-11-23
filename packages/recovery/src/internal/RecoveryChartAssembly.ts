@@ -9,14 +9,15 @@ import type {
 import { RecoveryChartLeafAssembly } from "./RecoveryChartLeafAssembly";
 
 /**
- * Assemble fitted chart fields using one canonical boundary coefficient registry.
- * Equal declared boundary intervals share four exact coefficient IDs, including
- * reversal; coincident independent sheets retain distinct IDs. Different edge
- * partitions retain common analytic curves but report unmatched tessellation spans.
- * Physical transverse jets and coarse/fine edge-sample conformity are separate work.
- * Stored oriented knots map directly to their canonical counterparts without a
- * subtraction round trip. Each canonical endpoint has one evaluation owner; its
- * binary64 restriction difference is measured against the fitted field below.
+ * Assemble fitted chart fields using one canonical boundary coefficient
+ * registry. Equal declared boundary intervals share four exact coefficient IDs,
+ * including reversal; coincident independent sheets retain distinct IDs.
+ * Different edge partitions retain common analytic curves but report unmatched
+ * tessellation spans. Physical transverse jets and coarse/fine edge-sample
+ * conformity are separate work. Stored oriented knots map directly to their
+ * canonical counterparts without a subtraction round trip. Each canonical
+ * endpoint has one evaluation owner; its binary64 restriction difference is
+ * measured against the fitted field below.
  */
 export function RecoveryChartAssembly(
   charts: Parameters<IAutoMovieRecoveryChartAssembly.Operation>[0],

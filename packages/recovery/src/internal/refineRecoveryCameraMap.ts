@@ -18,13 +18,13 @@ import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
 import { stepRecoveryMapSeedPose } from "./stepRecoveryMapSeedPose";
 
 /**
- * Jointly refine calibrated cameras and registered landmarks in one gauge.
- * The first pose must be identity at the origin and stays fixed; the seed
- * translation retains its admitted near-unit current radius,
- * and all later translations have three unrestricted coordinates. Fixed landmark
- * observations retain the same robust objective throughout every trial.
- * Internal feasible options select the separately bounded hard-pixel method;
- * ordinary calls retain this unconstrained local optimizer.
+ * Jointly refine calibrated cameras and registered landmarks in one gauge. The
+ * first pose must be identity at the origin and stays fixed; the seed
+ * translation retains its admitted near-unit current radius, and all later
+ * translations have three unrestricted coordinates. Fixed landmark observations
+ * retain the same robust objective throughout every trial. Internal feasible
+ * options select the separately bounded hard-pixel method; ordinary calls
+ * retain this unconstrained local optimizer.
  */
 export function refineRecoveryCameraMap(
   initialPoses: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[0],

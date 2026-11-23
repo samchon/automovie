@@ -7,8 +7,8 @@ import type { IAutoMovieRecoveryChartLeafControls } from "@automovie/interface";
  * endpoint identities share one control; this is parameter identity, not a
  * physical coordinate weld. Each maximal containing interval owns one cubic.
  * Nested fine intervals use de Casteljau restriction expressions in that cubic.
- * Disjoint intervals, including those meeting only at endpoints, keep their
- * own cubic handles. Every patch retains four independent interior controls.
+ * Disjoint intervals, including those meeting only at endpoints, keep their own
+ * cubic handles. Every patch retains four independent interior controls.
  *
  * Atomic intervals verify one exterior incident and two opposed interior uses.
  * Missing exterior coverage, nonnested overlaps, inconsistent corner equations,

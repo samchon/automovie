@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Try nominal physical mixing, then one original-row-supported coefficient.
- * The numerical branch is not the ideal cubic-rate mixture. Its operation-
- * scaled margin chooses a new vector, never an allowance on that vector's rows.
+ * Try nominal physical mixing, then one original-row-supported coefficient. The
+ * numerical branch is not the ideal cubic-rate mixture. Its operation- scaled
+ * margin chooses a new vector, never an allowance on that vector's rows.
  */
 export function mixRecoveryFeasibleSqpStep(
   rows: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[0],

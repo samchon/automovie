@@ -5,10 +5,11 @@ import type {
 
 /**
  * Cut a private oriented annular triangle chart along an observed edge path.
- * Two coherent boundary cycles become bottom/top and the duplicated seam becomes
- * left/right. Original positions and faces stay private observations for fitting.
- * The caller establishes genus zero and exactly two boundary cycles beforehand.
- * A seam touching another boundary vertex is refused rather than changing topology.
+ * Two coherent boundary cycles become bottom/top and the duplicated seam
+ * becomes left/right. Original positions and faces stay private observations
+ * for fitting. The caller establishes genus zero and exactly two boundary
+ * cycles beforehand. A seam touching another boundary vertex is refused rather
+ * than changing topology.
  */
 export function RecoveryAnnularChart(
   input: Parameters<IAutoMovieRecoveryAnnularChartPreparation.Operation>[0],

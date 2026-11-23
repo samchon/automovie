@@ -6,7 +6,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Observe original component crease edges with the existing oriented source normals.
+ * Observe original component crease edges with the existing oriented source
+ * normals.
  */
 export function RecoveryAtlasObservationCreases(
   context: Parameters<IAutoMovieRecoveryAtlasObservationCreases.Operation>[0],

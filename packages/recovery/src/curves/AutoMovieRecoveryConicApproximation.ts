@@ -10,14 +10,14 @@ import { findAutoMovieRecoveryCubicCriticalParameters } from "./findAutoMovieRec
 
 /**
  * Shared planar, millimetre-valued contract for experimental conic recovery.
- * Rational quadratics use endpoint weights one and a positive middle weight;
- * a collinear control triple with weight one is the admitted line primitive.
- * The contract does not imply a Hausdorff certificate or a globally minimal net.
+ * Rational quadratics use endpoint weights one and a positive middle weight; a
+ * collinear control triple with weight one is the admitted line primitive. The
+ * contract does not imply a Hausdorff certificate or a globally minimal net.
  */
 export namespace AutoMovieRecoveryConicApproximation {
   /**
-   * Observe cubic critical parameters without changing its points or jets.
-   * The four planar Bernstein controls define normalized t in [0,1]; the caller
+   * Observe cubic critical parameters without changing its points or jets. The
+   * four planar Bernstein controls define normalized t in [0,1]; the caller
    * maps interior candidates to its source chart and reports unrepresentable
    * mapped intervals. Close distinct roots are not merged by an epsilon.
    */
@@ -32,9 +32,7 @@ export namespace AutoMovieRecoveryConicApproximation {
     return findAutoMovieRecoveryCubicCriticalParameters(controls);
   }
 
-  /**
-   * Evaluate positive-weight rational Bernstein coefficients on [0,1].
-   */
+  /** Evaluate positive-weight rational Bernstein coefficients on [0,1]. */
   export function evaluate(
     arc: IAutoMovieRegisteredConicArc,
     u: number,
@@ -55,9 +53,7 @@ export namespace AutoMovieRecoveryConicApproximation {
     ];
   }
 
-  /**
-   * Euclidean separation in millimetres between two same-frame points.
-   */
+  /** Euclidean separation in millimetres between two same-frame points. */
   export function distance(
     a: Readonly<AutoMovieVector2Tuple>,
     b: Readonly<AutoMovieVector2Tuple>,
@@ -65,9 +61,7 @@ export namespace AutoMovieRecoveryConicApproximation {
     return Math.hypot(a[0] - b[0], a[1] - b[1]);
   }
 
-  /**
-   * Signed planar determinant, used for orientation and tangent intersection.
-   */
+  /** Signed planar determinant, used for orientation and tangent intersection. */
   export function cross(
     a: Readonly<AutoMovieVector2Tuple>,
     b: Readonly<AutoMovieVector2Tuple>,
@@ -75,9 +69,7 @@ export namespace AutoMovieRecoveryConicApproximation {
     return a[0] * b[1] - a[1] * b[0];
   }
 
-  /**
-   * Admit a finite source chart and positive explicit numerical budgets.
-   */
+  /** Admit a finite source chart and positive explicit numerical budgets. */
   export function validate(
     curve: IAutoMoviePlanarCurveSource,
     options: IAutoMovieConicApproximation.IOptions,

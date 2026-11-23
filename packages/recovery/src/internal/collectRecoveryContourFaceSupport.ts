@@ -1,7 +1,9 @@
 import type { IAutoMovieRecoveryContourFaceSupportCollectionOperation } from "@automovie/interface";
 
 /**
- * Union original triangle incidence at every sampled contour vertex or crossed source edge. The resulting support can include adjacent faces and is not a semantic region or an exact generating patch.
+ * Union original triangle incidence at every sampled contour vertex or crossed
+ * source edge. The resulting support can include adjacent faces and is not a
+ * semantic region or an exact generating patch.
  */
 export function collectRecoveryContourFaceSupport(
   points: Parameters<IAutoMovieRecoveryContourFaceSupportCollectionOperation.Operation>[0],

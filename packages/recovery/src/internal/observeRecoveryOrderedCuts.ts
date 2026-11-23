@@ -17,13 +17,15 @@ import { cutExact } from "./mesh-observations/cutExact";
 import { planeFrame } from "./mesh-observations/planeFrame";
 import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
 
-/** Reobserve requested saved planes without reading or fitting a coefficient.
+/**
+ * Reobserve requested saved planes without reading or fitting a coefficient.
  * The caller verifies native and saved artifact bytes; this function compares
  * their declared source/selection/frame identities and rechecks complete raw
  * populations, closure and broad/exact face sets through the official binder.
  * Binary64 cutting is not certified exact arithmetic. No aggregate metadata
  * byte ceiling or cancellation hook is provided; the synchronous caller bounds
- * its selected mesh and saved-plane request and keeps borrowed inputs immutable.
+ * its selected mesh and saved-plane request and keeps borrowed inputs
+ * immutable.
  */
 export function observeRecoveryOrderedCuts(
   input: IAutoMovieRecoveryOrderedLineage.Input,
@@ -226,11 +228,11 @@ export function observeRecoveryOrderedCuts(
     sections,
   };
 }
-/** Measure a chord between two registered observation points in mm.
- * Math.hypot limits intermediate sum overflow but is not exact arithmetic;
- * extreme finite inputs can still produce Infinity, which this helper does
- * not independently refuse. No approximation or coordinate correction occurs.
- *
+/**
+ * Measure a chord between two registered observation points in mm. Math.hypot
+ * limits intermediate sum overflow but is not exact arithmetic; extreme finite
+ * inputs can still produce Infinity, which this helper does not independently
+ * refuse. No approximation or coordinate correction occurs.
  */
 function distance(
   a: Readonly<AutoMovieVector3Tuple>,

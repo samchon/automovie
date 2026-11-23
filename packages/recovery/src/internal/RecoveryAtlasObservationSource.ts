@@ -10,9 +10,7 @@ import { RecoveryEventRegion } from "./RecoveryEventRegion";
 import { RecoveryScalarIndex as I } from "./RecoveryScalarIndex";
 import { selectRecoveryScalarIntervals } from "./selectRecoveryScalarIntervals";
 
-/**
- * Admit the immutable source and prepare the selected scalar interval index.
- */
+/** Admit the immutable source and prepare the selected scalar interval index. */
 export function RecoveryAtlasObservationSource(
   input: Parameters<IAutoMovieRecoveryAtlasObservationSource.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryAtlasObservationSource.Operation> {

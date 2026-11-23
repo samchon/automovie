@@ -5,7 +5,8 @@ import type { IAutoMovieRecoveryScalarIntervalsSelectionOperation } from "@autom
  * Scalars are millimetres along the observation's normalized sweep direction.
  * Positive overlap uses before < upper and after > lower; merely touching the
  * window does not select a slab. Endpoints are never moved or newly inserted.
- * The retained whole slabs may extend beyond the window, and report those bounds.
+ * The retained whole slabs may extend beyond the window, and report those
+ * bounds.
  */
 export function selectRecoveryScalarIntervals(
   levelsMm: Parameters<IAutoMovieRecoveryScalarIntervalsSelectionOperation.Operation>[0],

@@ -26,19 +26,20 @@ import { observeRecoverySection } from "../internal/observeRecoverySection";
 import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
 import { validateRecoveryContourResume } from "../internal/validateRecoveryContourResume";
 
-/** Fit only explicitly failed, rebound raw source contours into a new patch.
+/**
+ * Fit only explicitly failed, rebound raw source contours into a new patch.
  * Original coefficient artifacts are opaque external references. The caller
  * verifies their bytes and actual tolerance/corner/orientation policy before
  * supplying identities. All saved populations and target eligibility are
  * checked before any fit. Raw ordinals never become patch coefficient indices.
  *
  * A contour with E observed edges needs at most E adaptive spans: every split
- * partitions a positive integer edge range. Each exact source triangle emits
- * at most three cut edges, giving a conservative preplan bound 3F. The new
- * budget is actual E, without forcing one span per edge; this prevents budget
+ * partitions a positive integer edge range. Each exact source triangle emits at
+ * most three cut edges, giving a conservative preplan bound 3F. The new budget
+ * is actual E, without forcing one span per edge; this prevents budget
  * exhaustion but cannot guarantee finite conditioning or tolerance success.
- * Original policy and measured E/F/bounds survive every requested outcome.
- * Only newly fitted cubics pass through the official selected-basis converter.
+ * Original policy and measured E/F/bounds survive every requested outcome. Only
+ * newly fitted cubics pass through the official selected-basis converter.
  *
  * Inputs stay unchanged during the synchronous call. Progress callbacks run
  * before/after raw planes and target fits; throwing fails without a value and

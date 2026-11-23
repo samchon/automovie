@@ -3,9 +3,7 @@ import type {
   IAutoMovieRecoveryDiskBoundaryPreparationOperation,
 } from "@automovie/interface";
 
-/**
- * Choose a private disk boundary anchor and exact physical quarter measures.
- */
+/** Choose a private disk boundary anchor and exact physical quarter measures. */
 export function prepareRecoveryDiskBoundary(
   input: Parameters<IAutoMovieRecoveryDiskBoundaryPreparationOperation.Operation>[0],
   fail: Parameters<IAutoMovieRecoveryDiskBoundaryPreparationOperation.Operation>[1],
