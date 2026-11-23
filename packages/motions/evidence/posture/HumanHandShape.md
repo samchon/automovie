@@ -24,7 +24,7 @@ States the inputs, the unit and what the result covers.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A fist and the curled fingers of a point flex each segment near its range; a flat hand is straight; a relaxed finger takes the position of rest, since the body's rest pose carries no curl of its own. The values are `HumanHand`'s documented ones.
+A fist and the curled fingers of a point flex each segment near its range; a flat hand is straight with its thumb laid in the palm's plane; a bridge is straight with its thumb at its neutral, spread from the forefinger; a relaxed finger takes the position of rest, since the body's rest pose carries no curl of its own. The values are `HumanHand`'s documented ones.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -144,11 +144,11 @@ States the frame, the curl's reading and the measured defect.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The shape's angles plus the curl on the fingers, as `AutoMovieMotionHumanHand` displays them, posed by forward kinematics, the surface read on its distal phalanx's region.
+The shape's angles plus the curl on the fingers, as `AutoMovieMotionHumanHand` displays them, posed by forward kinematics, the surface read on its distal phalanx's region; a pad is the support of the digit's own collider along the pad's outward normal (`physicalShapeSurfaceAnchor`), so the pad a goal lays on a surface and the collider the floor and contact audits read are one geometry.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One pose, one region placement and one change of frame.
+One pose, one region placement, a pad's collider support, and one change of frame.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -160,7 +160,7 @@ Remembered per body, side, surface, shape and curl.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One forward kinematics per body, side, surface, shape and curl.
+One forward kinematics, and for a pad one collider placement, per body, side, surface, shape and curl.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

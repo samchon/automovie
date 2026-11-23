@@ -34,40 +34,40 @@ import { sprintStartBlocks } from "./sprintStartBlocks";
 import { sprintStartSet } from "./sprintStartSet";
 
 /**
- * The sprint start's crouch into the set position and its hold until the
- * gun (#3250): the hands on the start line, the front foot and the rear
- * foot on their blocks.
+ * The sprint start's crouch into the set position and its hold until the gun
+ *: the hands on the start line, the front foot and the rear foot on
+ * their blocks.
  *
  * The set position is solved from measured block settings and one measured
  * angle: the anthropometry-driven setting of Cavedon et al. (2019, PLoS One
  * 14:e0213979, table 2) puts the front block 0.60 of the leg's length behind
- * the line and the rear block 0.45 of it behind the front, and the front
- * knee stands at 90 degrees (their 90, SD 8; Harland and Steele 1997's
- * "about 90"). The hands lie on the line a shoulder width apart with the
- * four support frames fixed by the measured body. One whole-body fit
- * (`sprintStartSet`) keeps those supports, the front knee at 90, rear knee
- * within 117 +/- 11 and front hip within 43 +/- 6 degrees, and the sex-matched centre of mass
- * behind the line. Arm extension is free, rather than a fixed fraction
- * consuming a degree of freedom the measured posture needs. Hip height
- * and the trunk's inclination are results of that shared constrained fit.
+ * the line and the rear block 0.45 of it behind the front, and the front knee
+ * stands at 90 degrees (their 90, SD 8; Harland and Steele 1997's "about 90").
+ * The hands lie on the line a shoulder width apart with the four support frames
+ * fixed by the measured body. One whole-body fit (`sprintStartSet`) keeps those
+ * supports, the front knee at 90, rear knee within 117 +/- 11 and front hip
+ * within 43 +/- 6 degrees, and the sex-matched centre of mass behind the line.
+ * Arm extension is free, rather than a fixed fraction consuming a degree of
+ * freedom the measured posture needs. Hip height and the trunk's inclination
+ * are results of that shared constrained fit.
  *
- * The crouch takes 1.5 s (provisional): the front foot steps back to its
- * block over the first half, the rear foot over the second, while the hips
- * travel and the trunk pitches down. With an authored drive, the hands
- * leave at the gun, the rear foot leaves next, and the front foot pushes
- * to block exit. Slawinski et al. (2010, PMID 19935105) separate these
- * phases; this pass stages the hip acceleration and rear-foot recovery
- * while the front foot still bears. The drive's shape shares are
- * provisional. The first airborne stride belongs to the subsequent act.
+ * The crouch takes 1.5 s (provisional): the front foot steps back to its block
+ * over the first half, the rear foot over the second, while the hips travel and
+ * the trunk pitches down. With an authored drive, the hands leave at the gun,
+ * the rear foot leaves next, and the front foot pushes to block exit. Slawinski
+ * et al. (2010, PMID 19935105) separate these phases; this pass stages the hip
+ * acceleration and rear-foot recovery while the front foot still bears. The
+ * drive's shape shares are provisional. The first airborne stride belongs to
+ * the subsequent act.
  *
  * With `on`, the feet sit on a placed starting block's `front` and `rear`
  * plates instead of the body-scaled setting, each ball at its plate's lower
- * edge, and bear on that prop; the plate on the runner's left or right
- * decides the front foot. The front knee then keeps within its measured
- * spread (90 +/- 8) and the centre of mass follows from the plates.
+ * edge, and bear on that prop; the plate on the runner's left or right decides
+ * the front foot. The front knee then keeps within its measured spread (90 +/-
+ * 8) and the centre of mass follows from the plates.
  *
- * Events: `onYourMarks`, `set`, `gun`, and when driving, `rearBlockOff`
- * and `blockExit`. The knee-down marks posture is a separate phase.
+ * Events: `onYourMarks`, `set`, `gun`, and when driving, `rearBlockOff` and
+ * `blockExit`. The knee-down marks posture is a separate phase.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the posture with its source, how each place derives from the body, the timing, the events and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record composed of root, leg and arm rows over one phrase.
@@ -85,13 +85,24 @@ export namespace athletics {
       stand: ["fromRelax", "smooth"],
     });
 
-  /** The front knee's included angle in the set, degrees: 90 (SD 8) measured with the anthropometry-driven block setting (Cavedon et al. 2019, PLoS One 14:e0213979, table 2), Harland and Steele's (1997) "about 90". */
+  /**
+   * The front knee's included angle in the set, degrees: 90 (SD 8) measured
+   * with the anthropometry-driven block setting (Cavedon et al. 2019, PLoS One
+   * 14:e0213979, table 2), Harland and Steele's (1997) "about 90".
+   */
   export const FRONT: number = sprintStartSet.FRONT;
 
-  /** The front block's distance behind the start line, a share of the leg's length (greater trochanter to lateral malleolus): the anthropometry-driven setting (Cavedon et al. 2019, table 2). */
+  /**
+   * The front block's distance behind the start line, a share of the leg's
+   * length (greater trochanter to lateral malleolus): the anthropometry-driven
+   * setting (Cavedon et al. 2019, table 2).
+   */
   export const FRONT_DISTANCE: number = sprintStartSet.FRONT_DISTANCE;
 
-  /** The rear knee's included angle in the set, degrees (`sprintStartSet.REAR`), from which the rear block is placed. */
+  /**
+   * The rear knee's included angle in the set, degrees (`sprintStartSet.REAR`),
+   * from which the rear block is placed.
+   */
   export const REAR: readonly [number, number] = sprintStartSet.REAR;
 
   /** The front hip's included angle in the set, degrees (`sprintStartSet.HIP`). */
@@ -99,9 +110,9 @@ export namespace athletics {
 
   /**
    * The whole body's centre of mass behind the start line in the set, metres
-   * along the ground, by the sprinter's sex as the sources stratify it: 22.9
-   * cm for elite men (Slawinski et al. 2010, J Strength Cond Res 24:896, n =
-   * 6) and 16.2 cm for world-class women (Ciacci et al. 2017, J Sports Sci
+   * along the ground, by the sprinter's sex as the sources stratify it: 22.9 cm
+   * for elite men (Slawinski et al. 2010, J Strength Cond Res 24:896, n = 6)
+   * and 16.2 cm for world-class women (Ciacci et al. 2017, J Sports Sci
    * 35:1270, n = 4), both read as Valamatos et al. 2022 report them (Int J
    * Environ Res Public Health 19:4074, section 4.1.2), the primary texts being
    * closed.
@@ -109,13 +120,22 @@ export namespace athletics {
   export const CENTRE: Readonly<Record<"female" | "male", number>> =
     sprintStartSet.CENTRE;
 
-  /** The front block's face from the floor, degrees (provisional, within a competition block's adjustment). */
+  /**
+   * The front block's face from the floor, degrees (provisional, within a
+   * competition block's adjustment).
+   */
   export const FRONT_BLOCK: number = sprintStartSet.FRONT_BLOCK;
 
-  /** The rear block's face from the floor, degrees (provisional, within a competition block's adjustment). */
+  /**
+   * The rear block's face from the floor, degrees (provisional, within a
+   * competition block's adjustment).
+   */
   export const REAR_BLOCK: number = sprintStartSet.REAR_BLOCK;
 
-  /** The arm extension of the initial geometric guess (provisional), owned by sprintStartSet; the fitted stance is free to change it. */
+  /**
+   * The arm extension of the initial geometric guess (provisional), owned by
+   * sprintStartSet; the fitted stance is free to change it.
+   */
   export const REACH: number = sprintStartSet.REACH;
 
   /** The crouch's seconds (provisional). */
@@ -125,11 +145,12 @@ export namespace athletics {
    * The set position's hips, pitch and feet for a body in front of a line.
    *
    * @param context The body.
-   * @param entry The standing posture; the line is a hand's length ahead of its feet.
+   * @param entry The standing posture; the line is a hand's length ahead of its
+   *   feet.
    * @param front The front foot.
    * @param sex The measured centre-of-mass stratum.
-   * @returns The hips' world point, the trunk's pitch, each palm's place on the floor and each foot's placement.
-   *
+   * @returns The hips' world point, the trunk's pitch, each palm's place on the
+   *   floor and each foot's placement.
    * @evidence contracts/development/common.md#meaningful-documentation States the geometry and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Delegates the four-contact, measured-angle and centre-of-mass problem to sprintStartSet.of and the shared whole-body fit.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegate with the unchanged public inputs and result.
@@ -151,8 +172,9 @@ export namespace athletics {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative, the optional drive is not positive, a named block's plates are missing, misaligned or contradict `front` (`sprintStartBlocks.of`), or the set cannot be fitted to them.
-   *
+   * @throws {HumanRefusal} When the hold is negative, the optional drive is not
+   *   positive, a named block's plates are missing, misaligned or contradict
+   *   `front` (`sprintStartBlocks.of`), or the set cannot be fitted to them.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The set position solved once; the root, the feet and the hands carried into it on one phrase.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Set, clock, root row, two leg rows, two arm rows.
@@ -453,6 +475,8 @@ export namespace athletics {
             context.tempo,
           ),
           place: () => target.palms[side],
+          // The set's own bridge hand (`sprintStartSetHands`), the hand the fit stood on the line.
+          shape: "bridge",
           bend: "front",
         }),
       );

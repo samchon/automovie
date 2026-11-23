@@ -1,6 +1,7 @@
 import {
   Quaternion,
   Vector3,
+  physicalShapeSurfaceAnchor,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
@@ -19,11 +20,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
 
 /**
- * The finger joints of a named hand shape: the angles `HumanHand.Shape`
- * stands for on every finger and thumb segment of one hand.
+ * The finger joints of a named hand shape: the angles `HumanHand.Shape` stands
+ * for on every finger and thumb segment of one hand.
  *
  * The angles themselves are stated with their sources in `HumanHand`'s own
  * document; this module holds their tables and the direction a digit takes
@@ -46,7 +48,8 @@ export namespace HumanHandShape {
       (form === "relaxed" ||
         form === "flat" ||
         form === "point" ||
-        form === "fist")
+        form === "fist" ||
+        form === "bridge")
         ? `working:${side}:${form}`
         : undefined;
     const known: readonly IShapeEntry[] | undefined =
@@ -86,7 +89,9 @@ export namespace HumanHandShape {
     // stops where its skin clears the hand's), and carrying it back by
     // `FLAT_THUMB` degrees of retroposition brings its tip to within 3 mm of
     // that plane on the small woman and the average man, so a palm laid flat
-    // on a floor or a face does not sink its thumb.
+    // on a floor or a face does not sink its thumb. A bridge keeps the thumb
+    // at that neutral, palmar of the knuckles and spread from the
+    // forefinger, so it reaches the line beside the forefinger's tip.
     set("ThumbMetacarpal", form === "flat" ? FLAT_THUMB : 0);
     set("ThumbProximal", folded ? 40 : form === "relaxed" ? 25 : 0);
     set("ThumbDistal", folded ? 50 : form === "relaxed" ? 25 : 0);
@@ -200,17 +205,17 @@ export namespace HumanHandShape {
   }
 
   /**
-   * A digit's own direction under a set of finger angles: from its first
-   * joint (the knuckle of a finger, the thumb's middle joint) to its last,
-   * in the hand's rest frame. A shape's straight digit does not lie along
-   * the hand's own axes: the forefinger leans off the knuckle line toward
-   * the thumb, and a straight thumb stands about 35 degrees off it, so a
-   * request that means a digit to point somewhere aims this direction, not
-   * an axis of the hand.
+   * A digit's own direction under a set of finger angles: from its first joint
+   * (the knuckle of a finger, the thumb's middle joint) to its last, in the
+   * hand's rest frame. A shape's straight digit does not lie along the hand's
+   * own axes: the forefinger leans off the knuckle line toward the thumb, and a
+   * straight thumb stands about 35 degrees off it, so a request that means a
+   * digit to point somewhere aims this direction, not an axis of the hand.
    *
    * @param body The body, whose rig places the digit's joints.
    * @param side The hand.
-   * @param joints The finger angles, clinical degrees by bone; a bone left out stands at rest.
+   * @param joints The finger angles, clinical degrees by bone; a bone left out
+   *   stands at rest.
    * @param name The digit: the thumb or the forefinger.
    * @returns The unit direction.
    */
@@ -260,11 +265,11 @@ export namespace HumanHandShape {
   }
 
   /**
-   * A hand's world rotation turned by the least rotation that points one of
-   * its digits straight at the world's up or down: the digit's own
-   * direction (`digit`) carried by the rotation is turned onto the vertical
-   * about their common normal, so the hand keeps as much of its attitude as
-   * the aim allows.
+   * A hand's world rotation turned by the least rotation that points one of its
+   * digits straight at the world's up or down: the digit's own direction
+   * (`digit`) carried by the rotation is turned onto the vertical about their
+   * common normal, so the hand keeps as much of its attitude as the aim
+   * allows.
    *
    * @param rotation The hand's world rotation from rest.
    * @param digit The digit's own direction in the hand's rest frame (`digit`).
@@ -304,16 +309,17 @@ export namespace HumanHandShape {
 
   /**
    * A digit's tip or pad frame from the wrist under a hand shape with its
-   * fingers curled by a further flexion, in the hand's rest frame, by
-   * forward kinematics of that hand alone: the frame a touch lays on its
-   * region when its kind curls the fingers (`AutoMovieMotionHumanTouchForm`),
-   * as the hand is displayed. A scratch's 30 degrees draw the index tip 76
-   * mm back from where it lies flat and turn its pad 90 degrees.
+   * fingers curled by a further flexion, in the hand's rest frame, by forward
+   * kinematics of that hand alone: the frame a touch lays on its region when
+   * its kind curls the fingers (`AutoMovieMotionHumanTouchForm`), as the hand
+   * is displayed. A scratch's 30 degrees draw the index tip 76 mm back from
+   * where it lies flat and turn its pad 90 degrees.
    *
    * @param body The body.
    * @param side The hand.
    * @param form The hand shape.
-   * @param curl Extra flexion of the fingers over the shape, degrees; the thumb keeps its own.
+   * @param curl Extra flexion of the fingers over the shape, degrees; the thumb
+   *   keeps its own.
    * @param surface The digit surface; the index fingertip when omitted.
    * @returns The frame, its point measured from the wrist joint.
    */
@@ -350,6 +356,16 @@ export namespace HumanHandShape {
       body.surfaces.regions[`${surface}${Side}` as AutoMovieHumanoidRegion];
     const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
       resolveAutoMovieHumanoidSurfaces.place(region, bones.get(region.bone)!);
+    // A pad is where its digit bears on a surface it lies on: the point of
+    // the digit's own collider farthest along the pad's outward normal, the
+    // point a support facing the pad meets, read from the posed digit as the
+    // colliders place it (`HumanColliders`), so the pad a goal lays on a
+    // surface and the collider the floor and contact audits read are one
+    // geometry. The surface table's point lies on the modelled skin, which a
+    // digit's collider does not follow.
+    const point: IAutoMovieVector3 = surface.endsWith("Pad")
+      ? padOf(body, bones, region.bone, placed)
+      : placed.point;
     const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       hand.worldRotation,
@@ -357,7 +373,7 @@ export namespace HumanHandShape {
     const out: IAutoMovieMotionHumanHand.IFrame = {
       point: Quaternion.rotateVector(
         inverse,
-        Vector3.subtract(placed.point, hand.worldPosition),
+        Vector3.subtract(point, hand.worldPosition),
       ),
       normal: Quaternion.rotateVector(inverse, placed.normal),
       forward:
@@ -368,7 +384,57 @@ export namespace HumanHandShape {
   }
 }
 
-/** The flat hand's thumb carpometacarpal flexion, degrees: the retroposition that lays the rest thumb in the palm's plane (measured on the rig: the thumb tip 22-26 mm palmar of the knuckles' plane at 0, 3 mm at this angle), inside the joint's admitted -25 (`DEFAULT_HUMANOID_ROM`). */
+/**
+ * A digit pad's point: the support of the digit's collider along the pad's
+ * outward normal (`physicalShapeSurfaceAnchor`), the shape that reaches
+ * farthest along it where the bone carries more than one; the surface table's
+ * point where the bone carries no collider.
+ *
+ * @param body The body.
+ * @param bones The posed hand's bones.
+ * @param bone The digit bone the pad rides.
+ * @param placed The pad's surface frame on the posed bone, world metres.
+ * @returns The pad's point, world metres.
+ */
+function padOf(
+  body: IAutoMovieMotionHumanBody,
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  bone: AutoMovieHumanoidBone,
+  placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place>,
+): IAutoMovieVector3 {
+  let best: IAutoMovieVector3 = placed.point;
+  let reach: number = -Infinity;
+  for (const collider of HumanColliders.placed(
+    body,
+    new Map([[bone, bones.get(bone)!]]),
+  )) {
+    if (collider.bone !== bone) continue;
+    const outward: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(collider.pose.rotation),
+      placed.normal,
+    );
+    for (const shape of collider.shapes) {
+      const anchor: IAutoMovieVector3 = physicalShapeSurfaceAnchor(
+        collider.pose,
+        shape,
+        outward,
+      ).point;
+      const along: number = Vector3.dot(anchor, placed.normal);
+      if (along > reach) {
+        reach = along;
+        best = anchor;
+      }
+    }
+  }
+  return best;
+}
+
+/**
+ * The flat hand's thumb carpometacarpal flexion, degrees: the retroposition
+ * that lays the rest thumb in the palm's plane (measured on the rig: the thumb
+ * tip 22-26 mm palmar of the knuckles' plane at 0, 3 mm at this angle), inside
+ * the joint's admitted -25 (`DEFAULT_HUMANOID_ROM`).
+ */
 const FLAT_THUMB: number = -25;
 
 /** Digit tip and pad frames by body, keyed by side, surface, shape and curl. */
@@ -383,7 +449,10 @@ type IShapeEntry = readonly [AutoMovieHumanoidBone, number, number, number];
 /** Closed working and emblem tables: two hands times four plus eleven shapes. */
 const SHAPES: Map<string, readonly IShapeEntry[]> = new Map();
 
-/** Snapshot numbers before the first caller can edit its returned record or tuples. */
+/**
+ * Snapshot numbers before the first caller can edit its returned record or
+ * tuples.
+ */
 function rememberShape(
   key: string,
   source: Partial<
@@ -402,7 +471,10 @@ function rememberShape(
   SHAPES.set(key, entries);
 }
 
-/** Each call owns its record and every nested tuple, in the original insertion order. */
+/**
+ * Each call owns its record and every nested tuple, in the original insertion
+ * order.
+ */
 function copyShape(
   entries: readonly IShapeEntry[],
 ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {

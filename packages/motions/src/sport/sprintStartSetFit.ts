@@ -23,10 +23,10 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * The sprint set's one whole-body fit: both feet on their blocks, each
- * hand's thumb and index bridge at the line, the measured knee and hip
- * angles and, on the anthropometric setting, the measured centre of mass
- * behind the line (`sprintStartSet`, which prepares every input).
+ * The sprint set's one whole-body fit: both feet on their blocks, each hand's
+ * thumb and index bridge at the line, the measured knee and hip angles and, on
+ * the anthropometric setting, the measured centre of mass behind the line
+ * (`sprintStartSet`, which prepares every input).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the fit's rows and who prepares them.
  * @evidence contracts/development/design.md#principled-representation World-metre targets, degree angle rows and an optional centre row over one seed posture.
@@ -55,7 +55,10 @@ export namespace sprintStartSetFit {
     /** Each foot's placement on its block, world metres. */
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
-    /** Whether the feet stand on placed plates, held in all three axes, rather than on body-scaled blocks held along the floor. */
+    /**
+     * Whether the feet stand on placed plates, held in all three axes, rather
+     * than on body-scaled blocks held along the floor.
+     */
     placed: boolean;
 
     /** Each hand's bridge targets at the line. */
@@ -85,10 +88,10 @@ export namespace sprintStartSetFit {
    *
    * @param props The fit's rows and seed.
    * @returns The feasible fit.
-   * @throws {HumanRefusal} When any contact, angle or centre row is not met, with every residual.
-   *
+   * @throws {HumanRefusal} When any contact, angle or centre row is not met,
+   *   with every residual.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation One shared whole-body fit (`HumanBodyFit`) over sagittal trunk, planted-leg and arm freedoms, with the flat hand shape fixed, as the multi-contact inverse problem it solves.
+   * @evidence contracts/development/implementation.md#principled-implementation One shared whole-body fit (`HumanBodyFit`) over sagittal trunk, planted-leg and arm freedoms, with the bridge hand shape fixed, as the multi-contact inverse problem it solves.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Targets, variables, the fit, then the refusal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unmet row is refused with its residuals; no row is loosened here.
    * @evidence contracts/development/implementation.md#efficient-algorithms One fit; its iterations decide the cost.
@@ -125,7 +128,7 @@ export namespace sprintStartSetFit {
       ),
       posture: {
         ...props.posture,
-        // Match the placed-arm consumer's flat hand before reading the floor;
+        // Match the placed-arm consumer's bridge hand before reading the floor;
         // the body fit does not optimize fixed digit-shape coordinates.
         joints: {
           ...Object.fromEntries(
@@ -138,8 +141,8 @@ export namespace sprintStartSetFit {
               ],
             ),
           ),
-          ...HumanHand.shape("left", "flat"),
-          ...HumanHand.shape("right", "flat"),
+          ...HumanHand.shape("left", "bridge"),
+          ...HumanHand.shape("right", "bridge"),
         },
       },
       targets,
@@ -256,7 +259,6 @@ export namespace sprintStartSetFit {
    * @param resolution The set solve's resolution workspace.
    * @param projector The set solve's posture projection, when it has one.
    * @returns The set.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
    * @evidence contracts/development/implementation.md#principled-implementation One resolution of the fitted posture; the hips, each palm's frame (`HumanHand.frame`) and each foot's achieved frame are read off it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve, then read.
@@ -299,7 +301,7 @@ export namespace sprintStartSetFit {
         bones,
         side,
         "palm",
-        "flat",
+        "bridge",
       );
       return { point: at.point, facing: at.normal, forward: at.forward };
     };
