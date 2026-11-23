@@ -19,7 +19,8 @@ import { buildingPlans } from "./buildingPlans";
  *
  * @param props Floor plans or an exterior shell.
  * @returns A reusable environment module.
- * @throws Error for malformed plans, unresolved openings or non-upright placements.
+ * @throws Error for malformed plans, unresolved openings or non-upright
+ *   placements.
  */
 export function createBuilding(
   props: createBuilding.IProps,
@@ -45,18 +46,12 @@ export function createBuilding(
   };
 }
 
-/**
- * Inputs specific to the building producer.
- */
+/** Inputs specific to the building producer. */
 export namespace createBuilding {
-  /**
-   * One XZ point in local metres.
-   */
+  /** One XZ point in local metres. */
   export type Point = readonly [x: number, z: number];
 
-  /**
-   * A rectangular region by origin and size, or a simple polygon with holes.
-   */
+  /** A rectangular region by origin and size, or a simple polygon with holes. */
   export type Footprint =
     | readonly [x: number, z: number, width: number, depth: number]
     | {
@@ -67,9 +62,7 @@ export namespace createBuilding {
         readonly holes?: readonly (readonly Point[])[];
       };
 
-  /**
-   * A typed opening between two rooms or between a room and the outdoors.
-   */
+  /** A typed opening between two rooms or between a room and the outdoors. */
   export type Opening = {
     /** Unique within this level and distinct from its room IDs. */
     readonly id: string;
@@ -80,17 +73,26 @@ export namespace createBuilding {
     /** Exact XZ wall segment when the room pair identifies multiple walls. */
     readonly edge?: readonly [Point, Point];
 
-    /** Signed offset in metres from the selected wall's centre along its local +X; omitted means centred. */
+    /**
+     * Signed offset in metres from the selected wall's centre along its local
+     * +X; omitted means centred.
+     */
     readonly offset?: number;
   } & (
     | {
         /** Hinged leaf and frame from the existing door producer. */
         readonly kind: "door";
 
-        /** Nominal leaf and hardware choices; this producer owns placement identity and hinge kind. */
+        /**
+         * Nominal leaf and hardware choices; this producer owns placement
+         * identity and hinge kind.
+         */
         readonly door?: Omit<createDoor.IParams, "id" | "kind">;
 
-        /** Optional swing, in seconds on the compiled shot clock and positive degrees about the door's own hinge. */
+        /**
+         * Optional swing, in seconds on the compiled shot clock and positive
+         * degrees about the door's own hinge.
+         */
         readonly swing?: {
           readonly from: number;
           readonly to: number;
@@ -112,17 +114,21 @@ export namespace createBuilding {
       }
   );
 
-  /**
-   * One storey with named floor regions and optional wall openings.
-   */
+  /** One storey with named floor regions and optional wall openings. */
   export interface Level {
     /** Path segment within this building. */
     readonly id: string;
 
-    /** Height of the finished floor above the building origin, in metres. Omission starts at zero or follows the previous level. */
+    /**
+     * Height of the finished floor above the building origin, in metres.
+     * Omission starts at zero or follows the previous level.
+     */
     readonly elevation?: number;
 
-    /** Clear height up from the floor, in metres; defaults to 2.8 m for coarse staging. */
+    /**
+     * Clear height up from the floor, in metres; defaults to 2.8 m for coarse
+     * staging.
+     */
     readonly height?: number;
 
     /** Named regions, with at least one room. */
@@ -132,11 +138,12 @@ export namespace createBuilding {
     readonly openings?: readonly Opening[];
   }
 
-  /**
-   * One straight interior stair using two adjacent levels and one plan run.
-   */
+  /** One straight interior stair using two adjacent levels and one plan run. */
   export interface Stair {
-    /** Path segment for the stair's named supports and link, unique within the building. */
+    /**
+     * Path segment for the stair's named supports and link, unique within the
+     * building.
+     */
     readonly id: string;
 
     /** Lower level and room, in that order. */
@@ -155,24 +162,31 @@ export namespace createBuilding {
     readonly steps: number;
   }
 
-  /**
-   * Building geometry source.
-   */
+  /** Building geometry source. */
   export type IProps = {
-    /** sRGB exterior and partition swatch, defaulting to a neutral masonry color. */
+    /**
+     * SRGB exterior and partition swatch, defaulting to a neutral masonry
+     * color.
+     */
     readonly color?: string;
   } & (
     | {
         /** Levels in bottom-to-top order with nonoverlapping vertical interiors. */
         readonly levels: readonly Level[];
 
-        /** Wall thickness in metres; defaults to 0.15 m, centred on each plan edge. */
+        /**
+         * Wall thickness in metres; defaults to 0.15 m, centred on each plan
+         * edge.
+         */
         readonly wallThickness?: number;
 
         /** Floor and top-slab thickness in metres; defaults to 0.18 m. */
         readonly slabThickness?: number;
 
-        /** Interior stair runs; their footprints are cut into the adjoining slabs. */
+        /**
+         * Interior stair runs; their footprints are cut into the adjoining
+         * slabs.
+         */
         readonly stairs?: readonly Stair[];
       }
     | {

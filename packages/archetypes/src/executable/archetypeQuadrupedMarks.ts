@@ -26,7 +26,8 @@ interface Bar {
  * Prepare quadruped bone, attachment, sole and floor observations.
  *
  * @param reference Immutable neutral source, absent for unrelated rides.
- * @returns Marks for one posed model, named scene anchor and optional same-sample producer terminal goals. Non-quadrupeds produce none.
+ * @returns Marks for one posed model, named scene anchor and optional
+ *   same-sample producer terminal goals. Non-quadrupeds produce none.
  * @throws {RangeError} For an incomplete source or missing/non-bar posed bone.
  */
 export function archetypeQuadrupedMarks(

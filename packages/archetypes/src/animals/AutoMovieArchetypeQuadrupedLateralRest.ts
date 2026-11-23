@@ -26,10 +26,13 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC13491436/
  *
  * @param animal The rigged animal and attached geometry to support.
- * @param restParams The existing sternal plan and its complete carrier bindings.
+ * @param restParams The existing sternal plan and its complete carrier
+ *   bindings.
  * @param params Explicit rolling shape, direction and durations for this take.
- * @returns One seekable rest performance with the lateral and return cues on its own clock.
- * @throws {RangeError} For inconsistent time, geometry or support at the held side.
+ * @returns One seekable rest performance with the lateral and return cues on
+ *   its own clock.
+ * @throws {RangeError} For inconsistent time, geometry or support at the held
+ *   side.
  */
 export function AutoMovieArchetypeQuadrupedLateralRest<
   Id extends string,
@@ -127,7 +130,10 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
     sample,
   };
 
-  /** Turn each proximal bar inward and keep the attached distal fold carried by its endpoint. */
+  /**
+   * Turn each proximal bar inward and keep the attached distal fold carried by
+   * its endpoint.
+   */
   function tuck(amount: number): AutoMovieArchetype<Id, D> {
     const joints: Map<
       AutoMovieArchetypeQuadrupedBody.Bone,

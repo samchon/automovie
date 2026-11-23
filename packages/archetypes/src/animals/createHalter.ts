@@ -8,24 +8,40 @@ import {
   AutoMovieArchetypeFrame,
 } from "../core";
 
-/** A halter strap's width and thickness, metres: authored, the halter listings read give strap lengths only. */
+/**
+ * A halter strap's width and thickness, metres: authored, the halter listings
+ * read give strap lengths only.
+ */
 const STRAP: Readonly<{ width: number; thickness: number }> = {
   width: 0.025,
   thickness: 0.006,
 };
 
-/** The noseband's place along the head from the poll, a fraction of the head's length: authored. */
+/**
+ * The noseband's place along the head from the poll, a fraction of the head's
+ * length: authored.
+ */
 const NOSEBAND: number = 0.7;
 
 /** A halter's mass, kilograms: authored, no listing read gives it. */
 const MASS: number = 0.4;
 
 /**
- * A halter fitted to one equid's head: a crown loop behind the poll, a noseband loop round the nose and a cheek strap down each side between them.
+ * A halter fitted to one equid's head: a crown loop behind the poll, a noseband
+ * loop round the nose and a cheek strap down each side between them.
  *
- * The halter is built in its head's own frame, the frame its `seat` names: the origin at the poll, `+Y` along the head from the poll to the nose, `+X` to the animal's left. Each loop is four flat straps round a square that just clears the head's radius, so the halter sits on the head it was fitted to without passing into it; a halter is sized to its horse (Schockemöhle's Fremont lists an 11.5 in noseband and 27 in crown for a full horse, a cob's smaller), and the fit here is that sizing made exact. `grip` is the crown's top, where a hand carries the halter. Strap width and thickness, the noseband's place and the mass are authored.
+ * The halter is built in its head's own frame, the frame its `seat` names: the
+ * origin at the poll, `+Y` along the head from the poll to the nose, `+X` to
+ * the animal's left. Each loop is four flat straps round a square that just
+ * clears the head's radius, so the halter sits on the head it was fitted to
+ * without passing into it; a halter is sized to its horse (Schockemöhle's
+ * Fremont lists an 11.5 in noseband and 27 in crown for a full horse, a cob's
+ * smaller), and the fit here is that sizing made exact. `grip` is the crown's
+ * top, where a hand carries the halter. Strap width and thickness, the
+ * noseband's place and the mass are authored.
  *
- * @param head The head it is fitted to: the head capsule's length from poll to nose and its radius, metres.
+ * @param head The head it is fitted to: the head capsule's length from poll to
+ *   nose and its radius, metres.
  * @param params The model's id.
  * @returns The halter.
  */
@@ -98,16 +114,15 @@ export function createHalter(
   return builder.build(MASS);
 }
 
-/**
- * Companion types of {@link createHalter}.
- */
+/** Companion types of {@link createHalter}. */
 export namespace createHalter {
-  /** The contacts: `grip`, the crown's top a hand carries it by; `seat`, the halter's own head frame, laid on the horse's `headgear`. */
+  /**
+   * The contacts: `grip`, the crown's top a hand carries it by; `seat`, the
+   * halter's own head frame, laid on the horse's `headgear`.
+   */
   export type Affordance = "grip" | "seat";
 
-  /**
-   * The head a halter is fitted to.
-   */
+  /** The head a halter is fitted to. */
   export interface IHead {
     /** The head capsule's length from poll to nose, metres. */
     length: number;

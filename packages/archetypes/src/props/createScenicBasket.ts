@@ -5,8 +5,10 @@ import type { createScenicContainer } from "./createScenicContainer";
 /**
  * A closed coil basket or open fish basket, with a supported placement surface.
  *
- * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
- * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
+ * @param params The optional identifier, the admitted settings and any fixed
+ *   dimensions in the inherited units.
+ * @param seed Draws remaining dimensions and any model choice. Omit it for the
+ *   first model and band midpoints.
  * @returns The generated model and its named local contacts.
  * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  */
@@ -29,14 +31,15 @@ export function createScenicBasket(
   );
 }
 
-/**
- * The authorable settings and local contact IDs of {@link createScenicBasket}.
- */
+/** The authorable settings and local contact IDs of {@link createScenicBasket}. */
 export namespace createScenicBasket {
   /** The `kind` choices this producer admits. */
   export type Kind = "coilBasket" | "woodenFishBasket";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "depth" | "height" | "mass" | "width";
 
   /** The contact IDs declared by this producer. */

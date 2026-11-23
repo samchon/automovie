@@ -5,8 +5,10 @@ import type { createVessel } from "./createVessel";
 /**
  * An ashtray with an inside floor and a precision grip from beneath.
  *
- * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
- * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
+ * @param params The optional identifier, the admitted settings and any fixed
+ *   dimensions in the inherited units.
+ * @param seed Draws remaining dimensions and any model choice. Omit it for the
+ *   first model and band midpoints.
  * @returns The generated model and its named local contacts.
  * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  */
@@ -17,14 +19,15 @@ export function createAshtray(
   return VesselConstruction.ashtray(params, seed);
 }
 
-/**
- * The authorable settings and local contact IDs of {@link createAshtray}.
- */
+/** The authorable settings and local contact IDs of {@link createAshtray}. */
 export namespace createAshtray {
   /** The `model` choices this producer admits. */
   export type Model = "nachtmann" | "harris";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "height" | "mass";
 
   /** The contact IDs declared by this producer. */

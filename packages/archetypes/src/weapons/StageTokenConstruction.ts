@@ -19,14 +19,17 @@ const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
 /**
  * Resolve an inert digital display token.
  *
- * The stored model record and original draw session preserve the silhouette's scene identity, size and material.
+ * The stored model record and original draw session preserve the silhouette's
+ * scene identity, size and material.
  *
  * @param kind The historical profile label.
- * @param build The shape builder for the chosen profile, with its resolved dimensions.
+ * @param build The shape builder for the chosen profile, with its resolved
+ *   dimensions.
  * @param params The model choice, admitted dimensions and scene identifier.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function StageTokenConstruction(
   kind: createProjectile.Kind,
@@ -81,9 +84,7 @@ export function StageTokenConstruction(
   return build(builder, d, model.name);
 }
 
-/**
- * Resolved digital prop dimensions and optional named reference model.
- */
+/** Resolved digital prop dimensions and optional named reference model. */
 export namespace StageTokenConstruction {
   /** Builds one digital silhouette and its existing metadata. */
   export type Build = (

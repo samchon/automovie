@@ -20,10 +20,16 @@ type Drawn = Partial<Record<createGoal.Dimension, number>>;
 /** Local points in metres. */
 const v: typeof Vector3.create = Vector3.create;
 
-/** The half side line spacing of a volleyball court, metres: the net's side bands 9 m apart (FIVB 2.2, its 9.50 m less two 25 cm). */
+/**
+ * The half side line spacing of a volleyball court, metres: the net's side
+ * bands 9 m apart (FIVB 2.2, its 9.50 m less two 25 cm).
+ */
 const VOLLEYBALL_SIDE: number = 4.5;
 
-/** How far a volleyball antenna stands above the net, metres: FIVB 2.4, its top 80 cm; it reaches the net's lower edge below. */
+/**
+ * How far a volleyball antenna stands above the net, metres: FIVB 2.4, its top
+ * 80 cm; it reaches the net's lower edge below.
+ */
 const ANTENNA_ABOVE: number = 0.8;
 
 /** The shape of {@link ESTIMATES}. */
@@ -38,7 +44,11 @@ interface IEstimates {
   antenna: number;
 }
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `post`, a volleyball post's diameter; `mesh`, a net's thickness; `antenna`, half of FIVB's 10 mm antenna. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `post`, a volleyball post's diameter; `mesh`, a
+ * net's thickness; `antenna`, half of FIVB's 10 mm antenna.
+ */
 const ESTIMATES: Readonly<IEstimates> = {
   post: 0.1,
   mesh: 0.005,
@@ -48,11 +58,16 @@ const ESTIMATES: Readonly<IEstimates> = {
 /**
  * A volleyball net with class-specific height, side antennas and post grips.
  *
- * The net extends along X. Top marks its upper edge and its two posts stand on the floor.
- * @param params The identifier, net class and optional dimensions. The class supplies the top height.
- * @param seed The seed draws the class and free dimensions. Without a seed, the men's class and band midpoints apply.
+ * The net extends along X. Top marks its upper edge and its two posts stand on
+ * the floor.
+ *
+ * @param params The identifier, net class and optional dimensions. The class
+ *   supplies the top height.
+ * @param seed The seed draws the class and free dimensions. Without a seed, the
+ *   men's class and band midpoints apply.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createVolleyballNet(
   params: createVolleyballNet.IParams = {},
@@ -71,7 +86,9 @@ export function createVolleyballNet(
 }
 
 /**
- * Build a volleyball net: the posts outside the side lines, the net hung from its top at the drawn height with its top band, and an antenna over each side line; `top` is the net's top, a ledge along `X`, and the posts are bars.
+ * Build a volleyball net: the posts outside the side lines, the net hung from
+ * its top at the drawn height with its top band, and an antenna over each side
+ * line; `top` is the net's top, a ledge along `X`, and the posts are bars.
  *
  * @param builder The builder to fill.
  * @param d The drawn dimensions.
@@ -123,11 +140,12 @@ function volleyball(builder: Builder, d: Drawn): void {
   GoalBuild.posts(builder, x, d.post!);
 }
 
-/**
- * The authored parameters and contact names for {@link createVolleyballNet}.
- */
+/** The authored parameters and contact names for {@link createVolleyballNet}. */
 export namespace createVolleyballNet {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "board"
     | "height"

@@ -22,17 +22,18 @@ const MASS: string =
   "about 0.2 kg for a rigid fiberglass long cane, provisional";
 
 /**
- * A long white cane: a straight rigid shaft swept ahead of a blind
- * traveller's feet, held at its grip at the top and touching the floor at
- * its tip (#3994).
+ * A long white cane: a straight rigid shaft swept ahead of a blind traveller's
+ * feet, held at its grip at the top and touching the floor at its tip (#3994).
  *
- * It lies along `+Y` from its tip at the origin to its top. `tip` is the
- * floor contact facing down; `grip` is the handle below the top, its `+X`
- * along the shaft, where the hand holds it as a pencil-like extension of
- * the index finger.
+ * It lies along `+Y` from its tip at the origin to its top. `tip` is the floor
+ * contact facing down; `grip` is the handle below the top, its `+X` along the
+ * shaft, where the hand holds it as a pencil-like extension of the index
+ * finger.
  *
- * @param params Any dimension the author fixes inside its band, and an optional scene id.
- * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
+ * @param params Any dimension the author fixes inside its band, and an optional
+ *   scene id.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, the middle of each band.
  * @returns The cane.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -105,9 +106,7 @@ export function createLongCane(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createLongCane}.
- */
+/** Companion types, constants and bands of {@link createLongCane}. */
 export namespace createLongCane {
   /** The contacts: the grip the hand holds and the floor tip. */
   export type Affordance = "grip" | "tip";

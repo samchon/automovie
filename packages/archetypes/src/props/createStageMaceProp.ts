@@ -7,12 +7,14 @@ import type { createStageWeaponProp } from "./createStageWeaponProp";
 /**
  * Padded round-headed stage prop.
  *
- * A display form with a round ornament above a one-hand shaft grip. Its origin is at the shaft base.
+ * A display form with a round ornament above a one-hand shaft grip. Its origin
+ * is at the shaft base.
  *
  * @param params The scene identity and optional total display height in metres.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createStageMaceProp(
   params: createStageMaceProp.IParams = {},
@@ -36,15 +38,17 @@ export function createStageMaceProp(
   );
 }
 
-/**
- * Authoring options for {@link createStageMaceProp}.
- */
+/** Authoring options for {@link createStageMaceProp}. */
 export namespace createStageMaceProp {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "height";
 
   /**
-   * The createStageWeaponProp contact set its shared construction types. This producer builds grip.
+   * The createStageWeaponProp contact set its shared construction types. This
+   * producer builds grip.
    */
   export type Affordance = createStageWeaponProp.Affordance;
 

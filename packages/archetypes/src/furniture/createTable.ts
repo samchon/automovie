@@ -24,18 +24,29 @@ const NAMES: Readonly<Record<createTable.Kind, string>> = {
   altar: "altar",
 };
 
-/** A bar counter's knee space under its top's front, metres: NKBA Guideline 9's 12 in (305 mm) for a 42 in counter. */
+/**
+ * A bar counter's knee space under its top's front, metres: NKBA Guideline 9's
+ * 12 in (305 mm) for a 42 in counter.
+ */
 const KNEE: number = 0.305;
 
 /**
- * A table: a dining table, a desk, a counter, a coffee table, a raised bar counter, a service counter, a workbench, a pupil desk or an altar.
+ * A table: a dining table, a desk, a counter, a coffee table, a raised bar
+ * counter, a service counter, a workbench, a pupil desk or an altar.
  *
- * The model is a top on four legs, on a solid base for a counter, a bar counter and a service counter, or on two pedestals for an altar. The top is centred over the origin with its length along `+X`; the `+Z` edge is the front, where a person sits or stands at it.
+ * The model is a top on four legs, on a solid base for a counter, a bar counter
+ * and a service counter, or on two pedestals for an altar. The top is centred
+ * over the origin with its length along `+X`; the `+Z` edge is the front, where
+ * a person sits or stands at it.
  *
- * @param params The kind, a service counter's or a pupil desk's listed size, and any dimension the author fixes.
- * @param seed The seed that picks a listed size when none is given and draws every dimension left free inside its band; absent, the first size and the middle of each band.
+ * @param params The kind, a service counter's or a pupil desk's listed size,
+ *   and any dimension the author fixes.
+ * @param seed The seed that picks a listed size when none is given and draws
+ *   every dimension left free inside its band; absent, the first size and the
+ *   middle of each band.
  * @returns The table.
- * @throws {AutoMovieArchetypeRefusal} For a size the kind does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a size the kind does not list, or a
+ *   fixed dimension outside its band.
  */
 export function createTable(
   params: createTable.IParams,
@@ -180,9 +191,7 @@ export function createTable(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createTable}.
- */
+/** Companion types and bands of {@link createTable}. */
 export namespace createTable {
   /** The kinds of table. */
   export type Kind =
@@ -209,7 +218,12 @@ export namespace createTable {
     "altar",
   ];
 
-  /** The sizes a sheet lists in steps: a service counter's lengths (`length30`, `length36`, `length50`, Delfield's 30, 36 and 50 in) and a pupil desk's heights (`height19` to `height31`, Smith System's 19 to 31 in in 1 in steps). */
+  /**
+   * The sizes a sheet lists in steps: a service counter's lengths (`length30`,
+   * `length36`, `length50`, Delfield's 30, 36 and 50 in) and a pupil desk's
+   * heights (`height19` to `height31`, Smith System's 19 to 31 in in 1 in
+   * steps).
+   */
   export type Size =
     | "length30"
     | "length36"
@@ -228,7 +242,10 @@ export namespace createTable {
     | "height30"
     | "height31";
 
-  /** Each kind's listed sizes, the default first, each with the dimension it fixes, metres; a kind not listed has none. */
+  /**
+   * Each kind's listed sizes, the default first, each with the dimension it
+   * fixes, metres; a kind not listed has none.
+   */
   export const SIZES: Readonly<
     Partial<
       Record<
@@ -261,19 +278,29 @@ export namespace createTable {
     },
   };
 
-  /** How far in from the top's edges the legs' centres stand, metres: a construction estimate no act reads. */
+  /**
+   * How far in from the top's edges the legs' centres stand, metres: a
+   * construction estimate no act reads.
+   */
   export const LEG_INSET: number = 0.05;
 
   /** A leg's radius, metres: a construction estimate no act reads. */
   export const LEG_RADIUS: number = 0.025;
 
-  /** How far a counter's and a service counter's top reaches past its base at the front, metres: a construction estimate no act reads. */
+  /**
+   * How far a counter's and a service counter's top reaches past its base at
+   * the front, metres: a construction estimate no act reads.
+   */
   export const COUNTER_OVERHANG: number = 0.05;
 
   /** A pupil desk's top thickness, metres: its sheet's 5/8 in. */
   export const PUPIL_TOP: number = (5 / 8) * AutoMovieArchetypeUnits.INCH;
 
-  /** An altar's two pedestals as shares of its top's length and depth: construction estimates no act reads, since the catalog draws but does not size them. */
+  /**
+   * An altar's two pedestals as shares of its top's length and depth:
+   * construction estimates no act reads, since the catalog draws but does not
+   * size them.
+   */
   export const ALTAR_PEDESTAL: Readonly<{ width: number; depth: number }> = {
     width: 0.2,
     depth: 0.7,
@@ -284,7 +311,8 @@ export namespace createTable {
    *
    * - `top`: the top as a face a person writes, leans or places a hand on.
    * - `stack`: the same top as a face an object is set down on.
-   * - `front`, `back`, `left`, `right`: the top's edges on `+Z`, `-Z`, `+X` and `-X`, each facing out.
+   * - `front`, `back`, `left`, `right`: the top's edges on `+Z`, `-Z`, `+X` and
+   *   `-X`, each facing out.
    */
   export type Affordance =
     | "top"
@@ -314,19 +342,29 @@ export namespace createTable {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which table. */
     kind: Kind;
 
-    /** A service counter's length or a pupil desk's height, one of the kind's `SIZES`; drawn from the seed when absent. */
+    /**
+     * A service counter's length or a pupil desk's height, one of the kind's
+     * `SIZES`; drawn from the seed when absent.
+     */
     size?: Size;
 
     /** The model's id, unique in a scene; `table` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind: every dimension's, except a service counter's length and a pupil desk's height, which are picked from `SIZES`. */
+  /**
+   * The band of each free dimension, by kind: every dimension's, except a
+   * service counter's length and a pupil desk's height, which are picked from
+   * `SIZES`.
+   */
   export const BANDS: Readonly<
     Record<
       Exclude<Kind, "serviceCounter" | "pupilDesk">,

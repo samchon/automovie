@@ -15,8 +15,8 @@ const v: typeof Vector3.create = Vector3.create;
 
 /**
  * A double-bladed kayaking paddle with straight shaft and two non-feathered
- * blades. The shaft's +X points towards the named left blade at rest. Each
- * hand has a separate round shaft site for use across alternating strokes.
+ * blades. The shaft's +X points towards the named left blade at rest. Each hand
+ * has a separate round shaft site for use across alternating strokes.
  *
  * @param params Optional scene identity and overall length override, metres.
  * @param seed Draws the adjustable shaft length within its declared range.
@@ -83,9 +83,7 @@ export function createKayakPaddle(
   return builder.build(d.mass);
 }
 
-/**
- * The shaft dimensions, the two palm sites and the two wet blade edges.
- */
+/** The shaft dimensions, the two palm sites and the two wet blade edges. */
 export namespace createKayakPaddle {
   /** Two real hand sites and separate blade tips. */
   export type Affordance = "leftGrip" | "rightGrip" | "leftTip" | "rightTip";

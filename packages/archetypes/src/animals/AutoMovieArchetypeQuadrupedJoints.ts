@@ -27,7 +27,8 @@ interface Bar {
 /**
  * Admit the neutral quadruped bars and read their fixed body connections.
  *
- * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ * Public only so the package's specs can reach it: it is not part of the
+ * authoring surface, and it moves to an internal subpath when one exists.
  */
 export namespace AutoMovieArchetypeQuadrupedJoints {
   /**
@@ -39,8 +40,10 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
    * primitive-centre TRS, not the generic skeleton's upper-joint frame.
    *
    * @param parts Neutral model parts with root-local rigid transforms.
-   * @returns Independent limb/neck points and admitted fixed parent coordinates.
-   * @throws {RangeError} For malformed, missing, repeated or nonrigid bars, broken chains, unsupported parent solids or detached upper joints.
+   * @returns Independent limb/neck points and admitted fixed parent
+   *   coordinates.
+   * @throws {RangeError} For malformed, missing, repeated or nonrigid bars,
+   *   broken chains, unsupported parent solids or detached upper joints.
    */
   export function read(parts: readonly IAutoMovieModelPart[]): {
     limbs: Readonly<
@@ -137,7 +140,10 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       };
     }
 
-    /** Every joint is simultaneously the preceding lower and following upper endpoint. */
+    /**
+     * Every joint is simultaneously the preceding lower and following upper
+     * endpoint.
+     */
     function chain(
       limb: AutoMovieArchetypeQuadrupedBody.Limb,
     ): IAutoMovieVector3[] {
@@ -188,7 +194,10 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
     }
   }
 
-  /** Admit the positive primitive and root-local unit rigid frame before decoding either endpoint. */
+  /**
+   * Admit the positive primitive and root-local unit rigid frame before
+   * decoding either endpoint.
+   */
   function admit(part: IAutoMovieModelPart): Bar {
     if (
       part.geometry.type !== "primitive" ||
@@ -272,7 +281,10 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
     };
   }
 
-  /** Bounded endpoint/rigid-transform arithmetic noise, independent of visible-contact tolerances. */
+  /**
+   * Bounded endpoint/rigid-transform arithmetic noise, independent of
+   * visible-contact tolerances.
+   */
   function roundoff(
     left: IAutoMovieVector3,
     right: IAutoMovieVector3,

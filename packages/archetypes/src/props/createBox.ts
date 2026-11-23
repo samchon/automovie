@@ -18,12 +18,16 @@ const CARTON: string =
 /**
  * A cardboard box carried in two hands.
  *
- * The box stands on the floor at the origin, its width along `+X`. A hand takes each side at half height, so the two grips are the box's width apart; its top is a face another box rests on.
+ * The box stands on the floor at the origin, its width along `+X`. A hand takes
+ * each side at half height, so the two grips are the box's width apart; its top
+ * is a face another box rests on.
  *
  * @param params The load and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The box.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a load above 25 kg.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
+ *   or a load above 25 kg.
  */
 export function createBox(
   params: createBox.IParams = {},
@@ -116,17 +120,20 @@ export function createBox(
   return builder.build(d.mass + load);
 }
 
-/**
- * Companion types and bands of {@link createBox}.
- */
+/** Companion types and bands of {@link createBox}. */
 export namespace createBox {
-  /** The greatest load, kilograms: HSE INDG143 Figure 1, a man's lift close to the body between knuckle and elbow height (https://www.hse.gov.uk/pubns/indg143.pdf). */
+  /**
+   * The greatest load, kilograms: HSE INDG143 Figure 1, a man's lift close to
+   * the body between knuckle and elbow height
+   * (https://www.hse.gov.uk/pubns/indg143.pdf).
+   */
   export const LOAD: number = 25;
 
   /**
    * The affordance ids:
    *
-   * - `left`, `right`: the side faces at half height, on `+X` and `-X`, where the two hands hold the box.
+   * - `left`, `right`: the side faces at half height, on `+X` and `-X`, where the
+   *   two hands hold the box.
    * - `top`: the upper face, on which another object rests.
    * - `front`: the `+Z` face, pushed or leaned on.
    */
@@ -150,7 +157,10 @@ export namespace createBox {
     mass: "kg",
   };
 
-  /** The parameters: the load, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the load, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** The model's id, unique in a scene; `box` when absent. */
     id?: string;

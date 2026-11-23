@@ -27,11 +27,11 @@ type Build = AutoMovieArchetypeBuilder<
 >;
 
 /**
- * A sit-inside kayak based on the published Pungo 120 envelope. The bow
- * points along +Z and Y = 0 is the reference waterline. The cockpit has an
- * opening, a low seat and separate tilted footbraces. The deck and
- * floor share the same hull section family. Wall thickness and the
- * installed seat and brace geometry are staging estimates.
+ * A sit-inside kayak based on the published Pungo 120 envelope. The bow points
+ * along +Z and Y = 0 is the reference waterline. The cockpit has an opening, a
+ * low seat and separate tilted footbraces. The deck and floor share the same
+ * hull section family. Wall thickness and the installed seat and brace geometry
+ * are staging estimates.
  *
  * @param params Optional scene identity and fixed reference dimensions.
  * @param seed Provenance seed. The reference dimensions are fixed.
@@ -225,9 +225,7 @@ function brace(builder: Build, id: createKayak.Brace, sign: number): void {
   });
 }
 
-/**
- * Fixed dimension sites and the three contact affordance names.
- */
+/** Fixed dimension sites and the three contact affordance names. */
 export namespace createKayak {
   /** The pan and paired footbrace faces. */
   export type Affordance = "seat" | Brace;

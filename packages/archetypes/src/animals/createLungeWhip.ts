@@ -7,7 +7,11 @@ import {
   AutoMovieArchetypeFrame,
 } from "../core";
 
-/** The shaft's length, metres: 65 in, the Weaver Leather lunge whip's listed shaft (retailer listing, Farm & Fleet), whose 67 in lash and 11 in popper are not laid. */
+/**
+ * The shaft's length, metres: 65 in, the Weaver Leather lunge whip's listed
+ * shaft (retailer listing, Farm & Fleet), whose 67 in lash and 11 in popper are
+ * not laid.
+ */
 const SHAFT: number = 1.65;
 
 /** The handle's size. */
@@ -19,7 +23,10 @@ interface IHandle {
   radius: number;
 }
 
-/** The handle's length up from the butt and its radius, metres: authored, no listing read gives them. */
+/**
+ * The handle's length up from the butt and its radius, metres: authored, no
+ * listing read gives them.
+ */
 const HANDLE: IHandle = {
   length: 0.3,
   radius: 0.013,
@@ -32,9 +39,14 @@ const STOCK: number = 0.006;
 const MASS: number = 0.25;
 
 /**
- * A lunge whip: a handle at the butt and a long stock up `+Y`, the shaft a handler points at a lunged equid's quarters.
+ * A lunge whip: a handle at the butt and a long stock up `+Y`, the shaft a
+ * handler points at a lunged equid's quarters.
  *
- * The handle runs from the butt at the origin up `HANDLE.length`; the stock carries on to the shaft's length. `grip` is the handle's middle on its surface, its line along the shaft, where the whip hand closes. The lash and popper hang from a real whip's tip; they are not laid, so the whip shows its shaft only.
+ * The handle runs from the butt at the origin up `HANDLE.length`; the stock
+ * carries on to the shaft's length. `grip` is the handle's middle on its
+ * surface, its line along the shaft, where the whip hand closes. The lash and
+ * popper hang from a real whip's tip; they are not laid, so the whip shows its
+ * shaft only.
  *
  * @param params The model's id.
  * @returns The whip.
@@ -80,9 +92,7 @@ export function createLungeWhip(
   return builder.build(MASS);
 }
 
-/**
- * Companion types of {@link createLungeWhip}.
- */
+/** Companion types of {@link createLungeWhip}. */
 export namespace createLungeWhip {
   /** The contacts: `grip`, the handle a hand closes on. */
   export type Affordance = "grip";

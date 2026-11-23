@@ -19,42 +19,53 @@ const KONE: string =
 const ESTIMATE: string =
   "Coarse film-set construction estimate; no source read gives it";
 
-/** Step pitch along the step band, metres: three horizontal steps are 1200 mm (KONE 5.7). */
+/**
+ * Step pitch along the step band, metres: three horizontal steps are 1200 mm
+ * (KONE 5.7).
+ */
 const PITCH: number = 0.4;
 
-/** Lateral distance from the step's edge to the handrail centre, metres (provisional construction estimate). */
+/**
+ * Lateral distance from the step's edge to the handrail centre, metres
+ * (provisional construction estimate).
+ */
 const RAIL_OFFSET: number = 0.1;
 
-/** Thickness drawn for landing plates, step runs and treads, metres (provisional construction estimate). */
+/**
+ * Thickness drawn for landing plates, step runs and treads, metres (provisional
+ * construction estimate).
+ */
 const PLATE: number = 0.05;
 
-/** Depth of each fixed landing plate drawn before a comb, metres (provisional construction estimate). */
+/**
+ * Depth of each fixed landing plate drawn before a comb, metres (provisional
+ * construction estimate).
+ */
 const LANDING: number = 1;
 
 /**
- * An escalator between two floors: a lower landing at `y = 0` before the
- * lower comb, horizontal steps, a lower transition curve, the inclined run,
- * an upper transition curve, horizontal steps and the upper comb with its
- * landing at `y = rise`.
+ * An escalator between two floors: a lower landing at `y = 0` before the lower
+ * comb, horizontal steps, a lower transition curve, the inclined run, an upper
+ * transition curve, horizontal steps and the upper comb with its landing at `y
+ * = rise`.
  *
- * The lower comb line lies across `x` at `z = 0` and the step band rises
- * toward `+Z`. The model draws the fixed structure: landing plates, the
- * step band's coarse top surface and the two handrails. The steps that
- * move are a separate rigid model, `createEscalator.tread`, placed along
- * the step band by `createEscalator.station` on the ride's clock
- * (`rideEscalator`).
+ * The lower comb line lies across `x` at `z = 0` and the step band rises toward
+ * `+Z`. The model draws the fixed structure: landing plates, the step band's
+ * coarse top surface and the two handrails. The steps that move are a separate
+ * rigid model, `createEscalator.tread`, placed along the step band by
+ * `createEscalator.station` on the ride's clock (`rideEscalator`).
  *
- * The rated speed and inclination are KONE's offered values. EN 115-1
- * allows 35 degrees only up to a 6 m rise at 0.5 m/s, and a speed above
- * 0.5 m/s only up to 30 degrees. The speed and rise set the number of
- * horizontal steps and the transition radii by EN 115-1 as KONE states it.
+ * The rated speed and inclination are KONE's offered values. EN 115-1 allows 35
+ * degrees only up to a 6 m rise at 0.5 m/s, and a speed above 0.5 m/s only up
+ * to 30 degrees. The speed and rise set the number of horizontal steps and the
+ * transition radii by EN 115-1 as KONE states it.
  *
  * @param params Fixed dimensions, the inclination and the rated speed.
  * @param seed The seed for any unfixed dimension.
  * @returns The escalator with its landings and handrail contacts.
  * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band, an
- * inclination or speed EN 115-1 does not admit at the rise, or a rise too
- * low for both transition curves.
+ *   inclination or speed EN 115-1 does not admit at the rise, or a rise too low
+ *   for both transition curves.
  */
 export function createEscalator(
   params: createEscalator.IParams = {},
@@ -217,10 +228,7 @@ export function createEscalator(
   return builder.build(mass);
 }
 
-/**
- * The escalator's dimensions, rated speed, step-band profile and moving
- * tread.
- */
+/** The escalator's dimensions, rated speed, step-band profile and moving tread. */
 export namespace createEscalator {
   /** The two fixed landings and the two handrails at their lower horizontal run. */
   export type Affordance =
@@ -232,7 +240,10 @@ export namespace createEscalator {
   /** The dimensions drawn from bands. */
   export type Drawn = "rise" | "width" | "handrail" | "mass";
 
-  /** All recorded dimensions: the drawn ones and those derived from the rated speed and inclination. */
+  /**
+   * All recorded dimensions: the drawn ones and those derived from the rated
+   * speed and inclination.
+   */
   export type Dimension =
     | Drawn
     | "incline"
@@ -301,8 +312,8 @@ export namespace createEscalator {
   };
 
   /**
-   * The step band in the escalator's frame: metres along the band from
-   * the lower comb to each transition and to the upper comb.
+   * The step band in the escalator's frame: metres along the band from the
+   * lower comb to each transition and to the upper comb.
    */
   export interface IProfile {
     /** Step pitch along the band, metres. */
@@ -335,7 +346,10 @@ export namespace createEscalator {
     /** Handrail height above the step nose line, metres. */
     handrail: number;
 
-    /** Lateral distance of each handrail centre from the band's centreline, metres. */
+    /**
+     * Lateral distance of each handrail centre from the band's centreline,
+     * metres.
+     */
     rail: number;
   }
 
@@ -344,7 +358,8 @@ export namespace createEscalator {
    *
    * @param escalator The escalator, or its recorded dimensions.
    * @returns The band's lengths in metres.
-   * @throws {AutoMovieArchetypeRefusal} When the rise is too low for both transitions.
+   * @throws {AutoMovieArchetypeRefusal} When the rise is too low for both
+   *   transitions.
    */
   export function profile(
     escalator: Pick<AutoMovieArchetype<Affordance, Dimension>, "dimensions">,
@@ -383,10 +398,10 @@ export namespace createEscalator {
   }
 
   /**
-   * The tread centre at a station along the band, in the escalator's frame.
-   * A tread stays level. A step that passes either comb turns down under
-   * the landing toward its return run: the model takes it straight down
-   * below the comb, so no tread surface lies on a landing.
+   * The tread centre at a station along the band, in the escalator's frame. A
+   * tread stays level. A step that passes either comb turns down under the
+   * landing toward its return run: the model takes it straight down below the
+   * comb, so no tread surface lies on a landing.
    *
    * @param band The step band.
    * @param s Metres along the band from the lower comb.
@@ -434,11 +449,10 @@ export namespace createEscalator {
 
   /**
    * One moving step as its own rigid model: a tread one pitch deep whose
-   * `tread` surface lies at its local origin, the point `station` places,
-   * with the handrail grip point above it on each side. The handrail
-   * moves with the steps, so the grip keeps this offset; along the
-   * transition curves the real handrail runs at its own radius, which this
-   * coarse offset does not follow.
+   * `tread` surface lies at its local origin, the point `station` places, with
+   * the handrail grip point above it on each side. The handrail moves with the
+   * steps, so the grip keeps this offset; along the transition curves the real
+   * handrail runs at its own radius, which this coarse offset does not follow.
    *
    * @param escalator The escalator whose width and pitch the tread takes.
    * @returns The tread model.

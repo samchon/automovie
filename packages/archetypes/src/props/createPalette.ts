@@ -10,8 +10,8 @@ import {
 
 /**
  * An artist's hand palette, a sheet of cloth and a length of ribbon: flat
- * boards held in one hand, or fixed, while the other works on them. No source is read: every figure is a
- * provisional construction estimate.
+ * boards held in one hand, or fixed, while the other works on them. No source
+ * is read: every figure is a provisional construction estimate.
  */
 const SIZES: Readonly<Record<createPalette.Kind, createPalette.ISize>> = {
   palette: { width: 0.4, depth: 0.3, thickness: 0.005, mass: 0.3 },
@@ -20,15 +20,15 @@ const SIZES: Readonly<Record<createPalette.Kind, createPalette.ISize>> = {
 };
 
 /**
- * A flat board held by one edge: a painter's palette on the thumb, a
- * piece of cloth pinched at its edge while it is sewn, or a ribbon's
- * length stretched for a ceremonial cut.
+ * A flat board held by one edge: a painter's palette on the thumb, a piece of
+ * cloth pinched at its edge while it is sewn, or a ribbon's length stretched
+ * for a ceremonial cut.
  *
- * The board lies in `XZ` centred on the origin, its upper face up. `hold`
- * is where the holding hand takes it: a palette's thumb hole near its
- * `-X` edge, a cloth's `-X` edge between thumb and fingers. `face` is its
- * upper face, the working surface, `width` along `X` and `depth` along `Z`
- * a hand's breadth in from the hold.
+ * The board lies in `XZ` centred on the origin, its upper face up. `hold` is
+ * where the holding hand takes it: a palette's thumb hole near its `-X` edge, a
+ * cloth's `-X` edge between thumb and fingers. `face` is its upper face, the
+ * working surface, `width` along `X` and `depth` along `Z` a hand's breadth in
+ * from the hold.
  *
  * @param params The kind and the optional scene id.
  * @returns The board and its contacts, metres.
@@ -95,9 +95,7 @@ export function createPalette(
   return builder.build(size.mass);
 }
 
-/**
- * The inputs, contacts and sizes of {@link createPalette}.
- */
+/** The inputs, contacts and sizes of {@link createPalette}. */
 export namespace createPalette {
   /** A painter's palette, a piece of cloth or a ribbon. */
   export type Kind = "palette" | "cloth" | "ribbon";

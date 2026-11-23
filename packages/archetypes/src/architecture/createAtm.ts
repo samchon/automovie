@@ -18,7 +18,10 @@ interface IShelf {
   out: number;
 }
 
-/** An ATM's shelf, metres: its top 763 mm up, protruding 174 mm from the fascia (NCR SS32 p. 9). */
+/**
+ * An ATM's shelf, metres: its top 763 mm up, protruding 174 mm from the fascia
+ * (NCR SS32 p. 9).
+ */
 const SHELF: Readonly<IShelf> = {
   height: 763 * AutoMovieArchetypeUnits.MILLIMETRE,
   out: 174 * AutoMovieArchetypeUnits.MILLIMETRE,
@@ -42,7 +45,12 @@ interface IAtmItem {
   clock: number;
 }
 
-/** An ATM's fascia items, from NCR's guide: each one's height from the base and depth from the shelf's front (pp. 14-15), and its distance on the front elevation and clock position from the No. 5 key (pp. 17-18), in millimetres and hours; the key itself is the origin, at no distance. */
+/**
+ * An ATM's fascia items, from NCR's guide: each one's height from the base and
+ * depth from the shelf's front (pp. 14-15), and its distance on the front
+ * elevation and clock position from the No. 5 key (pp. 17-18), in millimetres
+ * and hours; the key itself is the origin, at no distance.
+ */
 const ITEMS: Readonly<Record<AtmItem, Readonly<IAtmItem>>> = {
   key5: { height: 786, depth: 89, distance: 0, clock: 0 },
   cardReader: { height: 1039, depth: 152, distance: 388, clock: 2 },
@@ -62,7 +70,11 @@ interface IScreen {
   size: number;
 }
 
-/** An ATM's 15 in touchscreen, from NCR's guide: its height from the base and depth from the shelf's front, millimetres (pp. 14-15), on the keypad's centre line as drawn. */
+/**
+ * An ATM's 15 in touchscreen, from NCR's guide: its height from the base and
+ * depth from the shelf's front, millimetres (pp. 14-15), on the keypad's centre
+ * line as drawn.
+ */
 const SCREEN: Readonly<IScreen> = {
   height: 1126,
   depth: 244,
@@ -75,19 +87,25 @@ interface IEstimates {
   shelf: number;
 }
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `shelf`, an ATM shelf's thickness. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `shelf`, an ATM shelf's thickness.
+ */
 const ESTIMATES: Readonly<IEstimates> = { shelf: 0.03 };
 
 /**
- * A cash machine with a shelf, keypad button, card, cash and receipt sockets and an exposed touchscreen.
+ * A cash machine with a shelf, keypad button, card, cash and receipt sockets
+ * and an exposed touchscreen.
  *
- * The shelf and fascia controls retain their measured NCR installation locations.
- * The cabinet rests on the floor at the origin and faces +Z.
+ * The shelf and fascia controls retain their measured NCR installation
+ * locations. The cabinet rests on the floor at the origin and faces +Z.
  *
- * @param params The scene identifier and any dimensions to fix inside their bands.
+ * @param params The scene identifier and any dimensions to fix inside their
+ *   bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
  */
 export function createAtm(
   params: createAtm.IParams = {},
@@ -101,7 +119,13 @@ export function createAtm(
 }
 
 /**
- * Build an ATM's shelf and its fascia items' contacts: the shelf across the fascia's foot, and each item at its read height and depth, across the fascia from the No. 5 key by the remaining leg of its elevation distance after its height above the key, to the side its clock position names, the key on the centre line. `key5` is the No. 5 key, a button pressed along `-Z`; `cardReader`, `cash` and `receipt` are the slots, sockets whose `+Y` points out of the fascia; `screen` the touchscreen, a surface.
+ * Build an ATM's shelf and its fascia items' contacts: the shelf across the
+ * fascia's foot, and each item at its read height and depth, across the fascia
+ * from the No. 5 key by the remaining leg of its elevation distance after its
+ * height above the key, to the side its clock position names, the key on the
+ * centre line. `key5` is the No. 5 key, a button pressed along `-Z`;
+ * `cardReader`, `cash` and `receipt` are the slots, sockets whose `+Y` points
+ * out of the fascia; `screen` the touchscreen, a surface.
  *
  * @param builder The builder to fill.
  * @param width The fascia's width, metres.
@@ -170,9 +194,7 @@ function fascia(
   });
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createAtm}.
- */
+/** Inputs, dimensions and contacts for {@link createAtm}. */
 export namespace createAtm {
   /** The named contacts built by this producer. */
   export type Affordance =

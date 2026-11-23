@@ -12,10 +12,14 @@ import {
 /**
  * A pell: the upright post a swordsman strikes in solo drill.
  *
- * The post stands on the ground at the origin. `target` is its `+Z` side, the face a drill's cuts and thrusts are aimed at, as wide as the post and as high; a site on it names a height, so a cut to the head and a cut to the leg are two sites of one contact. `top` is the post's upper end.
+ * The post stands on the ground at the origin. `target` is its `+Z` side, the
+ * face a drill's cuts and thrusts are aimed at, as wide as the post and as
+ * high; a site on it names a height, so a cut to the head and a cut to the leg
+ * are two sites of one contact. `top` is the post's upper end.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The pell.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -67,14 +71,13 @@ export function createPell(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createPell}.
- */
+/** Companion types and bands of {@link createPell}. */
 export namespace createPell {
   /**
    * The affordance ids:
    *
-   * - `target`: the post's `+Z` side, facing the striker; its width is the post's thickness and its depth the post's height.
+   * - `target`: the post's `+Z` side, facing the striker; its width is the post's
+   *   thickness and its depth the post's height.
    * - `top`: the upper end, facing up.
    */
   export type Affordance = "target" | "top";

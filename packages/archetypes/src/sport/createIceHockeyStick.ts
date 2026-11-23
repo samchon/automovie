@@ -14,11 +14,16 @@ const BLADE: number = 0.015;
 /**
  * An ice hockey stick with a blade face and a two-hand shaft grip.
  *
- * The blade extends along +X from the heel at the model origin. Its striking face points +Z.
- * @param params The optional identifier and dimensions fixed within their recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
+ * The blade extends along +X from the heel at the model origin. Its striking
+ * face points +Z.
+ *
+ * @param params The optional identifier and dimensions fixed within their
+ *   recorded bands.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createIceHockeyStick(
   params: createIceHockeyStick.IParams = {},
@@ -54,11 +59,12 @@ export function createIceHockeyStick(
   return builder.build(d.mass!);
 }
 
-/**
- * The authored parameters and contact names for {@link createIceHockeyStick}.
- */
+/** The authored parameters and contact names for {@link createIceHockeyStick}. */
 export namespace createIceHockeyStick {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "depth"
     | "head"

@@ -30,10 +30,10 @@ const FORM: Readonly<{
 };
 
 /**
- * A coarse snowboard with distinct binding sites and visible raised ends.
- * The nose is along -Z. The waist, length and stance width follow Burton's
- * 154 cm Custom Camber. Adjacent panels share section vertices. Tip widths,
- * thickness and rise are provisional. Bindings are simple contact pads.
+ * A coarse snowboard with distinct binding sites and visible raised ends. The
+ * nose is along -Z. The waist, length and stance width follow Burton's 154 cm
+ * Custom Camber. Adjacent panels share section vertices. Tip widths, thickness
+ * and rise are provisional. Bindings are simple contact pads.
  * https://www.burton.com/en-us/products/mens-burton-custom-camber-snowboard-106881
  *
  * @param params Optional scene id and mass in kilograms.
@@ -135,9 +135,7 @@ export function createSnowboard(
   return builder.build(mass);
 }
 
-/**
- * Inputs and affordances of the snowboard.
- */
+/** Inputs and affordances of the snowboard. */
 export namespace createSnowboard {
   /** Top deck, both binding sites and lower edges at the waist. */
   export type Affordance =
@@ -152,7 +150,10 @@ export namespace createSnowboard {
     /** Scene id, unique if a scene has multiple snowboards. */
     id?: string;
 
-    /** Mass in kilograms. Drawn from the documented provisional band when absent. */
+    /**
+     * Mass in kilograms. Drawn from the documented provisional band when
+     * absent.
+     */
     mass?: number;
   }
 }

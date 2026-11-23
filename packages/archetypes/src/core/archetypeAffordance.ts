@@ -3,9 +3,7 @@ import type { IAutoMovieAffordance } from "@automovie/interface";
 import type { AutoMovieArchetype } from "./AutoMovieArchetype";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
-/**
- * Locate a model contact or report its complete alternatives.
- */
+/** Locate a model contact or report its complete alternatives. */
 export function archetypeAffordance(
   model: Pick<AutoMovieArchetype, "id" | "name" | "affordances">,
   id: string,

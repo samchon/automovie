@@ -6,13 +6,17 @@ import type { AutoMovieArchetypeEquineLunge } from "./AutoMovieArchetypeEquineLu
 import { EquineLine } from "./EquineLine";
 
 /**
- * The lunge line of a lunged equid (`AutoMovieArchetypeEquineLunge`): its own lead paid out from the halter to the handler's line hand at the circle's centre, and carried from one hand to the other at a change of rein.
+ * The lunge line of a lunged equid (`AutoMovieArchetypeEquineLunge`): its own
+ * lead paid out from the halter to the handler's line hand at the circle's
+ * centre, and carried from one hand to the other at a change of rein.
  *
- * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ * Public only so the package's specs can reach it: it is not part of the
+ * authoring surface, and it moves to an internal subpath when one exists.
  */
 export namespace AutoMovieArchetypeEquineLungeLine {
   /**
-   * The handler's line hand: where the lunge line leaves it, in the frame of the handler at the centre facing the equid.
+   * The handler's line hand: where the lunge line leaves it, in the frame of
+   * the handler at the centre facing the equid.
    */
   export interface IHand {
     /** Height above the floor, metres. */
@@ -21,12 +25,16 @@ export namespace AutoMovieArchetypeEquineLungeLine {
     /** Distance out from the centre toward the equid, metres. */
     reach: number;
 
-    /** Distance aside toward the rein's side, the side the equid's head is on, metres. */
+    /**
+     * Distance aside toward the rein's side, the side the equid's head is on,
+     * metres.
+     */
     spread: number;
   }
 
   /**
-   * A change of the line from one hand to the other at a change of rein, on the film clock.
+   * A change of the line from one hand to the other at a change of rein, on the
+   * film clock.
    */
   export interface IChange {
     /** Film second the line hand starts in to the middle. */
@@ -37,7 +45,8 @@ export namespace AutoMovieArchetypeEquineLungeLine {
   }
 
   /**
-   * Lay the equid's lead out as the lunge line to the handler's line hand at the centre.
+   * Lay the equid's lead out as the lunge line to the handler's line hand at
+   * the centre.
    *
    * @param ride The lunge, after any layer that moves the head's contacts.
    * @param lead The lead's held-run contact.
@@ -45,9 +54,11 @@ export namespace AutoMovieArchetypeEquineLungeLine {
    * @param side The side of the handler the line hand is on at the start.
    * @param hand Where the line leaves the hand.
    * @param length The line's whole length, metres.
-   * @param change When the line passes to the other hand at a change of rein; kept in the one hand when absent.
+   * @param change When the line passes to the other hand at a change of rein;
+   *   kept in the one hand when absent.
    * @returns The ride with the line laid.
-   * @throws {AutoMovieArchetypeRefusal} As `EquineLine.layer` refuses a stretched line.
+   * @throws {AutoMovieArchetypeRefusal} As `EquineLine.layer` refuses a
+   *   stretched line.
    */
   export function layer<Id extends string, D extends string>(
     ride: AutoMovieArchetypeRide.IRide<Id, D>,

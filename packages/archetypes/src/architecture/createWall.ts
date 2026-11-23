@@ -14,12 +14,17 @@ import {
 const PICTURE: string = "a piece of wall for the picture, not read at a source";
 
 /**
- * A piece of wall: a full-height wall to lean on, or a low wall to sit on, vault or mantle.
+ * A piece of wall: a full-height wall to lean on, or a low wall to sit on,
+ * vault or mantle.
  *
- * The wall stands in the `XY` plane on the floor, centred on the origin, its front face toward `+Z`. `face` is that front face, leaned or pushed on; `top` is the front edge of its top, a ledge a body climbs or hangs from; a low wall's top is also a `seat` facing `+Z`.
+ * The wall stands in the `XY` plane on the floor, centred on the origin, its
+ * front face toward `+Z`. `face` is that front face, leaned or pushed on; `top`
+ * is the front edge of its top, a ledge a body climbs or hangs from; a low
+ * wall's top is also a `seat` facing `+Z`.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The wall.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -95,11 +100,12 @@ export function createWall(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createWall}.
- */
+/** Companion types and bands of {@link createWall}. */
 export namespace createWall {
-  /** The kinds of wall: `full` rises to a ceiling, `low` ends between seat height and guard height. */
+  /**
+   * The kinds of wall: `full` rises to a ceiling, `low` ends between seat
+   * height and guard height.
+   */
   export type Kind = "full" | "low";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -134,7 +140,10 @@ export namespace createWall {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which wall. */
     kind: Kind;

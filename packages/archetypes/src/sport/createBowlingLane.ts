@@ -10,7 +10,8 @@ import {
 } from "../core";
 
 /**
- * A ten-pin lane with the foul line at Z=0, the approach along −Z and the first pin 60 ft along +Z.
+ * A ten-pin lane with the foul line at Z=0, the approach along −Z and the first
+ * pin 60 ft along +Z.
  *
  * @param params Optional lane id.
  * @param seed Seed for permitted lane width.
@@ -128,10 +129,15 @@ export function createBowlingLane(
 }
 
 /**
- * The ten-pin lane's local support and aim targets. Pin sockets are numbered from the headpin to the last row, which gives each separately placed pin its own origin.
+ * The ten-pin lane's local support and aim targets. Pin sockets are numbered
+ * from the headpin to the last row, which gives each separately placed pin its
+ * own origin.
  */
 export namespace createBowlingLane {
-  /** Pin spots numbered in order by row from left to right as seen by the bowler. */
+  /**
+   * Pin spots numbered in order by row from left to right as seen by the
+   * bowler.
+   */
   export const PINS = [
     "pin1",
     "pin2",

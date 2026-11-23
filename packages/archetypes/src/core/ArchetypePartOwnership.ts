@@ -17,13 +17,9 @@ interface IReceipt {
 const RECEIPTS: WeakMap<object, IReceipt> = new WeakMap();
 let observing: number = 0;
 
-/**
- * Physical part allocation provenance for the private native copy path.
- */
+/** Physical part allocation provenance for the private native copy path. */
 export namespace ArchetypePartOwnership {
-  /**
-   * Observe the part allocation during one native construction.
-   */
+  /** Observe the part allocation during one native construction. */
   export function observe<T extends { readonly parts: Parts }>(
     input: Parts,
     construct: () => T,
@@ -45,18 +41,14 @@ export namespace ArchetypePartOwnership {
     }
   }
 
-  /**
-   * Keep the original public builder identity without retaining its data.
-   */
+  /** Keep the original public builder identity without retaining its data. */
   export function remember(model: { readonly parts: Parts }): void {
     const receipt: IReceipt = { token: {}, stage: "builder" };
     RECEIPTS.set(model, receipt);
     RECEIPTS.set(model.parts, receipt);
   }
 
-  /**
-   * Admit only a genuine builder and its original still-ordinary array.
-   */
+  /** Admit only a genuine builder and its original still-ordinary array. */
   export function owns(model: object, parts: Parts): boolean {
     const found: IReceipt | undefined = RECEIPTS.get(model);
     return (
@@ -66,9 +58,7 @@ export namespace ArchetypePartOwnership {
     );
   }
 
-  /**
-   * Admit the input at the original native part map.
-   */
+  /** Admit the input at the original native part map. */
   export function beforeMap(input: Parts): object | undefined {
     if (!active()) return undefined;
     const found: IReceipt | undefined = RECEIPTS.get(input);
@@ -77,17 +67,13 @@ export namespace ArchetypePartOwnership {
       : undefined;
   }
 
-  /**
-   * Certify the array emitted by the native part map.
-   */
+  /** Certify the array emitted by the native part map. */
   export function afterMap(token: object | undefined, output: Parts): void {
     if (token !== undefined)
       RECEIPTS.set(output, { token, stage: "allocated" });
   }
 
-  /**
-   * Certify only the unchanged allocation from the full native normalizers.
-   */
+  /** Certify only the unchanged allocation from the full native normalizers. */
   export function afterNormalization(
     input: Parts,
     articulated: Parts,
@@ -105,7 +91,8 @@ export namespace ArchetypePartOwnership {
   }
 
   /**
-   * Test whether a synchronous constructor currently requests an allocation proof.
+   * Test whether a synchronous constructor currently requests an allocation
+   * proof.
    */
   export function active(): boolean {
     return observing !== 0;

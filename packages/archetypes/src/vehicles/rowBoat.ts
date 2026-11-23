@@ -40,17 +40,35 @@ interface IBindingSource {
 const SOURCES: WeakMap<Ride, IBindingSource> = new WeakMap();
 
 /**
- * A rowboat rowed along a course: its root on the path, its oars swept through the stroke cycle and lifted out of the water on the recovery, at a stroke rate the speed sets, on still water or a seeded sea.
+ * A rowboat rowed along a course: its root on the path, its oars swept through
+ * the stroke cycle and lifted out of the water on the recovery, at a stroke
+ * rate the speed sets, on still water or a seeded sea.
  *
- * Each stroke is World Rowing's cycle (2015 media guide glossary, p. 12, https://d2cx26qpfwuhvu.cloudfront.net/worldrowing/wp-content/uploads/2020/12/04181521/GlossaryofRowingTerms_Neutral.pdf): the catch puts the blade in the water, the drive pulls it from the catch to the finish in the water, the finish takes it out, and the recovery carries it clear back to the catch. The boat covers `STROKE` metres a stroke, so the stroke rate is the speed over that, and the drive takes Kleshnev's share of the cycle at that rate. The oars sweep the `BoatOars.ARC`, easing in and out of each end; through the drive the blade sinks from the water's surface at the catch to its working depth and rises back to the surface at the finish, and through the recovery it lifts `BoatOars.CLEAR` above the water and comes down again. The ride's instants add `catch<k>` at each stroke's catch, so a rower's hands follow the handles as a cyclist's feet follow the pedals.
+ * Each stroke is World Rowing's cycle (2015 media guide glossary, p. 12,
+ * https://d2cx26qpfwuhvu.cloudfront.net/worldrowing/wp-content/uploads/2020/12/04181521/GlossaryofRowingTerms_Neutral.pdf):
+ * the catch puts the blade in the water, the drive pulls it from the catch to
+ * the finish in the water, the finish takes it out, and the recovery carries it
+ * clear back to the catch. The boat covers `STROKE` metres a stroke, so the
+ * stroke rate is the speed over that, and the drive takes Kleshnev's share of
+ * the cycle at that rate. The oars sweep the `BoatOars.ARC`, easing in and out
+ * of each end; through the drive the blade sinks from the water's surface at
+ * the catch to its working depth and rises back to the surface at the finish,
+ * and through the recovery it lifts `BoatOars.CLEAR` above the water and comes
+ * down again. The ride's instants add `catch<k>` at each stroke's catch, so a
+ * rower's hands follow the handles as a cyclist's feet follow the pedals.
  *
- * Use `rowBoat.bind` to give a native ride one film start and pass its paired root and socket readers to the prop adapter. Both hold the initial pose before the start. On still water they also hold the final pose strictly after the course ends.
+ * Use `rowBoat.bind` to give a native ride one film start and pass its paired
+ * root and socket readers to the prop adapter. Both hold the initial pose
+ * before the start. On still water they also hold the final pose strictly after
+ * the course ends.
  *
  * @param boat The rowboat.
  * @param course The course its root follows, or its plan.
- * @param options `sea`, a sea the boat rides on (`AutoMovieArchetypeSea`); still water when absent.
+ * @param options `sea`, a sea the boat rides on (`AutoMovieArchetypeSea`);
+ *   still water when absent.
  * @returns The ride.
- * @throws {AutoMovieArchetypeRefusal} When the boat has no oars, or as `AutoMovieArchetypeCourse.plan` does for a malformed course.
+ * @throws {AutoMovieArchetypeRefusal} When the boat has no oars, or as
+ *   `AutoMovieArchetypeCourse.plan` does for a malformed course.
  */
 export function rowBoat(
   boat: AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>,
@@ -199,9 +217,7 @@ export function rowBoat(
   return ride;
 }
 
-/**
- * Companion constants and rules of {@link rowBoat}.
- */
+/** Companion constants and rules of {@link rowBoat}. */
 export namespace rowBoat {
   /**
    * Bind a native rowing course to the film second it starts. The boat holds
@@ -211,7 +227,8 @@ export namespace rowBoat {
    *
    * @param ride The result of rowing a native course with this producer.
    * @param start Film second corresponding to course second zero.
-   * @returns The independently callable root and socket readers in film seconds.
+   * @returns The independently callable root and socket readers in film
+   *   seconds.
    * @throws {RangeError} For an unbound, external course or a nonfinite start.
    */
   export function bind(ride: Ride, start: number): RigidCarrierSample.IBinding {
@@ -251,10 +268,24 @@ export namespace rowBoat {
     );
   }
 
-  /** The distance the boat covers each stroke, metres, a provisional value: no source read gives a fixed-seat rowboat's; the source to read is a measured distance per stroke of one, or one boat's speed and stroke rate measured together. Searched for #3497 without a figure: fixed-seat distance per stroke for skiffs, gigs and whalers; Cornish pilot gig stroke rate and speed; Whitehall strokes a minute and knots (only guesses and marketing); Navy whaleboat and cutter pulling drill; Agius et al. 2023, The Kinematics of Fixed-Seat Rowing (Bioengineering 10(7):774), which measures the body only; USNI Proceedings June 1890, Navy Boats, which gives no speed under oars. */
+  /**
+   * The distance the boat covers each stroke, metres, a provisional value: no
+   * source read gives a fixed-seat rowboat's; the source to read is a measured
+   * distance per stroke of one, or one boat's speed and stroke rate measured
+   * together. Searched for #3497 without a figure: fixed-seat distance per
+   * stroke for skiffs, gigs and whalers; Cornish pilot gig stroke rate and
+   * speed; Whitehall strokes a minute and knots (only guesses and marketing);
+   * Navy whaleboat and cutter pulling drill; Agius et al. 2023, The Kinematics
+   * of Fixed-Seat Rowing (Bioengineering 10(7):774), which measures the body
+   * only; USNI Proceedings June 1890, Navy Boats, which gives no speed under
+   * oars.
+   */
   export const STROKE: number = 3;
 
-  /** The stroke rate's range inside which Kleshnev measured the drive's share, strokes a minute (ISBS 1996, p. 321). */
+  /**
+   * The stroke rate's range inside which Kleshnev measured the drive's share,
+   * strokes a minute (ISBS 1996, p. 321).
+   */
   export const RATES: readonly [number, number] = [26, 36.5];
 
   /**
@@ -262,18 +293,17 @@ export namespace rowBoat {
    *
    * @param speed The boat's speed, metres per second.
    * @returns Strokes a minute.
-   *
    */
   export function rate(speed: number): number {
     return (60 * speed) / STROKE;
   }
 
   /**
-   * The drive's share of the stroke cycle at a stroke rate: Kleshnev's rhythm, 0.84 r + 25.1 percent, the rate held inside the measured range.
+   * The drive's share of the stroke cycle at a stroke rate: Kleshnev's rhythm,
+   * 0.84 r + 25.1 percent, the rate held inside the measured range.
    *
    * @param strokes The stroke rate, strokes a minute.
    * @returns The share, 0 to 1.
-   *
    */
   export function drive(strokes: number): number {
     const r: number = Math.min(Math.max(strokes, RATES[0]), RATES[1]);

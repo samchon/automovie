@@ -17,10 +17,9 @@ const RATE: number = 1e-3;
 
 /**
  * A roundabout turned by a pusher on the ride's clock: the disc model
- * (`createRoundabout.disc`) turns about the spindle by the angle the
- * pusher drives until `release`, then coasts at the angular speed it had
- * at release. Bearing friction over a take's few seconds is neglected
- * (provisional).
+ * (`createRoundabout.disc`) turns about the spindle by the angle the pusher
+ * drives until `release`, then coasts at the angular speed it had at release.
+ * Bearing friction over a take's few seconds is neglected (provisional).
  *
  * @param placement The installed roundabout's world placement.
  * @param ride The driven angle and the release second.
@@ -59,13 +58,9 @@ export function rideRoundabout(
   };
 }
 
-/**
- * The roundabout ride's parameters and readers.
- */
+/** The roundabout ride's parameters and readers. */
 export namespace rideRoundabout {
-  /**
-   * How the pusher turns the disc.
-   */
+  /** How the pusher turns the disc. */
   export interface IParams {
     /**
      * The disc's angle while the pusher holds it, degrees about `+y`.
@@ -79,9 +74,7 @@ export namespace rideRoundabout {
     release: number;
   }
 
-  /**
-   * One turning roundabout's readers.
-   */
+  /** One turning roundabout's readers. */
   export interface IRide {
     /** The coasting angular speed after release, degrees per second. */
     speed: number;

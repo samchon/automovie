@@ -2,14 +2,25 @@ import type { QuadrupedProportions } from "./QuadrupedProportions";
 import { createHorse } from "./createHorse";
 
 /**
- * Equids' limb and back segments measured on the body's surface, by breed, and the bone fractions an equid derives from them against the horse's.
+ * Equids' limb and back segments measured on the body's surface, by breed, and
+ * the bone fractions an equid derives from them against the horse's.
  *
- * The measures are Brooks et al. 2010, Morphological variation in the horse: defining complex traits of body size and shape, Animal Genetics 41 (Suppl. 2):159, its protocol read at p. 160 (https://srvanderplas.github.io/stat-computing-r-python/data/bonus_horse_morphometric_dataset/Brooks_et_al-2010-Animal_Genetics.pdf); each breed's means are computed from the paper's published per-animal rows, in inches, converted at 2.54 cm (https://raw.githubusercontent.com/srvanderplas/stat-computing-r-python/main/data/bonus_horse_morphometric_dataset/Brooks%20Sutter%20Horse%20Morphometrics.txt): no paper prints these means, so they are this campaign's arithmetic on the paper's data. The forearm runs from the point of the elbow to the back of the knee, the cannons from the knee or the point of the hock to the ergot, the gaskin from the stifle to the point of the hock, and the back from the withers to the point of the croup; none is a bone's length, and neither the humerus nor the femur is measured.
+ * The measures are Brooks et al. 2010, Morphological variation in the horse:
+ * defining complex traits of body size and shape, Animal Genetics 41 (Suppl.
+ * 2):159, its protocol read at p. 160
+ * (https://srvanderplas.github.io/stat-computing-r-python/data/bonus_horse_morphometric_dataset/Brooks_et_al-2010-Animal_Genetics.pdf);
+ * each breed's means are computed from the paper's published per-animal rows,
+ * in inches, converted at 2.54 cm
+ * (https://raw.githubusercontent.com/srvanderplas/stat-computing-r-python/main/data/bonus_horse_morphometric_dataset/Brooks%20Sutter%20Horse%20Morphometrics.txt):
+ * no paper prints these means, so they are this campaign's arithmetic on the
+ * paper's data. The forearm runs from the point of the elbow to the back of the
+ * knee, the cannons from the knee or the point of the hock to the ergot, the
+ * gaskin from the stifle to the point of the hock, and the back from the
+ * withers to the point of the croup; none is a bone's length, and neither the
+ * humerus nor the femur is measured.
  */
 export namespace EquineSegments {
-  /**
-   * One breed's mean measures, centimetres, and its sample size.
-   */
+  /** One breed's mean measures, centimetres, and its sample size. */
   export interface IBreed {
     /** How many animals of the breed the rows hold. */
     n: number;
@@ -29,7 +40,10 @@ export namespace EquineSegments {
     /** The back of the knee to the ergot. */
     foreCannon: number;
 
-    /** The fore pastern and hoof: the bottom of the fetlock to the coronet, and the coronet to the bottom of the hoof. */
+    /**
+     * The fore pastern and hoof: the bottom of the fetlock to the coronet, and
+     * the coronet to the bottom of the hoof.
+     */
     foreDigit: number;
 
     /** The stifle to the point of the hock. */
@@ -42,7 +56,13 @@ export namespace EquineSegments {
     hindDigit: number;
   }
 
-  /** The breeds, each the mean of its rows: the Thoroughbred, against which the horse's bone fractions were measured, the ponies, and the American Mammoth Jackstock, the one donkey breed the rows measure in number (five; the two Mediterranean Miniature Donkeys are recorded and not used), which stands for the donkey. A digit is the pastern's mean plus the hoof's. */
+  /**
+   * The breeds, each the mean of its rows: the Thoroughbred, against which the
+   * horse's bone fractions were measured, the ponies, and the American Mammoth
+   * Jackstock, the one donkey breed the rows measure in number (five; the two
+   * Mediterranean Miniature Donkeys are recorded and not used), which stands
+   * for the donkey. A digit is the pastern's mean plus the hoof's.
+   */
   export const BREEDS: Readonly<
     Record<
       | "thoroughbred"
@@ -142,9 +162,19 @@ export namespace EquineSegments {
   };
 
   /**
-   * The bone lengths of an equid of a breed, as fractions of the height at the withers: the horse's (`createHorse.LENGTHS`), each measured one scaled by the breed's measure over its withers height against the Thoroughbred's.
+   * The bone lengths of an equid of a breed, as fractions of the height at the
+   * withers: the horse's (`createHorse.LENGTHS`), each measured one scaled by
+   * the breed's measure over its withers height against the Thoroughbred's.
    *
-   * The horse's fractions were measured on Thoroughbreds (Kubo et al. 1992; Matsuura et al. 2008), so the Thoroughbred's surface measure stands for the bone the fraction measures, and the breed's own measure scales it: the radius by the forearm, the cannons by the cannons, the digits by the pastern and hoof, the tibia by the gaskin and the trunk by the back. The humerus and the femur are measured by no source read (searched: Brooks et al. 2010, which measures neither; pony, donkey and mule osteometry and segment studies, none found), so they keep the horse's fractions: provisional.
+   * The horse's fractions were measured on Thoroughbreds (Kubo et al. 1992;
+   * Matsuura et al. 2008), so the Thoroughbred's surface measure stands for the
+   * bone the fraction measures, and the breed's own measure scales it: the
+   * radius by the forearm, the cannons by the cannons, the digits by the
+   * pastern and hoof, the tibia by the gaskin and the trunk by the back. The
+   * humerus and the femur are measured by no source read (searched: Brooks et
+   * al. 2010, which measures neither; pony, donkey and mule osteometry and
+   * segment studies, none found), so they keep the horse's fractions:
+   * provisional.
    *
    * @param breed The breed.
    * @returns The bone fractions, in `createHorse.LENGTHS`'s form.

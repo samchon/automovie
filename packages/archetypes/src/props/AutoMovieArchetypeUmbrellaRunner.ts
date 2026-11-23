@@ -4,29 +4,34 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieArchetypeBuilder, AutoMovieArchetypeFrame } from "../core";
 
 /**
- * A stick umbrella's opening mechanism: the runner sliding up the shaft and
- * the ribs it raises through their stretchers.
+ * A stick umbrella's opening mechanism: the runner sliding up the shaft and the
+ * ribs it raises through their stretchers.
  *
  * Each rib hangs from the top notch at the shaft's top; a stretcher joins a
- * point `STRETCHER_AT` of the way down the rib to the runner. With the rib
- * at `phi` from hanging straight down, the runner stands
- * `a cos(phi) + sqrt(k^2 - a^2 sin^2(phi))` below the notch, by the triangle
- * of rib, stretcher and shaft (`a` the rib's joint, `k` the stretcher), so
- * pushing the runner up the shaft swings every rib out together. A rib's
- * opening follows the runner's travel through that relation, tabled every
- * `STEP` degrees. Open, the ribs stand `OPEN` degrees from hanging, and
- * their length makes the canopy's span the model's open diameter, so the
- * canopy's size follows the runner: its radius is the rib's length times
- * `sin(phi)`.
+ * point `STRETCHER_AT` of the way down the rib to the runner. With the rib at
+ * `phi` from hanging straight down, the runner stands `a cos(phi) + sqrt(k^2 -
+ * a^2 sin^2(phi))` below the notch, by the triangle of rib, stretcher and shaft
+ * (`a` the rib's joint, `k` the stretcher), so pushing the runner up the shaft
+ * swings every rib out together. A rib's opening follows the runner's travel
+ * through that relation, tabled every `STEP` degrees. Open, the ribs stand
+ * `OPEN` degrees from hanging, and their length makes the canopy's span the
+ * model's open diameter, so the canopy's size follows the runner: its radius is
+ * the rib's length times `sin(phi)`.
  */
 export namespace AutoMovieArchetypeUmbrellaRunner {
   /** The ribs, as stick umbrellas commonly have eight: a construction estimate. */
   export const RIBS: number = 8;
 
-  /** The open ribs' angle from hanging, degrees: a construction estimate for a canopy whose ribs droop a little below level. */
+  /**
+   * The open ribs' angle from hanging, degrees: a construction estimate for a
+   * canopy whose ribs droop a little below level.
+   */
   export const OPEN: number = 75;
 
-  /** Where the stretcher joins the rib, as a share of its length down from the notch: a construction estimate. */
+  /**
+   * Where the stretcher joins the rib, as a share of its length down from the
+   * notch: a construction estimate.
+   */
   export const STRETCHER_AT: number = 0.3;
 
   /** The stretcher's length, as a share of the rib's: a construction estimate. */
@@ -35,14 +40,10 @@ export namespace AutoMovieArchetypeUmbrellaRunner {
   /** The opening table's step, degrees. */
   export const STEP: number = 15;
 
-  /**
-   * A rib's hinge id.
-   */
+  /** A rib's hinge id. */
   export type Rib = `rib${number}`;
 
-  /**
-   * The runner and the rib hinges.
-   */
+  /** The runner and the rib hinges. */
   export type Affordance = "runner" | Rib;
 
   /**

@@ -5,8 +5,10 @@ import type { createBed } from "./createBed";
 /**
  * A caster stretcher with a patient surface and opposed side seats.
  *
- * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
- * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
+ * @param params The optional identifier, the admitted settings and any fixed
+ *   dimensions in the inherited units.
+ * @param seed Draws remaining dimensions and any model choice. Omit it for the
+ *   first model and band midpoints.
  * @returns The generated model and its named local contacts.
  * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  */
@@ -17,11 +19,12 @@ export function createGurney(
   return BedConstruction.gurney(params, seed);
 }
 
-/**
- * The authorable settings and local contact IDs of {@link createGurney}.
- */
+/** The authorable settings and local contact IDs of {@link createGurney}. */
 export namespace createGurney {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "length"
     | "litter"

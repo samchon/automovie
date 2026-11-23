@@ -11,12 +11,15 @@ import { createProjectile } from "./createProjectile";
 /**
  * Slender shaft stage token.
  *
- * The arrow and bolt silhouettes share a model-space handle, seat and tip mark along the shaft.
+ * The arrow and bolt silhouettes share a model-space handle, seat and tip mark
+ * along the shaft.
  *
- * @param params The scene id and this digital form's catalogue or sizing options.
+ * @param params The scene id and this digital form's catalogue or sizing
+ *   options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createStageShaftToken(
   params: createStageShaftToken.IParams,
@@ -106,21 +109,26 @@ export function createStageShaftToken(
   });
 }
 
-/** How far ahead of the nock the fingers pinch the shaft to nock it, metres: a fingertip pad's width (provisional). */
+/**
+ * How far ahead of the nock the fingers pinch the shaft to nock it, metres: a
+ * fingertip pad's width (provisional).
+ */
 const PINCH: number = 0.03;
 
-/**
- * Authoring options for {@link createStageShaftToken}.
- */
+/** Authoring options for {@link createStageShaftToken}. */
 export namespace createStageShaftToken {
   /** The `model` choices this producer admits. */
   export type Model = "westminster" | "az472" | "nmm11461" | "met33754";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "head" | "headWidth" | "length" | "mass";
 
   /**
-   * The createProjectile contact set its shared construction types. This producer builds nock, nockGrip, shaft, tip.
+   * The createProjectile contact set its shared construction types. This
+   * producer builds nock, nockGrip, shaft, tip.
    */
   export type Affordance = createProjectile.Affordance;
 

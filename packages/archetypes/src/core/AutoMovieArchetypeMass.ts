@@ -13,11 +13,18 @@ import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCel
 /**
  * The mass properties of primitive or convex-cell parts under one total mass.
  *
- * Each part is a uniform solid whose share of the total mass is its volume times a relative density, 1 unless the producer states another, so a hollow or light part can weigh less than its outline suggests; a producer whose segment masses are measured states each part's share instead. A producer states the total mass from its cited band; the distribution follows from the geometry, which is what lets a test compare the result with a published balance point or moment of inertia instead of reading a copied number back.
+ * Each part is a uniform solid whose share of the total mass is its volume
+ * times a relative density, 1 unless the producer states another, so a hollow
+ * or light part can weigh less than its outline suggests; a producer whose
+ * segment masses are measured states each part's share instead. A producer
+ * states the total mass from its cited band; the distribution follows from the
+ * geometry, which is what lets a test compare the result with a published
+ * balance point or moment of inertia instead of reading a copied number back.
  */
 export namespace AutoMovieArchetypeMass {
   /**
-   * The symmetric inertia tensor about the centre of mass, in the model's axes, kg m squared.
+   * The symmetric inertia tensor about the centre of mass, in the model's axes,
+   * kg m squared.
    */
   export interface IInertia {
     /** Moment about the model's X axis through the centre of mass. */
@@ -29,7 +36,10 @@ export namespace AutoMovieArchetypeMass {
     /** Moment about the model's Z axis through the centre of mass. */
     zz: number;
 
-    /** Product of inertia, the tensor's XY component (minus the integral of x y dm). */
+    /**
+     * Product of inertia, the tensor's XY component (minus the integral of x y
+     * dm).
+     */
     xy: number;
 
     /** Product of inertia, the tensor's XZ component. */
@@ -39,9 +49,7 @@ export namespace AutoMovieArchetypeMass {
     yz: number;
   }
 
-  /**
-   * The mass properties of a whole archetype.
-   */
+  /** The mass properties of a whole archetype. */
   export interface IProperties {
     /** Total mass, kilograms. */
     mass: number;
@@ -56,13 +64,19 @@ export namespace AutoMovieArchetypeMass {
   /**
    * The mass properties of parts under a total mass.
    *
-   * @param parts The model's parts at rest; a part without volume (a plane) weighs nothing.
+   * @param parts The model's parts at rest; a part without volume (a plane)
+   *   weighs nothing.
    * @param mass The finite positive total mass, kilograms.
-   * @param density Finite positive relative densities by part id; 1 for a part not listed.
-   * @param shares Finite nonnegative weights replacing volume times density; when used, every part should be listed. At least one solid must have positive weight.
-   * @param cells Explicit convex cells by part id; omitted for primitive-only inputs. Each record must identify its visible geometry.
+   * @param density Finite positive relative densities by part id; 1 for a part
+   *   not listed.
+   * @param shares Finite nonnegative weights replacing volume times density;
+   *   when used, every part should be listed. At least one solid must have
+   *   positive weight.
+   * @param cells Explicit convex cells by part id; omitted for primitive-only
+   *   inputs. Each record must identify its visible geometry.
    * @returns The centre of mass and the inertia about it.
-   * @throws {Error} For invalid mass, density, share or dimensions, no positive solid weight, or unrepresentable local/derived mass properties.
+   * @throws {Error} For invalid mass, density, share or dimensions, no positive
+   *   solid weight, or unrepresentable local/derived mass properties.
    */
   export function of(
     parts: readonly IAutoMovieModelPart[],
@@ -159,15 +173,20 @@ export namespace AutoMovieArchetypeMass {
   }
 
   /**
-   * Each part's own mass under a total mass, by the same weights `of` shares it by.
+   * Each part's own mass under a total mass, by the same weights `of` shares it
+   * by.
    *
    * @param parts The model's parts at rest.
    * @param mass The total mass, kilograms.
    * @param density Relative densities by part id; 1 for a part not listed.
-   * @param shares Finite nonnegative weights replacing volume times density, as `of` takes them.
-   * @param cells Explicit convex cells bound to their visible parts, as of takes them.
-   * @returns Each part's mass by id, kilograms; a part without solid volume weighs nothing, including an inventory with no solids.
-   * @throws {Error} For invalid mass/weights/dimensions, solids with no positive weight or unrepresentable local properties.
+   * @param shares Finite nonnegative weights replacing volume times density, as
+   *   `of` takes them.
+   * @param cells Explicit convex cells bound to their visible parts, as of
+   *   takes them.
+   * @returns Each part's mass by id, kilograms; a part without solid volume
+   *   weighs nothing, including an inventory with no solids.
+   * @throws {Error} For invalid mass/weights/dimensions, solids with no
+   *   positive weight or unrepresentable local properties.
    */
   export function parts(
     parts: readonly IAutoMovieModelPart[],
@@ -209,9 +228,7 @@ export namespace AutoMovieArchetypeMass {
     );
   }
 
-  /**
-   * A rigid body's mass properties placed in a common space.
-   */
+  /** A rigid body's mass properties placed in a common space. */
   export interface IPlaced {
     /** The body's mass properties in its own space. */
     properties: IProperties;
@@ -224,11 +241,15 @@ export namespace AutoMovieArchetypeMass {
   }
 
   /**
-   * The mass properties of rigid bodies placed together, such as the members of an assembly.
+   * The mass properties of rigid bodies placed together, such as the members of
+   * an assembly.
    *
-   * @param bodies Each body's mass properties in its own space and its placement in the common space, with unit scale.
-   * @returns The total mass, the common centre of mass and the inertia about it, in the common space.
-   * @throws {Error} For an empty list, invalid source records or an unrepresentable total mass, placed centre or tensor.
+   * @param bodies Each body's mass properties in its own space and its
+   *   placement in the common space, with unit scale.
+   * @returns The total mass, the common centre of mass and the inertia about
+   *   it, in the common space.
+   * @throws {Error} For an empty list, invalid source records or an
+   *   unrepresentable total mass, placed centre or tensor.
    */
   export function combine(bodies: readonly IPlaced[]): IProperties {
     if (bodies.length === 0)
@@ -311,13 +332,16 @@ export namespace AutoMovieArchetypeMass {
   }
 
   /**
-   * The moment of inertia about a line, such as the axis a bat is swung about through the hands.
+   * The moment of inertia about a line, such as the axis a bat is swung about
+   * through the hands.
    *
    * @param properties The mass properties.
    * @param through A point of the line, in the model's space, metres.
-   * @param direction The finite nonzero direction, normalized after largest-component scaling.
+   * @param direction The finite nonzero direction, normalized after
+   *   largest-component scaling.
    * @returns The moment, kg m squared.
-   * @throws {Error} For invalid mass properties, point or direction, or an unrepresentable line moment.
+   * @throws {Error} For invalid mass properties, point or direction, or an
+   *   unrepresentable line moment.
    */
   export function about(
     properties: IProperties,
@@ -382,7 +406,10 @@ export namespace AutoMovieArchetypeMass {
 /** The shared local owner supplies primitive or cell principal data. */
 type ILocal = NonNullable<ReturnType<typeof ArchetypeMassLocal>>;
 
-/** A part as a solid in the model: its weight share, centre, axes and central inertia per unit mass. */
+/**
+ * A part as a solid in the model: its weight share, centre, axes and central
+ * inertia per unit mass.
+ */
 interface ISolid {
   /** Volume times relative density. */
   share: number;
@@ -403,7 +430,10 @@ type Axis = "x" | "y" | "z";
 /** Tensor and parallel-axis terms visit axes in the same fixed order. */
 const AXES: readonly Axis[] = ["x", "y", "z"];
 
-/** An explicit share replaces density; otherwise a positive density scales the representable solid volume. */
+/**
+ * An explicit share replaces density; otherwise a positive density scales the
+ * representable solid volume.
+ */
 function weightOf(
   id: string,
   volume: number,
@@ -423,7 +453,10 @@ function weightOf(
   return result;
 }
 
-/** Keep each tensor contribution until its one complete reduction can decide representability. */
+/**
+ * Keep each tensor contribution until its one complete reduction can decide
+ * representability.
+ */
 function contributions(): Record<
   keyof AutoMovieArchetypeMass.IInertia,
   number[]

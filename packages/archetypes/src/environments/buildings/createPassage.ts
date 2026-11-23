@@ -21,16 +21,17 @@ import { buildingModel } from "./buildingModel";
 /**
  * Span named landing frames with a bridge, ramp or flight of stairs.
  *
- * The landing locations give the route direction and run. Adjacent flights
- * can join a shared intermediate landing, and a bridge can connect distinct
- * buildings. A constant or planar support patch per slab or step uses the
- * same upper face as its visible geometry.
+ * The landing locations give the route direction and run. Adjacent flights can
+ * join a shared intermediate landing, and a bridge can connect distinct
+ * buildings. A constant or planar support patch per slab or step uses the same
+ * upper face as its visible geometry.
  *
  * A fitted opening requires a normal approach to its clear section.
  *
  * @param props Named endpoints and the connector's physical dimensions.
  * @returns A placed environment module supplying geometry, support and route.
- * @throws Error for missing anchors, incompatible landing heights, an oblique fitted opening or invalid flight dimensions.
+ * @throws Error for missing anchors, incompatible landing heights, an oblique
+ *   fitted opening or invalid flight dimensions.
  */
 export function createPassage(
   props: createPassage.IProps,
@@ -212,13 +213,9 @@ export function createPassage(
   };
 }
 
-/**
- * Static span construction choices specific to the passage producer.
- */
+/** Static span construction choices specific to the passage producer. */
 export namespace createPassage {
-  /**
-   * A plain scenic anchor or a generated opening with a clear section.
-   */
+  /** A plain scenic anchor or a generated opening with a clear section. */
   export type Endpoint =
     | string
     | {
@@ -226,9 +223,7 @@ export namespace createPassage {
         readonly opening: string;
       };
 
-  /**
-   * Connection between two scoped world anchors.
-   */
+  /** Connection between two scoped world anchors. */
   export type IProps = {
     /** First world anchor, in centreline position at its landing surface. */
     readonly from: Endpoint;
@@ -245,7 +240,7 @@ export namespace createPassage {
     /** Vertical thickness of suspended spans, in metres. Defaults to 0.18 m. */
     readonly thickness?: number;
 
-    /** sRGB finish swatch, with neutral stone by default. */
+    /** SRGB finish swatch, with neutral stone by default. */
     readonly color?: string;
   } & (
     | { readonly kind: "bridge" }
@@ -267,7 +262,10 @@ function landingName(endpoint: createPassage.Endpoint): string {
   return typeof endpoint === "string" ? endpoint : endpoint.opening;
 }
 
-/** Center on a physical opening's admitted clear section or use the ordinary anchor. */
+/**
+ * Center on a physical opening's admitted clear section or use the ordinary
+ * anchor.
+ */
 function landing(
   context: IAutoMovieEnvironmentModule.IContext,
   endpoint: createPassage.Endpoint,
@@ -298,7 +296,10 @@ function landing(
   };
 }
 
-/** One slab section in the span frame, ordered along local Z and measured in metres. */
+/**
+ * One slab section in the span frame, ordered along local Z and measured in
+ * metres.
+ */
 interface ILeg {
   readonly from: number;
   readonly to: number;

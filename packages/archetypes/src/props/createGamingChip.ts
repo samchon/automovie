@@ -9,9 +9,9 @@ import { TabletopStack } from "./TabletopStack";
 
 /**
  * A casino gaming chip: "The chips used in United States casinos typically
- * weigh about 10 grams" (English Wikipedia, Casino token, read 2026-11-21).
- * No read source gave the diameter or thickness, so the common 39 mm by
- * 3.3 mm are provisional estimates.
+ * weigh about 10 grams" (English Wikipedia, Casino token, read 2026-11-21). No
+ * read source gave the diameter or thickness, so the common 39 mm by 3.3 mm are
+ * provisional estimates.
  */
 const CHIP: Readonly<createGamingChip.IChip> = {
   diameter: 0.039,
@@ -22,10 +22,10 @@ const CHIP: Readonly<createGamingChip.IChip> = {
 /**
  * One gaming chip lying flat.
  *
- * The chip is a disc in the `XZ` plane, its origin the centre of its
- * underside. Chips stack by the shared tabletop contacts (`TabletopStack`):
- * one chip's `base` mounted on the next one's `top`, so a stack moves with
- * the chip at its bottom.
+ * The chip is a disc in the `XZ` plane, its origin the centre of its underside.
+ * Chips stack by the shared tabletop contacts (`TabletopStack`): one chip's
+ * `base` mounted on the next one's `top`, so a stack moves with the chip at its
+ * bottom.
  *
  * @param params The optional scene id.
  * @returns The inert chip and its contact frames, metres.
@@ -62,9 +62,7 @@ export function createGamingChip(
   return builder.build(CHIP.mass);
 }
 
-/**
- * The inputs, contacts and size of {@link createGamingChip}.
- */
+/** The inputs, contacts and size of {@link createGamingChip}. */
 export namespace createGamingChip {
   /** The shared pinch, underside and upper sockets. */
   export type Affordance = TabletopStack.Contact;

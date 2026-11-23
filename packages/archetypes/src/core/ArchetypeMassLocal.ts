@@ -14,10 +14,12 @@ type Local = NonNullable<ReturnType<typeof ArchetypeMassPrimitive>> & {
 
 /**
  * Read primitive or explicitly declared convex-cell local mass data.
+ *
  * @param part Current local part with unit scale.
  * @param cells Producer-owned cell records, keyed by their part ids.
  * @returns Local SI solid data, or null for a plane or unsupported geometry.
- * @throws {Error} For invalid primitives or changed geometry under a declared cell id.
+ * @throws {Error} For invalid primitives or changed geometry under a declared
+ *   cell id.
  */
 export function ArchetypeMassLocal(
   part: IAutoMovieModelPart,

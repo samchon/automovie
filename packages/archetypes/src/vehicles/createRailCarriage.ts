@@ -19,15 +19,18 @@ import {
  *
  * Set the door slider to its maximum travel to open the principal bay at Z = 0.
  * The other five pairs have separate controls. Threshold and aisle are upward
- * surfaces. Board along −X onto threshold, then stage onward travel on the aisle.
- * The seat is the aisle-side seat on −X, facing +Z. The grabRail is
+ * surfaces. Board along −X onto threshold, then stage onward travel on the
+ * aisle. The seat is the aisle-side seat on −X, facing +Z. The grabRail is
  * vertical, just inside the principal bay. Create the stationary platform with
  * createRailPlatform and move only the carriage on a ride.
  *
- * @param params Model id and floor-relative seat height. Also accepts a positional id.
- * @param options A gallery seed or, with a positional id, the seat height options.
+ * @param params Model id and floor-relative seat height. Also accepts a
+ *   positional id.
+ * @param options A gallery seed or, with a positional id, the seat height
+ *   options.
  * @returns The carriage at rest with the door pairs closed.
- * @throws {AutoMovieArchetypeRefusal} When the height is nonfinite or outside the 17–19 inch scenic contact band.
+ * @throws {AutoMovieArchetypeRefusal} When the height is nonfinite or outside
+ *   the 17–19 inch scenic contact band.
  */
 export function createRailCarriage(
   params: createRailCarriage.IParams | string = {},
@@ -374,9 +377,7 @@ type DoorPair = (typeof DOORS)[keyof typeof DOORS][number];
 /** The six independently controlled pairs' leaf ids. */
 type DoorId = DoorPair[number];
 
-/**
- * Fixed shell dimensions, named carriage contacts and the authored seat height.
- */
+/** Fixed shell dimensions, named carriage contacts and the authored seat height. */
 export namespace createRailCarriage {
   /**
    * Boarding supports and hand contact at the principal bay plus the positive-Z
@@ -390,25 +391,22 @@ export namespace createRailCarriage {
     | "grabRail"
     | DoorId;
 
-  /**
-   * The height of the seat pad's top above the finished cabin floor, in metres.
-   */
+  /** The height of the seat pad's top above the finished cabin floor, in metres. */
   export type Dimension = "seatHeight";
 
-  /**
-   * Optional seat height in metres for staging seated contact.
-   */
+  /** Optional seat height in metres for staging seated contact. */
   export interface IParams {
     /** Scene model id, defaulting to railCarriage. */
     id?: string;
 
-    /** Seat pad top above the cabin floor, 17–19 inches expressed in metres. Defaults to 0.45 m without a seed and draws in the band with a seed. */
+    /**
+     * Seat pad top above the cabin floor, 17–19 inches expressed in metres.
+     * Defaults to 0.45 m without a seed and draws in the band with a seed.
+     */
     seatHeight?: number;
   }
 
-  /**
-   * Outside width and floor height above rail in metres, reference §II.C.3.
-   */
+  /** Outside width and floor height above rail in metres, reference §II.C.3. */
   export const REFERENCE: Readonly<{ width: number; floor: number }> = {
     width: 126 * AutoMovieArchetypeUnits.INCH,
     floor: 40 * AutoMovieArchetypeUnits.INCH,
@@ -422,7 +420,10 @@ const UNITS: Readonly<
   seatHeight: "m",
 };
 
-/** Rail transfer-seat guidance gives the scenic seat contact height above the finished floor. */
+/**
+ * Rail transfer-seat guidance gives the scenic seat contact height above the
+ * finished floor.
+ */
 const BANDS: Readonly<
   Record<createRailCarriage.Dimension, IAutoMovieArchetypeBand>
 > = {

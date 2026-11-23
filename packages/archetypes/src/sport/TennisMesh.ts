@@ -4,10 +4,14 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Accumulates the narrow strips of a tennis string bed, net or binding into one indexed rigid mesh per finish.
+ * Accumulates the narrow strips of a tennis string bed, net or binding into one
+ * indexed rigid mesh per finish.
  */
 export class TennisMesh {
-  /** Indexed XYZ vertices in metres, with normals derived from the wound triangles. */
+  /**
+   * Indexed XYZ vertices in metres, with normals derived from the wound
+   * triangles.
+   */
   public readonly mesh: IAutoMovieMesh & { indices: number[] } = {
     positions: [],
     indices: [],
@@ -17,8 +21,10 @@ export class TennisMesh {
   };
 
   /**
-   * Append a capped strip along two or more distinct XY points, at constant `z`. Width is across the path and depth is along Z, in metres.
-   * Consecutive points have different XY coordinates and the path does not reverse direction.
+   * Append a capped strip along two or more distinct XY points, at constant
+   * `z`. Width is across the path and depth is along Z, in metres. Consecutive
+   * points have different XY coordinates and the path does not reverse
+   * direction.
    */
   public strip(
     points: readonly IAutoMovieProfilePoint[],

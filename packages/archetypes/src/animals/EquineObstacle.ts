@@ -14,12 +14,11 @@ import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQua
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
 /**
- * The obstacles an authored footing places across one straight course leg: its poles as rails and the gaps between its planes as ditches.
+ * The obstacles an authored footing places across one straight course leg: its
+ * poles as rails and the gaps between its planes as ditches.
  */
 export namespace EquineObstacle {
-  /**
-   * One obstacle on the leg's line.
-   */
+  /** One obstacle on the leg's line. */
   export interface IObstacle {
     /** Course distance where it begins, metres. */
     from: number;
@@ -107,7 +106,8 @@ export namespace EquineObstacle {
   }
 
   /**
-   * The extra flight seconds that would lift every displayed part over every obstacle by the clearance, measured on the flown ride.
+   * The extra flight seconds that would lift every displayed part over every
+   * obstacle by the clearance, measured on the flown ride.
    *
    * @param plan The course plan.
    * @param start Course distance of the jump leg's start, metres.
@@ -116,7 +116,10 @@ export namespace EquineObstacle {
    * @param takeoff Film second of final hind liftoff.
    * @param landing Film second of first fore landing.
    * @param sample The displayed parts and placement at a film second.
-   * @returns The signed change of flight seconds the tightest part asks for: positive where a part falls short of the clearance, negative by the surplus the tightest part keeps, zero when no part passes over an obstacle.
+   * @returns The signed change of flight seconds the tightest part asks for:
+   *   positive where a part falls short of the clearance, negative by the
+   *   surplus the tightest part keeps, zero when no part passes over an
+   *   obstacle.
    */
   export function shortfall(
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -179,9 +182,7 @@ export namespace EquineObstacle {
     return Number.isFinite(extra) ? extra : 0;
   }
 
-  /**
-   * The displayed parts and placement a flown ride shows at one second.
-   */
+  /** The displayed parts and placement a flown ride shows at one second. */
   export interface ISample {
     /** Model-space parts. */
     parts: readonly IAutoMovieModelPart[];
@@ -189,7 +190,10 @@ export namespace EquineObstacle {
     placement: IAutoMovieTransform;
   }
 
-  /** Seconds between flight samples: 5 ms, so a part crossing a 0.1 m rail at a 5 m/s canter is sampled about four times. */
+  /**
+   * Seconds between flight samples: 5 ms, so a part crossing a 0.1 m rail at a
+   * 5 m/s canter is sampled about four times.
+   */
   const STEP: number = 0.005;
 
   /** One plane's cover of the leg, metres from the leg's start. */

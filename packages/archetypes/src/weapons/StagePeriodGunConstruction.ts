@@ -11,16 +11,17 @@ import {
  * The shared stock, barrel and handling contacts of an inert period long-arm
  * silhouette, built from one museum record's overall and barrel lengths.
  *
- * The gun lies along `+Z` from its butt plate at the origin to its muzzle,
- * the barrel's line at `y = 0`, as `createLongGun` lays its guns. The firing
- * hand takes the `grip` at the wrist, the other hand the `foreEnd` from below
- * and the `butt` goes to the shoulder. `slingFront` and `slingRear` are the
- * swivel places a sling or a carrier hangs the gun from. The lock is the
- * caller's: `lay` builds the shared parts and returns the builder for it.
+ * The gun lies along `+Z` from its butt plate at the origin to its muzzle, the
+ * barrel's line at `y = 0`, as `createLongGun` lays its guns. The firing hand
+ * takes the `grip` at the wrist, the other hand the `foreEnd` from below and
+ * the `butt` goes to the shoulder. `slingFront` and `slingRear` are the swivel
+ * places a sling or a carrier hangs the gun from. The lock is the caller's:
+ * `lay` builds the shared parts and returns the builder for it.
  */
 export namespace StagePeriodGunConstruction {
   /**
-   * The read record of one silhouette and its authored proportions, metres and kilograms.
+   * The read record of one silhouette and its authored proportions, metres and
+   * kilograms.
    */
   export interface IProfile {
     /** The draw namespace and the model's name. */
@@ -51,9 +52,7 @@ export namespace StagePeriodGunConstruction {
     mass: number;
   }
 
-  /**
-   * The shared contact ids of a period long-arm silhouette.
-   */
+  /** The shared contact ids of a period long-arm silhouette. */
   export type Contact =
     | "grip"
     | "trigger"
@@ -63,13 +62,12 @@ export namespace StagePeriodGunConstruction {
     | "slingFront"
     | "slingRear";
 
-  /**
-   * The dimensions every silhouette records.
-   */
+  /** The dimensions every silhouette records. */
   export type Dimension = "length" | "barrel" | "mass";
 
   /**
-   * Lay the stock, wrist, fore-stock, barrel and trigger with the shared contacts.
+   * Lay the stock, wrist, fore-stock, barrel and trigger with the shared
+   * contacts.
    *
    * @param profile The silhouette's record and proportions.
    * @param id The model's scene id.

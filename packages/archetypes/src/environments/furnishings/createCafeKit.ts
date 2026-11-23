@@ -11,15 +11,16 @@ import { createTable } from "../../furniture/createTable";
 import { furnishRoom } from "./furnishRoom";
 
 /**
- * Furnish a room with a service counter and dining groups of one table and two chairs.
+ * Furnish a room with a service counter and dining groups of one table and two
+ * chairs.
  *
  * Place the kit at the centre of a floor with its local +Z facing customers
  * from the service counter. Name a role as `counter`, `table-1`,
  * `table-1/chair-near` on +Z or `table-1/chair-far` on -Z. Append the prop's
  * native affordance id to place or address a contact. For example,
  * `table-1/stack` is the support for a cup and `table-1/chair-near/seat` is a
- * sitting contact. The grid, aisle and approach reservations remain in the
- * room frame when the room is rotated.
+ * sitting contact. The grid, aisle and approach reservations remain in the room
+ * frame when the room is rotated.
  *
  * @param params The room layout and positive number of dining tables.
  * @returns The placed-room module, with both stage nodes and prop claims.
@@ -83,9 +84,7 @@ export function createCafeKit(
   };
 }
 
-/**
- * Types of the cafe kit producer.
- */
+/** Types of the cafe kit producer. */
 export namespace createCafeKit {
   /** The room layout and the positive integer count of the kit's repeated group. */
   export interface IParams extends IAutoMovieFurnishingLayout {

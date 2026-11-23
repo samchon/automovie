@@ -15,14 +15,21 @@ const IBA: string =
   "IBA Technical and Competition Rules, 15 April 2026 (https://www.iba.sport/wp-content/uploads/2026/06/20260415-IBA-Technical-Competition-Rules.pdf)";
 
 /**
- * A boxing glove, lying on its palm with the fist toward `+Z` and the cuff back along `-Z`.
+ * A boxing glove, lying on its palm with the fist toward `+Z` and the cuff back
+ * along `-Z`.
  *
- * `wear` is the socket the hand goes into: the fist's hollow where the palm's middle sits, `+Y` out of the cuff's mouth along `-Z`, the way the hand comes in. `face` is the striking face, the knuckle end of the fist, `+Y` out along `+Z`, the way a punch lands.
+ * `wear` is the socket the hand goes into: the fist's hollow where the palm's
+ * middle sits, `+Y` out of the cuff's mouth along `-Z`, the way the hand comes
+ * in. `face` is the striking face, the knuckle end of the fist, `+Y` out along
+ * `+Z`, the way a punch lands.
  *
  * @param params The glove's weight and any dimension the author fixes.
- * @param seed The seed that draws the weight when it is not given and every dimension left free inside its band; absent, the first weight and the middle of each band.
+ * @param seed The seed that draws the weight when it is not given and every
+ *   dimension left free inside its band; absent, the first weight and the
+ *   middle of each band.
  * @returns The glove.
- * @throws {AutoMovieArchetypeRefusal} For a weight the rules do not set or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a weight the rules do not set or a
+ *   fixed dimension outside its band.
  */
 export function createBoxingGlove(
   params: createBoxingGlove.IParams = {},
@@ -101,11 +108,13 @@ export function createBoxingGlove(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createBoxingGlove}.
- */
+/** Companion types, constants and bands of {@link createBoxingGlove}. */
 export namespace createBoxingGlove {
-  /** The cuff's width and height as a share of the fist's, about three quarters as IBA Appendix 11's side view draws it: a construction proportion read off the figure, which places no contact. */
+  /**
+   * The cuff's width and height as a share of the fist's, about three quarters
+   * as IBA Appendix 11's side view draws it: a construction proportion read off
+   * the figure, which places no contact.
+   */
   export const CUFF: number = 0.75;
 
   /**
@@ -141,7 +150,10 @@ export namespace createBoxingGlove {
   /** The glove weights the rules set. */
   export type Weight = "8oz" | "10oz" | "12oz";
 
-  /** Each weight's mass, kilograms, the default first: IBA rule 45.6, "8, 10 and 12 oz gloves (227 to 340 g) by weight category". */
+  /**
+   * Each weight's mass, kilograms, the default first: IBA rule 45.6, "8, 10 and
+   * 12 oz gloves (227 to 340 g) by weight category".
+   */
   export const WEIGHTS: Readonly<
     Record<Weight, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -150,7 +162,10 @@ export namespace createBoxingGlove {
     "12oz": { mass: 12 * AutoMovieArchetypeUnits.OUNCE },
   };
 
-  /** The parameters: the weight, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the weight, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "mass">, number>
   > {

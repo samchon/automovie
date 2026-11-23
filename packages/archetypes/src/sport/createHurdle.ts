@@ -17,10 +17,15 @@ const RULE: string =
 /**
  * A track hurdle of a sprint or a 400 m hurdles race.
  *
- * It stands across the lane, its top bar along `X` centred over the origin with its face toward `-Z`, the way the runner comes, and its two feet running back along `+Z` from the uprights. `top` is the top bar's upper edge, the edge a hurdler's lead leg clears, along `+X` with `+Y` up and `+Z` out of its face toward the runner; `bar` the top bar itself, a rod a hand may take.
+ * It stands across the lane, its top bar along `X` centred over the origin with
+ * its face toward `-Z`, the way the runner comes, and its two feet running back
+ * along `+Z` from the uprights. `top` is the top bar's upper edge, the edge a
+ * hurdler's lead leg clears, along `+X` with `+Y` up and `+Z` out of its face
+ * toward the runner; `bar` the top bar itself, a rod a hand may take.
  *
  * @param params The race and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The hurdle.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -108,11 +113,12 @@ export function createHurdle(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createHurdle}.
- */
+/** Companion types, constants and bands of {@link createHurdle}. */
 export namespace createHurdle {
-  /** The races: the men's 110 m and the women's 100 m sprint hurdles, and the men's and the women's 400 m hurdles. */
+  /**
+   * The races: the men's 110 m and the women's 100 m sprint hurdles, and the
+   * men's and the women's 400 m hurdles.
+   */
   export type Kind = "men110" | "women100" | "men400" | "women400";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -126,10 +132,16 @@ export namespace createHurdle {
   /** The top bar's height, metres: the rule's 70 mm. */
   export const BAR: number = 0.07;
 
-  /** The top bar's depth front to back, metres: inside the rule's 10 to 25 mm, an estimate. */
+  /**
+   * The top bar's depth front to back, metres: inside the rule's 10 to 25 mm,
+   * an estimate.
+   */
   export const BAR_DEPTH: number = 0.02;
 
-  /** The feet's length back from the uprights, metres: under the rule's 0.70 m, an estimate. */
+  /**
+   * The feet's length back from the uprights, metres: under the rule's 0.70 m,
+   * an estimate.
+   */
   export const FOOT: number = 0.6;
 
   /** The uprights' and feet's thickness, metres: an estimate. */
@@ -138,7 +150,8 @@ export namespace createHurdle {
   /**
    * The affordance ids:
    *
-   * - `top`: the top bar's upper front edge along `+X`, `+Y` up, `+Z` toward the runner.
+   * - `top`: the top bar's upper front edge along `+X`, `+Y` up, `+Z` toward the
+   *   runner.
    * - `bar`: the top bar, taken from the runner's side.
    */
   export type Affordance = "top" | "bar";
@@ -161,7 +174,10 @@ export namespace createHurdle {
     mass: "kg",
   };
 
-  /** The parameters: the race, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the race, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which race. */
     kind: Kind;
@@ -204,7 +220,10 @@ export namespace createHurdle {
     ),
   };
 
-  /** Each race's bands, its height with the shared width and mass, the table every producer draws from and the gallery lists. */
+  /**
+   * Each race's bands, its height with the shared width and mass, the table
+   * every producer draws from and the gallery lists.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {

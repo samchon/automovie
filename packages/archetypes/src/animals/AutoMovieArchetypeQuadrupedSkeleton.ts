@@ -15,15 +15,14 @@ import { QuadrupedScapula } from "./QuadrupedScapula";
 /** Local degree rotations without borrowing a humanoid bone slot. */
 type Rotation = Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">;
 
-/**
- * The animal's bars as an engine-readable named rigid skeleton.
- */
+/** The animal's bars as an engine-readable named rigid skeleton. */
 export namespace AutoMovieArchetypeQuadrupedSkeleton {
   /**
    * Read the built links into the shared generic rig representation.
    *
    * @param animal An animal built from the closed quadruped bone vocabulary.
-   * @returns Independent parent-local neutral data with explicitly unknown anatomical limits.
+   * @returns Independent parent-local neutral data with explicitly unknown
+   *   anatomical limits.
    * @throws {RangeError} For a missing bone part or transform.
    */
   export function of(
@@ -115,7 +114,10 @@ export namespace AutoMovieArchetypeQuadrupedSkeleton {
       ),
     };
 
-    /** The part owns its link frame; missing geometry is not rebuilt from defaults. */
+    /**
+     * The part owns its link frame; missing geometry is not rebuilt from
+     * defaults.
+     */
     function frameOf(
       bone: AutoMovieArchetypeQuadrupedBody.Bone,
     ): IAutoMovieTransform {
@@ -147,15 +149,20 @@ export namespace AutoMovieArchetypeQuadrupedSkeleton {
   }
 
   /**
-   * Pose an animal's real links and explicitly attached parts/contacts by generic FK.
+   * Pose an animal's real links and explicitly attached parts/contacts by
+   * generic FK.
    *
    * @param animal The independent rest animal; it is not changed.
-   * @param joints Current degree rotations by quadruped bone; absent bones stay at neutral.
-   * @param parts A carrier for every non-bone part, such as ears, tack or a hump.
-   * @param contacts A carrier for every affordance; no contact is left behind by inference.
+   * @param joints Current degree rotations by quadruped bone; absent bones stay
+   *   at neutral.
+   * @param parts A carrier for every non-bone part, such as ears, tack or a
+   *   hump.
+   * @param contacts A carrier for every affordance; no contact is left behind
+   *   by inference.
    * @param root Optional rigid model-space placement of the complete rig.
    * @returns A new model with moved links, accessories and contact frames.
-   * @throws {RangeError} For incomplete/unknown carriers or an inadmissible rig/query.
+   * @throws {RangeError} For incomplete/unknown carriers or an inadmissible
+   *   rig/query.
    */
   export function pose<Id extends string, Dimension extends string>(
     animal: AutoMovieArchetype<Id, Dimension>,
@@ -180,13 +187,16 @@ export namespace AutoMovieArchetypeQuadrupedSkeleton {
   /**
    * Emit parts and source contacts from two complete admitted FK states.
    *
-   * @param animal Source model, unchanged; null accessory transforms mean identity.
+   * @param animal Source model, unchanged; null accessory transforms mean
+   *   identity.
    * @param rest Complete neutral frames of this source's quadruped tree.
    * @param posed Complete current frames of that same admitted tree.
    * @param parts Explicit carrier for every non-bone part.
    * @param contacts Explicit carrier for every original affordance.
-   * @returns A model owning new part geometry/transforms and current contact frames.
-   * @throws {RangeError} For incomplete vocabularies, missing/unknown carriers or non-rigid/nonfinite frames.
+   * @returns A model owning new part geometry/transforms and current contact
+   *   frames.
+   * @throws {RangeError} For incomplete vocabularies, missing/unknown carriers
+   *   or non-rigid/nonfinite frames.
    */
   export function apply<Id extends string, Dimension extends string>(
     animal: AutoMovieArchetype<Id, Dimension>,

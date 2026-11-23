@@ -7,7 +7,8 @@ import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 
 /**
- * One trial assembly of a jump's ride, as the flight planner measures it: its stride plan, its clock and its displayed parts at a second.
+ * One trial assembly of a jump's ride, as the flight planner measures it: its
+ * stride plan, its clock and its displayed parts at a second.
  *
  * @param strides The trial's stride plan.
  * @param clock The trial's clock.

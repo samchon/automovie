@@ -15,14 +15,21 @@ const EVERLAST: string =
   "Everlast 100 lb hanging bags: Powershot about 59 in tall and 14.5 in across, Powerlock 46 in and 13 in, NevaTear 53 in and 13.25 in, as search results give Everlast's and retailers' listings; not read";
 
 /**
- * A hanging heavy bag: a cylinder of the drawn height and diameter hanging from its hook.
+ * A hanging heavy bag: a cylinder of the drawn height and diameter hanging from
+ * its hook.
  *
- * It hangs from its `hook` at the origin, the middle of its top, the bag below it along `-Y`; the chain is the placement's, since no listing read gives its length; the side struck faces `+Z`. `target` is the bag's face at its middle height, a surface along `+Z` a punch or a kick lands on, `+X` across the bag and its depth the bag's height; `hook` is the hanging point, `+Y` up. Where the hook hangs, a ceiling's or a stand's, is the placement's.
+ * It hangs from its `hook` at the origin, the middle of its top, the bag below
+ * it along `-Y`; the chain is the placement's, since no listing read gives its
+ * length; the side struck faces `+Z`. `target` is the bag's face at its middle
+ * height, a surface along `+Z` a punch or a kick lands on, `+X` across the bag
+ * and its depth the bag's height; `hook` is the hanging point, `+Y` up. Where
+ * the hook hangs, a ceiling's or a stand's, is the placement's.
  *
  * A bag swinging after a hit is the force law of #3417, not this archetype's.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The heavy bag.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -76,9 +83,7 @@ export function createHeavyBag(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createHeavyBag}.
- */
+/** Companion types and bands of {@link createHeavyBag}. */
 export namespace createHeavyBag {
   /**
    * The affordance ids:

@@ -1,23 +1,19 @@
 /**
  * Adult Boso sika body references and separately sampled sex-matched skeletons.
  *
- * Ochiai and Asada 1995, Chiba 3(2):223-232, Table 3 (printed p.225),
- * supplies male4+ and female2+ body means. Mass counts are 25 and 46; the
- * corresponding tape-trait counts are 27 and 51. Their 1997 Chiba 4(2):159-172
- * Tables 3/7 instead measure skulls/limbs of ages5+: male skull n25, female
- * skull n60, male limbs n6 and female limbs n7. These are sex-matched controls,
- * not paired individuals or identical age cutoffs. No juvenile model or hard
- * population range is inferred from those grouped observations.
+ * Ochiai and Asada 1995, Chiba 3(2):223-232, Table 3 (printed p.225), supplies
+ * male4+ and female2+ body means. Mass counts are 25 and 46; the corresponding
+ * tape-trait counts are 27 and 51. Their 1997 Chiba 4(2):159-172 Tables 3/7
+ * instead measure skulls/limbs of ages5+: male skull n25, female skull n60,
+ * male limbs n6 and female limbs n7. These are sex-matched controls, not paired
+ * individuals or identical age cutoffs. No juvenile model or hard population
+ * range is inferred from those grouped observations.
  */
 export namespace DeerCohorts {
-  /**
-   * The two source-supported adult body references.
-   */
+  /** The two source-supported adult body references. */
   export type Name = "boso-adult-male" | "boso-adult-female";
 
-  /**
-   * Whole external body means in metres and kilograms.
-   */
+  /** Whole external body means in metres and kilograms. */
   export interface IMeasures {
     /** Ground to shoulder landmark, metres. */
     withers: number;
@@ -29,9 +25,7 @@ export namespace DeerCohorts {
     mass: number;
   }
 
-  /**
-   * Sex-matched skull and limb means of separately sampled adults age5+.
-   */
+  /** Sex-matched skull and limb means of separately sampled adults age5+. */
   export interface ISkeleton {
     /** Humerus, radius and metacarpus maximum lengths, metres. */
     fore: readonly [number, number, number];
@@ -46,10 +40,16 @@ export namespace DeerCohorts {
   /** Previous male reference, preserved for canonical seedless construction. */
   export const DEFAULT: Name = "boso-adult-male";
 
-  /** Authored equal-choice adult-reference palette, not population sex frequencies. */
+  /**
+   * Authored equal-choice adult-reference palette, not population sex
+   * frequencies.
+   */
   export const NAMES: readonly Name[] = [DEFAULT, "boso-adult-female"];
 
-  /** 1995 Table3 body centimetres converted to metres, weights retained in kilograms. */
+  /**
+   * 1995 Table3 body centimetres converted to metres, weights retained in
+   * kilograms.
+   */
   export const MEASURES: Readonly<Record<Name, Readonly<IMeasures>>> = {
     "boso-adult-male": { withers: 0.836, girth: 0.92, body: 0.882, mass: 60.4 },
     "boso-adult-female": {

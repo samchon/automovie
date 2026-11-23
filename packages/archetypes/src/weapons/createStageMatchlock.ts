@@ -8,14 +8,14 @@ import {
 import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
 
 /**
- * Detroit Institute of Arts 53.220, German matchlock gun, late 16th century
- * and later, steel, wood, staghorn and pigment: "Overall: 5 9/16 × 2 13/16 ×
- * 44 7/8 inches (14.2 × 7.1 × 114 cm) Overall (barrel): 31 15/16 inches
- * (81.1 cm)", photographed in seven gallery views, reproduction credited to
- * the Gift of the William Randolph Hearst Foundation
- * (https://dia.org/collection/matchlock-gun/31695, read 2026-11-21). The
- * record gives no mass, barrel radius or length of pull, so those are
- * provisional estimates.
+ * Detroit Institute of Arts 53.220, German matchlock gun, late 16th century and
+ * later, steel, wood, staghorn and pigment: "Overall: 5 9/16 × 2 13/16 × 44 7/8
+ * inches (14.2 × 7.1 × 114 cm) Overall (barrel): 31 15/16 inches (81.1 cm)",
+ * photographed in seven gallery views, reproduction credited to the Gift of the
+ * William Randolph Hearst Foundation
+ * (https://dia.org/collection/matchlock-gun/31695, read 2026-11-21). The record
+ * gives no mass, barrel radius or length of pull, so those are provisional
+ * estimates.
  */
 const PROFILE: Readonly<StagePeriodGunConstruction.IProfile> = {
   name: "stage matchlock",
@@ -34,11 +34,11 @@ const PROFILE: Readonly<StagePeriodGunConstruction.IProfile> = {
  * An inert matchlock silhouette for the screen.
  *
  * The gun lies along `+Z` from its butt plate to its muzzle, as
- * `StagePeriodGunConstruction` lays it. Its lock is a serpentine, the
- * S-shaped arm that lowers the glowing match into the pan, on the right of
- * the breech, and a coil of match cord hangs from it. The `serpentine` is the
- * thumb's place on the arm and the `match` the cord's burning end over the
- * `pan`. No mechanism moves: the prop is exterior geometry for the camera.
+ * `StagePeriodGunConstruction` lays it. Its lock is a serpentine, the S-shaped
+ * arm that lowers the glowing match into the pan, on the right of the breech,
+ * and a coil of match cord hangs from it. The `serpentine` is the thumb's place
+ * on the arm and the `match` the cord's burning end over the `pan`. No
+ * mechanism moves: the prop is exterior geometry for the camera.
  *
  * @param params The optional scene id.
  * @returns The inert model and its contact frames, metres.
@@ -106,11 +106,12 @@ export function createStageMatchlock(
   return StagePeriodGunConstruction.build(builder, PROFILE);
 }
 
-/**
- * The inputs and contacts of {@link createStageMatchlock}.
- */
+/** The inputs and contacts of {@link createStageMatchlock}. */
 export namespace createStageMatchlock {
-  /** The lock's contacts: the pan, the serpentine's thumb place and the match's burning end. */
+  /**
+   * The lock's contacts: the pan, the serpentine's thumb place and the match's
+   * burning end.
+   */
   export type Lock = "pan" | "serpentine" | "match";
 
   /** The shared handling and sling contacts and this lock's. */

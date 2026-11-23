@@ -14,12 +14,12 @@ const STAGED: string =
   "a swaddled infant: a coarse newborn-sized bundle, its dimensions and mass provisional estimates";
 
 /**
- * A swaddled infant: a coarse bundle with a head, carried as a prop. Its
- * origin is the seat, the bottom of the bundle, with `+Y` along the body
- * toward the head and `+Z` out of the face. `seat` is where a hand takes the
- * bundle from below; `nape` and `back` are the support sites behind the
- * neck and the back, facing `-Z`; `mouth` is the teat's place, facing `+Z`;
- * `head` the head's centre.
+ * A swaddled infant: a coarse bundle with a head, carried as a prop. Its origin
+ * is the seat, the bottom of the bundle, with `+Y` along the body toward the
+ * head and `+Z` out of the face. `seat` is where a hand takes the bundle from
+ * below; `nape` and `back` are the support sites behind the neck and the back,
+ * facing `-Z`; `mouth` is the teat's place, facing `+Z`; `head` the head's
+ * centre.
  *
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
@@ -110,9 +110,7 @@ export function createInfant(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and sites of {@link createInfant}.
- */
+/** Dimensions and sites of {@link createInfant}. */
 export namespace createInfant {
   /** The seat, the support sites, the mouth and the head. */
   export type Affordance = "seat" | "nape" | "back" | "mouth" | "head";

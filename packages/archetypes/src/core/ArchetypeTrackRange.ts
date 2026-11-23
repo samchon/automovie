@@ -13,7 +13,8 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
  * @param value The author's input value.
  * @param travels Every travel reached by the track, in the articulation's unit.
  * @returns The neutral articulation record used for the range check.
- * @throws {AutoMovieArchetypeRefusal} For a non-articulation or an unsupported travel.
+ * @throws {AutoMovieArchetypeRefusal} For a non-articulation or an unsupported
+ *   travel.
  */
 export function ArchetypeTrackRange<Id extends string>(
   archetype: AutoMovieArchetype<Id, string>,

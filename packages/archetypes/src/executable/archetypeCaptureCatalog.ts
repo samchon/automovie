@@ -98,7 +98,10 @@ import { archetypeCaptureRest } from "./archetypeCaptureRest";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 import { archetypeCaptureSupportProps } from "./archetypeCaptureSupportProps";
 
-/** A course for the moving subjects: a short straight, a quarter turn to the left, a short straight. */
+/**
+ * A course for the moving subjects: a short straight, a quarter turn to the
+ * left, a short straight.
+ */
 const COURSE: AutoMovieArchetypeCourse.ICourse = {
   start: { x: 0, z: 0, heading: 0 },
   legs: [
@@ -112,9 +115,13 @@ const COURSE: AutoMovieArchetypeCourse.ICourse = {
 };
 
 /**
- * The archetypes the capture subjects module draws, by subject name: subjects that each hold every kind of a few related producers at the middle of their bands (a family's props take three), one holding the articulated states a visual check has to see, and one per ride.
+ * The archetypes the capture subjects module draws, by subject name: subjects
+ * that each hold every kind of a few related producers at the middle of their
+ * bands (a family's props take three), one holding the articulated states a
+ * visual check has to see, and one per ride.
  *
- * This is an inspection list, not a registry: nothing in the package reads it but `subjects.ts`, and a production calls the producers themselves.
+ * This is an inspection list, not a registry: nothing in the package reads it
+ * but `subjects.ts`, and a production calls the producers themselves.
  *
  * @returns The subjects by name.
  */
@@ -449,23 +456,33 @@ export function archetypeCaptureCatalog(): Readonly<
   };
 }
 
-/**
- * Companion types of {@link archetypeCaptureCatalog}.
- */
+/** Companion types of {@link archetypeCaptureCatalog}. */
 export namespace archetypeCaptureCatalog {
   /** One archetype drawn in a subject, under its own object name. */
   export interface IMember {
-    /** The object's name in the scene, the first segment of its parts' and marks' paths. */
+    /**
+     * The object's name in the scene, the first segment of its parts' and
+     * marks' paths.
+     */
     name: string;
 
-    /** Immutable neutral model; quadruped sources enable independent rig observations. */
+    /**
+     * Immutable neutral model; quadruped sources enable independent rig
+     * observations.
+     */
     reference?: AutoMovieArchetype;
 
-    /** The archetype at a second of the subject's clock, and its root's placement in the world when it moves. */
+    /**
+     * The archetype at a second of the subject's clock, and its root's
+     * placement in the world when it moves.
+     */
     at(seconds: number): {
       archetype: AutoMovieArchetype;
       placement?: IAutoMovieTransform;
-      /** Authored/solved terminal axis goals from this same sample, model metres; absent when the consumer exposes none. */
+      /**
+       * Authored/solved terminal axis goals from this same sample, model
+       * metres; absent when the consumer exposes none.
+       */
       goals?: ReadonlyMap<
         AutoMovieArchetypeQuadrupedBody.Bone,
         IAutoMovieVector3
@@ -473,7 +490,10 @@ export namespace archetypeCaptureCatalog {
     };
   }
 
-  /** One drawn subject: its members, which the subjects module sets apart along a diagonal when there are several. */
+  /**
+   * One drawn subject: its members, which the subjects module sets apart along
+   * a diagonal when there are several.
+   */
   export interface ISubject {
     /** The archetypes drawn. */
     members: readonly IMember[];

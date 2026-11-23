@@ -14,9 +14,9 @@ const STAGED: string =
   "a feeding bottle: its dimensions and mass are provisional estimates, no maker's page was read";
 
 /**
- * A feeding bottle with a teat. Its origin is the base's centre, `+Y` up
- * the bottle to the teat. `grip` is the barrel a hand holds; `teat` the
- * teat's tip, facing `+Y`, which goes to an infant's mouth.
+ * A feeding bottle with a teat. Its origin is the base's centre, `+Y` up the
+ * bottle to the teat. `grip` is the barrel a hand holds; `teat` the teat's tip,
+ * facing `+Y`, which goes to an infant's mouth.
  *
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
@@ -81,9 +81,7 @@ export function createFeedingBottle(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and contacts of {@link createFeedingBottle}.
- */
+/** Dimensions and contacts of {@link createFeedingBottle}. */
 export namespace createFeedingBottle {
   /** The barrel held, and the teat's tip. */
   export type Affordance = "grip" | "teat";

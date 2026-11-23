@@ -8,15 +8,24 @@ import { EquineSideSaddle } from "./EquineSideSaddle";
 import { EquineSurcingle } from "./EquineSurcingle";
 
 /**
- * Lay an equid's tack on its laid body and give the tack's own read mass, which the equid producer adds on top of the equid's drawn mass.
+ * Lay an equid's tack on its laid body and give the tack's own read mass, which
+ * the equid producer adds on top of the equid's drawn mass.
  *
- * `saddle` lays the riding saddle and the lead (`EquineSaddle`), `both` adds the harness under it, `harness` the driving harness alone (`EquineHarness`), `pack` the pack saddle and the lead (`EquinePack`), `bareback` the bridle's reins and the back seat with the lead, `sidesaddle` the side saddle (`EquineSideSaddle`) with the lead, `surcingle` the vaulting surcingle and pad (`EquineSurcingle`), `double` the riding saddle with a pillion pad behind it (`EquineSaddle.pillion`), `trick` the riding saddle with a trick rider's horn, handholds and straps (`EquineSaddle.trick`), and `bare` nothing.
+ * `saddle` lays the riding saddle and the lead (`EquineSaddle`), `both` adds
+ * the harness under it, `harness` the driving harness alone (`EquineHarness`),
+ * `pack` the pack saddle and the lead (`EquinePack`), `bareback` the bridle's
+ * reins and the back seat with the lead, `sidesaddle` the side saddle
+ * (`EquineSideSaddle`) with the lead, `surcingle` the vaulting surcingle and
+ * pad (`EquineSurcingle`), `double` the riding saddle with a pillion pad behind
+ * it (`EquineSaddle.pillion`), `trick` the riding saddle with a trick rider's
+ * horn, handholds and straps (`EquineSaddle.trick`), and `bare` nothing.
  *
  * @param tack The admitted tack.
  * @param builder The equid under construction, its body laid.
  * @param d The equid's dimensions.
  * @param rig The equid's rest rig.
- * @returns The tack's mass, kilograms: a saddle's read weight, the rigged pack saddle's, or 0 for tack whose weight no maker states.
+ * @returns The tack's mass, kilograms: a saddle's read weight, the rigged pack
+ *   saddle's, or 0 for tack whose weight no maker states.
  */
 export function EquineTack(
   tack: AutoMovieArchetypeEquine.Tack,

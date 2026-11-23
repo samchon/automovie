@@ -18,18 +18,35 @@ const DOORS: string =
 const GAP: string =
   'an unbranded café doors installation sheet hosted by Home Depot: "a measurement of 18" to 24" from the finished floor to the bottom edge of finished doors is recommended" (https://images.homedepot-static.com/catalog/pdfImages/42/428f879b-22b1-4888-9933-013639f2e559.pdf); its maker is not named';
 
-/** A leaf's opening on its gravity hinge, degrees: Swinging Cafe Doors' standard gravity hinge, which "can be locked open in either direction" at 125 degrees (https://swingingcafedoors.com/hardware-info). */
+/**
+ * A leaf's opening on its gravity hinge, degrees: Swinging Cafe Doors' standard
+ * gravity hinge, which "can be locked open in either direction" at 125 degrees
+ * (https://swingingcafedoors.com/hardware-info).
+ */
 const SWING: number = 125;
 
 /**
- * A pair of saloon (café) doors hung in a doorway: two leaves meeting at its middle, each on a double-acting gravity hinge at its jamb.
+ * A pair of saloon (café) doors hung in a doorway: two leaves meeting at its
+ * middle, each on a double-acting gravity hinge at its jamb.
  *
- * The doorway stands in the `XY` plane with its threshold's middle at the origin; the opening is one the maker sizes its doors for, given or drawn from the seed, each leaf half of it, the two meeting at the middle, its foot the drawn gap above the floor. `leftLeaf` and `rightLeaf` are the hinges on the `+X` and `-X` jambs; a positive travel swings a leaf out toward `+Z` up to the hinge's 125 degrees, and a negative one toward `-Z` as far, the hinge's `reverse`, since the double-acting hinge locks open at 125 degrees in either direction. `leftPush` and `rightPush` are the leaves' faces at their middles, where a body pushes through, riding their hinges; `passage` is the opening under the leaves' tops. The doorway's frame is the wall's, not built.
+ * The doorway stands in the `XY` plane with its threshold's middle at the
+ * origin; the opening is one the maker sizes its doors for, given or drawn from
+ * the seed, each leaf half of it, the two meeting at the middle, its foot the
+ * drawn gap above the floor. `leftLeaf` and `rightLeaf` are the hinges on the
+ * `+X` and `-X` jambs; a positive travel swings a leaf out toward `+Z` up to
+ * the hinge's 125 degrees, and a negative one toward `-Z` as far, the hinge's
+ * `reverse`, since the double-acting hinge locks open at 125 degrees in either
+ * direction. `leftPush` and `rightPush` are the leaves' faces at their middles,
+ * where a body pushes through, riding their hinges; `passage` is the opening
+ * under the leaves' tops. The doorway's frame is the wall's, not built.
  *
  * @param params The opening and any dimension the author fixes.
- * @param seed The seed that draws the opening when it is not given and every dimension left free inside its band; absent, the first opening and the middle of each band.
+ * @param seed The seed that draws the opening when it is not given and every
+ *   dimension left free inside its band; absent, the first opening and the
+ *   middle of each band.
  * @returns The doors.
- * @throws {AutoMovieArchetypeRefusal} For an opening the maker does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For an opening the maker does not list,
+ *   or a fixed dimension outside its band.
  */
 export function createSaloonDoor(
   params: createSaloonDoor.IParams = {},
@@ -116,15 +133,15 @@ export function createSaloonDoor(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createSaloonDoor}.
- */
+/** Companion types and bands of {@link createSaloonDoor}. */
 export namespace createSaloonDoor {
   /**
    * The affordance ids:
    *
-   * - `leftLeaf`, `rightLeaf`: the leaves' hinges on `+X` and `-X`, swinging toward `+Z` and, by their reverse, as far toward `-Z`.
-   * - `leftPush`, `rightPush`: the leaves' faces at their middles, riding their hinges.
+   * - `leftLeaf`, `rightLeaf`: the leaves' hinges on `+X` and `-X`, swinging
+   *   toward `+Z` and, by their reverse, as far toward `-Z`.
+   * - `leftPush`, `rightPush`: the leaves' faces at their middles, riding their
+   *   hinges.
    * - `passage`: the doorway's opening under the leaves' tops.
    */
   export type Affordance =
@@ -155,7 +172,10 @@ export namespace createSaloonDoor {
     mass: "kg",
   };
 
-  /** The doorway openings the maker sizes its doors for: its "30",32",36" Door Opening Sizes". */
+  /**
+   * The doorway openings the maker sizes its doors for: its "30",32",36" Door
+   * Opening Sizes".
+   */
   export type Opening = "30in" | "32in" | "36in";
 
   /** Each opening with its width, metres, the default first. */
@@ -167,11 +187,17 @@ export namespace createSaloonDoor {
     "36in": { opening: 36 * AutoMovieArchetypeUnits.INCH },
   };
 
-  /** The parameters: the opening, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the opening, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "opening">, number>
   > {
-    /** The doorway's opening size, which sets `opening`; drawn from the seed when absent. */
+    /**
+     * The doorway's opening size, which sets `opening`; drawn from the seed
+     * when absent.
+     */
     size?: Opening;
 
     /** The model's id, unique in a scene; `saloonDoor` when absent. */

@@ -6,12 +6,15 @@ import type { createCart } from "./createCart";
 /**
  * Enclosed passenger carriage.
  *
- * The front axle steers the forward pole and the doors articulate independently. The interior seat and side apertures serve boarding.
+ * The front axle steers the forward pole and the doors articulate
+ * independently. The interior seat and side apertures serve boarding.
  *
- * @param params The scene identity and the dimensions and catalogue choices this carrier admits.
+ * @param params The scene identity and the dimensions and catalogue choices
+ *   this carrier admits.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createCarriage(
   params: createCarriage.IParams = {},
@@ -20,14 +23,15 @@ export function createCarriage(
   return CartConstruction("carriage", params, seed, CartCoach.carriage);
 }
 
-/**
- * Authoring options for {@link createCarriage}.
- */
+/** Authoring options for {@link createCarriage}. */
 export namespace createCarriage {
   /** The `model` choices this producer admits. */
   export type Model = "brewster" | "minerStevens" | "peters";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "frontWheelDiameter"
     | "height"
@@ -38,7 +42,10 @@ export namespace createCarriage {
     | "width";
 
   /**
-   * The createCart contact set its shared construction types. This producer builds box, coupling, drawbarPitch, frontAxle, frontLeftSpin, frontRightSpin, leftAperture, leftDoor, rearLeftSpin, rearRightSpin, rightAperture, rightDoor, seat.
+   * The createCart contact set its shared construction types. This producer
+   * builds box, coupling, drawbarPitch, frontAxle, frontLeftSpin,
+   * frontRightSpin, leftAperture, leftDoor, rearLeftSpin, rearRightSpin,
+   * rightAperture, rightDoor, seat.
    */
   export type Affordance = createCart.Affordance;
 

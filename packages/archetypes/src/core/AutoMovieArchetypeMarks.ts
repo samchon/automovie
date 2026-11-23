@@ -9,12 +9,24 @@ import { AutoMovieArchetypeArticulation } from "./AutoMovieArchetypeArticulation
 import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 
 /**
- * An archetype's affordances as inspection marks, so a still shows where each contact sits, which way it faces and how far it extends.
+ * An archetype's affordances as inspection marks, so a still shows where each
+ * contact sits, which way it faces and how far it extends.
  *
- * Each affordance gives an arrow from its frame's origin along `+Y`, the way out of the contact, and, where its kind has an extent, the outline of that extent: a line for a `handle`, `bar`, `ledge`, `rein` and `stirrup`, a rectangle for a `seat`, `surface`, `pedal` and `aperture`, a circle for a `wheel`'s rim, a spoke for a `crank`'s arm and a line along its run for a `slider`, from its other way's end to its forward one. The marks are grouped by kind (`affordance/seat`, `affordance/hinge`, ...) so a request selects and colours them by kind, and each is named `<path>/affordance/<id>` so a pattern on the archetype selects them with it.
+ * Each affordance gives an arrow from its frame's origin along `+Y`, the way
+ * out of the contact, and, where its kind has an extent, the outline of that
+ * extent: a line for a `handle`, `bar`, `ledge`, `rein` and `stirrup`, a
+ * rectangle for a `seat`, `surface`, `pedal` and `aperture`, a circle for a
+ * `wheel`'s rim, a spoke for a `crank`'s arm and a line along its run for a
+ * `slider`, from its other way's end to its forward one. The marks are grouped
+ * by kind (`affordance/seat`, `affordance/hinge`, ...) so a request selects and
+ * colours them by kind, and each is named `<path>/affordance/<id>` so a pattern
+ * on the archetype selects them with it.
  */
 export namespace AutoMovieArchetypeMarks {
-  /** Default length of the arrow along `+Y`, metres: readable on furniture and larger things. */
+  /**
+   * Default length of the arrow along `+Y`, metres: readable on furniture and
+   * larger things.
+   */
   export const ARROW: number = 0.12;
 
   /**
@@ -22,9 +34,13 @@ export namespace AutoMovieArchetypeMarks {
    *
    * @param path The inspection path of the archetype's object, such as `chair`.
    * @param affordances The affordances, their frames in the model's space.
-   * @param placement The archetype's placement in the world, with unit scale; at the origin when absent.
-   * @param arrow The length of each arrow, metres; `ARROW` when absent. A caller drawing something small passes a shorter one so the arrows do not hide it.
-   * @returns Two marks per affordance with an extent, one per point contact, in world coordinates.
+   * @param placement The archetype's placement in the world, with unit scale;
+   *   at the origin when absent.
+   * @param arrow The length of each arrow, metres; `ARROW` when absent. A
+   *   caller drawing something small passes a shorter one so the arrows do not
+   *   hide it.
+   * @returns Two marks per affordance with an extent, one per point contact, in
+   *   world coordinates.
    */
   export function of(
     path: string,
@@ -161,7 +177,10 @@ export namespace AutoMovieArchetypeMarks {
   }
 }
 
-/** The default colour of each affordance kind's marks, sRGB hex; distinct, as the instrument requires of kinds drawn together. */
+/**
+ * The default colour of each affordance kind's marks, sRGB hex; distinct, as
+ * the instrument requires of kinds drawn together.
+ */
 const COLORS: Readonly<Record<IAutoMovieAffordance["kind"], number>> = {
   "stack-top": 0x1f77b4,
   handle: 0xd62728,

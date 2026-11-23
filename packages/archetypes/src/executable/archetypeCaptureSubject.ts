@@ -4,11 +4,14 @@ import type { AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 
 /**
- * How the capture catalog makes a subject: a still one from named archetypes, the named archetypes of every kind of a producer, and a moving one from a ride.
+ * How the capture catalog makes a subject: a still one from named archetypes,
+ * the named archetypes of every kind of a producer, and a moving one from a
+ * ride.
  */
 export namespace archetypeCaptureSubject {
   /**
-   * A still subject: each archetype as a member under its name, the same at every second.
+   * A still subject: each archetype as a member under its name, the same at
+   * every second.
    *
    * @param members The archetypes by name.
    * @returns The subject.
@@ -52,11 +55,13 @@ export namespace archetypeCaptureSubject {
   }
 
   /**
-   * A moving subject: one member sampled from a ride, with the ride's running time and instants.
+   * A moving subject: one member sampled from a ride, with the ride's running
+   * time and instants.
    *
    * @param name The member's name.
    * @param ride The ride.
-   * @param reference Immutable neutral model for independent quadruped rig marks; optional for unrelated rides.
+   * @param reference Immutable neutral model for independent quadruped rig
+   *   marks; optional for unrelated rides.
    * @returns The subject.
    */
   export function moving<Id extends string, Dimension extends string>(

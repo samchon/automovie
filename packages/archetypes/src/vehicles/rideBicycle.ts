@@ -14,15 +14,33 @@ import {
 import type { createBicycle } from "./createBicycle";
 
 /**
- * A bicycle ridden along a course: its root on the path, leaned into each turn, its wheels rolling by distance and its crank following powered travel.
+ * A bicycle ridden along a course: its root on the path, leaned into each turn,
+ * its wheels rolling by distance and its crank following powered travel.
  *
- * One turn of the crank carries the bicycle the wheel's circumference times the gear ratio (the development), so the crank's travel in degrees is 360 times the distance over the development: the crank's angle integrates the path's speed by the gear. The ride adds the instants `leftTopDeadCentre` and `rightTopDeadCentre`, each time a crank arm passes straight up.
+ * One turn of the crank carries the bicycle the wheel's circumference times the
+ * gear ratio (the development), so the crank's travel in degrees is 360 times
+ * the distance over the development: the crank's angle integrates the path's
+ * speed by the gear. The ride adds the instants `leftTopDeadCentre` and
+ * `rightTopDeadCentre`, each time a crank arm passes straight up.
  *
  * @param bicycle The bicycle.
- * @param course The course its root follows, or its plan, such as a timed course's.
- * @param gear Teeth in use and optional freewheel intervals in course metres, such as a road coast or the stretches a bicycle is wheeled by hand. The default teeth are 34 and 17, a ratio of 2 from the compact road chainsets and 11 to 28 tooth cassettes Wikipedia's Bicycle gearing article lists (https://en.wikipedia.org/wiki/Bicycle_gearing). Omit coasting for fixed-drive behavior. UCI article 1.3.025 separates competition road and track drive equipment, https://www.uci.org/regulations/3MyLDDrwJCJJ0BGGOFzOat .
+ * @param course The course its root follows, or its plan, such as a timed
+ *   course's.
+ * @param gear Teeth in use and optional freewheel intervals in course metres,
+ *   such as a road coast or the stretches a bicycle is wheeled by hand. The
+ *   default teeth are 34 and 17, a ratio of 2 from the compact road chainsets
+ *   and 11 to 28 tooth cassettes Wikipedia's Bicycle gearing article lists
+ *   (https://en.wikipedia.org/wiki/Bicycle_gearing). Omit coasting for
+ *   fixed-drive behavior. UCI article 1.3.025 separates competition road and
+ *   track drive equipment,
+ *   https://www.uci.org/regulations/3MyLDDrwJCJJ0BGGOFzOat .
  * @returns The ride.
- * @throws {AutoMovieArchetypeRefusal} When a tooth count is not a positive whole number, a leg is reversed (a bicycle freewheels backward, so its crank would run back by the distance, which no rider does), a bend at the fastest the course lets it be taken needs more than `rideBicycle.LEAN` degrees of lean (as `AutoMovieArchetypeCourse.admitLean` refuses), or the course is malformed.
+ * @throws {AutoMovieArchetypeRefusal} When a tooth count is not a positive
+ *   whole number, a leg is reversed (a bicycle freewheels backward, so its
+ *   crank would run back by the distance, which no rider does), a bend at the
+ *   fastest the course lets it be taken needs more than `rideBicycle.LEAN`
+ *   degrees of lean (as `AutoMovieArchetypeCourse.admitLean` refuses), or the
+ *   course is malformed.
  */
 export function rideBicycle(
   bicycle: AutoMovieArchetype<
@@ -165,10 +183,15 @@ function single(coast: rideBicycle.Coast): coast is rideBicycle.Interval {
 }
 
 /**
- * The bicycle lean limit, the drive gear and an airborne take over a grounded ride.
+ * The bicycle lean limit, the drive gear and an airborne take over a grounded
+ * ride.
  */
 export namespace rideBicycle {
-  /** The greatest lean, degrees: provisional. No figure for a bicycle was read at a source; the road motorcycle's limit of `rideMotorcycle.LEAN` is taken as the bound a narrower tyre does not exceed. */
+  /**
+   * The greatest lean, degrees: provisional. No figure for a bicycle was read
+   * at a source; the road motorcycle's limit of `rideMotorcycle.LEAN` is taken
+   * as the bound a narrower tyre does not exceed.
+   */
   export const LEAN: number = 50;
 
   /** A stretch of the course from one distance to another, metres. */
@@ -185,7 +208,11 @@ export namespace rideBicycle {
     /** Sprocket teeth, a positive whole number. */
     sprocket: number;
 
-    /** Course stretches over which the wheels roll and the crank holds its phase: a road coast, or a bicycle wheeled by hand. Absent, the drive is fixed. */
+    /**
+     * Course stretches over which the wheels roll and the crank holds its
+     * phase: a road coast, or a bicycle wheeled by hand. Absent, the drive is
+     * fixed.
+     */
     coast?: Coast;
   }
 
@@ -199,23 +226,21 @@ export namespace rideBicycle {
   }
 
   /**
-   * Carry a bicycle through one level hop over a straight approach.
-   * The ground course gives horizontal motion and wheel phase. The bicycle
-   * and every named contact gain the same vertical ballistic displacement.
-   * At touchdown the grounded course continues with its original pose and
-   * forward speed.
+   * Carry a bicycle through one level hop over a straight approach. The ground
+   * course gives horizontal motion and wheel phase. The bicycle and every named
+   * contact gain the same vertical ballistic displacement. At touchdown the
+   * grounded course continues with its original pose and forward speed.
    *
-   * Pass the returned ride to this function again to add a flight outside
-   * its other hop intervals.
+   * Pass the returned ride to this function again to add a flight outside its
+   * other hop intervals.
    *
    * @param ride The bicycle's course ride, with any previously composed hops.
-   * @param interval Takeoff and touchdown film seconds on one level,
-   * forward straight leg travelled at constant positive speed.
+   * @param interval Takeoff and touchdown film seconds on one level, forward
+   *   straight leg travelled at constant positive speed.
    * @returns The same ride clock and drive with takeoff and touchdown instants.
-   * @throws {AutoMovieArchetypeRefusal} When the interval lies outside the ride or
-   * overlaps one of its hops, the approach changes speed or direction, or
-   * the bicycle is off the level course at either boundary.
-   *
+   * @throws {AutoMovieArchetypeRefusal} When the interval lies outside the ride
+   *   or overlaps one of its hops, the approach changes speed or direction, or
+   *   the bicycle is off the level course at either boundary.
    */
   export function hop(
     ride: ReturnType<typeof rideBicycle>,

@@ -14,7 +14,10 @@ const STAGED: string =
   "a scuba set: its dimensions and mass are provisional estimates, no maker's page was read";
 
 /**
- * A scuba cylinder on a buoyancy jacket, with its first-stage regulator. Its origin is the jacket's back plate centre, `+Z` out of the diver's back and `+Y` toward the head. `wear` is the jacket's inside, `+Y` toward the diver's back; `regulator` is the second stage the mouth takes.
+ * A scuba cylinder on a buoyancy jacket, with its first-stage regulator. Its
+ * origin is the jacket's back plate centre, `+Z` out of the diver's back and
+ * `+Y` toward the head. `wear` is the jacket's inside, `+Y` toward the diver's
+ * back; `regulator` is the second stage the mouth takes.
  *
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
@@ -81,9 +84,7 @@ export function createScubaSet(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and the socket of {@link createScubaSet}.
- */
+/** Dimensions and the socket of {@link createScubaSet}. */
 export namespace createScubaSet {
   /** The jacket on the back, and the second stage at the mouth. */
   export type Affordance = "wear" | "regulator";

@@ -18,25 +18,47 @@ type Builder = AutoMovieArchetypeBuilder<
 type Drawn = Readonly<Partial<Record<createLongGun.Dimension, number>>>;
 
 /**
- * The mechanisms of the period and repeating long guns, laid on the gun `createLongGun` builds along `+Z`, its barrel's line at `y = 0` and its lock on the right, `-X`: a musket's flintlock and ramrod, a bolt action's bolt and magazine, and a lever action's lever and the hammer it cocks.
+ * The mechanisms of the period and repeating long guns, laid on the gun
+ * `createLongGun` builds along `+Z`, its barrel's line at `y = 0` and its lock
+ * on the right, `-X`: a musket's flintlock and ramrod, a bolt action's bolt and
+ * magazine, and a lever action's lever and the hammer it cocks.
  *
- * Every place and angle the read sources do not give is a named estimate in `ESTIMATES`; the searches are recorded in the sources record (records-firearms-flintlock.md, records-firearms-rifles.md).
+ * Every place and angle the read sources do not give is a named estimate in
+ * `ESTIMATES`; the searches are recorded in the sources record
+ * (records-firearms-flintlock.md, records-firearms-rifles.md).
  */
 export namespace LongGunLock {
   /**
    * How far ahead of the muzzle a socket bayonet starts its slide onto the
    * barrel, metres: longer than the provisional 0.10 m socket of
-   * `createStageBayonet`, so the tube clears the muzzle before it moves on.
-   * An authored staging distance, not a measurement.
+   * `createStageBayonet`, so the tube clears the muzzle before it moves on. An
+   * authored staging distance, not a measurement.
    */
   export const BAYONET_APPROACH: number = 0.12;
 
   /**
-   * The places and angles no source read gives, each an estimate the mechanisms are drawn by:
+   * The places and angles no source read gives, each an estimate the mechanisms
+   * are drawn by:
    *
-   * - `rod`: the ramrod's radius, its line below the barrel's, the front pipe's middle behind the muzzle, a pipe's half length and its radius, metres; the Short Land's four pipes are read (Museums Victoria ST 21813), their places and sizes are not (searched: Museums Victoria, the London Museum, Colonial Williamsburg, the 1764 Manual Exercise).
-   * - `bolt`: the handle's reach, the stroke back, the bolt's radius and the handle's, the bolt's body behind its stroke, the handle's place ahead of the bolt's tail and the magazine's opening above the barrel's line, metres; the lift, degrees, borrowed from Ruger's American Gen II spec sheet's "70 degree throw" (and Tikka's T3x page's 70 degree opening) because neither service rifle's manual (TM 9-1270, FM 23-10, German Infantry Weapons 1943) states its lift; searched in records-firearms-rifles.md.
-   * - `lever`: the lever's swing and the hammer's fall, degrees; the loop's length, its pivot below the barrel's line and ahead of the trigger, its end's drop, the lever's and the hammer's radius, the hammer's pivot above the line and behind the breech, and its spur's rise and lean, metres; Marlin's page states a half-cock hammer but no angle or size (searched in records-firearms-rifles.md).
+   * - `rod`: the ramrod's radius, its line below the barrel's, the front pipe's
+   *   middle behind the muzzle, a pipe's half length and its radius, metres;
+   *   the Short Land's four pipes are read (Museums Victoria ST 21813), their
+   *   places and sizes are not (searched: Museums Victoria, the London Museum,
+   *   Colonial Williamsburg, the 1764 Manual Exercise).
+   * - `bolt`: the handle's reach, the stroke back, the bolt's radius and the
+   *   handle's, the bolt's body behind its stroke, the handle's place ahead of
+   *   the bolt's tail and the magazine's opening above the barrel's line,
+   *   metres; the lift, degrees, borrowed from Ruger's American Gen II spec
+   *   sheet's "70 degree throw" (and Tikka's T3x page's 70 degree opening)
+   *   because neither service rifle's manual (TM 9-1270, FM 23-10, German
+   *   Infantry Weapons 1943) states its lift; searched in
+   *   records-firearms-rifles.md.
+   * - `lever`: the lever's swing and the hammer's fall, degrees; the loop's
+   *   length, its pivot below the barrel's line and ahead of the trigger, its
+   *   end's drop, the lever's and the hammer's radius, the hammer's pivot above
+   *   the line and behind the breech, and its spur's rise and lean, metres;
+   *   Marlin's page states a half-cock hammer but no angle or size (searched in
+   *   records-firearms-rifles.md).
    */
   export const ESTIMATES: Readonly<{
     rod: Readonly<{
@@ -97,7 +119,8 @@ export namespace LongGunLock {
   };
 
   /**
-   * The front pipe's middle along the gun, metres: `ESTIMATES.rod.pipe` behind the muzzle.
+   * The front pipe's middle along the gun, metres: `ESTIMATES.rod.pipe` behind
+   * the muzzle.
    *
    * @param d The gun's dimensions.
    * @returns Its place along `+Z`.
@@ -107,7 +130,19 @@ export namespace LongGunLock {
   }
 
   /**
-   * Where a musket's supporting hand holds it, the swell of the stock, along the gun from the butt, metres. The 1764 Manual Exercise puts the left hand "at the swell" at the shoulder, the advance and the present, and at Make Ready "about the middle of that part of the firelock between the Lock and the Swell" (The Manual Exercise, as Ordered by His Majesty in 1764, https://battlefields.org/learn/primary-sources/manual-exercise-ordered-his-majesty-1764). The swell is the stock's bulge where the ramrod enters it, behind the rearmost pipe (American Rifleman, The Redcoats' Brown Bess, 2009, and collectors' descriptions, seen only in search results), so it is taken at the tail pipe, whose place is `ESTIMATES.rod`'s: provisional, no measured distance from the lock to the swell being found (searched: the 1764 Manual Exercise, Museums Victoria ST 21813, American Rifleman; records-firearms-flintlock.md).
+   * Where a musket's supporting hand holds it, the swell of the stock, along
+   * the gun from the butt, metres. The 1764 Manual Exercise puts the left hand
+   * "at the swell" at the shoulder, the advance and the present, and at Make
+   * Ready "about the middle of that part of the firelock between the Lock and
+   * the Swell" (The Manual Exercise, as Ordered by His Majesty in 1764,
+   * https://battlefields.org/learn/primary-sources/manual-exercise-ordered-his-majesty-1764).
+   * The swell is the stock's bulge where the ramrod enters it, behind the
+   * rearmost pipe (American Rifleman, The Redcoats' Brown Bess, 2009, and
+   * collectors' descriptions, seen only in search results), so it is taken at
+   * the tail pipe, whose place is `ESTIMATES.rod`'s: provisional, no measured
+   * distance from the lock to the swell being found (searched: the 1764 Manual
+   * Exercise, Museums Victoria ST 21813, American Rifleman;
+   * records-firearms-flintlock.md).
    *
    * @param d The gun's dimensions.
    * @returns The swell's place along `+Z`.
@@ -119,7 +154,12 @@ export namespace LongGunLock {
   }
 
   /**
-   * A flintlock musket's lock, ramrod and contacts: the lock at the breech (`AutoMovieArchetypeFirearm.layFlintlock`: the `pan`, the `frizzen` and the `cock`); the `ramrod` under the barrel, its head at the muzzle, drawn forward out of its pipes until its tail leaves the front `pipe`; the `muzzle` as a socket for the cartridge and the rod, and the `bayonet`'s socket over the muzzle.
+   * A flintlock musket's lock, ramrod and contacts: the lock at the breech
+   * (`AutoMovieArchetypeFirearm.layFlintlock`: the `pan`, the `frizzen` and the
+   * `cock`); the `ramrod` under the barrel, its head at the muzzle, drawn
+   * forward out of its pipes until its tail leaves the front `pipe`; the
+   * `muzzle` as a socket for the cartridge and the rod, and the `bayonet`'s
+   * socket over the muzzle.
    *
    * @param builder The gun under construction, its stock and barrel laid.
    * @param d The gun's dimensions.
@@ -207,7 +247,10 @@ export namespace LongGunLock {
   }
 
   /**
-   * A bolt action's bolt and magazine: the `bolt` hinge lifts the handle about the bore's axis, and the `boltSlide` slider riding it draws the bolt and its handle back by the stroke; the `magazine` is a socket in the receiver's top, loaded from above.
+   * A bolt action's bolt and magazine: the `bolt` hinge lifts the handle about
+   * the bore's axis, and the `boltSlide` slider riding it draws the bolt and
+   * its handle back by the stroke; the `magazine` is a socket in the receiver's
+   * top, loaded from above.
    *
    * @param builder The gun under construction.
    * @param d The gun's dimensions.
@@ -264,7 +307,9 @@ export namespace LongGunLock {
   }
 
   /**
-   * A lever action's lever and hammer: the `lever` loop under the grip swings down and forward about the cross axis, and the `hammer` at the breech follows it back to full cock (`follows`).
+   * A lever action's lever and hammer: the `lever` loop under the grip swings
+   * down and forward about the cross axis, and the `hammer` at the breech
+   * follows it back to full cock (`follows`).
    *
    * @param builder The gun under construction.
    * @param d The gun's dimensions.
@@ -311,5 +356,9 @@ export namespace LongGunLock {
   }
 }
 
-/** The Short Land musket's ramrod pipes: "four brass ramrod tubes, steel ramrod" (Museums Victoria ST 21813, https://collections.museumsvictoria.com.au/items/373555). */
+/**
+ * The Short Land musket's ramrod pipes: "four brass ramrod tubes, steel ramrod"
+ * (Museums Victoria ST 21813,
+ * https://collections.museumsvictoria.com.au/items/373555).
+ */
 const PIPES: number = 4;

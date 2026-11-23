@@ -9,28 +9,57 @@ import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { EquineSaddle } from "./EquineSaddle";
 
 /**
- * An equid's side saddle, laid on its body: a flat seat, the fixed head (the upper pommel) the right leg goes round, the leaping head (the lower pommel) curved over the left thigh, one stirrup on the near side and the two reins. The Side Saddle Association's introduction gives the arrangement: "your right leg goes around the top one, and then hangs down", the left leg lies under "the second or lower pommel – the leaping head", the "left foot will be in a stirrup", and the rider sits "absolutely straight and square" (https://sidesaddleassociation.co.uk/introsidesaddle.asp). Both legs are on the near side, `+X`, so the tack is asymmetric by construction.
+ * An equid's side saddle, laid on its body: a flat seat, the fixed head (the
+ * upper pommel) the right leg goes round, the leaping head (the lower pommel)
+ * curved over the left thigh, one stirrup on the near side and the two reins.
+ * The Side Saddle Association's introduction gives the arrangement: "your right
+ * leg goes around the top one, and then hangs down", the left leg lies under
+ * "the second or lower pommel – the leaping head", the "left foot will be in a
+ * stirrup", and the rider sits "absolutely straight and square"
+ * (https://sidesaddleassociation.co.uk/introsidesaddle.asp). Both legs are on
+ * the near side, `+X`, so the tack is asymmetric by construction.
  *
- * The seat is entered sideways, facing the near side, as a rider is legged up onto a side saddle before lifting the right leg over the fixed head; its `seat` contact therefore faces `+X`, is sat with the legs ahead and reaches back across the saddle to its spine. Every size is an estimate no source read gives, named here; the saddle's weight is a press figure.
+ * The seat is entered sideways, facing the near side, as a rider is legged up
+ * onto a side saddle before lifting the right leg over the fixed head; its
+ * `seat` contact therefore faces `+X`, is sat with the legs ahead and reaches
+ * back across the saddle to its spine. Every size is an estimate no source read
+ * gives, named here; the saddle's weight is a press figure.
  */
 export namespace EquineSideSaddle {
-  /** The side saddle's mass, kilograms: traditional side saddles of beechwood, iron and leather "typically weighed around 22lb (10kg)" (Horse & Hound, "Riding side-saddle", https://www.horseandhound.co.uk/news/riding-side-saddle-39657). Added on top of the equid's drawn mass; the stirrup, the reins and the lead are massless, as on the riding saddle. */
+  /**
+   * The side saddle's mass, kilograms: traditional side saddles of beechwood,
+   * iron and leather "typically weighed around 22lb (10kg)" (Horse & Hound,
+   * "Riding side-saddle",
+   * https://www.horseandhound.co.uk/news/riding-side-saddle-39657). Added on
+   * top of the equid's drawn mass; the stirrup, the reins and the lead are
+   * massless, as on the riding saddle.
+   */
   export const WEIGHT: number = 10;
 
-  /** The flat seat's width across the back, metres: an estimate, wider than the riding saddle's `EquineSaddle.SEAT_WIDTH`, no source read gives it. */
+  /**
+   * The flat seat's width across the back, metres: an estimate, wider than the
+   * riding saddle's `EquineSaddle.SEAT_WIDTH`, no source read gives it.
+   */
   export const WIDTH: number = 0.36;
 
-  /** The fixed head's rise above the seat and its offset to the near side of the spine, metres: estimates. */
+  /**
+   * The fixed head's rise above the seat and its offset to the near side of the
+   * spine, metres: estimates.
+   */
   export const HEAD: Readonly<{ rise: number; near: number }> = {
     rise: 0.1,
     near: 0.04,
   };
 
-  /** How much shorter the near stirrup leather hangs than the riding saddle's drop, metres: an estimate for the bent left leg under the leaping head. */
+  /**
+   * How much shorter the near stirrup leather hangs than the riding saddle's
+   * drop, metres: an estimate for the bent left leg under the leaping head.
+   */
   export const SHORTER: number = 0.1;
 
   /**
-   * Lay the side saddle, its heads, its stirrup and its reins on an equid under construction.
+   * Lay the side saddle, its heads, its stirrup and its reins on an equid under
+   * construction.
    *
    * @param builder The equid under construction, its body laid.
    * @param d The equid's dimensions.

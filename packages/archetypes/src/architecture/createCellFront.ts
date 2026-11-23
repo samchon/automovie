@@ -19,20 +19,34 @@ const GRILLE: string =
 const CEILING: string =
   '6VAC15-81-660: cells with "a ceiling height no less than eight feet" (https://law.lis.virginia.gov/admincode/title6/agency15/chapter81/section660/); the model takes the least, the grille floor to ceiling';
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `flat`, a horizontal flat bar's width across the grille; the grip contacts are the round bars only. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `flat`, a horizontal flat bar's width across the
+ * grille; the grip contacts are the round bars only.
+ */
 const ESTIMATES: Readonly<{ flat: number }> = { flat: 0.05 };
 
 /**
- * A prison cell's barred front across the cell's width: upright round bars at the maker's centres from the floor to the cell's ceiling, braced by horizontal flat bars at the maker's spacing.
+ * A prison cell's barred front across the cell's width: upright round bars at
+ * the maker's centres from the floor to the cell's ceiling, braced by
+ * horizontal flat bars at the maker's spacing.
  *
- * The width is the cell's, a site dimension as a wall's run is, so the author gives it; the bars are as many as fit inside it at the maker's centres, centred on it, so no gap is wider than the centres allow. `createCellFront.REFERENCE` is the narrowest front the read code admits, for a caller that needs one without a cell.
+ * The width is the cell's, a site dimension as a wall's run is, so the author
+ * gives it; the bars are as many as fit inside it at the maker's centres,
+ * centred on it, so no gap is wider than the centres allow.
+ * `createCellFront.REFERENCE` is the narrowest front the read code admits, for
+ * a caller that needs one without a cell.
  *
- * The grille stands in the `XY` plane on the floor, centred on the origin, the cell behind it toward `-Z`. `bar1` to `barN` are the upright bars from `-X`, each a bar along `+Y` a hand grips through the gaps.
+ * The grille stands in the `XY` plane on the floor, centred on the origin, the
+ * cell behind it toward `-Z`. `bar1` to `barN` are the upright bars from `-X`,
+ * each a bar along `+Y` a hand grips through the gaps.
  *
  * @param params The cell's width and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The cell front.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a width too narrow for two bars at the drawn centres.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
+ *   or a width too narrow for two bars at the drawn centres.
  */
 export function createCellFront(
   params: createCellFront.IParams,
@@ -105,9 +119,7 @@ export function createCellFront(
   return builder.build(d.mass * bars);
 }
 
-/**
- * Companion types and bands of {@link createCellFront}.
- */
+/** Companion types and bands of {@link createCellFront}. */
 export namespace createCellFront {
   /** The affordance ids: `bar1` upward from `-X`, each upright bar. */
   export type Affordance = `bar${number}`;
@@ -118,7 +130,8 @@ export namespace createCellFront {
    * - `height`: the grille from the floor.
    * - `diameter`: a bar's round section.
    * - `spacing`: from one bar's centre to the next.
-   * - `brace`: from one horizontal flat bar to the next, the first one spacing up.
+   * - `brace`: from one horizontal flat bar to the next, the first one spacing
+   *   up.
    * - `flat`: a flat bar's thickness.
    * - `mass`: kilograms per bar with its share of the flat bars.
    */
@@ -142,16 +155,27 @@ export namespace createCellFront {
     mass: "kg",
   };
 
-  /** The parameters: the cell's width, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the cell's width, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The cell's width the front closes, metres, a site dimension: the bars are as many as fit inside it. */
+    /**
+     * The cell's width the front closes, metres, a site dimension: the bars are
+     * as many as fit inside it.
+     */
     width: number;
 
     /** The model's id, unique in a scene; `cellFront` when absent. */
     id?: string;
   }
 
-  /** The narrowest front the read code admits, for a caller that needs one without a cell: the cell's door alone, 20 Ill. Adm. Code 720.160(b)(3)(A), the door "a minimum of 6'8" high and 2'4" wide" (https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-20-SS-720.160). */
+  /**
+   * The narrowest front the read code admits, for a caller that needs one
+   * without a cell: the cell's door alone, 20 Ill. Adm. Code 720.160(b)(3)(A),
+   * the door "a minimum of 6'8" high and 2'4" wide"
+   * (https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-20-SS-720.160).
+   */
   export const REFERENCE: Readonly<IParams> = {
     width: 2 * AutoMovieArchetypeUnits.FOOT + 4 * AutoMovieArchetypeUnits.INCH,
   };

@@ -20,9 +20,12 @@ type Drawn = Partial<Record<createInstrument.Dimension, number>>;
 const v: typeof Vector3.create = Vector3.create;
 
 /**
- * How {@link createInstrument} builds an upright piano with its case, keyboard of 88 keys numbered from the bottom, fallboard and damper pedal.
+ * How {@link createInstrument} builds an upright piano with its case, keyboard
+ * of 88 keys numbered from the bottom, fallboard and damper pedal.
  *
- * The piano stands with its back at the origin's `Z` and the keyboard toward `+Z`, centred on `X`; a player faces it along `-Z`, so the bass, at the player's left, is at `-X`.
+ * The piano stands with its back at the origin's `Z` and the keyboard toward
+ * `+Z`, centred on `X`; a player faces it along `-Z`, so the bass, at the
+ * player's left, is at `-X`.
  */
 export namespace KeyboardConstruction {
   /** The keys of a modern piano. */
@@ -32,7 +35,11 @@ export namespace KeyboardConstruction {
   export const BLACK: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
 
   /**
-   * The construction sizes, metres, which place no contact: `white`, a white key's thickness under its cited top; `blackWidth`, a black key's width, the 13.7 mm the search for the keyboard's sizes gave; `gap`, the gap between neighbouring white keys; `cheek`, a side arm's width; `fallboard`, the fallboard's thickness; each but `blackWidth` an estimate.
+   * The construction sizes, metres, which place no contact: `white`, a white
+   * key's thickness under its cited top; `blackWidth`, a black key's width, the
+   * 13.7 mm the search for the keyboard's sizes gave; `gap`, the gap between
+   * neighbouring white keys; `cheek`, a side arm's width; `fallboard`, the
+   * fallboard's thickness; each but `blackWidth` an estimate.
    */
   export const ESTIMATES: Readonly<{
     white: number;
@@ -48,7 +55,10 @@ export namespace KeyboardConstruction {
     fallboard: 0.015,
   };
 
-  /** The fallboard's travel, degrees: the quarter turn about its level hinge that lays it, upright at rest, flat over the keys. */
+  /**
+   * The fallboard's travel, degrees: the quarter turn about its level hinge
+   * that lays it, upright at rest, flat over the keys.
+   */
   export const FALL: number = 90;
 
   /**
@@ -62,9 +72,15 @@ export namespace KeyboardConstruction {
   }
 
   /**
-   * An upright piano: the case behind the keys from the floor to its height, two cheeks either side of the keyboard carrying the key bed, the 88 keys on it, each a part on its own `key<n>` button, and the fallboard standing open behind the keys on its `lid` hinge.
+   * An upright piano: the case behind the keys from the floor to its height,
+   * two cheeks either side of the keyboard carrying the key bed, the 88 keys on
+   * it, each a part on its own `key<n>` button, and the fallboard standing open
+   * behind the keys on its `lid` hinge.
    *
-   * White keys are laid side by side at a seventh of the drawn octave each; a black key sits on the line between its two white neighbours, raised the drawn rise above them and shorter. Each key's site is its middle, and each presses down by the drawn dip.
+   * White keys are laid side by side at a seventh of the drawn octave each; a
+   * black key sits on the line between its two white neighbours, raised the
+   * drawn rise above them and shorter. Each key's site is its middle, and each
+   * presses down by the drawn dip.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.

@@ -10,10 +10,13 @@ import { StationeryDraw } from "./StationeryDraw";
 /**
  * Loose paper sheet or folding map with a shared writing-surface contract.
  *
- * @param params The optional scene ID, paper format and any fixed dimension in metres or kilograms. The default format is a single sheet.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
+ * @param params The optional scene ID, paper format and any fixed dimension in
+ *   metres or kilograms. The default format is a single sheet.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createPaper(
   params?: createPaper.ISheetParams,
@@ -26,7 +29,10 @@ export function createPaper(
   seed?: number | string,
 ): AutoMovieArchetype<createPaper.Affordance, createPaper.Dimension>;
 
-/** A format selected by an authored scene resolves to one of the two paper models. */
+/**
+ * A format selected by an authored scene resolves to one of the two paper
+ * models.
+ */
 export function createPaper(
   params: createPaper.IParams,
   seed?: number | string,
@@ -125,9 +131,7 @@ export function createPaper(
   return builder.build(d.mass!);
 }
 
-/**
- * The paper formats and their stable names in authored scenes.
- */
+/** The paper formats and their stable names in authored scenes. */
 export namespace createPaper {
   /** A loose sheet or a map that opens at one crease. */
   export type Format = "sheet" | "foldedMap";
@@ -159,7 +163,10 @@ export namespace createPaper {
   /** The dimensions both formats draw, in metres and the mass in kilograms. */
   export type Dimension = "length" | "mass" | "thickness" | "width";
 
-  /** Contacts present across both formats. Only the map has the crease and the layer grips. */
+  /**
+   * Contacts present across both formats. Only the map has the crease and the
+   * layer grips.
+   */
   export type Affordance =
     | "grip"
     | "face"

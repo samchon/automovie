@@ -19,10 +19,13 @@ const RULE: string =
 /**
  * A competition shot, the men's or the women's.
  *
- * It rests on the floor, its lowest point at the origin and its centre a radius above it. `grip` is the shot as the putting hand holds it, at its centre, its diameter the aperture: the put pushes it from the neck.
+ * It rests on the floor, its lowest point at the origin and its centre a radius
+ * above it. `grip` is the shot as the putting hand holds it, at its centre, its
+ * diameter the aperture: the put pushes it from the neck.
  *
  * @param params The category and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The shot.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -73,9 +76,7 @@ export function createShot(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createShot}.
- */
+/** Companion types and bands of {@link createShot}. */
 export namespace createShot {
   /** The categories. */
   export type Kind = "men" | "women";
@@ -102,7 +103,10 @@ export namespace createShot {
     mass: "kg",
   };
 
-  /** The parameters: the category, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the category, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which category. */
     kind: Kind;

@@ -14,14 +14,16 @@ import { createBoat } from "./createBoat";
 /**
  * Assemble a boat with its fixed, positive-Z bow.
  *
- * The hull model and material determine the bottom and the gunwale around the waterline. The outfitting callback owns the contacts beyond the hull.
+ * The hull model and material determine the bottom and the gunwale around the
+ * waterline. The outfitting callback owns the contacts beyond the hull.
  *
  * @param kind The fixed hull form.
  * @param outfit Adds the form's seats and other interior equipment.
  * @param params The hull's authored options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function BoatConstruction(
   kind: createBoat.Kind,
@@ -198,9 +200,7 @@ export function BoatConstruction(
   return builder.build(d.mass!);
 }
 
-/**
- * The hull measurements each fixed-seat boat reads while fitting its supports.
- */
+/** The hull measurements each fixed-seat boat reads while fitting its supports. */
 export namespace BoatConstruction {
   /** Measured support frame inputs in the unposed hull's coordinate system. */
   export interface IHull {

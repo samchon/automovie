@@ -79,14 +79,9 @@ export function AutoMovieArchetypeEquineJointLimits(
       };
 }
 
-/**
- * Clinical reference types and comparison of measured included angles.
- */
+/** Clinical reference types and comparison of measured included angles. */
 export namespace AutoMovieArchetypeEquineJointLimits {
-  /**
-   * Proximal joints for which the retained primary tables provide observations.
-   *
-   */
+  /** Proximal joints for which the retained primary tables provide observations. */
   export type Joint =
     | "foreElbow"
     | "foreCarpus"
@@ -95,19 +90,13 @@ export namespace AutoMovieArchetypeEquineJointLimits {
     | "hindTarsus"
     | "hindFetlock";
 
-  /**
-   * A reported mean and standard deviation, both in degrees, not endpoints.
-   *
-   */
+  /** A reported mean and standard deviation, both in degrees, not endpoints. */
   export type Statistic = readonly [
     meanDegrees: number,
     standardDeviationDegrees: number,
   ];
 
-  /**
-   * Acquisition conditions shared by one primary table's observation rows.
-   *
-   */
+  /** Acquisition conditions shared by one primary table's observation rows. */
   export interface IStudy {
     /** Persistent primary publication identifier. */
     readonly doi:
@@ -134,10 +123,7 @@ export namespace AutoMovieArchetypeEquineJointLimits {
     readonly limitation: string;
   }
 
-  /**
-   * One cohort's flexion and extension included-angle statistics.
-   *
-   */
+  /** One cohort's flexion and extension included-angle statistics. */
   export interface IObservation {
     /** The retained primary table and its acquisition conditions. */
     readonly study: IStudy;
@@ -161,10 +147,7 @@ export namespace AutoMovieArchetypeEquineJointLimits {
     readonly reportedRom: Statistic | null;
   }
 
-  /**
-   * A bone's available clinical references and unknown local rotation bounds.
-   *
-   */
+  /** A bone's available clinical references and unknown local rotation bounds. */
   export type IReference =
     | {
         /** An unsupported proximal joint. */
@@ -187,10 +170,7 @@ export namespace AutoMovieArchetypeEquineJointLimits {
         readonly limits: null;
       };
 
-  /**
-   * Position of one supplied included angle relative to one study's means.
-   *
-   */
+  /** Position of one supplied included angle relative to one study's means. */
   export interface IComparison {
     /** Source row whose angle convention the caller must reproduce. */
     readonly observation: IObservation;
@@ -214,16 +194,17 @@ export namespace AutoMovieArchetypeEquineJointLimits {
   /**
    * Compare an independently measured angle in one selected study's convention.
    *
-   * Callers must reproduce the selected row's landmark rays and included-angle side.
-   * Model-local Euler offsets cannot be passed as included angles. This reports
-   * observed differences; it neither admits nor rejects an anatomical pose.
+   * Callers must reproduce the selected row's landmark rays and included-angle
+   * side. Model-local Euler offsets cannot be passed as included angles. This
+   * reports observed differences; it neither admits nor rejects an anatomical
+   * pose.
    *
    * @param bone Distal bone identifying the joint.
    * @param studyDoi The source whose angle convention the caller reproduced.
    * @param includedAngle Included landmark angle in degrees within [0, 360].
    * @returns That source's diagnostic, or null for an unmeasured joint.
-   * @throws {RangeError} For an invalid angle or a source that did not measure this joint.
-   *
+   * @throws {RangeError} For an invalid angle or a source that did not measure
+   *   this joint.
    */
   export function compare(
     bone: AutoMovieArchetypeQuadrupedBody.Bone,
@@ -266,7 +247,10 @@ export namespace AutoMovieArchetypeEquineJointLimits {
   }
 }
 
-/** Primary acquisition conditions; source tables supply aggregate observations only. */
+/**
+ * Primary acquisition conditions; source tables supply aggregate observations
+ * only.
+ */
 const STUDIES: Readonly<
   Record<
     "fore" | "hind" | "goniometry",
@@ -311,7 +295,10 @@ const STUDIES: Readonly<
   },
 };
 
-/** Each angle definition follows its own study; the two methods use different rays. */
+/**
+ * Each angle definition follows its own study; the two methods use different
+ * rays.
+ */
 const OBSERVATIONS: Readonly<
   Record<
     AutoMovieArchetypeEquineJointLimits.Joint,

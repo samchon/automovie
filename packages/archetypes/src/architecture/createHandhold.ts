@@ -22,21 +22,35 @@ const DULUTH: string =
 /** A strap's loop, metres: HAPPICH's 200 mm drawing label, the grip at its foot. */
 const LOOP: number = 200 * AutoMovieArchetypeUnits.MILLIMETRE;
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `run`, the overhead rail's length a strap hangs from; `tape`, a strap's tape width and thickness. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `run`, the overhead rail's length a strap hangs
+ * from; `tape`, a strap's tape width and thickness.
+ */
 const ESTIMATES: Readonly<{ run: number; tape: number }> = {
   run: 0.4,
   tape: 0.02,
 };
 
 /**
- * A handhold a standing passenger holds in a bus or a train: an upright pole, or a strap hanging from the overhead rail.
+ * A handhold a standing passenger holds in a bus or a train: an upright pole,
+ * or a strap hanging from the overhead rail.
  *
- * The pole stands on the floor at the origin up to the overhead rail's height; its `pole` contact is the whole pole, an upright bar. A strap hangs from a short run of the overhead rail along `X` above the origin, its loop's foot the strap's length below the rail; its `rail` contact is the overhead rail, a bar, and `strap` the loop's foot, a handle. Standing on the moving floor has no motion law yet (#3491), so the hold is built for static use.
+ * The pole stands on the floor at the origin up to the overhead rail's height;
+ * its `pole` contact is the whole pole, an upright bar. A strap hangs from a
+ * short run of the overhead rail along `X` above the origin, its loop's foot
+ * the strap's length below the rail; its `rail` contact is the overhead rail, a
+ * bar, and `strap` the loop's foot, a handle. Standing on the moving floor has
+ * no motion law yet (#3491), so the hold is built for static use.
  *
  * @param params The kind, a strap's model and any dimension the author fixes.
- * @param seed The seed that draws a strap's model when it is not given and every dimension left free inside its band; absent, the first strap and the middle of each band.
+ * @param seed The seed that draws a strap's model when it is not given and
+ *   every dimension left free inside its band; absent, the first strap and the
+ *   middle of each band.
  * @returns The handhold.
- * @throws {AutoMovieArchetypeRefusal} For a strap HAPPICH does not list or one named for a pole, a fixed dimension outside its band, or one only another kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a strap HAPPICH does not list or one
+ *   named for a pole, a fixed dimension outside its band, or one only another
+ *   kind has.
  */
 export function createHandhold(
   params: createHandhold.IParams,
@@ -146,9 +160,7 @@ export function createHandhold(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createHandhold}.
- */
+/** Companion types and bands of {@link createHandhold}. */
 export namespace createHandhold {
   /** The kinds of handhold. */
   export type Kind = "pole" | "strap";
@@ -171,7 +183,8 @@ export namespace createHandhold {
    * - `height`: the pole's top, or the overhead rail's height, above the floor.
    * - `diameter`: the pole's or the rail's section.
    * - `length`: a strap's from the rail to its loop's foot, its model's.
-   * - `mass`: kilograms; a strap's is its model's, the strap's alone, the rail being the vehicle's.
+   * - `mass`: kilograms; a strap's is its model's, the strap's alone, the rail
+   *   being the vehicle's.
    */
   export type Dimension = "height" | "diameter" | "length" | "mass";
 
@@ -185,7 +198,10 @@ export namespace createHandhold {
     mass: "kg",
   };
 
-  /** The straps read: HAPPICH's 625 and 673 mm straps, each with its three clamping pieces' masses. */
+  /**
+   * The straps read: HAPPICH's 625 and 673 mm straps, each with its three
+   * clamping pieces' masses.
+   */
   export type Strap =
     | "625 mm, 100 g"
     | "625 mm, 125 g"
@@ -194,7 +210,15 @@ export namespace createHandhold {
     | "673 mm, 135 g"
     | "673 mm, 160 g";
 
-  /** Each kind's straps, metres and kilograms, the default first; a pole has one read model. Each strap read, metres and kilograms, its length and its mass with one of its clamping pieces: HAPPICH Halteschlaufen / Straps catalogue (02/2018): straps 625 mm long for mounting without a rotary catch lock (p. 76) and 673 mm with one (p. 78), each +/-4 mm, weighing 100, 125 or 150 g and 110, 135 or 160 g by clamping piece, the loop 200 mm (https://www.hug-technik.com/media/e0/f3/9f/1688027593/2.8.4._Halteschlaufen.pdf). */
+  /**
+   * Each kind's straps, metres and kilograms, the default first; a pole has one
+   * read model. Each strap read, metres and kilograms, its length and its mass
+   * with one of its clamping pieces: HAPPICH Halteschlaufen / Straps catalogue
+   * (02/2018): straps 625 mm long for mounting without a rotary catch lock (p.
+   * 76) and 673 mm with one (p. 78), each +/-4 mm, weighing 100, 125 or 150 g
+   * and 110, 135 or 160 g by clamping piece, the loop 200 mm
+   * (https://www.hug-technik.com/media/e0/f3/9f/1688027593/2.8.4._Halteschlaufen.pdf).
+   */
   export const STRAPS: Readonly<
     Partial<
       Record<
@@ -215,7 +239,10 @@ export namespace createHandhold {
     },
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "length">, number>
   > {

@@ -30,7 +30,9 @@ import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
 /**
- * The capture catalog's building subjects: doors and the windows, switches and controls beside them, the climbing aids, the fixtures, the obstacles and the street, each every kind of its producers at the middle of their bands.
+ * The capture catalog's building subjects: doors and the windows, switches and
+ * controls beside them, the climbing aids, the fixtures, the obstacles and the
+ * street, each every kind of its producers at the middle of their bands.
  *
  * @param door The lever door at rest, which the catalog also shows open.
  * @returns The subjects by name, in the catalog's order.

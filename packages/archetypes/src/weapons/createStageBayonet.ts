@@ -11,8 +11,8 @@ import {
 import { createLongGun } from "./createLongGun";
 
 /**
- * The bayonet's unread proportions, metres: provisional estimates for a
- * Land Pattern socket bayonet until a measured record is read, such as the
+ * The bayonet's unread proportions, metres: provisional estimates for a Land
+ * Pattern socket bayonet until a measured record is read, such as the
  * Smithsonian's socket-bayonet scabbard (NMAH 1050670), whose page refused
  * automated reading on 2026-11-21, or a Royal Armouries socket bayonet.
  */
@@ -31,17 +31,18 @@ const MASS: number = 0.12;
 /**
  * Fit an inert socket bayonet to a separately generated musket's muzzle.
  *
- * The blade runs along `+Y` from its shoulder at the origin to the `tip`.
- * The socket tube lies one crank toward `-Z`, behind the shoulder, with its
- * bore sized from the musket's barrel. Its `socket` frame shares the
- * blade's axes and sits on the tube's axis at its front end, so placing it
- * on the musket's `bayonet` frame slides the tube over the muzzle and hangs
- * the blade below the barrel, parallel to it. The `handle` is the tube a hand
- * closes on to draw or fix the bayonet.
+ * The blade runs along `+Y` from its shoulder at the origin to the `tip`. The
+ * socket tube lies one crank toward `-Z`, behind the shoulder, with its bore
+ * sized from the musket's barrel. Its `socket` frame shares the blade's axes
+ * and sits on the tube's axis at its front end, so placing it on the musket's
+ * `bayonet` frame slides the tube over the muzzle and hangs the blade below the
+ * barrel, parallel to it. The `handle` is the tube a hand closes on to draw or
+ * fix the bayonet.
  *
  * @param params A generated musket and an optional bayonet id.
  * @returns The bayonet and its model-space contact frames, in metres.
- * @throws {AutoMovieArchetypeRefusal} If the gun is not a generated musket with a barrel, or the ids coincide.
+ * @throws {AutoMovieArchetypeRefusal} If the gun is not a generated musket with
+ *   a barrel, or the ids coincide.
  */
 export function createStageBayonet(
   params: createStageBayonet.IParams,
@@ -154,11 +155,12 @@ export function createStageBayonet(
   return builder.build(MASS);
 }
 
-/**
- * The musket input and the bayonet's contacts.
- */
+/** The musket input and the bayonet's contacts. */
 export namespace createStageBayonet {
-  /** The socket that mates with the musket's bayonet frame, the tube a hand holds, and the blade's tip. */
+  /**
+   * The socket that mates with the musket's bayonet frame, the tube a hand
+   * holds, and the blade's tip.
+   */
   export type Affordance = "socket" | "handle" | "tip";
 
   /** The blade length, the socket length and the socket's bore diameter, metres. */

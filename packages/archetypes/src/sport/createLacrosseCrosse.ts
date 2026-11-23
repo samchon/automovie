@@ -11,11 +11,16 @@ const v: typeof Vector3.create = Vector3.create;
 /**
  * A lacrosse crosse with a mesh pocket, scoop and shaft grip.
  *
- * The head lies at the bottom, its face toward +Z. The pocket rests behind the head and the scoop marks its front edge.
- * @param params The optional identifier and dimensions fixed within their recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
+ * The head lies at the bottom, its face toward +Z. The pocket rests behind the
+ * head and the scoop marks its front edge.
+ *
+ * @param params The optional identifier and dimensions fixed within their
+ *   recorded bands.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createLacrosseCrosse(
   params: createLacrosseCrosse.IParams = {},
@@ -84,11 +89,12 @@ export function createLacrosseCrosse(
   return builder.build(d.mass!);
 }
 
-/**
- * The authored parameters and contact names for {@link createLacrosseCrosse}.
- */
+/** The authored parameters and contact names for {@link createLacrosseCrosse}. */
 export namespace createLacrosseCrosse {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "depth" | "head" | "length" | "mass" | "width";
 
   /** The named contacts on this stick or bat. */

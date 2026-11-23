@@ -40,7 +40,8 @@ const DISPLAY_HEIGHTS: Readonly<Record<createStageWeaponProp.Kind, number>> = {
 /**
  * Build a padded stage form around its hand-held base.
  *
- * A display height sets the base shape, while the supplied decoration records the visible silhouette and its additional marks.
+ * A display height sets the base shape, while the supplied decoration records
+ * the visible silhouette and its additional marks.
  *
  * @param kind Catalogue silhouette label.
  * @param shaftRatio Fraction of display height occupied by the shaft.
@@ -48,7 +49,8 @@ const DISPLAY_HEIGHTS: Readonly<Record<createStageWeaponProp.Kind, number>> = {
  * @param params An optional scene id and height in metres.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function StageShaftConstruction(
   kind: createStageWeaponProp.Kind,
@@ -105,9 +107,7 @@ export function StageShaftConstruction(
   return builder.build(0.2);
 }
 
-/**
- * The base dimensions offered to the owning silhouette builder.
- */
+/** The base dimensions offered to the owning silhouette builder. */
 export namespace StageShaftConstruction {
   /** Builder for named digital stage silhouette contacts. */
   export type Builder = AutoMovieArchetypeBuilder<

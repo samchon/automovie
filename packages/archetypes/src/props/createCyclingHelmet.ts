@@ -5,16 +5,20 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { WornPropDraw } from "./WornPropDraw";
 
 /**
- * Cycling helmet with a rim hold and a shell socket. It rests on its rim,
- * shell up, front toward `+Z`; `hold` is the rim at its right side (`-X`)
- * where a right hand puts it on by the side of the head, closing over the shell on its height (the hold declares no aperture, so a grasp reads the shell's span along its `+Y`), and `wear` is the
- * shell's inside top, `+Y` toward the head, which rests on the head's crown
- * under the foam.
+ * Cycling helmet with a rim hold and a shell socket. It rests on its rim, shell
+ * up, front toward `+Z`; `hold` is the rim at its right side (`-X`) where a
+ * right hand puts it on by the side of the head, closing over the shell on its
+ * height (the hold declares no aperture, so a grasp reads the shell's span
+ * along its `+Y`), and `wear` is the shell's inside top, `+Y` toward the head,
+ * which rests on the head's crown under the foam.
  *
- * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
+ * @param params The optional scene ID and any fixed free dimension in metres or
+ *   kilograms.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When a fixed parameter lies outside its admitted band.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed parameter lies outside its
+ *   admitted band.
  */
 export function createCyclingHelmet(
   params: Pick<
@@ -82,13 +86,14 @@ export function createCyclingHelmet(
   return builder.build(d.mass);
 }
 
-/**
- * The contacts and dimensions of {@link createCyclingHelmet}.
- */
+/** The contacts and dimensions of {@link createCyclingHelmet}. */
 export namespace createCyclingHelmet {
   /** The contacts this producer builds. */
   export type Affordance = "hold" | "wear";
 
-  /** The dimensions this producer draws, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws, in metres unless the draw records
+   * kilograms.
+   */
   export type Dimension = "depth" | "height" | "mass" | "width";
 }

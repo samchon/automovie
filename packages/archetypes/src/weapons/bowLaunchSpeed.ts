@@ -2,13 +2,20 @@ import { type AutoMovieArchetype, AutoMovieArchetypeRefusal } from "../core";
 import { createBow } from "./createBow";
 
 /**
- * The provisional speed from the bow prototype's declared stroke-energy law: what `createBow.launchSpeed` gives. Its reference numbers are reinterpreted stroke factors, as createBow.KOOI documents; this is not native-q or measured force-draw reconstruction.
+ * The provisional speed from the bow prototype's declared stroke-energy law:
+ * what `createBow.launchSpeed` gives. Its reference numbers are reinterpreted
+ * stroke factors, as createBow.KOOI documents; this is not native-q or measured
+ * force-draw reconstruction.
  *
  * @param bow The bow.
  * @param mass The arrow's finite positive mass, kilograms.
- * @param travel The finite string travel from brace, metres, inside its stroke; 0 gives no speed.
- * @returns The finite speed, metres per second; representational underflow can give zero.
- * @throws {AutoMovieArchetypeRefusal} For invalid mass, draw weight, string stroke or travel, an unread draw weight, or unrepresentable launch arithmetic.
+ * @param travel The finite string travel from brace, metres, inside its stroke;
+ *   0 gives no speed.
+ * @returns The finite speed, metres per second; representational underflow can
+ *   give zero.
+ * @throws {AutoMovieArchetypeRefusal} For invalid mass, draw weight, string
+ *   stroke or travel, an unread draw weight, or unrepresentable launch
+ *   arithmetic.
  */
 export function bowLaunchSpeed(
   bow: AutoMovieArchetype<createBow.Affordance, createBow.Dimension>,

@@ -11,7 +11,10 @@ import type { createBow } from "./createBow";
 const WARBOW: string =
   "Aston and Spencer, The Deane brother's Mary Rose Bow X1-3: the bow 1710 mm long, 42.03 mm wide and 29.79 mm deep at its centre, about 167 cm nock to nock once horned; approximation MR X1-9/S3 66 in nock to nock; approximations of wych elm, S1, S2 and S3 905, 868 and 785 g, drawing 108, 101 and 141 lb at 30 in; Mary Rose arrow nocks a median 3 mm wide (https://keskustelu.primitiivijousi.fi/uploads/short-url/jbxr7WWexChfC3RBxRL26IK9gxF.pdf, pp. 4-5, 13, 21-22, 25-26, 29, 32)";
 
-/** Two Korean traditional horse bows, read at a dealer that states the maker's figures. */
+/**
+ * Two Korean traditional horse bows, read at a dealer that states the maker's
+ * figures.
+ */
 const HORSE_BOW: string =
   'Freddie Warrior KTB 53 in: "Brace height: 5.5 to 6" (14 to 15 cm)", "Mass weight: 330 g", "Draw weight: 15 to 60 lbs in 5 lb steps, measured at 31" of draw" (https://www.bogentandler.at/en/freddie-warrior-ktb-53); Freddie Zenith KTB 48 in: brace 14 to 15 cm, 315 g, drawn at 31 in (https://www.bogentandler.at/en/freddie-zenith-ktb-48)';
 
@@ -39,7 +42,11 @@ const EASTON: string =
 const NOCK_BORROWED: string = `borrowed from ${EASTON}, because no nocking height of this bow's own was found (searched: Easton's guide, Glasgow Archers' bracing notes, World Archery's coaching pages)`;
 
 /**
- * The band of each free dimension of {@link createBow} a kind's model and draw weight leave, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. Read only as `createBow.BANDS`; a recurve's brace is its model's (`createBow.BRACES`), and every band names its source, one not read at its primary source provisional.
+ * The band of each free dimension of {@link createBow} a kind's model and draw
+ * weight leave, by kind, with the sources they are read at: kept apart from the
+ * producer so each file stays within its size. Read only as `createBow.BANDS`;
+ * a recurve's brace is its model's (`createBow.BRACES`), and every band names
+ * its source, one not read at its primary source provisional.
  */
 export const BOW_BANDS: Readonly<
   Record<

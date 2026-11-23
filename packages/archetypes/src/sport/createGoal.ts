@@ -8,10 +8,12 @@ import { createVolleyballNet } from "./createVolleyballNet";
 /**
  * Reads a saved goal recipe using its canonical producer.
  *
- * @param params The saved kind, optional identifier and any dimensions or choices the author supplied.
+ * @param params The saved kind, optional identifier and any dimensions or
+ *   choices the author supplied.
  * @param seed The seed used by the selected producer.
  * @returns The original model and its contacts.
- * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension
+ *   cannot be realized.
  */
 export function createGoal(
   params: createGoal.IParams,
@@ -33,9 +35,7 @@ export function createGoal(
   return produce(params, seed);
 }
 
-/**
- * Companion types, names and bands of {@link createGoal}.
- */
+/** Companion types, names and bands of {@link createGoal}. */
 export namespace createGoal {
   /** The kinds of goal. */
   export type Kind =
@@ -66,10 +66,13 @@ export namespace createGoal {
   /**
    * The affordance ids:
    *
-   * - `crossbar`, `mouth`: a football goal's crossbar, a bar, and its opening, an aperture.
-   * - `leftPost`, `rightPost`: the upright posts on `+X` and `-X` of a football goal, a volleyball or a tennis net, bars.
+   * - `crossbar`, `mouth`: a football goal's crossbar, a bar, and its opening, an
+   *   aperture.
+   * - `leftPost`, `rightPost`: the upright posts on `+X` and `-X` of a football
+   *   goal, a volleyball or a tennis net, bars.
    * - `rim`, `board`: a basketball ring's front, a bar, and the backboard's face.
-   * - `top`: a net's top as a ledge along `X`: a volleyball net's whole top, a tennis net's lowest point at its centre strap.
+   * - `top`: a net's top as a ledge along `X`: a volleyball net's whole top, a
+   *   tennis net's lowest point at its centre strap.
    */
   export type Affordance =
     | "crossbar"
@@ -83,12 +86,17 @@ export namespace createGoal {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `width`: a football goal's mouth, a backboard's width, a volleyball net's length, a tennis court's doubles width.
-   * - `height`: a football crossbar's lower edge, a basketball ring's top, a net's top at its centre; a volleyball net's is its class's.
-   * - `bar`: a football goal's post and crossbar section, a basketball ring's metal, a tennis post's side.
-   * - `board`: a backboard's height or a volleyball net's width; `thickness`: a backboard's.
+   * - `width`: a football goal's mouth, a backboard's width, a volleyball net's
+   *   length, a tennis court's doubles width.
+   * - `height`: a football crossbar's lower edge, a basketball ring's top, a
+   *   net's top at its centre; a volleyball net's is its class's.
+   * - `bar`: a football goal's post and crossbar section, a basketball ring's
+   *   metal, a tennis post's side.
+   * - `board`: a backboard's height or a volleyball net's width; `thickness`: a
+   *   backboard's.
    * - `ring`: a basketball ring's inside diameter.
-   * - `offset`: a basketball ring's nearest point from the backboard, or a net post's distance outside the court.
+   * - `offset`: a basketball ring's nearest point from the backboard, or a net
+   *   post's distance outside the court.
    * - `post`: a volleyball post's height, or a tennis net's height at its posts.
    * - `mass`: kilograms.
    */
@@ -109,15 +117,26 @@ export namespace createGoal {
   /** A volleyball net's classes, FIVB 2.1.1's. */
   export type Net = "men" | "women";
 
-  /** The figures each class fixes, by kind, the default first: a volleyball net's top, FIVB Official Volleyball Rules 2025-2028, 2.1.1, "2.43 m for men and 2.24 m for women" (https://www.fivb.com/wp-content/uploads/2025/01/FIVB-Volleyball_Rules2025_2028-EN-v05.pdf). */
+  /**
+   * The figures each class fixes, by kind, the default first: a volleyball
+   * net's top, FIVB Official Volleyball Rules 2025-2028, 2.1.1, "2.43 m for men
+   * and 2.24 m for women"
+   * (https://www.fivb.com/wp-content/uploads/2025/01/FIVB-Volleyball_Rules2025_2028-EN-v05.pdf).
+   */
   export const NETS: typeof GoalBuild.NETS = GoalBuild.NETS;
 
-  /** The parameters: the kind, a volleyball net's class, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, a volleyball net's class, and any free dimension
+   * fixed to a value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which goal. */
     kind: Kind;
 
-    /** A volleyball net's class; drawn from the seed when absent. No other kind has one. */
+    /**
+     * A volleyball net's class; drawn from the seed when absent. No other kind
+     * has one.
+     */
     net?: Net;
 
     /** The model's id, unique in a scene; `goal` when absent. */

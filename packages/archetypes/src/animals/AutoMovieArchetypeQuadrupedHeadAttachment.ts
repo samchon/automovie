@@ -9,18 +9,24 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
  * The shared head is the capsule with cap centres poll/nose and headRadius.
  * Eroding that solid by the positive root radius leaves the same finite axis
  * and radius R-r. A centre inside this eroded capsule carries a whole ball of
- * radius r inside the head, hence the root disk in every orientation.
- * This is authored neutral construction, not a measured anatomical insertion.
- * Stem length/direction and any branches remain the producer's responsibility.
+ * radius r inside the head, hence the root disk in every orientation. This is
+ * authored neutral construction, not a measured anatomical insertion. Stem
+ * length/direction and any branches remain the producer's responsibility.
  *
- * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ * Public only so the package's specs can reach it: it is not part of the
+ * authoring surface, and it moves to an internal subpath when one exists.
  *
  * @param head Generating head capsule, neutral model-space metres.
- * @param hint Authored root-centre hint in that same frame; an already seated centre stays unchanged.
- * @param stemRadius Positive finite radius enclosing the root cross-section, metres; for a box use its root rectangle's half-diagonal.
- * @returns A fresh seated centre, preserving an outside hint's nearest-axis bearing. Radius equality seats on the capsule axis.
- * @throws {RangeError} For nonfinite/degenerate head geometry, invalid radius, a root larger than the head or an unrepresentable inset/output.
- * @throws {Error} When the shared closest-segment owner cannot represent its finite query.
+ * @param hint Authored root-centre hint in that same frame; an already seated
+ *   centre stays unchanged.
+ * @param stemRadius Positive finite radius enclosing the root cross-section,
+ *   metres; for a box use its root rectangle's half-diagonal.
+ * @returns A fresh seated centre, preserving an outside hint's nearest-axis
+ *   bearing. Radius equality seats on the capsule axis.
+ * @throws {RangeError} For nonfinite/degenerate head geometry, invalid radius,
+ *   a root larger than the head or an unrepresentable inset/output.
+ * @throws {Error} When the shared closest-segment owner cannot represent its
+ *   finite query.
  */
 export function AutoMovieArchetypeQuadrupedHeadAttachment(
   head: Pick<

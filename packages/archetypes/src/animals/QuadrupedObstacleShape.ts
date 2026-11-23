@@ -4,7 +4,10 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A part's conservative physical bound for the footing's pole query (`AutoMovieArchetypeQuadrupedFooting`): a box, sphere or capsule as itself, any other round bar, such as a cylinder or cone, by the capsule of its radius and height, which contains it.
+ * A part's conservative physical bound for the footing's pole query
+ * (`AutoMovieArchetypeQuadrupedFooting`): a box, sphere or capsule as itself,
+ * any other round bar, such as a cylinder or cone, by the capsule of its radius
+ * and height, which contains it.
  *
  * @param part The part with its world transform.
  * @returns The physical shape.

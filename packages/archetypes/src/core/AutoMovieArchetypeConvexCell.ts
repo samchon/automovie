@@ -15,14 +15,10 @@ import type {
  * A shell consists of separate wall cells; the empty interior is never hulled.
  */
 export namespace AutoMovieArchetypeConvexCell {
-  /**
-   * Local cells by their visible model part ids.
-   */
+  /** Local cells by their visible model part ids. */
   export type Table = ReadonlyMap<string, ICell>;
 
-  /**
-   * An admitted local cell, owned immutably with its model after construction.
-   */
+  /** An admitted local cell, owned immutably with its model after construction. */
   export interface ICell {
     /** Owned local corners in metres; consumers do not mutate them. */
     readonly points: readonly IAutoMovieVector3[];
@@ -40,9 +36,11 @@ export namespace AutoMovieArchetypeConvexCell {
 
   /**
    * Admit one real convex cell and derive all its consumers' local data once.
+   *
    * @param input Finite local corners in metres, spanning positive volume.
    * @returns Independently owned points, visible mesh and local mass data.
-   * @throws {Error} For insufficient/nonfinite points, zero volume or unrepresentable local mass data.
+   * @throws {Error} For insufficient/nonfinite points, zero volume or
+   *   unrepresentable local mass data.
    */
   export function of(input: readonly IAutoMovieVector3[]): ICell {
     if (input.length < 4)

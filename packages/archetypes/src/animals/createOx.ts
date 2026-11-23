@@ -13,12 +13,17 @@ import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQ
 import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**
- * A coarse Kathani working-ox reference with horns and authored equipment, declaring the roper's targets: `head` at the poll, `horns` between the horns' bases and `hind` between the hocks.
+ * A coarse Kathani working-ox reference with horns and authored equipment,
+ * declaring the roper's targets: `head` at the poll, `horns` between the horns'
+ * bases and `hind` between the hocks.
  *
- * @param params Authored whole-model kilograms, optional lead and yoke/pack dimensions.
- * @param seed Independent construction seed and declared timing-spread coordinate.
+ * @param params Authored whole-model kilograms, optional lead and yoke/pack
+ *   dimensions.
+ * @param seed Independent construction seed and declared timing-spread
+ *   coordinate.
  * @returns The shared quadruped model; mass/foot coefficients are not inferred.
- * @throws {AutoMovieArchetypeRefusal} For invalid mass, tempo or equipment dimensions.
+ * @throws {AutoMovieArchetypeRefusal} For invalid mass, tempo or equipment
+ *   dimensions.
  */
 export function createOx(
   params: createOx.IParams,
@@ -143,13 +148,20 @@ export function createOx(
 }
 
 /**
- * Authored ox equipment and named construction proxies, independent of body measurements.
+ * Authored ox equipment and named construction proxies, independent of body
+ * measurements.
  */
 export namespace createOx {
-  /** Authored gallery/test mass only, not a measured Kathani weight or a constructor default. */
+  /**
+   * Authored gallery/test mass only, not a measured Kathani weight or a
+   * constructor default.
+   */
   export const REFERENCE: Readonly<Pick<IParams, "mass">> = { mass: 300 };
 
-  /** Positive total mass is authored; no live weight was read for the source cohort. */
+  /**
+   * Positive total mass is authored; no live weight was read for the source
+   * cohort.
+   */
   export interface IParams extends createCohortQuadruped.IParams {
     /** Required authored complete kilograms; no working-ox mass was measured. */
     mass: number;
@@ -158,7 +170,10 @@ export namespace createOx {
     equipment?: AutoMovieArchetypeQuadrupedEquipment.IParams;
   }
 
-  /** Radius/length ratios of coarse identifying rods; not anatomical measurements. */
+  /**
+   * Radius/length ratios of coarse identifying rods; not anatomical
+   * measurements.
+   */
   export const CONSTRUCTION: Readonly<{
     hornRadius: number;
     earRadius: number;

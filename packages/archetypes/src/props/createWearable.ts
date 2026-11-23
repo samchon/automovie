@@ -8,10 +8,13 @@ import { createWatch } from "./createWatch";
 /**
  * Read a saved wearable recipe and call the producer for its kind.
  *
- * @param params The saved kind, fixed values, optional identifier and model when applicable.
- * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+ * @param params The saved kind, fixed values, optional identifier and model
+ *   when applicable.
+ * @param seed The seed that draws the saved dimensions and model, or undefined
+ *   for the original defaults.
  * @returns The selected prop in its original frame.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createWearable(
   params: createWearable.IParams,
@@ -33,9 +36,7 @@ export function createWearable(
   return produce(params, seed);
 }
 
-/**
- * Compatibility tables and types for saved wearable recipes.
- */
+/** Compatibility tables and types for saved wearable recipes. */
 export namespace createWearable {
   /** The original kind for the saved wearable recipe. */
   export type Kind = WornPropDraw.Kind;

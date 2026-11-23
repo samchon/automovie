@@ -19,25 +19,25 @@ const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
 /**
  * A pumped playground swing on the ride's clock: the hanging seat model
- * (`createSwing.seat`) turns about the beam's pivot axis by the swing
- * angle, positive toward `+Z`.
+ * (`createSwing.seat`) turns about the beam's pivot axis by the swing angle,
+ * positive toward `+Z`.
  *
- * The seat is a simple pendulum of the hanging length to the seated
- * centre of mass, with angular frequency `sqrt(g / length)`. Seated
- * pumping, by the rider turning the body at each turning point, adds a
- * fixed angle to the amplitude every half swing (Wirkus, Rand and Ruina,
- * "How to pump a swing", College Math J 29:266, 1998,
- * https://www.maa.org/pubs/CMJ_September98.html). Each half swing runs
- * from one turning point to the next on a cosine whose two ends are
- * those turning points, so the seat is still at each turning point and
- * its path stays smooth while the amplitude grows. Half swings without
- * pumping keep their amplitude.
+ * The seat is a simple pendulum of the hanging length to the seated centre of
+ * mass, with angular frequency `sqrt(g / length)`. Seated pumping, by the rider
+ * turning the body at each turning point, adds a fixed angle to the amplitude
+ * every half swing (Wirkus, Rand and Ruina, "How to pump a swing", College Math
+ * J 29:266, 1998, https://www.maa.org/pubs/CMJ_September98.html). Each half
+ * swing runs from one turning point to the next on a cosine whose two ends are
+ * those turning points, so the seat is still at each turning point and its path
+ * stays smooth while the amplitude grows. Half swings without pumping keep
+ * their amplitude.
  *
  * @param swing The installed swing frame.
  * @param placement Its world placement.
  * @param ride The start, the pumped half swings and the angle each adds.
  * @returns The seat's frame and the turning points on the ride's clock.
- * @throws {AutoMovieArchetypeRefusal} For a hanging length, start angle or increment out of range.
+ * @throws {AutoMovieArchetypeRefusal} For a hanging length, start angle or
+ *   increment out of range.
  */
 export function rideSwing(
   swing: AutoMovieArchetype<"ground", createSwing.Dimension>,
@@ -106,13 +106,9 @@ export function rideSwing(
   };
 }
 
-/**
- * The swing ride's parameters and readers.
- */
+/** The swing ride's parameters and readers. */
 export namespace rideSwing {
-  /**
-   * How the swing is set going and pumped.
-   */
+  /** How the swing is set going and pumped. */
   export interface IParams {
     /** Pivot to the seated centre of mass, metres. */
     length: number;
@@ -120,19 +116,23 @@ export namespace rideSwing {
     /** The swing angle at second 0, a turning point, degrees toward `+Z`. */
     start: number;
 
-    /** Whole number of half swings the ride lasts; each takes pi / sqrt(g / length) seconds, with standard gravity g. */
+    /**
+     * Whole number of half swings the ride lasts; each takes pi / sqrt(g /
+     * length) seconds, with standard gravity g.
+     */
     halves: number;
 
-    /** Whole number of leading half swings that gain `increment`, at most `halves`; later half swings keep their amplitude. */
+    /**
+     * Whole number of leading half swings that gain `increment`, at most
+     * `halves`; later half swings keep their amplitude.
+     */
     pumps: number;
 
     /** The angle each pumped half swing adds to the amplitude, degrees. */
     increment: number;
   }
 
-  /**
-   * One running swing's readers.
-   */
+  /** One running swing's readers. */
   export interface IRide {
     /** Seconds from one turning point to the next. */
     half: number;

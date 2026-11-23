@@ -24,11 +24,16 @@ const v: typeof Vector3.create = Vector3.create;
 /**
  * A rectangular field, court or ice goal with a scoring opening.
  *
- * Two posts and a crossbar stand in the XY plane. The field faces +Z, and mouth marks the scoring aperture.
- * @param params The optional identifier and dimensions fixed within their recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
+ * Two posts and a crossbar stand in the XY plane. The field faces +Z, and mouth
+ * marks the scoring aperture.
+ *
+ * @param params The optional identifier and dimensions fixed within their
+ *   recorded bands.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createFieldGoal(
   params: createFieldGoal.IParams = {},
@@ -55,7 +60,9 @@ export function createFieldGoal(
 }
 
 /**
- * Build two posts and a crossbar around the scoring opening. Field goals and handball use square sections, while ice hockey and lacrosse use pipes. The mouth lies in the goal plane.
+ * Build two posts and a crossbar around the scoring opening. Field goals and
+ * handball use square sections, while ice hockey and lacrosse use pipes. The
+ * mouth lies in the goal plane.
  *
  * @param builder The builder to fill.
  * @param d The drawn dimensions.
@@ -127,11 +134,12 @@ function rectangularGoal(builder: Builder, d: Drawn, round: boolean): void {
   });
 }
 
-/**
- * The authored parameters and contact names for {@link createFieldGoal}.
- */
+/** The authored parameters and contact names for {@link createFieldGoal}. */
 export namespace createFieldGoal {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "bar" | "height" | "mass" | "width";
 
   /** The contact identifiers for the apparatus. */

@@ -47,10 +47,13 @@ const SHAPE: Readonly<ICrutchShape> = {
  * and a base that stands at the origin. The grip is on the handle's axis and
  * the tip is on the real bottom face with its local `+Y` pointing down.
  *
- * @param params The scene identifier and optional floor-to-grip height in metres.
- * @param seed Draws the floor-to-grip height when it is omitted. Without a seed, use the midpoint of the recorded range.
+ * @param params The scene identifier and optional floor-to-grip height in
+ *   metres.
+ * @param seed Draws the floor-to-grip height when it is omitted. Without a
+ *   seed, use the midpoint of the recorded range.
  * @returns The generated prop with its grip and tip contacts.
- * @throws {AutoMovieArchetypeRefusal} For a grip height outside the recorded range.
+ * @throws {AutoMovieArchetypeRefusal} For a grip height outside the recorded
+ *   range.
  */
 export function createCrutch(
   params: createCrutch.IParams = {},
@@ -135,9 +138,7 @@ export function createCrutch(
   return builder.build(0.5528);
 }
 
-/**
- * The settings and local contacts of {@link createCrutch}.
- */
+/** The settings and local contacts of {@link createCrutch}. */
 export namespace createCrutch {
   /** The handle and the tip's floor contact. */
   export type Affordance = "grip" | "tip";

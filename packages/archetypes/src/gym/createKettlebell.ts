@@ -15,17 +15,17 @@ const BELL: string =
   "competition kettlebells as commonly stated for the sport (one size for every mass: 280 mm tall, a 210 mm body, a 35 mm handle); the rule's own text was not read, so the band is marked provisional";
 
 /**
- * A kettlebell: a round body with a handle looped over its top, held in
- * one hand or both.
+ * A kettlebell: a round body with a handle looped over its top, held in one
+ * hand or both.
  *
- * It stands on the floor at the origin, the body a ball whose lowest point
- * is the origin, the handle a level bar along `X` at the top joined to the
- * body by two uprights. A competition bell has one size for every mass, so
- * the mass does not change the shape. `grip` is the handle's bar, taken
- * from above.
+ * It stands on the floor at the origin, the body a ball whose lowest point is
+ * the origin, the handle a level bar along `X` at the top joined to the body by
+ * two uprights. A competition bell has one size for every mass, so the mass
+ * does not change the shape. `grip` is the handle's bar, taken from above.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The kettlebell.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -94,9 +94,7 @@ export function createKettlebell(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createKettlebell}.
- */
+/** Companion types and bands of {@link createKettlebell}. */
 export namespace createKettlebell {
   /** The kinds of kettlebell. */
   export type Kind = "competition";
@@ -104,7 +102,10 @@ export namespace createKettlebell {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["competition"];
 
-  /** The handle's clear width between its horns, metres. An estimate, not read at a source: room for one hand, or two side by side with the thumbs over. */
+  /**
+   * The handle's clear width between its horns, metres. An estimate, not read
+   * at a source: room for one hand, or two side by side with the thumbs over.
+   */
   export const WINDOW: number = 0.12;
 
   /** The affordance ids: `grip`, the handle's level bar, taken from above. */

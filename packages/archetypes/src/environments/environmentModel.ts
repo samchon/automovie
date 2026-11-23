@@ -13,8 +13,10 @@ import { requireEnvironmentFrame } from "./requireEnvironmentFrame";
 /**
  * Offer a supplied model as a reusable environment module.
  *
- * @param input Model and optional locally authored anchors, support and prop facts.
- * @returns A definition that places those records in the scope and frame assigned by the composer.
+ * @param input Model and optional locally authored anchors, support and prop
+ *   facts.
+ * @returns A definition that places those records in the scope and frame
+ *   assigned by the composer.
  */
 export function environmentModel(
   input: IAutoMovieEnvironmentModel,

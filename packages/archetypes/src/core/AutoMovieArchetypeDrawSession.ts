@@ -6,11 +6,24 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import type { IAutoMovieArchetypeBand } from "./IAutoMovieArchetypeBand";
 
 /**
- * One producer's draws for one archetype: the dimensions it draws from its bands and the read models it picks, with where each value came from.
+ * One producer's draws for one archetype: the dimensions it draws from its
+ * bands and the read models it picks, with where each value came from.
  *
- * A producer opens one session with its name, the unit of each of its dimensions, the seed and the dimensions the author fixed, and makes every draw through it; the builder takes the session and the archetype keeps its record. The values and their provenance are written by the same call, so the band a dimension was drawn in and the model a figure came from can never disagree with the value the archetype carries.
+ * A producer opens one session with its name, the unit of each of its
+ * dimensions, the seed and the dimensions the author fixed, and makes every
+ * draw through it; the builder takes the session and the archetype keeps its
+ * record. The values and their provenance are written by the same call, so the
+ * band a dimension was drawn in and the model a figure came from can never
+ * disagree with the value the archetype carries.
  *
- * Each dimension is drawn on its own counter-based stream, keyed by the seed, the producer's name and the dimension's name (the engine's Philox streams, `createAutoMovieRandom`), so the same parameters and seed give the same values bit for bit, a dimension's value does not depend on which others exist or in what order they are read, and two producers given one seed do not move together. A model is picked on its axis's stream, keyed the same way by the axis's name, so adding an axis never moves another's draws. A number seed and the text of that number are the same seed.
+ * Each dimension is drawn on its own counter-based stream, keyed by the seed,
+ * the producer's name and the dimension's name (the engine's Philox streams,
+ * `createAutoMovieRandom`), so the same parameters and seed give the same
+ * values bit for bit, a dimension's value does not depend on which others exist
+ * or in what order they are read, and two producers given one seed do not move
+ * together. A model is picked on its axis's stream, keyed the same way by the
+ * axis's name, so adding an axis never moves another's draws. A number seed and
+ * the text of that number are the same seed.
  *
  * @template Dimension The producer's dimensions, a closed union it declares.
  */
@@ -18,7 +31,10 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
   /** The producer's name, which keys the streams and names refusals. */
   public readonly archetype: string;
 
-  /** Each dimension's unit, which a drawn band and a picked model's figure share. */
+  /**
+   * Each dimension's unit, which a drawn band and a picked model's figure
+   * share.
+   */
   readonly #units: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   >;
@@ -49,10 +65,15 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
   /**
    * A session with nothing drawn yet.
    *
-   * @param archetype The producer's name, which keys the streams and names refusals.
-   * @param units Each dimension's unit, declared once by the producer: the unit of the dimension, whether a band draws it or a model gives it.
-   * @param seed The seed; absent, every dimension takes the middle of its band and every axis its first model.
-   * @param fixed Dimensions the author fixed, each in its band's unit; an absent or undefined entry is drawn. Members that are not dimensions, such as a model's name or the id, are not looked at.
+   * @param archetype The producer's name, which keys the streams and names
+   *   refusals.
+   * @param units Each dimension's unit, declared once by the producer: the unit
+   *   of the dimension, whether a band draws it or a model gives it.
+   * @param seed The seed; absent, every dimension takes the middle of its band
+   *   and every axis its first model.
+   * @param fixed Dimensions the author fixed, each in its band's unit; an
+   *   absent or undefined entry is drawn. Members that are not dimensions, such
+   *   as a model's name or the id, are not looked at.
    */
   public constructor(
     archetype: string,
@@ -69,12 +90,18 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
     this.#fixed = fixed;
   }
 
-  /** Every value drawn or picked so far, by dimension: what the archetype records as its dimensions. */
+  /**
+   * Every value drawn or picked so far, by dimension: what the archetype
+   * records as its dimensions.
+   */
   public get values(): Readonly<Partial<Record<Dimension, number>>> {
     return { ...this.#values };
   }
 
-  /** Where each value came from: the band of each drawn dimension, the model picked on each axis, and the axis whose model gave each figure. */
+  /**
+   * Where each value came from: the band of each drawn dimension, the model
+   * picked on each axis, and the axis whose model gave each figure.
+   */
   public get provenance(): AutoMovieArchetypeDrawSession.IProvenance<Dimension> {
     return {
       bands: { ...this.#bands },
@@ -84,7 +111,10 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
     };
   }
 
-  /** The value of every free dimension a variant has, when every dimension it draws has a band: a total record, as the implementation below documents. */
+  /**
+   * The value of every free dimension a variant has, when every dimension it
+   * draws has a band: a total record, as the implementation below documents.
+   */
   public dimensions<Drawn extends Dimension>(
     bands: Readonly<Record<Drawn, IAutoMovieArchetypeBand>>,
     family?: Readonly<
@@ -92,7 +122,10 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
     >,
   ): Record<Drawn, number>;
 
-  /** The value of every free dimension a variant has, when some dimension may lack a band: a partial record, as the implementation below documents. */
+  /**
+   * The value of every free dimension a variant has, when some dimension may
+   * lack a band: a partial record, as the implementation below documents.
+   */
   public dimensions<Drawn extends Dimension>(
     bands: Readonly<Partial<Record<Drawn, IAutoMovieArchetypeBand>>>,
     family?: Readonly<
@@ -101,13 +134,22 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
   ): Partial<Record<Drawn, number>>;
 
   /**
-   * The value of every free dimension a variant has, each recorded with its band.
+   * The value of every free dimension a variant has, each recorded with its
+   * band.
    *
    * @param bands The band of each free dimension this variant has.
-   * @param family The producer's bands for every variant, when it has several; a dimension fixed here that only another variant has is refused. Absent, such an entry is not looked at.
-   * @returns One value per dimension that has a band, inside it; a total record when every dimension has one. A dimension a picked model already gave keeps the model's figure in the record, as the producer lays the figures over its draws.
-   * @throws {AutoMovieArchetypeRefusal} When a fixed value is not finite or lies outside its band, giving the band, or fixes a dimension only another variant has, giving this variant's dimensions.
-   * @throws {Error} When a band's unit is not its dimension's declared unit, a producer's defect.
+   * @param family The producer's bands for every variant, when it has several;
+   *   a dimension fixed here that only another variant has is refused. Absent,
+   *   such an entry is not looked at.
+   * @returns One value per dimension that has a band, inside it; a total record
+   *   when every dimension has one. A dimension a picked model already gave
+   *   keeps the model's figure in the record, as the producer lays the figures
+   *   over its draws.
+   * @throws {AutoMovieArchetypeRefusal} When a fixed value is not finite or
+   *   lies outside its band, giving the band, or fixes a dimension only another
+   *   variant has, giving this variant's dimensions.
+   * @throws {Error} When a band's unit is not its dimension's declared unit, a
+   *   producer's defect.
    */
   public dimensions<Drawn extends Dimension>(
     bands: Readonly<Partial<Record<Drawn, IAutoMovieArchetypeBand>>>,
@@ -181,7 +223,9 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
   }
 
   /**
-   * A value that follows from the others by the producer's own rule, such as a heart girth from a height, recorded with its dimension's unit and with no band and no model, since it was neither drawn nor picked.
+   * A value that follows from the others by the producer's own rule, such as a
+   * heart girth from a height, recorded with its dimension's unit and with no
+   * band and no model, since it was neither drawn nor picked.
    *
    * @param dimension The dimension.
    * @param value Its value, in the dimension's unit.
@@ -194,15 +238,31 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
     return value;
   }
   /**
-   * One read model on a named axis, given or picked whole, with its read figures, the figures and the model's name recorded.
+   * One read model on a named axis, given or picked whole, with its read
+   * figures, the figures and the model's name recorded.
    *
-   * A given model is checked against the models' names. Absent, one is drawn uniformly from them on the axis's own stream; with no seed either, it is the first, the producer's stated default. The figures are the picked model's, by dimension, for the producer to lay over its drawn dimensions. A variant with no models on the axis has none: the name is undefined, the figures empty, and a model given is refused. A dependent axis, such as a door that must stay below the car it serves, passes only the models an earlier pick admits. A figure is the model's own, so an author who fixed that dimension is refused, never overridden in silence: the author names the model instead. A dimension the model lacks stays the producer's to draw from its band.
+   * A given model is checked against the models' names. Absent, one is drawn
+   * uniformly from them on the axis's own stream; with no seed either, it is
+   * the first, the producer's stated default. The figures are the picked
+   * model's, by dimension, for the producer to lay over its drawn dimensions. A
+   * variant with no models on the axis has none: the name is undefined, the
+   * figures empty, and a model given is refused. A dependent axis, such as a
+   * door that must stay below the car it serves, passes only the models an
+   * earlier pick admits. A figure is the model's own, so an author who fixed
+   * that dimension is refused, never overridden in silence: the author names
+   * the model instead. A dimension the model lacks stays the producer's to draw
+   * from its band.
    *
-   * @param axis The axis's name, which keys the stream, names refusals and keys the record: `model` for a producer with one axis.
+   * @param axis The axis's name, which keys the stream, names refusals and keys
+   *   the record: `model` for a producer with one axis.
    * @param value The model given, or undefined to pick one.
-   * @param models The variant's models on the axis by name, each with its read figures, the default first; absent or empty when it has none.
-   * @returns The model's name, undefined when the variant has none on the axis, and its figures.
-   * @throws {AutoMovieArchetypeRefusal} When a given model is not one of the variant's, or the variant has none, or a fixed dimension is one of the model's figures.
+   * @param models The variant's models on the axis by name, each with its read
+   *   figures, the default first; absent or empty when it has none.
+   * @returns The model's name, undefined when the variant has none on the axis,
+   *   and its figures.
+   * @throws {AutoMovieArchetypeRefusal} When a given model is not one of the
+   *   variant's, or the variant has none, or a fixed dimension is one of the
+   *   model's figures.
    */
   public model<Name extends string>(
     axis: string,
@@ -266,17 +326,15 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
   }
 }
 
-/**
- * Companion types of {@link AutoMovieArchetypeDrawSession}.
- */
+/** Companion types of {@link AutoMovieArchetypeDrawSession}. */
 export namespace AutoMovieArchetypeDrawSession {
-  /**
-   * A dimension's unit, the band's unit type (`AutoMovieArchetypeBandUnit`).
-   */
+  /** A dimension's unit, the band's unit type (`AutoMovieArchetypeBandUnit`). */
   export type Unit = AutoMovieArchetypeBandUnit;
 
   /**
-   * Where an archetype's values came from: the band of each drawn dimension, the model picked on each axis, the axis whose model gave each figure, and every value's unit; a figure has no band.
+   * Where an archetype's values came from: the band of each drawn dimension,
+   * the model picked on each axis, the axis whose model gave each figure, and
+   * every value's unit; a figure has no band.
    */
   export interface IProvenance<Dimension extends string> {
     /** The band each drawn dimension was drawn in, by dimension. */
@@ -285,7 +343,10 @@ export namespace AutoMovieArchetypeDrawSession {
     /** The model picked on each axis, by axis, such as `{ size: "175cm" }`. */
     models: Readonly<Record<string, string>>;
 
-    /** The axis whose picked model gave each figure, by dimension, such as `{ length: "size" }`. */
+    /**
+     * The axis whose picked model gave each figure, by dimension, such as `{
+     * length: "size" }`.
+     */
     figures: Readonly<Partial<Record<Dimension, string>>>;
 
     /** The unit of each value, drawn or given, by dimension. */
@@ -293,7 +354,8 @@ export namespace AutoMovieArchetypeDrawSession {
   }
 
   /**
-   * One axis's pick: the model's name, undefined when the variant has none on the axis, and its read figures.
+   * One axis's pick: the model's name, undefined when the variant has none on
+   * the axis, and its read figures.
    */
   export interface IModel<Name extends string, Dimension extends string> {
     /** The model's name; undefined when the variant has no models on the axis. */

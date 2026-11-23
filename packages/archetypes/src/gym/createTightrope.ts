@@ -12,13 +12,14 @@ import {
 /**
  * A tightrope or slackline: a wire stretched level between two anchor posts.
  *
- * It stands on the floor with the middle of its span at the origin, the
- * wire along `X`. `bar` is the wire's middle, on its axis, `+Y` up: a walker
- * stands on it anywhere along its length (`lineWalk`, which also takes the
- * sag its load gives it).
+ * It stands on the floor with the middle of its span at the origin, the wire
+ * along `X`. `bar` is the wire's middle, on its axis, `+Y` up: a walker stands
+ * on it anywhere along its length (`lineWalk`, which also takes the sag its
+ * load gives it).
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The rope.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -74,14 +75,15 @@ export function createTightrope(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createTightrope}.
- */
+/** Companion types and bands of {@link createTightrope}. */
 export namespace createTightrope {
   /** A post's radius, metres. An estimate, not read at a source. */
   export const POST: number = 0.06;
 
-  /** The affordance ids: `bar`, the wire's middle on its axis, `+Y` up, stood on from above. */
+  /**
+   * The affordance ids: `bar`, the wire's middle on its axis, `+Y` up, stood on
+   * from above.
+   */
   export type Affordance = "bar";
 
   /**

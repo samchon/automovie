@@ -8,10 +8,9 @@ import {
 } from "../core";
 
 /**
- * A pocket folding knife with a three-inch blade (3 × 0.0254 m). No source
- * is read: the blade, the handle (the closed blade's length plus a
- * bolster), its thickness and width and the mass are provisional
- * construction estimates.
+ * A pocket folding knife with a three-inch blade (3 × 0.0254 m). No source is
+ * read: the blade, the handle (the closed blade's length plus a bolster), its
+ * thickness and width and the mass are provisional construction estimates.
  */
 const SIZE: Readonly<createFoldingKnife.ISize> = {
   blade: 3 * 0.0254,
@@ -22,16 +21,16 @@ const SIZE: Readonly<createFoldingKnife.ISize> = {
 };
 
 /**
- * A folding knife whose blade swings from inside its handle to open and
- * locks there.
+ * A folding knife whose blade swings from inside its handle to open and locks
+ * there.
  *
- * The handle runs along `+Z` from its butt at the origin to the pivot at
- * its far end, its spine up (`+Y`). The blade turns about the pivot's `+X`
- * on the `blade` hinge, from folded into the handle's slot at 0, its edge
- * inside, to open and locked at 180 degrees, pointing along `+Z`: a lock
- * holds the blade at the hinge's end, which the drive's last travel keeps.
- * `grip` is the handle, taken from below; `stud` is the thumb stud on the
- * blade's spine that opens it; `point` the blade's tip.
+ * The handle runs along `+Z` from its butt at the origin to the pivot at its
+ * far end, its spine up (`+Y`). The blade turns about the pivot's `+X` on the
+ * `blade` hinge, from folded into the handle's slot at 0, its edge inside, to
+ * open and locked at 180 degrees, pointing along `+Z`: a lock holds the blade
+ * at the hinge's end, which the drive's last travel keeps. `grip` is the
+ * handle, taken from below; `stud` is the thumb stud on the blade's spine that
+ * opens it; `point` the blade's tip.
  *
  * @param params The optional scene id.
  * @returns The knife and its contacts, metres.
@@ -120,9 +119,7 @@ export function createFoldingKnife(
   return builder.build(SIZE.mass);
 }
 
-/**
- * The inputs, contacts and size of {@link createFoldingKnife}.
- */
+/** The inputs, contacts and size of {@link createFoldingKnife}. */
 export namespace createFoldingKnife {
   /** The blade's hinge, the handle, the thumb stud and the point. */
   export type Affordance = "blade" | "grip" | "stud" | "point";

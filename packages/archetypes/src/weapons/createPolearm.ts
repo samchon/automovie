@@ -30,7 +30,10 @@ const LANCE_HEADS: string =
 const SOCKETS: string =
   "a spearhead's socket, the shaft's end, where its record does not state it: the sockets read, Museum Wales' medieval spearhead's 23.5 mm (https://museum.wales/collections/online/object/1b6580d3-f332-34d4-a3e7-5f9b5e6080c7) and the Segontium Roman spearheads' about 19 and 16 mm (https://museum.wales/collections/online/object/06e68587-a7a8-3e9e-876d-c786513a288f, https://museum.wales/collections/online/object/ac74b18f-7c21-3b86-8546-be6de58baffa), applied";
 
-/** Two whole spears, read in museum records: later pieces than the Viking Age spears whose lengths the spear's bands take. */
+/**
+ * Two whole spears, read in museum records: later pieces than the Viking Age
+ * spears whose lengths the spear's bands take.
+ */
 const SPEAR_MASS: string =
   "Metropolitan Museum 29.156.36, boar spear, French 1576: 1814.4 g (https://collectionapi.metmuseum.org/public/collection/v1/objects/34315); 14.25.394, spear, Western European 15th century: 2579.8 g (https://collectionapi.metmuseum.org/public/collection/v1/objects/26796); both later than the Viking Age spears the lengths come from";
 
@@ -43,14 +46,27 @@ const POWER: string =
   "Kong and Lowe 2005, Int J Ind Ergon 35:495, handles of 30 to 40 mm rated most comfortable (https://stacks.cdc.gov/view/cdc/197408), applied to a lance's shaft at its grip, whose own diameter no record read gives";
 
 /**
- * A weapon on a long shaft: a staff or a spear held in two hands, or a cavalry lance couched in one.
+ * A weapon on a long shaft: a staff or a spear held in two hands, or a cavalry
+ * lance couched in one.
  *
- * It stands along `+Y` from its butt at the origin. The `shaft` is one bar the two hands share, so the hands' spacing and their sliding along it are the wielding act's choice of sites. A spear and a lance carry a flat head above the shaft, its edges toward `+Z` and `-Z`; `length` is the shaft alone and `headLength` the head above it. `tip` is the upper end, the way a thrust goes, and `butt` the lower. A lance also declares `grip`, the sling at the shaft's midpoint where the one hand holds it; the steel head puts the balance ahead of it, so a couched lance's point is carried forward of the hand. A thrown spear is `createJavelin`'s.
+ * It stands along `+Y` from its butt at the origin. The `shaft` is one bar the
+ * two hands share, so the hands' spacing and their sliding along it are the
+ * wielding act's choice of sites. A spear and a lance carry a flat head above
+ * the shaft, its edges toward `+Z` and `-Z`; `length` is the shaft alone and
+ * `headLength` the head above it. `tip` is the upper end, the way a thrust
+ * goes, and `butt` the lower. A lance also declares `grip`, the sling at the
+ * shaft's midpoint where the one hand holds it; the steel head puts the balance
+ * ahead of it, so a couched lance's point is carried forward of the hand. A
+ * thrown spear is `createJavelin`'s.
  *
  * @param params The kind, a spear's head and any dimension the author fixes.
- * @param seed The seed that picks the head left free and draws every dimension left free inside its band; absent, the first head and the middle of each band.
+ * @param seed The seed that picks the head left free and draws every dimension
+ *   left free inside its band; absent, the first head and the middle of each
+ *   band.
  * @returns The weapon.
- * @throws {AutoMovieArchetypeRefusal} For a head not of the kind, a fixed dimension outside its band or one the head gives, or a head length fixed on a staff, or a lance's shaft length fixed, which its head sets.
+ * @throws {AutoMovieArchetypeRefusal} For a head not of the kind, a fixed
+ *   dimension outside its band or one the head gives, or a head length fixed on
+ *   a staff, or a lance's shaft length fixed, which its head sets.
  */
 export function createPolearm(
   params: createPolearm.IParams,
@@ -155,9 +171,7 @@ export function createPolearm(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types, constants and bands of {@link createPolearm}.
- */
+/** Companion types, constants and bands of {@link createPolearm}. */
 export namespace createPolearm {
   /** The kinds of polearm. */
   export type Kind = "staff" | "spear" | "lance";
@@ -165,22 +179,40 @@ export namespace createPolearm {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["staff", "spear", "lance"];
 
-  /** A head's thickness as a share of its read width: a construction proportion that no act reads, since the head's read mass, not its volume, places the balance. */
+  /**
+   * A head's thickness as a share of its read width: a construction proportion
+   * that no act reads, since the head's read mass, not its volume, places the
+   * balance.
+   */
   export const HEAD_THICKNESS: number = 0.25;
 
-  /** The read lance's overall length, metres: the Pattern 1894's 2.76 m (Royal Armouries). */
+  /**
+   * The read lance's overall length, metres: the Pattern 1894's 2.76 m (Royal
+   * Armouries).
+   */
   export const LANCE_LENGTH: number = 2.76;
 
-  /** The catalogued spearheads that state their weight: Met 1989.220 and Museum Wales' medieval iron head. */
+  /**
+   * The catalogued spearheads that state their weight: Met 1989.220 and Museum
+   * Wales' medieval iron head.
+   */
   export type Model = "met1989" | "walesIron";
 
   /**
    * Each kind's heads whole, the default first, each as its record states it:
    *
-   * - Met 1989.220, European ca. 800-1000: L. 54 cm, W. 4.8 cm, 444 g (https://collectionapi.metmuseum.org/public/collection/v1/objects/24939).
-   * - Museum Wales, medieval iron spearhead: 362 mm long, 33.3 mm wide, 141.7 g (https://museum.wales/collections/online/object/4042a243-29ff-3c1d-803d-7c2dda0d54d6).
+   * - Met 1989.220, European ca. 800-1000: L. 54 cm, W. 4.8 cm, 444 g
+   *   (https://collectionapi.metmuseum.org/public/collection/v1/objects/24939).
+   * - Museum Wales, medieval iron spearhead: 362 mm long, 33.3 mm wide, 141.7 g
+   *   (https://museum.wales/collections/online/object/4042a243-29ff-3c1d-803d-7c2dda0d54d6).
    *
-   * The head's mass places the spear's balance, so a head whose record states no weight is not a model: Museum Wales' socketed medieval head, its Segontium and its Loughor Roman heads. No volume model of a head derives it: a lozenge blade with its section's thickness a quarter of its width gives the Met head's blade 287 g against the whole head's read 444 g and the Wales head 131 g against its 141.7 g, and no weighed record gives the socket that would close the gap.
+   * The head's mass places the spear's balance, so a head whose record states
+   * no weight is not a model: Museum Wales' socketed medieval head, its
+   * Segontium and its Loughor Roman heads. No volume model of a head derives
+   * it: a lozenge blade with its section's thickness a quarter of its width
+   * gives the Met head's blade 287 g against the whole head's read 444 g and
+   * the Wales head 131 g against its 141.7 g, and no weighed record gives the
+   * socket that would close the gap.
    */
   export const MODELS: Readonly<
     Partial<
@@ -201,7 +233,8 @@ export namespace createPolearm {
   /**
    * The affordance ids:
    *
-   * - `shaft`: the shaft as one bar for both hands, taken from the `-Z` side, its length along `+Y`.
+   * - `shaft`: the shaft as one bar for both hands, taken from the `-Z` side, its
+   *   length along `+Y`.
    * - `tip`: the upper end, a spear's point, facing up along the weapon.
    * - `butt`: the lower end, facing down.
    * - `grip`: a lance's sling at the shaft's midpoint, taken from the `-Z` side.
@@ -214,7 +247,8 @@ export namespace createPolearm {
    * - `length`: the shaft; a lance's is its overall length less its head.
    * - `headLength`: a spear's or a lance's head above the shaft.
    * - `headWidth`: the head's blade across, edge to edge.
-   * - `headMass`: the head's mass, kilograms, its share of the whole placing the balance.
+   * - `headMass`: the head's mass, kilograms, its share of the whole placing the
+   *   balance.
    * - `diameter`: the shaft's thickness.
    * - `mass`: kilograms.
    */
@@ -238,12 +272,18 @@ export namespace createPolearm {
     mass: "kg",
   };
 
-  /** The parameters: the kind, a spear's head, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, a spear's head, and any free dimension fixed to a
+   * value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which polearm. */
     kind: Kind;
 
-    /** Which catalogued spearhead a spear carries; picked from the seed when absent. A staff and a lance have none. */
+    /**
+     * Which catalogued spearhead a spear carries; picked from the seed when
+     * absent. A staff and a lance have none.
+     */
     model?: Model;
 
     /** The model's id, unique in a scene; `polearm` when absent. */

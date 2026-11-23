@@ -7,10 +7,12 @@ import { HandheldDevice } from "./HandheldDevice";
  * A smartphone with an upright touchscreen and a rear lens.
  *
  * The model stands on its bottom edge at the origin with its front toward `+Z`.
+ *
  * @param params The identifier, fixed outside dimensions and mass.
  * @param seed The seed for the device's remaining choices.
  * @returns The device and its named contacts.
- * @throws {AutoMovieArchetypeRefusal} For a refused dimension or producer input.
+ * @throws {AutoMovieArchetypeRefusal} For a refused dimension or producer
+ *   input.
  */
 export function createPhone(
   params: createPhone.IParams = {},
@@ -58,11 +60,12 @@ export function createPhone(
   return builder.build(size.mass);
 }
 
-/**
- * The parameters and affordance identifiers of {@link createPhone}.
- */
+/** The parameters and affordance identifiers of {@link createPhone}. */
 export namespace createPhone {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "height" | "mass" | "thickness" | "width";
 
   /** The identifiers of contacts built by this producer. */

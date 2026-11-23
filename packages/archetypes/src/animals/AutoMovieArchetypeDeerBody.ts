@@ -3,28 +3,32 @@ import { DeerCohorts } from "./DeerCohorts";
 import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
 
 /**
- * A coarse adult Boso sika body with separately sampled same-sex skeletal controls.
+ * A coarse adult Boso sika body with separately sampled same-sex skeletal
+ * controls.
  *
- * Ochiai and Asada 1995, Chiba 3(2):223-232, Tables 1/3, reports October
- * body means for males age 4+ (mass n = 25, other dimensions n = 27) and
- * females age 2+ (mass n = 46, other dimensions n = 51):
- * http://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_03-2_11ochiai.pdf .
- * Their 1997 Chiba 4(2):159-172, Tables 3/7, reports different Boso specimens:
- * males age 5+ (skull n = 25, limbs n = 6) and females age 5+
- * (skull n = 60, limbs n = 7):
- * http://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_04-2_12ochiai.pdf .
- * These share a species and geographic population, not paired individuals,
+ * Ochiai and Asada 1995, Chiba 3(2):223-232, Tables 1/3, reports October body
+ * means for males age 4+ (mass n = 25, other dimensions n = 27) and females age
+ * 2+ (mass n = 46, other dimensions n = 51):
+ * http://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_03-2_11ochiai.pdf
+ * . Their 1997 Chiba 4(2):159-172, Tables 3/7, reports different Boso
+ * specimens: males age 5+ (skull n = 25, limbs n = 6) and females age 5+ (skull
+ * n = 60, limbs n = 7):
+ * http://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_04-2_12ochiai.pdf
+ * . These share a species and geographic population, not paired individuals,
  * age cutoffs or sample dates. Ratios of the two studies' means define a
  * provisional control prototype, not measured individual allometry.
  *
  * The fourth limb bars, neck, short tail, skin radii and absolute standing
- * directions remain explicitly authored estimates. Head dimensions describe
- * the cleaned skull; using them for a coarse capsule does not recover soft
- * tissue. The producer owns antlers and any authored tack separately.
+ * directions remain explicitly authored estimates. Head dimensions describe the
+ * cleaned skull; using them for a coarse capsule does not recover soft tissue.
+ * The producer owns antlers and any authored tack separately.
  *
- * @param withersHeight Admitted instance height in metres; only undefined defaults to its selected reference, while null is invalid.
- * @param cohort Whole adult sex/age reference, male by default; no juvenile transfer is supported.
- * @returns Fresh coarse controls, with unknown segment mass fractions and foot material absent.
+ * @param withersHeight Admitted instance height in metres; only undefined
+ *   defaults to its selected reference, while null is invalid.
+ * @param cohort Whole adult sex/age reference, male by default; no juvenile
+ *   transfer is supported.
+ * @returns Fresh coarse controls, with unknown segment mass fractions and foot
+ *   material absent.
  * @throws {RangeError} For a nonpositive or nonfinite instance height.
  */
 export function AutoMovieArchetypeDeerBody(
@@ -68,14 +72,15 @@ export function AutoMovieArchetypeDeerBody(
   });
 }
 
-/**
- * Boso sika reference means and the remaining named construction estimates.
- */
+/** Boso sika reference means and the remaining named construction estimates. */
 export namespace AutoMovieArchetypeDeerBody {
   /** The two complete adult external references; juveniles remain unsupported. */
   export type Cohort = DeerCohorts.Name;
 
-  /** Explicit choices and the authored equal-choice seeded palette, not population frequencies. */
+  /**
+   * Explicit choices and the authored equal-choice seeded palette, not
+   * population frequencies.
+   */
   export const COHORTS: readonly Cohort[] = DeerCohorts.NAMES;
 
   /** Previous male4+ body reference retained by canonical construction. */
@@ -96,7 +101,10 @@ export namespace AutoMovieArchetypeDeerBody {
     Record<Cohort, Readonly<DeerCohorts.ISkeleton>>
   > = DeerCohorts.SKELETONS;
 
-  /** Authored construction parameters for an unmeasured standing soft-tissue proxy; coat colors are authored too. */
+  /**
+   * Authored construction parameters for an unmeasured standing soft-tissue
+   * proxy; coat colors are authored too.
+   */
   export const CONSTRUCTION: Readonly<
     QuadrupedBodyProfile.IConstruction & {
       /** Unmeasured distal limb control / height. */

@@ -98,9 +98,7 @@ export function createCanoePaddle(
   return builder.build(d.mass);
 }
 
-/**
- * Shaft and blade dimensions and three contact ids of the single-bladed paddle.
- */
+/** Shaft and blade dimensions and three contact ids of the single-bladed paddle. */
 export namespace createCanoePaddle {
   /** Shaft hand, T-grip hand, and the edge that crosses the water. */
   export type Affordance = "shaftGrip" | "topGrip" | "bladeTip";

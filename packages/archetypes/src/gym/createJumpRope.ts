@@ -20,12 +20,18 @@ type Figures = Readonly<Partial<Record<createJumpRope.Dimension, number>>>;
 /**
  * A skipping rope:two handles joined by a cord, laid straight on the floor.
  *
- * It lies along `X` centred over the origin, a handle at each end and the cord between them. `leftGrip` (at `+X`) and `rightGrip` (at `-X`) are the handles, taken from above, each along `X`; the cord is rigid and straight here, its swing the act's.
+ * It lies along `X` centred over the origin, a handle at each end and the cord
+ * between them. `leftGrip` (at `+X`) and `rightGrip` (at `-X`) are the handles,
+ * taken from above, each along `X`; the cord is rigid and straight here, its
+ * swing the act's.
  *
  * @param params The cable, the handle and any dimension the author fixes.
- * @param seed The seed that draws the cable and the handle when they are not given and every dimension left free inside its band; absent, the first of each and the middle of each band.
+ * @param seed The seed that draws the cable and the handle when they are not
+ *   given and every dimension left free inside its band; absent, the first of
+ *   each and the middle of each band.
  * @returns The rope.
- * @throws {AutoMovieArchetypeRefusal} For a cable or handle Rogue does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a cable or handle Rogue does not
+ *   list, or a fixed dimension outside its band.
  */
 export function createJumpRope(
   params: createJumpRope.IParams = {},
@@ -99,9 +105,7 @@ export function createJumpRope(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createJumpRope}.
- */
+/** Companion types, constants and bands of {@link createJumpRope}. */
 export namespace createJumpRope {
   /** The cable's diameter, metres: the maker's 3/32 in (see the source). */
   export const CORD: number = (3 / 32) * AutoMovieArchetypeUnits.INCH;
@@ -135,7 +139,10 @@ export namespace createJumpRope {
   /** Rogue's cable lengths. */
   export type Cable = "10ft" | "11ft";
 
-  /** Each cable's length, metres, the default first: Rogue's "cable of 120 in, or 10 and 11 ft". */
+  /**
+   * Each cable's length, metres, the default first: Rogue's "cable of 120 in,
+   * or 10 and 11 ft".
+   */
   export const CABLES: Readonly<
     Record<Cable, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -146,7 +153,10 @@ export namespace createJumpRope {
   /** Rogue's SR-1 handles. */
   export type Handle = "SR-1" | "SR-1S" | "SR-1L";
 
-  /** Each handle's length, metres, the default first: Rogue's "handles of 5.25 (SR-1S), 6.75 (SR-1) and 7.5 in (SR-1L)". */
+  /**
+   * Each handle's length, metres, the default first: Rogue's "handles of 5.25
+   * (SR-1S), 6.75 (SR-1) and 7.5 in (SR-1L)".
+   */
   export const HANDLES: Readonly<
     Record<Handle, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -155,7 +165,10 @@ export namespace createJumpRope {
     "SR-1L": { handleLength: 7.5 * AutoMovieArchetypeUnits.INCH },
   };
 
-  /** The parameters: the cable, the handle, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the cable, the handle, and any free dimension fixed to a
+   * value inside its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "length" | "handleLength">, number>
   > {

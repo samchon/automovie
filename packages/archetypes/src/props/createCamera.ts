@@ -7,10 +7,13 @@ import { HandheldDevice } from "./HandheldDevice";
  * A compact camera with separate grasp, support, viewing and shutter contacts.
  *
  * The model stands on its bottom edge at the origin with its front toward `+Z`.
- * @param params The identifier and a choice among this device's measured models.
+ *
+ * @param params The identifier and a choice among this device's measured
+ *   models.
  * @param seed The seed for the device's remaining choices.
  * @returns The device and its named contacts.
- * @throws {AutoMovieArchetypeRefusal} For a refused dimension or producer input.
+ * @throws {AutoMovieArchetypeRefusal} For a refused dimension or producer
+ *   input.
  */
 export function createCamera(
   params: createCamera.IParams = {},
@@ -121,14 +124,15 @@ export function createCamera(
   return builder.build(size.mass);
 }
 
-/**
- * The parameters and affordance identifiers of {@link createCamera}.
- */
+/** The parameters and affordance identifiers of {@link createCamera}. */
 export namespace createCamera {
   /** The `model` choices this producer admits. */
   export type Model = "grIII" | "x100vi";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "height" | "mass" | "thickness" | "width";
 
   /** The identifiers of contacts built by this producer. */

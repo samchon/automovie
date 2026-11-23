@@ -23,12 +23,19 @@ const SIDES: readonly ["north", "south", "east", "west"] = [
 ];
 
 /**
- * A boxing or kickboxing ring: a square raised platform with a corner post at each corner and ropes along its four sides.
+ * A boxing or kickboxing ring: a square raised platform with a corner post at
+ * each corner and ropes along its four sides.
  *
- * The platform stands on the floor centred over the origin, its square along `X` and `Z`. `canvas` is the floor inside the ropes; each side's top rope (`northRope` along `+Z`'s side, `southRope`, `eastRope` along `+X`'s, `westRope`) is a bar a fighter leans on or a hand takes, its `+Y` toward the ring's middle; `corner<n>` is the top of each post, counted round from `+X +Z`.
+ * The platform stands on the floor centred over the origin, its square along
+ * `X` and `Z`. `canvas` is the floor inside the ropes; each side's top rope
+ * (`northRope` along `+Z`'s side, `southRope`, `eastRope` along `+X`'s,
+ * `westRope`) is a bar a fighter leans on or a hand takes, its `+Y` toward the
+ * ring's middle; `corner<n>` is the top of each post, counted round from `+X
+ * +Z`.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The ring.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -143,9 +150,7 @@ export function createRing(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createRing}.
- */
+/** Companion types, constants and bands of {@link createRing}. */
 export namespace createRing {
   /** The apron beyond the ropes on each side, metres: the AIBA guide's 85 cm. */
   export const APRON: number = 0.85;
@@ -159,14 +164,18 @@ export namespace createRing {
   /** The ropes on each side: the AIBA guide's four. */
   export const ROPES: number = 4;
 
-  /** The ropes' heights above the canvas, metres: the AIBA guide's 40, 70, 100 and 130 cm, scaled with the drawn top rope. */
+  /**
+   * The ropes' heights above the canvas, metres: the AIBA guide's 40, 70, 100
+   * and 130 cm, scaled with the drawn top rope.
+   */
   export const LEVELS: readonly number[] = [0.4, 0.7, 1, 1.3];
 
   /**
    * The affordance ids:
    *
    * - `canvas`: the floor inside the ropes, facing up.
-   * - `northRope`, `southRope`, `eastRope`, `westRope`: each side's top rope, a bar, `+Y` toward the middle.
+   * - `northRope`, `southRope`, `eastRope`, `westRope`: each side's top rope, a
+   *   bar, `+Y` toward the middle.
    * - `corner1` to `corner4`: the posts' tops, counted round from `+X +Z`.
    */
   export type Affordance =

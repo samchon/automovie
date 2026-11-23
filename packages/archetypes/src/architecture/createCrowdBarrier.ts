@@ -6,13 +6,15 @@ import { ObstacleDraw } from "./ObstacleDraw";
 /**
  * A steel crowd barrier with feet, pickets and an accessible upper rail.
  *
- * The frame's drawn height, tube size and picket spacing place a grip on its real upper rail.
- * The object stands on Y = 0 and is approached from +Z.
+ * The frame's drawn height, tube size and picket spacing place a grip on its
+ * real upper rail. The object stands on Y = 0 and is approached from +Z.
  *
- * @param params The scene identifier and any dimensions to fix inside their bands.
+ * @param params The scene identifier and any dimensions to fix inside their
+ *   bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
  */
 export function createCrowdBarrier(
   params: createCrowdBarrier.IParams = {},
@@ -94,9 +96,7 @@ export function createCrowdBarrier(
   return builder.build(d.mass!);
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createCrowdBarrier}.
- */
+/** Inputs, dimensions and contacts for {@link createCrowdBarrier}. */
 export namespace createCrowdBarrier {
   /** The named contacts built by this producer. */
   export type Affordance = "rail";

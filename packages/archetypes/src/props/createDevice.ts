@@ -12,7 +12,8 @@ import { createTablet } from "./createTablet";
  * @param params The saved kind, dimensions, model and optional identifier.
  * @param seed The seed used by the selected device.
  * @returns The selected device in its original coordinate frame.
- * @throws {AutoMovieArchetypeRefusal} When the kind, model or dimension is refused.
+ * @throws {AutoMovieArchetypeRefusal} When the kind, model or dimension is
+ *   refused.
  */
 export function createDevice(
   params: createDevice.IParams,
@@ -35,7 +36,8 @@ export function createDevice(
 }
 
 /**
- * Compatibility types and lookup data for handwritten and stored device recipes.
+ * Compatibility types and lookup data for handwritten and stored device
+ * recipes.
  */
 export namespace createDevice {
   /** The kinds of device. */

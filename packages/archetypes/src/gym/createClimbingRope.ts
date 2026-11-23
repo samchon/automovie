@@ -14,14 +14,15 @@ import {
  * hovering helicopter's boom.
  *
  * It hangs above the origin along `+Y`, its anchor `anchor` metres up and its
- * free end `length` below that, a rope longer than its anchor is high lying
- * no lower than the floor. `line` is the rope's middle on its axis, its
- * `+X` along the rope pointing up to the anchor, with the rope's length and
- * radius: a climber grips and locks the feet anywhere along it, and a
- * swinger hangs from it about the anchor.
+ * free end `length` below that, a rope longer than its anchor is high lying no
+ * lower than the floor. `line` is the rope's middle on its axis, its `+X` along
+ * the rope pointing up to the anchor, with the rope's length and radius: a
+ * climber grips and locks the feet anywhere along it, and a swinger hangs from
+ * it about the anchor.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The rope.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -75,11 +76,12 @@ export function createClimbingRope(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createClimbingRope}.
- */
+/** Companion types and bands of {@link createClimbingRope}. */
 export namespace createClimbingRope {
-  /** The affordance ids: `line`, the rope's middle on its axis, `+X` up the rope. */
+  /**
+   * The affordance ids: `line`, the rope's middle on its axis, `+X` up the
+   * rope.
+   */
   export type Affordance = "line";
 
   /**

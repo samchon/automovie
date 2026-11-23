@@ -26,18 +26,20 @@ const CRANK: string =
 const GRIP: number = 0.12;
 
 /**
- * A spinning rod with its reel: the rod standing on its butt along `+Y`,
- * the reel hanging under it toward `-Z` just above the grip, its handle on
- * the left (`-X`) turning about the reel's axis across the rod.
+ * A spinning rod with its reel: the rod standing on its butt along `+Y`, the
+ * reel hanging under it toward `-Z` just above the grip, its handle on the left
+ * (`-X`) turning about the reel's axis across the rod.
  *
  * - `grip`: the rod's grip the rod hand takes.
  * - `tip`: the rod's end the line runs from.
- * - `crank`: the reel's handle articulation, turning in degrees about its
- *   frame's `+Y`, the axis across the rod; the arm and the knob turn with it.
+ * - `crank`: the reel's handle articulation, turning in degrees about its frame's
+ *   `+Y`, the axis across the rod; the arm and the knob turn with it.
  * - `handle`: the knob the other hand turns, riding `crank`.
  *
- * @param params Any dimension the author fixes inside its band, and an optional scene id.
- * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
+ * @param params Any dimension the author fixes inside its band, and an optional
+ *   scene id.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, the middle of each band.
  * @returns The rod.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -139,9 +141,7 @@ export function createSpinningRod(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createSpinningRod}.
- */
+/** Companion types, constants and bands of {@link createSpinningRod}. */
 export namespace createSpinningRod {
   /** The contacts: the rod's grip and tip, the reel's crank and its handle. */
   export type Affordance = "grip" | "tip" | "crank" | "handle";

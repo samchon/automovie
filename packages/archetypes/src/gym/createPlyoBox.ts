@@ -21,10 +21,12 @@ const BOX: string =
  * It stands on the floor with the middle of its footprint at the origin.
  * `surface` is its top.
  *
- * The wooden box rests on its wooden base: wood on concrete (`AutoMovieArchetypeFriction`).
+ * The wooden box rests on its wooden base: wood on concrete
+ * (`AutoMovieArchetypeFriction`).
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The box.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -75,9 +77,7 @@ export function createPlyoBox(
   return builder.build(d.mass!, { rests: "wood" });
 }
 
-/**
- * Companion types and bands of {@link createPlyoBox}.
- */
+/** Companion types and bands of {@link createPlyoBox}. */
 export namespace createPlyoBox {
   /** The kinds of box. */
   export type Kind = "wood";

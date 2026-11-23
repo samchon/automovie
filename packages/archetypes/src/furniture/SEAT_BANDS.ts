@@ -49,7 +49,8 @@ const ARMS: string =
 const STOOL: string = "typical round stool seat, not read at a source";
 
 /**
- * The band of each free dimension of a seat, by kind, with the source it was read at; `createSeat.BANDS` is this table.
+ * The band of each free dimension of a seat, by kind, with the source it was
+ * read at; `createSeat.BANDS` is this table.
  */
 export const SEAT_BANDS: Readonly<
   Record<

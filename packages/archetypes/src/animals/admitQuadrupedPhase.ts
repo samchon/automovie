@@ -19,7 +19,8 @@ import { AutoMovieArchetypeRefusal } from "../core";
  * @param stride Positive finite effective period at the cell, seconds.
  * @param cells Positive safe-integer count of cells in the phase plan.
  * @returns The strictly advancing, finite cumulative phase within capacity.
- * @throws {AutoMovieArchetypeRefusal} Before enumeration for nonrepresentable arithmetic or a plan requiring more than one complete cycle per cell.
+ * @throws {AutoMovieArchetypeRefusal} Before enumeration for nonrepresentable
+ *   arithmetic or a plan requiring more than one complete cycle per cell.
  */
 export function admitQuadrupedPhase(
   archetype: string,

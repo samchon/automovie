@@ -12,12 +12,34 @@ import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { EquineHarness } from "./EquineHarness";
 
 /**
- * An equid's pack saddle, laid on its body: the Phillips cargo pack saddle of FM 25-7 (War Department, Pack Transportation, 1944; https://ciehub.info/ref/FM/25-7_1944.pdf), its pads over the back, a cinch round the barrel, a breast collar, a croup piece and a breeching, with a load against each side.
+ * An equid's pack saddle, laid on its body: the Phillips cargo pack saddle of
+ * FM 25-7 (War Department, Pack Transportation, 1944;
+ * https://ciehub.info/ref/FM/25-7_1944.pdf), its pads over the back, a cinch
+ * round the barrel, a breast collar, a croup piece and a breeching, with a load
+ * against each side.
  *
- * The saddle is sized for the equid it is laid on: the manual's cargo saddle fits its pack mule, 14 3/4 to 15 1/2 hands, so an equid of another height takes its pads scaled by its height over that mule's, and its weight by the cube of that ratio, the isometric similarity the equids' mass law rests on (`AutoMovieArchetypeEquine.mass`); a mule of the manual's middle height carries the read saddle. The pads drape over the barrel from the spine, centred where a riding saddle sits (`AutoMovieArchetypeEquine.SADDLE`, an estimate the manual's placement, 2 or 3 inches behind the shoulder blade, cannot replace, since the body has no shoulder blade). The breast collar bears just above the point of shoulder (par. 13d), the breeching's body piece an inch behind the buttocks (par. 13c(1)), and the croup piece ends over the croup a hand's breadth above the tail's root (par. 13c(1)), the packer's hand being ANSUR II's (`BANDS`).
+ * The saddle is sized for the equid it is laid on: the manual's cargo saddle
+ * fits its pack mule, 14 3/4 to 15 1/2 hands, so an equid of another height
+ * takes its pads scaled by its height over that mule's, and its weight by the
+ * cube of that ratio, the isometric similarity the equids' mass law rests on
+ * (`AutoMovieArchetypeEquine.mass`); a mule of the manual's middle height
+ * carries the read saddle. The pads drape over the barrel from the spine,
+ * centred where a riding saddle sits (`AutoMovieArchetypeEquine.SADDLE`, an
+ * estimate the manual's placement, 2 or 3 inches behind the shoulder blade,
+ * cannot replace, since the body has no shoulder blade). The breast collar
+ * bears just above the point of shoulder (par. 13d), the breeching's body piece
+ * an inch behind the buttocks (par. 13c(1)), and the croup piece ends over the
+ * croup a hand's breadth above the tail's root (par. 13c(1)), the packer's hand
+ * being ANSUR II's (`BANDS`).
  */
 export namespace EquinePack {
-  /** The Phillips cargo pack saddle, FM 25-7 par. 8a, p. 20: "Pads are 23 by 25 inches", taken as 23 along the back and 25 across it, a provisional assignment since the manual does not say which is which; it "weighs 72 pounds (exclusive of breeching and cinches)", and rigged "with these accessories, it weighs approximately 95 pounds" (par. 9, p. 20). */
+  /**
+   * The Phillips cargo pack saddle, FM 25-7 par. 8a, p. 20: "Pads are 23 by 25
+   * inches", taken as 23 along the back and 25 across it, a provisional
+   * assignment since the manual does not say which is which; it "weighs 72
+   * pounds (exclusive of breeching and cinches)", and rigged "with these
+   * accessories, it weighs approximately 95 pounds" (par. 9, p. 20).
+   */
   export const CARGO: Readonly<{
     along: number;
     across: number;
@@ -30,16 +52,30 @@ export namespace EquinePack {
     rigged: 95 * AutoMovieArchetypeUnits.POUND,
   };
 
-  /** The height at the withers the cargo saddle fits, metres: the middle of FM 25-7's pack mule, "from 14 3/4 to 15 1/2 hands in height" (par. 5b, p. 4), 59 to 62 in at four inches to the hand. */
+  /**
+   * The height at the withers the cargo saddle fits, metres: the middle of FM
+   * 25-7's pack mule, "from 14 3/4 to 15 1/2 hands in height" (par. 5b, p. 4),
+   * 59 to 62 in at four inches to the hand.
+   */
   export const MULE: number = ((59 + 62) / 2) * AutoMovieArchetypeUnits.INCH;
 
-  /** The breeching's body piece behind the buttocks, metres: "about 1 inch clearance between the body piece and the animal's buttocks" (FM 25-7 par. 13c(1), p. 31). */
+  /**
+   * The breeching's body piece behind the buttocks, metres: "about 1 inch
+   * clearance between the body piece and the animal's buttocks" (FM 25-7 par.
+   * 13c(1), p. 31).
+   */
   export const BREECHING: number = 1 * AutoMovieArchetypeUnits.INCH;
 
   /** The pads' thickness, metres: an estimate, no source read gives it. */
   export const PAD: number = 0.04;
 
-  /** The band of the pack's drawn dimension: `croupClearance`, the croup piece's end above the tail's root, one hand's breadth (FM 25-7 par. 13c(1)), over ANSUR II's women's and men's mean hand breadths across the second to fifth metacarpals, 78.2 and 88.3 mm, as the human figure states them (`IAutoMovieHumanArmIdentity.handBreadth`). */
+  /**
+   * The band of the pack's drawn dimension: `croupClearance`, the croup piece's
+   * end above the tail's root, one hand's breadth (FM 25-7 par. 13c(1)), over
+   * ANSUR II's women's and men's mean hand breadths across the second to fifth
+   * metacarpals, 78.2 and 88.3 mm, as the human figure states them
+   * (`IAutoMovieHumanArmIdentity.handBreadth`).
+   */
   export const BANDS: Readonly<
     Partial<Record<AutoMovieArchetypeEquine.Free, IAutoMovieArchetypeBand>>
   > = {
@@ -51,10 +87,13 @@ export namespace EquinePack {
   };
 
   /**
-   * The cargo saddle's size for an equid: its pads along and across the back, its weight and its rigged weight, scaled from the manual's mule by height and by height cubed.
+   * The cargo saddle's size for an equid: its pads along and across the back,
+   * its weight and its rigged weight, scaled from the manual's mule by height
+   * and by height cubed.
    *
    * @param withers The equid's height at the withers, metres.
-   * @returns The pads' length along and width across the back, metres, and the saddle's mass and its rigged mass, kilograms.
+   * @returns The pads' length along and width across the back, metres, and the
+   *   saddle's mass and its rigged mass, kilograms.
    */
   export function saddle(
     withers: number,

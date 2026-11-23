@@ -11,11 +11,13 @@ import { createDrinkware } from "../props";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 
 /**
- * An empty beer bottle's declared break, followed briefly in free flight.
- * The producer declares its whole body as one fragment; this subject invents no
- * shard pattern. Remainder dynamics and impacts are not part of that fracture API.
+ * An empty beer bottle's declared break, followed briefly in free flight. The
+ * producer declares its whole body as one fragment; this subject invents no
+ * shard pattern. Remainder dynamics and impacts are not part of that fracture
+ * API.
  *
- * @returns One subject with an authored 1 s fracture instant and a 0.35 s flight window.
+ * @returns One subject with an authored 1 s fracture instant and a 0.35 s
+ *   flight window.
  */
 export function archetypeCaptureBreakage(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>

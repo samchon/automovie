@@ -8,10 +8,11 @@ import {
 } from "../core";
 
 /**
- * A full-size violin bow along +X, hair on the bottom, with a grip by the
- * frog. The overall length (745 mm), hair length (649 mm), mass (61 g) and
- * head height (23 mm) follow Birmingham City University's James Tubbs bow
- * catalogue 10.31 (https://www.bcu.ac.uk/conservatoire/research/hic/the-collection/string-bow/10-31).
+ * A full-size violin bow along +X, hair on the bottom, with a grip by the frog.
+ * The overall length (745 mm), hair length (649 mm), mass (61 g) and head
+ * height (23 mm) follow Birmingham City University's James Tubbs bow catalogue
+ * 10.31
+ * (https://www.bcu.ac.uk/conservatoire/research/hic/the-collection/string-bow/10-31).
  * Stick diameter, frog width, grip placement and ribbon section are coarse
  * estimates. The stick is rigid. The hair contacts mark the underside of the
  * ribbon at the frog and tip, with outward normals facing the string.

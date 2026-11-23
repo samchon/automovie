@@ -11,12 +11,19 @@ import {
 } from "../core";
 
 /**
- * A single raised step a foot goes up or over: a road kerb or a free-standing step.
+ * A single raised step a foot goes up or over: a road kerb or a free-standing
+ * step.
  *
- * It stands on the ground centred on `X` with its back face at the origin's `Z` and its front face toward `+Z`, the side it is approached from, its top at the drawn height. `top` is the top face, facing up, where a foot lands; `edge` the top's front edge, along `+X` with `+Y` up and `+Z` out of the face below, which a foot clears going up or a stepping-over act clears going across.
+ * It stands on the ground centred on `X` with its back face at the origin's `Z`
+ * and its front face toward `+Z`, the side it is approached from, its top at
+ * the drawn height. `top` is the top face, facing up, where a foot lands;
+ * `edge` the top's front edge, along `+X` with `+Y` up and `+Z` out of the face
+ * below, which a foot clears going up or a stepping-over act clears going
+ * across.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The kerb or step.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -79,9 +86,7 @@ export function createKerb(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createKerb}.
- */
+/** Companion types and bands of {@link createKerb}. */
 export namespace createKerb {
   /** The kinds: a road kerb unit and a single free-standing step. */
   export type Kind = "kerb" | "step";
@@ -117,7 +122,10 @@ export namespace createKerb {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which one. */
     kind: Kind;

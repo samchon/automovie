@@ -15,16 +15,28 @@ const RULE: string =
   "World Athletics Competition Rules, Book C2.1, Rule 28.8 (pole vault): the pole may be of any material or combination of materials and of any length or diameter, the basic surface smooth (https://worldathletics.org/about-iaaf/documents/book-of-rules)";
 
 /**
- * A vaulting pole: a long, smooth tube a vaulter runs with, plants in the box and swings on (#3529).
+ * A vaulting pole: a long, smooth tube a vaulter runs with, plants in the box
+ * and swings on (#3529).
  *
- * The pole stands on its plant end at the origin, its length along `+Y`. `tip` is the plant end, its `+Y` pointing out of the end along the pole, so a planting act puts it on the floor or in the box. The two hands hold it in two bands near the top: `topGrip`, the upper hand's, and `lowerGrip`, the lower hand's below it, each a `handle` along the pole whose sites name a hand's place; `shaft` is the whole tube as one two-hand bar, for a carry or a pick-up anywhere along it.
+ * The pole stands on its plant end at the origin, its length along `+Y`. `tip`
+ * is the plant end, its `+Y` pointing out of the end along the pole, so a
+ * planting act puts it on the floor or in the box. The two hands hold it in two
+ * bands near the top: `topGrip`, the upper hand's, and `lowerGrip`, the lower
+ * hand's below it, each a `handle` along the pole whose sites name a hand's
+ * place; `shaft` is the whole tube as one two-hand bar, for a carry or a
+ * pick-up anywhere along it.
  *
- * The pole is rigid here: its bend under the vaulter is the vaulting act's to model, and its stiffness is not drawn.
+ * The pole is rigid here: its bend under the vaulter is the vaulting act's to
+ * model, and its stiffness is not drawn.
  *
  * @param params The pole's series and any dimension the author fixes.
- * @param seed The seed that draws the series when it is not given and every dimension left free inside its band; absent, the first series and the middle of each band.
+ * @param seed The seed that draws the series when it is not given and every
+ *   dimension left free inside its band; absent, the first series and the
+ *   middle of each band.
  * @returns The pole.
- * @throws {AutoMovieArchetypeRefusal} For a series UCS Spirit does not list with a length, or a fixed dimension outside its band; every band fits both grips on the shortest pole, so no other refusal is needed.
+ * @throws {AutoMovieArchetypeRefusal} For a series UCS Spirit does not list
+ *   with a length, or a fixed dimension outside its band; every band fits both
+ *   grips on the shortest pole, so no other refusal is needed.
  */
 export function createVaultingPole(
   params: createVaultingPole.IParams = {},
@@ -109,11 +121,12 @@ export function createVaultingPole(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createVaultingPole}.
- */
+/** Companion types and bands of {@link createVaultingPole}. */
 export namespace createVaultingPole {
-  /** A hand's breadth along the pole, metres: the run of one grip band. An estimate, not read at a source. */
+  /**
+   * A hand's breadth along the pole, metres: the run of one grip band. An
+   * estimate, not read at a source.
+   */
   export const HAND: number = 0.1;
 
   /**
@@ -151,7 +164,13 @@ export namespace createVaultingPole {
   /** UCS Spirit's series read with a length. */
   export type Series = "235" | "305" | "520";
 
-  /** Each series' length, metres, the default first: UCS Spirit's poles run "from 7 ft 8 in (the 235 series) to 17 ft 1 in (the 520 series)" (https://ucsspirit.com/products/ucs-spirit-vaulting-poles), and its 305 series pole is 10 ft (https://spiritpoles.com/305-40-10-90lb). The full series list was not readable, so only these three are built. */
+  /**
+   * Each series' length, metres, the default first: UCS Spirit's poles run
+   * "from 7 ft 8 in (the 235 series) to 17 ft 1 in (the 520 series)"
+   * (https://ucsspirit.com/products/ucs-spirit-vaulting-poles), and its 305
+   * series pole is 10 ft (https://spiritpoles.com/305-40-10-90lb). The full
+   * series list was not readable, so only these three are built.
+   */
   export const SERIES: Readonly<
     Record<Series, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -165,7 +184,10 @@ export namespace createVaultingPole {
     },
   };
 
-  /** The parameters: the series, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the series, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "length">, number>
   > {

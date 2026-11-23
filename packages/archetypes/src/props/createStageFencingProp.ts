@@ -7,12 +7,17 @@ import type { createStageBladeProp } from "./createStageBladeProp";
 /**
  * Padded fencing stage prop.
  *
- * A round visual guard and capped shaft surround the one-hand grip. The selected profile determines the visible guard and colour. Every profile declares its point; the sabre, which also touches with its blade, declares the edge of its whole blade above the guard.
+ * A round visual guard and capped shaft surround the one-hand grip. The
+ * selected profile determines the visible guard and colour. Every profile
+ * declares its point; the sabre, which also touches with its blade, declares
+ * the edge of its whole blade above the guard.
  *
- * @param params The scene identity and optional display length in metres, with the chosen fencing silhouette.
+ * @param params The scene identity and optional display length in metres, with
+ *   the chosen fencing silhouette.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createStageFencingProp(
   params: createStageFencingProp.IParams,
@@ -54,21 +59,25 @@ export function createStageFencingProp(
   );
 }
 
-/**
- * Authoring options for {@link createStageFencingProp}.
- */
+/** Authoring options for {@link createStageFencingProp}. */
 export namespace createStageFencingProp {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "length";
 
-  /** The contacts this producer builds: the grip, the point and, on the sabre, the edge. */
+  /**
+   * The contacts this producer builds: the grip, the point and, on the sabre,
+   * the edge.
+   */
   export type Affordance = "grip" | "point" | "edge";
 
   /**
-   * The sabre's striking part, as shares of its length from the handle's
-   * end: its whole blade above the guard, which a sabre touch may land with
-   * (FIE Technical Rules, the sabre's valid hit), taken from the guard's end
-   * at 0.2.
+   * The sabre's striking part, as shares of its length from the handle's end:
+   * its whole blade above the guard, which a sabre touch may land with (FIE
+   * Technical Rules, the sabre's valid hit), taken from the guard's end at
+   * 0.2.
    */
   export const SABRE_EDGE: StageBladeConstruction.Span = [0.2, 1];
 

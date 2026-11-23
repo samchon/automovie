@@ -14,10 +14,13 @@ import { createSandbag } from "./createSandbag";
 /**
  * Read a saved obstacle recipe and call the corresponding fixed producer.
  *
- * @param params The saved kind and its recorded model, dimensions or identifier.
- * @param seed The seed used by the selected producer under the original draw key.
+ * @param params The saved kind and its recorded model, dimensions or
+ *   identifier.
+ * @param seed The seed used by the selected producer under the original draw
+ *   key.
  * @returns The selected fixture in its original frame.
- * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a rejected model or dimension.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a rejected model
+ *   or dimension.
  */
 export function createObstacle(
   params: createObstacle.IParams,
@@ -32,9 +35,7 @@ export function createObstacle(
   return createObstacle.PRODUCERS[kind](params, seed);
 }
 
-/**
- * Companion types, constants and bands of {@link createObstacle}.
- */
+/** Companion types, constants and bands of {@link createObstacle}. */
 export namespace createObstacle {
   /** The kinds of obstacle. */
   export type Kind =
@@ -56,10 +57,13 @@ export namespace createObstacle {
   /**
    * The affordance ids, by kind:
    *
-   * - crosstie, sandbag, jerseyBarrier: `top` (surface), `edge` (ledge, the top's front edge);
-   * - sandbag: also `leftEnd`, `rightEnd` (handles on its ends' tops, at `+X` and `-X`);
-   * - crowdBarrier: `rail` (bar, the top rail);
-   * - ropeAndPosts: `rope` (bar), `leftPost`, `rightPost` (bars, the posts at `+X` and `-X`, each along `+Y`).
+   * - Crosstie, sandbag, jerseyBarrier: `top` (surface), `edge` (ledge, the top's
+   *   front edge);
+   * - Sandbag: also `leftEnd`, `rightEnd` (handles on its ends' tops, at `+X` and
+   *   `-X`);
+   * - CrowdBarrier: `rail` (bar, the top rail);
+   * - RopeAndPosts: `rope` (bar), `leftPost`, `rightPost` (bars, the posts at
+   *   `+X` and `-X`, each along `+Y`).
    */
   export type Affordance =
     | "top"
@@ -76,11 +80,15 @@ export namespace createObstacle {
    *
    * - `length`: along `X`; for the stanchions, the rope's.
    * - `height`: the top above the ground; for the stanchions, a post's.
-   * - `width`: along `Z`, a crosstie's face or a sandbag's laid width; a concrete barrier's base.
-   * - `top`, `curb`, `lowerFace`: a concrete barrier's top width, its vertical curb and the height of its lower sloped face.
+   * - `width`: along `Z`, a crosstie's face or a sandbag's laid width; a concrete
+   *   barrier's base.
+   * - `top`, `curb`, `lowerFace`: a concrete barrier's top width, its vertical
+   *   curb and the height of its lower sloped face.
    * - `tube`, `spacing`: a crowd barrier's tube and its pickets' spacing.
-   * - `post`, `base`, `ropeDiameter`: a stanchion's post and base diameters and the rope's.
-   * - `mass`: kilograms; `massPerMetre`: a concrete barrier's, kilograms per metre of length.
+   * - `post`, `base`, `ropeDiameter`: a stanchion's post and base diameters and
+   *   the rope's.
+   * - `mass`: kilograms; `massPerMetre`: a concrete barrier's, kilograms per
+   *   metre of length.
    */
   export type Dimension =
     | "length"
@@ -100,11 +108,20 @@ export namespace createObstacle {
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: typeof FixtureDraw.obstacle = FixtureDraw.obstacle;
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
-  /** A crosstie's sections read, depth by face in inches: FOR-108's most common 7 x 9 and its 6 x 8 and 7 x 8. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
+  /**
+   * A crosstie's sections read, depth by face in inches: FOR-108's most common
+   * 7 x 9 and its 6 x 8 and 7 x 8.
+   */
   export type Section = "7x9in" | "6x8in" | "7x8in";
 
-  /** A crosstie's lengths read: FOR-108's most common 8 ft 6 in, its standard 8 ft and its 9 ft. */
+  /**
+   * A crosstie's lengths read: FOR-108's most common 8 ft 6 in, its standard 8
+   * ft and its 9 ft.
+   */
   export type TieLength = "8ft6in" | "8ft" | "9ft";
 
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -121,13 +138,18 @@ export namespace createObstacle {
     id?: string;
   }
 
-  /** The angle of a concrete barrier's lower face from the ground, degrees, as FHWA-RD-89-036 Figure 1 gives it. */
+  /**
+   * The angle of a concrete barrier's lower face from the ground, degrees, as
+   * FHWA-RD-89-036 Figure 1 gives it.
+   */
   export const LOWER_FACE: number = createJerseyBarrier.LOWER_FACE;
 
   /**
-   * The construction sizes no source read gives, metres, each an estimate no act reads and no band declares:
+   * The construction sizes no source read gives, metres, each an estimate no
+   * act reads and no band declares:
    *
-   * - `foot`: a crowd barrier's foot, front to back; `bottomRail`: its bottom rail's height; `picket`: a picket's diameter.
+   * - `foot`: a crowd barrier's foot, front to back; `bottomRail`: its bottom
+   *   rail's height; `picket`: a picket's diameter.
    * - `plate`: a stanchion base's thickness.
    */
   export const ESTIMATES: Readonly<{

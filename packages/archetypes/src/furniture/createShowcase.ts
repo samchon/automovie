@@ -8,21 +8,30 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core";
 
-/** A Full Vision showcase's depth and height, metres, the same for both models: the sheet's "20" deep x 38" high". */
+/**
+ * A Full Vision showcase's depth and height, metres, the same for both models:
+ * the sheet's "20" deep x 38" high".
+ */
 const CASE: Readonly<{ depth: number; height: number }> = {
   depth: 20 * AutoMovieArchetypeUnits.INCH,
   height: 38 * AutoMovieArchetypeUnits.INCH,
 };
 
 /**
- * A glass showcase counter: a case with a glass top and front, shown to the customer at `+Z` and served from the clerk's side at `-Z`.
+ * A glass showcase counter: a case with a glass top and front, shown to the
+ * customer at `+Z` and served from the clerk's side at `-Z`.
  *
- * The case stands on the floor centred on the origin, its length along `X`. It is one of the maker's two showcases read, whole: the model given, or one drawn from the seed. `top` is the glass top, leaned on or set on; `edge` is its customer-side edge, where hands and forearms rest.
+ * The case stands on the floor centred on the origin, its length along `X`. It
+ * is one of the maker's two showcases read, whole: the model given, or one
+ * drawn from the seed. `top` is the glass top, leaned on or set on; `edge` is
+ * its customer-side edge, where hands and forearms rest.
  *
  * @param params The model, if the author fixes it.
- * @param seed The seed that draws the model when it is not given; absent, the first.
+ * @param seed The seed that draws the model when it is not given; absent, the
+ *   first.
  * @returns The showcase.
- * @throws {AutoMovieArchetypeRefusal} For a model the maker's sheet does not list.
+ * @throws {AutoMovieArchetypeRefusal} For a model the maker's sheet does not
+ *   list.
  */
 export function createShowcase(
   params: createShowcase.IParams = {},
@@ -79,14 +88,15 @@ export function createShowcase(
   return builder.build(model.figures.mass!);
 }
 
-/**
- * Companion types and constants of {@link createShowcase}.
- */
+/** Companion types and constants of {@link createShowcase}. */
 export namespace createShowcase {
   /** The models read: Econoco's Full Vision showcases, 48 and 70 in long. */
   export type Model = "PW/SC482" | "PW/SC702";
 
-  /** The dimensions, each its model's: `length`, the case along `X`, metres; `mass`, kilograms. */
+  /**
+   * The dimensions, each its model's: `length`, the case along `X`, metres;
+   * `mass`, kilograms.
+   */
   export type Dimension = "length" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
@@ -97,7 +107,12 @@ export namespace createShowcase {
     mass: "kg",
   };
 
-  /** Each showcase's length and mass, the default first: Econoco Showcases and Counters 2025, Full Vision Showcase, "Available in two lengths; 48" long and 70" long", "48" unit weighs 170 lbs. 70" unit weighs 190 lbs." (https://www.econoco.com/media/contentmanager/content/brochure/Showcases_and_Counters_-_2025_1.pdf). */
+  /**
+   * Each showcase's length and mass, the default first: Econoco Showcases and
+   * Counters 2025, Full Vision Showcase, "Available in two lengths; 48" long
+   * and 70" long", "48" unit weighs 170 lbs. 70" unit weighs 190 lbs."
+   * (https://www.econoco.com/media/contentmanager/content/brochure/Showcases_and_Counters_-_2025_1.pdf).
+   */
   export const MODELS: Readonly<
     Record<Model, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -119,7 +134,11 @@ export namespace createShowcase {
    */
   export type Affordance = "top" | "edge";
 
-  /** The clerk-side sliding doors' width and height, metres: unread, since the sheet names "solid sliding privacy doors" but sizes neither. A read size replaces this `null`, and the doors then become `slider` contacts. */
+  /**
+   * The clerk-side sliding doors' width and height, metres: unread, since the
+   * sheet names "solid sliding privacy doors" but sizes neither. A read size
+   * replaces this `null`, and the doors then become `slider` contacts.
+   */
   export const DOORS: Readonly<{ width: number; height: number }> | null = null;
 
   /** The parameters: the model, if fixed. */

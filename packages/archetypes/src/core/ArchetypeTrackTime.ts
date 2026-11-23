@@ -1,8 +1,6 @@
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
-/**
- * Finite clock admission shared by mechanism tracks and their recoil consumer.
- */
+/** Finite clock admission shared by mechanism tracks and their recoil consumer. */
 export namespace ArchetypeTrackTime {
   /**
    * Admit positive duration and a representably later finite end.
@@ -11,7 +9,8 @@ export namespace ArchetypeTrackTime {
    * @param start Finite film start, including negative seconds.
    * @param seconds Finite positive duration, seconds.
    * @returns The finite end strictly later than start.
-   * @throws {AutoMovieArchetypeRefusal} At seconds for invalid duration or start for unsupported interval.
+   * @throws {AutoMovieArchetypeRefusal} At seconds for invalid duration or
+   *   start for unsupported interval.
    */
   export function end(
     archetype: string,
@@ -95,17 +94,20 @@ export namespace ArchetypeTrackTime {
   }
 
   /**
-   * Place a crossing from its nearer time endpoint without collapsing an interior event.
+   * Place a crossing from its nearer time endpoint without collapsing an
+   * interior event.
    *
    * @param archetype The consumer's refusal name.
    * @param start Admitted start.
    * @param end Admitted end.
    * @param seconds Admitted duration.
    * @param offset Seconds from the selected endpoint.
-   * @param fromEnd Offset is backward from end when true, forward from start otherwise.
+   * @param fromEnd Offset is backward from end when true, forward from start
+   *   otherwise.
    * @param error Prepared end residual for backward offsets.
    * @returns A held endpoint or a representably interior finite instant.
-   * @throws {AutoMovieArchetypeRefusal} For unsupported offset or interior clock resolution.
+   * @throws {AutoMovieArchetypeRefusal} For unsupported offset or interior
+   *   clock resolution.
    */
   export function instant(
     archetype: string,

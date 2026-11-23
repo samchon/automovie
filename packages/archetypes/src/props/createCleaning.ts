@@ -22,10 +22,14 @@ const SPONGE: string =
 /**
  * A thing a hand wipes or scrubs with: a cloth folded flat or a sponge.
  *
- * It lies flat on a surface centred over the origin. `grip` is the hold at its middle, pinched for a cloth and closed round for a sponge, its thickness the aperture; `face` its underside, facing down, the side that meets what is wiped.
+ * It lies flat on a surface centred over the origin. `grip` is the hold at its
+ * middle, pinched for a cloth and closed round for a sponge, its thickness the
+ * aperture; `face` its underside, facing down, the side that meets what is
+ * wiped.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The thing.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -91,9 +95,7 @@ export function createCleaning(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createCleaning}.
- */
+/** Companion types and bands of {@link createCleaning}. */
 export namespace createCleaning {
   /** The kinds: a cloth folded in four, a kitchen sponge. */
   export type Kind = "cloth" | "sponge";
@@ -127,7 +129,10 @@ export namespace createCleaning {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which thing. */
     kind: Kind;

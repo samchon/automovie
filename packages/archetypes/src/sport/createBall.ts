@@ -7,10 +7,12 @@ import { createSphericalBall } from "./createSphericalBall";
 /**
  * Reads a saved ball recipe using its canonical producer.
  *
- * @param params The saved kind, optional identifier and any dimensions or choices the author supplied.
+ * @param params The saved kind, optional identifier and any dimensions or
+ *   choices the author supplied.
  * @param seed The seed used by the selected producer.
  * @returns The original model and its contacts.
- * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension
+ *   cannot be realized.
  */
 export function createBall(
   params: createBall.IParams,
@@ -32,9 +34,7 @@ export function createBall(
   return produce(params, seed);
 }
 
-/**
- * Companion types, constants and bands of {@link createBall}.
- */
+/** Companion types, constants and bands of {@link createBall}. */
 export namespace createBall {
   /** The kinds of ball. */
   export type Kind =
@@ -62,7 +62,11 @@ export namespace createBall {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: typeof BallBuild.KINDS = BallBuild.KINDS;
 
-  /** The diameter above which a ball is taken in two hands, metres: a handball's 0.19 m is still palmed, a football's 0.22 m is not. An estimate, not read at a source. */
+  /**
+   * The diameter above which a ball is taken in two hands, metres: a handball's
+   * 0.19 m is still palmed, a football's 0.22 m is not. An estimate, not read
+   * at a source.
+   */
   export const TWO_HANDS: typeof BallBuild.TWO_HANDS = BallBuild.TWO_HANDS;
 
   /** Each kind's flat colour, sRGB. */
@@ -71,7 +75,8 @@ export namespace createBall {
   /**
    * The affordance ids:
    *
-   * - `grip`: the ball as a hand or two take it, at its centre, its height off the floor the aperture: the diameter, a puck's thickness.
+   * - `grip`: the ball as a hand or two take it, at its centre, its height off
+   *   the floor the aperture: the diameter, a puck's thickness.
    * - `top`: its highest point, facing up.
    * - `rim`: a puck's radial side surface, with the disc diameter and thickness.
    */
@@ -89,7 +94,10 @@ export namespace createBall {
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: typeof BallBuild.UNITS = BallBuild.UNITS;
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which ball. */
     kind: Kind;

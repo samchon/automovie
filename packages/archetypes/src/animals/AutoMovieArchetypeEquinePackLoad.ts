@@ -14,14 +14,24 @@ import {
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 
 /**
- * Two side loads hung on a pack saddle's load contacts: a box against each side, its inner face on the pad's outer face at the contact frame, carried with the trunk wherever the pack horse's ride takes it.
+ * Two side loads hung on a pack saddle's load contacts: a box against each
+ * side, its inner face on the pad's outer face at the contact frame, carried
+ * with the trunk wherever the pack horse's ride takes it.
  *
- * Each `leftLoad` and `rightLoad` contact is a surface frame whose `+Y` faces out of the pad, whose `+X` runs along the back and whose `width` and `depth` give the pad's extent along the back and down the side (`EquinePack.lay`). A load is a box `length` along the back, `height` down the side and `thickness` out from the pad, its inner face centred on the contact; both sides take the same box, an authored balanced pair. A load longer than the pad along the back or taller than the pad down the side does not sit on it and is refused.
+ * Each `leftLoad` and `rightLoad` contact is a surface frame whose `+Y` faces
+ * out of the pad, whose `+X` runs along the back and whose `width` and `depth`
+ * give the pad's extent along the back and down the side (`EquinePack.lay`). A
+ * load is a box `length` along the back, `height` down the side and `thickness`
+ * out from the pad, its inner face centred on the contact; both sides take the
+ * same box, an authored balanced pair. A load longer than the pad along the
+ * back or taller than the pad down the side does not sit on it and is refused.
  *
  * @param horse A horse under a pack saddle.
  * @param load The box hung on each side, metres and kilograms.
  * @returns The two load models and their placements at a ride's sample.
- * @throws {AutoMovieArchetypeRefusal} For a horse without the pack saddle's load contacts, a nonpositive size or mass, or a box that overhangs its pad.
+ * @throws {AutoMovieArchetypeRefusal} For a horse without the pack saddle's
+ *   load contacts, a nonpositive size or mass, or a box that overhangs its
+ *   pad.
  */
 export function AutoMovieArchetypeEquinePackLoad(
   horse: AutoMovieArchetype<
@@ -70,7 +80,10 @@ export function AutoMovieArchetypeEquinePackLoad(
     }),
   };
 
-  /** One side's box, admitted against its pad, with its inner face's centre at its model origin. */
+  /**
+   * One side's box, admitted against its pad, with its inner face's centre at
+   * its model origin.
+   */
   function box(
     side: AutoMovieArchetypeEquinePackLoad.Side,
   ): AutoMovieArchetype<"base", never> {
@@ -119,9 +132,7 @@ export function AutoMovieArchetypeEquinePackLoad(
   }
 }
 
-/**
- * Types of {@link AutoMovieArchetypeEquinePackLoad}.
- */
+/** Types of {@link AutoMovieArchetypeEquinePackLoad}. */
 export namespace AutoMovieArchetypeEquinePackLoad {
   /** The two load contacts of a pack saddle. */
   export type Side = "leftLoad" | "rightLoad";
@@ -140,7 +151,10 @@ export namespace AutoMovieArchetypeEquinePackLoad {
 
   /** The two loads' models and their placements at a sample. */
   export interface IPrepared {
-    /** Each side's box model, its inner face's centre at its origin, `+Y` out of the pad. */
+    /**
+     * Each side's box model, its inner face's centre at its origin, `+Y` out of
+     * the pad.
+     */
     models: Readonly<Record<Side, AutoMovieArchetype<"base", never>>>;
     /** Each side's world placement at a pack horse ride's sample. */
     at: (

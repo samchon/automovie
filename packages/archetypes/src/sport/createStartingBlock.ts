@@ -19,14 +19,23 @@ const UNREAD: string =
   "World Athletics Technical Rule 15.2 (2020 edition, https://athletics.lv/file/download/61151) sets no size or setting, and the makers' pages read state none";
 
 /**
- * A sprinter's starting block: a rail along the lane with a front and a rear foot plate.
+ * A sprinter's starting block: a rail along the lane with a front and a rear
+ * foot plate.
  *
- * The rail runs back along `-Z` from its front end at the origin, the runner facing `+Z`. The front plate stands `setback` behind the front end and the rear plate `spacing` behind that, each tilted back by `angle` from upright and set a little to its own side of the rail. `front` and `rear` are the plates the soles press, each `+Y` out of its plate toward the sole and `+X` across the foot; which foot goes forward is the runner's.
+ * The rail runs back along `-Z` from its front end at the origin, the runner
+ * facing `+Z`. The front plate stands `setback` behind the front end and the
+ * rear plate `spacing` behind that, each tilted back by `angle` from upright
+ * and set a little to its own side of the rail. `front` and `rear` are the
+ * plates the soles press, each `+Y` out of its plate toward the sole and `+X`
+ * across the foot; which foot goes forward is the runner's.
  *
  * @param params The block's model and any setting the author fixes.
- * @param seed The seed that draws the model when it is not given and every setting left free inside its band; absent, the first model and the middle of each band.
+ * @param seed The seed that draws the model when it is not given and every
+ *   setting left free inside its band; absent, the first model and the middle
+ *   of each band.
  * @returns The starting block.
- * @throws {AutoMovieArchetypeRefusal} For a model Polanik does not list with its sizes, or a fixed setting outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a model Polanik does not list with
+ *   its sizes, or a fixed setting outside its band.
  */
 export function createStartingBlock(
   params: createStartingBlock.IParams = {},
@@ -125,9 +134,7 @@ export function createStartingBlock(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createStartingBlock}.
- */
+/** Companion types, constants and bands of {@link createStartingBlock}. */
 export namespace createStartingBlock {
   /** Each plate's thickness, metres: an estimate. */
   export const PLATE_THICKNESS: number = 0.02;
@@ -136,7 +143,14 @@ export namespace createStartingBlock {
   export type Model = "PBS-01" | "PBS15-02-W";
 
   /**
-   * Each block's figures, metres and kilograms, the default first: the steel PBS-01 "with an 85 x 7.5 cm centre bar and 19 x 11.5 cm footplates, 7.7 kg" (https://www.athleticsdirect.co.uk/product/polanik-competition-steel-starting-blocks); the aluminium PBS15-02-W "with a 90.8 x 8 cm bar and 24.5 x 13 cm plates, 5.4 kg" (https://www.athleticsdirect.co.uk/product/polanik-competition-aluminium-starting-block). A plate's larger figure is its height along the face, its smaller its width across the foot.
+   * Each block's figures, metres and kilograms, the default first: the steel
+   * PBS-01 "with an 85 x 7.5 cm centre bar and 19 x 11.5 cm footplates, 7.7 kg"
+   * (https://www.athleticsdirect.co.uk/product/polanik-competition-steel-starting-blocks);
+   * the aluminium PBS15-02-W "with a 90.8 x 8 cm bar and 24.5 x 13 cm plates,
+   * 5.4 kg"
+   * (https://www.athleticsdirect.co.uk/product/polanik-competition-aluminium-starting-block).
+   * A plate's larger figure is its height along the face, its smaller its width
+   * across the foot.
    */
   export const MODELS: Readonly<
     Record<Model, Readonly<Partial<Record<Dimension, number>>>>
@@ -193,7 +207,10 @@ export namespace createStartingBlock {
   /** The settings a sprinter adjusts. */
   export type Setting = "setback" | "spacing" | "angle";
 
-  /** The parameters: the block, and any setting fixed to a value inside its band. */
+  /**
+   * The parameters: the block, and any setting fixed to a value inside its
+   * band.
+   */
   export interface IParams extends Partial<Record<Setting, number>> {
     /** Polanik's block; drawn from the seed when absent. */
     model?: Model;

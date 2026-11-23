@@ -13,7 +13,10 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The building code's stair clauses, read in a state adoption of the model code. */
+/**
+ * The building code's stair clauses, read in a state adoption of the model
+ * code.
+ */
 const IBC: string =
   "IBC 2021, read in its Illinois adoption (https://up.codes/viewer/illinois/ibc-2021/chapter/10/means-of-egress)";
 
@@ -24,12 +27,23 @@ const ADA: string =
 /**
  * A straight flight of stairs with its top landing and its handrails.
  *
- * The flight rises along `+Z` from the floor at the origin: the first riser stands at `z = 0`, and each of the `steps` risers lifts by the same `riser` onto a tread of the same `tread` depth, the last onto the landing. Every nosing is a `ledge` named `step1` upward, facing down the flight, so a foot is placed from the nosing by the tread's depth. A handrail is a `bar` along the flight's slope at the rail height above the line of the nosings, on the climber's left (`+X`) or right.
+ * The flight rises along `+Z` from the floor at the origin: the first riser
+ * stands at `z = 0`, and each of the `steps` risers lifts by the same `riser`
+ * onto a tread of the same `tread` depth, the last onto the landing. Every
+ * nosing is a `ledge` named `step1` upward, facing down the flight, so a foot
+ * is placed from the nosing by the tread's depth. A handrail is a `bar` along
+ * the flight's slope at the rail height above the line of the nosings, on the
+ * climber's left (`+X`) or right.
  *
- * @param params The number of risers, the rails, the occupant class and any dimension the author fixes.
- * @param seed The seed that draws the occupant class when it is not given and every dimension left free inside its band; absent, the first class and the middle of each band.
+ * @param params The number of risers, the rails, the occupant class and any
+ *   dimension the author fixes.
+ * @param seed The seed that draws the occupant class when it is not given and
+ *   every dimension left free inside its band; absent, the first class and the
+ *   middle of each band.
  * @returns The flight.
- * @throws {AutoMovieArchetypeRefusal} For an occupant class the code does not list, a fixed dimension outside its band, or a number of risers that is not a whole number from 2 to 20.
+ * @throws {AutoMovieArchetypeRefusal} For an occupant class the code does not
+ *   list, a fixed dimension outside its band, or a number of risers that is not
+ *   a whole number from 2 to 20.
  */
 export function createStairs(
   params: createStairs.IParams = {},
@@ -177,9 +191,7 @@ export function createStairs(
   return builder.build(d.mass * steps);
 }
 
-/**
- * Companion types and bands of {@link createStairs}.
- */
+/** Companion types and bands of {@link createStairs}. */
 export namespace createStairs {
   /** Which sides have a handrail. */
   export type Rail = "left" | "right" | "both" | "none";
@@ -187,24 +199,39 @@ export namespace createStairs {
   /** Every rail choice, for a caller that reads one at run time. */
   export const RAILS: readonly Rail[] = ["left", "right", "both", "none"];
 
-  /** The most risers in one flight: at the tallest riser, 178 mm, twenty rise 3560 mm, under the 3658 mm of IBC 2021 1011.8. */
+  /**
+   * The most risers in one flight: at the tallest riser, 178 mm, twenty rise
+   * 3560 mm, under the 3658 mm of IBC 2021 1011.8.
+   */
   export const STEPS: number = 20;
 
-  /** A rail's clearance from the stair's side, metres: the 1-1/2 in (38 mm) of 2010 ADA Standards 505.5. */
+  /**
+   * A rail's clearance from the stair's side, metres: the 1-1/2 in (38 mm) of
+   * 2010 ADA Standards 505.5.
+   */
   export const CLEARANCE: number = 0.038;
 
-  /** A rail's level run beyond the top riser, metres: the 12 in (305 mm) of 2010 ADA Standards 505.10.2. */
+  /**
+   * A rail's level run beyond the top riser, metres: the 12 in (305 mm) of 2010
+   * ADA Standards 505.10.2.
+   */
   export const EXTENSION: number = 0.305;
 
-  /** The greatest depth of the top landing along the flight, metres, 48 in: the landing is as deep as the flight is wide, up to this. An estimate, not read at a source. */
+  /**
+   * The greatest depth of the top landing along the flight, metres, 48 in: the
+   * landing is as deep as the flight is wide, up to this. An estimate, not read
+   * at a source.
+   */
   export const LANDING: number = 48 * AutoMovieArchetypeUnits.INCH;
 
   /**
    * The affordance ids:
    *
-   * - `step1` to `step<steps>`: each nosing from the bottom up, an edge across the flight facing down it; the last is the landing's edge.
+   * - `step1` to `step<steps>`: each nosing from the bottom up, an edge across
+   *   the flight facing down it; the last is the landing's edge.
    * - `landing`: the top landing.
-   * - `leftRail`, `rightRail`: the handrails on `+X` and `-X`, each a bar along the slope.
+   * - `leftRail`, `rightRail`: the handrails on `+X` and `-X`, each a bar along
+   *   the slope.
    */
   export type Affordance =
     | `step${number}`
@@ -218,7 +245,8 @@ export namespace createStairs {
    * - `riser`: the rise of every step.
    * - `tread`: the going of every step, nosing to nosing.
    * - `width`: the flight's least width, its occupant class's.
-   * - `railHeight`: the top of a rail's gripping surface above the line of the nosings, measured vertically.
+   * - `railHeight`: the top of a rail's gripping surface above the line of the
+   *   nosings, measured vertically.
    * - `railDiameter`: a rail's round section.
    * - `mass`: kilograms per riser.
    */
@@ -242,10 +270,16 @@ export namespace createStairs {
     mass: "kg",
   };
 
-  /** The code's occupant classes for a stair's width: under 50 occupants, and 50 or more. */
+  /**
+   * The code's occupant classes for a stair's width: under 50 occupants, and 50
+   * or more.
+   */
   export type Occupancy = "under50" | "over50";
 
-  /** Each class's least width, metres, the default first: IBC 2021 1011.2, "36 in (914 mm)" under 50 occupants and "44 in (1118 mm)" otherwise. */
+  /**
+   * Each class's least width, metres, the default first: IBC 2021 1011.2, "36
+   * in (914 mm)" under 50 occupants and "44 in (1118 mm)" otherwise.
+   */
   export const OCCUPANCIES: Readonly<
     Record<Occupancy, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -253,11 +287,17 @@ export namespace createStairs {
     over50: { width: 1.118 },
   };
 
-  /** The parameters: the count, the rails, the occupant class, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the count, the rails, the occupant class, and any free
+   * dimension fixed to a value inside its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "width">, number>
   > {
-    /** The occupant class the flight's width serves; drawn from the seed when absent. */
+    /**
+     * The occupant class the flight's width serves; drawn from the seed when
+     * absent.
+     */
     occupancy?: Occupancy;
 
     /** How many risers the flight has, 2 to 20; 12 when absent. */

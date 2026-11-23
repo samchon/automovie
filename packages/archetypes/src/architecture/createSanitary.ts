@@ -14,10 +14,13 @@ import { createWashbasin } from "./createWashbasin";
 /**
  * Read a saved sanitary recipe and call the corresponding fixed producer.
  *
- * @param params The saved kind and its recorded model, dimensions or identifier.
- * @param seed The seed used by the selected producer under the original draw key.
+ * @param params The saved kind and its recorded model, dimensions or
+ *   identifier.
+ * @param seed The seed used by the selected producer under the original draw
+ *   key.
  * @returns The selected fixture in its original frame.
- * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a rejected model or dimension.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a rejected model
+ *   or dimension.
  */
 export function createSanitary(
   params: createSanitary.IParams,
@@ -32,9 +35,7 @@ export function createSanitary(
   return createSanitary.PRODUCERS[kind](params, seed);
 }
 
-/**
- * Companion types, constants and bands of {@link createSanitary}.
- */
+/** Companion types, constants and bands of {@link createSanitary}. */
 export namespace createSanitary {
   /** The kinds of fixture. */
   export type Kind = "washbasin" | "toilet" | "bathtub" | "shower";
@@ -50,10 +51,19 @@ export namespace createSanitary {
   /**
    * The affordance ids, by kind:
    *
-   * - washbasin: `rim` (ledge, the top's front edge), `bowl` (surface over the basin), `tap` (knob, the mixer's lever turned), `lift` (hinge, the lever lifted, riding `tap`), `spout` (socket, the mixer's mouth facing down);
-   * - toilet: `seat` (seat, facing `+Z`), `lid` (hinge, lowering the lid from open);
-   * - bathtub: `rim` (ledge, the apron's top edge), `edge` (ledge, the same edge a step over clears), `top` (surface, the apron's top face), `bottom` (surface, the well's floor), `seat` (seat, on the well's floor against its `-X` end, facing `+X`), `backrest` (surface, that end wall's inner face up to the rim);
-   * - shower: `tray` (surface, the floor), `threshold` (ledge, the front edge), `entry` (aperture, the opening, its `+Z` into the stall), `seat` (seat, facing `-X`), `control` (knob, the valve).
+   * - Washbasin: `rim` (ledge, the top's front edge), `bowl` (surface over the
+   *   basin), `tap` (knob, the mixer's lever turned), `lift` (hinge, the lever
+   *   lifted, riding `tap`), `spout` (socket, the mixer's mouth facing down);
+   * - Toilet: `seat` (seat, facing `+Z`), `lid` (hinge, lowering the lid from
+   *   open);
+   * - Bathtub: `rim` (ledge, the apron's top edge), `edge` (ledge, the same edge
+   *   a step over clears), `top` (surface, the apron's top face), `bottom`
+   *   (surface, the well's floor), `seat` (seat, on the well's floor against
+   *   its `-X` end, facing `+X`), `backrest` (surface, that end wall's inner
+   *   face up to the rim);
+   * - Shower: `tray` (surface, the floor), `threshold` (ledge, the front edge),
+   *   `entry` (aperture, the opening, its `+Z` into the stall), `seat` (seat,
+   *   facing `-X`), `control` (knob, the valve).
    */
   export type Affordance =
     | "rim"
@@ -77,14 +87,19 @@ export namespace createSanitary {
    *
    * - `rim`: a basin's or a bath's top front edge above the floor.
    * - `basinDepth`: a basin block's depth under its rim.
-   * - `width`, `depth`, `length`: the fixture along `X`, out from the wall along `Z`, and a toilet's bowl front or a bath's length.
+   * - `width`, `depth`, `length`: the fixture along `X`, out from the wall along
+   *   `Z`, and a toilet's bowl front or a bath's length.
    * - `bowlWidth`, `bowlDepth`: a basin's opening.
-   * - `tapHeight`, `tapReach`, `tapOutlet`: a basin mixer's, as `createTap`'s `height`, `reach` and `outlet`.
+   * - `tapHeight`, `tapReach`, `tapOutlet`: a basin mixer's, as `createTap`'s
+   *   `height`, `reach` and `outlet`.
    * - `seat`: a toilet's or a shower seat's top above the floor.
-   * - `seatDepth`: a toilet seat's from its hinge line to its front; a shower seat's out from its wall.
+   * - `seatDepth`: a toilet seat's from its hinge line to its front; a shower
+   *   seat's out from its wall.
    * - `tankWidth`, `tankDepth`, `tankTop`: a toilet tank's.
-   * - `wellLength`, `wellWidth`, `waterDepth`: a bath well's floor and its depth of water below the rim.
-   * - `interior`, `wallHeight`, `threshold`: a shower's inside, square, its walls' height and its front step.
+   * - `wellLength`, `wellWidth`, `waterDepth`: a bath well's floor and its depth
+   *   of water below the rim.
+   * - `interior`, `wallHeight`, `threshold`: a shower's inside, square, its
+   *   walls' height and its front step.
    * - `control`: a shower valve's height above the floor.
    * - `mass`: kilograms.
    */
@@ -116,7 +131,10 @@ export namespace createSanitary {
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: typeof FixtureDraw.sanitary = FixtureDraw.sanitary;
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which fixture. */
     kind: Kind;
@@ -128,7 +146,10 @@ export namespace createSanitary {
   /** A toilet lid's travel, degrees, as `SanitaryConstruction.LIFT` derives it. */
   export const LIFT: number = SanitaryConstruction.LIFT;
 
-  /** The construction sizes no source read gives, as `SanitaryConstruction.ESTIMATES` names them. */
+  /**
+   * The construction sizes no source read gives, as
+   * `SanitaryConstruction.ESTIMATES` names them.
+   */
   export const ESTIMATES: typeof SanitaryConstruction.ESTIMATES =
     SanitaryConstruction.ESTIMATES;
 

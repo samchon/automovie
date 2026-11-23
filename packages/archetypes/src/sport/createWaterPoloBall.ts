@@ -13,9 +13,9 @@ const RULES: string =
   "World Aquatics June 2025, Part Six Appendix 4 §20.4.3: https://resources.fina.org/fina/document/2025/07/01/ed3110a4-2291-411d-8526-6f641bd9237a/Competition-Regulations_June-2025_Clean-updated-01.07.2025-.pdf";
 
 /**
- * A single water polo ball within the senior men's regulation size band.
- * The sphere's origin is its physical centre. That point is available to
- * the single-hand ball-custody and shot-resolution owners. The prop models the
+ * A single water polo ball within the senior men's regulation size band. The
+ * sphere's origin is its physical centre. That point is available to the
+ * single-hand ball-custody and shot-resolution owners. The prop models the
  * ball's shape and mass for staging.
  *
  * @param params Scene identity and optional regulation dimensions.
@@ -69,9 +69,7 @@ export function createWaterPoloBall(
   return builder.build(d.mass);
 }
 
-/**
- * Physical circumference and mass and the spherical grip sites.
- */
+/** Physical circumference and mass and the spherical grip sites. */
 export namespace createWaterPoloBall {
   /** The ball center and highest point. */
   export type Affordance = "grip" | "top";

@@ -19,28 +19,35 @@ import { createTrackedRails } from "./createTrackedRails";
 const LOCAL_X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 const LOCAL_Z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-/** Match the engine's unit-rotation admission scale when checking boarding frames. */
+/**
+ * Match the engine's unit-rotation admission scale when checking boarding
+ * frames.
+ */
 const LEVEL_TOLERANCE: number = 1e-6;
 
 /** Usable waiting width beside the car, in metres. */
 const PLATFORM_WIDTH: number = 1.5;
 
 /**
- * Place a course, its moving car and its usable waiting platforms as one module.
+ * Place a course, its moving car and its usable waiting platforms as one
+ * module.
  *
- * The route's geometric clock runs in metres. The film clock linearly
- * advances through the author's distance marks, inserting a clip key wherever
- * a rail station or distance mark is reached. Both the ordinary object motion
- * reader and the rider's carrier reader can sample the returned clip with
+ * The route's geometric clock runs in metres. The film clock linearly advances
+ * through the author's distance marks, inserting a clip key wherever a rail
+ * station or distance mark is reached. Both the ordinary object motion reader
+ * and the rider's carrier reader can sample the returned clip with
  * `bakedTransformFromClipsAt`. Between the keys, the motion uses linear
  * translation and quaternion interpolation, the same approximation in both
  * views; its centre lies on the sampled course and its border rails interpolate
  * corresponding cross sections. Named stops are static anchors. The exported
  * carrier-affordance anchors describe the initial pose.
  *
- * @param input Course, rigid car with a named threshold and rider contact, time marks, and named held stops.
- * @returns An environment module with models, set pieces, prop, support and object clip.
- * @throws On malformed timing, gauge, carrier, threshold or stop positions, or if a threshold is not level and side-aligned in its placed stop frame.
+ * @param input Course, rigid car with a named threshold and rider contact, time
+ *   marks, and named held stops.
+ * @returns An environment module with models, set pieces, prop, support and
+ *   object clip.
+ * @throws On malformed timing, gauge, carrier, threshold or stop positions, or
+ *   if a threshold is not level and side-aligned in its placed stop frame.
  */
 export function createTrackedRide(
   input: IAutoMovieTrackedRide,
@@ -246,7 +253,10 @@ export function createTrackedRide(
   };
 }
 
-/** The endpoint of a closed course owns the same platform and anchor as its start. */
+/**
+ * The endpoint of a closed course owns the same platform and anchor as its
+ * start.
+ */
 function placeDistance(
   course: IAutoMovieTrackedRide["course"],
   distance: number,

@@ -9,20 +9,22 @@ import type { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
  * Visible body-bearing rails connecting the body to its clear frame.
  *
  * Each rail is a real finite cylinder tangent along a positive axial interval
- * to the neck cylinder or trunk capsule's cylindrical course. These coarse
- * line contacts establish a geometric support path, not compliant padding,
- * a pressure distribution, restraint or a rated dynamic load capacity.
- * Pack contacts use the shared radial primitive profile's vertices,
- * so the analytic circles and their displayed polygonal courses both meet.
+ * to the neck cylinder or trunk capsule's cylindrical course. These coarse line
+ * contacts establish a geometric support path, not compliant padding, a
+ * pressure distribution, restraint or a rated dynamic load capacity. Pack
+ * contacts use the shared radial primitive profile's vertices, so the analytic
+ * circles and their displayed polygonal courses both meet.
  */
 export namespace QuadrupedEquipmentBearing {
   /**
    * Seat a neck-parallel rail and connect its midpoint to the beam.
    *
-   * @param plan The current complete-equipment preflight, before builder emission.
+   * @param plan The current complete-equipment preflight, before builder
+   *   emission.
    * @param rig Canonical neck axis and cylinder radius, metres.
    * @param yoke Already admitted authored yoke dimensions.
-   * @param beam The existing real lateral beam's midpoint; its clearance stays unchanged.
+   * @param beam The existing real lateral beam's midpoint; its clearance stays
+   *   unchanged.
    * @param color Display color without a physical-material inference.
    */
   export function yoke(
@@ -70,7 +72,8 @@ export namespace QuadrupedEquipmentBearing {
   }
 
   /**
-   * Seat one longitudinal rail on the closed upper flank and join both frame ends.
+   * Seat one longitudinal rail on the closed upper flank and join both frame
+   * ends.
    *
    * @param plan The current atomic equipment preflight.
    * @param rig Trunk capsule's centre height and radius, metres.
@@ -123,11 +126,12 @@ export namespace QuadrupedEquipmentBearing {
   }
 
   /**
-   * Choose the nearest shared closed-upper-flank vertex that admits a straight link.
-   * The common +Z placement maps the primitive's radial XZ plane onto model XY;
-   * both ends of the contact use opposite vertices of its same even profile.
-   * A link centre must stay at least the sum of radii above the body's tangent
-   * plane, because its whole circular section must stay outside that plane.
+   * Choose the nearest shared closed-upper-flank vertex that admits a straight
+   * link. The common +Z placement maps the primitive's radial XZ plane onto
+   * model XY; both ends of the contact use opposite vertices of its same even
+   * profile. A link centre must stay at least the sum of radii above the body's
+   * tangent plane, because its whole circular section must stay outside that
+   * plane.
    */
   function packNormal(
     plan: QuadrupedEquipmentPlan,

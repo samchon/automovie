@@ -23,13 +23,19 @@ const LEVER: string =
 const GRAZ: string =
   "Krenn, Kalaus and Hall, Material History Review 42 (1995), pp. 102-107, Table 1: five flintlock muskets fired at their muzzles 451 to 494 m/s, electrically ignited (https://journals.lib.unb.ca/index.php/MCR/article/download/17669/18944)";
 
-/** The two pulls read on the gun pages here, which a gun whose pull no record gives borrows. */
+/**
+ * The two pulls read on the gun pages here, which a gun whose pull no record
+ * gives borrows.
+ */
 const PULLS: Readonly<{ shotgun: number; lever: number }> = {
   shotgun: 13.87 * AutoMovieArchetypeUnits.INCH,
   lever: 13.38 * AutoMovieArchetypeUnits.INCH,
 };
 
-/** A bead's or a front sight's height above the barrel's line, which no maker or record publishes: an estimate. */
+/**
+ * A bead's or a front sight's height above the barrel's line, which no maker or
+ * record publishes: an estimate.
+ */
 const BEAD: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   0.015,
   0.025,
@@ -40,7 +46,11 @@ const BEAD: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
 /** Positions along the gun no maker publishes. */
 const UNPUBLISHED: string = "not published by the maker; an estimate";
 
-/** The band of each free dimension of `createLongGun` a model leaves, by kind, with the sources they are read at: kept apart from the producer, with its models, so each file stays within its size. */
+/**
+ * The band of each free dimension of `createLongGun` a model leaves, by kind,
+ * with the sources they are read at: kept apart from the producer, with its
+ * models, so each file stays within its size.
+ */
 export const LONG_GUN_BANDS: Readonly<
   Record<
     createLongGun.Kind,

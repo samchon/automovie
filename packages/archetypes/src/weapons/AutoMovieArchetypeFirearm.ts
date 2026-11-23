@@ -9,22 +9,57 @@ import {
 } from "../core";
 
 /**
- * The firearm action model the handguns and the long guns share: the lock time, from the sear's release to the firing pin's or hammer's fall, and the flintlock a musket and a pistol both carry (`createLongGun`, `createHandgun`).
+ * The firearm action model the handguns and the long guns share: the lock time,
+ * from the sear's release to the firing pin's or hammer's fall, and the
+ * flintlock a musket and a pistol both carry (`createLongGun`,
+ * `createHandgun`).
  *
- * Two lock times are read at their makers' or designers' own documents: the M1903's service firing pin, and an AR-15's standard hammer. No measured lock time of a pistol, a revolver, a pump shotgun or a lever action was found in published ballistics or firearms-engineering literature. The search covered journals, DTIC and Picatinny reports, Beretta's PX4 paper (whose 8.50 ms is a simulation step, not a measurement), Hatcher's Notebook and the SAAMI glossary, and is recorded in records-firearms-locktime.md. Those guns borrow the span of the two read figures, labelled provisional.
+ * Two lock times are read at their makers' or designers' own documents: the
+ * M1903's service firing pin, and an AR-15's standard hammer. No measured lock
+ * time of a pistol, a revolver, a pump shotgun or a lever action was found in
+ * published ballistics or firearms-engineering literature. The search covered
+ * journals, DTIC and Picatinny reports, Beretta's PX4 paper (whose 8.50 ms is a
+ * simulation step, not a measurement), Hatcher's Notebook and the SAAMI
+ * glossary, and is recorded in records-firearms-locktime.md. Those guns borrow
+ * the span of the two read figures, labelled provisional.
  *
- * The flintlock lies on the right of a gun's breech, the gun lying along `+Z` with its barrel's line at `y = 0`: the `pan` holding the priming by the touch hole, the `frizzen`, the steel standing over the pan on its pivot ahead, opened forward to prime and thrown open by the cock's fall, and the `cock` behind on its pivot, resting down on the frizzen and drawn back to half and full cock by the thumb on its `spur`, the thumb piece at the top of its jaw, which rides it. The lock's places and angles are not read at any source: the searches (museum records, the 1764 Manual Exercise, replica lock makers, high-speed ignition studies) are recorded in the sources record, records-firearms-flintlock.md; each is a named estimate in `FLINTLOCK`.
+ * The flintlock lies on the right of a gun's breech, the gun lying along `+Z`
+ * with its barrel's line at `y = 0`: the `pan` holding the priming by the touch
+ * hole, the `frizzen`, the steel standing over the pan on its pivot ahead,
+ * opened forward to prime and thrown open by the cock's fall, and the `cock`
+ * behind on its pivot, resting down on the frizzen and drawn back to half and
+ * full cock by the thumb on its `spur`, the thumb piece at the top of its jaw,
+ * which rides it. The lock's places and angles are not read at any source: the
+ * searches (museum records, the 1764 Manual Exercise, replica lock makers,
+ * high-speed ignition studies) are recorded in the sources record,
+ * records-firearms-flintlock.md; each is a named estimate in `FLINTLOCK`.
  *
- * A gun's calibre, its ball's diameter, stays each producer's own dimension: the handgun's and the long gun's bands come from different read guns.
+ * A gun's calibre, its ball's diameter, stays each producer's own dimension:
+ * the handgun's and the long gun's bands come from different read guns.
  */
 export namespace AutoMovieArchetypeFirearm {
-  /** The M1903's service firing pin's time of fall, seconds: "the time of fall of the usual firing pin in the U. S. rifle is .0057 seconds", J. C. Garand, US Patent 1,780,521 (1930) (https://patents.google.com/patent/US1780521A/en), measured at Springfield Armory on a smoked disc (Hatcher's Notebook, pp. 397-398). */
+  /**
+   * The M1903's service firing pin's time of fall, seconds: "the time of fall
+   * of the usual firing pin in the U. S. rifle is .0057 seconds", J. C. Garand,
+   * US Patent 1,780,521 (1930)
+   * (https://patents.google.com/patent/US1780521A/en), measured at Springfield
+   * Armory on a smoked disc (Hatcher's Notebook, pp. 397-398).
+   */
   export const M1903: number = 0.0057;
 
-  /** An AR-15's standard hammer's lock time, seconds: "Over 50% lock time reduction over standard hammer (4.4 ms vs. 10ms)", Geissele's Hi-Speed National Match trigger instruction sheet, p. 2 (https://308ar.com/wp-content/uploads/2017/07/GEISSELE-AR-308-HI-SPEED-NATIONAL-MATCH-TRIGGER-SET-INSTRUCTIONS.pdf), the maker's figure, its method not stated. */
+  /**
+   * An AR-15's standard hammer's lock time, seconds: "Over 50% lock time
+   * reduction over standard hammer (4.4 ms vs. 10ms)", Geissele's Hi-Speed
+   * National Match trigger instruction sheet, p. 2
+   * (https://308ar.com/wp-content/uploads/2017/07/GEISSELE-AR-308-HI-SPEED-NATIONAL-MATCH-TRIGGER-SET-INSTRUCTIONS.pdf),
+   * the maker's figure, its method not stated.
+   */
   export const AR15: number = 0.01;
 
-  /** The band a firearm whose own lock time was not found borrows: from the M1903's to the AR-15's. */
+  /**
+   * The band a firearm whose own lock time was not found borrows: from the
+   * M1903's to the AR-15's.
+   */
   export const BORROWED: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
     "s",
     M1903,
@@ -37,10 +72,16 @@ export namespace AutoMovieArchetypeFirearm {
    * The lock's places and angles, none read, each an estimate:
    *
    * - `side`: the lock off the barrel's line toward `-X`, metres.
-   * - `pan`, `frizzen`, `cock`: the pan's and the frizzen's pivots ahead of the touch hole and the cock's pivot behind it, metres.
+   * - `pan`, `frizzen`, `cock`: the pan's and the frizzen's pivots ahead of the
+   *   touch hole and the cock's pivot behind it, metres.
    * - `rise`: the pan above the barrel's line, metres.
-   * - `height`: the frizzen's height, metres; `plate`: the lock plate's thickness, `depth`: the pan's depth, `steel`: the frizzen's thickness and `jaw`: the cock's radius, metres.
-   * - `half`, `full`: the cock's travel back from its fired rest to half cock and to full cock, degrees. A replica cast from a 1746 Land Pattern lock gives its cock a 1.8 in throw, a straight distance, not an angle (Track of the Wolf, secondary).
+   * - `height`: the frizzen's height, metres; `plate`: the lock plate's
+   *   thickness, `depth`: the pan's depth, `steel`: the frizzen's thickness and
+   *   `jaw`: the cock's radius, metres.
+   * - `half`, `full`: the cock's travel back from its fired rest to half cock and
+   *   to full cock, degrees. A replica cast from a 1746 Land Pattern lock gives
+   *   its cock a 1.8 in throw, a straight distance, not an angle (Track of the
+   *   Wolf, secondary).
    * - `open`: the frizzen's opening, degrees.
    */
   export const FLINTLOCK: Readonly<{
@@ -73,7 +114,15 @@ export namespace AutoMovieArchetypeFirearm {
     open: 60,
   };
 
-  /** A flintlock's lock time, from the lock's firing to the pan's flash: Pletcher, Flintlock Timing, Muzzle Blasts (January 1990), 80 trials of two locks fired electrically and timed to a photocell at the pan, 0.0312 to 0.0536 s (the article's chart, reprinted at https://www.blackpowdermag.com/flintlock-timing-muzzleblast-january-1990/): an experimenter's report, not peer-reviewed, and the main charge's ignition after the flash is a separate interval. */
+  /**
+   * A flintlock's lock time, from the lock's firing to the pan's flash:
+   * Pletcher, Flintlock Timing, Muzzle Blasts (January 1990), 80 trials of two
+   * locks fired electrically and timed to a photocell at the pan, 0.0312 to
+   * 0.0536 s (the article's chart, reprinted at
+   * https://www.blackpowdermag.com/flintlock-timing-muzzleblast-january-1990/):
+   * an experimenter's report, not peer-reviewed, and the main charge's ignition
+   * after the flash is a separate interval.
+   */
   export const FLINTLOCK_TIME: IAutoMovieArchetypeBand =
     AutoMovieArchetypeBand.of(
       "s",

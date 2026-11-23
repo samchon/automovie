@@ -18,7 +18,8 @@ import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
  * @param local A support space in metres in the model frame.
  * @param frame The already admitted rigid world frame.
  * @returns A world space with the same support and walkability.
- * @throws If the authored space is invalid, the frame is tilted, or a turned lattice would need resampling.
+ * @throws If the authored space is invalid, the frame is tilted, or a turned
+ *   lattice would need resampling.
  */
 export function placeEnvironmentSpace(
   id: string,

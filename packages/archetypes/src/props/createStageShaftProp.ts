@@ -7,12 +7,15 @@ import type { createStageWeaponProp } from "./createStageWeaponProp";
 /**
  * Padded shaft stage prop.
  *
- * A digital upright shaft with a solid padded outline and one primary grip for actor posing.
+ * A digital upright shaft with a solid padded outline and one primary grip for
+ * actor posing.
  *
- * @param params The scene identity and optional total display height in metres, with a choice of profile.
+ * @param params The scene identity and optional total display height in metres,
+ *   with a choice of profile.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createStageShaftProp(
   params: createStageShaftProp.IParams,
@@ -46,15 +49,17 @@ export function createStageShaftProp(
   });
 }
 
-/**
- * Authoring options for {@link createStageShaftProp}.
- */
+/** Authoring options for {@link createStageShaftProp}. */
 export namespace createStageShaftProp {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "height";
 
   /**
-   * The createStageWeaponProp contact set its shared construction types. This producer builds grip.
+   * The createStageWeaponProp contact set its shared construction types. This
+   * producer builds grip.
    */
   export type Affordance = createStageWeaponProp.Affordance;
 

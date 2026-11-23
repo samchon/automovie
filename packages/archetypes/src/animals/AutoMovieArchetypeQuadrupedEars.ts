@@ -13,14 +13,13 @@ import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQ
  * Two dimensioned coarse pinna plates rooted in the head capsule.
  *
  * Published ear length/breadth are interpreted as a straight plate's complete
- * base-to-tip centreline and width. A rectangular plate, its thickness and its neutral direction are
- * explicit authored representation choices, not measured ear anatomy. Existing
- * body dimensions, skeletal controls and mass ownership are not changed.
+ * base-to-tip centreline and width. A rectangular plate, its thickness and its
+ * neutral direction are explicit authored representation choices, not measured
+ * ear anatomy. Existing body dimensions, skeletal controls and mass ownership
+ * are not changed.
  */
 export namespace AutoMovieArchetypeQuadrupedEars {
-  /**
-   * Measured-reference proportions and explicitly authored plate construction.
-   */
+  /** Measured-reference proportions and explicitly authored plate construction. */
   export interface IProfile {
     /** Complete base-to-tip length divided by reference withers height. */
     length: number;
@@ -32,17 +31,15 @@ export namespace AutoMovieArchetypeQuadrupedEars {
     direction: IAutoMovieVector3;
   }
 
-  /**
-   * Two admitted plates and their total solid volume, cubic metres.
-   */
+  /** Two admitted plates and their total solid volume, cubic metres. */
   export interface IPrepared {
     /** Two-box volume, cubic metres. */
     readonly volume: number;
     /**
-     * Append both admitted metre-space boxes to the builder in the supplied colour.
-     * A supplied pair weight is split equally; absent, the builder allocates by
-     * volume. Invalid weights refuse before emission; part identity and
-     * material admission remain the builder's responsibility.
+     * Append both admitted metre-space boxes to the builder in the supplied
+     * colour. A supplied pair weight is split equally; absent, the builder
+     * allocates by volume. Invalid weights refuse before emission; part
+     * identity and material admission remain the builder's responsibility.
      */
     emit<Id extends string, Dimension extends string>(
       builder: AutoMovieArchetypeBuilder<Id, Dimension>,
@@ -59,9 +56,12 @@ export namespace AutoMovieArchetypeQuadrupedEars {
    * @param withers Current withers height, metres.
    * @param profile Explicit dimension ratios and authored plate construction.
    * @param color The body's optical colour.
-   * @param totalShare Optional complete two-plate weight budget; absent for existing volume allocation.
-   * @throws {RangeError} For invalid or unrepresentable dimensions/direction or a complete root that cannot fit the head.
-   * @throws {Error} When the shared primitive mass owner cannot represent the positive solid.
+   * @param totalShare Optional complete two-plate weight budget; absent for
+   *   existing volume allocation.
+   * @throws {RangeError} For invalid or unrepresentable dimensions/direction or
+   *   a complete root that cannot fit the head.
+   * @throws {Error} When the shared primitive mass owner cannot represent the
+   *   positive solid.
    */
   export function lay<Id extends string, Dimension extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,
@@ -77,9 +77,7 @@ export namespace AutoMovieArchetypeQuadrupedEars {
     prepare(head, withers, profile).emit(builder, color, totalShare);
   }
 
-  /**
-   * Admit complete roots once and retain the dimensions used for emission.
-   */
+  /** Admit complete roots once and retain the dimensions used for emission. */
   export function prepare(
     head: Pick<
       AutoMovieArchetypeQuadrupedBody.IRig,

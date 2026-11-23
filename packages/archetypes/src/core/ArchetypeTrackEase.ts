@@ -9,9 +9,11 @@ import type { AutoMovieArchetypeTrack } from "./AutoMovieArchetypeTrack";
  *
  * @param archetype The articulation's model and refusal name.
  * @param articulation The articulation to carry between two travels.
- * @param props Finite start, positive duration, supported endpoint travels and optional crossing.
+ * @param props Finite start, positive duration, supported endpoint travels and
+ *   optional crossing.
  * @returns A pure scalar track with held endpoints and an optional launch.
- * @throws {AutoMovieArchetypeRefusal} For unsupported clock, range, endpoint difference, crossing or rate.
+ * @throws {AutoMovieArchetypeRefusal} For unsupported clock, range, endpoint
+ *   difference, crossing or rate.
  */
 export function ArchetypeTrackEase<Id extends string>(
   archetype: AutoMovieArchetype<Id, string>,

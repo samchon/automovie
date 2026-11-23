@@ -22,10 +22,20 @@ const PMAG: string =
 /**
  * A detachable box magazine: a pistol's or a rifle's.
  *
- * It stands on its base plate at the origin, its feed lips up along `+Y` and its front, where the rounds' noses point, toward `+Z`. `feed` is the top, facing up, the end that leads into the gun's magazine well. `base` is the base plate's underside, facing down: the palm strikes it to seat the magazine, and the magazine is seated when its `base` coincides with the gun's `magazine` socket, the well's mouth facing down out of the grip (`createHandgun`), so the body stands up inside the well. `grip` is the body a hand closes round, taken from the `-X` side. A rifle's magazine is drawn straight; its curve is not modelled.
+ * It stands on its base plate at the origin, its feed lips up along `+Y` and
+ * its front, where the rounds' noses point, toward `+Z`. `feed` is the top,
+ * facing up, the end that leads into the gun's magazine well. `base` is the
+ * base plate's underside, facing down: the palm strikes it to seat the
+ * magazine, and the magazine is seated when its `base` coincides with the gun's
+ * `magazine` socket, the well's mouth facing down out of the grip
+ * (`createHandgun`), so the body stands up inside the well. `grip` is the body
+ * a hand closes round, taken from the `-X` side. A rifle's magazine is drawn
+ * straight; its curve is not modelled.
  *
- * @param params The kind, whether it is loaded and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, whether it is loaded and any dimension the author
+ *   fixes.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The magazine.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -95,17 +105,22 @@ export function createMagazine(
   );
 }
 
-/**
- * Companion types, constants and bands of {@link createMagazine}.
- */
+/** Companion types, constants and bands of {@link createMagazine}. */
 export namespace createMagazine {
-  /** The kinds: a pistol's double-stack magazine and a rifle's 30-round magazine. */
+  /**
+   * The kinds: a pistol's double-stack magazine and a rifle's 30-round
+   * magazine.
+   */
   export type Kind = "pistol" | "rifle";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["pistol", "rifle"];
 
-  /** What a full magazine's rounds add, kilograms: the G17 Gen5's 945 less 708 g with its 17 rounds (https://eu.glock.com/en/products/pistols/g17-gen5), and the PMAG 30's 503 less 146 g. */
+  /**
+   * What a full magazine's rounds add, kilograms: the G17 Gen5's 945 less 708 g
+   * with its 17 rounds (https://eu.glock.com/en/products/pistols/g17-gen5), and
+   * the PMAG 30's 503 less 146 g.
+   */
   export const ROUNDS: Readonly<Record<Kind, number>> = {
     pistol: 0.237,
     rifle: 0.357,
@@ -116,7 +131,8 @@ export namespace createMagazine {
    *
    * - `feed`: the top, facing up, which leads into the well.
    * - `grip`: the body, taken from `-X`.
-   * - `base`: the base plate's underside, facing down; coincident with the gun's `magazine` socket when seated.
+   * - `base`: the base plate's underside, facing down; coincident with the gun's
+   *   `magazine` socket when seated.
    */
   export type Affordance = "feed" | "grip" | "base";
 
@@ -140,12 +156,18 @@ export namespace createMagazine {
     mass: "kg",
   };
 
-  /** The parameters: the kind, whether it is loaded, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, whether it is loaded, and any free dimension
+   * fixed to a value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which magazine. */
     kind: Kind;
 
-    /** Whether it is full, which adds its rounds' published mass; empty when absent. */
+    /**
+     * Whether it is full, which adds its rounds' published mass; empty when
+     * absent.
+     */
     loaded?: boolean;
 
     /** The model's id, unique in a scene; `magazine` when absent. */

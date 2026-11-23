@@ -9,11 +9,17 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The parade contract establishes the shared carry. Dimensions are authored for staging. */
+/**
+ * The parade contract establishes the shared carry. Dimensions are authored for
+ * staging.
+ */
 const SCENIC: string =
   "Authored set dimensions for one banner shared by two carriers, as described in the Arlington Patriots Day Parade contract (https://www.arlingtonma.gov/home/showpublisheddocument/33593/636227460660770000).";
 
-/** The panel measures and pole diameter use metres. The prop mass uses kilograms. */
+/**
+ * The panel measures and pole diameter use metres. The prop mass uses
+ * kilograms.
+ */
 type Dimension =
   | "width"
   | "panelHeight"
@@ -46,15 +52,18 @@ const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
 };
 
 /**
- * A wide parade banner carried as one rigid prop by two performers.
- * The pole bases sit at local Y zero and the panel faces +Z. Use leftGrip
- * on the negative-X pole and rightGrip on the positive-X pole as separate
- * carrier sites on the same motion prop. The face site marks the panel center.
+ * A wide parade banner carried as one rigid prop by two performers. The pole
+ * bases sit at local Y zero and the panel faces +Z. Use leftGrip on the
+ * negative-X pole and rightGrip on the positive-X pole as separate carrier
+ * sites on the same motion prop. The face site marks the panel center.
  *
- * @param params Fixed set dimensions in metres and kilograms, and an optional scene-unique id.
- * @param seed Draws any omitted dimensions. Without a seed, use each band's midpoint.
+ * @param params Fixed set dimensions in metres and kilograms, and an optional
+ *   scene-unique id.
+ * @param seed Draws any omitted dimensions. Without a seed, use each band's
+ *   midpoint.
  * @returns One framed panel with two pole grips and a front surface site.
- * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its
+ *   band.
  */
 export function createScenicParadeBanner(
   params: createScenicParadeBanner.IParams = {},
@@ -131,13 +140,12 @@ export function createScenicParadeBanner(
 }
 
 /**
- * Fixed banner dimensions in metres and prop mass in kilograms, plus an optional scene id.
- * The producer validates overrides against bands that leave an exposed grip below the panel on each pole.
+ * Fixed banner dimensions in metres and prop mass in kilograms, plus an
+ * optional scene id. The producer validates overrides against bands that leave
+ * an exposed grip below the panel on each pole.
  */
 export namespace createScenicParadeBanner {
-  /**
-   * Optional fixed dimensions for a rectangular panel and two matching poles.
-   */
+  /** Optional fixed dimensions for a rectangular panel and two matching poles. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Scene-unique id. The producer supplies a default when omitted. */
     id?: string;

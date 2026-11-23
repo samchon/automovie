@@ -6,10 +6,14 @@ import type { createCart } from "./createCart";
 /**
  * Read the producer's wheel/steering/drawbar support for generic towing.
  *
- * @param cart CreateCart output in neutral steering/drawbar pose, with its producer-declared wheel roles.
- * @returns Independent neutral model-space metre points for single-axle body pitch, or level front/rear support with the pole hinge.
- * @throws {RangeError} For another producer, invalid wheel-axis data or a front steering pivot outside its axle.
- * @throws {AutoMovieArchetypeRefusal} If a required wheel/steering affordance is absent, including a pushed kind without these towing roles.
+ * @param cart CreateCart output in neutral steering/drawbar pose, with its
+ *   producer-declared wheel roles.
+ * @returns Independent neutral model-space metre points for single-axle body
+ *   pitch, or level front/rear support with the pole hinge.
+ * @throws {RangeError} For another producer, invalid wheel-axis data or a front
+ *   steering pivot outside its axle.
+ * @throws {AutoMovieArchetypeRefusal} If a required wheel/steering affordance
+ *   is absent, including a pushed kind without these towing roles.
  */
 export function cartTowing(
   cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,

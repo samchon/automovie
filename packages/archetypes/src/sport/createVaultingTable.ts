@@ -15,12 +15,16 @@ const NORMS: string =
   "the vaulting table of the FIG apparatus norms, 135 cm high for men and 125 cm for women, 120 cm long and 90 cm wide, each to 1 cm, as Wikipedia's Vault (gymnastics) gives them (https://en.wikipedia.org/wiki/Vault_(gymnastics)); the norms were not read";
 
 /**
- * A vaulting table: the padded top on a pedestal a gymnast's hands push off in a vault.
+ * A vaulting table: the padded top on a pedestal a gymnast's hands push off in
+ * a vault.
  *
- * It stands on the floor with the middle of its base at the origin, the gymnast running in from `-Z`. The top is a padded block whose long side runs along `Z`; `surface` is its top, where the hands come down.
+ * It stands on the floor with the middle of its base at the origin, the gymnast
+ * running in from `-Z`. The top is a padded block whose long side runs along
+ * `Z`; `surface` is its top, where the hands come down.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The table.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -84,9 +88,7 @@ export function createVaultingTable(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createVaultingTable}.
- */
+/** Companion types, constants and bands of {@link createVaultingTable}. */
 export namespace createVaultingTable {
   /** The top block's thickness, metres. An estimate, not read at a source. */
   export const TOP: number = 0.25;
@@ -126,7 +128,10 @@ export namespace createVaultingTable {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which table. */
     kind: Kind;

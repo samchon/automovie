@@ -1,7 +1,8 @@
 import type { createWheelchair } from "./createWheelchair";
 
 /**
- * The maker's sheet `createWheelchair`'s models are read at, row by row, kept apart from the producer so each file stays within its size.
+ * The maker's sheet `createWheelchair`'s models are read at, row by row, kept
+ * apart from the producer so each file stays within its size.
  */
 export namespace WHEELCHAIR_SHEET {
   /** The sheet the models are read at. */
@@ -9,7 +10,11 @@ export namespace WHEELCHAIR_SHEET {
     "Karma Medical 2025 global manual wheelchair specification, pp. 66-67 (https://www.karmamedical.com/wp-content/uploads/2021/05/2025-Karma-Medical-Global-Manual-Wheelchair-Specification.pdf)";
 
   /**
-   * One series' row of the sheet on one wheel size: the figures every seat width shares, millimetres and degrees, and by seat width its overall width and total mass; a 14-inch Ergo row is printed for 6-inch and 7-inch casters, its front-edge height, overall height and masses paired 6-inch first.
+   * One series' row of the sheet on one wheel size: the figures every seat
+   * width shares, millimetres and degrees, and by seat width its overall width
+   * and total mass; a 14-inch Ergo row is printed for 6-inch and 7-inch
+   * casters, its front-edge height, overall height and masses paired 6-inch
+   * first.
    */
   export interface IRow {
     /** The series' name, the start of each model's name. */
@@ -36,17 +41,28 @@ export namespace WHEELCHAIR_SHEET {
     /** The footrest to seat distance, its least and greatest, millimetres. */
     foot: readonly [number, number];
 
-    /** The overall length with the legrest, its least and greatest, millimetres; equal ends where the row gives one length. */
+    /**
+     * The overall length with the legrest, its least and greatest, millimetres;
+     * equal ends where the row gives one length.
+     */
     length: readonly [number, number];
 
     /** The overall height, millimetres. */
     height: number;
 
-    /** By seat width, millimetres: the seat width, the overall width and the total mass in kilograms. */
+    /**
+     * By seat width, millimetres: the seat width, the overall width and the
+     * total mass in kilograms.
+     */
     widths: readonly (readonly [number, number, number])[];
   }
 
-  /** The sheet's rows, pp. 66-67: seat width, overall width and total mass by width. The S-Ergo 125's wide rows (seats of 440 and 500 mm) are printed again under the S-Ergo 115 on p. 68, so the sheet contradicts itself on which model has them; they are left out and the conflict recorded. */
+  /**
+   * The sheet's rows, pp. 66-67: seat width, overall width and total mass by
+   * width. The S-Ergo 125's wide rows (seats of 440 and 500 mm) are printed
+   * again under the S-Ergo 115 on p. 68, so the sheet contradicts itself on
+   * which model has them; they are left out and the conflict recorded.
+   */
   export const ROWS: Readonly<Record<createWheelchair.Kind, readonly IRow[]>> =
     {
       selfPropelled: [

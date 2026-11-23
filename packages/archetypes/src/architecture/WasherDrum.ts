@@ -57,14 +57,15 @@ const LIP_SIDES: number = 12;
 /**
  * A washer's visible and physical loading aperture and drum.
  *
- * The 65 litre drum and 160 degree door are the Bosch WAN28255GB's. Its
- * drawing does not give the porthole diameter. Use the related WAN282X0GB's
- * 300 mm porthole as an estimate. The polygonal drum width and lip depth are
- * proxy construction estimates. A flat bottom chord gives a folded bundle an
- * support. The back remains solid.
+ * The 65 litre drum and 160 degree door are the Bosch WAN28255GB's. Its drawing
+ * does not give the porthole diameter. Use the related WAN282X0GB's 300 mm
+ * porthole as an estimate. The polygonal drum width and lip depth are proxy
+ * construction estimates. A flat bottom chord gives a folded bundle an support.
+ * The back remains solid.
  *
- * Sources: https://media3.bosch-home.com/Documents/specsheet/en-GB/WAN28255GB.pdf
- * and https://media3.bosch-home.com/Documents/specsheet/en-GB/WAN282X0GB.pdf.
+ * Sources:
+ * https://media3.bosch-home.com/Documents/specsheet/en-GB/WAN28255GB.pdf and
+ * https://media3.bosch-home.com/Documents/specsheet/en-GB/WAN282X0GB.pdf.
  *
  * @param builder The empty appliance enclosure.
  * @param width Outside width, metres.

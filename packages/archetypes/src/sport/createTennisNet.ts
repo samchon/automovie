@@ -22,13 +22,22 @@ type Drawn = Partial<Record<createGoal.Dimension, number>>;
 /** Local points in metres. */
 const v: typeof Vector3.create = Vector3.create;
 
-/** How far a tennis post may stand above the net cord, metres: ITF Rule 1, 2.5 cm, the limit the model takes. */
+/**
+ * How far a tennis post may stand above the net cord, metres: ITF Rule 1, 2.5
+ * cm, the limit the model takes.
+ */
 const POST_ABOVE: number = 0.025;
 
-/** The tennis net cord's diameter, metres: ITF Rule 1, at most 0.8 cm, the limit the model takes. */
+/**
+ * The tennis net cord's diameter, metres: ITF Rule 1, at most 0.8 cm, the limit
+ * the model takes.
+ */
 const CORD: number = 0.008;
 
-/** The width of the tennis net's centre strap, metres: ITF Rule 1, at most 5 cm, the limit the model takes. */
+/**
+ * The width of the tennis net's centre strap, metres: ITF Rule 1, at most 5 cm,
+ * the limit the model takes.
+ */
 const STRAP: number = 0.05;
 
 /** Thickness in metres of the retained collision panels. */
@@ -36,11 +45,16 @@ const NET_THICKNESS: number = 0.005;
 /**
  * A tennis net with centre strap, sagging cord and post grips.
  *
- * The net spans the XY plane, with the top ledge at the centre strap and the square posts outside the doubles court.
- * @param params The optional identifier and dimensions fixed within their recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
+ * The net spans the XY plane, with the top ledge at the centre strap and the
+ * square posts outside the doubles court.
+ *
+ * @param params The optional identifier and dimensions fixed within their
+ *   recorded bands.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createTennisNet(
   params: createTennisNet.IParams = {},
@@ -56,7 +70,10 @@ export function createTennisNet(
 }
 
 /**
- * Build a tennis net: square posts outside the doubles court, the cord sagging from the posts' height to the centre's, and the net under it; `top` is the net's lowest point at the centre strap, a ledge along `X`, and the posts are bars.
+ * Build a tennis net: square posts outside the doubles court, the cord sagging
+ * from the posts' height to the centre's, and the net under it; `top` is the
+ * net's lowest point at the centre strap, a ledge along `X`, and the posts are
+ * bars.
  *
  * @param builder The builder to fill.
  * @param d The drawn dimensions.
@@ -113,11 +130,12 @@ function tennis(builder: Builder, d: Drawn): void {
   GoalBuild.posts(builder, x, tall, bar);
 }
 
-/**
- * The authored parameters and contact names for {@link createTennisNet}.
- */
+/** The authored parameters and contact names for {@link createTennisNet}. */
 export namespace createTennisNet {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "bar"
     | "height"

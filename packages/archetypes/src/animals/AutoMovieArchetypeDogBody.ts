@@ -5,21 +5,22 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
  * A coarse Husky control rig from one whole morphometric cohort mean.
  *
  * Huson, Srikanth and Ellis 2025, Genes 16:1355, Table 1 reports tape-measured
- * surface landmarks, not skeletal lengths (https://doi.org/10.3390/genes16111355).
- * Pet, show and sled means remain separate. The foot measurement is divided
- * equally into two control bars; their historical Cannon/Pastern names do not
- * turn that discretization into measured canine metapodial or digit lengths.
- * Hind angles are the two-link triangle reaching the measured tail-base height
- * with a vertical foot. Initial fore controls are vertical; the shared
- * AutoMovieArchetypeQuadrupedBody parent-solid construction connects an outside-body root by
- * articulating its two proximal controls with unchanged lengths and foot.
- * That neutral construction is authored geometry, not measured canine pose.
- * Circular cross sections,
- * straight neck/tail and the head's eye-width radius are construction proxies.
- * No canine segment masses or paw material are known here.
+ * surface landmarks, not skeletal lengths
+ * (https://doi.org/10.3390/genes16111355). Pet, show and sled means remain
+ * separate. The foot measurement is divided equally into two control bars;
+ * their historical Cannon/Pastern names do not turn that discretization into
+ * measured canine metapodial or digit lengths. Hind angles are the two-link
+ * triangle reaching the measured tail-base height with a vertical foot. Initial
+ * fore controls are vertical; the shared AutoMovieArchetypeQuadrupedBody
+ * parent-solid construction connects an outside-body root by articulating its
+ * two proximal controls with unchanged lengths and foot. That neutral
+ * construction is authored geometry, not measured canine pose. Circular cross
+ * sections, straight neck/tail and the head's eye-width radius are construction
+ * proxies. No canine segment masses or paw material are known here.
  *
  * @param cohort The complete measured cohort, never a blend of its traits.
- * @returns Its coarse control proportions; no anatomical or visual validation is claimed.
+ * @returns Its coarse control proportions; no anatomical or visual validation
+ *   is claimed.
  */
 export function AutoMovieArchetypeDogBody(
   cohort: AutoMovieArchetypeDogBody.Cohort,
@@ -70,9 +71,7 @@ export function AutoMovieArchetypeDogBody(
   };
 }
 
-/**
- * The measured Husky cohorts and their surface landmarks in centimetres.
- */
+/** The measured Husky cohorts and their surface landmarks in centimetres. */
 export namespace AutoMovieArchetypeDogBody {
   /** Huson et al.'s three usage cohorts, not separate breeds. */
   export type Cohort = "pet" | "show" | "sled";
@@ -115,7 +114,10 @@ export namespace AutoMovieArchetypeDogBody {
     hindFoot: number;
   }
 
-  /** Table 1 cohort means, without the standard deviations being treated as independent trait bands. */
+  /**
+   * Table 1 cohort means, without the standard deviations being treated as
+   * independent trait bands.
+   */
   export const MEASURES: Readonly<Record<Cohort, Readonly<IMeasures>>> = {
     pet: {
       eyes: 4.45,

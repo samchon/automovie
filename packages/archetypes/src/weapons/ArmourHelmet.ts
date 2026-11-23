@@ -12,15 +12,16 @@ import type { ArmourProfile } from "./ArmourProfile";
  * A real faceted bowl, its declared face/neck openings and a brim.
  *
  * Latitude/face domains and the unfitted cabasset crown's three-quarter brim
- * fraction are explicit coarse authoring choices, not museum measurements.
- * The armet record23232 keeps its missing visor; record26508 retains face
- * coverage with a viewing opening. Sallet25388 retains its present associated
- * visor (https://www.metmuseum.org/art/collection/search/25388), while the armet
- * lacks its original visor (https://www.metmuseum.org/art/collection/search/23232).
- * No missing collar lames are reconstructed.
- * Unfitted ellipses keep their original outer envelope and one shared inner
- * scale. Their plate value is the minimum authored normal gauge across the
- * bowl, not a uniform measured thickness of the original specimen.
+ * fraction are explicit coarse authoring choices, not museum measurements. The
+ * armet record23232 keeps its missing visor; record26508 retains face coverage
+ * with a viewing opening. Sallet25388 retains its present associated visor
+ * (https://www.metmuseum.org/art/collection/search/25388), while the armet
+ * lacks its original visor
+ * (https://www.metmuseum.org/art/collection/search/23232). No missing collar
+ * lames are reconstructed. Unfitted ellipses keep their original outer envelope
+ * and one shared inner scale. Their plate value is the minimum authored normal
+ * gauge across the bowl, not a uniform measured thickness of the original
+ * specimen.
  */
 export function ArmourHelmet(
   profile: ArmourProfile.IProfile,
@@ -190,7 +191,10 @@ export function ArmourHelmet(
     else cells.push({ ...prepared.get(key)!, id, rotation });
   }
 
-  /** Only an exact rigid-equivalent local wall shares its admitted hull and mass. */
+  /**
+   * Only an exact rigid-equivalent local wall shares its admitted hull and
+   * mass.
+   */
   function place(
     id: string,
     key: string,

@@ -10,7 +10,8 @@ import type * as vehicles from "./vehicles";
 import type * as weapons from "./weapons";
 
 /**
- * The model-producing families by their package subpaths, each the module its subpath exports.
+ * The model-producing families by their package subpaths, each the module its
+ * subpath exports.
  */
 export type IAutoMovieArchetypeFamilies = {
   /** `@automovie/archetypes/props`. */

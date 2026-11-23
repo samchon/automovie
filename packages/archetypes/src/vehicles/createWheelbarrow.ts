@@ -6,12 +6,15 @@ import type { createCart } from "./createCart";
 /**
  * Wheelbarrow.
  *
- * A hand-pushed tray with a central wheel and distinct left and right grips. It rests on the floor with its handles at −Z.
+ * A hand-pushed tray with a central wheel and distinct left and right grips. It
+ * rests on the floor with its handles at −Z.
  *
- * @param params The scene identity and the dimensions and catalogue choices this carrier admits.
+ * @param params The scene identity and the dimensions and catalogue choices
+ *   this carrier admits.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createWheelbarrow(
   params: createWheelbarrow.IParams = {},
@@ -23,11 +26,12 @@ export function createWheelbarrow(
   return CartConstruction("wheelbarrow", params, seed, CartPushed.wheelbarrow);
 }
 
-/**
- * Authoring options for {@link createWheelbarrow}.
- */
+/** Authoring options for {@link createWheelbarrow}. */
 export namespace createWheelbarrow {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "gripDiameter"
     | "handleHeight"
@@ -38,7 +42,8 @@ export namespace createWheelbarrow {
     | "width";
 
   /**
-   * The createCart contact set its shared construction types. This producer builds leftHandle, load, rightHandle.
+   * The createCart contact set its shared construction types. This producer
+   * builds leftHandle, load, rightHandle.
    */
   export type Affordance = createCart.Affordance;
 

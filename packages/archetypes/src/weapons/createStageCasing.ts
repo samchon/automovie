@@ -8,12 +8,12 @@ import {
 } from "../core";
 
 /**
- * A spent .30-06 Springfield case, the M1903's ammunition: "Case length
- * 2.494 in (63.3 mm)", "Base diameter .4708 in (11.96 mm)", "Rim diameter
- * .4740 in (12.04 mm)", "Neck diameter .3404 in (8.65 mm)" (English Wikipedia
- * infobox, unattributed there; the SAAMI drawing is the source to confirm,
- * read 2026-11-21). The neck's length and the empty brass's mass are not
- * read, so they are provisional estimates.
+ * A spent .30-06 Springfield case, the M1903's ammunition: "Case length 2.494
+ * in (63.3 mm)", "Base diameter .4708 in (11.96 mm)", "Rim diameter .4740 in
+ * (12.04 mm)", "Neck diameter .3404 in (8.65 mm)" (English Wikipedia infobox,
+ * unattributed there; the SAAMI drawing is the source to confirm, read
+ * 2026-11-21). The neck's length and the empty brass's mass are not read, so
+ * they are provisional estimates.
  */
 const CASE: Readonly<createStageCasing.ICase> = {
   length: 0.0633,
@@ -27,10 +27,10 @@ const CASE: Readonly<createStageCasing.ICase> = {
 /**
  * An inert spent rifle casing for the screen.
  *
- * The case stands along `+Y` from its rim at the origin to its open mouth.
- * The `grip` is a precision pinch across the body and the `mouth` the open
- * end, facing `+Y`. It is brass-coloured exterior geometry with no primer,
- * powder or projectile.
+ * The case stands along `+Y` from its rim at the origin to its open mouth. The
+ * `grip` is a precision pinch across the body and the `mouth` the open end,
+ * facing `+Y`. It is brass-coloured exterior geometry with no primer, powder or
+ * projectile.
  *
  * @param params The optional scene id.
  * @returns The inert casing and its contact frames, metres.
@@ -97,9 +97,7 @@ export function createStageCasing(
   return builder.build(CASE.mass);
 }
 
-/**
- * The inputs, contacts and case figures of {@link createStageCasing}.
- */
+/** The inputs, contacts and case figures of {@link createStageCasing}. */
 export namespace createStageCasing {
   /** The pinch across the body and the open mouth. */
   export type Affordance = "grip" | "mouth";

@@ -8,8 +8,8 @@ import {
 } from "../core";
 
 /**
- * A studio easel holding a canvas. No source is read: the canvas' size,
- * its centre's height for a standing painter and the mass are provisional
+ * A studio easel holding a canvas. No source is read: the canvas' size, its
+ * centre's height for a standing painter and the mass are provisional
  * construction estimates.
  */
 const SIZE: Readonly<createEasel.ISize> = {
@@ -22,10 +22,10 @@ const SIZE: Readonly<createEasel.ISize> = {
 /**
  * An easel standing on the floor with a canvas upright on it.
  *
- * The easel stands at the origin, the canvas' painted face toward `-Z`,
- * where the painter stands. `canvas` is that face, its outward normal
- * (`+Y` of the frame) toward `-Z` and its `X` along world `+X`, `width`
- * across and `depth` up, centred at `centre` above the floor.
+ * The easel stands at the origin, the canvas' painted face toward `-Z`, where
+ * the painter stands. `canvas` is that face, its outward normal (`+Y` of the
+ * frame) toward `-Z` and its `X` along world `+X`, `width` across and `depth`
+ * up, centred at `centre` above the floor.
  *
  * @param params The optional scene id.
  * @returns The easel and its canvas surface, metres.
@@ -92,9 +92,7 @@ export function createEasel(
   return builder.build(SIZE.mass);
 }
 
-/**
- * The inputs, contact and size of {@link createEasel}.
- */
+/** The inputs, contact and size of {@link createEasel}. */
 export namespace createEasel {
   /** The canvas' painted face. */
   export type Affordance = "canvas";

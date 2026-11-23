@@ -17,8 +17,8 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeRide } from "./AutoMovieArchetypeRide";
 
 /**
- * Clearance between bodies that pass one another on planned courses: ridden
- * or driven supports, walkers given a timed course, and fixed set pieces.
+ * Clearance between bodies that pass one another on planned courses: ridden or
+ * driven supports, walkers given a timed course, and fixed set pieces.
  *
  * Each body is a footprint on the floor: the convex hull of an outline, grown
  * by a radius, so a rest-extent box, a disc and a capsule are one form. A
@@ -27,20 +27,23 @@ import type { AutoMovieArchetypeRide } from "./AutoMovieArchetypeRide";
  * from any other, and a pair keeps the larger of its two.
  */
 export namespace AutoMovieArchetypePassage {
-  /**
-   * A body's floor footprint.
-   */
+  /** A body's floor footprint. */
   export interface IFootprint {
-    /** The outline's points, metres; their convex hull on the floor is the outline. A participant's are in its root's frame, `+X` to its left and `+Z` ahead; an obstacle's are in the world. At least one. */
+    /**
+     * The outline's points, metres; their convex hull on the floor is the
+     * outline. A participant's are in its root's frame, `+X` to its left and
+     * `+Z` ahead; an obstacle's are in the world. At least one.
+     */
     outline: readonly IAutoMovieVector3[];
 
-    /** Metres the outline grows by on every side, at least 0: a disc's radius about one point, a capsule's about two. */
+    /**
+     * Metres the outline grows by on every side, at least 0: a disc's radius
+     * about one point, a capsule's about two.
+     */
     radius: number;
   }
 
-  /**
-   * A body that moves on a planned course.
-   */
+  /** A body that moves on a planned course. */
   export interface IParticipant {
     /** Its name, unique among the participants and obstacles; conflicts name it. */
     id: string;
@@ -55,9 +58,7 @@ export namespace AutoMovieArchetypePassage {
     margin: number;
   }
 
-  /**
-   * A body fixed in the set.
-   */
+  /** A body fixed in the set. */
   export interface IObstacle {
     /** Its name, unique among the participants and obstacles; conflicts name it. */
     id: string;
@@ -69,29 +70,34 @@ export namespace AutoMovieArchetypePassage {
     margin: number;
   }
 
-  /**
-   * A passage to measure.
-   */
+  /** A passage to measure. */
   export interface IProps {
     /** The moving bodies. */
     participants: readonly IParticipant[];
 
-    /** The fixed bodies; none when absent. Obstacles are measured against participants only. */
+    /**
+     * The fixed bodies; none when absent. Obstacles are measured against
+     * participants only.
+     */
     obstacles?: readonly IObstacle[];
 
     /** The first film second measured; 0 when absent. */
     from?: number;
 
-    /** The last film second measured, after `from`; the latest participant plan's end when absent. */
+    /**
+     * The last film second measured, after `from`; the latest participant
+     * plan's end when absent.
+     */
     to?: number;
 
-    /** Seconds between measured instants, positive, such as one film frame; each sampled minimum between instants is refined. */
+    /**
+     * Seconds between measured instants, positive, such as one film frame; each
+     * sampled minimum between instants is refined.
+     */
     step: number;
   }
 
-  /**
-   * An interval in which two bodies come inside their margin.
-   */
+  /** An interval in which two bodies come inside their margin. */
   export interface IConflict {
     /** The earlier-listed participant. */
     subject: string;
@@ -108,7 +114,10 @@ export namespace AutoMovieArchetypePassage {
     /** The film second the two come closest in the interval. */
     seconds: number;
 
-    /** Their least clearance in the interval, metres: the outlines' distance less both radii, negative only where the radii overlap. */
+    /**
+     * Their least clearance in the interval, metres: the outlines' distance
+     * less both radii, negative only where the radii overlap.
+     */
     clearance: number;
 
     /** The margin the pair keeps, metres: the larger of the two bodies'. */
@@ -116,11 +125,13 @@ export namespace AutoMovieArchetypePassage {
   }
 
   /**
-   * A model's footprint: the floor rectangle of its rest-pose extent, everything its portable parts draw, carried equipment included.
+   * A model's footprint: the floor rectangle of its rest-pose extent,
+   * everything its portable parts draw, carried equipment included.
    *
    * @param model The model, standing in its own frame.
    * @returns The rectangle's four corners in the model's frame, radius 0.
-   * @throws {AutoMovieArchetypeRefusal} When the model has no portable geometry to measure.
+   * @throws {AutoMovieArchetypeRefusal} When the model has no portable geometry
+   *   to measure.
    */
   export function footprint(model: IAutoMovieModel): IFootprint {
     const extent: IAutoMovieComputeModelRestExtent.IResult =
@@ -147,15 +158,20 @@ export namespace AutoMovieArchetypePassage {
   }
 
   /**
-   * A ride's footprint over a window: the floor rectangle holding every posed extent of the ridden model in its root's frame, so swinging limbs, a nodding head and anything the ride carries count.
+   * A ride's footprint over a window: the floor rectangle holding every posed
+   * extent of the ridden model in its root's frame, so swinging limbs, a
+   * nodding head and anything the ride carries count.
    *
-   * @param ride The ride, whose samples carry the posed model and its placement.
+   * @param ride The ride, whose samples carry the posed model and its
+   *   placement.
    * @param from The first film second.
    * @param to The last film second, after `from`.
    * @param step Seconds between poses read, positive.
-   * @param carried The world points of a body the ride carries at a second, such as a seated rider's bones; none when absent.
+   * @param carried The world points of a body the ride carries at a second,
+   *   such as a seated rider's bones; none when absent.
    * @returns The rectangle's four corners in the root's frame, radius 0.
-   * @throws {AutoMovieArchetypeRefusal} When no posed model has portable geometry to measure.
+   * @throws {AutoMovieArchetypeRefusal} When no posed model has portable
+   *   geometry to measure.
    */
   export function envelope(
     ride: AutoMovieArchetypeRide.IRide<string, string>,
@@ -222,12 +238,18 @@ export namespace AutoMovieArchetypePassage {
   }
 
   /**
-   * Every interval in which a pair of bodies comes inside its margin, in time order.
+   * Every interval in which a pair of bodies comes inside its margin, in time
+   * order.
    *
    * @param archetype The name a refusal carries.
    * @param props The passage.
-   * @returns The conflicts, each pair's intervals separately; empty for an admitted passage and for one without participants, since obstacles are measured only against them.
-   * @throws {AutoMovieArchetypeRefusal} When a name is empty or repeated, a footprint is empty, nonfinite or has a negative radius, a margin is negative or nonfinite, the window does not run forward, or the step is not positive.
+   * @returns The conflicts, each pair's intervals separately; empty for an
+   *   admitted passage and for one without participants, since obstacles are
+   *   measured only against them.
+   * @throws {AutoMovieArchetypeRefusal} When a name is empty or repeated, a
+   *   footprint is empty, nonfinite or has a negative radius, a margin is
+   *   negative or nonfinite, the window does not run forward, or the step is
+   *   not positive.
    */
   export function conflicts(archetype: string, props: IProps): IConflict[] {
     const participants: readonly IParticipant[] = props.participants;
@@ -311,11 +333,15 @@ export namespace AutoMovieArchetypePassage {
   }
 
   /**
-   * A participant as a moving obstacle crowd steering walks round: its footprint's hull in its own frame, carried by its plan.
+   * A participant as a moving obstacle crowd steering walks round: its
+   * footprint's hull in its own frame, carried by its plan.
    *
-   * @param participant The participant; its footprint's radius must be 0, since a steering obstacle is a bare polygon.
-   * @returns The obstacle; its motion reads the plan's position and heading at a film second.
-   * @throws {AutoMovieArchetypeRefusal} On `footprint.radius` when the radius is not 0.
+   * @param participant The participant; its footprint's radius must be 0, since
+   *   a steering obstacle is a bare polygon.
+   * @returns The obstacle; its motion reads the plan's position and heading at
+   *   a film second.
+   * @throws {AutoMovieArchetypeRefusal} On `footprint.radius` when the radius
+   *   is not 0.
    */
   export function obstacle(
     participant: IParticipant,
@@ -364,7 +390,11 @@ export namespace AutoMovieArchetypePassage {
    *
    * @param archetype The name the refusal carries.
    * @param props The passage.
-   * @throws {AutoMovieArchetypeRefusal} As `conflicts` does for malformed inputs, and at the earliest conflict on the later-listed participant's plan, `participants[i].plan`, with the conflict as its value, the required clearance as its feasible range and both names and the interval in its reason.
+   * @throws {AutoMovieArchetypeRefusal} As `conflicts` does for malformed
+   *   inputs, and at the earliest conflict on the later-listed participant's
+   *   plan, `participants[i].plan`, with the conflict as its value, the
+   *   required clearance as its feasible range and both names and the interval
+   *   in its reason.
    */
   export function admit(archetype: string, props: IProps): void {
     const found: IConflict[] = conflicts(archetype, props);
@@ -393,12 +423,19 @@ export namespace AutoMovieArchetypePassage {
   }
 }
 
-/** Where a steering obstacle stands at a second: its world position and its yaw in degrees. */
+/**
+ * Where a steering obstacle stands at a second: its world position and its yaw
+ * in degrees.
+ */
 type IObstaclePlacement = ReturnType<
   NonNullable<IAutoMovieCrowdAgent.IObstacle["motion"]>
 >;
 
-/** Halvings that place an interval's end, and golden-section steps that place a minimum: forty shrink a one-frame bracket below a picosecond, past which a film second carries no meaning. */
+/**
+ * Halvings that place an interval's end, and golden-section steps that place a
+ * minimum: forty shrink a one-frame bracket below a picosecond, past which a
+ * film second carries no meaning.
+ */
 const REFINE: number = 40;
 
 /** The golden section's inner ratio, (sqrt 5 - 1) / 2. */
@@ -558,7 +595,11 @@ function place(
   });
 }
 
-/** The least distance between two convex floor hulls: over every pair of edges, a single point or segment being its own edge, and zero when one holds a vertex of the other. */
+/**
+ * The least distance between two convex floor hulls: over every pair of edges,
+ * a single point or segment being its own edge, and zero when one holds a
+ * vertex of the other.
+ */
 function separation(
   a: readonly IAutoMovieVector3[],
   b: readonly IAutoMovieVector3[],
@@ -583,7 +624,10 @@ function sides(hull: readonly IAutoMovieVector3[]): number {
   return hull.length < 3 ? 1 : hull.length;
 }
 
-/** Whether a point lies inside a counter-clockwise hull of at least three vertices: on the left of, or on, every edge. */
+/**
+ * Whether a point lies inside a counter-clockwise hull of at least three
+ * vertices: on the left of, or on, every edge.
+ */
 function inside(
   point: IAutoMovieVector3,
   hull: readonly IAutoMovieVector3[],
@@ -599,7 +643,10 @@ function inside(
   });
 }
 
-/** One pair's conflicts: each run of instants inside the margin, and each sampled minimum whose refinement dips inside it. */
+/**
+ * One pair's conflicts: each run of instants inside the margin, and each
+ * sampled minimum whose refinement dips inside it.
+ */
 function scan(
   pair: IPair,
   times: readonly number[],
@@ -668,7 +715,10 @@ function scan(
   return found;
 }
 
-/** The refused end of a bracket between an admitted second and a refused one, by bisection. */
+/**
+ * The refused end of a bracket between an admitted second and a refused one, by
+ * bisection.
+ */
 function edge(
   below: (seconds: number) => boolean,
   admitted: number,
@@ -684,7 +734,10 @@ function edge(
   return within;
 }
 
-/** The least clearance in a bracket by golden-section search, or the sampled one when no inner reading is lower. */
+/**
+ * The least clearance in a bracket by golden-section search, or the sampled one
+ * when no inner reading is lower.
+ */
 function least(
   pair: IPair,
   low: number,
@@ -734,7 +787,11 @@ function conflict(
   };
 }
 
-/** A counter-clockwise hull grown outward by a distance with mitred corners, which holds every point within that distance of the hull; a point or a segment grows into a square or a rectangle about it. */
+/**
+ * A counter-clockwise hull grown outward by a distance with mitred corners,
+ * which holds every point within that distance of the hull; a point or a
+ * segment grows into a square or a rectangle about it.
+ */
 function mitre(
   hull: readonly IAutoMovieVector3[],
   distance: number,

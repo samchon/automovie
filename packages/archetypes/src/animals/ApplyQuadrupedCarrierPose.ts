@@ -15,13 +15,9 @@ const REPOSE: typeof AutoMovieArchetype.prototype.reposed =
   AutoMovieArchetype.prototype.reposed;
 const CLONE: typeof structuredClone = structuredClone;
 
-/**
- * Private data-copy admission for the neutral preparation.
- */
+/** Private data-copy admission for the neutral preparation. */
 export namespace ApplyQuadrupedCarrierPose {
-  /**
-   * Move parts and contact frames through their admitted carrier deltas.
-   */
+  /** Move parts and contact frames through their admitted carrier deltas. */
   export function emit<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
     rest: ReadonlyMap<
@@ -105,20 +101,17 @@ export namespace ApplyQuadrupedCarrierPose {
     return model;
   }
 
-  /**
-   * Copy a part before replacing its moved transform.
-   */
+  /** Copy a part before replacing its moved transform. */
   export type CopyPart = (
     part: IAutoMovieModelPart,
   ) => IAutoMovieModelPart | undefined;
 
-  /**
-   * Observe whether the neutral emission used the native owners.
-   */
+  /** Observe whether the neutral emission used the native owners. */
   export type ObserveNeutral = (native: boolean) => void;
 
   /**
-   * Check the current structured-clone data binding without evaluating a replacement getter.
+   * Check the current structured-clone data binding without evaluating a
+   * replacement getter.
    */
   export function nativeClone(): boolean {
     return (
@@ -128,7 +121,8 @@ export namespace ApplyQuadrupedCarrierPose {
   }
 
   /**
-   * Check the currently installed native repose before the private copying path.
+   * Check the currently installed native repose before the private copying
+   * path.
    */
   export function nativeRepose(): boolean {
     return (
@@ -137,9 +131,7 @@ export namespace ApplyQuadrupedCarrierPose {
     );
   }
 
-  /**
-   * Prepare the bounded layout copier for the owned primitive parts.
-   */
+  /** Prepare the bounded layout copier for the owned primitive parts. */
   export function primitiveCopy(
     parts: readonly IAutoMovieModelPart[],
   ): CopyPart | undefined {

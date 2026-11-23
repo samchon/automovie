@@ -1,12 +1,11 @@
 import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
 import type { AutoMovieArchetypeRide } from "./AutoMovieArchetypeRide";
 
-/**
- * Internal native ride authentication and one same-time geometry handoff.
- */
+/** Internal native ride authentication and one same-time geometry handoff. */
 export namespace ArchetypeRideWitness {
   /**
-   * Read fresh current output using an owning operation's exact geometry witness.
+   * Read fresh current output using an owning operation's exact geometry
+   * witness.
    */
   export type Reader<Id extends string, D extends string> = (
     second: number,
@@ -37,9 +36,7 @@ export namespace ArchetypeRideWitness {
     readonly reader: Reader<string, string>;
   }
 
-  /**
-   * Recognize a writer created by the quadruped producer.
-   */
+  /** Recognize a writer created by the quadruped producer. */
   export function authorize<Id extends string, D extends string>(
     writer: object,
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -53,9 +50,7 @@ export namespace ArchetypeRideWitness {
     });
   }
 
-  /**
-   * Bind the core-constructed ride to its original native writer and plan.
-   */
+  /** Bind the core-constructed ride to its original native writer and plan. */
   export function constructed<Id extends string, D extends string>(
     ride: AutoMovieArchetypeRide.IRide<Id, D>,
     writer: object,
@@ -78,9 +73,7 @@ export namespace ArchetypeRideWitness {
     });
   }
 
-  /**
-   * Recover the original native reader, declining changed and opaque sources.
-   */
+  /** Recover the original native reader, declining changed and opaque sources. */
   export function of<Id extends string, D extends string>(
     ride: AutoMovieArchetypeRide.IRide<Id, D>,
   ): Reader<Id, D> | undefined {
@@ -95,7 +88,8 @@ export namespace ArchetypeRideWitness {
   }
 
   /**
-   * Open role-separated witnesses for contiguous reads at one exact solver time.
+   * Open role-separated witnesses for contiguous reads at one exact solver
+   * time.
    */
   export function stages<Id extends string, D extends string>(
     ride: AutoMovieArchetypeRide.IRide<Id, D>,
@@ -123,7 +117,8 @@ export namespace ArchetypeRideWitness {
   }
 
   /**
-   * One private successful geometry result for one producer in a synchronous operation.
+   * One private successful geometry result for one producer in a synchronous
+   * operation.
    */
   export class Witness {
     /** The current one-use geometry, following its successful admission. */
@@ -138,7 +133,8 @@ export namespace ArchetypeRideWitness {
     }
 
     /**
-     * Use exactly the same admitted geometry or run its unchanged private solve.
+     * Use exactly the same admitted geometry or run its unchanged private
+     * solve.
      */
     geometry<T>(owner: object, inputs: readonly number[], solve: () => T): T {
       const old = this.#entry;

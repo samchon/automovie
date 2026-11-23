@@ -49,18 +49,21 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * that placement expressed in the slot bone's rest frame, so the piece rides
  * the bone through every pose:
  *
- * - a forearm or shank piece centres between the slot joint and the next
- *   joint down the limb (elbow and wrist, knee and ankle), `+Y` toward the
- *   upper joint;
- * - a gauntlet centres half the measured hand length from the wrist toward
- *   the middle finger's base, `+Y` toward the wrist;
- * - a helmet centres midway between the head joint and the vertex at stature;
- * - a cuirass or mail shirt hangs from the shoulder height, its centre half
- *   the piece's own height below it, over the chest joint.
+ * - A forearm or shank piece centres between the slot joint and the next joint
+ *   down the limb (elbow and wrist, knee and ankle), `+Y` toward the upper
+ *   joint;
+ * - A gauntlet centres half the measured hand length from the wrist toward the
+ *   middle finger's base, `+Y` toward the wrist;
+ * - A helmet centres midway between the head joint and the vertex at stature;
+ * - A cuirass or mail shirt hangs from the shoulder height, its centre half the
+ *   piece's own height below it, over the chest joint.
  *
- * @param params The performer id and body, and up to one distinct costume model per slot.
+ * @param params The performer id and body, and up to one distinct costume model
+ *   per slot.
  * @returns The models and their initial worn bindings for the scene.
- * @throws {AutoMovieArchetypeRefusal} For a mismatched slot, reused model id, missing piece, a body without the slot's joints or a trunk piece without its height.
+ * @throws {AutoMovieArchetypeRefusal} For a mismatched slot, reused model id,
+ *   missing piece, a body without the slot's joints or a trunk piece without
+ *   its height.
  */
 export function assembleCostumeArmour(
   params: assembleCostumeArmour.IParams,
@@ -127,9 +130,7 @@ export function assembleCostumeArmour(
   });
 }
 
-/**
- * Costume piece selection and the binding consumed by a scene.
- */
+/** Costume piece selection and the binding consumed by a scene. */
 export namespace assembleCostumeArmour {
   /** Bones supported by the existing head, chest, hand and limb costume pieces. */
   export type Slot =
@@ -148,7 +149,10 @@ export namespace assembleCostumeArmour {
     createArmour.Dimension
   >;
 
-  /** The wearer's T-pose rest joints in canonical world metres, its bone records and its anthropometric measure. */
+  /**
+   * The wearer's T-pose rest joints in canonical world metres, its bone records
+   * and its anthropometric measure.
+   */
   export type IWearer = Pick<
     IAutoMovieMotionHumanBody,
     "rest" | "bones" | "measure"
@@ -176,7 +180,10 @@ export namespace assembleCostumeArmour {
   }
 }
 
-/** The covered segment's centre frame on the rest body, world: `+Y` up the segment, `+Z` toward the front. */
+/**
+ * The covered segment's centre frame on the rest body, world: `+Y` up the
+ * segment, `+Z` toward the front.
+ */
 function segment(
   slot: assembleCostumeArmour.Slot,
   body: assembleCostumeArmour.IWearer,
@@ -219,7 +226,10 @@ function segment(
   );
 }
 
-/** A frame at a point with `+Y` along `up` and `+Z` as near the body's front as `up` allows. */
+/**
+ * A frame at a point with `+Y` along `up` and `+Z` as near the body's front as
+ * `up` allows.
+ */
 function frameAt(
   at: IAutoMovieVector3,
   up: IAutoMovieVector3,
@@ -227,7 +237,10 @@ function frameAt(
   return AutoMovieArchetypeFrame.facing(at, up, Vector3.cross(up, FORWARD));
 }
 
-/** A bone's rest frame in the world: its rest joint and its rotation chained from the root. */
+/**
+ * A bone's rest frame in the world: its rest joint and its rotation chained
+ * from the root.
+ */
 function restFrame(
   body: assembleCostumeArmour.IWearer,
   bone: AutoMovieHumanoidBone,

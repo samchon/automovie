@@ -12,12 +12,21 @@ import {
 } from "../core";
 
 /**
- * A lariat, a roper's catch rope: a loop running through the hondo, the eye tied at the rope's working end, the spoke from the hondo back to the swinging hand, and the coiled tail the other hand holds with the reins.
+ * A lariat, a roper's catch rope: a loop running through the hondo, the eye
+ * tied at the rope's working end, the spoke from the hondo back to the swinging
+ * hand, and the coiled tail the other hand holds with the reins.
  *
- * It lies open on the floor: the loop a circle of the drawn diameter centred over the origin in the `XZ` plane, the hondo at its `+Z` point, the spoke running from it along `+Z`, and the coils lying beyond. The rope is rigid here: an act swings, throws and settles the loop by posing it. `spoke` is the swinging hand's hold, at the spoke's far end where the hand takes loop and spoke together; `coils` is the tail the rein hand holds; `hondo` is the eye; `loop` the loop's centre, its `+Y` the loop's normal.
+ * It lies open on the floor: the loop a circle of the drawn diameter centred
+ * over the origin in the `XZ` plane, the hondo at its `+Z` point, the spoke
+ * running from it along `+Z`, and the coils lying beyond. The rope is rigid
+ * here: an act swings, throws and settles the loop by posing it. `spoke` is the
+ * swinging hand's hold, at the spoke's far end where the hand takes loop and
+ * spoke together; `coils` is the tail the rein hand holds; `hondo` is the eye;
+ * `loop` the loop's centre, its `+Y` the loop's normal.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The lariat.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -149,9 +158,7 @@ export function createLariat(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createLariat}.
- */
+/** Companion types, constants and bands of {@link createLariat}. */
 export namespace createLariat {
   /** Rods a circle of rope is drawn with. */
   export const SEGMENTS: number = 16;
@@ -222,14 +229,15 @@ export namespace createLariat {
     mass: AutoMovieArchetypeBand.of("kg", 0.6, 1.2, UNREAD, true),
   };
 
-  /**
-   * The lariat's standing part between two held ends.
-   */
+  /** The lariat's standing part between two held ends. */
   export interface IStanding {
     /** The rope's points from one end to the other, world metres. */
     points: IAutoMovieVector3[];
 
-    /** Whether the ends are as far apart as the rope is long: straight and tensioned. */
+    /**
+     * Whether the ends are as far apart as the rope is long: straight and
+     * tensioned.
+     */
     taut: boolean;
 
     /** How far its middle hangs below the straight line, metres; 0 when taut. */
@@ -237,7 +245,10 @@ export namespace createLariat {
   }
 
   /**
-   * Lay the standing part of a caught lariat between its two held ends, the horn (or the hand) and the catch on the animal: straight and tensioned once the ends are as far apart as the rope is long, sagging in a parabola of the same length when they are closer.
+   * Lay the standing part of a caught lariat between its two held ends, the
+   * horn (or the hand) and the catch on the animal: straight and tensioned once
+   * the ends are as far apart as the rope is long, sagging in a parabola of the
+   * same length when they are closer.
    *
    * @param from One end, world metres.
    * @param to The other end, world metres.

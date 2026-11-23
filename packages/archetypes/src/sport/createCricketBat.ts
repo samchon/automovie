@@ -14,11 +14,16 @@ const HANDLE: number = 0.035;
 /**
  * A cricket bat with a flat blade and two-hand handle grip.
  *
- * The bat stands on its toe with the handle along +Y and the blade face toward +Z.
- * @param params The optional identifier and dimensions fixed within their recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
+ * The bat stands on its toe with the handle along +Y and the blade face toward
+ * +Z.
+ *
+ * @param params The optional identifier and dimensions fixed within their
+ *   recorded bands.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createCricketBat(
   params: createCricketBat.IParams = {},
@@ -46,11 +51,12 @@ export function createCricketBat(
   return builder.build(d.mass!);
 }
 
-/**
- * The authored parameters and contact names for {@link createCricketBat}.
- */
+/** The authored parameters and contact names for {@link createCricketBat}. */
 export namespace createCricketBat {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "depth" | "head" | "length" | "mass" | "width";
 
   /** The named contacts on this stick or bat. */

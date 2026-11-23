@@ -156,26 +156,21 @@ export function createBellFrame(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions of {@link createBellFrame}.
- */
+/** Dimensions of {@link createBellFrame}. */
 export namespace createBellFrame {
   /**
-   * Width between outer post faces, depth between outer post faces, roof ridge height and scenic mass.
+   * Width between outer post faces, depth between outer post faces, roof ridge
+   * height and scenic mass.
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
 
-  /**
-   * Author-fixed dimensions within the scene bands and an optional model id.
-   */
+  /** Author-fixed dimensions within the scene bands and an optional model id. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Scene-unique model id, defaulting to the producer's name. */
     id?: string;
   }
 
-  /**
-   * Model lengths are metres and mass is kilograms.
-   */
+  /** Model lengths are metres and mass is kilograms. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -185,9 +180,7 @@ export namespace createBellFrame {
     mass: "kg",
   };
 
-  /**
-   * Scene blockout bands for fictional freestanding scenery.
-   */
+  /** Scene blockout bands for fictional freestanding scenery. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     width: AutoMovieArchetypeBand.of(
       "m",

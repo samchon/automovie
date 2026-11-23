@@ -7,11 +7,13 @@ import {
 import { createCart } from "./createCart";
 
 /**
- * The carriers pushed by hand: a shopping trolley and a wheelbarrow, each built on its drawn dimensions.
+ * The carriers pushed by hand: a shopping trolley and a wheelbarrow, each built
+ * on its drawn dimensions.
  */
 export namespace CartPushed {
   /**
-   * A shopping trolley: a basket over a chassis on four castors, pushed by the one bar across its back.
+   * A shopping trolley: a basket over a chassis on four castors, pushed by the
+   * one bar across its back.
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
@@ -131,7 +133,8 @@ export namespace CartPushed {
   }
 
   /**
-   * A wheelbarrow: a tray over one front wheel, two legs behind, and two handles reaching back.
+   * A wheelbarrow: a tray over one front wheel, two legs behind, and two
+   * handles reaching back.
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.

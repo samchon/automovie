@@ -11,12 +11,21 @@ import {
 } from "../core";
 
 /**
- * A polo mallet: a cane shaft with a rubber-wrapped grip and a wrist sling at its top, and a cigar-shaped head set across its foot, struck with the head's long side.
+ * A polo mallet: a cane shaft with a rubber-wrapped grip and a wrist sling at
+ * its top, and a cigar-shaped head set across its foot, struck with the head's
+ * long side.
  *
- * It stands on its head at the origin, the shaft straight up along `+Y` to the grip's end, the head lying along `X`. `grip` is the grip the hand closes on; `sling` the loop at the grip's end the wrist passes through; `head` the head's centre, its `+Y` running out of the mallet down the shaft's line, the working point a swing carries through the ball (`tip`); `face` the head's side toward `+Z`, its `+Y` out of it, the striking side of a forehand (a backhand strikes with the other side).
+ * It stands on its head at the origin, the shaft straight up along `+Y` to the
+ * grip's end, the head lying along `X`. `grip` is the grip the hand closes on;
+ * `sling` the loop at the grip's end the wrist passes through; `head` the
+ * head's centre, its `+Y` running out of the mallet down the shaft's line, the
+ * working point a swing carries through the ball (`tip`); `face` the head's
+ * side toward `+Z`, its `+Y` out of it, the striking side of a forehand (a
+ * backhand strikes with the other side).
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The mallet.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -131,9 +140,7 @@ export function createPoloMallet(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createPoloMallet}.
- */
+/** Companion types, constants and bands of {@link createPoloMallet}. */
 export namespace createPoloMallet {
   /** The cane shaft's diameter, metres: an estimate. */
   export const CANE: number = 0.014;
@@ -149,7 +156,8 @@ export namespace createPoloMallet {
    *
    * - `grip`: the grip, taken from `-Z`, its length along the shaft.
    * - `sling`: the wrist loop at the grip's end.
-   * - `head`: the head's centre, its `+Y` down the shaft's line out of the mallet.
+   * - `head`: the head's centre, its `+Y` down the shaft's line out of the
+   *   mallet.
    * - `face`: the head's forehand side toward `+Z`.
    */
   export type Affordance = "grip" | "sling" | "head" | "face";

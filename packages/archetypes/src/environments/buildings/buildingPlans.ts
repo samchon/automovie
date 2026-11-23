@@ -108,15 +108,14 @@ export function buildingPlans(
   return { kind: "plan", levels, stairs, wall, slab, color };
 }
 
-/**
- * Normalized local geometry shared by the wall, slab and support assemblers.
- */
+/** Normalized local geometry shared by the wall, slab and support assemblers. */
 export namespace buildingPlans {
-  /**
-   * An admitted planar region in XZ metres.
-   */
+  /** An admitted planar region in XZ metres. */
   export interface IRegion {
-    /** Canonically wound triangulation, with the planar Y component standing for Z. */
+    /**
+     * Canonically wound triangulation, with the planar Y component standing for
+     * Z.
+     */
     readonly region: IAutoMovieRegionTriangulation;
 
     /** Outer ring followed by any holes, each in canonical winding. */
@@ -129,9 +128,7 @@ export namespace buildingPlans {
     readonly bounds: readonly [number, number, number, number];
   }
 
-  /**
-   * A named room in one normalized level.
-   */
+  /** A named room in one normalized level. */
   export interface IRoom {
     /** Path segment unique to this level. */
     readonly id: string;
@@ -149,9 +146,7 @@ export namespace buildingPlans {
     ceiling?: IRegion;
   }
 
-  /**
-   * One normalized storey in local metres.
-   */
+  /** One normalized storey in local metres. */
   export interface ILevel {
     /** Path segment unique to this building. */
     readonly id: string;
@@ -169,9 +164,7 @@ export namespace buildingPlans {
     readonly openings: readonly createBuilding.Opening[];
   }
 
-  /**
-   * A stair with its resolved endpoints and exact adjoining slab cut.
-   */
+  /** A stair with its resolved endpoints and exact adjoining slab cut. */
   export interface IStair {
     /** Stair id scoped by the building. */
     readonly id: string;
@@ -192,9 +185,7 @@ export namespace buildingPlans {
     readonly clearHeight: number;
   }
 
-  /**
-   * Closed internal choice of interior building or facade mass.
-   */
+  /** Closed internal choice of interior building or facade mass. */
   export type IPlan =
     | {
         readonly kind: "facade";
@@ -268,7 +259,10 @@ function prepareStair(
   };
 }
 
-/** Re-admit a slab with a new, strictly contained void along with its prior holes. */
+/**
+ * Re-admit a slab with a new, strictly contained void along with its prior
+ * holes.
+ */
 function addCut(
   region: buildingPlans.IRegion,
   cut: readonly createBuilding.Point[],
@@ -303,7 +297,10 @@ function admitId(id: string, names: Set<string>, path: string): void {
   names.add(id);
 }
 
-/** Turn either footprint syntax into canonical rings, shared triangles and a guaranteed interior frame origin. */
+/**
+ * Turn either footprint syntax into canonical rings, shared triangles and a
+ * guaranteed interior frame origin.
+ */
 function draftRegion(
   footprint: createBuilding.Footprint,
   path: string,
@@ -366,7 +363,10 @@ function planPoint([x, y]: createBuilding.Point): IAutoMovieProfilePoint {
   return { x, y };
 }
 
-/** Return the centroid of the largest admitted triangle, strictly in the plan region. */
+/**
+ * Return the centroid of the largest admitted triangle, strictly in the plan
+ * region.
+ */
 function largestTriangleCenter(
   region: IAutoMovieRegionTriangulation,
 ): IAutoMovieProfilePoint {

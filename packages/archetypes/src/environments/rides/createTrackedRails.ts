@@ -7,7 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Each coarse rail is 0.1 m wide and 0.12 m high, with its top at course height. */
+/**
+ * Each coarse rail is 0.1 m wide and 0.12 m high, with its top at course
+ * height.
+ */
 const PROFILE: readonly (readonly [number, number])[] = [
   [-0.05, -0.12],
   [0.05, -0.12],

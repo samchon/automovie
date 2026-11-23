@@ -6,11 +6,16 @@ import type { createInstrument } from "./createInstrument";
 /**
  * A side drum with separate batter-head and carrier contacts.
  *
- * The drum stands on its bottom head. The head surface accepts a stick contact and sling marks the carrier hook.
- * @param params The optional identifier and dimensions fixed within their recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
+ * The drum stands on its bottom head. The head surface accepts a stick contact
+ * and sling marks the carrier hook.
+ *
+ * @param params The optional identifier and dimensions fixed within their
+ *   recorded bands.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createSideDrum(
   params: createSideDrum.IParams = {},
@@ -25,11 +30,12 @@ export function createSideDrum(
   );
 }
 
-/**
- * The authored parameters and contact names for {@link createSideDrum}.
- */
+/** The authored parameters and contact names for {@link createSideDrum}. */
 export namespace createSideDrum {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "depth" | "diameter" | "mass";
 
   /** The named playing and carrying contacts. */

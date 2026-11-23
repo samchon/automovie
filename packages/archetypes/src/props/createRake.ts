@@ -14,10 +14,10 @@ const STAGED: string =
   "a garden rake: its dimensions and mass are provisional estimates, no maker's page was read";
 
 /**
- * A garden rake or a hoe: a crosswise head on a long handle, pulled along
- * the ground in two hands. Its head lies at the origin with the handle up
- * `+Y` and the tines (a hoe's blade) toward `+Z`; `face` is the line of the
- * tine tips facing `+Z`, and `shaft` the handle the two hands hold.
+ * A garden rake or a hoe: a crosswise head on a long handle, pulled along the
+ * ground in two hands. Its head lies at the origin with the handle up `+Y` and
+ * the tines (a hoe's blade) toward `+Z`; `face` is the line of the tine tips
+ * facing `+Z`, and `shaft` the handle the two hands hold.
  *
  * @param params Scene identity, the kind and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
@@ -87,9 +87,7 @@ export function createRake(
   return builder.build(d.mass);
 }
 
-/**
- * Kinds, dimensions and contacts of {@link createRake}.
- */
+/** Kinds, dimensions and contacts of {@link createRake}. */
 export namespace createRake {
   /** A tined rake, or a bladed hoe. */
   export type Kind = "rake" | "hoe";

@@ -14,10 +14,16 @@ import {
 /**
  * A golf club: a driver, an iron or a putter.
  *
- * It stands on its head's sole at the origin, the shaft straight up along `+Y` to the grip's end, the head's toe toward `+X` and its face toward `+Z`. `grip` is the grip both hands close on; `face` the striking face, its `+Y` out of it; `head` the head's centre, its `+Y` running out of the club down the shaft's line: a swing carries `head` through the ball as its working point (`tip`) with `face` leading as its edge (`edge`).
+ * It stands on its head's sole at the origin, the shaft straight up along `+Y`
+ * to the grip's end, the head's toe toward `+X` and its face toward `+Z`.
+ * `grip` is the grip both hands close on; `face` the striking face, its `+Y`
+ * out of it; `head` the head's centre, its `+Y` running out of the club down
+ * the shaft's line: a swing carries `head` through the ball as its working
+ * point (`tip`) with `face` leading as its edge (`edge`).
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The club.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -113,9 +119,7 @@ export function createGolfClub(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createGolfClub}.
- */
+/** Companion types, constants and bands of {@link createGolfClub}. */
 export namespace createGolfClub {
   /** The kinds: a driver, a mid iron (a 7-iron) and a putter. */
   export type Kind = "driver" | "iron" | "putter";
@@ -123,7 +127,10 @@ export namespace createGolfClub {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["driver", "iron", "putter"];
 
-  /** The head's height from the sole to the crown, metres, by kind: estimates under the rules' 2.8 in for a wood. */
+  /**
+   * The head's height from the sole to the crown, metres, by kind: estimates
+   * under the rules' 2.8 in for a wood.
+   */
   export const HEAD_HEIGHT: Readonly<Record<Kind, number>> = {
     driver: 0.06,
     iron: 0.05,
@@ -172,7 +179,10 @@ export namespace createGolfClub {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which club. */
     kind: Kind;

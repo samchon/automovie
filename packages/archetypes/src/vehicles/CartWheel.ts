@@ -9,12 +9,11 @@ import {
 import type { createCart } from "./createCart";
 
 /**
- * A drawn carrier's road wheels: a pair on one axle, each spinning on a `knob`, as every drawn kind of `createCart` has them.
+ * A drawn carrier's road wheels: a pair on one axle, each spinning on a `knob`,
+ * as every drawn kind of `createCart` has them.
  */
 export namespace CartWheel {
-  /**
-   * Where a pair of wheels stands and what it is called.
-   */
+  /** Where a pair of wheels stands and what it is called. */
   export interface IPair {
     /** Between the wheels, centre to centre, metres. */
     track: number;
@@ -42,11 +41,13 @@ export namespace CartWheel {
   }
 
   /**
-   * Add a pair of road wheels on an axle: each a disc with spokes, spinning on a `knob` about the axle, a positive travel rolling it forward.
+   * Add a pair of road wheels on an axle: each a disc with spokes, spinning on
+   * a `knob` about the axle, a positive travel rolling it forward.
    *
    * @param builder The carrier under construction.
    * @param pair Where the pair stands and what it is called.
-   * @returns The ids of the parts that turn with the axle and no knob binds: the axle itself; the wheels follow on their knobs, which ride `rides`.
+   * @returns The ids of the parts that turn with the axle and no knob binds:
+   *   the axle itself; the wheels follow on their knobs, which ride `rides`.
    */
   export function pair(
     builder: AutoMovieArchetypeBuilder<

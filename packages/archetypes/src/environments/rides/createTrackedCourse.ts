@@ -30,7 +30,8 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  *
  * @param input Local waypoints, closure and optional bank and lateral input.
  * @returns Approximate arc stations and their shared rigid frame sampler.
- * @throws On malformed points or orientation, degenerate travel or distances the sampled frame cannot represent.
+ * @throws On malformed points or orientation, degenerate travel or distances
+ *   the sampled frame cannot represent.
  */
 export function createTrackedCourse(
   input: IAutoMovieTrackCourse.IInput,

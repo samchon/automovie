@@ -21,11 +21,11 @@ type Build = AutoMovieArchetypeBuilder<
 >;
 
 /**
- * One floating water polo goal for deep water. The front of the aperture is
- * Z = 0, the waterline is Y = 0 and the playing area lies along +Z. The
- * recorded goal mouth is the inside opening from water to crossbar, without
- * counting the posts or the net. Frame and aperture dimensions follow the
- * federation. Net thickness, floats and the assembly mass are staged.
+ * One floating water polo goal for deep water. The front of the aperture is Z =
+ * 0, the waterline is Y = 0 and the playing area lies along +Z. The recorded
+ * goal mouth is the inside opening from water to crossbar, without counting the
+ * posts or the net. Frame and aperture dimensions follow the federation. Net
+ * thickness, floats and the assembly mass are staged.
  *
  * @param params Optional scene identity and fixed aperture overrides.
  * @param seed Provenance seed. The reference dimensions are fixed.
@@ -106,7 +106,10 @@ export function createWaterPoloGoal(
   return builder.build(d.mass);
 }
 
-/** The three side surfaces and the top of the pocket use one shared set of corners. */
+/**
+ * The three side surfaces and the top of the pocket use one shared set of
+ * corners.
+ */
 function net(
   builder: Build,
   d: Readonly<Record<createWaterPoloGoal.Dimension, number>>,
@@ -156,9 +159,7 @@ function net(
   }
 }
 
-/**
- * The aperture and net dimensions for one deep-water reference field.
- */
+/** The aperture and net dimensions for one deep-water reference field. */
 export namespace createWaterPoloGoal {
   /** Goal opening at the front face. */
   export type Affordance = "mouth";
@@ -179,7 +180,10 @@ export namespace createWaterPoloGoal {
     depth: "m",
     mass: "kg",
   };
-  /** The fixed opening and bar section, with a model pocket beyond the required clearance. */
+  /**
+   * The fixed opening and bar section, with a model pocket beyond the required
+   * clearance.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     width: AutoMovieArchetypeBand.metres(3, 3, RULES),
     height: AutoMovieArchetypeBand.metres(0.9, 0.9, RULES),

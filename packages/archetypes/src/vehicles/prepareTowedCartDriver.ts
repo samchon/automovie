@@ -13,10 +13,10 @@ import type { AutoMovieArchetypeRide } from "../core/AutoMovieArchetypeRide";
 import type { createCart } from "./createCart";
 
 /**
- * Bind a towed cart's driver to its placement, footboard, seat and
- * driving lines. The nominal hand stations project to the live final segments
- * between the horse's terrets and the cart's material ends. Each palm uses
- * the current line tangent, so steering does not pull the hand off the rein.
+ * Bind a towed cart's driver to its placement, footboard, seat and driving
+ * lines. The nominal hand stations project to the live final segments between
+ * the horse's terrets and the cart's material ends. Each palm uses the current
+ * line tangent, so steering does not pull the hand off the rein.
  */
 export function prepareTowedCartDriver(
   cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,

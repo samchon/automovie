@@ -47,13 +47,16 @@ type Build = AutoMovieArchetypeBuilder<
  * A two-station racing shell. The model's +Z points towards the bow and Y = 0
  * is its reference waterline. Both rowers face aft. The seat and both oars at
  * each station move independently. Seat travel starts at the catch side and
- * increases towards the bow. Oar dimensions come from Empacher and Filippi. The lock heights keep the two hands clear as the handles overlap.
- * The cockpit, rail, blade thickness and hull sections between the measured
- * points are staging estimates.
+ * increases towards the bow. Oar dimensions come from Empacher and Filippi. The
+ * lock heights keep the two hands clear as the handles overlap. The cockpit,
+ * rail, blade thickness and hull sections between the measured points are
+ * staging estimates.
  *
- * @param params Optional scene identity and fixed figures within the stated dimensions.
+ * @param params Optional scene identity and fixed figures within the stated
+ *   dimensions.
  * @param seed Provenance seed. The reference figures themselves are fixed.
- * @returns Open racing hull, two sliding seats, four footplates and four sculls.
+ * @returns Open racing hull, two sliding seats, four footplates and four
+ *   sculls.
  */
 export function createDoubleScull(
   params: createDoubleScull.IParams = {},
@@ -83,7 +86,10 @@ export function createDoubleScull(
   return builder.build(dimensions.mass);
 }
 
-/** Loft thin polygonal walls along one shared section family, with deck caps outside the two footwells. */
+/**
+ * Loft thin polygonal walls along one shared section family, with deck caps
+ * outside the two footwells.
+ */
 function shell(builder: Build, length: number, beam: number): void {
   const sections: readonly { z: number; width: number; bottom: number }[] = [
     { z: -length / 2, width: 0.008, bottom: 0.072 },
@@ -141,7 +147,10 @@ function shell(builder: Build, length: number, beam: number): void {
   }
 }
 
-/** Build one seat on two rails, the angled feet and a pair of articulated sculls. */
+/**
+ * Build one seat on two rails, the angled feet and a pair of articulated
+ * sculls.
+ */
 function station(
   builder: Build,
   id: createDoubleScull.Station,
@@ -227,7 +236,10 @@ function station(
   }
 }
 
-/** A scull's swivel, dip, shaft, blade and handle are attached to the same oarlock pivot. */
+/**
+ * A scull's swivel, dip, shaft, blade and handle are attached to the same
+ * oarlock pivot.
+ */
 function scull(
   builder: Build,
   name: `${createDoubleScull.Station}${createDoubleScull.Side}`,
@@ -319,9 +331,7 @@ function scull(
   });
 }
 
-/**
- * Fixed reference hull measurements and station contact ids.
- */
+/** Fixed reference hull measurements and station contact ids. */
 export namespace createDoubleScull {
   /** Forward station and rear station. */
   export type Station = "bow" | "stroke";

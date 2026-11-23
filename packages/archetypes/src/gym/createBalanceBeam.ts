@@ -15,14 +15,17 @@ const NORMS: string =
   "World Gymnastics Apparatus Norms, WAG 3 §2.1 (https://www.gymnastics.sport/publicdir/rules/files/en_Apparatus%20Norms.pdf)";
 
 /**
- * A competition balance beam with a narrow flat bearing surface, shaped
- * sides and two floor stands. The beam runs along Z with its base at
- * floor level and its top socket at the centre of the bearing surface.
+ * A competition balance beam with a narrow flat bearing surface, shaped sides
+ * and two floor stands. The beam runs along Z with its base at floor level and
+ * its top socket at the centre of the bearing surface.
  *
  * @param params Fixed dimensions within the admitted model bands and its id.
- * @param seed Draws any unspecified size inside its band; absent selects the midpoint.
- * @returns A beam whose collision hull and bearing surface share the same corners.
- * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
+ * @param seed Draws any unspecified size inside its band; absent selects the
+ *   midpoint.
+ * @returns A beam whose collision hull and bearing surface share the same
+ *   corners.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its
+ *   band.
  */
 export function createBalanceBeam(
   params: createBalanceBeam.IParams = {},
@@ -108,14 +111,15 @@ export function createBalanceBeam(
   return builder.build(values.mass);
 }
 
-/**
- * Companion dimensions and support for the competition balance beam.
- */
+/** Companion dimensions and support for the competition balance beam. */
 export namespace createBalanceBeam {
   /** The flat top where hands and feet contact the beam. */
   export type Affordance = "surface";
 
-  /** Length along Z, top height, top width, section width and depth, and total mass. */
+  /**
+   * Length along Z, top height, top width, section width and depth, and total
+   * mass.
+   */
   export type Dimension =
     | "length"
     | "height"

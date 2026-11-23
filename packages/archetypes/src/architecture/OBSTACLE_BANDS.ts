@@ -25,9 +25,7 @@ const CROWD: string =
 const LAVI: string =
   "Lavi Industries stanchion posts 40 in high, 2-3/4 in post, 14-1/2 in base, and 6 ft velour ropes 1-1/2 in thick, as search results give reseller listings; not read";
 
-/**
- * The band of each free dimension of {@link createObstacle}, by kind.
- */
+/** The band of each free dimension of {@link createObstacle}, by kind. */
 export const OBSTACLE_BANDS: Readonly<
   Record<
     createObstacle.Kind,

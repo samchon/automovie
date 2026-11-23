@@ -11,9 +11,15 @@ import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQua
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
 /**
- * The lowest height above a plane, in the plane's own frame, of a part's surface points that lie over the plane's rectangle. A bar straddling a seam between two planes is therefore judged only by its points above each plane, not by its lowest point anywhere.
+ * The lowest height above a plane, in the plane's own frame, of a part's
+ * surface points that lie over the plane's rectangle. A bar straddling a seam
+ * between two planes is therefore judged only by its points above each plane,
+ * not by its lowest point anywhere.
  *
- * Cylinders, capsules and spheres are sampled at 17 sections by 16 directions, plus the capsule's poles, so a penetration shallower than about 2 % of the radius can pass. Other solids return their exact global lowest point, which is conservative.
+ * Cylinders, capsules and spheres are sampled at 17 sections by 16 directions,
+ * plus the capsule's poles, so a penetration shallower than about 2 % of the
+ * radius can pass. Other solids return their exact global lowest point, which
+ * is conservative.
  *
  * @param part The part with its world transform.
  * @param plane The plane, for its world rectangle.

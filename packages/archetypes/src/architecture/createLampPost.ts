@@ -6,13 +6,15 @@ import { StreetFixtureDraw } from "./StreetFixtureDraw";
 /**
  * A lamp post with a ground base, upright grip and post-top luminaire.
  *
- * The mounting height and base and luminaire dimensions locate the grip on the shaft.
- * The lowest point of the fixture stands on Y = 0.
+ * The mounting height and base and luminaire dimensions locate the grip on the
+ * shaft. The lowest point of the fixture stands on Y = 0.
  *
- * @param params The scene identifier and any dimensions to fix inside their bands.
+ * @param params The scene identifier and any dimensions to fix inside their
+ *   bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
  */
 export function createLampPost(
   params: createLampPost.IParams = {},
@@ -38,9 +40,7 @@ export function createLampPost(
   return builder.build(d.mass!);
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createLampPost}.
- */
+/** Inputs, dimensions and contacts for {@link createLampPost}. */
 export namespace createLampPost {
   /** The named contacts built by this producer. */
   export type Affordance = "post";

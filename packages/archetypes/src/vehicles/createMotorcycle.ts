@@ -19,12 +19,16 @@ const TRIANGLE: string =
 /**
  * A motorcycle or a step-through scooter.
  *
- * The machine stands upright with the middle of its wheelbase over the origin and its front toward `+Z`. The rider sits on the `seat` and holds the two grips; the feet rest on a motorcycle's two footrests or on a scooter's floorboard.
+ * The machine stands upright with the middle of its wheelbase over the origin
+ * and its front toward `+Z`. The rider sits on the `seat` and holds the two
+ * grips; the feet rest on a motorcycle's two footrests or on a scooter's
+ * floorboard.
  *
  * `rideMotorcycle` moves it along a course, leaning into the turns.
  *
  * @param params The kind, its read model and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The machine.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -212,9 +216,7 @@ export function createMotorcycle(
   return builder.build(d.mass, { rests: "rubber", ground: "asphalt" });
 }
 
-/**
- * Companion types and bands of {@link createMotorcycle}.
- */
+/** Companion types and bands of {@link createMotorcycle}. */
 export namespace createMotorcycle {
   /** The kinds of machine. */
   export type Kind = "motorcycle" | "scooter";
@@ -234,8 +236,10 @@ export namespace createMotorcycle {
    * - `seat`: the rider's seat, facing forward.
    * - `leftGrip`, `rightGrip`: the handlebar's grips on `+X` and `-X`.
    * - `leftFootrest`, `rightFootrest`: a motorcycle's foot pegs.
-   * - `leftFloorboard`, `rightFloorboard`: two named sole contact points on the scooter's board.
-   * - `floorboard`: a scooter's floor, where both feet rest, open above between the front shield and the body under the seat.
+   * - `leftFloorboard`, `rightFloorboard`: two named sole contact points on the
+   *   scooter's board.
+   * - `floorboard`: a scooter's floor, where both feet rest, open above between
+   *   the front shield and the body under the seat.
    */
   export type Affordance =
     | "seat"
@@ -253,7 +257,8 @@ export namespace createMotorcycle {
    * - `seatHeight`: the seat above the ground.
    * - `wheelbase`: axle to axle.
    * - `width`: the handlebar, end to end.
-   * - `wheelDiameter`, `frontWheelDiameter`: the rear and the front wheel with its tyre.
+   * - `wheelDiameter`, `frontWheelDiameter`: the rear and the front wheel with
+   *   its tyre.
    * - `gripDiameter`: the bar where the hands hold it.
    * - `footrestHeight`: the foot rests above the ground.
    * - `mass`: kerb mass, kilograms.
@@ -282,7 +287,10 @@ export namespace createMotorcycle {
     mass: "kg",
   };
 
-  /** The parameters: the kind, its read model, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, its read model, and any free dimension fixed to a
+   * value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which machine. */
     kind: Kind;
@@ -294,11 +302,25 @@ export namespace createMotorcycle {
     id?: string;
   }
 
-  /** The read machines: the Honda CB500 Hornet and the Yamaha MT-07, and the Honda PCX125 scooter. */
+  /**
+   * The read machines: the Honda CB500 Hornet and the Yamaha MT-07, and the
+   * Honda PCX125 scooter.
+   */
   export type Model = "cb500Hornet" | "mt07" | "pcx125";
 
   /**
-   * Each kind's read machines, each whole: its seat height, wheelbase, overall width (taken as the handlebar's), tyres' outer diameters (`AutoMovieArchetypeUnits.tyre`) and kerb or wet mass. The CB500 Hornet at Honda UK's page (the 2026 E-Clutch version: seat 785 mm, wheelbase 1,410, 800 mm wide, 120/70 ZR17 and 160/60 ZR17, 191 kg; https://www.honda.co.uk/motorcycles/range/street/cb500-hornet/specifications-and-price.html); the MT-07 at Yamaha's 2019 factsheet, p. 4 (seat 805 mm, wheel base 1,400, 745 mm wide, 120/70 ZR17 and 180/55 ZR17, wet weight 182 kg; https://cdn2.yamaha-motor.eu/prod/product-assets/2019/MT07/Factsheets/2019-MT07_en.pdf); the PCX125 at Honda UK's page (the 2025 version: seat 763 mm, wheelbase 1,315, 740 mm wide, 110/70-14 and 130/70-13, 134 kg; https://www.honda.co.uk/motorcycles/range/scooter/pcx-125/specifications.html).
+   * Each kind's read machines, each whole: its seat height, wheelbase, overall
+   * width (taken as the handlebar's), tyres' outer diameters
+   * (`AutoMovieArchetypeUnits.tyre`) and kerb or wet mass. The CB500 Hornet at
+   * Honda UK's page (the 2026 E-Clutch version: seat 785 mm, wheelbase 1,410,
+   * 800 mm wide, 120/70 ZR17 and 160/60 ZR17, 191 kg;
+   * https://www.honda.co.uk/motorcycles/range/street/cb500-hornet/specifications-and-price.html);
+   * the MT-07 at Yamaha's 2019 factsheet, p. 4 (seat 805 mm, wheel base 1,400,
+   * 745 mm wide, 120/70 ZR17 and 180/55 ZR17, wet weight 182 kg;
+   * https://cdn2.yamaha-motor.eu/prod/product-assets/2019/MT07/Factsheets/2019-MT07_en.pdf);
+   * the PCX125 at Honda UK's page (the 2025 version: seat 763 mm, wheelbase
+   * 1,315, 740 mm wide, 110/70-14 and 130/70-13, 134 kg;
+   * https://www.honda.co.uk/motorcycles/range/scooter/pcx-125/specifications.html).
    */
   export const MODELS: Readonly<
     Record<
@@ -338,7 +360,10 @@ export namespace createMotorcycle {
     },
   };
 
-  /** The band of each dimension no machine's maker states, by kind; the others are the read model's (`MODELS`). */
+  /**
+   * The band of each dimension no machine's maker states, by kind; the others
+   * are the read model's (`MODELS`).
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {

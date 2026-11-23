@@ -7,9 +7,11 @@ import { StationeryDraw } from "./StationeryDraw";
  * Clipboard with a grip on its near edge and a level writing surface.
  *
  * @param params The optional scene ID and Esselte model.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createClipboard(
   params: Pick<StationeryDraw.IParams, "id"> & {
@@ -40,13 +42,17 @@ export function createClipboard(
   return builder.build(d.mass!);
 }
 
-/**
- * The contacts and dimensions of {@link createClipboard}.
- */
+/** The contacts and dimensions of {@link createClipboard}. */
 export namespace createClipboard {
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  /**
+   * The contacts this producer builds; a numbered family's count follows its
+   * inputs.
+   */
   export type Affordance = "face" | "grip";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "length" | "mass" | "thickness" | "width";
 }

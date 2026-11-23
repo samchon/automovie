@@ -5,19 +5,18 @@ import { AutoMovieArchetypeEquineJointLimits } from "./AutoMovieArchetypeEquineJ
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
- * Measure explicitly acquired equine landmark rays in an oriented clinical plane.
+ * Measure explicitly acquired equine landmark rays in an oriented clinical
+ * plane.
  *
- * This operation measures the caller's markers; it cannot establish that
- * they are anatomically correct. The selected study's published landmarks and
+ * This operation measures the caller's markers; it cannot establish that they
+ * are anatomically correct. The selected study's published landmarks and
  * included-angle side must be reproduced during acquisition. In particular,
  * coarse skeleton bar endpoints are not an automatic substitute for skin
  * markers or the 2016 goniometer rays. The measurement plane passes through the
  * middle marker, and its normal chooses the included-angle orientation.
  */
 export namespace AutoMovieArchetypeEquineGoniometry {
-  /**
-   * Caller-acquired points and plane, all in one right-handed Cartesian frame.
-   */
+  /** Caller-acquired points and plane, all in one right-handed Cartesian frame. */
   export interface IInput {
     /** Distal bone identifying its proximal joint. */
     readonly bone: AutoMovieArchetypeQuadrupedBody.Bone;
@@ -25,7 +24,10 @@ export namespace AutoMovieArchetypeEquineGoniometry {
     /** Source whose landmark rays and included-angle side were acquired. */
     readonly studyDoi: AutoMovieArchetypeEquineJointLimits.IStudy["doi"];
 
-    /** First ray endpoint, joint vertex, second ray endpoint, in one length unit. */
+    /**
+     * First ray endpoint, joint vertex, second ray endpoint, in one length
+     * unit.
+     */
     readonly markers: readonly [
       Readonly<IAutoMovieVector3>,
       Readonly<IAutoMovieVector3>,
@@ -36,9 +38,7 @@ export namespace AutoMovieArchetypeEquineGoniometry {
     readonly planeNormal: Readonly<IAutoMovieVector3>;
   }
 
-  /**
-   * Measured oriented angle and its source-specific observational diagnostic.
-   */
+  /** Measured oriented angle and its source-specific observational diagnostic. */
   export interface IResult {
     /** Right-handed angle from first to second projected ray around normal. */
     readonly includedAngle: number;
@@ -63,14 +63,17 @@ export namespace AutoMovieArchetypeEquineGoniometry {
    * Project marker rays and compare their oriented included angle.
    *
    * Translation, positive uniform scaling and normal magnitude do not change
-   * the angle. Reversing the normal reverses its orientation. Projection removes
-   * out-of-plane displacement; it does not correct perspective or certify that
-   * the caller acquired the study's sagittal view. Exact computed zero rays or
-   * projections, and nonrepresentable intermediate differences, refuse.
+   * the angle. Reversing the normal reverses its orientation. Projection
+   * removes out-of-plane displacement; it does not correct perspective or
+   * certify that the caller acquired the study's sagittal view. Exact computed
+   * zero rays or projections, and nonrepresentable intermediate differences,
+   * refuse.
    *
    * @param input Acquired landmarks, chosen plane, source and joint.
    * @returns Independent geometric measurement and source-specific comparison.
-   * @throws {RangeError} For nonfinite data, a zero normal/ray/projection, nonfinite intermediate differences or a source not measuring the selected known joint.
+   * @throws {RangeError} For nonfinite data, a zero normal/ray/projection,
+   *   nonfinite intermediate differences or a source not measuring the selected
+   *   known joint.
    */
   export function measure(input: IInput): IResult {
     for (const point of [...input.markers, input.planeNormal])
@@ -114,7 +117,10 @@ export namespace AutoMovieArchetypeEquineGoniometry {
       limits: null,
     };
 
-    /** A unit double-cross projection retains orientation without subtractive axial cancellation. */
+    /**
+     * A unit double-cross projection retains orientation without subtractive
+     * axial cancellation.
+     */
     function project(marker: Readonly<IAutoMovieVector3>): IAutoMovieVector3 {
       const displacement: IAutoMovieVector3 = Vector3.subtract(
         marker,

@@ -18,12 +18,13 @@ const FIG: string =
  * A bar to hang from: a gym's pull-up bar or gymnastics' horizontal bar, a
  * round bar level between two uprights.
  *
- * It stands on the floor with the middle of its footprint at the origin,
- * the bar along `X`. `bar` is the bar's middle, on its axis, with `+Y` up:
- * hands take it from below at any place along its length.
+ * It stands on the floor with the middle of its footprint at the origin, the
+ * bar along `X`. `bar` is the bar's middle, on its axis, with `+Y` up: hands
+ * take it from below at any place along its length.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The bar.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -86,9 +87,7 @@ export function createPullUpBar(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createPullUpBar}.
- */
+/** Companion types and bands of {@link createPullUpBar}. */
 export namespace createPullUpBar {
   /** The kinds of bar. */
   export type Kind = "gym" | "horizontalBar";
@@ -99,7 +98,10 @@ export namespace createPullUpBar {
   /** An upright's radius, metres. An estimate, not read at a source. */
   export const UPRIGHT: number = 0.03;
 
-  /** The affordance ids: `bar`, the bar's middle on its axis, `+Y` up, hung from below. */
+  /**
+   * The affordance ids: `bar`, the bar's middle on its axis, `+Y` up, hung from
+   * below.
+   */
   export type Affordance = "bar";
 
   /**
@@ -122,7 +124,10 @@ export namespace createPullUpBar {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which bar. */
     kind: Kind;

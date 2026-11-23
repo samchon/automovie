@@ -14,16 +14,25 @@ import {
 const SAFCO: string =
   "Safco 8915 lectern specification sheet: 23 x 15 3/4 x 46 in high, the reading surface 23 in wide and 15 3/4 in deep sloping at 15 degrees (https://argo.webstaurantstore.com/documents/specsheets/328saf8915mh_specs.pdf)";
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `slab`, the reading surface's thickness. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `slab`, the reading surface's thickness.
+ */
 const ESTIMATES: Readonly<{ slab: number }> = { slab: 0.02 };
 
 /**
- * A floor lectern: a cabinet under a reading surface that slopes down toward the speaker.
+ * A floor lectern: a cabinet under a reading surface that slopes down toward
+ * the speaker.
  *
- * The lectern stands on the floor at the origin, the speaker on its `+Z` side facing `-Z`. Its reading surface's back edge is the maker's height and its front edge lower by the surface's depth at the maker's slope. `top` is the reading surface, its `+Y` the tilted normal; `front` its lower front edge, a ledge the hands rest on and a book stops against.
+ * The lectern stands on the floor at the origin, the speaker on its `+Z` side
+ * facing `-Z`. Its reading surface's back edge is the maker's height and its
+ * front edge lower by the surface's depth at the maker's slope. `top` is the
+ * reading surface, its `+Y` the tilted normal; `front` its lower front edge, a
+ * ledge the hands rest on and a book stops against.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The lectern.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -98,9 +107,7 @@ export function createLectern(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createLectern}.
- */
+/** Companion types and bands of {@link createLectern}. */
 export namespace createLectern {
   /**
    * The affordance ids:

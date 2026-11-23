@@ -17,22 +17,27 @@ const KONE: string =
 const ESTIMATE: string =
   "Coarse film-set construction estimate; no source read gives it";
 
-/** Thickness drawn for landing plates and the pallet band, metres (provisional construction estimate). */
+/**
+ * Thickness drawn for landing plates and the pallet band, metres (provisional
+ * construction estimate).
+ */
 const PLATE: number = 0.05;
 
-/** Depth of each fixed landing plate drawn beyond a comb, metres (provisional construction estimate). */
+/**
+ * Depth of each fixed landing plate drawn beyond a comb, metres (provisional
+ * construction estimate).
+ */
 const LANDING: number = 1;
 
 /**
  * A horizontal moving walkway (autowalk): a level pallet band between two
  * combs, flush with the landings at `y = 0`.
  *
- * The entry comb lies across `x` at `z = 0` and the band runs toward `+Z`
- * to the exit comb at `z = length`. The model draws the fixed structure:
- * the landing plates, the band's coarse top surface and the two handrails.
- * The moving pallet band is a separate rigid model,
- * `createMovingWalkway.belt`, carried along `+Z` or `-Z` by the ride
- * (`rideMovingWalkway`).
+ * The entry comb lies across `x` at `z = 0` and the band runs toward `+Z` to
+ * the exit comb at `z = length`. The model draws the fixed structure: the
+ * landing plates, the band's coarse top surface and the two handrails. The
+ * moving pallet band is a separate rigid model, `createMovingWalkway.belt`,
+ * carried along `+Z` or `-Z` by the ride (`rideMovingWalkway`).
  *
  * @param params Fixed dimensions.
  * @param seed The seed for any unfixed dimension.
@@ -142,11 +147,12 @@ export function createMovingWalkway(
   return builder.build(mass);
 }
 
-/**
- * The walkway's dimensions and its moving pallet band.
- */
+/** The walkway's dimensions and its moving pallet band. */
 export namespace createMovingWalkway {
-  /** The two fixed landings, the moving band's resting surface and the two handrails. */
+  /**
+   * The two fixed landings, the moving band's resting surface and the two
+   * handrails.
+   */
   export type Affordance =
     | "entryLanding"
     | "exitLanding"
@@ -154,7 +160,10 @@ export namespace createMovingWalkway {
     | "leftHandrail"
     | "rightHandrail";
 
-  /** Length and pallet width and handrail height in metres, and mass in kilograms. */
+  /**
+   * Length and pallet width and handrail height in metres, and mass in
+   * kilograms.
+   */
   export type Dimension = "length" | "width" | "handrail" | "mass";
 
   /** The moving band's width and length in metres and mass in kilograms. */
@@ -166,7 +175,10 @@ export namespace createMovingWalkway {
     id?: string;
   }
 
-  /** Lateral distance from the pallet edge to each handrail centre, metres (provisional construction estimate). */
+  /**
+   * Lateral distance from the pallet edge to each handrail centre, metres
+   * (provisional construction estimate).
+   */
   export const RAIL_OFFSET: number = 0.1;
 
   /** Units recorded in the model's draw provenance. */
@@ -200,9 +212,9 @@ export namespace createMovingWalkway {
   };
 
   /**
-   * The moving pallet band as its own rigid model, the size of the
-   * walkway's band, whose `band` surface lies at the same local point as
-   * the walkway's, so at rest the two coincide.
+   * The moving pallet band as its own rigid model, the size of the walkway's
+   * band, whose `band` surface lies at the same local point as the walkway's,
+   * so at rest the two coincide.
    *
    * @param walkway The walkway whose band this is.
    * @returns The band model.

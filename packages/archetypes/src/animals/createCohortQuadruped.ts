@@ -20,11 +20,17 @@ interface PreparedReference {
   body: AutoMovieArchetypeQuadrupedBody.IBody;
   /** Non-emitting collar/lead plan, absent when none was requested. */
   lead: QuadrupedLeadPlan | undefined;
-  /** Non-emitting species/equipment preparation, absent when no extra parts exist. */
+  /**
+   * Non-emitting species/equipment preparation, absent when no extra parts
+   * exist.
+   */
   addition: createCohortQuadruped.Addition | undefined;
 }
 
-/** Coordinate of the table's declared spread; no unreported animal SD is inferred. */
+/**
+ * Coordinate of the table's declared spread; no unreported animal SD is
+ * inferred.
+ */
 const TEMPO: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
   "",
   -1,
@@ -35,9 +41,12 @@ const TEMPO: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
 /**
  * Select and build one whole non-equid reference without an equine mass law.
  *
- * @param props Closed whole-reference data, authored selection palette, body constructor and additions.
- * @returns The independent model with authored mass or its selected bare reference mass.
- * @throws {AutoMovieArchetypeRefusal} For invalid reference dimensions, mass, tempo or authored lead lengths.
+ * @param props Closed whole-reference data, authored selection palette, body
+ *   constructor and additions.
+ * @returns The independent model with authored mass or its selected bare
+ *   reference mass.
+ * @throws {AutoMovieArchetypeRefusal} For invalid reference dimensions, mass,
+ *   tempo or authored lead lengths.
  */
 export function createCohortQuadruped<Cohort extends string>(
   props: createCohortQuadruped.IProps<Cohort>,
@@ -191,7 +200,10 @@ export function createCohortQuadruped<Cohort extends string>(
     },
   });
 
-  /** Keep both source figures and complete authored mass inside their physical numeric domain. */
+  /**
+   * Keep both source figures and complete authored mass inside their physical
+   * numeric domain.
+   */
   function positive(
     axis: string,
     value: number | undefined,
@@ -211,14 +223,15 @@ export function createCohortQuadruped<Cohort extends string>(
   }
 }
 
-/**
- * Shared construction inputs of the non-equid cohort producers.
- */
+/** Shared construction inputs of the non-equid cohort producers. */
 export namespace createCohortQuadruped {
   /** Contacts the non-equid producers may build. */
   export type Affordance = AutoMovieArchetypeQuadrupedEquipment.Affordance;
 
-  /** Emission of already admitted, fixed-size additions into the selected builder. */
+  /**
+   * Emission of already admitted, fixed-size additions into the selected
+   * builder.
+   */
   export type Addition = (
     builder: AutoMovieArchetypeBuilder<
       Affordance,
@@ -226,11 +239,17 @@ export namespace createCohortQuadruped {
     >,
   ) => void;
 
-  /** Authored construction choices, independent of the reference cohort's traits. */
+  /**
+   * Authored construction choices, independent of the reference cohort's
+   * traits.
+   */
   export interface IParams {
     /** Optional instance identity. */
     id?: string;
-    /** Positive complete kilograms; omission is valid only with a measured bare-reference mass. */
+    /**
+     * Positive complete kilograms; omission is valid only with a measured
+     * bare-reference mass.
+     */
     mass?: number;
     /** Coordinate -1..1 of the table's declared timing spread. */
     tempo?: number;
@@ -238,7 +257,10 @@ export namespace createCohortQuadruped {
     lead?: AutoMovieArchetypeQuadrupedLead.IParams;
   }
 
-  /** Selected source dimensions; optional bare mass stays separate from equipment. */
+  /**
+   * Selected source dimensions; optional bare mass stays separate from
+   * equipment.
+   */
   export interface IReference {
     /** Reference withers height, metres. */
     withers: number;
@@ -248,7 +270,10 @@ export namespace createCohortQuadruped {
     mass?: number;
   }
 
-  /** The producer's closed whole-reference catalogue and selected-body consumers. */
+  /**
+   * The producer's closed whole-reference catalogue and selected-body
+   * consumers.
+   */
   export interface IProps<Cohort extends string> {
     /** Producer identity, retained by the draw record. */
     archetype: string;
@@ -256,7 +281,10 @@ export namespace createCohortQuadruped {
     name: (cohort: Cohort) => string;
     /** Every admissible explicit reference key. */
     names: readonly Cohort[];
-    /** Authored equal-choice palette used only when a seed is given without a fixed reference. */
+    /**
+     * Authored equal-choice palette used only when a seed is given without a
+     * fixed reference.
+     */
     choices: readonly Cohort[];
     /** Explicit seedless default, not inferred from palette ordering. */
     reference: Cohort;
@@ -264,11 +292,18 @@ export namespace createCohortQuadruped {
     cohort?: Cohort;
     /** Coherent source figures by key; unselected body geometry is not built. */
     references: Readonly<Record<Cohort, Readonly<IReference>>>;
-    /** Prepare each eligible fixed-size profile; only the selected one emits model parts. */
+    /**
+     * Prepare each eligible fixed-size profile; only the selected one emits
+     * model parts.
+     */
     body: (cohort: Cohort) => AutoMovieArchetypeQuadrupedBody.IBody;
     /** Admitted authoring choices. */
     params: IParams;
-    /** The seed that draws the cohort and the free dimensions left open in `params`; absent, the cohort is `reference` and each free dimension takes the middle of its band. */
+    /**
+     * The seed that draws the cohort and the free dimensions left open in
+     * `params`; absent, the cohort is `reference` and each free dimension takes
+     * the middle of its band.
+     */
     seed?: number | string;
     /** Admit physical additions without emitting unselected model geometry. */
     prepare?: (

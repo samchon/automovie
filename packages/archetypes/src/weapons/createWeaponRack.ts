@@ -10,14 +10,23 @@ import {
 } from "../core";
 
 /**
- * A floor weapon rack: a base with a row of slots and a top rail with a notch over each, where swords, clubs and bats stand upright.
+ * A floor weapon rack: a base with a row of slots and a top rail with a notch
+ * over each, where swords, clubs and bats stand upright.
  *
- * The base lies on the floor centred over the origin, its row of slots along `X` and its front toward `+Z`; two end posts carry the top rail at the drawn height. `slot1` to `slot6`, counted from `-X`, are each slot's floor on the base's top, facing up, where a weapon's lower end (a sword's point, a bat's barrel, a club's tip) rests; `rail1` to `rail6` the notch above it in the top rail's front, facing `+Z`, against which the weapon leans. A weapon set in a slot keeps its own `grip` for a hand to reach.
+ * The base lies on the floor centred over the origin, its row of slots along
+ * `X` and its front toward `+Z`; two end posts carry the top rail at the drawn
+ * height. `slot1` to `slot6`, counted from `-X`, are each slot's floor on the
+ * base's top, facing up, where a weapon's lower end (a sword's point, a bat's
+ * barrel, a club's tip) rests; `rail1` to `rail6` the notch above it in the top
+ * rail's front, facing `+Z`, against which the weapon leans. A weapon set in a
+ * slot keeps its own `grip` for a hand to reach.
  *
  * @param params The model and any dimension the author fixes.
- * @param seed The seed that picks the model left free and draws the mass inside its band; absent, the first model and the middle of the band.
+ * @param seed The seed that picks the model left free and draws the mass inside
+ *   its band; absent, the first model and the middle of the band.
  * @returns The rack.
- * @throws {AutoMovieArchetypeRefusal} For a model not read, a fixed mass outside its band, or a fixed dimension the model gives.
+ * @throws {AutoMovieArchetypeRefusal} For a model not read, a fixed mass
+ *   outside its band, or a fixed dimension the model gives.
  */
 export function createWeaponRack(
   params: createWeaponRack.IParams = {},
@@ -100,11 +109,12 @@ export function createWeaponRack(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types, constants and bands of {@link createWeaponRack}.
- */
+/** Companion types, constants and bands of {@link createWeaponRack}. */
 export namespace createWeaponRack {
-  /** The base's height, metres: Medieval Extreme's read 3 cm, applied to Gladney's, whose page gives none; an estimate. */
+  /**
+   * The base's height, metres: Medieval Extreme's read 3 cm, applied to
+   * Gladney's, whose page gives none; an estimate.
+   */
   export const BASE: number = 0.03;
 
   /** The slots along the base: the makers' six. */
@@ -116,7 +126,8 @@ export namespace createWeaponRack {
   /**
    * The affordance ids:
    *
-   * - `slot1` to `slot6`: each slot's floor on the base's top, facing up, from `-X`.
+   * - `slot1` to `slot6`: each slot's floor on the base's top, facing up, from
+   *   `-X`.
    * - `rail1` to `rail6`: the notch over each in the rail's front, facing `+Z`.
    */
   export type Affordance =
@@ -153,10 +164,19 @@ export namespace createWeaponRack {
     mass: "kg",
   };
 
-  /** The read stands: Medieval Extreme's and Gladney's six-slot floor sword stands. */
+  /**
+   * The read stands: Medieval Extreme's and Gladney's six-slot floor sword
+   * stands.
+   */
   export type Model = "medievalExtreme" | "gladney";
 
-  /** The stands whole, the default first: Medieval Extreme's 66 x 23 cm base and 84 cm high (https://medievalextreme.com/medieval-furniture/wooden-sword-display-stand-for-6-swords-6-slot-sword-holder/), Gladney's 69.5 x 22 x 66 cm (https://www.shein.tw/gladney-Adjustable-6-Slot-Floor-Sword-Stand-Bamboo-Rack-Matte-Black-Vertical-Display-For-Katanas-Tantos-Replicas-Up-To-55lbs-p-389724431.html). */
+  /**
+   * The stands whole, the default first: Medieval Extreme's 66 x 23 cm base and
+   * 84 cm high
+   * (https://medievalextreme.com/medieval-furniture/wooden-sword-display-stand-for-6-swords-6-slot-sword-holder/),
+   * Gladney's 69.5 x 22 x 66 cm
+   * (https://www.shein.tw/gladney-Adjustable-6-Slot-Floor-Sword-Stand-Bamboo-Rack-Matte-Black-Vertical-Display-For-Katanas-Tantos-Replicas-Up-To-55lbs-p-389724431.html).
+   */
   export const MODELS: Readonly<
     Record<Model, Readonly<Partial<Record<Dimension, number>>>>
   > = {

@@ -22,9 +22,7 @@ const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
   ),
 ];
 
-/**
- * Internal shared rigid-frame admission and carrier delta arithmetic.
- */
+/** Internal shared rigid-frame admission and carrier delta arithmetic. */
 export namespace QuadrupedRigDelta {
   /**
    * Compute one admitted carrier delta per bone.
@@ -32,7 +30,8 @@ export namespace QuadrupedRigDelta {
    * @param neutral Complete neutral world frames of the source rig.
    * @param current Complete current world frames of that same rig.
    * @returns Fresh rigid maps from original coordinates to current coordinates.
-   * @throws {RangeError} For incomplete/unknown vocabularies, invalid rigid frames or unrepresentable derived translations.
+   * @throws {RangeError} For incomplete/unknown vocabularies, invalid rigid
+   *   frames or unrepresentable derived translations.
    */
   export function between(
     neutral: ReadonlyMap<
@@ -96,7 +95,8 @@ export namespace QuadrupedRigDelta {
    * @param deltas The complete admitted carrier maps.
    * @param id Source part/contact identity retained in a refusal.
    * @returns A new current rigid frame without retaining or changing its input.
-   * @throws {RangeError} For missing carriers or invalid/unrepresentable frames.
+   * @throws {RangeError} For missing carriers or invalid/unrepresentable
+   *   frames.
    */
   export function move(
     frame: IAutoMovieTransform,

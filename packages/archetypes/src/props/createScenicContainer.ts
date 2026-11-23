@@ -21,16 +21,20 @@ type Producer = (
 >;
 
 /**
- * Replay a saved scenicContainer variant with the original dimensions, identifier and model choices.
+ * Replay a saved scenicContainer variant with the original dimensions,
+ * identifier and model choices.
  *
  * A saved cargo pod keeps its original single top surface. The named
  * {@link createCargoPod} builds the same geometry and adds the bottom `mount`
  * for stacking, so the saved selector keeps the surface-only construction.
  *
- * @param params The historic selector and optional fixed settings in the original units.
- * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @param params The historic selector and optional fixed settings in the
+ *   original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless
+ *   defaults.
  * @returns The original generated model and its local contacts.
- * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
+ *   outside its admitted range.
  */
 export function createScenicContainer(
   params: createScenicContainer.IParams,
@@ -54,7 +58,8 @@ export function createScenicContainer(
 }
 
 /**
- * Silhouettes, sizing and placement vocabulary for {@link createScenicContainer}.
+ * Silhouettes, sizing and placement vocabulary for
+ * {@link createScenicContainer}.
  */
 export namespace createScenicContainer {
   /** Each saved selector's named producer. */
@@ -75,7 +80,11 @@ export namespace createScenicContainer {
     cargoPod: typeof createCargoPod;
   }
 
-  /** The named producer for each saved selector, resolved on demand. A saved cargo pod keeps its surface-only contacts, so its entry names the producer the gallery opens. */
+  /**
+   * The named producer for each saved selector, resolved on demand. A saved
+   * cargo pod keeps its surface-only contacts, so its entry names the producer
+   * the gallery opens.
+   */
   export const PRODUCERS: Readonly<IProducers> = {
     get coilBasket(): typeof createScenicBasket {
       return createScenicBasket;
@@ -94,9 +103,7 @@ export namespace createScenicContainer {
     },
   };
 
-  /**
-   * The four historical scene forms and one fictional design.
-   */
+  /** The four historical scene forms and one fictional design. */
   export type Kind =
     | "coilBasket"
     | "woodenFishBasket"
@@ -104,9 +111,7 @@ export namespace createScenicContainer {
     | "moldedCrate"
     | "cargoPod";
 
-  /**
-   * The kinds in order from ancient through fictional future.
-   */
+  /** The kinds in order from ancient through fictional future. */
   export const KINDS: readonly Kind[] = [
     "coilBasket",
     "woodenFishBasket",
@@ -115,19 +120,16 @@ export namespace createScenicContainer {
     "cargoPod",
   ];
 
-  /**
-   * The closed lid or the floor of an open container, respectively.
-   */
+  /** The closed lid or the floor of an open container, respectively. */
   export type Affordance = "top" | "inside";
 
   /**
-   * Overall width along X, depth along Z, height along Y in metres, and estimated prop mass in kilograms.
+   * Overall width along X, depth along Z, height along Y in metres, and
+   * estimated prop mass in kilograms.
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
 
-  /**
-   * Units used by the dimension draw.
-   */
+  /** Units used by the dimension draw. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -137,9 +139,7 @@ export namespace createScenicContainer {
     mass: "kg",
   };
 
-  /**
-   * A selected silhouette and optional fixed members of its dimension bands.
-   */
+  /** A selected silhouette and optional fixed members of its dimension bands. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** The selected silhouette. */
     kind: Kind;
@@ -148,9 +148,7 @@ export namespace createScenicContainer {
     id?: string;
   }
 
-  /**
-   * Illustrative sizing bands and their sources by kind.
-   */
+  /** Illustrative sizing bands and their sources by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = SCENIC_CONTAINER_BANDS;

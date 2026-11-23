@@ -4,10 +4,12 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * Put an exact sagittal limb solve in the plane of its supported ankle.
  *
  * @param root Fixed attachment in model metres.
- * @param ankle The exact model-space ankle target, with lateral displacement from root.
+ * @param ankle The exact model-space ankle target, with lateral displacement
+ *   from root.
  * @param solve Existing sagittal solver, which owns the chain lengths and fold.
  * @returns Model-space controls from the root through the ankle.
- * @throws {RangeError} When the displacement does not determine a finite support plane or the planar solver refuses.
+ * @throws {RangeError} When the displacement does not determine a finite
+ *   support plane or the planar solver refuses.
  */
 export function solveQuadrupedSupportPlane(
   root: IAutoMovieVector3,

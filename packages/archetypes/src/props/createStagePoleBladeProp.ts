@@ -10,7 +10,10 @@ import {
 import { StageShaftConstruction } from "./StageShaftConstruction";
 import type { createStageWeaponProp } from "./createStageWeaponProp";
 
-/** A section of the padded outline in the XY plane, normalized by display height. */
+/**
+ * A section of the padded outline in the XY plane, normalized by display
+ * height.
+ */
 type Section = readonly [y: number, left: number, right: number];
 
 /** Adjacent sections and the index of the lower section of the marked edge. */
@@ -76,12 +79,16 @@ const SIDE_BLADE: readonly Section[] = [
 /**
  * Padded pole-blade silhouette.
  *
- * Independent stage profiles share a shaft, two actor grip marks and visible outline marks: the `tip`, the main `edge`, the `rear` back of that edge cell, and the side blade's `side-edge`. The form stands along +Y from its origin.
+ * Independent stage profiles share a shaft, two actor grip marks and visible
+ * outline marks: the `tip`, the main `edge`, the `rear` back of that edge cell,
+ * and the side blade's `side-edge`. The form stands along +Y from its origin.
  *
- * @param params The scene identity and optional total display height in metres, with a choice of profile.
+ * @param params The scene identity and optional total display height in metres,
+ *   with a choice of profile.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createStagePoleBladeProp(
   params: createStagePoleBladeProp.IParams,
@@ -168,15 +175,18 @@ export function createStagePoleBladeProp(
   );
 }
 
-/**
- * Authoring options for {@link createStagePoleBladeProp}.
- */
+/** Authoring options for {@link createStagePoleBladeProp}. */
 export namespace createStagePoleBladeProp {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "height";
 
   /**
-   * The createStageWeaponProp contact set its shared construction types. This producer builds edge, grip, grip-lower, grip-upper, rear, shaft, side-edge, tip.
+   * The createStageWeaponProp contact set its shared construction types. This
+   * producer builds edge, grip, grip-lower, grip-upper, rear, shaft, side-edge,
+   * tip.
    */
   export type Affordance = createStageWeaponProp.Affordance;
 
@@ -227,8 +237,8 @@ function addOutline(
 
 /**
  * Record the midpoint and outward normal of the left boundary of the marked
- * edge cell: the blade's back, facing away from its edge, so a scene can
- * tell the cutting side from the spine.
+ * edge cell: the blade's back, facing away from its edge, so a scene can tell
+ * the cutting side from the spine.
  */
 function addRear(
   builder: AutoMovieArchetypeBuilder<
@@ -257,7 +267,10 @@ function addRear(
   });
 }
 
-/** Record the midpoint and outward normal of the right edge of a silhouette cell. */
+/**
+ * Record the midpoint and outward normal of the right edge of a silhouette
+ * cell.
+ */
 function addEdge(
   builder: AutoMovieArchetypeBuilder<
     createStageWeaponProp.Affordance,

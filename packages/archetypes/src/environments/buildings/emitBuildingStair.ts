@@ -11,9 +11,7 @@ import type {
 import type { buildingPlans } from "./buildingPlans";
 import { createPassage } from "./createPassage";
 
-/**
- * Add a planned interior stair to the building that owns its two cut slabs.
- */
+/** Add a planned interior stair to the building that owns its two cut slabs. */
 export function emitBuildingStair(
   environment: IAutoMovieBuiltEnvironment,
   root: string,
@@ -54,7 +52,10 @@ export function emitBuildingStair(
       space: stair.rooms[0],
     });
   }
-  /** Place a building-local tread or connector coordinate in the scene's fixed frame. */
+  /**
+   * Place a building-local tread or connector coordinate in the scene's fixed
+   * frame.
+   */
   const toWorld = (point: IAutoMovieVector3): IAutoMovieVector3 =>
     Vector3.add(
       buildingFrame.translation,

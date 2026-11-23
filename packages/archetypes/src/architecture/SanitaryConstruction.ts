@@ -26,13 +26,21 @@ const CHROME: string = "#c9ccd1";
 const v: typeof Vector3.create = Vector3.create;
 
 /**
- * The parts and contacts the named plumbing fixture producers build from their drawn dimensions, with the estimated construction sizes.
+ * The parts and contacts the named plumbing fixture producers build from their
+ * drawn dimensions, with the estimated construction sizes.
  *
- * Every function places its fixture with its back against the wall at the origin's `Z`, centred on `X`, on the floor. Every contact's place and every articulation's range comes from a cited band or is derived from one; the estimates below size only parts no act reads.
+ * Every function places its fixture with its back against the wall at the
+ * origin's `Z`, centred on `X`, on the floor. Every contact's place and every
+ * articulation's range comes from a cited band or is derived from one; the
+ * estimates below size only parts no act reads.
  */
 export namespace SanitaryConstruction {
   /**
-   * The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `ring` and `lid`, a toilet seat ring's and lid's thickness under and over the seat's cited height; `wall`, a shower stall's wall thickness outside its cited inside; `seatThickness`, its folding seat's under the seat's cited height.
+   * The construction sizes no source read gives, metres, each an estimate no
+   * act reads and no band declares: `ring` and `lid`, a toilet seat ring's and
+   * lid's thickness under and over the seat's cited height; `wall`, a shower
+   * stall's wall thickness outside its cited inside; `seatThickness`, its
+   * folding seat's under the seat's cited height.
    */
   export const ESTIMATES: Readonly<{
     ring: number;
@@ -46,19 +54,33 @@ export namespace SanitaryConstruction {
     seatThickness: 0.03,
   };
 
-  /** A toilet lid's travel, degrees: the quarter turn about its level hinge that lays the lid, upright at rest, flat on the level ring. */
+  /**
+   * A toilet lid's travel, degrees: the quarter turn about its level hinge that
+   * lays the lid, upright at rest, flat on the level ring.
+   */
   export const LIFT: number = 90;
 
-  /** A basin mixer lever's turn to either side of the middle and its lift from closed to full flow, degrees: GROHE Eurosmart basin mixer technical guide, 50 degrees each side in plan and 39 degrees in elevation (https://digitalassets.reecegroup.com.au/m/17e34382c958ae5c/original/Technical-Guide-GROHE-Eurosmart-New-Basin-Mixer-Chrome-Plated-5-Star.pdf). */
+  /**
+   * A basin mixer lever's turn to either side of the middle and its lift from
+   * closed to full flow, degrees: GROHE Eurosmart basin mixer technical guide,
+   * 50 degrees each side in plan and 39 degrees in elevation
+   * (https://digitalassets.reecegroup.com.au/m/17e34382c958ae5c/original/Technical-Guide-GROHE-Eurosmart-New-Basin-Mixer-Chrome-Plated-5-Star.pdf).
+   */
   export const MIXER: Readonly<{ turn: number; lift: number }> = {
     turn: 50,
     lift: 39,
   };
 
   /**
-   * A pedestal washbasin: the basin block at its rim height, a pedestal under its middle, and a single-lever mixer on the deck behind the opening, built as `createTap` builds one.
+   * A pedestal washbasin: the basin block at its rim height, a pedestal under
+   * its middle, and a single-lever mixer on the deck behind the opening, built
+   * as `createTap` builds one.
    *
-   * The mixer's lever turns about its body as a `knob`, `tap`, by the maker's 50 degrees toward `+X` and, as its `reverse`, as far the other way, and lifts about a level axis across it as a `hinge`, `lift`, by the maker's 39 degrees, the lever's part bound to the lift, which rides the turn, so a turned lever turns with it and a lifted one lifts in its turned plane.
+   * The mixer's lever turns about its body as a `knob`, `tap`, by the maker's
+   * 50 degrees toward `+X` and, as its `reverse`, as far the other way, and
+   * lifts about a level axis across it as a `hinge`, `lift`, by the maker's 39
+   * degrees, the lever's part bound to the lift, which rides the turn, so a
+   * turned lever turns with it and a lifted one lifts in its turned plane.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
@@ -158,9 +180,13 @@ export namespace SanitaryConstruction {
   }
 
   /**
-   * A close-coupled toilet: the bowl as one block up to the seat ring, the ring, the lid standing open on its hinge at the seat holes, and the tank 19 mm off the wall as the maker's sheet sets it.
+   * A close-coupled toilet: the bowl as one block up to the seat ring, the
+   * ring, the lid standing open on its hinge at the seat holes, and the tank 19
+   * mm off the wall as the maker's sheet sets it.
    *
-   * The lid's hinge turns about `+X`, so its quarter-turn travel lays the standing lid forward onto the ring. The trip lever is not drawn: the sheet does not place it.
+   * The lid's hinge turns about `+X`, so its quarter-turn travel lays the
+   * standing lid forward onto the ring. The trip lever is not drawn: the sheet
+   * does not place it.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
@@ -223,9 +249,12 @@ export namespace SanitaryConstruction {
   }
 
   /**
-   * A recessed bath: a floor slab at the well's floor and four walls up to the rim around the well, the well centred in the plan; its length runs along `X`.
+   * A recessed bath: a floor slab at the well's floor and four walls up to the
+   * rim around the well, the well centred in the plan; its length runs along
+   * `X`.
    *
-   * The well's floor stands the sheet's water depth below the rim: the depth to the overflow, so the true floor lies a little lower.
+   * The well's floor stands the sheet's water depth below the rim: the depth to
+   * the overflow, so the true floor lies a little lower.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
@@ -335,9 +364,13 @@ export namespace SanitaryConstruction {
   }
 
   /**
-   * A one-piece transfer shower: a tray the threshold's height under the inside and the walls, a back wall and two side walls, the folding seat on the `+X` wall from the back wall to the 75 mm (3 in) short of the entry ADA 610.3 allows, and the valve on the `-X` wall across from the seat's middle.
+   * A one-piece transfer shower: a tray the threshold's height under the inside
+   * and the walls, a back wall and two side walls, the folding seat on the `+X`
+   * wall from the back wall to the 75 mm (3 in) short of the entry ADA 610.3
+   * allows, and the valve on the `-X` wall across from the seat's middle.
    *
-   * The valve is a place to touch, a `knob` without travel, because no source read gives its turn.
+   * The valve is a place to touch, a `knob` without travel, because no source
+   * read gives its turn.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.

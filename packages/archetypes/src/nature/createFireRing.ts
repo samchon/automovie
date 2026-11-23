@@ -18,10 +18,17 @@ const RING: string =
 /**
  * A campground fire ring: a steel band standing on the ground round a fire.
  *
- * It stands on the ground at the origin, `+Y` up, a ring of the read steel plate's thickness, height and diameter, drawn as `SEGMENTS` flat plates round the circle, a construction detail no act reads. `rim` is the ring's top edge on its `+Z` side, facing up, where a foot rests or a pot is set; `fire` is the ground at its centre, `+Y` up the flame, where a production places the fire. It is steel, and stands on soil, which no measured pair covers, so its body carries no friction.
+ * It stands on the ground at the origin, `+Y` up, a ring of the read steel
+ * plate's thickness, height and diameter, drawn as `SEGMENTS` flat plates round
+ * the circle, a construction detail no act reads. `rim` is the ring's top edge
+ * on its `+Z` side, facing up, where a foot rests or a pot is set; `fire` is
+ * the ground at its centre, `+Y` up the flame, where a production places the
+ * fire. It is steel, and stands on soil, which no measured pair covers, so its
+ * body carries no friction.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The fire ring.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -96,9 +103,7 @@ export function createFireRing(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createFireRing}.
- */
+/** Companion types, constants and bands of {@link createFireRing}. */
 export namespace createFireRing {
   /** The kinds: a 30 in campground fire ring. */
   export type Kind = "campground";
@@ -137,7 +142,10 @@ export namespace createFireRing {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which ring. */
     kind: Kind;

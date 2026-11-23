@@ -6,11 +6,16 @@ import type { createInstrument } from "./createInstrument";
 /**
  * A violin with four bowed-string contacts and a neck grasp.
  *
- * The violin lies on its back with the neck along +X and string1 on its -Z edge. The bow is made separately with createViolinBow.
- * @param params The optional identifier and dimensions fixed within their recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
+ * The violin lies on its back with the neck along +X and string1 on its -Z
+ * edge. The bow is made separately with createViolinBow.
+ *
+ * @param params The optional identifier and dimensions fixed within their
+ *   recorded bands.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createViolin(
   params: createViolin.IParams = {},
@@ -25,11 +30,12 @@ export function createViolin(
   );
 }
 
-/**
- * The authored parameters and contact names for {@link createViolin}.
- */
+/** The authored parameters and contact names for {@link createViolin}. */
 export namespace createViolin {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "bodyLength"
     | "bridgeHeight"

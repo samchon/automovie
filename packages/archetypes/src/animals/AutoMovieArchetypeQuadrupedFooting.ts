@@ -30,13 +30,9 @@ const SIDES: readonly IAutoMovieQuaternion[] = [
 
 type Interval = readonly [number, number];
 
-/**
- * Authored world footing evaluated against emitted rigid parts.
- */
+/** Authored world footing evaluated against emitted rigid parts. */
 export namespace AutoMovieArchetypeQuadrupedFooting {
-  /**
-   * One bounded world plane, with slopes specified separately along +X and +Z.
-   */
+  /** One bounded world plane, with slopes specified separately along +X and +Z. */
   export interface IPlane {
     /** Name carried in terrain errors. */
     id: string;
@@ -53,7 +49,8 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
   }
 
   /**
-   * A yielding surface: sand, mud, bog or snow, and how deep a loaded hoof sinks into it.
+   * A yielding surface: sand, mud, bog or snow, and how deep a loaded hoof
+   * sinks into it.
    */
   export interface IYield {
     /** The footing's material. */
@@ -64,14 +61,10 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
     source: string;
   }
 
-  /**
-   * A yielding footing's material.
-   */
+  /** A yielding footing's material. */
   export type Material = "sand" | "mud" | "bog" | "snow";
 
-  /**
-   * One physical pole as a capsule spanning world endpoints.
-   */
+  /** One physical pole as a capsule spanning world endpoints. */
   export interface IPole {
     /** Name carried in terrain errors. */
     id: string;
@@ -83,21 +76,23 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
     radius: number;
   }
 
-  /**
-   * Explicit world geometry supplied by the filmed scene.
-   */
+  /** Explicit world geometry supplied by the filmed scene. */
   export interface IScene {
-    /** Independently placed landing surfaces. The highest surface wins where they overlap. */
+    /**
+     * Independently placed landing surfaces. The highest surface wins where
+     * they overlap.
+     */
     planes: readonly IPlane[];
     /** Optional active pole obstacles rendered by the authored scene. */
     poles?: readonly IPole[];
-    /** Authored extra swing height in metres, in addition to the selected gait lift. */
+    /**
+     * Authored extra swing height in metres, in addition to the selected gait
+     * lift.
+     */
     swingLift?: number;
   }
 
-  /**
-   * One point and upward unit normal in the owner's common frame.
-   */
+  /** One point and upward unit normal in the owner's common frame. */
   export interface ISurface {
     /** Contact-plane point in metres. */
     point: IAutoMovieVector3;
@@ -106,32 +101,42 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
   }
 
   /**
-   * A projected model reference and terminal carrier established at one world landing.
+   * A projected model reference and terminal carrier established at one world
+   * landing.
    */
   export interface ILanding extends ISurface {
-    /** The hoof's neutral orientation along the landing surface, with its route heading. */
+    /**
+     * The hoof's neutral orientation along the landing surface, with its route
+     * heading.
+     */
     rotation: IAutoMovieQuaternion;
-    /** How far the loaded sole sinks below the surface, metres; zero on firm footing. The landing point is already that far down. */
+    /**
+     * How far the loaded sole sinks below the surface, metres; zero on firm
+     * footing. The landing point is already that far down.
+     */
     depth: number;
   }
 
-  /**
-   * An admitted terrain guide used throughout one route.
-   */
+  /** An admitted terrain guide used throughout one route. */
   export interface IPlan {
-    /** Authored extra swing height in metres, plus the deepest yielding surface's sinkage, so a swinging hoof clears the displaced footing. */
-    swingLift: number;
-    /** The admitted poles, world metres, which a swing lifts over where its hoof crosses them (`QuadrupedPoleSwing`). */
-    poles: readonly IPole[];
     /**
-     * Read the authored surface at the horizontal footprint.
+     * Authored extra swing height in metres, plus the deepest yielding
+     * surface's sinkage, so a swinging hoof clears the displaced footing.
      */
+    swingLift: number;
+    /**
+     * The admitted poles, world metres, which a swing lifts over where its hoof
+     * crosses them (`QuadrupedPoleSwing`).
+     */
+    poles: readonly IPole[];
+    /** Read the authored surface at the horizontal footprint. */
     landing: (
       point: IAutoMovieVector3,
       rotation: IAutoMovieQuaternion,
     ) => ILanding;
     /**
-     * Reject a currently emitted body whose solid geometry enters the named terrain.
+     * Reject a currently emitted body whose solid geometry enters the named
+     * terrain.
      */
     verify: (
       animal: Pick<AutoMovieArchetype, "parts">,
@@ -140,7 +145,8 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
   }
 
   /**
-   * Snapshot the route's requested terrain and make its two independent queries.
+   * Snapshot the route's requested terrain and make its two independent
+   * queries.
    */
   export function prepare(
     archetype: string,
@@ -243,7 +249,10 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       names.add(id);
     }
 
-    /** Choose the topmost real patch below the footprint and orient the carried axes. */
+    /**
+     * Choose the topmost real patch below the footprint and orient the carried
+     * axes.
+     */
     function landing(
       point: IAutoMovieVector3,
       rotation: IAutoMovieQuaternion,
@@ -284,7 +293,10 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       return result;
     }
 
-    /** Check oriented shapes against each overlapping finite patch and physical pole. */
+    /**
+     * Check oriented shapes against each overlapping finite patch and physical
+     * pole.
+     */
     function verify(
       animal: Pick<AutoMovieArchetype, "parts">,
       placement: IAutoMovieTransform,

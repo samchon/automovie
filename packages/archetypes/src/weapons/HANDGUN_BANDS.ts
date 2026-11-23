@@ -12,11 +12,13 @@ const GRAZ_PISTOL: string =
   "Krenn, Kalaus and Hall, Material History Review 42 (1995), p. 104, Table 1, flintlock pistol STP 1128 (Ferlach, about 1700): barrel 332 mm, 1.16 kg, ball 13.5 mm and 14.45 g, charge 5.00 g, 385 m/s at the muzzle, electrically ignited (https://journals.lib.unb.ca/index.php/MCR/article/download/17669/18944): borrowed from it";
 
 /**
- * A band of a self-loading pistol's lent to a revolver or a flintlock pistol, whose own was not found, with what was searched.
+ * A band of a self-loading pistol's lent to a revolver or a flintlock pistol,
+ * whose own was not found, with what was searched.
  *
  * @param band The pistols' band.
  * @param what What is borrowed.
- * @returns The same range, provisional, labelled with its lender and the search.
+ * @returns The same range, provisional, labelled with its lender and the
+ *   search.
  */
 function borrowed(
   band: IAutoMovieArchetypeBand,
@@ -31,7 +33,10 @@ function borrowed(
   );
 }
 
-/** The double-action revolver Gun Tests measured, whose figures a revolver lacking them borrows with the Single Action Army's. */
+/**
+ * The double-action revolver Gun Tests measured, whose figures a revolver
+ * lacking them borrows with the Single Action Army's.
+ */
 const GP100: string =
   "Gun Tests, Ruger GP100 No. 1707 .357 Magnum: 5.5 in high, 1.55 in minimum width, trigger span 3.5 in single action (https://www.gun-tests.com/handguns/revolvers/ruger-gp100-no-1707-357-magnum/)";
 
@@ -42,7 +47,10 @@ const TRIGGER: string =
 /** Dimensions no maker publishes. */
 const UNPUBLISHED: string = "not published by either maker; an estimate";
 
-/** The bands of the dimensions a model leaves, the same for both frames: each drawn only for a model that does not give it. */
+/**
+ * The bands of the dimensions a model leaves, the same for both frames: each
+ * drawn only for a model that does not give it.
+ */
 const SHARED: Readonly<
   Record<
     | "width"
@@ -88,7 +96,11 @@ const SHARED: Readonly<
   lockTime: AutoMovieArchetypeFirearm.BORROWED,
 };
 
-/** The band of each free dimension of `createHandgun` a model leaves, by frame, with the sources they are read at: kept apart from the producer, with its models, so each file stays within its size. */
+/**
+ * The band of each free dimension of `createHandgun` a model leaves, by frame,
+ * with the sources they are read at: kept apart from the producer, with its
+ * models, so each file stays within its size.
+ */
 export const HANDGUN_BANDS: Readonly<
   Record<
     createHandgun.Frame,

@@ -11,8 +11,10 @@ import type { AutoMovieArchetypeQuadrupedRootRange } from "./AutoMovieArchetypeQ
  *
  * @param range The four-limb/body-floor intersection, metres.
  * @param preferred The gait's soft vertical displacement, metres.
- * @param coordinateScale Maximum coordinate/length magnitude used to form the intersection, metres.
- * @returns A finite shared root translation inside the original physical interval.
+ * @param coordinateScale Maximum coordinate/length magnitude used to form the
+ *   intersection, metres.
+ * @returns A finite shared root translation inside the original physical
+ *   interval.
  * @throws {RangeError} For malformed or unrepresentable planning input.
  */
 export function chooseQuadrupedBodyRoot(

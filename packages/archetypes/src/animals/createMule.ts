@@ -10,17 +10,29 @@ import { HORSE_BANDS } from "./HORSE_BANDS";
 import { createHorse } from "./createHorse";
 
 /**
- * A mule with its tack: the horse's build (`AutoMovieArchetypeEquine.equid`) at a mule's size, under a riding saddle, in a driving harness or under a pack saddle, with the horse's contacts.
+ * A mule with its tack: the horse's build (`AutoMovieArchetypeEquine.equid`) at
+ * a mule's size, under a riding saddle, in a driving harness or under a pack
+ * saddle, with the horse's contacts.
  *
- * The mule is given or drawn whole by sex (`AutoMovieArchetypeDrawSession.model`, its figures `MEASURES`): the mean female or male of 94 weighed working mules (Velásquez Mosquera et al. 2020), its height at the withers, heart girth and weighed mass all that sex's, so a mule is one sex's body, never a blend. Its bones are the horse's fractions of the height, provisional: no study measures a mule's segments. It rides the horse's measured gaits scaled to its height (`createQuadruped.SPECIES`).
- * The added ear plates transfer a separate same-sex Araucan donor's paired
- * ear-length/breadth/height means, as AutoMovieArchetypeEquineEarProfiles documents. Their thickness
- * and diagonal neutral pose are authored rectangular proxies, not anatomy.
+ * The mule is given or drawn whole by sex
+ * (`AutoMovieArchetypeDrawSession.model`, its figures `MEASURES`): the mean
+ * female or male of 94 weighed working mules (Velásquez Mosquera et al. 2020),
+ * its height at the withers, heart girth and weighed mass all that sex's, so a
+ * mule is one sex's body, never a blend. Its bones are the horse's fractions of
+ * the height, provisional: no study measures a mule's segments. It rides the
+ * horse's measured gaits scaled to its height (`createQuadruped.SPECIES`). The
+ * added ear plates transfer a separate same-sex Araucan donor's paired
+ * ear-length/breadth/height means, as AutoMovieArchetypeEquineEarProfiles
+ * documents. Their thickness and diagonal neutral pose are authored rectangular
+ * proxies, not anatomy.
  *
  * @param params The sex, the tack and any dimension the author fixes.
- * @param seed The seed that draws the sex and every dimension left free inside its band; absent, the female, and each dimension the middle of its band.
+ * @param seed The seed that draws the sex and every dimension left free inside
+ *   its band; absent, the female, and each dimension the middle of its band.
  * @returns The mule.
- * @throws {AutoMovieArchetypeRefusal} For a sex not in `MEASURES`, a fixed dimension outside its band (the height is the sex's own, so fixing it is refused), or a tack that is not one of `AutoMovieArchetypeEquine.TACKS`.
+ * @throws {AutoMovieArchetypeRefusal} For a sex not in `MEASURES`, a fixed
+ *   dimension outside its band (the height is the sex's own, so fixing it is
+ *   refused), or a tack that is not one of `AutoMovieArchetypeEquine.TACKS`.
  */
 export function createMule(
   params: createMule.IParams = {},
@@ -47,9 +59,7 @@ export function createMule(
   );
 }
 
-/**
- * Companion types, measures and profile of {@link createMule}.
- */
+/** Companion types, measures and profile of {@link createMule}. */
 export namespace createMule {
   /** The producer's name. */
   export const ARCHETYPE: string = "mule";
@@ -57,7 +67,14 @@ export namespace createMule {
   /** The sexes. */
   export type Sex = "female" | "male";
 
-  /** Each sex's read figures, the default first: Velásquez Mosquera, Corrales Alvarez and Bespalhok Jacometo 2020, Acta Sci Anim Sci 42:e46379, p. 3, Table 1, means of 55 females and 39 males, each weighed: height at the withers 130.40 and 135.28 cm, thoracic perimeter 147.85 and 152.58 cm, body weight 275.36 and 298.88 kg (https://www.redalyc.org/journal/3031/303162575011/303162575011.pdf). */
+  /**
+   * Each sex's read figures, the default first: Velásquez Mosquera, Corrales
+   * Alvarez and Bespalhok Jacometo 2020, Acta Sci Anim Sci 42:e46379, p. 3,
+   * Table 1, means of 55 females and 39 males, each weighed: height at the
+   * withers 130.40 and 135.28 cm, thoracic perimeter 147.85 and 152.58 cm, body
+   * weight 275.36 and 298.88 kg
+   * (https://www.redalyc.org/journal/3031/303162575011/303162575011.pdf).
+   */
   export const MEASURES: Readonly<
     Record<
       Sex,
@@ -76,13 +93,20 @@ export namespace createMule {
     },
   };
 
-  /** The parameters: the sex, the tack, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the sex, the tack, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends AutoMovieArchetypeEquine.IParams {
     /** The sex; drawn from the seed when absent. */
     sex?: Sex;
   }
 
-  /** The band of each dimension a mule draws: the horse's tack and tempo, which the rider's hand and foot and the gait's spread set, not the mule's size; its height is its sex's (`MEASURES`). */
+  /**
+   * The band of each dimension a mule draws: the horse's tack and tempo, which
+   * the rider's hand and foot and the gait's spread set, not the mule's size;
+   * its height is its sex's (`MEASURES`).
+   */
   export const BANDS: Readonly<
     Partial<Record<AutoMovieArchetypeEquine.Free, IAutoMovieArchetypeBand>>
   > = {
@@ -93,7 +117,8 @@ export namespace createMule {
   };
 
   /**
-   * A mule sex's profile: unchanged read body/mass and explicitly transferred ear plates.
+   * A mule sex's profile: unchanged read body/mass and explicitly transferred
+   * ear plates.
    *
    * @param figures The sex's read figures (`MEASURES`).
    * @param sex Ear donor sex, female for the legacy one-argument profile call.

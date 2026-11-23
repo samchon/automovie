@@ -8,10 +8,16 @@ type IDyadic = ReturnType<ReturnType<typeof ArchetypeBinary64>>;
 /** One call-local reader reused across all terms of an exceptional calculation. */
 type Reader = ReturnType<typeof ArchetypeBinary64>;
 
-/** IEEE-754 binary64's least positive normal value; smaller intermediate products lose significand bits. */
+/**
+ * IEEE-754 binary64's least positive normal value; smaller intermediate
+ * products lose significand bits.
+ */
 const NORMAL: number = 2 ** -1022;
 
-/** The largest finite normal binade begins here; exact fallback protects its overflow-rounding boundary. */
+/**
+ * The largest finite normal binade begins here; exact fallback protects its
+ * overflow-rounding boundary.
+ */
 const HIGH: number = 2 ** 1023;
 
 /**
@@ -21,13 +27,15 @@ const HIGH: number = 2 ** 1023;
  */
 export namespace ArchetypeMassArithmetic {
   /**
-   * Compute a*b/(c*d) without losing a representable result to intermediate scale.
+   * Compute a_b/(c_d) without losing a representable result to intermediate
+   * scale.
    *
    * @param a Finite nonnegative first numerator factor.
    * @param b Finite nonnegative second numerator factor.
    * @param c Finite positive first denominator factor.
    * @param d Finite positive second denominator factor.
-   * @returns The ratio, with binary64 underflow/overflow only at the final result.
+   * @returns The ratio, with binary64 underflow/overflow only at the final
+   *   result.
    * @throws {Error} For invalid scalar premises.
    */
   export function ratio(a: number, b: number, c: number, d: number): number {
@@ -69,7 +77,9 @@ export namespace ArchetypeMassArithmetic {
    *
    * @param a Finite positive first local factor.
    * @param b Finite positive second local factor.
-   * @returns The ordinary normal product or an exact positive subnormal product; null for zero, overflow or inexact subnormal local representation.
+   * @returns The ordinary normal product or an exact positive subnormal
+   *   product; null for zero, overflow or inexact subnormal local
+   *   representation.
    * @throws {Error} For nonpositive or non-finite factors.
    */
   export function localProduct(a: number, b: number): number | null {
@@ -94,8 +104,11 @@ export namespace ArchetypeMassArithmetic {
    * @param weight Finite nonnegative relative weight of this solid.
    * @param scale Finite positive weight scale.
    * @param total Finite positive dimensionless normalized weight total.
-   * @returns A call-local reader of up to three finite signed geometric factors; absent factors are one. Each result is mass*weight*a*b*c/(scale*total).
-   * @throws {Error} For invalid allocation premises or a non-finite geometric factor.
+   * @returns A call-local reader of up to three finite signed geometric
+   *   factors; absent factors are one. Each result is
+   *   mass_weight_a_b_c/(scale*total).
+   * @throws {Error} For invalid allocation premises or a non-finite geometric
+   *   factor.
    */
   export function weightedProduct(
     mass: number,
@@ -126,7 +139,8 @@ export namespace ArchetypeMassArithmetic {
   }
 
   /**
-   * Multiply up to four signed finite factors, rounding an exceptional product once.
+   * Multiply up to four signed finite factors, rounding an exceptional product
+   * once.
    *
    * @param a First factor.
    * @param b Second factor.
@@ -167,7 +181,8 @@ export namespace ArchetypeMassArithmetic {
   }
 
   /**
-   * Sum finite signed contributions, using exact arithmetic at the overflow boundary.
+   * Sum finite signed contributions, using exact arithmetic at the overflow
+   * boundary.
    *
    * @param values Contributions in their physical accumulation order.
    * @returns Their sum; true final overflow is infinite.
@@ -192,10 +207,13 @@ export namespace ArchetypeMassArithmetic {
    * The convex weighted mean of finite coordinates and nonnegative weights.
    *
    * @param coordinates One finite coordinate per weight, in a common unit.
-   * @param weights Nonnegative finite weights with at least one positive member.
-   * @param exact Request the exact input-value mean rounded once, for relationships between independently computed means.
+   * @param weights Nonnegative finite weights with at least one positive
+   *   member.
+   * @param exact Request the exact input-value mean rounded once, for
+   *   relationships between independently computed means.
    * @returns The mean in the coordinates' unit, always finite.
-   * @throws {Error} For missing/mismatched inputs or invalid weights/coordinates.
+   * @throws {Error} For missing/mismatched inputs or invalid
+   *   weights/coordinates.
    */
   export function mean(
     coordinates: readonly number[],
@@ -280,7 +298,8 @@ export namespace ArchetypeMassArithmetic {
    * @param points Model-local centres, each finite in all components.
    * @param weights Matching finite nonnegative weights with a positive member.
    * @returns The common centre in the points' units and space.
-   * @throws {Error} Under mean's matching-length, finite-input and positive-weight conditions.
+   * @throws {Error} Under mean's matching-length, finite-input and
+   *   positive-weight conditions.
    */
   export function vectorMean(
     points: readonly IAutoMovieVector3[],
@@ -329,7 +348,10 @@ function add(terms: readonly IDyadic[]): IDyadic {
   return { integer, exponent };
 }
 
-/** Round an exact rational to nearest binary64, ties to even, including subnormals. */
+/**
+ * Round an exact rational to nearest binary64, ties to even, including
+ * subnormals.
+ */
 function quotient(numerator: IDyadic, denominator: IDyadic): number {
   if (numerator.integer === 0n) return 0;
   const negative: boolean = numerator.integer < 0n !== denominator.integer < 0n;

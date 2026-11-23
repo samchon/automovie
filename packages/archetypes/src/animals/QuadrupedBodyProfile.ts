@@ -10,13 +10,18 @@ import type { QuadrupedProportions } from "./QuadrupedProportions";
  * owner only performs the common geometry: circular girth, trigonometric
  * control projections, an exact withers apex, a head capsule of the requested
  * total axial length, and a distinct hip-to-rump run behind the trunk.
- * Directions are the initial authored conformation. AutoMovieArchetypeQuadrupedBody owns the
- * subsequent explicit neutral connection to its parent solids; it does
- * not change these reference measurements or infer measured joint anatomy.
+ * Directions are the initial authored conformation.
+ * AutoMovieArchetypeQuadrupedBody owns the subsequent explicit neutral
+ * connection to its parent solids; it does not change these reference
+ * measurements or infer measured joint anatomy.
  *
- * @param props Reference shape, four controls per limb, authored construction, colors and optional admitted instance height.
- * @returns Fresh dimensionless body controls, with metre lateral inset for the height.
- * @throws {RangeError} For invalid/nonfinite dimensions, impossible capsule/trunk extents, invalid construction ratios or unrepresentable normalized output.
+ * @param props Reference shape, four controls per limb, authored construction,
+ *   colors and optional admitted instance height.
+ * @returns Fresh dimensionless body controls, with metre lateral inset for the
+ *   height.
+ * @throws {RangeError} For invalid/nonfinite dimensions, impossible
+ *   capsule/trunk extents, invalid construction ratios or unrepresentable
+ *   normalized output.
  */
 export function QuadrupedBodyProfile(
   props: QuadrupedBodyProfile.IProps,
@@ -143,11 +148,12 @@ export function QuadrupedBodyProfile(
   };
 }
 
-/**
- * Input contracts shared by the ox, camel and deer profile adapters.
- */
+/** Input contracts shared by the ox, camel and deer profile adapters. */
 export namespace QuadrupedBodyProfile {
-  /** Reference shape in metres; each adapter documents measured versus authored fields. */
+  /**
+   * Reference shape in metres; each adapter documents measured versus authored
+   * fields.
+   */
   export interface IMeasures {
     /** Reference withers height used to normalize all lengths. */
     withers: number;
@@ -174,7 +180,10 @@ export namespace QuadrupedBodyProfile {
     tail: number;
   }
 
-  /** Authored rigid-bar geometry, not anatomical joint ranges or measured static poses. */
+  /**
+   * Authored rigid-bar geometry, not anatomical joint ranges or measured static
+   * poses.
+   */
   export interface IConstruction {
     /** Withers sphere radius / height, in (0, 1). */
     withersRadius: number;
@@ -203,10 +212,16 @@ export namespace QuadrupedBodyProfile {
     /** Foot inward placement / barrel radius, in [0, 1). */
     inset: number;
 
-    /** Four initial fore directions from down, degrees, before shared parent-solid neutral connection. */
+    /**
+     * Four initial fore directions from down, degrees, before shared
+     * parent-solid neutral connection.
+     */
     forePitch: readonly [number, number, number, number];
 
-    /** Four initial hind directions from down, degrees, before shared parent-solid neutral connection. */
+    /**
+     * Four initial hind directions from down, degrees, before shared
+     * parent-solid neutral connection.
+     */
     hindPitch: readonly [number, number, number, number];
 
     /** Four positive limb bar radii / height. */

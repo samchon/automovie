@@ -22,14 +22,15 @@ const MASS: number = 0.25;
 /**
  * Fit a hollow digital carrier to a separate padded two-handed display model.
  *
- * The carrier stands on its closed base, with its channel open along +Y.
- * The display faces down at both root frames. At "seated" its cap is above
- * the base and its guard sits above the physical mouth. At "opening" the
- * whole display clears the mouth. The "belt" hook faces the wearer along −X.
+ * The carrier stands on its closed base, with its channel open along +Y. The
+ * display faces down at both root frames. At "seated" its cap is above the base
+ * and its guard sits above the physical mouth. At "opening" the whole display
+ * clears the mouth. The "belt" hook faces the wearer along −X.
  *
  * @param params A generated padded display model and optional carrier id.
  * @returns The carrier and its model-space contact frames, in metres.
- * @throws {AutoMovieArchetypeRefusal} If the display model or the proposed identity cannot be fitted.
+ * @throws {AutoMovieArchetypeRefusal} If the display model or the proposed
+ *   identity cannot be fitted.
  */
 export function createStageFittedCarrier(
   params: createStageFittedCarrier.IParams,
@@ -136,9 +137,7 @@ export function createStageFittedCarrier(
   return builder.build(MASS);
 }
 
-/**
- * The padded display input and fitted carrier contacts.
- */
+/** The padded display input and fitted carrier contacts. */
 export namespace createStageFittedCarrier {
   /** The wear hook, the physical mouth and the two pose frames. */
   export type Affordance = "belt" | "mouth" | "opening" | "seated";

@@ -19,19 +19,20 @@ const ESTIMATE: string =
   "Coarse playground construction estimate; no source read gives it";
 
 /**
- * A playground swing: a crossbeam on two posts and a seat hung on two
- * chains from the beam's pivot axis.
+ * A playground swing: a crossbeam on two posts and a seat hung on two chains
+ * from the beam's pivot axis.
  *
- * The pivot axis runs along `x` at `y = pivot`, `z = 0`, above the
- * ground at `y = 0`; the seat hangs below it and swings in the `y`-`z`
- * plane. This model draws the fixed frame. The seat with its chains is a
- * separate rigid model, `createSwing.seat`, whose origin is the pivot, so
- * a rotation of its frame about the pivot axis swings it (`rideSwing`).
+ * The pivot axis runs along `x` at `y = pivot`, `z = 0`, above the ground at `y
+ * = 0`; the seat hangs below it and swings in the `y`-`z` plane. This model
+ * draws the fixed frame. The seat with its chains is a separate rigid model,
+ * `createSwing.seat`, whose origin is the pivot, so a rotation of its frame
+ * about the pivot axis swings it (`rideSwing`).
  *
  * @param params Fixed dimensions.
  * @param seed The seed for any unfixed dimension.
  * @returns The swing frame.
- * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band, or a seat that would hang at or above the beam.
+ * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band, or a
+ *   seat that would hang at or above the beam.
  */
 export function createSwing(
   params: createSwing.IParams = {},
@@ -97,14 +98,15 @@ export function createSwing(
   return builder.build(mass);
 }
 
-/**
- * The swing's dimensions and its hanging seat.
- */
+/** The swing's dimensions and its hanging seat. */
 export namespace createSwing {
   /** The ground under the swing, where a rider stands and lands. */
   export type Affordance = "ground";
 
-  /** Beam height, seat clearance, seat width and depth and the chain grips' height above the seat in metres, and frame mass in kilograms. */
+  /**
+   * Beam height, seat clearance, seat width and depth and the chain grips'
+   * height above the seat in metres, and frame mass in kilograms.
+   */
   export type Dimension =
     | "pivot"
     | "clearance"
@@ -116,7 +118,10 @@ export namespace createSwing {
   /** The hanging seat's sitting surface and the two chain grips. */
   export type SeatAffordance = "seat" | "leftChain" | "rightChain";
 
-  /** The hanging seat's hanging length, width and depth in metres, and mass in kilograms. */
+  /**
+   * The hanging seat's hanging length, width and depth in metres, and mass in
+   * kilograms.
+   */
   export type SeatDimension = "length" | "width" | "depth" | "mass";
 
   /** The dimensions the author fixes inside their bands. */
@@ -150,9 +155,9 @@ export namespace createSwing {
   };
 
   /**
-   * The seat with its chains as one rigid model whose origin is the pivot:
-   * the sitting surface hangs `length` below it, and each chain grip is
-   * the swing's `grip` above the seat on its chain.
+   * The seat with its chains as one rigid model whose origin is the pivot: the
+   * sitting surface hangs `length` below it, and each chain grip is the swing's
+   * `grip` above the seat on its chain.
    *
    * @param swing The swing whose seat this is.
    * @returns The hanging seat model.

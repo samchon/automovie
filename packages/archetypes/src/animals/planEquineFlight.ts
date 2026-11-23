@@ -4,12 +4,17 @@ import { EquineObstacle } from "./EquineObstacle";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 
 /**
- * Plan a jump's flight and confirm it on the flown body: the closed-form plan (`EquineJump.plan`), then rounds that measure every displayed part over the obstacles (`EquineObstacle.shortfall`), lengthening the held flight by a shortfall's request and shortening it by half a surplus until the tightest part clears within `EquineJump.SETTLE`, at most `EquineJump.ROUNDS` times.
+ * Plan a jump's flight and confirm it on the flown body: the closed-form plan
+ * (`EquineJump.plan`), then rounds that measure every displayed part over the
+ * obstacles (`EquineObstacle.shortfall`), lengthening the held flight by a
+ * shortfall's request and shortening it by half a surplus until the tightest
+ * part clears within `EquineJump.SETTLE`, at most `EquineJump.ROUNDS` times.
  *
  * @param archetype The source archetype name.
  * @param request The admitted jump.
  * @param plan The course plan.
- * @param trial Assemble the ride with moved landings and, once known, the flight, skipping the footing check.
+ * @param trial Assemble the ride with moved landings and, once known, the
+ *   flight, skipping the footing check.
  * @returns The flight that clears every obstacle by the clearance.
  * @throws {AutoMovieArchetypeRefusal} As `EquineJump.plan` refuses an approach.
  * @throws {RangeError} When the flight still falls short after the last round.

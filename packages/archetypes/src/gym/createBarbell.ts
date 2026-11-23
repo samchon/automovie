@@ -15,17 +15,18 @@ const IWF: string =
   "International Weightlifting Federation, Technical and Competition Rules and Regulations, the rules on the barbell: the men's bar 20 kg, 2200 mm long, 28 mm across its grip; the women's bar 15 kg, 2010 mm long, 25 mm across its grip; both 1310 mm between the inner collars with sleeves 50 mm across; the largest discs 450 mm across";
 
 /**
- * A weightlifting barbell: a steel bar with a sleeve at each end, and the
- * discs loaded on the sleeves when a load is given.
+ * A weightlifting barbell: a steel bar with a sleeve at each end, and the discs
+ * loaded on the sleeves when a load is given.
  *
- * The bar lies along `X`, its middle at the origin, its axis a disc's
- * radius above nothing: the origin is on the bar's axis, so a scene that
- * rests it on the floor places it a loaded disc's radius up. `gripLeft` (on
- * `+X`) and `gripRight` are where the two hands hold it, taken from the
- * `-Z` side, `grip` apart.
+ * The bar lies along `X`, its middle at the origin, its axis a disc's radius
+ * above nothing: the origin is on the bar's axis, so a scene that rests it on
+ * the floor places it a loaded disc's radius up. `gripLeft` (on `+X`) and
+ * `gripRight` are where the two hands hold it, taken from the `-Z` side, `grip`
+ * apart.
  *
  * @param params The kind, any dimension the author fixes, and the load.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The barbell.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -132,9 +133,7 @@ export function createBarbell(
   return builder.build(d.mass! + 2 * d.load!);
 }
 
-/**
- * Companion types and bands of {@link createBarbell}.
- */
+/** Companion types and bands of {@link createBarbell}. */
 export namespace createBarbell {
   /** The kinds of bar. */
   export type Kind = "mens" | "womens";
@@ -142,7 +141,10 @@ export namespace createBarbell {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["mens", "womens"];
 
-  /** The distance between the inner collars, metres (IWF, the rules on the barbell). */
+  /**
+   * The distance between the inner collars, metres (IWF, the rules on the
+   * barbell).
+   */
   export const BETWEEN: number = 1.31;
 
   /** A sleeve's diameter, metres (IWF, the rules on the barbell). */
@@ -151,19 +153,30 @@ export namespace createBarbell {
   /** The largest disc's diameter, metres (IWF, the rules on the barbell). */
   export const DISC: number = 0.45;
 
-  /** The inner collar's width, which the first disc sits against, metres (IWF, the rules on the barbell: 30 mm). */
+  /**
+   * The inner collar's width, which the first disc sits against, metres (IWF,
+   * the rules on the barbell: 30 mm).
+   */
   export const SHOULDER: number = 0.03;
 
-  /** A disc stack's thickness per kilogram of load on its side, metres. An estimate, not read at a source: a 25 kg competition disc is about 67 mm thick. */
+  /**
+   * A disc stack's thickness per kilogram of load on its side, metres. An
+   * estimate, not read at a source: a 25 kg competition disc is about 67 mm
+   * thick.
+   */
   export const THICK: number = 0.0027;
 
-  /** The run of the shaft one hand takes, metres. An estimate, not read at a source. */
+  /**
+   * The run of the shaft one hand takes, metres. An estimate, not read at a
+   * source.
+   */
   export const HAND: number = 0.12;
 
   /**
    * The affordance ids:
    *
-   * - `gripLeft`: where the left hand holds the shaft, on `+X`, taken from the `-Z` side.
+   * - `gripLeft`: where the left hand holds the shaft, on `+X`, taken from the
+   *   `-Z` side.
    * - `gripRight`: where the right hand holds it, on `-X`.
    */
   export type Affordance = "gripLeft" | "gripRight";
@@ -190,7 +203,10 @@ export namespace createBarbell {
     load: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which bar. */
     kind: Kind;
@@ -199,7 +215,10 @@ export namespace createBarbell {
     id?: string;
   }
 
-  /** The hands' spacing: from a clean's grip to a snatch's. An estimate, not read at a source. */
+  /**
+   * The hands' spacing: from a clean's grip to a snatch's. An estimate, not
+   * read at a source.
+   */
   const GRIP: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
     0.4,
     1.2,

@@ -19,7 +19,10 @@ interface IHydrant {
   nut: number;
 }
 
-/** The Mueller hydrant's nozzle bores, metres: the 4 1/2 in pumper and the 2 1/2 in hose nozzles; its 1 1/2 in operating nut. */
+/**
+ * The Mueller hydrant's nozzle bores, metres: the 4 1/2 in pumper and the 2 1/2
+ * in hose nozzles; its 1 1/2 in operating nut.
+ */
 const HYDRANT: Readonly<IHydrant> = {
   pumper: 4.5 * AutoMovieArchetypeUnits.INCH,
   hose: 2.5 * AutoMovieArchetypeUnits.INCH,
@@ -27,15 +30,19 @@ const HYDRANT: Readonly<IHydrant> = {
 };
 
 /**
- * A ground-standing hydrant with one pumper and two hose socket frames, plus its operating nut.
+ * A ground-standing hydrant with one pumper and two hose socket frames, plus
+ * its operating nut.
  *
- * The pumper points toward +Z and the hose sockets toward each side. All three sockets sit on their corresponding nozzle faces.
- * The lowest point of the fixture stands on Y = 0.
+ * The pumper points toward +Z and the hose sockets toward each side. All three
+ * sockets sit on their corresponding nozzle faces. The lowest point of the
+ * fixture stands on Y = 0.
  *
- * @param params The scene identifier and any dimensions to fix inside their bands.
+ * @param params The scene identifier and any dimensions to fix inside their
+ *   bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
  */
 export function createFireHydrant(
   params: createFireHydrant.IParams = {},
@@ -111,9 +118,7 @@ export function createFireHydrant(
   return builder.build(d.mass!);
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createFireHydrant}.
- */
+/** Inputs, dimensions and contacts for {@link createFireHydrant}. */
 export namespace createFireHydrant {
   /** The named contacts built by this producer. */
   export type Affordance = "hoseLeft" | "hoseRight" | "nut" | "pumper";

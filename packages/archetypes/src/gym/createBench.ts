@@ -15,17 +15,18 @@ const IPF: string =
   "International Powerlifting Federation, Technical Rules, the bench: not less than 1.22 m long, 29 to 32 cm wide, 42 to 45 cm from the floor to the top of its pad";
 
 /**
- * A flat weight bench: a padded top on four legs, lain on for a press or
- * sat on.
+ * A flat weight bench: a padded top on four legs, lain on for a press or sat
+ * on.
  *
- * It stands on the floor with the middle of its footprint at the origin,
- * its length along `Z`. `surface` is the top, lain on along its length;
- * `seat` is the same top at its `+Z` end, sat on facing `+Z`; `edge` is the
- * middle of the top's `+X` long side, which the upper back leans on across
- * the bench (a hip thrust) with the body out along `+X`.
+ * It stands on the floor with the middle of its footprint at the origin, its
+ * length along `Z`. `surface` is the top, lain on along its length; `seat` is
+ * the same top at its `+Z` end, sat on facing `+Z`; `edge` is the middle of the
+ * top's `+X` long side, which the upper back leans on across the bench (a hip
+ * thrust) with the body out along `+X`.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The bench.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -115,9 +116,7 @@ export function createBench(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createBench}.
- */
+/** Companion types and bands of {@link createBench}. */
 export namespace createBench {
   /** The kinds of bench. */
   export type Kind = "flat";
@@ -131,10 +130,16 @@ export namespace createBench {
   /** A leg's radius, metres. An estimate, not read at a source. */
   export const LEG: number = 0.025;
 
-  /** How far the legs stand in from the pad's ends, metres. An estimate, not read at a source. */
+  /**
+   * How far the legs stand in from the pad's ends, metres. An estimate, not
+   * read at a source.
+   */
   export const INSET: number = 0.15;
 
-  /** The depth of the top's end a sitter takes, metres. An estimate, not read at a source. */
+  /**
+   * The depth of the top's end a sitter takes, metres. An estimate, not read at
+   * a source.
+   */
   export const SEAT: number = 0.4;
 
   /**

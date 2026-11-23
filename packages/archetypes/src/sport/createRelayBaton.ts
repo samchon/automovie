@@ -16,10 +16,14 @@ const RULE: string =
 /**
  * A relay baton: a smooth hollow tube of round section.
  *
- * It stands on its back end at the origin along `+Y`. `grip` is the tube a hand closes on, along its whole length; `front` and `back` are its two ends, each `+Y` out of the tube: the incoming runner pushes one end into the outgoing runner's palm (`relayPass`'s `end`).
+ * It stands on its back end at the origin along `+Y`. `grip` is the tube a hand
+ * closes on, along its whole length; `front` and `back` are its two ends, each
+ * `+Y` out of the tube: the incoming runner pushes one end into the outgoing
+ * runner's palm (`relayPass`'s `end`).
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The baton.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -92,9 +96,7 @@ export function createRelayBaton(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createRelayBaton}.
- */
+/** Companion types and bands of {@link createRelayBaton}. */
 export namespace createRelayBaton {
   /**
    * The affordance ids:

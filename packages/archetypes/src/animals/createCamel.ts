@@ -5,12 +5,16 @@ import { AutoMovieArchetypeQuadrupedEquipment } from "./AutoMovieArchetypeQuadru
 import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**
- * A coarse single-hump dromedary reference with an explicitly authored pack or lead.
+ * A coarse single-hump dromedary reference with an explicitly authored pack or
+ * lead.
  *
- * @param params Positive authored whole-model kilograms, optional fixed reference, timing coordinate and equipment.
- * @param seed Without a fixed cohort, selects one whole Maur1-Maur5 mean; seedless construction retains the pooled mean.
+ * @param params Positive authored whole-model kilograms, optional fixed
+ *   reference, timing coordinate and equipment.
+ * @param seed Without a fixed cohort, selects one whole Maur1-Maur5 mean;
+ *   seedless construction retains the pooled mean.
  * @returns The shared quadruped with one coarse identifying hump.
- * @throws {AutoMovieArchetypeRefusal} For invalid mass, tempo or authored equipment.
+ * @throws {AutoMovieArchetypeRefusal} For invalid mass, tempo or authored
+ *   equipment.
  */
 export function createCamel(
   params: createCamel.IParams,
@@ -73,30 +77,40 @@ export function createCamel(
   });
 }
 
-/**
- * Authored camel equipment and explicit coarse hump construction.
- */
+/** Authored camel equipment and explicit coarse hump construction. */
 export namespace createCamel {
-  /** Explicit pooled gallery reference and authored complete mass; neither class nor overall source supplied weight. */
+  /**
+   * Explicit pooled gallery reference and authored complete mass; neither class
+   * nor overall source supplied weight.
+   */
   export const REFERENCE: Readonly<Required<Pick<IParams, "mass" | "cohort">>> =
     {
       mass: 450,
       cohort: "mauritanian-adult-female",
     };
 
-  /** The source gives no body weight, so complete model kilograms remain required. */
+  /**
+   * The source gives no body weight, so complete model kilograms remain
+   * required.
+   */
   export interface IParams extends createCohortQuadruped.IParams {
     /** Required authored complete kilograms; no reference row supplies mass. */
     mass: number;
 
-    /** Fix one whole source vector; seeded omission draws five groups and equipment must fit the whole unfixed palette. */
+    /**
+     * Fix one whole source vector; seeded omission draws five groups and
+     * equipment must fit the whole unfixed palette.
+     */
     cohort?: AutoMovieArchetypeCamelBody.Cohort;
 
     /** Authored side pack; its fit is checked against the body. */
     equipment?: Pick<AutoMovieArchetypeQuadrupedEquipment.IParams, "pack">;
   }
 
-  /** Named normalized hump estimates: radius/withers and distance behind trunk midpoint/trunk length. */
+  /**
+   * Named normalized hump estimates: radius/withers and distance behind trunk
+   * midpoint/trunk length.
+   */
   export const CONSTRUCTION: Readonly<{
     humpRadius: number;
     humpBehind: number;

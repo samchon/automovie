@@ -24,11 +24,20 @@ import { archetypeSpanAnchor } from "./archetypeSpanAnchor";
 import { buildNativeArchetype } from "./buildNativeArchetype";
 
 /**
- * What every producer assembles an archetype with: dimensioned primitives, convex cells or visual meshes, the affordances an act reads, and the total mass.
+ * What every producer assembles an archetype with: dimensioned primitives,
+ * convex cells or visual meshes, the affordances an act reads, and the total
+ * mass.
  *
- * A producer states named dimensions and formulas: a box by its size and centre, a rod by its radius and ends, a ball by its radius and centre, or a convex wall by its generating corners. Hollow forms assemble separate wall cells so rendering, mass and collision preserve their empty space. The repository keeps every model as coarse as identification allows. Parts carry unit scale, flat colours and no texture.
+ * A producer states named dimensions and formulas: a box by its size and
+ * centre, a rod by its radius and ends, a ball by its radius and centre, or a
+ * convex wall by its generating corners. Hollow forms assemble separate wall
+ * cells so rendering, mass and collision preserve their empty space. The
+ * repository keeps every model as coarse as identification allows. Parts carry
+ * unit scale, flat colours and no texture.
  *
- * `build` computes the centre of mass and inertia from the parts under the stated total mass ({@link AutoMovieArchetypeMass}) and returns the {@link AutoMovieArchetype}.
+ * `build` computes the centre of mass and inertia from the parts under the
+ * stated total mass ({@link AutoMovieArchetypeMass}) and returns the
+ * {@link AutoMovieArchetype}.
  *
  * @template Id The archetype's affordance ids.
  * @template Dimension The archetype's free dimensions.
@@ -55,7 +64,8 @@ export class AutoMovieArchetypeBuilder<
   /**
    * An empty archetype under construction.
    *
-   * @param props The model's id and name, and the producer's draws, which name the producer.
+   * @param props The model's id and name, and the producer's draws, which name
+   *   the producer.
    */
   public constructor(props: AutoMovieArchetypeBuilder.IProps<Dimension>) {
     this.#props = props;
@@ -88,13 +98,16 @@ export class AutoMovieArchetypeBuilder<
   }
 
   /**
-   * A straight round bar between two points: a leg, a rail, a shaft, a wheel seen as a short thick bar.
+   * A straight round bar between two points: a leg, a rail, a shaft, a wheel
+   * seen as a short thick bar.
    *
    * @param id Part id, unique in the archetype.
    * @param radius The bar's radius, metres.
    * @param from The centre of one end, metres.
    * @param to The centre of the other end, metres.
-   * @param options Colour and relative density; `round` gives the bar hemispherical ends beyond the two points; a rotation is ignored, because the two ends fix it.
+   * @param options Colour and relative density; `round` gives the bar
+   *   hemispherical ends beyond the two points; a rotation is ignored, because
+   *   the two ends fix it.
    * @returns This builder.
    * @throws {Error} When the id repeats one already used, a producer's defect.
    */
@@ -140,10 +153,14 @@ export class AutoMovieArchetypeBuilder<
 
   /**
    * Add one convex wall cell, sharing its visible and physical boundary.
+   *
    * @param id Unique part id.
-   * @param points Cell-local finite corners in metres, or an immutable admitted cell prepared by AutoMovieArchetypeConvexCell.of for repeated rigid instances.
+   * @param points Cell-local finite corners in metres, or an immutable admitted
+   *   cell prepared by AutoMovieArchetypeConvexCell.of for repeated rigid
+   *   instances.
    * @param at Local origin in model metres; zero when absent.
-   * @param options Existing colour, rigid rotation, mass weight and surface options.
+   * @param options Existing colour, rigid rotation, mass weight and surface
+   *   options.
    * @returns This builder.
    * @throws {Error} For a repeated id or inadmissible convex cell.
    */
@@ -161,7 +178,8 @@ export class AutoMovieArchetypeBuilder<
   }
 
   /**
-   * Place a visual mesh in model metres with an optional flat colour and rotation. The builder takes the mesh buffers as supplied.
+   * Place a visual mesh in model metres with an optional flat colour and
+   * rotation. The builder takes the mesh buffers as supplied.
    */
   public visualMesh(
     id: string,
@@ -175,17 +193,23 @@ export class AutoMovieArchetypeBuilder<
   }
 
   /**
-   * A span: a taut line between two frames of the model, laid again between them after every pose (`AutoMovieArchetypeSpan`), such as a bowstring between its limbs' tips.
+   * A span: a taut line between two frames of the model, laid again between
+   * them after every pose (`AutoMovieArchetypeSpan`), such as a bowstring
+   * between its limbs' tips.
    *
    * @param id Part id of the line, unique in the archetype.
-   * @param from One end: a part already recorded with a point in its own coordinates, or an affordance already recorded.
+   * @param from One end: a part already recorded with a point in its own
+   *   coordinates, or an affordance already recorded.
    * @param to The other end, likewise.
    * @param radius The line's radius, metres.
-   * @param options Colour and relative density; a rotation is ignored, because the two ends fix it.
-   * @param length The line's rest length, metres, when it has one: the span reports itself slack whenever its ends are closer.
+   * @param options Colour and relative density; a rotation is ignored, because
+   *   the two ends fix it.
+   * @param length The line's rest length, metres, when it has one: the span
+   *   reports itself slack whenever its ends are closer.
    * @returns This builder.
    * @throws {Error} When the id repeats one already used, a producer's defect.
-   * @throws {AutoMovieArchetypeRefusal} When an end names a part or affordance not yet recorded, or the two ends meet at rest.
+   * @throws {AutoMovieArchetypeRefusal} When an end names a part or affordance
+   *   not yet recorded, or the two ends meet at rest.
    */
   public span(
     id: string,
@@ -217,9 +241,7 @@ export class AutoMovieArchetypeBuilder<
     return this;
   }
 
-  /**
-   * Bind a construction point to a real part already laid by this builder.
-   */
+  /** Bind a construction point to a real part already laid by this builder. */
   public anchor(
     id: string,
     point: IAutoMovieVector3,
@@ -235,7 +257,8 @@ export class AutoMovieArchetypeBuilder<
   /**
    * An affordance.
    *
-   * @param affordance The contact at rest, its frame in the model's space; `extent` is null for every kind but `stack-top`.
+   * @param affordance The contact at rest, its frame in the model's space;
+   *   `extent` is null for every kind but `stack-top`.
    * @returns This builder.
    */
   public affordance(affordance: IAutoMovieAffordance & { id: Id }): this {
@@ -244,11 +267,16 @@ export class AutoMovieArchetypeBuilder<
   }
 
   /**
-   * Declare the sets of parts a hit breaks off, each a fragment; the threshold is the body's `contact.fracture`, given to `build` as `outcome`.
+   * Declare the sets of parts a hit breaks off, each a fragment; the threshold
+   * is the body's `contact.fracture`, given to `build` as `outcome`.
    *
-   * @param sets The fragment sets, each an id, the parts it carries away and the contacts on them that move none; declared after those contacts.
+   * @param sets The fragment sets, each an id, the parts it carries away and
+   *   the contacts on them that move none; declared after those contacts.
    * @returns This builder.
-   * @throws {Error} When a set's id is declared twice, a set carries no part, a set names a part not yet recorded or one a set already names (its own included), or a contact not yet declared or one a set already carries, a producer's defect.
+   * @throws {Error} When a set's id is declared twice, a set carries no part, a
+   *   set names a part not yet recorded or one a set already names (its own
+   *   included), or a contact not yet declared or one a set already carries, a
+   *   producer's defect.
    */
   public fracture(sets: readonly AutoMovieArchetypeFracture.ISet[]): this {
     const named: Set<string> = new Set(
@@ -310,10 +338,17 @@ export class AutoMovieArchetypeBuilder<
    * The finished archetype.
    *
    * @param mass The total mass, kilograms, from the producer's cited band.
-   * @param contact Resting and ground materials select their cited friction pair. An explicit restitution is admitted from 0 to 1; otherwise restitution remains unknown; a material reference never supplies a universal scalar. Drag and outcome are the launched body's optional flight data. The constructor's physical material declaration is required independently of optical colours and resting surfaces.
+   * @param contact Resting and ground materials select their cited friction
+   *   pair. An explicit restitution is admitted from 0 to 1; otherwise
+   *   restitution remains unknown; a material reference never supplies a
+   *   universal scalar. Drag and outcome are the launched body's optional
+   *   flight data. The constructor's physical material declaration is required
+   *   independently of optical colours and resting surfaces.
    * @returns The archetype at rest.
    * @throws {Error} As `AutoMovieArchetypeMass.of` does when no part has mass.
-   * @throws {AutoMovieArchetypeRefusal} When the physical material is missing or unknown, an explicit restitution is invalid, or no source measured a declared resting pair.
+   * @throws {AutoMovieArchetypeRefusal} When the physical material is missing
+   *   or unknown, an explicit restitution is invalid, or no source measured a
+   *   declared resting pair.
    */
   public build(
     mass: number,
@@ -402,14 +437,10 @@ export namespace AutoMovieArchetypeBuilder {
   /** The colour of a part that states none: a mid grey. */
   export const NEUTRAL: string = ArchetypeBuilderParts.NEUTRAL;
 
-  /**
-   * The producer identity and draw record, with an explicit physical material.
-   */
+  /** The producer identity and draw record, with an explicit physical material. */
   export type IProps<Dimension extends string> =
     ArchetypeBuilderTypes.IProps<Dimension>;
 
-  /**
-   * The primitive-part options, preserving the existing public builder name.
-   */
+  /** The primitive-part options, preserving the existing public builder name. */
   export type IOptions = ArchetypeBuilderTypes.IOptions;
 }

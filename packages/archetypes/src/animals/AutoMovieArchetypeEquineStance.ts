@@ -21,9 +21,21 @@ import { EquineStanceRows } from "./EquineStanceRows";
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
 
 /**
- * An equid's standing performance after its ride halts: authored whole-body responses played one after another over the halted stance.
+ * An equid's standing performance after its ride halts: authored whole-body
+ * responses played one after another over the halted stance.
  *
- * The halt is the base ride's own last sample (#3908's grounded halt): its four hoof endpoints are the stance's anchors and its trunk the stance's rest. Each response is a row of `EquineStanceRows` that gives a whole-body pose (`EquineBodyPose`) at each share of its entry, held through its hold and played back through its exit, the settle; a step aside ends standing where it stepped, and the next response starts from there. A response requested while the base ride still moves is refused, as is one whose pose a limb cannot reach or that puts a part under the floor, found when the response is admitted at its key instants. Before a response, and between responses, the sample is the stance at rest. The ride publishes each response's `<kind>:entry`, `:hold`, `:settle` and `:end` and its support events, such as `leftForeOff` and `leftForeOn`.
+ * The halt is the base ride's own last sample (#3908's grounded halt): its four
+ * hoof endpoints are the stance's anchors and its trunk the stance's rest. Each
+ * response is a row of `EquineStanceRows` that gives a whole-body pose
+ * (`EquineBodyPose`) at each share of its entry, held through its hold and
+ * played back through its exit, the settle; a step aside ends standing where it
+ * stepped, and the next response starts from there. A response requested while
+ * the base ride still moves is refused, as is one whose pose a limb cannot
+ * reach or that puts a part under the floor, found when the response is
+ * admitted at its key instants. Before a response, and between responses, the
+ * sample is the stance at rest. The ride publishes each response's
+ * `<kind>:entry`, `:hold`, `:settle` and `:end` and its support events, such as
+ * `leftForeOff` and `leftForeOn`.
  */
 export namespace AutoMovieArchetypeEquineStance {
   /**
@@ -33,7 +45,8 @@ export namespace AutoMovieArchetypeEquineStance {
    * @param ride Its ride, ending at a halt.
    * @param cues The responses, in time order, not overlapping.
    * @returns The ride continued by the stance.
-   * @throws {AutoMovieArchetypeRefusal} For a response at a gait, overlapping or malformed phases, or a pose the rig cannot take.
+   * @throws {AutoMovieArchetypeRefusal} For a response at a gait, overlapping
+   *   or malformed phases, or a pose the rig cannot take.
    */
   export function after<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,

@@ -4,19 +4,45 @@ import type { IAutoMovieTransform } from "@automovie/interface";
 import { AutoMovieArchetypeFrame } from "../core";
 
 /**
- * The trunk's height and pitch through a jump: the push-off, a flight about the centre of mass, and the landing stance.
+ * The trunk's height and pitch through a jump: the push-off, a flight about the
+ * centre of mass, and the landing stance.
  *
- * In the air the horse is a body under gravity alone: its centre of mass flies a parabola and its trunk turns nose-down at a nearly constant rate. Galloux and Barrey 1997 (Components of the total kinetic moment in jumping horses, Equine Vet J Suppl 23:41, https://doi.org/10.1111/j.2042-3306.1997.tb05051.x; thirty horses over a 1.20 m fence) report a rotation of 120 ± 5 degrees per second, nearly constant through the airborne phase; Clayton, St George, Sinclair and Hobbs 2021 (Characteristics of the flight arc in horses jumping three different types of fences in Olympic competition, J Equine Vet Sci 104:103698, https://doi.org/10.1016/j.jevs.2021.103698, Table 1; twelve Olympic horses) report the trunk 30.7 degrees nose-up at takeoff and 37.8 nose-down at landing over a 1.60 m vertical, an average 110.38 degrees per second in a 0.62 s flight. The trunk here turns at `TURN` through the flight, level at its middle, so it leaves the ground nose-up by half the flight's turn and lands nose-down by as much: a derivation from those two reports.
+ * In the air the horse is a body under gravity alone: its centre of mass flies
+ * a parabola and its trunk turns nose-down at a nearly constant rate. Galloux
+ * and Barrey 1997 (Components of the total kinetic moment in jumping horses,
+ * Equine Vet J Suppl 23:41, https://doi.org/10.1111/j.2042-3306.1997.tb05051.x;
+ * thirty horses over a 1.20 m fence) report a rotation of 120 ± 5 degrees per
+ * second, nearly constant through the airborne phase; Clayton, St George,
+ * Sinclair and Hobbs 2021 (Characteristics of the flight arc in horses jumping
+ * three different types of fences in Olympic competition, J Equine Vet Sci
+ * 104:103698, https://doi.org/10.1016/j.jevs.2021.103698, Table 1; twelve
+ * Olympic horses) report the trunk 30.7 degrees nose-up at takeoff and 37.8
+ * nose-down at landing over a 1.60 m vertical, an average 110.38 degrees per
+ * second in a 0.62 s flight. The trunk here turns at `TURN` through the flight,
+ * level at its middle, so it leaves the ground nose-up by half the flight's
+ * turn and lands nose-down by as much: a derivation from those two reports.
  *
- * The push-off and the landing stance are the two contacts. Over the push-off, from both hinds down to final hind liftoff, the centre of mass rises from rest under a constant net force to the flight's takeoff velocity, and the pitch rises from level at rest to the takeoff angle and the flight's rate (a cubic Hermite curve, so the trunk is most nose-up shortly before liftoff and is already turning nose-down as it leaves). The landing stance mirrors this, from the flight's landing velocity and rate to rest. The three phases fix the takeoff velocity in closed form, so height, pitch and both rates are continuous from the push-off to the end of the landing stance. The turn about the centre of mass lowers the hips, which lie behind it, as the forehand rises, so the planted hinds are crouched at takeoff.
+ * The push-off and the landing stance are the two contacts. Over the push-off,
+ * from both hinds down to final hind liftoff, the centre of mass rises from
+ * rest under a constant net force to the flight's takeoff velocity, and the
+ * pitch rises from level at rest to the takeoff angle and the flight's rate (a
+ * cubic Hermite curve, so the trunk is most nose-up shortly before liftoff and
+ * is already turning nose-down as it leaves). The landing stance mirrors this,
+ * from the flight's landing velocity and rate to rest. The three phases fix the
+ * takeoff velocity in closed form, so height, pitch and both rates are
+ * continuous from the push-off to the end of the landing stance. The turn about
+ * the centre of mass lowers the hips, which lie behind it, as the forehand
+ * rises, so the planted hinds are crouched at takeoff.
  */
 export namespace EquinePitch {
-  /** The trunk's nose-down turn through a jump's flight, radians per second: Clayton et al. 2021's average trunk angular velocity over the 1.60 m vertical, 110.38 ± 9.63 degrees per second, Table 1. */
+  /**
+   * The trunk's nose-down turn through a jump's flight, radians per second:
+   * Clayton et al. 2021's average trunk angular velocity over the 1.60 m
+   * vertical, 110.38 ± 9.63 degrees per second, Table 1.
+   */
   export const TURN: number = (110.38 * Math.PI) / 180;
 
-  /**
-   * A point of the trunk in its sagittal plane.
-   */
+  /** A point of the trunk in its sagittal plane. */
   export interface IPivot {
     /** Height, metres. */
     y: number;
@@ -24,9 +50,7 @@ export namespace EquinePitch {
     z: number;
   }
 
-  /**
-   * A planned jump.
-   */
+  /** A planned jump. */
   export interface IPlan {
     /** Film second both hinds are down. */
     push: number;
@@ -42,12 +66,16 @@ export namespace EquinePitch {
     rise: number;
     /** The flight's pitch rate, radians per second, negative nose-down. */
     turn: number;
-    /** The centre of mass's vertical velocity at final hind liftoff, metres per second. */
+    /**
+     * The centre of mass's vertical velocity at final hind liftoff, metres per
+     * second.
+     */
     launch: number;
   }
 
   /**
-   * The root's offset from its course placement and the trunk's pitch at one second.
+   * The root's offset from its course placement and the trunk's pitch at one
+   * second.
    */
   export interface ITilt {
     /** Height offset, metres. */
@@ -133,7 +161,9 @@ export namespace EquinePitch {
   }
 
   /**
-   * The body's world placement: a course placement turned about the body's up axis by a lateral figure's heading offset, then offset and pitched by a tilt in the body's own frame.
+   * The body's world placement: a course placement turned about the body's up
+   * axis by a lateral figure's heading offset, then offset and pitched by a
+   * tilt in the body's own frame.
    *
    * @param placement The course placement.
    * @param yaw The heading offset, degrees, positive to the left.
@@ -190,7 +220,8 @@ export namespace EquinePitch {
   }
 
   /**
-   * The root's offset and the pitch when the trunk is turned by an angle about a lateral pivot axis.
+   * The root's offset and the pitch when the trunk is turned by an angle about
+   * a lateral pivot axis.
    *
    * @param pivot The pivot axis in model metres.
    * @param angle Radians, positive nose-up.
@@ -209,7 +240,8 @@ export namespace EquinePitch {
    *
    * @param tilt The tilt.
    * @param point The point, model metres.
-   * @returns The fore-aft displacement in the course's frame, metres, positive forward.
+   * @returns The fore-aft displacement in the course's frame, metres, positive
+   *   forward.
    */
   export function shift(tilt: ITilt, point: IPivot): number {
     return (

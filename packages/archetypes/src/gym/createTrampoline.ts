@@ -16,13 +16,14 @@ const FIG: string =
 /**
  * A trampoline: a sprung bed laced inside a frame on legs.
  *
- * It stands on the floor with the middle of the bed over the origin, the
- * bed's length along `Z`. `bed` is the bed's middle at rest, `+Y` up: a
- * jumper bounces anywhere on it, the bed giving under load by the jumping
- * law's force-deflection relation.
+ * It stands on the floor with the middle of the bed over the origin, the bed's
+ * length along `Z`. `bed` is the bed's middle at rest, `+Y` up: a jumper
+ * bounces anywhere on it, the bed giving under load by the jumping law's
+ * force-deflection relation.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The trampoline.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -104,14 +105,15 @@ export function createTrampoline(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createTrampoline}.
- */
+/** Companion types and bands of {@link createTrampoline}. */
 export namespace createTrampoline {
   /** The bed's drawn thickness, metres. */
   export const BED: number = 0.01;
 
-  /** The frame's margin around the bed, where the springs run, metres (the norm's frame less its bed, halved). */
+  /**
+   * The frame's margin around the bed, where the springs run, metres (the
+   * norm's frame less its bed, halved).
+   */
   export const MARGIN: number = 0.385;
 
   /** A rail's and a leg's radius, metres. An estimate. */

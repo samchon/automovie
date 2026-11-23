@@ -5,15 +5,19 @@ import { FixtureDraw } from "./FixtureDraw";
 import type { createAppliance } from "./createAppliance";
 
 /**
- * A countertop microwave with a cavity floor, a top support and a left-hinged door.
+ * A countertop microwave with a cavity floor, a top support and a left-hinged
+ * door.
  *
- * The cavity floor and cabinet top retain their stack contacts. The door carries no travel because the measured source gives no opening angle.
- * The fixture is centred on X, with its back at Z = 0 and its front towards +Z.
+ * The cavity floor and cabinet top retain their stack contacts. The door
+ * carries no travel because the measured source gives no opening angle. The
+ * fixture is centred on X, with its back at Z = 0 and its front towards +Z.
  *
- * @param params The scene identifier and any dimensions to fix inside their bands.
+ * @param params The scene identifier and any dimensions to fix inside their
+ *   bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
  */
 export function createMicrowave(
   params: createMicrowave.IParams = {},
@@ -34,9 +38,7 @@ export function createMicrowave(
   );
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createMicrowave}.
- */
+/** Inputs, dimensions and contacts for {@link createMicrowave}. */
 export namespace createMicrowave {
   /** The named contacts built by this producer. */
   export type Affordance = "door" | "floor" | "top";

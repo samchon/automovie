@@ -18,9 +18,11 @@ type IHeightfield = Extract<IAutoMovieHeightRule, { kind: "heightfield" }>;
  * @param origin Column-zero and row-zero world XZ coordinates in metres.
  * @param size Width and depth in metres.
  * @param pitch Largest allowed spacing in either direction, in metres.
- * @param tolerance Largest permitted vertical error against the bilinear surface, in metres.
+ * @param tolerance Largest permitted vertical error against the bilinear
+ *   surface, in metres.
  * @param height Shared grade evaluator in world metres.
- * @returns The canonical sampled support rule used by both scene and world records.
+ * @returns The canonical sampled support rule used by both scene and world
+ *   records.
  */
 export function bakeTerrainHeight(
   id: string,
@@ -83,7 +85,10 @@ export function bakeTerrainHeight(
   }
 }
 
-/** Conservative maximum linear-interpolation error over all complete lattice cells. */
+/**
+ * Conservative maximum linear-interpolation error over all complete lattice
+ * cells.
+ */
 function maximumBilinearError(rule: IHeightfield): number {
   let error: number = 0;
   for (let row: number = 0; row + 1 < rule.rows; row += 1)

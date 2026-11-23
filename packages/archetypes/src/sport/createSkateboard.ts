@@ -26,7 +26,11 @@ const TRUCK: string =
 const WHEEL: string =
   'Spitfire Formula Four Classic wheels, "52 mm" in the product title (https://www.skatedeluxe.com/en/p/spitfire-formula-four-classic-wheels-white-green-52-mm-99a-4-pack_p123290?cic=GB)';
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `wheel`, a wheel's width; `baseplate`, a truck's block along the deck. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `wheel`, a wheel's width; `baseplate`, a truck's
+ * block along the deck.
+ */
 const ESTIMATES: Readonly<{ wheel: number; baseplate: number }> = {
   wheel: 0.032,
   baseplate: 0.08,
@@ -35,12 +39,21 @@ const ESTIMATES: Readonly<{ wheel: number; baseplate: number }> = {
 /**
  * A skateboard standing on its wheels, its nose toward `-Z`.
  *
- * Its deck is one of the maker's two decks read, whole: the model given, or one drawn from the seed, as thick as seven of the supplier's maple veneers, the ply count the maker states. Each truck holds its axle the truck's read height under the deck at the deck's wheelbase, and each axle carries two wheels of the read diameter. `deck` is the deck's top and the stance anchors sit above the axles. Each wheel has its lowest local line marked. `tailStrike` marks the rear underside for comparing the board's pose to the ground.
+ * Its deck is one of the maker's two decks read, whole: the model given, or one
+ * drawn from the seed, as thick as seven of the supplier's maple veneers, the
+ * ply count the maker states. Each truck holds its axle the truck's read height
+ * under the deck at the deck's wheelbase, and each axle carries two wheels of
+ * the read diameter. `deck` is the deck's top and the stance anchors sit above
+ * the axles. Each wheel has its lowest local line marked. `tailStrike` marks
+ * the rear underside for comparing the board's pose to the ground.
  *
  * @param params The deck and any dimension the author fixes.
- * @param seed The seed that draws the deck when it is not given and every dimension left free inside its band; absent, the first deck and the middle of each band.
+ * @param seed The seed that draws the deck when it is not given and every
+ *   dimension left free inside its band; absent, the first deck and the middle
+ *   of each band.
  * @returns The skateboard.
- * @throws {AutoMovieArchetypeRefusal} For a deck the maker's pages do not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a deck the maker's pages do not list,
+ *   or a fixed dimension outside its band.
  */
 export function createSkateboard(
   params: createSkateboard.IParams = {},
@@ -175,14 +188,19 @@ export function createSkateboard(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createSkateboard}.
- */
+/** Companion types and bands of {@link createSkateboard}. */
 export namespace createSkateboard {
-  /** The decks read: Powell Peralta's Kilian Martin Wolf 4, 7.75 by 31.75 in, and Chin Mask, 8.5 by 33.5 in. */
+  /**
+   * The decks read: Powell Peralta's Kilian Martin Wolf 4, 7.75 by 31.75 in,
+   * and Chin Mask, 8.5 by 33.5 in.
+   */
   export type Model = "7.75x31.75" | "8.5x33.5";
 
-  /** Each deck's width, length and wheelbase, metres, the default first: Powell Peralta's 7.75 x 31.75 in with a 14 in wheelbase and 8.5 x 33.5 in with a 15 in wheelbase (the pages `POWELL` gives). */
+  /**
+   * Each deck's width, length and wheelbase, metres, the default first: Powell
+   * Peralta's 7.75 x 31.75 in with a 14 in wheelbase and 8.5 x 33.5 in with a
+   * 15 in wheelbase (the pages `POWELL` gives).
+   */
   export const MODELS: Readonly<
     Record<Model, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -202,11 +220,13 @@ export namespace createSkateboard {
    * The affordance ids:
    *
    * - `deck`: the deck's top.
-   * - `nose`, `tail`: its ends on `-Z` and `+Z`, ledges along `X` with `+Z` out from the deck.
+   * - `nose`, `tail`: its ends on `-Z` and `+Z`, ledges along `X` with `+Z` out
+   *   from the deck.
    * - `frontStance`, `rearStance`: the deck sites over the trucks.
    * - `tailStrike`: the underside rear edge.
    * - `tailStance`: the ball-of-foot target above the rear edge for the pop.
-   * - `wheel-front-left`, `wheel-front-right`, `wheel-back-left`, `wheel-back-right`: the local low lines across the wheels at rest.
+   * - `wheel-front-left`, `wheel-front-right`, `wheel-back-left`,
+   *   `wheel-back-right`: the local low lines across the wheels at rest.
    */
   export type Affordance =
     | "deck"
@@ -252,7 +272,10 @@ export namespace createSkateboard {
   /** The free dimensions, each drawn from its band. */
   export type Free = Exclude<Dimension, "width" | "length" | "wheelbase">;
 
-  /** The parameters: the deck, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the deck, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Free, number>> {
     /** Which deck; drawn from the seed when absent. */
     model?: Model;

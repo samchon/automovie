@@ -21,7 +21,10 @@ import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBo
 /** How long a struck horse's response lasts, seconds, and its ease: authored. */
 const RESPONSE: Readonly<IResponse> = { seconds: 1.2, ease: 0.2 };
 
-/** Each region's bar and the share along it, from the bar's start, of its aimed point. */
+/**
+ * Each region's bar and the share along it, from the bar's start, of its aimed
+ * point.
+ */
 const REGIONS: Readonly<
   Record<AutoMovieArchetypeEquineEncounterCue.Region, IRegion>
 > = {
@@ -59,16 +62,35 @@ interface ISurface {
   normal: IAutoMovieVector3;
 }
 
-/** Closed-form passes refining a bite's target and the poll the reach will put above it: authored. */
+/**
+ * Closed-form passes refining a bite's target and the poll the reach will put
+ * above it: authored.
+ */
 const REFINE: number = 4;
 
 /** Two of a kind, one per horse. */
 type Pair<T> = readonly [T, T];
 
 /**
- * Two horses' agonistic encounter on one scene clock: threats, bites, rearing strikes and double-barrel kicks aimed at named regions of the other horse, the struck horse's response and an optional retreat.
+ * Two horses' agonistic encounter on one scene clock: threats, bites, rearing
+ * strikes and double-barrel kicks aimed at named regions of the other horse,
+ * the struck horse's response and an optional retreat.
  *
- * Each horse rides into the encounter and halts. A strike or kick is a stance row (`EquineEncounterRows`) whose hooves go to the aimed region's surface on the other horse's halted body, read from its bar: the region's point on the bar's axis pushed out along the bar's radius toward the attacker; the hoof's endpoint goes onto that point with its terminal bar along the inward normal, so the hoof's sole meets the surface end-on without entering it. A bite is a touching muzzle reach (`AutoMovieArchetypeEquineExpression`) onto the region's surface facing the biter's poll, so the head comes in along the surface's normal, tracked on the other horse's staged ride. A threat pins both ears back and faces the other horse's head. When each contact act ends the struck horse pins its ears and turns its head to the attacker for `RESPONSE`, so the touched region holds still while touched and the attacker's limbs are back down. A retreat plays its own ride from its start second, beginning at the halt. An unreachable region is refused by the stance or the reach.
+ * Each horse rides into the encounter and halts. A strike or kick is a stance
+ * row (`EquineEncounterRows`) whose hooves go to the aimed region's surface on
+ * the other horse's halted body, read from its bar: the region's point on the
+ * bar's axis pushed out along the bar's radius toward the attacker; the hoof's
+ * endpoint goes onto that point with its terminal bar along the inward normal,
+ * so the hoof's sole meets the surface end-on without entering it. A bite is a
+ * touching muzzle reach (`AutoMovieArchetypeEquineExpression`) onto the
+ * region's surface facing the biter's poll, so the head comes in along the
+ * surface's normal, tracked on the other horse's staged ride. A threat pins
+ * both ears back and faces the other horse's head. When each contact act ends
+ * the struck horse pins its ears and turns its head to the attacker for
+ * `RESPONSE`, so the touched region holds still while touched and the
+ * attacker's limbs are back down. A retreat plays its own ride from its start
+ * second, beginning at the halt. An unreachable region is refused by the stance
+ * or the reach.
  */
 export namespace AutoMovieArchetypeEquineEncounter {
   /**
@@ -78,7 +100,8 @@ export namespace AutoMovieArchetypeEquineEncounter {
    * @param horses Their rides into the encounter and their retreats.
    * @param acts The acts.
    * @returns The two staged rides.
-   * @throws {AutoMovieArchetypeRefusal} As the stance and the expression layer refuse: an act while moving, overlapping acts, or an unreachable region.
+   * @throws {AutoMovieArchetypeRefusal} As the stance and the expression layer
+   *   refuse: an act while moving, overlapping acts, or an unreachable region.
    */
   export function stage<Id extends string, D extends string>(
     animals: Pair<AutoMovieArchetype<Id, D>>,
@@ -254,7 +277,10 @@ export namespace AutoMovieArchetypeEquineEncounter {
     };
   }
 
-  /** Where a hoof's endpoint goes to touch a region of the other horse, and the surface's outward normal, both in the attacker's halted base model space. */
+  /**
+   * Where a hoof's endpoint goes to touch a region of the other horse, and the
+   * surface's outward normal, both in the attacker's halted base model space.
+   */
   function hoof<Id extends string, D extends string>(
     me: AutoMovieArchetypeRide.ISample<Id, D>,
     other: AutoMovieArchetypeRide.ISample<Id, D>,
@@ -279,9 +305,16 @@ export namespace AutoMovieArchetypeEquineEncounter {
   }
 
   /**
-   * Where a bite's muzzle goes on a region so the head meets the surface end-on.
+   * Where a bite's muzzle goes on a region so the head meets the surface
+   * end-on.
    *
-   * The reach (`EquineHeadReach`) puts the poll on the upper intersection of the neck's circle about its root and the muzzle's about the target, in the vertical plane through them. The target is the region's surface point facing that poll at the foot of its perpendicular onto the bar, so the head runs from the poll along the surface's inward normal. Each depends on the other, so the pair is refined from the halted poll by `REFINE` closed-form passes.
+   * The reach (`EquineHeadReach`) puts the poll on the upper intersection of
+   * the neck's circle about its root and the muzzle's about the target, in the
+   * vertical plane through them. The target is the region's surface point
+   * facing that poll at the foot of its perpendicular onto the bar, so the head
+   * runs from the poll along the surface's inward normal. Each depends on the
+   * other, so the pair is refined from the halted poll by `REFINE` closed-form
+   * passes.
    */
   function bitten<Id extends string, D extends string>(
     biter: AutoMovieArchetypeRide.ISample<Id, D>,
@@ -322,7 +355,12 @@ export namespace AutoMovieArchetypeEquineEncounter {
     return target;
   }
 
-  /** A region's surface point facing a world point, on a sample's bar: at the region's share along the bar, or, when `facing`, at the foot of the perpendicular from the point onto the bar (kept within its middle), so an approach from that point meets the surface end-on. */
+  /**
+   * A region's surface point facing a world point, on a sample's bar: at the
+   * region's share along the bar, or, when `facing`, at the foot of the
+   * perpendicular from the point onto the bar (kept within its middle), so an
+   * approach from that point meets the surface end-on.
+   */
   function surface<Id extends string, D extends string>(
     sample: AutoMovieArchetypeRide.ISample<Id, D>,
     region: AutoMovieArchetypeEquineEncounterCue.Region,

@@ -17,12 +17,12 @@ const STAGED: string =
 const STEEL: string = "#9aa1a6";
 
 /**
- * One bay of a triathlon transition rack: a horizontal bar on two A-frame
- * ends. Its origin is on the ground at the middle of the bay, the bar runs
- * along X and the bicycles stand along +Z and -Z of it. A bicycle racks by
- * its saddle nose on the bar's top (`bar`), the arrangement World Triathlon
- * allows where the race racks by the saddle. The bar's height is authored so
- * the saddle rests on it with both wheels on the ground.
+ * One bay of a triathlon transition rack: a horizontal bar on two A-frame ends.
+ * Its origin is on the ground at the middle of the bay, the bar runs along X
+ * and the bicycles stand along +Z and -Z of it. A bicycle racks by its saddle
+ * nose on the bar's top (`bar`), the arrangement World Triathlon allows where
+ * the race racks by the saddle. The bar's height is authored so the saddle
+ * rests on it with both wheels on the ground.
  *
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
@@ -86,9 +86,7 @@ export function createTransitionRack(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and the bar contact of {@link createTransitionRack}.
- */
+/** Dimensions and the bar contact of {@link createTransitionRack}. */
 export namespace createTransitionRack {
   /** The bar's top, where a saddle nose rests. */
   export type Affordance = "bar";

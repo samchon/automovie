@@ -6,14 +6,17 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
 
 /**
- * An oval racecourse run counter-clockwise with the inner rail on the runners' left: two straights joined by two semicircular turns, and a runner's race plan of lane and speed over distance turned into a timed path.
+ * An oval racecourse run counter-clockwise with the inner rail on the runners'
+ * left: two straights joined by two semicircular turns, and a runner's race
+ * plan of lane and speed over distance turned into a timed path.
  *
- * Distance is measured along the rail from the start of the home straight. A runner `offset` metres out from the rail keeps the rail's distance parameter, so on a turn it covers `(radius + offset) / radius` times the ground the rail does.
+ * Distance is measured along the rail from the start of the home straight. A
+ * runner `offset` metres out from the rail keeps the rail's distance parameter,
+ * so on a turn it covers `(radius + offset) / radius` times the ground the rail
+ * does.
  */
 export namespace AutoMovieArchetypeOval {
-  /**
-   * An oval's layout.
-   */
+  /** An oval's layout. */
   export interface IOval {
     /** The infield's middle on the floor, world metres. */
     centre: IAutoMovieVector3;
@@ -28,9 +31,7 @@ export namespace AutoMovieArchetypeOval {
     radius: number;
   }
 
-  /**
-   * One mark of a race plan.
-   */
+  /** One mark of a race plan. */
   export interface IMark {
     /** The rail distance of the mark, metres. */
     distance: number;
@@ -43,9 +44,11 @@ export namespace AutoMovieArchetypeOval {
   }
 
   /**
-   * The oval about the origin of a lap at a turn radius, its home straight toward `+Z`: the straights take what the two turns leave of the lap.
+   * The oval about the origin of a lap at a turn radius, its home straight
+   * toward `+Z`: the straights take what the two turns leave of the lap.
    *
-   * @param lap The rail's length once round, metres, more than a full circle of the radius.
+   * @param lap The rail's length once round, metres, more than a full circle of
+   *   the radius.
    * @param radius The rail's radius on each turn, metres, positive.
    * @returns The oval.
    */
@@ -115,10 +118,12 @@ export namespace AutoMovieArchetypeOval {
   }
 
   /**
-   * Points on the rail every `spacing` metres of it once round, the first at the home straight's start.
+   * Points on the rail every `spacing` metres of it once round, the first at
+   * the home straight's start.
    *
    * @param oval The oval.
-   * @param spacing The distance between points, metres, positive; the last stretch is shorter when it does not divide the length.
+   * @param spacing The distance between points, metres, positive; the last
+   *   stretch is shorter when it does not divide the length.
    * @returns The points, without repeating the first.
    */
   export function rail(oval: IOval, spacing: number): IAutoMovieVector3[] {
@@ -129,7 +134,8 @@ export namespace AutoMovieArchetypeOval {
   }
 
   /**
-   * A runner's timed path from its race plan: lane offset and pace each linear in rail distance between marks.
+   * A runner's timed path from its race plan: lane offset and pace each linear
+   * in rail distance between marks.
    *
    * @param archetype The name a refusal carries.
    * @param oval The oval.
@@ -138,7 +144,10 @@ export namespace AutoMovieArchetypeOval {
    * @param step Seconds between samples, positive.
    * @param range The gallop's admitted ground speeds.
    * @returns The samples from the first mark to the last.
-   * @throws {AutoMovieArchetypeRefusal} On `marks[i]` for a distance not after the one before, a negative offset, or a pace whose ground speed, on a turn at that offset, leaves the range, giving the paces the range allows there.
+   * @throws {AutoMovieArchetypeRefusal} On `marks[i]` for a distance not after
+   *   the one before, a negative offset, or a pace whose ground speed, on a
+   *   turn at that offset, leaves the range, giving the paces the range allows
+   *   there.
    */
   export function lane(
     archetype: string,

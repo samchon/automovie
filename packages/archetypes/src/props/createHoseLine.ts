@@ -8,10 +8,10 @@ import {
 } from "../core";
 
 /**
- * A charged 1 3/4 in (44 mm) attack line with a fog nozzle, the hand line
- * a two-member team advances. The hose's bore is its trade size; its
- * outer diameter, the nozzle's proportions, the members' spacing, the
- * bail's swing and the charged segment's mass are provisional estimates.
+ * A charged 1 3/4 in (44 mm) attack line with a fog nozzle, the hand line a
+ * two-member team advances. The hose's bore is its trade size; its outer
+ * diameter, the nozzle's proportions, the members' spacing, the bail's swing
+ * and the charged segment's mass are provisional estimates.
  */
 const SIZE: Readonly<createHoseLine.ISize> = {
   bore: 0.0445,
@@ -27,15 +27,14 @@ const SIZE: Readonly<createHoseLine.ISize> = {
 /**
  * A straight run of charged hose ending in a nozzle.
  *
- * The line runs along `+Z` from its tail at the origin to the nozzle's tip
- * at its length, at the hose's own height. `nozzle` is the nozzle
- * operator's grip on the nozzle's body; `bail` is the shut-off bail on the
- * nozzle, a hinge swung back toward the operator to open the flow, and
- * `bailTip` its handle, riding it; `backup` is the backup member's grip,
- * `spacing` behind the nozzle, riding `flex`, the line's bend at the
- * operator's hold, which turns the run behind it about the vertical to
- * either side; `tip` is the outlet, its `+Y` the stream's
- * direction along `+Z`.
+ * The line runs along `+Z` from its tail at the origin to the nozzle's tip at
+ * its length, at the hose's own height. `nozzle` is the nozzle operator's grip
+ * on the nozzle's body; `bail` is the shut-off bail on the nozzle, a hinge
+ * swung back toward the operator to open the flow, and `bailTip` its handle,
+ * riding it; `backup` is the backup member's grip, `spacing` behind the nozzle,
+ * riding `flex`, the line's bend at the operator's hold, which turns the run
+ * behind it about the vertical to either side; `tip` is the outlet, its `+Y`
+ * the stream's direction along `+Z`.
  *
  * @param params The optional scene id.
  * @returns The hose line and its contacts, metres.
@@ -170,9 +169,7 @@ export function createHoseLine(
   return builder.build(SIZE.mass);
 }
 
-/**
- * The inputs, contacts and size of {@link createHoseLine}.
- */
+/** The inputs, contacts and size of {@link createHoseLine}. */
 export namespace createHoseLine {
   /** The nozzle grip, the bail and its handle, the backup grip and the outlet. */
   export type Affordance =

@@ -6,10 +6,13 @@ import { WornPropDraw } from "./WornPropDraw";
 /**
  * Spectacles with a bridge hold and a nose socket.
  *
- * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
+ * @param params The optional scene ID and any fixed free dimension in metres or
+ *   kilograms.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createSpectacles(
   params: Pick<
@@ -71,13 +74,17 @@ export function createSpectacles(
   return builder.build(d.mass);
 }
 
-/**
- * The contacts and dimensions of {@link createSpectacles}.
- */
+/** The contacts and dimensions of {@link createSpectacles}. */
 export namespace createSpectacles {
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  /**
+   * The contacts this producer builds; a numbered family's count follows its
+   * inputs.
+   */
   export type Affordance = "hold" | "wear";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "depth" | "height" | "mass" | "width";
 }

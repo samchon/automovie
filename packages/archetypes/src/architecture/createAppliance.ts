@@ -13,10 +13,13 @@ import { createWashingMachine } from "./createWashingMachine";
 /**
  * Read a saved appliance recipe and call the corresponding fixed producer.
  *
- * @param params The saved kind and its recorded model, dimensions or identifier.
- * @param seed The seed used by the selected producer under the original draw key.
+ * @param params The saved kind and its recorded model, dimensions or
+ *   identifier.
+ * @param seed The seed used by the selected producer under the original draw
+ *   key.
  * @returns The selected fixture in its original frame.
- * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a rejected model or dimension.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a rejected model
+ *   or dimension.
  */
 export function createAppliance(
   params: createAppliance.IParams,
@@ -31,9 +34,7 @@ export function createAppliance(
   return createAppliance.PRODUCERS[kind](params, seed);
 }
 
-/**
- * Companion types, constants and bands of {@link createAppliance}.
- */
+/** Companion types, constants and bands of {@link createAppliance}. */
 export namespace createAppliance {
   /** The kinds of appliance. */
   export type Kind = "refrigerator" | "cooker" | "microwave" | "washingMachine";
@@ -49,10 +50,14 @@ export namespace createAppliance {
   /**
    * The affordance ids, by kind:
    *
-   * - refrigerator: `fridgeDoor`, `freezerDoor` (hinges), `fridgeHandle`, `freezerHandle` (handles riding them), `shelf1` to `shelf4` (stack-tops);
-   * - cooker: `top` (stack-top, the hob), `zone1` to `zone4` (stack-tops);
-   * - microwave: `door` (hinge without travel), `floor`, `top` (stack-tops);
-   * - washingMachine: `door` and its riding `doorHandle`, fixed `drumAperture`, `loadApproach`, `loadAlign`, `loadOpening`, `drumEntry`, and `drumSeat`, and `top` (stack-top).
+   * - Refrigerator: `fridgeDoor`, `freezerDoor` (hinges), `fridgeHandle`,
+   *   `freezerHandle` (handles riding them), `shelf1` to `shelf4`
+   *   (stack-tops);
+   * - Cooker: `top` (stack-top, the hob), `zone1` to `zone4` (stack-tops);
+   * - Microwave: `door` (hinge without travel), `floor`, `top` (stack-tops);
+   * - WashingMachine: `door` and its riding `doorHandle`, fixed `drumAperture`,
+   *   `loadApproach`, `loadAlign`, `loadOpening`, `drumEntry`, and `drumSeat`,
+   *   and `top` (stack-top).
    */
   export type Affordance =
     | "fridgeDoor"
@@ -75,7 +80,8 @@ export namespace createAppliance {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `height`, `width`, `depth`: the appliance along `+Y`, `+X` and `+Z`, a fridge's depth with its handles.
+   * - `height`, `width`, `depth`: the appliance along `+Y`, `+X` and `+Z`, a
+   *   fridge's depth with its handles.
    * - `pullHeight`: a fridge door's handle above the floor.
    * - `cavityHeight`, `cavityWidth`, `cavityDepth`: a microwave's cavity.
    * - `door`: a washing machine's door diameter.
@@ -95,7 +101,10 @@ export namespace createAppliance {
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: typeof FixtureDraw.appliance = FixtureDraw.appliance;
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which appliance. */
     kind: Kind;

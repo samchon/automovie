@@ -15,12 +15,16 @@ import { ADA_RANGES } from "./ADA_RANGES";
 const TRAVEL: string = "switch travel, not read at a source";
 
 /**
- * A wall control pressed with a finger: a rocker light switch or a round call button.
+ * A wall control pressed with a finger: a rocker light switch or a round call
+ * button.
  *
- * The control sits on a wall plate in the `XY` plane, facing `+Z`, at its mounting height above the origin on the floor. Its moving face is a part on the `press` button, so pressing it sinks it into the plate.
+ * The control sits on a wall plate in the `XY` plane, facing `+Z`, at its
+ * mounting height above the origin on the floor. Its moving face is a part on
+ * the `press` button, so pressing it sinks it into the plate.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The control.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -90,9 +94,7 @@ export function createSwitch(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createSwitch}.
- */
+/** Companion types and bands of {@link createSwitch}. */
 export namespace createSwitch {
   /** The kinds of control. */
   export type Kind = "rocker" | "button";
@@ -125,7 +127,10 @@ export namespace createSwitch {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which control. */
     kind: Kind;

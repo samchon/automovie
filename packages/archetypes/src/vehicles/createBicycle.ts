@@ -24,14 +24,21 @@ const GEOMETRY: string =
   "typical road frame geometry; maker geometry charts could not be opened";
 
 /**
- * A bicycle: two wheels, a frame, a saddle, handlebars, and a crank with its two pedals.
+ * A bicycle: two wheels, a frame, a saddle, handlebars, and a crank with its
+ * two pedals.
  *
- * The bicycle stands upright with its bottom bracket over the origin and its front toward `+Z`. The `crank` turns both arms: at travel 0 the left arm (`+X`) points straight up, at top dead centre, and a positive travel pedals forward. Each pedal rides the crank and stays level. The rider sits on the `saddle`, whose height along the seat tube from the bottom bracket is the `saddleHeight` dimension, and holds the two grips.
+ * The bicycle stands upright with its bottom bracket over the origin and its
+ * front toward `+Z`. The `crank` turns both arms: at travel 0 the left arm
+ * (`+X`) points straight up, at top dead centre, and a positive travel pedals
+ * forward. Each pedal rides the crank and stays level. The rider sits on the
+ * `saddle`, whose height along the seat tube from the bottom bracket is the
+ * `saddleHeight` dimension, and holds the two grips.
  *
  * `rideBicycle` moves it along a course.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The bicycle.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -220,11 +227,12 @@ export function createBicycle(
   return builder.build(d.mass, { rests: "rubber", ground: "asphalt" });
 }
 
-/**
- * Companion types and bands of {@link createBicycle}.
- */
+/** Companion types and bands of {@link createBicycle}. */
 export namespace createBicycle {
-  /** The rear axle from the bottom bracket, metres: a typical road chain stay, not read at a source. */
+  /**
+   * The rear axle from the bottom bracket, metres: a typical road chain stay,
+   * not read at a source.
+   */
   export const CHAINSTAY: number = 0.42;
 
   /** A saddle's length, metres: typical, not read at a source. */
@@ -240,10 +248,13 @@ export namespace createBicycle {
    * The affordance ids:
    *
    * - `saddle`: the seat, facing forward.
-   * - `leftGrip`, `rightGrip`: the handlebar's grips on `+X` and `-X`, taken from above.
-   * - `crank`: the crank's axle, out of the left side; its travel turns both arms, positive pedalling forward from the left arm's top dead centre.
+   * - `leftGrip`, `rightGrip`: the handlebar's grips on `+X` and `-X`, taken from
+   *   above.
+   * - `crank`: the crank's axle, out of the left side; its travel turns both
+   *   arms, positive pedalling forward from the left arm's top dead centre.
    * - `leftPedal`, `rightPedal`: the pedals, riding the crank and staying level.
-   * - `frontSpin`, `rearSpin`: wheel travel about their axles, positive rolling forward.
+   * - `frontSpin`, `rearSpin`: wheel travel about their axles, positive rolling
+   *   forward.
    */
   export type Affordance =
     | "saddle"
@@ -262,8 +273,10 @@ export namespace createBicycle {
    * - `wheelbase`: axle to axle.
    * - `bottomBracket`: the crank axle above the ground.
    * - `crank`: a crank arm's length, axle to pedal spindle.
-   * - `stance`: the distance between the two crank arms' outer faces across the bicycle.
-   * - `saddleHeight`: the saddle's top from the bottom bracket's centre along the seat tube.
+   * - `stance`: the distance between the two crank arms' outer faces across the
+   *   bicycle.
+   * - `saddleHeight`: the saddle's top from the bottom bracket's centre along the
+   *   seat tube.
    * - `seatAngle`: the seat tube from the horizontal, degrees.
    * - `saddleWidth`: the saddle's width.
    * - `reach`: the handlebar ahead of the saddle's middle.
@@ -309,7 +322,10 @@ export namespace createBicycle {
     id?: string;
   }
 
-  /** The band of each free dimension; every one is provisional, read at secondary sources or not at all. */
+  /**
+   * The band of each free dimension; every one is provisional, read at
+   * secondary sources or not at all.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     wheelDiameter: m(
       0.672,

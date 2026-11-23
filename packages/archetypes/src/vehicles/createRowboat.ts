@@ -7,12 +7,15 @@ import { createBoat } from "./createBoat";
 /**
  * Fixed-seat rowboat.
  *
- * The hull floats at its waterline with its bow along +Z. The rowing thwart faces aft and its paired oars sit in articulated locks.
+ * The hull floats at its waterline with its bow along +Z. The rowing thwart
+ * faces aft and its paired oars sit in articulated locks.
  *
- * @param params The scene identity and this hull's accepted dimensions and catalogue choices.
+ * @param params The scene identity and this hull's accepted dimensions and
+ *   catalogue choices.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createRowboat(
   params: createRowboat.IParams = {},
@@ -21,20 +24,22 @@ export function createRowboat(
   return BoatConstruction("rowboat", params, seed, outfit);
 }
 
-/**
- * Authoring options for {@link createRowboat}.
- */
+/** Authoring options for {@link createRowboat}. */
 export namespace createRowboat {
   /** The `model` choices this producer admits. */
   export type Model = "thamesSkiff" | "whitehallSkiff" | "whitehall17";
 
   /**
-   * The boat construction's dimension set, which the rowing ride reads. This producer records beam, bladeLength, bladeWidth, depth, draft, length, mass.
+   * The boat construction's dimension set, which the rowing ride reads. This
+   * producer records beam, bladeLength, bladeWidth, depth, draft, length,
+   * mass.
    */
   export type Dimension = createBoat.Dimension;
 
   /**
-   * The boat construction's contact set, which the rowing ride reads. This producer builds bow, floor, gunwale, leftHandle, leftOar, leftOarlock, rightHandle, rightOar, rightOarlock, stern, sternSeat, thwart0, thwart1.
+   * The boat construction's contact set, which the rowing ride reads. This
+   * producer builds bow, floor, gunwale, leftHandle, leftOar, leftOarlock,
+   * rightHandle, rightOar, rightOarlock, stern, sternSeat, thwart0, thwart1.
    */
   export type Affordance = createBoat.Affordance;
 

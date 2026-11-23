@@ -29,30 +29,27 @@ type Marked =
   | AutoMovieArchetypeEquineExpressionCue.ITwitch;
 
 /**
- * The expression layer's cue admission and the readers its channels share: each cue's eased share, a target's world point and a world point in a sample's model space.
+ * The expression layer's cue admission and the readers its channels share: each
+ * cue's eased share, a target's world point and a world point in a sample's
+ * model space.
  */
 export namespace EquineExpressionAdmission {
-  /**
-   * A held cue with its channel.
-   */
+  /** A held cue with its channel. */
   export type Held = Exclude<AutoMovieArchetypeEquineExpressionCue.Cue, Marked>;
 
-  /**
-   * A cue on the head channel that faces a target.
-   */
+  /** A cue on the head channel that faces a target. */
   export type Facing =
     | AutoMovieArchetypeEquineExpressionCue.IAttend
     | AutoMovieArchetypeEquineExpressionCue.IReach;
 
-  /**
-   * Any cue on the head channel.
-   */
+  /** Any cue on the head channel. */
   export type Heading =
     | Facing
     | AutoMovieArchetypeEquineExpressionCue.ICarriage;
 
   /**
-   * A cue's minimum-jerk share at a second: zero outside its window, one when fully held.
+   * A cue's minimum-jerk share at a second: zero outside its window, one when
+   * fully held.
    *
    * @param cue The cue.
    * @param seconds The film second.
@@ -103,12 +100,14 @@ export namespace EquineExpressionAdmission {
   }
 
   /**
-   * Admit the cues: finite windows, one cue at a time per channel, and clearances that agree with their acts.
+   * Admit the cues: finite windows, one cue at a time per channel, and
+   * clearances that agree with their acts.
    *
    * @param archetype The animal's producer name, for a refusal.
    * @param cues The cues.
    * @returns The held cues.
-   * @throws {AutoMovieArchetypeRefusal} For a malformed window, overlapping cues on a channel or a clearance its act contradicts.
+   * @throws {AutoMovieArchetypeRefusal} For a malformed window, overlapping
+   *   cues on a channel or a clearance its act contradicts.
    */
   export function admit(
     archetype: string,

@@ -14,7 +14,10 @@ const STAGED: string =
   "a snorkel: its dimensions and mass are provisional estimates, no maker's page was read";
 
 /**
- * A J snorkel worn beside the head. Its origin is the mouthpiece, `+Y` up along the barrel and `+Z` out of the mouth. `wear` is the mouthpiece the mouth closes on; `top` is the barrel's open top, which must stay above the surface while the swimmer breathes through it.
+ * A J snorkel worn beside the head. Its origin is the mouthpiece, `+Y` up along
+ * the barrel and `+Z` out of the mouth. `wear` is the mouthpiece the mouth
+ * closes on; `top` is the barrel's open top, which must stay above the surface
+ * while the swimmer breathes through it.
  *
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
@@ -65,9 +68,7 @@ export function createSnorkel(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and the socket of {@link createSnorkel}.
- */
+/** Dimensions and the socket of {@link createSnorkel}. */
 export namespace createSnorkel {
   /** The mouthpiece, and the barrel's open top. */
   export type Affordance = "wear" | "top";

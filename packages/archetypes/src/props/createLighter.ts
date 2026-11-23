@@ -7,9 +7,11 @@ import { SmokingPropDraw } from "./SmokingPropDraw";
  * Digital pocket lighter with a grip, wheel, button and effect locator.
  *
  * @param params The optional scene ID and BIC model.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createLighter(
   params: Pick<SmokingPropDraw.IParams, "id"> & {
@@ -86,13 +88,17 @@ export function createLighter(
   return builder.build(d.mass!);
 }
 
-/**
- * The contacts and dimensions of {@link createLighter}.
- */
+/** The contacts and dimensions of {@link createLighter}. */
 export namespace createLighter {
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  /**
+   * The contacts this producer builds; a numbered family's count follows its
+   * inputs.
+   */
   export type Affordance = "flame" | "grip" | "valve" | "wheel";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "length" | "mass" | "width";
 }

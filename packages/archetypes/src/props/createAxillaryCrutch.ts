@@ -10,7 +10,10 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The adult and tall-adult lengths of a maker's aluminium axillary crutch, read at retailers. */
+/**
+ * The adult and tall-adult lengths of a maker's aluminium axillary crutch, read
+ * at retailers.
+ */
 const LENGTH: string =
   "Drive Medical aluminium crutches (10400-1): adult 45 to 53 in, tall adult 53 to 61 in (https://carewell.com/product/drive-aluminum-crutch-underarm-pad-handgrip; https://www.vitalitymedical.com/adjustable-aluminum-crutches-knock-down.html), adjustable";
 
@@ -25,18 +28,21 @@ const MASS: string =
  * An axillary (underarm) crutch: a shaft from its rubber tip to its underarm
  * pad, with a handgrip across it where the hand bears the body's weight.
  *
- * It stands on its tip at the origin, the pad up `+Y`, and the pad's length
- * and the handgrip along `+Z`, front to back between the side rails as the
- * crutch stands beside its user. `tip` is the floor contact facing down, `grip` the handgrip the hand
- * closes on, and `pad` the underarm pad's top, which the side of the chest
- * presses against two to three finger widths below the axilla, never the
- * axilla itself (Physiopedia, Crutches, https://www.physio-pedia.com/Crutches).
- * The handgrip stands where that fitting puts the wrist crease: read through
- * Drillis and Contini's segment heights (wrist crease 0.485, axilla about
- * 0.72 of stature), `GRIP` of the crutch's length above its tip (provisional).
+ * It stands on its tip at the origin, the pad up `+Y`, and the pad's length and
+ * the handgrip along `+Z`, front to back between the side rails as the crutch
+ * stands beside its user. `tip` is the floor contact facing down, `grip` the
+ * handgrip the hand closes on, and `pad` the underarm pad's top, which the side
+ * of the chest presses against two to three finger widths below the axilla,
+ * never the axilla itself (Physiopedia, Crutches,
+ * https://www.physio-pedia.com/Crutches). The handgrip stands where that
+ * fitting puts the wrist crease: read through Drillis and Contini's segment
+ * heights (wrist crease 0.485, axilla about 0.72 of stature), `GRIP` of the
+ * crutch's length above its tip (provisional).
  *
- * @param params Any dimension the author fixes inside its band, and an optional scene id.
- * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
+ * @param params Any dimension the author fixes inside its band, and an optional
+ *   scene id.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, the middle of each band.
  * @returns The crutch.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -129,9 +135,7 @@ export function createAxillaryCrutch(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createAxillaryCrutch}.
- */
+/** Companion types, constants and bands of {@link createAxillaryCrutch}. */
 export namespace createAxillaryCrutch {
   /** The contacts: the handgrip, the floor tip and the underarm pad's top. */
   export type Affordance = "grip" | "tip" | "pad";
@@ -139,10 +143,16 @@ export namespace createAxillaryCrutch {
   /** The dimensions the author may fix inside their bands. */
   export type Dimension = "length" | "diameter" | "mass";
 
-  /** The handgrip's height above the tip as a share of the crutch's length: the wrist crease's height over the pad's under the fitting rule (provisional). */
+  /**
+   * The handgrip's height above the tip as a share of the crutch's length: the
+   * wrist crease's height over the pad's under the fitting rule (provisional).
+   */
   export const GRIP: number = 0.485 / 0.72;
 
-  /** The handgrip's length across the shaft, metres: the 11.5 cm optimal handle length of the Revised NIOSH Lifting Equation, applied. */
+  /**
+   * The handgrip's length across the shaft, metres: the 11.5 cm optimal handle
+   * length of the Revised NIOSH Lifting Equation, applied.
+   */
   export const GRIP_LENGTH: number = 0.115;
 
   /** The underarm pad's width along the handgrip, metres (provisional). */

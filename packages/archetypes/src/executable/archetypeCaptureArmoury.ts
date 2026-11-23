@@ -63,7 +63,11 @@ function club(kind: createClub.Kind): AutoMovieArchetype {
 }
 
 /**
- * The capture catalog's armoury: the firearms, their holsters and magazines, the projectiles, bows, cannon and clubs, and the blades, shields, polearms and pell, each every kind of its producers at the middle of their bands. The stage carriers, tokens, bows and clubs are built by their named producers under their saved kind names.
+ * The capture catalog's armoury: the firearms, their holsters and magazines,
+ * the projectiles, bows, cannon and clubs, and the blades, shields, polearms
+ * and pell, each every kind of its producers at the middle of their bands. The
+ * stage carriers, tokens, bows and clubs are built by their named producers
+ * under their saved kind names.
  *
  * @returns The subjects by name, in the catalog's order.
  */

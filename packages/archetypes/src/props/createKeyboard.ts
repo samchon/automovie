@@ -9,7 +9,8 @@ import { createLaptop } from "./createLaptop";
  * @param params The saved kind, model and optional identifier.
  * @param seed The seed used by the selected producer.
  * @returns An input device with its original contact frames.
- * @throws {AutoMovieArchetypeRefusal} For an unsupported kind or model, or any dimension override.
+ * @throws {AutoMovieArchetypeRefusal} For an unsupported kind or model, or any
+ *   dimension override.
  */
 export function createKeyboard(
   params: createKeyboard.IParams,
@@ -31,9 +32,7 @@ export function createKeyboard(
   return produce(params, seed);
 }
 
-/**
- * Compatibility types and manufacturer records for the saved recipe.
- */
+/** Compatibility types and manufacturer records for the saved recipe. */
 export namespace createKeyboard {
   /** The two saved kinds. */
   export type Kind = KeyboardHardware.Kind;

@@ -28,7 +28,10 @@ interface IDrawn<Id extends createBed.Affordance> {
   d: Dimensions;
 }
 
-/** Select the existing size, then draw the remaining dimensions in the saved stream. */
+/**
+ * Select the existing size, then draw the remaining dimensions in the saved
+ * stream.
+ */
 function draw<Id extends createBed.Affordance>(
   kind: createBed.Kind,
   params: Omit<createBed.IParams, "kind">,
@@ -65,23 +68,15 @@ function draw<Id extends createBed.Affordance>(
   return { builder, d };
 }
 
-/**
- * Bed and stretcher constructions sharing measured sizing and rest dimensions.
- */
+/** Bed and stretcher constructions sharing measured sizing and rest dimensions. */
 export namespace BedConstruction {
-  /**
-   * The values {@link platform} accepts at this place in its signature.
-   */
+  /** The values {@link platform} accepts at this place in its signature. */
   export type PlatformKind = "single" | "double" | "mattress";
 
-  /**
-   * The contact ids {@link platform} builds or reads.
-   */
+  /** The contact ids {@link platform} builds or reads. */
   export type PlatformContact = "surface" | "leftSide" | "rightSide";
 
-  /**
-   * Build a household bed or a mattress laid on the floor.
-   */
+  /** Build a household bed or a mattress laid on the floor. */
   export function platform(
     kind: PlatformKind,
     params: Omit<createBed.IParams, "kind">,
@@ -140,9 +135,7 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
-  /**
-   * The contact ids {@link hospital} builds or reads.
-   */
+  /** The contact ids {@link hospital} builds or reads. */
   export type HospitalContact =
     | "surface"
     | "leftSide"
@@ -151,7 +144,8 @@ export namespace BedConstruction {
     | "rightRail";
 
   /**
-   * Build a wheeled hospital bed with its patient surface, side seats, and siderails.
+   * Build a wheeled hospital bed with its patient surface, side seats, and
+   * siderails.
    */
   export function hospital(
     params: Omit<createBed.IParams, "kind">,
@@ -163,14 +157,10 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
-  /**
-   * The contact ids {@link gurney} builds or reads.
-   */
+  /** The contact ids {@link gurney} builds or reads. */
   export type GurneyContact = "surface" | "leftSide" | "rightSide";
 
-  /**
-   * Build a stretcher on casters with a supported patient surface.
-   */
+  /** Build a stretcher on casters with a supported patient surface. */
   export function gurney(
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,
@@ -181,14 +171,10 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
-  /**
-   * The contact ids {@link crib} builds or reads.
-   */
+  /** The contact ids {@link crib} builds or reads. */
   export type CribContact = "surface" | "leftRail" | "rightRail";
 
-  /**
-   * Build a crib with a mattress and graspable top rails.
-   */
+  /** Build a crib with a mattress and graspable top rails. */
   export function crib(
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,
@@ -199,9 +185,7 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
-  /**
-   * The contact ids {@link bunk} builds or reads.
-   */
+  /** The contact ids {@link bunk} builds or reads. */
   export type BunkContact =
     | "surface"
     | "leftSide"
@@ -209,9 +193,7 @@ export namespace BedConstruction {
     | "upper"
     | "guard";
 
-  /**
-   * Build a bunk bed with two sleep surfaces and a graspable guard rail.
-   */
+  /** Build a bunk bed with two sleep surfaces and a graspable guard rail. */
   export function bunk(
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,

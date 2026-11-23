@@ -7,18 +7,12 @@ import type {
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedRestLimb } from "./QuadrupedRestLimb";
 
-/**
- * Neutral body connections and fixed parent-local attachment observations.
- */
+/** Neutral body connections and fixed parent-local attachment observations. */
 export namespace QuadrupedAttachments {
-  /**
-   * The rigid parent of an upper limb bar.
-   */
+  /** The rigid parent of an upper limb bar. */
   export type Parent = "trunk" | "hindquarters";
 
-  /**
-   * A real capsule's cylindrical axis endpoints and complete radius, metres.
-   */
+  /** A real capsule's cylindrical axis endpoints and complete radius, metres. */
   export interface ICapsule {
     /** First cap centre, model space. */
     from: IAutoMovieVector3;
@@ -28,17 +22,13 @@ export namespace QuadrupedAttachments {
     radius: number;
   }
 
-  /**
-   * An already admitted parent capsule, with its primitive-centre frame.
-   */
+  /** An already admitted parent capsule, with its primitive-centre frame. */
   export interface IParent extends ICapsule {
     /** Parent primitive-centre TRS; unit scale, model space. */
     frame: IAutoMovieTransform;
   }
 
-  /**
-   * One upper joint fixed in its real torso parent's coordinates.
-   */
+  /** One upper joint fixed in its real torso parent's coordinates. */
   export interface IAttachment {
     /** Real parent part identity. */
     parent: Parent;
@@ -48,9 +38,7 @@ export namespace QuadrupedAttachments {
     parentLocal: IAutoMovieVector3;
   }
 
-  /**
-   * The torso capsules that both construction and the body layout use.
-   */
+  /** The torso capsules that both construction and the body layout use. */
   export function solids(
     rig: Pick<
       AutoMovieArchetypeQuadrupedBody.IRig,
@@ -77,14 +65,15 @@ export namespace QuadrupedAttachments {
   }
 
   /**
-   * Ground terminal cylinders and connect provisional neutral roots to body solids.
+   * Ground terminal cylinders and connect provisional neutral roots to body
+   * solids.
    *
    * This is an authored construction rule, not measured joint anatomy. In each
    * limb's fixed sagittal plane, translate its initial chain by the terminal
    * cylinder's exact sole clearance. The body landmarks stay unchanged. Take
    * the nearest point of the parent section only if that root lies outside;
-   * solve the first two bars exactly, preserving all four lengths, the foot
-   * X/Z and both distal directions. No whole-model root offset is introduced.
+   * solve the first two bars exactly, preserving all four lengths, the foot X/Z
+   * and both distal directions. No whole-model root offset is introduced.
    */
   export function conform(
     limbs: Readonly<
@@ -113,9 +102,7 @@ export namespace QuadrupedAttachments {
     };
   }
 
-  /**
-   * Admit physical connections and snapshot their fixed parent-local points.
-   */
+  /** Admit physical connections and snapshot their fixed parent-local points. */
   export function read(
     limbs: Readonly<
       Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
@@ -241,7 +228,10 @@ export namespace QuadrupedAttachments {
     return QuadrupedRestLimb(source, root, source[4]!, distal, fore ? -1 : 1);
   }
 
-  /** Read-only physical membership and primitive-centre inverse rigid conversion. */
+  /**
+   * Read-only physical membership and primitive-centre inverse rigid
+   * conversion.
+   */
   function binding(
     parent: Parent,
     point: IAutoMovieVector3 | undefined,
@@ -277,7 +267,10 @@ export namespace QuadrupedAttachments {
     return { parent, point: { ...point }, parentLocal };
   }
 
-  /** Nearest point on the finite axis; endpoint restriction defines a capsule, not a moving-target correction. */
+  /**
+   * Nearest point on the finite axis; endpoint restriction defines a capsule,
+   * not a moving-target correction.
+   */
   function axisPoint(
     point: IAutoMovieVector3,
     solid: ICapsule,
@@ -327,7 +320,10 @@ export namespace QuadrupedAttachments {
     return Math.atan2(to.z - from.z, -(to.y - from.y));
   }
 
-  /** Fixed-size rigid geometry arithmetic budget, never an authored gap or contact tolerance. */
+  /**
+   * Fixed-size rigid geometry arithmetic budget, never an authored gap or
+   * contact tolerance.
+   */
   function roundoff(
     left: IAutoMovieVector3,
     right: IAutoMovieVector3,

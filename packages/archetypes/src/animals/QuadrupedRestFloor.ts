@@ -12,8 +12,10 @@ import type {
  * Exact lowest world Y of one rigid primitive used by a rest cycle.
  *
  * @param part Source or posed primitive with finite unit-scale transform.
- * @returns The lowest surface height, metres; a drawing plane has no solid and gives Infinity.
- * @throws {RangeError} For unsupported non-primitive geometry or malformed dimensions/transforms.
+ * @returns The lowest surface height, metres; a drawing plane has no solid and
+ *   gives Infinity.
+ * @throws {RangeError} For unsupported non-primitive geometry or malformed
+ *   dimensions/transforms.
  */
 export function QuadrupedRestFloor(part: IAutoMovieModelPart): number {
   if (

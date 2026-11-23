@@ -48,7 +48,11 @@ interface IPlacement {
   rect: IRect;
 }
 
-/** The 915 mm walking width in U.S. Access Board §403.5.1 (https://www.access-board.gov/ada/chapter/ch04/), used here as a layout default. */
+/**
+ * The 915 mm walking width in U.S. Access Board §403.5.1
+ * (https://www.access-board.gov/ada/chapter/ch04/), used here as a layout
+ * default.
+ */
 const DEFAULT_AISLE: number = 0.915;
 
 /** Bearing and box-coordinate tolerance in metres, as in prop placement. */
@@ -284,12 +288,18 @@ export function furnishRoom(
   return { anchors, models, set, props };
 }
 
-/** Build the role of one occurrence from its group's stable ordinal and the part's local suffix. */
+/**
+ * Build the role of one occurrence from its group's stable ordinal and the
+ * part's local suffix.
+ */
 function roleAt(prefix: string, index: number, part: string): string {
   return part === "" ? `${prefix}-${index}` : `${prefix}-${index}/${part}`;
 }
 
-/** Place a local occupied box at the given heading and translation and project it onto XZ. */
+/**
+ * Place a local occupied box at the given heading and translation and project
+ * it onto XZ.
+ */
 function locate(
   item: furnishRoom.IItem,
   x: number,
@@ -388,7 +398,10 @@ function claim(
   blocked.set(role, placed.rect);
 }
 
-/** Name the failing count and the capacity already available when grid placement stops. */
+/**
+ * Name the failing count and the capacity already available when grid placement
+ * stops.
+ */
 function capacityError(
   id: string,
   key: string,
@@ -400,17 +413,20 @@ function capacityError(
   );
 }
 
-/**
- * The room planner's kit input and common proxy measurement.
- */
+/** The room planner's kit input and common proxy measurement. */
 export namespace furnishRoom {
   /**
    * One prop prototype positioned in the repeated group or the room itself.
    *
-   * The rest bounds describe the model's occupied extents before the authored yaw and translation. Their lower Y determines how far to lift the model's origin from the floor.
+   * The rest bounds describe the model's occupied extents before the authored
+   * yaw and translation. Their lower Y determines how far to lift the model's
+   * origin from the floor.
    */
   export interface IItem {
-    /** Fixed role, or suffix appended to the group's role. Empty selects the group role. */
+    /**
+     * Fixed role, or suffix appended to the group's role. Empty selects the
+     * group role.
+     */
     role: string;
 
     /** Renderable rigid model with its authored affordances. */
@@ -432,7 +448,8 @@ export namespace furnishRoom {
   /**
    * One repeatable furniture layout and optional fixed service item.
    *
-   * The group is nonempty and its positions are relative to one grid point. The fixed item stands in room coordinates.
+   * The group is nonempty and its positions are relative to one grid point. The
+   * fixed item stands in room coordinates.
    */
   export interface IParams {
     /** Room and override declarations. */
@@ -450,12 +467,16 @@ export namespace furnishRoom {
     /** Props in one repeated group, named by local suffix. */
     group: readonly IItem[];
 
-    /** Optional service prop in room coordinates, with an aisle across its local +Z face. */
+    /**
+     * Optional service prop in room coordinates, with an aisle across its local
+     * +Z face.
+     */
     fixed?: IItem;
   }
 
   /**
-   * Measure a kit prototype's visible rest extent in its own frame, in metres, using the same geometry as film framing.
+   * Measure a kit prototype's visible rest extent in its own frame, in metres,
+   * using the same geometry as film framing.
    *
    * @param model The equipment model selected by the producer.
    * @returns Model-local bounds used for footprint and floor seating.

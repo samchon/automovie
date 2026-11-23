@@ -19,12 +19,18 @@ const UNREAD: string =
   "the Peloton manual read lists the saddle and the handlebar as adjustable but gives no figure";
 
 /**
- * A stationary exercise bike (an indoor cycle): a frame on a floor base with a saddle, a handlebar, a crank and two pedals.
+ * A stationary exercise bike (an indoor cycle): a frame on a floor base with a
+ * saddle, a handlebar, a crank and two pedals.
  *
- * It stands with its bottom bracket over the origin and its front toward `+Z`, the rider facing `+Z`. The `crank` turns both arms, the left one (`+X`) straight up at rest and a positive travel pedalling forward; each pedal rides it and stays level. The rider sits astride the `saddle`, behind and above the bracket, and holds `leftGrip` and `rightGrip` at the handlebar's ends.
+ * It stands with its bottom bracket over the origin and its front toward `+Z`,
+ * the rider facing `+Z`. The `crank` turns both arms, the left one (`+X`)
+ * straight up at rest and a positive travel pedalling forward; each pedal rides
+ * it and stays level. The rider sits astride the `saddle`, behind and above the
+ * bracket, and holds `leftGrip` and `rightGrip` at the handlebar's ends.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The bike.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -196,11 +202,12 @@ export function createExerciseBike(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createExerciseBike}.
- */
+/** Companion types, constants and bands of {@link createExerciseBike}. */
 export namespace createExerciseBike {
-  /** The floor footprint, metres: the Peloton Bike's 120 x 60 cm (see the source). */
+  /**
+   * The floor footprint, metres: the Peloton Bike's 120 x 60 cm (see the
+   * source).
+   */
   export const FOOTPRINT: Readonly<{ length: number; width: number }> = {
     length: 1.2,
     width: 0.6,

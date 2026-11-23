@@ -16,9 +16,9 @@ const OAK_AND_IRON: string =
 /**
  * A fictional timber loading tower with fixed wheel faces and a stage gangway.
  *
- * The scene origin lies at floor level under the middle of the tower.
- * The rear boarding area projects along `-Z`. The upper platform opens through
- * the front doorway onto the level gangway along `+Z`.
+ * The scene origin lies at floor level under the middle of the tower. The rear
+ * boarding area projects along `-Z`. The upper platform opens through the front
+ * doorway onto the level gangway along `+Z`.
  *
  * @param params Dimensions the author fixes, and an optional scene id.
  * @param seed Seed for dimensions left free, or the band midpoints when absent.
@@ -193,17 +193,17 @@ export function createLoadingTower(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and staging contacts of {@link createLoadingTower}.
- */
+/** Dimensions and staging contacts of {@link createLoadingTower}. */
 export namespace createLoadingTower {
   /**
-   * Foot support on the rear boarding slab, upper platform and gangway, plus the front doorway passage.
+   * Foot support on the rear boarding slab, upper platform and gangway, plus
+   * the front doorway passage.
    */
   export type Affordance = "boarding" | "platform" | "gangway" | "door";
 
   /**
-   * Shell width along X, shell depth along Z, upper floor above grade, gangway projection from the front, and scenic mass.
+   * Shell width along X, shell depth along Z, upper floor above grade, gangway
+   * projection from the front, and scenic mass.
    */
   export type Dimension =
     | "width"
@@ -212,17 +212,13 @@ export namespace createLoadingTower {
     | "gangwayDepth"
     | "mass";
 
-  /**
-   * Author-fixed dimensions within the scene bands and an optional model id.
-   */
+  /** Author-fixed dimensions within the scene bands and an optional model id. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Scene-unique model id, defaulting to the producer's name. */
     id?: string;
   }
 
-  /**
-   * Model lengths are metres and mass is kilograms.
-   */
+  /** Model lengths are metres and mass is kilograms. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -233,9 +229,7 @@ export namespace createLoadingTower {
     mass: "kg",
   };
 
-  /**
-   * Scene blockout bands, chosen for actor staging and silhouette.
-   */
+  /** Scene blockout bands, chosen for actor staging and silhouette. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     width: AutoMovieArchetypeBand.of(
       "m",

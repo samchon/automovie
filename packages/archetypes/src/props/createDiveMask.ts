@@ -14,7 +14,10 @@ const STAGED: string =
   "a diving mask: its dimensions and mass are provisional estimates, no maker's page was read";
 
 /**
- * A diving mask over the eyes and nose. Its origin is the lens' centre, `+Z` out of the face and `+Y` up. `wear` is the skirt's inside, `+Y` toward the face, which seats on the face over the eyes and nose; `nose` is the nose pocket a hand pinches to equalize.
+ * A diving mask over the eyes and nose. Its origin is the lens' centre, `+Z`
+ * out of the face and `+Y` up. `wear` is the skirt's inside, `+Y` toward the
+ * face, which seats on the face over the eyes and nose; `nose` is the nose
+ * pocket a hand pinches to equalize.
  *
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
@@ -69,9 +72,7 @@ export function createDiveMask(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and the socket of {@link createDiveMask}.
- */
+/** Dimensions and the socket of {@link createDiveMask}. */
 export namespace createDiveMask {
   /** The skirt's seat on the face, and the nose pocket. */
   export type Affordance = "wear" | "nose";

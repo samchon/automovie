@@ -7,11 +7,16 @@ import type { createBall } from "./createBall";
 /**
  * A rugby or American football with a longitudinal axis and centre grip.
  *
- * The ball rests with its long axis along X, its bottom at ground and its highest point at top.
- * @param params The sport profile, identifier and dimensions fixed within their bands. Omission selects rugby.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
+ * The ball rests with its long axis along X, its bottom at ground and its
+ * highest point at top.
+ *
+ * @param params The sport profile, identifier and dimensions fixed within their
+ *   bands. Omission selects rugby.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createOvalBall(
   params: createOvalBall.IParams = {},
@@ -44,11 +49,12 @@ export function createOvalBall(
   return builder.build(d.mass!);
 }
 
-/**
- * The authored parameters and contact names for {@link createOvalBall}.
- */
+/** The authored parameters and contact names for {@link createOvalBall}. */
 export namespace createOvalBall {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "length" | "mass";
 
   /** The contacts used by floor, grip and strike motions. */

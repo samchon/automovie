@@ -11,16 +11,24 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** No source read gives the rail's height, its posts' spacing or a turn's radius: estimates. */
+/**
+ * No source read gives the rail's height, its posts' spacing or a turn's
+ * radius: estimates.
+ */
 const ESTIMATE: string = "an estimate, no source read gives it";
 
 /**
- * A racecourse's inner rail round an oval (`AutoMovieArchetypeOval`): a top rail on posts, laid along the rail line every post spacing, the infield on the runners' left as they run counter-clockwise.
+ * A racecourse's inner rail round an oval (`AutoMovieArchetypeOval`): a top
+ * rail on posts, laid along the rail line every post spacing, the infield on
+ * the runners' left as they run counter-clockwise.
  *
- * The oval's infield middle is the origin and its home straight runs toward `+Z` on the `-X` side. `start` is the rail at the home straight's start, facing the running direction.
+ * The oval's infield middle is the origin and its home straight runs toward
+ * `+Z` on the `-X` side. `start` is the rail at the home straight's start,
+ * facing the running direction.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every free dimension inside its band; absent, the middle of each band.
+ * @param seed The seed that draws every free dimension inside its band; absent,
+ *   the middle of each band.
  * @returns The rail.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -82,18 +90,20 @@ export function createRaceRail(
   return builder.build(d.mass * points.length);
 }
 
-/**
- * Companion types, constants and bands of {@link createRaceRail}.
- */
+/** Companion types, constants and bands of {@link createRaceRail}. */
 export namespace createRaceRail {
-  /** The affordance id: `start`, the rail at the home straight's start, facing up. */
+  /**
+   * The affordance id: `start`, the rail at the home straight's start, facing
+   * up.
+   */
   export type Affordance = "start";
 
   /**
    * The dimensions, metres unless stated:
    *
    * - `radius`: the rail's radius on each turn.
-   * - `height`: the top rail above the ground; `post`: a post's and the rail's radius; `spacing`: from post to post along the rail.
+   * - `height`: the top rail above the ground; `post`: a post's and the rail's
+   *   radius; `spacing`: from post to post along the rail.
    * - `mass`: one post and its rail, kilograms.
    */
   export type Dimension = "radius" | "height" | "post" | "spacing" | "mass";
@@ -109,7 +119,10 @@ export namespace createRaceRail {
     mass: "kg",
   };
 
-  /** A lap of the rail, metres: one mile, the main track of Churchill Downs (https://en.wikipedia.org/wiki/Churchill_Downs). */
+  /**
+   * A lap of the rail, metres: one mile, the main track of Churchill Downs
+   * (https://en.wikipedia.org/wiki/Churchill_Downs).
+   */
   export const LAP: number = 1609.344;
 
   /** The parameters: any free dimension fixed inside its band. */

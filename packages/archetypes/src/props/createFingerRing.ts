@@ -10,7 +10,10 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The ring sizes: ISO 8653:2016 states a ring's size as its inner circumference in millimetres, its table running from 49 to 72 mm. */
+/**
+ * The ring sizes: ISO 8653:2016 states a ring's size as its inner circumference
+ * in millimetres, its table running from 49 to 72 mm.
+ */
 const SIZE: string =
   "ISO 8653:2016 ring sizes, the inner circumference 49 to 72 mm (Wikipedia, Ring size, ISO size table)";
 
@@ -28,12 +31,14 @@ const PIECES: number = 12;
  *
  * The band lies in the `XY` plane around the origin, its hole's axis along
  * `+Z`. `wear` is the hole's centre, its frame's `+Y` along that axis (the
- * model's `+Z`), the way the ring travels along a finger toward the hand,
- * so seating it on a finger lays the axis along the finger; `hold` is the
- * band's top, facing out, where a thumb and a fingertip pinch it.
+ * model's `+Z`), the way the ring travels along a finger toward the hand, so
+ * seating it on a finger lays the axis along the finger; `hold` is the band's
+ * top, facing out, where a thumb and a fingertip pinch it.
  *
- * @param params Any dimension the author fixes inside its band, and an optional scene id.
- * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
+ * @param params Any dimension the author fixes inside its band, and an optional
+ *   scene id.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, the middle of each band.
  * @returns The ring.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -97,11 +102,12 @@ export function createFingerRing(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createFingerRing}.
- */
+/** Companion types, constants and bands of {@link createFingerRing}. */
 export namespace createFingerRing {
-  /** The contacts: the hole's centre a finger passes through, and the band's top a pinch takes. */
+  /**
+   * The contacts: the hole's centre a finger passes through, and the band's top
+   * a pinch takes.
+   */
   export type Affordance = "wear" | "hold";
 
   /** The dimensions the author may fix inside their bands. */

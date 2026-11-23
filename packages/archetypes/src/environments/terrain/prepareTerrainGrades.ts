@@ -12,7 +12,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** A resolved area with a level apron and a smooth transition to its surroundings. */
+/**
+ * A resolved area with a level apron and a smooth transition to its
+ * surroundings.
+ */
 interface IPad {
   /** Scoped diagnostic name. */
   id: string;
@@ -77,7 +80,10 @@ interface ITerrainGrades {
   /** One continuous blend away from the declared hard grade regions. */
   height: (point: { x: number; z: number }) => number;
 
-  /** Closest paved, raised or deliberately cleared source within a trunk's protection radius. */
+  /**
+   * Closest paved, raised or deliberately cleared source within a trunk's
+   * protection radius.
+   */
   protectedArea: (
     center: IAutoMoviePlanarPoint,
     radius: number,
@@ -87,10 +93,15 @@ interface ITerrainGrades {
 /**
  * Resolve grade authority before sampling any terrain cells.
  *
- * Pads first reserve a level apron over half their declared shoulder. Paths take heights from that plan, or from a named frame that pins the exact waypoint. A pinned waypoint gets a short level landing on each incident segment. Adjacent shoulders use smoothstep falloff.
+ * Pads first reserve a level apron over half their declared shoulder. Paths
+ * take heights from that plan, or from a named frame that pins the exact
+ * waypoint. A pinned waypoint gets a short level landing on each incident
+ * segment. Adjacent shoulders use smoothstep falloff.
  *
- * @param context The terrain's world placement and environment-relative anchor lookup.
- * @param recipe Widths, ordered local plan coordinates, and named heights for the parcel.
+ * @param context The terrain's world placement and environment-relative anchor
+ *   lookup.
+ * @param recipe Widths, ordered local plan coordinates, and named heights for
+ *   the parcel.
  * @param base The finite, ungraded world-height sampler.
  * @returns Resolved paths and an evaluator for the shared ground lattice.
  */
@@ -220,7 +231,10 @@ export function prepareTerrainGrades(
   };
 }
 
-/** Resolve a local pad ring through its optional named pose and establish its plateau height. */
+/**
+ * Resolve a local pad ring through its optional named pose and establish its
+ * plateau height.
+ */
 function preparePad(
   context: IAutoMovieEnvironmentModule.IContext,
   size: IAutoMovieTerrainRecipe.Point,
@@ -276,7 +290,10 @@ function preparePad(
   return { id, outline, height, shoulder, cut: pad.cut ?? false };
 }
 
-/** Resolve waypoint heights, plateau entrances and the grade along each successive segment. */
+/**
+ * Resolve waypoint heights, plateau entrances and the grade along each
+ * successive segment.
+ */
 function preparePath(
   context: IAutoMovieEnvironmentModule.IContext,
   name: string,

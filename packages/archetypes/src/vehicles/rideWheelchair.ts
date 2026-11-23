@@ -14,14 +14,21 @@ import type { createWheelchair } from "./createWheelchair";
 import { wheelchairHandrimFrame } from "./wheelchairHandrimFrame";
 
 /**
- * A wheelchair moved along a course: its root on the path and its rear wheels, with a self-propelled chair's handrims riding them, rolling with the distance.
+ * A wheelchair moved along a course: its root on the path and its rear wheels,
+ * with a self-propelled chair's handrims riding them, rolling with the
+ * distance.
  *
- * The chair is pushed by an attendant at its handles or wheeled by its sitter. On a course of legs, the two rear wheels roll their signed centre travel plus or minus the track's half-width times the heading change in radians. For a staged sitter's stroke, pass the ride through `wheelchairHandrimFrame` and register `HumanHandrimStroke`.
+ * The chair is pushed by an attendant at its handles or wheeled by its sitter.
+ * On a course of legs, the two rear wheels roll their signed centre travel plus
+ * or minus the track's half-width times the heading change in radians. For a
+ * staged sitter's stroke, pass the ride through `wheelchairHandrimFrame` and
+ * register `HumanHandrimStroke`.
  *
  * @param chair The wheelchair.
  * @param course The course its root follows, or its plan.
  * @returns The ride, with the course's instants.
- * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeRide.along` does for a malformed course.
+ * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeRide.along` does
+ *   for a malformed course.
  */
 export function rideWheelchair(
   chair: AutoMovieArchetype<
@@ -90,22 +97,25 @@ export function rideWheelchair(
 }
 
 /**
- * Repeated chair-relative hand contacts on one authored ride. Build the
- * prop's point reader once and register one HumanHandrimStroke for each
- * engagement. Use a bilateral catch for a straight push and a selected
- * inside rim for a turn braked around that wheel. See the observed inner
- * and outer hand roles in https://pmc.ncbi.nlm.nih.gov/articles/PMC10293636/.
+ * Repeated chair-relative hand contacts on one authored ride. Build the prop's
+ * point reader once and register one HumanHandrimStroke for each engagement.
+ * Use a bilateral catch for a straight push and a selected inside rim for a
+ * turn braked around that wheel. See the observed inner and outer hand roles in
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC10293636/.
  */
 export namespace rideWheelchair {
   /**
-   * One material point selected for a closed interval on the ride clock.
-   * Two intervals on the same rim cannot share an endpoint.
+   * One material point selected for a closed interval on the ride clock. Two
+   * intervals on the same rim cannot share an endpoint.
    */
   export interface IHandrimHold {
     /** The second on the ride clock when the hand first meets the rim. */
     catchAt: number;
 
-    /** The last contact second on the same clock. The hand may still hold after the chair stops. */
+    /**
+     * The last contact second on the same clock. The hand may still hold after
+     * the chair stops.
+     */
     releaseAt: number;
 
     /** The catch angle in degrees from chair up, positive toward its front. */
@@ -118,15 +128,20 @@ export namespace rideWheelchair {
   /**
    * Build the prop's contact callback for successive strokes on one ride.
    *
-   * @param ride The chair ride. Contact times use the same clock as its placement.
-   * @param holds The authored contact intervals, including their catch angles. Input order is immaterial.
-   * @returns A point reader that follows one rim material point per active hand. Other contacts read the ride's usual frame.
-   * @throws {AutoMovieArchetypeRefusal} If a window has invalid times, angle or side, if the chair lacks the selected rim, or if two windows select the same rim at a common second.
+   * @param ride The chair ride. Contact times use the same clock as its
+   *   placement.
+   * @param holds The authored contact intervals, including their catch angles.
+   *   Input order is immaterial.
+   * @returns A point reader that follows one rim material point per active
+   *   hand. Other contacts read the ride's usual frame.
+   * @throws {AutoMovieArchetypeRefusal} If a window has invalid times, angle or
+   *   side, if the chair lacks the selected rim, or if two windows select the
+   *   same rim at a common second.
    *
-   * Prepares chronologically ordered windows for each rim. The existing
-   * single-catch reader resolves each selected point into wheel coordinates
-   * once. Playback searches that rim's windows and samples only its active
-   * selection. The callback retains the ride and the prepared windows.
+   *   Prepares chronologically ordered windows for each rim. The existing
+   *   single-catch reader resolves each selected point into wheel coordinates
+   *   once. Playback searches that rim's windows and samples only its active
+   *   selection. The callback retains the ride and the prepared windows.
    */
   export function handrimContacts(
     ride: ReturnType<typeof rideWheelchair>,

@@ -14,10 +14,13 @@ import { createStageWorm } from "./createStageWorm";
 /**
  * Read a saved long implement recipe and call the producer for its kind.
  *
- * @param params The saved kind, fixed values, optional identifier and model when applicable.
- * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+ * @param params The saved kind, fixed values, optional identifier and model
+ *   when applicable.
+ * @param seed The seed that draws the saved dimensions and model, or undefined
+ *   for the original defaults.
  * @returns The selected prop in its original frame.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createLongTool(
   params: createLongTool.IParams,
@@ -39,9 +42,7 @@ export function createLongTool(
   return produce(params, seed);
 }
 
-/**
- * Compatibility tables and types for saved long implement recipes.
- */
+/** Compatibility tables and types for saved long implement recipes. */
 export namespace createLongTool {
   /** The original kind for the saved long implement recipe. */
   export type Kind = LongImplementDraw.Kind;

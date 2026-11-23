@@ -44,7 +44,8 @@ export function QuadrupedAnimal<Id extends string>(
 }
 
 /**
- * Inputs of the non-equid builder, consumed by the dog and coherent ox/camel/deer reference producers.
+ * Inputs of the non-equid builder, consumed by the dog and coherent
+ * ox/camel/deer reference producers.
  */
 export namespace QuadrupedAnimal {
   /** One producer's complete construction input. */

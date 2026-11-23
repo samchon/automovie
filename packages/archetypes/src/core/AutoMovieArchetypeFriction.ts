@@ -1,9 +1,16 @@
 import { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
 
 /**
- * Friction by material pair: what a part's surface is made of, and the static and kinetic coefficients of each measured pair of materials, each with the source it was read at.
+ * Friction by material pair: what a part's surface is made of, and the static
+ * and kinetic coefficients of each measured pair of materials, each with the
+ * source it was read at.
  *
- * A producer declares each touching part's surface (`AutoMovieArchetypeBuilder.IOptions.surface`) and what the model rests on and on what ground (`AutoMovieArchetypeBuilder.build`); the archetype's body then carries that pair's coefficients, and `AutoMovieArchetype.friction` gives any declared part's against any material. A pair no source here measured is refused, never guessed.
+ * A producer declares each touching part's surface
+ * (`AutoMovieArchetypeBuilder.IOptions.surface`) and what the model rests on
+ * and on what ground (`AutoMovieArchetypeBuilder.build`); the archetype's body
+ * then carries that pair's coefficients, and `AutoMovieArchetype.friction`
+ * gives any declared part's against any material. A pair no source here
+ * measured is refused, never guessed.
  */
 export namespace AutoMovieArchetypeFriction {
   /**
@@ -35,15 +42,20 @@ export namespace AutoMovieArchetypeFriction {
     | "brick"
     | "felt";
 
-  /** The ground a model's body friction is taken against when its producer names none: concrete, the paving and floor slab most staged ground is, and the ground most measured pairs here share. */
+  /**
+   * The ground a model's body friction is taken against when its producer names
+   * none: concrete, the paving and floor slab most staged ground is, and the
+   * ground most measured pairs here share.
+   */
   export const GROUND: Material = "concrete";
 
-  /**
-   * One measured pair's coefficients.
-   */
+  /** One measured pair's coefficients. */
   export type ICoefficients = AutoMovieArchetypeMaterial.IFriction;
 
-  /** Every measured pair, keyed by its two materials in alphabetical order joined by `/`. */
+  /**
+   * Every measured pair, keyed by its two materials in alphabetical order
+   * joined by `/`.
+   */
   export const PAIRS: Readonly<Record<string, ICoefficients>> =
     AutoMovieArchetypeMaterial.FRICTION;
 
@@ -54,7 +66,8 @@ export namespace AutoMovieArchetypeFriction {
    * @param b The other.
    * @param archetype The producer asking, which a refusal names.
    * @returns The pair's row.
-   * @throws {AutoMovieArchetypeRefusal} When no source here measured the pair, listing the pairs that were.
+   * @throws {AutoMovieArchetypeRefusal} When no source here measured the pair,
+   *   listing the pairs that were.
    */
   export function pair(
     a: Material,

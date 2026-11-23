@@ -46,7 +46,10 @@ interface IFootwearProfile {
   mass: number;
 }
 
-/** The coarse shoe and the thinner soft-looking sock are the same geometric family. */
+/**
+ * The coarse shoe and the thinner soft-looking sock are the same geometric
+ * family.
+ */
 const PROFILES: Readonly<Record<createStageFootwear.Kind, IFootwearProfile>> = {
   shoe: { thickness: 0.012, tint: "#375d88", mass: 0.24 },
   sock: { thickness: 0.004, tint: "#a4645c", mass: 0.04 },
@@ -61,7 +64,8 @@ const PROFILES: Readonly<Record<createStageFootwear.Kind, IFootwearProfile>> = {
  * @param params The form, model identity, and any fixed clearance in metres.
  * @param seed Selects dimensions left unbound by the author.
  * @returns The shaped footwear and its three actor-facing contacts.
- * @throws {AutoMovieArchetypeRefusal} For an unavailable form or an out-of-band size.
+ * @throws {AutoMovieArchetypeRefusal} For an unavailable form or an out-of-band
+ *   size.
  */
 export function createStageFootwear(
   params: createStageFootwear.IParams,
@@ -182,9 +186,7 @@ export function createStageFootwear(
   return builder.build(profile.mass);
 }
 
-/**
- * Supported footwear profiles, their contacts and authorable dimensions.
- */
+/** Supported footwear profiles, their contacts and authorable dimensions. */
 export namespace createStageFootwear {
   /** The fixed profile identifiers. */
   export const KINDS = ["shoe", "sock"] as const;

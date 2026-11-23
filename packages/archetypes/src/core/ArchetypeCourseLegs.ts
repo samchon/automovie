@@ -11,18 +11,24 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
 
 /**
- * How a course of legs is planned: its legs measured and placed end to end by `ArchetypeCoursePath`, its speed marks admitted and handed to the engine's speed profile, and each second's state read back from the leg that holds it.
+ * How a course of legs is planned: its legs measured and placed end to end by
+ * `ArchetypeCoursePath`, its speed marks admitted and handed to the engine's
+ * speed profile, and each second's state read back from the leg that holds it.
  *
- * `AutoMovieArchetypeCourse.plan` reads the full course plan, and `rowBoat` also reads its travelled distance to locate catches.
+ * `AutoMovieArchetypeCourse.plan` reads the full course plan, and `rowBoat`
+ * also reads its travelled distance to locate catches.
  */
 export namespace ArchetypeCourseLegs {
   /**
-   * A course of legs made ready to sample, as `AutoMovieArchetypeCourse.plan` documents it.
+   * A course of legs made ready to sample, as `AutoMovieArchetypeCourse.plan`
+   * documents it.
    *
    * @param archetype The name a refusal carries.
    * @param course The course.
-   * @returns The plan and its travelled distance reader in metres at a course second.
-   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeCourse.plan` states.
+   * @returns The plan and its travelled distance reader in metres at a course
+   *   second.
+   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeCourse.plan`
+   *   states.
    */
   export function plan(
     archetype: string,

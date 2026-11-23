@@ -26,14 +26,16 @@ const NAMES: Readonly<Record<createHolster.Kind, string>> = {
 /**
  * Assemble a display carrier from its stored form.
  *
- * Draw the selected fit, mount height and slot count before attaching that carrier's geometry and scene contacts.
+ * Draw the selected fit, mount height and slot count before attaching that
+ * carrier's geometry and scene contacts.
  *
  * @param kind The selected carrier form.
  * @param build Adds the selected carrier geometry and wear contacts.
  * @param params The accepted dimensions and choices of the selected carrier.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function StageCarrierConstruction(
   kind: createHolster.Kind,
@@ -143,9 +145,7 @@ export function StageCarrierConstruction(
   return builder.build(d.mass!);
 }
 
-/**
- * Geometry callback for the display carrier catalogue.
- */
+/** Geometry callback for the display carrier catalogue. */
 export namespace StageCarrierConstruction {
   /** Draws one carrier in its own local wear frame. */
   export type Build = (

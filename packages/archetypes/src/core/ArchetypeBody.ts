@@ -15,12 +15,13 @@ type Props<Physical extends AutoMovieArchetypeMass.IProperties | null> = Pick<
 >;
 
 /**
- * Construct the model body from one archetype's declared physical metadata.
- * A visual-only archetype has a null body.
- * An unknown coefficient stays absent; the body never invents a rebound.
+ * Construct the model body from one archetype's declared physical metadata. A
+ * visual-only archetype has a null body. An unknown coefficient stays absent;
+ * the body never invents a rebound.
  *
  * @param props Derived mass properties and declared or measured contact data.
- * @returns A fresh body with fresh centre, drag and contact records, or null without mass properties.
+ * @returns A fresh body with fresh centre, drag and contact records, or null
+ *   without mass properties.
  */
 export function ArchetypeBody<
   Physical extends AutoMovieArchetypeMass.IProperties | null,

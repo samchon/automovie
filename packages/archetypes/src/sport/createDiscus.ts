@@ -18,10 +18,14 @@ const RULE: string =
 /**
  * A competition discus, the men's or the women's.
  *
- * It lies flat on the floor, its centre over the origin. `grip` is the disc as the throwing hand holds it, laid flat on its top with the fingertips over the rim, its thickness the aperture; `rim` is the edge the fingertips hook, toward `+Z`.
+ * It lies flat on the floor, its centre over the origin. `grip` is the disc as
+ * the throwing hand holds it, laid flat on its top with the fingertips over the
+ * rim, its thickness the aperture; `rim` is the edge the fingertips hook,
+ * toward `+Z`.
  *
  * @param params The category and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The discus.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -86,9 +90,7 @@ export function createDiscus(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createDiscus}.
- */
+/** Companion types and bands of {@link createDiscus}. */
 export namespace createDiscus {
   /** The categories. */
   export type Kind = "men" | "women";
@@ -122,7 +124,10 @@ export namespace createDiscus {
     mass: "kg",
   };
 
-  /** The parameters: the category, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the category, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which category. */
     kind: Kind;

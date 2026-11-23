@@ -8,13 +8,13 @@ import {
 } from "../core";
 
 /**
- * A scenic wooden drumstick along +Y, with its butt at the origin. The
- * overall length and shaft diameter follow the Vic Firth American Classic
- * 5A (https://vicfirth.com/products/american-classicr-5a-doubleglaze-double-coat-of-lacquer-finish).
+ * A scenic wooden drumstick along +Y, with its butt at the origin. The overall
+ * length and shaft diameter follow the Vic Firth American Classic 5A
+ * (https://vicfirth.com/products/american-classicr-5a-doubleglaze-double-coat-of-lacquer-finish).
  * The shoulder, spherical bead, grip placement and 50 g mass are scenic
- * estimates. `face` is the bead's tangent point on +Z. The grip frame is
- * offset by the same amount, so the line to the face follows the stick
- * and the shaft clears the head when the bead lands.
+ * estimates. `face` is the bead's tangent point on +Z. The grip frame is offset
+ * by the same amount, so the line to the face follows the stick and the shaft
+ * clears the head when the bead lands.
  *
  * @param params The model id, supplied as an option or as a positional string.
  * @returns A rigid wooden stick with `grip` and `face` contacts.

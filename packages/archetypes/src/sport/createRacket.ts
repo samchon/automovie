@@ -16,10 +16,17 @@ import { buildTennisRacketHead } from "./buildTennisRacketHead";
 /**
  * A tennis, badminton, squash or padel racket, or a table tennis bat.
  *
- * It stands along `+Y` from the butt of its handle at the origin to the top of its head, the strung face toward `+Z`. `grip` is the handle a hand closes on, `face` the strung surface that meets the ball, its `+Y` out of the strings, and `sweetSpot` the head's centre on the racket's axis, its `+Y` running along the racket toward the head's top: a swing carries `sweetSpot` through the ball as its working point (`tip`) with `face` leading as its edge (`edge`).
+ * It stands along `+Y` from the butt of its handle at the origin to the top of
+ * its head, the strung face toward `+Z`. `grip` is the handle a hand closes on,
+ * `face` the strung surface that meets the ball, its `+Y` out of the strings,
+ * and `sweetSpot` the head's centre on the racket's axis, its `+Y` running
+ * along the racket toward the head's top: a swing carries `sweetSpot` through
+ * the ball as its working point (`tip`) with `face` leading as its edge
+ * (`edge`).
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The racket.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -143,9 +150,7 @@ export function createRacket(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createRacket}.
- */
+/** Companion types, constants and bands of {@link createRacket}. */
 export namespace createRacket {
   /** The kinds. */
   export type Kind =
@@ -173,7 +178,10 @@ export namespace createRacket {
     padel: "padel racket",
   };
 
-  /** Head thickness in metres. Padel uses the FIP overall limit. Other values are provisional. */
+  /**
+   * Head thickness in metres. Padel uses the FIP overall limit. Other values
+   * are provisional.
+   */
   export const THICKNESS: Readonly<Record<Kind, number>> = {
     tennis: 0.024,
     badminton: 0.008,
@@ -198,8 +206,10 @@ export namespace createRacket {
    * The affordance ids:
    *
    * - `grip`: the handle, taken from `-Z`, its length along the racket.
-   * - `face`: the hitting face toward `+Z`, as wide and as long as the head, its `+X` across the head.
-   * - `sweetSpot`: the head's centre on the racket's axis, its `+Y` along the racket.
+   * - `face`: the hitting face toward `+Z`, as wide and as long as the head, its
+   *   `+X` across the head.
+   * - `sweetSpot`: the head's centre on the racket's axis, its `+Y` along the
+   *   racket.
    */
   export type Affordance = "grip" | "face" | "sweetSpot";
 
@@ -232,7 +242,10 @@ export namespace createRacket {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which racket. */
     kind: Kind;

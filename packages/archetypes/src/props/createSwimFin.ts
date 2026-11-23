@@ -14,11 +14,11 @@ const STAGED: string =
   "a full-foot swimming fin: blade length and width and the mass are provisional estimates, no maker's page was read";
 
 /**
- * One full-foot swimming fin. Its origin is the foot pocket's heel, `+Z`
- * along the blade and `+Y` up from the sole. `wear` is the pocket the foot
- * goes into, `+Y` toward the foot, at the ankle's place over the heel; the
- * blade's area is `length` times `width`, which a fin-swimming law reads as
- * the fin's hydrodynamic area.
+ * One full-foot swimming fin. Its origin is the foot pocket's heel, `+Z` along
+ * the blade and `+Y` up from the sole. `wear` is the pocket the foot goes into,
+ * `+Y` toward the foot, at the ankle's place over the heel; the blade's area is
+ * `length` times `width`, which a fin-swimming law reads as the fin's
+ * hydrodynamic area.
  *
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
@@ -80,9 +80,7 @@ export function createSwimFin(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and the socket of {@link createSwimFin}.
- */
+/** Dimensions and the socket of {@link createSwimFin}. */
 export namespace createSwimFin {
   /** The foot pocket, and the blade's upper face. */
   export type Affordance = "wear" | "blade";

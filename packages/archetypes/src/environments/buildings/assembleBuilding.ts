@@ -50,7 +50,8 @@ interface IAssembly {
 }
 
 /**
- * Lower an admitted upright building plan to normal stage, runtime and anchor records.
+ * Lower an admitted upright building plan to normal stage, runtime and anchor
+ * records.
  */
 export function assembleBuilding(
   plan: buildingPlans.IPlan,
@@ -141,7 +142,10 @@ export function assembleBuilding(
   };
 }
 
-/** Record one shared or exterior wall and pass its owned apertures to the mesh kernel. */
+/**
+ * Record one shared or exterior wall and pass its owned apertures to the mesh
+ * kernel.
+ */
 function addWall(
   assembly: IAssembly,
   level: buildingPlans.ILevel,
@@ -206,7 +210,10 @@ function addWall(
   );
 }
 
-/** Resolve a single wall cut into an aperture, named sill, and optional moving leaf. */
+/**
+ * Resolve a single wall cut into an aperture, named sill, and optional moving
+ * leaf.
+ */
 function addOpening(
   assembly: IAssembly,
   level: buildingPlans.ILevel,
@@ -322,7 +329,10 @@ function addOpening(
     );
 }
 
-/** Let the opening's own clear footprint bridge the wall's depth at sill elevation. */
+/**
+ * Let the opening's own clear footprint bridge the wall's depth at sill
+ * elevation.
+ */
 function addThreshold(
   assembly: IAssembly,
   opening: string,

@@ -42,7 +42,8 @@ const POST: string =
   "Atkore Telespar Qwik Punch square sign post: 2 x 2 in outside, 14 gauge (https://dam.atkore.com/api/public/content/ATCM-SSTelespar-Qwik-Punch-ATC-L-1609-1-1-22-WEB)";
 
 /**
- * The band of each free dimension of {@link createStreetFixture}, by kind, but those its models fix.
+ * The band of each free dimension of {@link createStreetFixture}, by kind, but
+ * those its models fix.
  */
 export const STREET_FIXTURE_BANDS: Readonly<
   Record<

@@ -9,14 +9,14 @@ import {
 } from "../core";
 
 /**
- * One flag of a flag football belt at the IFAF Flag Football Rules'
- * dimensions: a strip 15 to 16 inches long from its socket (the middle,
- * 15.5 in), 1.8 to 2.0 inches wide (1.9 in) and 0.02 to 0.10 inches thick
- * (0.06 in), hanging down along -Y from its socket at the origin. A player
- * wears one at each hip; a defender's hand that grips it pulls it off.
+ * One flag of a flag football belt at the IFAF Flag Football Rules' dimensions:
+ * a strip 15 to 16 inches long from its socket (the middle, 15.5 in), 1.8 to
+ * 2.0 inches wide (1.9 in) and 0.02 to 0.10 inches thick (0.06 in), hanging
+ * down along -Y from its socket at the origin. A player wears one at each hip;
+ * a defender's hand that grips it pulls it off.
  *
- * `socket` is where it clips to the belt, worn on the hips; `tip` its free
- * end, `grip` the middle a pulling hand closes on.
+ * `socket` is where it clips to the belt, worn on the hips; `tip` its free end,
+ * `grip` the middle a pulling hand closes on.
  *
  * @param params The model's id.
  * @param seed The seed; the flag has no drawn dimension.
@@ -60,11 +60,12 @@ export function createFootballFlag(
   return builder.build(0.02);
 }
 
-/**
- * Companion types and constants of {@link createFootballFlag}.
- */
+/** Companion types and constants of {@link createFootballFlag}. */
 export namespace createFootballFlag {
-  /** `socket`, where it clips to the belt; `grip`, its middle; `tip`, its free end. */
+  /**
+   * `socket`, where it clips to the belt; `grip`, its middle; `tip`, its free
+   * end.
+   */
   export type Affordance = "socket" | "grip" | "tip";
 
   /** The parameters. */

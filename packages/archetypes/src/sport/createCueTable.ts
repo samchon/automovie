@@ -24,12 +24,19 @@ const MOUTH = {
 } as const;
 
 /**
- * A 9 ft pool table: its bed, the cushions' nose line round it and the rails outside.
+ * A 9 ft pool table: its bed, the cushions' nose line round it and the rails
+ * outside.
  *
- * The table stands on the floor at the origin, its length along `Z` and its width along `X`. `bed` is the playing surface and the four named rail sites lie on the cushion noses. The left and right sites mark their head-side sections. The four corner and two side pockets have open mouths in the rail and bed and a named target at each mouth. Pocket shelves, liners and returns use a coarse open recess.
+ * The table stands on the floor at the origin, its length along `Z` and its
+ * width along `X`. `bed` is the playing surface and the four named rail sites
+ * lie on the cushion noses. The left and right sites mark their head-side
+ * sections. The four corner and two side pockets have open mouths in the rail
+ * and bed and a named target at each mouth. Pocket shelves, liners and returns
+ * use a coarse open recess.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The table.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -148,15 +155,15 @@ export function createCueTable(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createCueTable}.
- */
+/** Companion types and bands of {@link createCueTable}. */
 export namespace createCueTable {
   /**
    * The affordance ids:
    *
    * - `bed`: the playing surface.
-   * - `headRail`, `footRail`, `leftRail`, `rightRail`: the cushions' nose lines on `-Z`, `+Z`, `+X` and `-X`, ledges, each `+Z` out from the bed. The side sites cover the sections nearest the head rail.
+   * - `headRail`, `footRail`, `leftRail`, `rightRail`: the cushions' nose lines
+   *   on `-Z`, `+Z`, `+X` and `-X`, ledges, each `+Z` out from the bed. The
+   *   side sites cover the sections nearest the head rail.
    * - The six `Pocket` points are the open mouth centres at the bed's height.
    */
   export type Affordance =
@@ -177,7 +184,8 @@ export namespace createCueTable {
    *
    * - `width`, `length`: the playing surface.
    * - `height`: the bed above the floor.
-   * - `nose`: the cushion's nose above the bed, as a share of the ball's diameter.
+   * - `nose`: the cushion's nose above the bed, as a share of the ball's
+   *   diameter.
    * - `rail`: a rail's width with its cushion.
    * - `mass`: kilograms.
    */

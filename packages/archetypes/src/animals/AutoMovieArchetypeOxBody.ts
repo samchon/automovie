@@ -5,20 +5,23 @@ import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
  * A coarse ox control body anchored to the Kathani working-bullock means.
  *
  * Bhagat et al. 2022, Table 2, measured 2614 working bullocks
- * (https://doi.org/10.56093/ijans.v92i10.105090). Their withers, girth,
- * body, face, ear, horn and tail means stay together in MEASURES. The survey
- * supplies no limb lengths, neck dimensions, joint directions or live mass.
+ * (https://doi.org/10.56093/ijans.v92i10.105090). Their withers, girth, body,
+ * face, ear, horn and tail means stay together in MEASURES. The survey supplies
+ * no limb lengths, neck dimensions, joint directions or live mass.
  *
  * The separate FH adult-female digital column in Hakim et al. 2019, Table 2
  * (https://doi.org/10.29244/jipthp.7.2.47-56), supplies provisional limb and
  * cervical control proportions. These are live surface landmarks: even its
  * femur row runs from tuber ilium to tuber femoris, not an osteometric femur.
- * Their normalization by the FH withers mean is a construction transfer to
- * an ox, not measured Kathani anatomy or a paired individual scaling law.
- * All other directions and radii are named construction estimates below.
+ * Their normalization by the FH withers mean is a construction transfer to an
+ * ox, not measured Kathani anatomy or a paired individual scaling law. All
+ * other directions and radii are named construction estimates below.
  *
- * @param withersHeight The admitted instance height in metres, used for lateral inset scaling; all proportions remain anchored to the published reference means.
- * @returns Fresh coarse control data, without segment mass shares or foot material.
+ * @param withersHeight The admitted instance height in metres, used for lateral
+ *   inset scaling; all proportions remain anchored to the published reference
+ *   means.
+ * @returns Fresh coarse control data, without segment mass shares or foot
+ *   material.
  * @throws {RangeError} For a nonpositive or nonfinite instance height.
  */
 export function AutoMovieArchetypeOxBody(
@@ -60,11 +63,12 @@ export function AutoMovieArchetypeOxBody(
   });
 }
 
-/**
- * Ox reference measurements and separately named coarse construction choices.
- */
+/** Ox reference measurements and separately named coarse construction choices. */
 export namespace AutoMovieArchetypeOxBody {
-  /** Bhagat 2022 Table 2, 2614 working Kathani bullocks; means in metres, mass absent. */
+  /**
+   * Bhagat 2022 Table 2, 2614 working Kathani bullocks; means in metres, mass
+   * absent.
+   */
   export const MEASURES: Readonly<{
     /** Ground to withers. */
     withers: number;
@@ -100,7 +104,10 @@ export namespace AutoMovieArchetypeOxBody {
     horn: 0.1757,
   };
 
-  /** Hakim 2019 Table 2 digital FH adult-female means, n = 24, metres; external landmarks, not bones. */
+  /**
+   * Hakim 2019 Table 2 digital FH adult-female means, n = 24, metres; external
+   * landmarks, not bones.
+   */
   export const SEGMENTS: Readonly<{
     /** That cohort's withers height, used only to normalize its control lengths. */
     withers: number;
@@ -108,7 +115,10 @@ export namespace AutoMovieArchetypeOxBody {
     /** Upper arm, forearm and metacarpal surface-control distances. */
     fore: readonly [number, number, number];
 
-    /** Ilium-to-femoral landmark, femoral-to-calcaneal landmark and distal tarsal-to-phalangeal distance. */
+    /**
+     * Ilium-to-femoral landmark, femoral-to-calcaneal landmark and distal
+     * tarsal-to-phalangeal distance.
+     */
     hind: readonly [number, number, number];
 
     /** Axis/atlas region to dorsal neck base, not a measured ox neck. */
@@ -120,7 +130,10 @@ export namespace AutoMovieArchetypeOxBody {
     neck: 0.3692,
   };
 
-  /** Authored coarse controls, not measurements or anatomical limits. Colors are likewise authored. */
+  /**
+   * Authored coarse controls, not measurements or anatomical limits. Colors are
+   * likewise authored.
+   */
   export const CONSTRUCTION: Readonly<
     QuadrupedBodyProfile.IConstruction & {
       /** Unmeasured fourth limb bar / withers height. */

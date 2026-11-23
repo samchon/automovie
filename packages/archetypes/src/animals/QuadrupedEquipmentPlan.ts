@@ -13,7 +13,10 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
 import type { AutoMovieArchetypeQuadrupedEquipment } from "./AutoMovieArchetypeQuadrupedEquipment";
 import { QuadrupedEquipmentSolids } from "./QuadrupedEquipmentSolids";
 
-/** One admitted real primitive, kept outside the animal builder until the whole assembly fits. */
+/**
+ * One admitted real primitive, kept outside the animal builder until the whole
+ * assembly fits.
+ */
 type Part =
   | {
       kind: "rod";
@@ -34,8 +37,8 @@ type Part =
 /**
  * Call-local geometry and contact plan for the two authored animal assemblies.
  *
- * Additional body spheres are copied once; each recorded solid must retain
- * its requested nonnegative clearance from those producer solids.
+ * Additional body spheres are copied once; each recorded solid must retain its
+ * requested nonnegative clearance from those producer solids.
  */
 export class QuadrupedEquipmentPlan {
   /** Already admitted primitive records in assembly order. */
@@ -56,8 +59,10 @@ export class QuadrupedEquipmentPlan {
    * Begin a preflight without retaining or changing an animal builder.
    *
    * @param archetype Producer identity used by equipment refusals.
-   * @param spheres Emitted additional body spheres in neutral model metres; defaults to an empty list and is copied by the solid owner.
-   * @throws {RangeError} If an additional sphere radius is not finite positive or its centre is nonfinite.
+   * @param spheres Emitted additional body spheres in neutral model metres;
+   *   defaults to an empty list and is copied by the solid owner.
+   * @throws {RangeError} If an additional sphere radius is not finite positive
+   *   or its centre is nonfinite.
    */
   public constructor(
     archetype: string,
@@ -70,13 +75,17 @@ export class QuadrupedEquipmentPlan {
   /**
    * Find a connected pack bridge's upper support plane from body solids.
    *
-   * @param minimum Positive finite lower height from the ordinary trunk envelope, metres.
+   * @param minimum Positive finite lower height from the ordinary trunk
+   *   envelope, metres.
    * @param halfSpan Positive finite bridge half-length along X, metres.
    * @param z Finite fore-aft bridge plane in the neutral model, metres.
    * @param radius Positive finite bridge cylinder radius, metres.
-   * @param clearance Finite nonnegative separation from additional spheres, metres.
-   * @returns The admitted lower height or a conservative upper sphere support height, metres.
-   * @throws {AutoMovieArchetypeRefusal} For invalid inputs or nonfinite derived support height.
+   * @param clearance Finite nonnegative separation from additional spheres,
+   *   metres.
+   * @returns The admitted lower height or a conservative upper sphere support
+   *   height, metres.
+   * @throws {AutoMovieArchetypeRefusal} For invalid inputs or nonfinite derived
+   *   support height.
    */
   public bridgeHeight(
     minimum: number,
@@ -93,9 +102,7 @@ export class QuadrupedEquipmentPlan {
     return this.#solids.above(minimum, halfSpan, z, radius, clearance);
   }
 
-  /**
-   * Append the fully admitted fixed plan to the genuine animal builder.
-   */
+  /** Append the fully admitted fixed plan to the genuine animal builder. */
   public emit(
     builder: AutoMovieArchetypeBuilder<
       AutoMovieArchetypeQuadrupedEquipment.Affordance,
@@ -120,8 +127,10 @@ export class QuadrupedEquipmentPlan {
    * @param from First finite endpoint in the neutral model frame, metres.
    * @param to Second finite endpoint, distinct from the first, metres.
    * @param color Optical display color without material-physics implications.
-   * @param clearance Finite nonnegative separation from each additional body sphere, metres; defaults to zero, allowing exact contact.
-   * @throws {AutoMovieArchetypeRefusal} For invalid geometry/clearance or insufficient sphere separation.
+   * @param clearance Finite nonnegative separation from each additional body
+   *   sphere, metres; defaults to zero, allowing exact contact.
+   * @throws {AutoMovieArchetypeRefusal} For invalid geometry/clearance or
+   *   insufficient sphere separation.
    */
   public rod(
     id: string,
@@ -141,14 +150,18 @@ export class QuadrupedEquipmentPlan {
   }
 
   /**
-   * Record one side pad after its authored positive dimensions passed assembly admission.
+   * Record one side pad after its authored positive dimensions passed assembly
+   * admission.
    *
    * @param id Emitted pad identity, also used by refusal facts.
-   * @param size Full axis-aligned box lengths in metres; assembly admission supplies positive lengths.
+   * @param size Full axis-aligned box lengths in metres; assembly admission
+   *   supplies positive lengths.
    * @param at Finite box centre in the neutral model frame, metres.
    * @param color Optical display color without material-physics implications.
-   * @param clearance Finite nonnegative additional-sphere separation, metres; defaults to zero, allowing exact contact.
-   * @throws {AutoMovieArchetypeRefusal} For nonfinite geometry, invalid clearance or insufficient sphere separation.
+   * @param clearance Finite nonnegative additional-sphere separation, metres;
+   *   defaults to zero, allowing exact contact.
+   * @throws {AutoMovieArchetypeRefusal} For nonfinite geometry, invalid
+   *   clearance or insufficient sphere separation.
    */
   public box(
     id: string,
@@ -165,15 +178,19 @@ export class QuadrupedEquipmentPlan {
   }
 
   /**
-   * Plan the three real U bars and their +Y inner bearing contact from admitted dimensions.
+   * Plan the three real U bars and their +Y inner bearing contact from admitted
+   * dimensions.
    *
    * @param name Prefix of the three emitted bar identities.
    * @param id The real bearing contact identity.
    * @param base Lower bar axis midpoint in the neutral model frame, metres.
-   * @param hook Already admitted positive finite bar radius, opening and depth, metres.
+   * @param hook Already admitted positive finite bar radius, opening and depth,
+   *   metres.
    * @param color Optical display color for all three bars.
-   * @param clearance Finite nonnegative additional-sphere separation for every bar, metres; defaults to zero.
-   * @throws {AutoMovieArchetypeRefusal} For invalid derived bar geometry or insufficient sphere separation; no builder has been mutated.
+   * @param clearance Finite nonnegative additional-sphere separation for every
+   *   bar, metres; defaults to zero.
+   * @throws {AutoMovieArchetypeRefusal} For invalid derived bar geometry or
+   *   insufficient sphere separation; no builder has been mutated.
    */
   public hook(
     name: string,
@@ -215,9 +232,7 @@ export class QuadrupedEquipmentPlan {
     });
   }
 
-  /**
-   * Admit all three authored U dimensions before planning either assembly.
-   */
+  /** Admit all three authored U dimensions before planning either assembly. */
   public admitHook(
     name: string,
     hook: AutoMovieArchetypeQuadrupedEquipment.IHook,
@@ -227,7 +242,8 @@ export class QuadrupedEquipmentPlan {
   }
 
   /**
-   * Refuse nonfinite derived coordinates before recording their primitive or contact.
+   * Refuse nonfinite derived coordinates before recording their primitive or
+   * contact.
    */
   public point(axis: string, value: IAutoMovieVector3): void {
     if (![value.x, value.y, value.z].every(Number.isFinite))
@@ -239,9 +255,7 @@ export class QuadrupedEquipmentPlan {
       );
   }
 
-  /**
-   * Admit finite strictly positive metres without reporting zero as feasible.
-   */
+  /** Admit finite strictly positive metres without reporting zero as feasible. */
   public positive(axis: string, value: number): void {
     if (!(Number.isFinite(value) && value > 0))
       this.refuse(
@@ -252,9 +266,7 @@ export class QuadrupedEquipmentPlan {
       );
   }
 
-  /**
-   * Admit finite nonnegative clearance, including exact contact at zero.
-   */
+  /** Admit finite nonnegative clearance, including exact contact at zero. */
   public nonnegative(axis: string, value: number): void {
     if (!(Number.isFinite(value) && value >= 0))
       this.refuse(
@@ -265,9 +277,7 @@ export class QuadrupedEquipmentPlan {
       );
   }
 
-  /**
-   * Admit an already positive occupied length at its inclusive fit limit.
-   */
+  /** Admit an already positive occupied length at its inclusive fit limit. */
   public atMost(axis: string, value: number, maximum: number): void {
     if (
       !(
@@ -285,9 +295,7 @@ export class QuadrupedEquipmentPlan {
       );
   }
 
-  /**
-   * Preserve one physical request as an actionable producer refusal.
-   */
+  /** Preserve one physical request as an actionable producer refusal. */
   public refuse(
     axis: string,
     value: unknown,

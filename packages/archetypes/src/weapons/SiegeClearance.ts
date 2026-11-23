@@ -9,12 +9,11 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
 
 /**
- * Analytic level-ground support over a complete declared rotation about model -X.
+ * Analytic level-ground support over a complete declared rotation about model
+ * -X.
  */
 export namespace SiegeClearance {
-  /**
-   * Lowest point height over an interval, including interior stationary points.
-   */
+  /** Lowest point height over an interval, including interior stationary points. */
   export function minimum(
     height: number,
     cosine: number,
@@ -45,7 +44,10 @@ export namespace SiegeClearance {
       throw new RangeError("Siege angular support is not representable");
     return low;
 
-    /** Outward arithmetic retains the physical zero rather than adding a length margin. */
+    /**
+     * Outward arithmetic retains the physical zero rather than adding a length
+     * margin.
+     */
     function at(angle: number): number {
       return down(
         down(height + down(cosine * Math.cos(angle))) +
@@ -54,9 +56,7 @@ export namespace SiegeClearance {
     }
   }
 
-  /**
-   * Lowest unrotated box surface after its carrier's complete X rotation.
-   */
+  /** Lowest unrotated box surface after its carrier's complete X rotation. */
   export function box(
     at: IAutoMovieVector3,
     size: IAutoMovieVector3,
@@ -101,9 +101,7 @@ export namespace SiegeClearance {
     return low;
   }
 
-  /**
-   * Lowest finite-cylinder surface for the X or sagittal source axis.
-   */
+  /** Lowest finite-cylinder surface for the X or sagittal source axis. */
   export function cylinder(
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
@@ -174,10 +172,12 @@ export namespace SiegeClearance {
   }
 
   /**
-   * Select a representable section at the boundary of a monotone support domain.
+   * Select a representable section at the boundary of a monotone support
+   * domain.
    *
    * @param maximum Authored positive section cap in metres.
-   * @param fits Analytic whole-assembly support predicate, including the zero-radius limit.
+   * @param fits Analytic whole-assembly support predicate, including the
+   *   zero-radius limit.
    * @returns A positive finite radius; the caller emits that same construction.
    * @throws {RangeError} If no positive representable section fits.
    */
@@ -213,7 +213,10 @@ function down(value: number): number {
   return value === 0 ? 0 : adjacentAutoMovieFloat64(value, false);
 }
 
-/** Move an amplitude toward the upper representable bound, preserving exact zero. */
+/**
+ * Move an amplitude toward the upper representable bound, preserving exact
+ * zero.
+ */
 function up(value: number): number {
   return value === 0 ? 0 : adjacentAutoMovieFloat64(value, true);
 }
@@ -231,7 +234,10 @@ function critical(
   if (angle >= first && angle <= last) angles.add(angle);
 }
 
-/** Check rigid-transform representability at critical clocks and adjacent inputs. */
+/**
+ * Check rigid-transform representability at critical clocks and adjacent
+ * inputs.
+ */
 function neighbours(
   angles: ReadonlySet<number>,
   first: number,

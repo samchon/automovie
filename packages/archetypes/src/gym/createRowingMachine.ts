@@ -16,14 +16,23 @@ const CONCEPT2: string =
   "Concept2 RowErg (https://www.concept2.com/ergs/rowerg)";
 
 /**
- * A rowing machine (an ergometer): a monorail with a sliding seat, a flywheel at the front, two foot stretchers and a handle on its chain.
+ * A rowing machine (an ergometer): a monorail with a sliding seat, a flywheel
+ * at the front, two foot stretchers and a handle on its chain.
  *
- * The rail runs along `Z` centred over the origin, its front (the flywheel's end) toward `+Z`, so the rower sits facing `+Z`. `seat` is the seat at its catch-most place near the feet, `+Z` the way the rower faces; `handle` the bar the hands pull, along `X` in front of the stretchers at rest on its hook; `leftFoot` and `rightFoot` the stretchers' plates, tilted back toward the rower.
+ * The rail runs along `Z` centred over the origin, its front (the flywheel's
+ * end) toward `+Z`, so the rower sits facing `+Z`. `seat` is the seat at its
+ * catch-most place near the feet, `+Z` the way the rower faces; `handle` the
+ * bar the hands pull, along `X` in front of the stretchers at rest on its hook;
+ * `leftFoot` and `rightFoot` the stretchers' plates, tilted back toward the
+ * rower.
  *
  * @param params The legs and any dimension the author fixes.
- * @param seed The seed that draws the legs when they are not given and every dimension left free inside its band; absent, the standard legs and the middle of each band.
+ * @param seed The seed that draws the legs when they are not given and every
+ *   dimension left free inside its band; absent, the standard legs and the
+ *   middle of each band.
  * @returns The rowing machine.
- * @throws {AutoMovieArchetypeRefusal} For legs Concept2 does not list or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For legs Concept2 does not list or a
+ *   fixed dimension outside its band.
  */
 export function createRowingMachine(
   params: createRowingMachine.IParams = {},
@@ -176,9 +185,7 @@ export function createRowingMachine(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createRowingMachine}.
- */
+/** Companion types, constants and bands of {@link createRowingMachine}. */
 export namespace createRowingMachine {
   /** The rail's section, metres: an estimate. */
   export const RAIL: number = 0.08;
@@ -191,7 +198,10 @@ export namespace createRowingMachine {
       thick: 0.05,
     };
 
-  /** The seat's front from the rail's front end at the catch, metres: an estimate. */
+  /**
+   * The seat's front from the rail's front end at the catch, metres: an
+   * estimate.
+   */
   export const REACH: number = 0.9;
 
   /** Each stretcher plate's width and height, metres: estimates. */
@@ -200,7 +210,10 @@ export namespace createRowingMachine {
     height: 0.28,
   };
 
-  /** The stretchers' tilt back from upright toward the rower, degrees: an estimate. */
+  /**
+   * The stretchers' tilt back from upright toward the rower, degrees: an
+   * estimate.
+   */
   export const TILT: number = 40;
 
   /** The handle's diameter, metres: an estimate. */
@@ -245,7 +258,12 @@ export namespace createRowingMachine {
   /** Concept2's legs. */
   export type Legs = "standard" | "tall";
 
-  /** Each legs' seat height and mass, metres and kilograms, the default first: Concept2's "14 in (36 cm) from the floor on the standard legs and 20 in (51 cm) on the tall legs", "57 lb on the standard legs, 68 lb on the tall legs" (at the address `CONCEPT2` gives). */
+  /**
+   * Each legs' seat height and mass, metres and kilograms, the default first:
+   * Concept2's "14 in (36 cm) from the floor on the standard legs and 20 in (51
+   * cm) on the tall legs", "57 lb on the standard legs, 68 lb on the tall legs"
+   * (at the address `CONCEPT2` gives).
+   */
   export const LEGS: Readonly<
     Record<Legs, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -259,7 +277,10 @@ export namespace createRowingMachine {
     },
   };
 
-  /** The parameters: the legs, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the legs, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "seatHeight" | "mass">, number>
   > {

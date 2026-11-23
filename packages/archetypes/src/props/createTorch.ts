@@ -8,14 +8,20 @@ import {
 } from "../core";
 
 /**
- * A handheld electric torch (a flashlight): a barrel with a wider head and a switch on the barrel, one of Maglite's two- and three-cell D torches whole.
+ * A handheld electric torch (a flashlight): a barrel with a wider head and a
+ * switch on the barrel, one of Maglite's two- and three-cell D torches whole.
  *
- * It stands on its tail at the origin, its head up along `+Y`. `grip` is the barrel a hand closes on, taken from `-Z`; `lens` the head's front, its `+Y` along the beam, the working point an aim carries; `switch` the push button on the barrel's `+Z` side under the thumb, pressed along its `-Y`.
+ * It stands on its tail at the origin, its head up along `+Y`. `grip` is the
+ * barrel a hand closes on, taken from `-Z`; `lens` the head's front, its `+Y`
+ * along the beam, the working point an aim carries; `switch` the push button on
+ * the barrel's `+Z` side under the thumb, pressed along its `-Y`.
  *
  * @param params The model, and any dimension the author fixes.
- * @param seed The seed that picks the model when none is given; absent, the first model.
+ * @param seed The seed that picks the model when none is given; absent, the
+ *   first model.
  * @returns The torch.
- * @throws {AutoMovieArchetypeRefusal} For a model the torch does not have, or a fixed dimension that is the model's own figure.
+ * @throws {AutoMovieArchetypeRefusal} For a model the torch does not have, or a
+ *   fixed dimension that is the model's own figure.
  */
 export function createTorch(
   params: createTorch.IParams = {},
@@ -100,14 +106,15 @@ export function createTorch(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createTorch}.
- */
+/** Companion types, constants and bands of {@link createTorch}. */
 export namespace createTorch {
   /** The head's diameter, metres: the Maglite 2-Cell and 3-Cell D's 57 mm. */
   export const HEAD_DIAMETER: number = 0.057;
 
-  /** The head's length, metres: an estimate; the maker's page read does not give it. */
+  /**
+   * The head's length, metres: an estimate; the maker's page read does not give
+   * it.
+   */
   export const HEAD: number = 0.04;
 
   /** The switch's press, metres: an estimate. */
@@ -155,7 +162,13 @@ export namespace createTorch {
   /** The maker's torches read: the Maglite 2-Cell D LED and 3-Cell D LED. */
   export type Model = "twoCellD" | "threeCellD";
 
-  /** Each model whole, the default first, with batteries: the 2-Cell D LED 254 mm long, a 39.67 mm barrel, 674 g (https://maglite.com/pages/specifications-maglite-2-cell-d-led-flashlight); the 3-Cell D LED 313 mm, 39.67 mm, 856 g (https://maglite.com/pages/specifications-maglite-3-cell-d-led-flashlight). */
+  /**
+   * Each model whole, the default first, with batteries: the 2-Cell D LED 254
+   * mm long, a 39.67 mm barrel, 674 g
+   * (https://maglite.com/pages/specifications-maglite-2-cell-d-led-flashlight);
+   * the 3-Cell D LED 313 mm, 39.67 mm, 856 g
+   * (https://maglite.com/pages/specifications-maglite-3-cell-d-led-flashlight).
+   */
   export const MODELS: Readonly<Record<Model, Figures>> = {
     twoCellD: { length: 0.254, diameter: 0.03967, mass: 0.674 },
     threeCellD: { length: 0.313, diameter: 0.03967, mass: 0.856 },

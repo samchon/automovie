@@ -21,14 +21,33 @@ import { AutoMovieArchetypeQuadrupedSkeleton } from "./AutoMovieArchetypeQuadrup
 const AXES: readonly QuadrupedWorldPose.Axis[] = ["x", "y", "z"];
 
 /**
- * A quadruped's displayed pose as a world root frame and parent-local bone rotations, the form an inertialized cut between two of its performances is blended in.
+ * A quadruped's displayed pose as a world root frame and parent-local bone
+ * rotations, the form an inertialized cut between two of its performances is
+ * blended in.
  *
- * A performance of the shared quadruped body poses its 21 bars about fixed parent-local attachments (`AutoMovieArchetypeQuadrupedSkeleton`), so its pose at one second is the trunk's world frame and each bone's rotation relative to its parent. `read` takes that pose from any emitted model and its placement; `emit` lays a pose back onto the source animal through the same carriers, under a chosen placement. `capture` and `blend` inertialize a cut between two performances (Bollo, Inertialization: High-Performance Animation Transitions in Gears of War, GDC 2018): at the cut the offset of the source from the target and the offset's velocity are taken once, every rotation as a rotation vector and the root translation per axis, and each decays to zero on the engine's quintic (`inertializeOffset`), applied before the target, so the displayed pose and its velocity are continuous at the cut and reach the target at the decay's end. The full decay runs even for an offset already heading to zero (`inertializeOffset`'s `through`): Bollo's overshoot clamp would stop such a channel within milliseconds, a velocity step in all but name, so the bounded follow-through is taken instead.
+ * A performance of the shared quadruped body poses its 21 bars about fixed
+ * parent-local attachments (`AutoMovieArchetypeQuadrupedSkeleton`), so its pose
+ * at one second is the trunk's world frame and each bone's rotation relative to
+ * its parent. `read` takes that pose from any emitted model and its placement;
+ * `emit` lays a pose back onto the source animal through the same carriers,
+ * under a chosen placement. `capture` and `blend` inertialize a cut between two
+ * performances (Bollo, Inertialization: High-Performance Animation Transitions
+ * in Gears of War, GDC 2018): at the cut the offset of the source from the
+ * target and the offset's velocity are taken once, every rotation as a rotation
+ * vector and the root translation per axis, and each decays to zero on the
+ * engine's quintic (`inertializeOffset`), applied before the target, so the
+ * displayed pose and its velocity are continuous at the cut and reach the
+ * target at the decay's end. The full decay runs even for an offset already
+ * heading to zero (`inertializeOffset`'s `through`): Bollo's overshoot clamp
+ * would stop such a channel within milliseconds, a velocity step in all but
+ * name, so the bounded follow-through is taken instead.
  *
  * @param animal The source animal in its neutral pose, never changed.
- * @param carriers The bone carrying each non-bone part and each contact, as `QuadrupedCarriage.of` gives them.
+ * @param carriers The bone carrying each non-bone part and each contact, as
+ *   `QuadrupedCarriage.of` gives them.
  * @returns The prepared reader, emitter and blender.
- * @throws {RangeError} When the animal lacks a bar of the shared quadruped body.
+ * @throws {RangeError} When the animal lacks a bar of the shared quadruped
+ *   body.
  */
 export function QuadrupedWorldPose<Id extends string, D extends string>(
   animal: AutoMovieArchetype<Id, D>,
@@ -189,9 +208,7 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
   }
 }
 
-/**
- * Types and the forward kinematics of {@link QuadrupedWorldPose}.
- */
+/** Types and the forward kinematics of {@link QuadrupedWorldPose}. */
 export namespace QuadrupedWorldPose {
   /** One world axis. */
   export type Axis = "x" | "y" | "z";
@@ -217,7 +234,10 @@ export namespace QuadrupedWorldPose {
     attachment: IAutoMovieVector3;
   }
 
-  /** A displayed pose: the trunk's world frame and each other bone's rotation relative to its parent. */
+  /**
+   * A displayed pose: the trunk's world frame and each other bone's rotation
+   * relative to its parent.
+   */
   export interface IPose {
     /** The trunk's joint frame in the world, metres, unit scale. */
     root: IAutoMovieTransform;
@@ -229,9 +249,15 @@ export namespace QuadrupedWorldPose {
     >;
   }
 
-  /** One channel's offset at a cut and the offset's rate, per world or parent axis. */
+  /**
+   * One channel's offset at a cut and the offset's rate, per world or parent
+   * axis.
+   */
   export interface IChannel {
-    /** Offset: metres for a translation, radians as a rotation vector for a rotation. */
+    /**
+     * Offset: metres for a translation, radians as a rotation vector for a
+     * rotation.
+     */
     x: IAutoMovieVector3;
 
     /** Its rate per second. */
@@ -264,13 +290,20 @@ export namespace QuadrupedWorldPose {
       placement: IAutoMovieTransform,
     ) => IPose;
 
-    /** The source animal laid in a world pose, in the model space of a placement. */
+    /**
+     * The source animal laid in a world pose, in the model space of a
+     * placement.
+     */
     emit: (
       pose: IPose,
       placement: IAutoMovieTransform,
     ) => AutoMovieArchetype<Id, D>;
 
-    /** The offsets of a source pose from a target pose at a cut, rates from one-sided differences of `step` seconds: the source before the cut, the target after it. */
+    /**
+     * The offsets of a source pose from a target pose at a cut, rates from
+     * one-sided differences of `step` seconds: the source before the cut, the
+     * target after it.
+     */
     capture: (
       source: IPose,
       sourceBefore: IPose,
@@ -279,7 +312,10 @@ export namespace QuadrupedWorldPose {
       step: number,
     ) => IOffset;
 
-    /** The target pose with the offsets decayed over `duration` seconds after `elapsed` seconds. */
+    /**
+     * The target pose with the offsets decayed over `duration` seconds after
+     * `elapsed` seconds.
+     */
     blend: (
       offset: IOffset,
       duration: number,
@@ -289,7 +325,10 @@ export namespace QuadrupedWorldPose {
   }
 
   /**
-   * A placement carried across a cut from one root convention to another: `from` at the cut's start to `to` at its end by minimum jerk, so the root and its velocity stay continuous; a pose emitted in world space displays the same under either.
+   * A placement carried across a cut from one root convention to another:
+   * `from` at the cut's start to `to` at its end by minimum jerk, so the root
+   * and its velocity stay continuous; a pose emitted in world space displays
+   * the same under either.
    *
    * @param from The placement the cut leaves, at this second.
    * @param to The placement the cut reaches, at this second.
@@ -357,7 +396,10 @@ export namespace QuadrupedWorldPose {
   }
 }
 
-/** The angular displacement from one rotation to a later one, as a rotation vector. */
+/**
+ * The angular displacement from one rotation to a later one, as a rotation
+ * vector.
+ */
 function spin(
   from: IAutoMovieQuaternion,
   to: IAutoMovieQuaternion,

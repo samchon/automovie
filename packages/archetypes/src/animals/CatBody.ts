@@ -8,12 +8,12 @@ import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
  * provide withers height and proximal limb lengths. Madrigal-Valverde et al.
  * 2025 (https://doi.org/10.3390/ani15152191) report bare mass in Section 2.2
  * and tape landmarks in Section 2.4 and Table 6 for a separate crossbred
- * sample. Section 2.4 defines the snout-to-S3 measure as head plus body:
- * its 55.77 cm and the Cd1–Cd15 tail's 27.38 cm sum to the reported 83.15 cm
- * total. The torso control subtracts the snout-to-C1 head length and an
- * authored neck allowance from snout-to-S3. Circular head width
- * comes from tape circumference and is a shape proxy. Distal bars, stance,
- * pinna plates, soft-tissue radii and the tail carriage are authored.
+ * sample. Section 2.4 defines the snout-to-S3 measure as head plus body: its
+ * 55.77 cm and the Cd1–Cd15 tail's 27.38 cm sum to the reported 83.15 cm total.
+ * The torso control subtracts the snout-to-C1 head length and an authored neck
+ * allowance from snout-to-S3. Circular head width comes from tape circumference
+ * and is a shape proxy. Distal bars, stance, pinna plates, soft-tissue radii
+ * and the tail carriage are authored.
  *
  * @returns A fresh independent profile for the common body builder.
  */
@@ -64,9 +64,7 @@ export function CatBody(): AutoMovieArchetypeQuadrupedBody.IBody {
   };
 }
 
-/**
- * Fixed dimensions for the assembled adult-male prototype.
- */
+/** Fixed dimensions for the assembled adult-male prototype. */
 export namespace CatBody {
   /**
    * Withers height in metres from Poradowski et al. Tape girth in metres and

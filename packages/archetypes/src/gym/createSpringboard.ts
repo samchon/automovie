@@ -14,12 +14,16 @@ const FIG: string =
   "FIG Apparatus Norms (2022), vault springboard: 1.20 m long, 0.60 m wide, its front edge 0.20 m high (https://www.gymnastics.sport/site/pages/education-apparatus.php)";
 
 /**
- * A vault's springboard: a board the gymnast lands on with both feet out of the run-up hurdle and takes off from toward the vaulting table.
+ * A vault's springboard: a board the gymnast lands on with both feet out of the
+ * run-up hurdle and takes off from toward the vaulting table.
  *
- * The run goes along `+Z`; the board lies centred on the origin along `Z`. `surface` is its top, `+Y` up, drawn level at the board's height (a first pass: the real board rises toward its front edge).
+ * The run goes along `+Z`; the board lies centred on the origin along `Z`.
+ * `surface` is its top, `+Y` up, drawn level at the board's height (a first
+ * pass: the real board rises toward its front edge).
  *
  * @param params Any figure the author fixes.
- * @param seed The seed that draws each figure left free inside its band; absent, the middle of each band.
+ * @param seed The seed that draws each figure left free inside its band;
+ *   absent, the middle of each band.
  * @returns The springboard.
  * @throws {AutoMovieArchetypeRefusal} For a fixed figure outside its band.
  */
@@ -66,9 +70,7 @@ export function createSpringboard(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createSpringboard}.
- */
+/** Companion types and bands of {@link createSpringboard}. */
 export namespace createSpringboard {
   /** The affordance ids: `surface`, the board's top. */
   export type Affordance = "surface";

@@ -10,20 +10,24 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core";
 
-/** Turf sectors around the cup; each spans 22.5 degrees, so square corners fall on sector edges. */
+/**
+ * Turf sectors around the cup; each spans 22.5 degrees, so square corners fall
+ * on sector edges.
+ */
 const SECTORS: number = 16;
 
 /**
- * A square putting green with its cup at the centre, the putting surface at
- * Y = 0 and the turf below it.
+ * A square putting green with its cup at the centre, the putting surface at Y =
+ * 0 and the turf below it.
  *
  * The turf is sixteen convex sectors running from the cup's wall out to the
- * square's edge, so the cup is an open hole a rolling ball can fall into,
- * with a bottom at the rule's depth. `green` is the putting surface and
- * `cup` the hole's centre on it.
+ * square's edge, so the cup is an open hole a rolling ball can fall into, with
+ * a bottom at the rule's depth. `green` is the putting surface and `cup` the
+ * hole's centre on it.
  *
  * @param params The model's id.
- * @param seed The seed that draws the green's side within its band; absent, the middle.
+ * @param seed The seed that draws the green's side within its band; absent, the
+ *   middle.
  * @returns The green.
  */
 export function createPuttingGreen(
@@ -98,9 +102,7 @@ export function createPuttingGreen(
   return builder.build(1000);
 }
 
-/**
- * Companion types and constants of {@link createPuttingGreen}.
- */
+/** Companion types and constants of {@link createPuttingGreen}. */
 export namespace createPuttingGreen {
   /** `green`, the putting surface at Y = 0; `cup`, the hole's centre on it. */
   export type Affordance = "green" | "cup";

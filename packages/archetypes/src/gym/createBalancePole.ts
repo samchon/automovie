@@ -12,12 +12,13 @@ import {
 /**
  * A wire walker's balancing pole: a long, heavy rod held across the body.
  *
- * Its middle is at the origin, the pole along `X`. `leftGrip` and
- * `rightGrip` lie `grip` apart about the middle, `+Y` up: the hands take
- * them from above, the left at `+X`.
+ * Its middle is at the origin, the pole along `X`. `leftGrip` and `rightGrip`
+ * lie `grip` apart about the middle, `+Y` up: the hands take them from above,
+ * the left at `+X`.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The pole.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -69,9 +70,7 @@ export function createBalancePole(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createBalancePole}.
- */
+/** Companion types and bands of {@link createBalancePole}. */
 export namespace createBalancePole {
   /** The affordance ids: `leftGrip` and `rightGrip`, `+Y` up, held from above. */
   export type Affordance = "leftGrip" | "rightGrip";

@@ -6,10 +6,13 @@ import { GroomingPropDraw } from "./GroomingPropDraw";
 /**
  * Squeeze tube with a body grip and an operable cap.
  *
- * @param params The optional scene ID, tube length in metres, mass in kilograms, and diameter model.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
+ * @param params The optional scene ID, tube length in metres, mass in
+ *   kilograms, and diameter model.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createSqueezeTube(
   params: Pick<GroomingPropDraw.IParams, "id" | "length" | "mass"> & {
@@ -88,13 +91,17 @@ export function createSqueezeTube(
   return builder.build(d.mass!);
 }
 
-/**
- * The contacts and dimensions of {@link createSqueezeTube}.
- */
+/** The contacts and dimensions of {@link createSqueezeTube}. */
 export namespace createSqueezeTube {
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  /**
+   * The contacts this producer builds; a numbered family's count follows its
+   * inputs.
+   */
   export type Affordance = "cap" | "face" | "grip";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "length" | "mass" | "width";
 }

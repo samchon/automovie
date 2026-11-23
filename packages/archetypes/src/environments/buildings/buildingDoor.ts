@@ -159,13 +159,9 @@ export function buildingDoor(
   };
 }
 
-/**
- * Measured aperture and linked stage models of an existing door instance.
- */
+/** Measured aperture and linked stage models of an existing door instance. */
 export namespace buildingDoor {
-  /**
-   * One source door expressed as an aperture plus fixed and moving geometry.
-   */
+  /** One source door expressed as an aperture plus fixed and moving geometry. */
   export interface IDoor {
     /** Fixed frame in the aperture's original sill-centered coordinates. */
     readonly fixed: IAutoMovieModel;
@@ -187,7 +183,10 @@ export namespace buildingDoor {
     readonly clearHeight: number;
     readonly clearCenter: number;
 
-    /** Make the optional authored swing using the closed world orientation and shot seconds. */
+    /**
+     * Make the optional authored swing using the closed world orientation and
+     * shot seconds.
+     */
     readonly clip: (rotation: IAutoMovieQuaternion) => IAutoMovieClip | null;
   }
 }

@@ -9,7 +9,12 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `run`, the pipe stub's length either side of the valve as a share of the height; `rim`, the handwheel rim's thickness; `body`, the bonnet's diameter as a share of the bore. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `run`, the pipe stub's length either side of the
+ * valve as a share of the height; `rim`, the handwheel rim's thickness; `body`,
+ * the bonnet's diameter as a share of the bore.
+ */
 const ESTIMATES: Readonly<{ run: number; rim: number; body: number }> = {
   run: 0.5,
   rim: 0.02,
@@ -19,14 +24,22 @@ const ESTIMATES: Readonly<{ run: number; rim: number; body: number }> = {
 /**
  * A gate valve on a pipe, opened and closed by its handwheel.
  *
- * The pipe runs along `X` lying on the floor, its axis a bore's radius up over the origin; the valve's bonnet and stem rise along `+Y` to the handwheel, which lies level at the valve's height open above the pipe's axis. It is one of the maker's two valves read, whole: the model given, or one drawn from the seed. `wheel` is the handwheel, a wheel turned about `+Y`; it states no travel, since no source read gives its turns from open to closed.
+ * The pipe runs along `X` lying on the floor, its axis a bore's radius up over
+ * the origin; the valve's bonnet and stem rise along `+Y` to the handwheel,
+ * which lies level at the valve's height open above the pipe's axis. It is one
+ * of the maker's two valves read, whole: the model given, or one drawn from the
+ * seed. `wheel` is the handwheel, a wheel turned about `+Y`; it states no
+ * travel, since no source read gives its turns from open to closed.
  *
  * It rests on its iron pipe: steel on concrete (`AutoMovieArchetypeFriction`).
  *
  * @param params The model and any dimension the author fixes.
- * @param seed The seed that draws the model when it is not given and every dimension left free inside its band; absent, the first model and the middle of each band.
+ * @param seed The seed that draws the model when it is not given and every
+ *   dimension left free inside its band; absent, the first model and the middle
+ *   of each band.
  * @returns The valve.
- * @throws {AutoMovieArchetypeRefusal} For a model the sheet does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a model the sheet does not list, or a
+ *   fixed dimension outside its band.
  */
 export function createValve(
   params: createValve.IParams = {},
@@ -113,14 +126,18 @@ export function createValve(
   return builder.build(d.mass, { rests: "steel" });
 }
 
-/**
- * Companion types and bands of {@link createValve}.
- */
+/** Companion types and bands of {@link createValve}. */
 export namespace createValve {
   /** The valves read: NIBCO F-617-ON's 4 in and 6 in. */
   export type Model = "4in" | "6in";
 
-  /** Each valve's figures, metres, the default first: NIBCO F-617-ON class 125 iron gate valve sheet, the 4 in (100 mm) valve 24.00 in (610 mm) high open with a 10 in (254 mm) handwheel, the 6 in (150 mm) valve 31.06 in (789 mm) high open with a 12 in (305 mm) handwheel, the handwheel the drawing's dimension C (https://cdn.bath1.com/pdf/nibco/FT617ONBI.pdf). */
+  /**
+   * Each valve's figures, metres, the default first: NIBCO F-617-ON class 125
+   * iron gate valve sheet, the 4 in (100 mm) valve 24.00 in (610 mm) high open
+   * with a 10 in (254 mm) handwheel, the 6 in (150 mm) valve 31.06 in (789 mm)
+   * high open with a 12 in (305 mm) handwheel, the handwheel the drawing's
+   * dimension C (https://cdn.bath1.com/pdf/nibco/FT617ONBI.pdf).
+   */
   export const MODELS: Readonly<
     Record<Model, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -151,7 +168,10 @@ export namespace createValve {
     mass: "kg",
   };
 
-  /** The parameters: the model, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the model, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<"mass", number>> {
     /** Which valve; drawn from the seed when absent. */
     model?: Model;

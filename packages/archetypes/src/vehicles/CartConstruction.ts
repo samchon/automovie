@@ -10,7 +10,8 @@ import { createCart } from "./createCart";
 /**
  * Assemble a land carrier from the historical catalogue.
  *
- * The per-form callback records the supports and geometry after the legacy draw session resolves measured dimensions.
+ * The per-form callback records the supports and geometry after the legacy draw
+ * session resolves measured dimensions.
  *
  * @param kind The fixed operating form.
  * @param build The form's measured geometry and contact builder.
@@ -18,7 +19,8 @@ import { createCart } from "./createCart";
  * @param params The carrier's authored options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function CartConstruction(
   kind: createCart.Kind,
@@ -77,9 +79,7 @@ export function CartConstruction(
   return builder.build(d.mass!, createCart.RESTS[kind]);
 }
 
-/**
- * Shared builder signature for canonical land carrier producers.
- */
+/** Shared builder signature for canonical land carrier producers. */
 export namespace CartConstruction {
   /** Adds one carrier form's model-space geometry and contacts. */
   export type Build = (

@@ -11,14 +11,19 @@ import { poseArchetypeSpanGrips } from "./poseArchetypeSpanGrips";
 import { resolveArchetypeSpanParts } from "./resolveArchetypeSpanParts";
 
 /**
- * A taut line between two frames of a model that move apart: a bowstring from a limb tip to the nock, a sling's cord from the hand to the pouch, a trace from a collar to a cart.
+ * A taut line between two frames of a model that move apart: a bowstring from a
+ * limb tip to the nock, a sling's cord from the hand to the pouch, a trace from
+ * a collar to a cart.
  *
- * A span is a round part, a cylinder of its radius, attached to two part-local points or affordance origins. An explicit held overhang extends the line beyond an affordance and keeps that grip's line axis on the span. After every pose its ends and held frames are resolved together. Mass counts at rest only, as `AutoMovieArchetype.body` documents. A stated rest length reports slack when the drawn length is shorter; it does not simulate a hanging cord.
+ * A span is a round part, a cylinder of its radius, attached to two part-local
+ * points or affordance origins. An explicit held overhang extends the line
+ * beyond an affordance and keeps that grip's line axis on the span. After every
+ * pose its ends and held frames are resolved together. Mass counts at rest
+ * only, as `AutoMovieArchetype.body` documents. A stated rest length reports
+ * slack when the drawn length is shorter; it does not simulate a hanging cord.
  */
 export namespace AutoMovieArchetypeSpan {
-  /**
-   * Where one end of a span is attached.
-   */
+  /** Where one end of a span is attached. */
   export type End =
     | {
         /** The part the end is fixed to. */
@@ -43,13 +48,14 @@ export namespace AutoMovieArchetypeSpan {
         /** An affordance end takes the affordance's origin. */
         at?: never;
 
-        /** Metres beyond the grip away from the opposite anchor; when present, the grip's +X follows the span's unoriented line. */
+        /**
+         * Metres beyond the grip away from the opposite anchor; when present,
+         * the grip's +X follows the span's unoriented line.
+         */
         overhang?: number;
       };
 
-  /**
-   * A span as an archetype records it.
-   */
+  /** A span as an archetype records it. */
   export interface ISpan {
     /** The id of the part that draws the line. */
     id: string;
@@ -63,13 +69,14 @@ export namespace AutoMovieArchetypeSpan {
     /** The line's radius, metres. */
     radius: number;
 
-    /** The line's rest length, metres, or null when it states none and is never slack. */
+    /**
+     * The line's rest length, metres, or null when it states none and is never
+     * slack.
+     */
     length: number | null;
   }
 
-  /**
-   * A span at one pose.
-   */
+  /** A span at one pose. */
   export interface IState {
     /** Where the first end is, in the model's space, metres. */
     from: IAutoMovieVector3;
@@ -80,13 +87,14 @@ export namespace AutoMovieArchetypeSpan {
     /** The distance between the ends, the line's drawn length, metres. */
     length: number;
 
-    /** Whether the ends are closer than the rest length; false for a line that states none. */
+    /**
+     * Whether the ends are closer than the rest length; false for a line that
+     * states none.
+     */
     slack: boolean;
   }
 
-  /**
-   * Span geometry and held contact frames resolved from the same pose.
-   */
+  /** Span geometry and held contact frames resolved from the same pose. */
   export interface IPose {
     /** Posed parts with each declared line rebuilt at its endpoints. */
     parts: IAutoMovieModelPart[];
@@ -102,7 +110,8 @@ export namespace AutoMovieArchetypeSpan {
    * @param parts The posed parts.
    * @param affordances The posed affordances.
    * @returns The point in the model's space.
-   * @throws {AutoMovieArchetypeRefusal} When the end names a part or affordance the model lacks, listing those it has.
+   * @throws {AutoMovieArchetypeRefusal} When the end names a part or affordance
+   *   the model lacks, listing those it has.
    */
   export function locate(
     archetype: string,
@@ -159,7 +168,9 @@ export namespace AutoMovieArchetypeSpan {
    * @param parts The posed parts.
    * @param affordances The posed affordances.
    * @returns Its state.
-   * @throws {AutoMovieArchetypeRefusal} For a missing anchor, coincident/nonfinite geometry or invalid physical radius, rest length or held extension.
+   * @throws {AutoMovieArchetypeRefusal} For a missing anchor,
+   *   coincident/nonfinite geometry or invalid physical radius, rest length or
+   *   held extension.
    */
   export function state(
     archetype: string,
@@ -248,8 +259,10 @@ export namespace AutoMovieArchetypeSpan {
    * @param spans The model's spans.
    * @param parts The posed parts, the spans' among them.
    * @param affordances The posed affordances.
-   * @returns New parts, each span's part replaced; the others as given, the list itself when there is no span.
-   * @throws {AutoMovieArchetypeRefusal} As `locate` does, or when a span's ends meet, which leaves no line to draw.
+   * @returns New parts, each span's part replaced; the others as given, the
+   *   list itself when there is no span.
+   * @throws {AutoMovieArchetypeRefusal} As `locate` does, or when a span's ends
+   *   meet, which leaves no line to draw.
    */
   export function lay(
     archetype: string,
@@ -267,9 +280,11 @@ export namespace AutoMovieArchetypeSpan {
    * @param archetype The identity used in actionable refusals.
    * @param spans Declared lines with part-local or affordance anchors.
    * @param parts Current parts before the lines are rebuilt.
-   * @param affordances Current contact frames, with held origins already placed.
+   * @param affordances Current contact frames, with held origins already
+   *   placed.
    * @returns Line parts and matching grip frames without mutating inputs.
-   * @throws {AutoMovieArchetypeRefusal} For invalid geometry, missing anchors or incompatible line directions sharing one grip.
+   * @throws {AutoMovieArchetypeRefusal} For invalid geometry, missing anchors
+   *   or incompatible line directions sharing one grip.
    */
   export function pose(
     archetype: string,
@@ -295,7 +310,10 @@ export namespace AutoMovieArchetypeSpan {
     };
   }
 
-  /** Endpoint semantics stay with this namespace while graph/geometry work has one shared owner. */
+  /**
+   * Endpoint semantics stay with this namespace while graph/geometry work has
+   * one shared owner.
+   */
   function resolve(
     archetype: string,
     spans: readonly ISpan[],

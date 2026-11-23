@@ -9,8 +9,8 @@ import {
 
 /**
  * A potter's wheel with a centred clay form. No source is read: the head's
- * height and diameter, the clay's size, how far its wall rises and the mass
- * are provisional construction estimates of a seated studio wheel.
+ * height and diameter, the clay's size, how far its wall rises and the mass are
+ * provisional construction estimates of a seated studio wheel.
  */
 const SIZE: Readonly<createPotteryWheel.ISize> = {
   height: 0.45,
@@ -23,18 +23,17 @@ const SIZE: Readonly<createPotteryWheel.ISize> = {
 };
 
 /**
- * A potter's wheel: a wheel head turning on a stand, with a form of clay
- * thrown on it whose wall rises as the hands draw it up.
+ * A potter's wheel: a wheel head turning on a stand, with a form of clay thrown
+ * on it whose wall rises as the hands draw it up.
  *
  * The wheel stands on the floor at the origin, its head's axis along `+Y`.
- * `head` is the head's articulation, a crank that turns without limit, so
- * an act spins it. The clay is centred on the head: a lump and a wall of
- * `clay` radius whose top stands `start` above the head and rises by up to
- * `rise` on the `raise` slider as it is drawn up. Clay is round about the
- * head's axis, so every point of its wall at one height is the same
- * contact in the turning head's frame: `outside` is the wall's outer face
- * at its top, facing `+Z`, `inside` its inner face, facing `-Z`, both
- * riding the rise.
+ * `head` is the head's articulation, a crank that turns without limit, so an
+ * act spins it. The clay is centred on the head: a lump and a wall of `clay`
+ * radius whose top stands `start` above the head and rises by up to `rise` on
+ * the `raise` slider as it is drawn up. Clay is round about the head's axis, so
+ * every point of its wall at one height is the same contact in the turning
+ * head's frame: `outside` is the wall's outer face at its top, facing `+Z`,
+ * `inside` its inner face, facing `-Z`, both riding the rise.
  *
  * @param params The optional scene id.
  * @returns The wheel and its contacts, metres.
@@ -129,9 +128,7 @@ export function createPotteryWheel(
   return builder.build(SIZE.mass);
 }
 
-/**
- * The inputs, contacts and size of {@link createPotteryWheel}.
- */
+/** The inputs, contacts and size of {@link createPotteryWheel}. */
 export namespace createPotteryWheel {
   /** The head's crank, the wall's rise and its two faces. */
   export type Affordance = "head" | "raise" | "outside" | "inside";

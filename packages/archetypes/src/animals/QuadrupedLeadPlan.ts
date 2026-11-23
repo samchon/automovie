@@ -12,9 +12,7 @@ import {
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedLead } from "./AutoMovieArchetypeQuadrupedLead";
 
-/**
- * One admitted collar/lead assembly, prepared without changing a model builder.
- */
+/** One admitted collar/lead assembly, prepared without changing a model builder. */
 export class QuadrupedLeadPlan {
   /** Collar ends, metres in the model frame. */
   readonly #from: IAutoMovieVector3;
@@ -120,9 +118,7 @@ export class QuadrupedLeadPlan {
       );
   }
 
-  /**
-   * Emit the same admitted rods and contact into a builder.
-   */
+  /** Emit the same admitted rods and contact into a builder. */
   public emit<Id extends string, Dimension extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     id: Id,

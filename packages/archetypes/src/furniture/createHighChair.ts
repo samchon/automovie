@@ -13,19 +13,31 @@ import {
 const ANTILOP: string =
   "IKEA ANTILOP high chair: width 56 cm, depth 59 cm, height 90 cm, seat height 54 cm, seat width 25 cm and depth 22 cm (https://www.ikea.com.tr/en/p89041709)";
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `leg`, a leg's diameter; `shell`, the seat shell's thickness. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `leg`, a leg's diameter; `shell`, the seat
+ * shell's thickness.
+ */
 const ESTIMATES: Readonly<{ leg: number; shell: number }> = {
   leg: 0.025,
   shell: 0.02,
 };
 
 /**
- * A child's high chair: a seat shell on four splayed legs, its back rising to the chair's height.
+ * A child's high chair: a seat shell on four splayed legs, its back rising to
+ * the chair's height.
  *
- * The chair stands on the floor at the origin, facing `+Z`. Its legs run from the corners of the maker's footprint up to the seat's corners; the seat lies at the maker's seat height and its back stands at the seat's rear edge up to the chair's height. `seat` is the seat a child is set on and lifted from, facing `+Z`. The tray is not built, since no source read sizes or places it; setting a child in and lifting one out is a two-body act with no motion law yet (#3440).
+ * The chair stands on the floor at the origin, facing `+Z`. Its legs run from
+ * the corners of the maker's footprint up to the seat's corners; the seat lies
+ * at the maker's seat height and its back stands at the seat's rear edge up to
+ * the chair's height. `seat` is the seat a child is set on and lifted from,
+ * facing `+Z`. The tray is not built, since no source read sizes or places it;
+ * setting a child in and lifting one out is a two-body act with no motion law
+ * yet (#3440).
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The chair.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -103,9 +115,7 @@ export function createHighChair(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createHighChair}.
- */
+/** Companion types and bands of {@link createHighChair}. */
 export namespace createHighChair {
   /** The affordance id: `seat`, the seat, facing `+Z`. */
   export type Affordance = "seat";

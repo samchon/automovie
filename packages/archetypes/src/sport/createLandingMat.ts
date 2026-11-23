@@ -21,12 +21,19 @@ const POLE: string =
 /**
  * A landing mat: the foam bed a high jumper or a pole vaulter comes down on.
  *
- * The mat lies on the floor with the middle of its footprint at the origin, its length along `Z` (the direction of the jump) and its width along `X`. `surface` is its top, the place a landing lies on.
+ * The mat lies on the floor with the middle of its footprint at the origin, its
+ * length along `Z` (the direction of the jump) and its width along `X`.
+ * `surface` is its top, the place a landing lies on.
  *
- * @param params The kind, a pole vault mat's layout and any dimension the author fixes.
- * @param seed The seed that draws a pole vault mat's layout when it is not given and every dimension left free inside its band; absent, the first layout and the middle of each band.
+ * @param params The kind, a pole vault mat's layout and any dimension the
+ *   author fixes.
+ * @param seed The seed that draws a pole vault mat's layout when it is not
+ *   given and every dimension left free inside its band; absent, the first
+ *   layout and the middle of each band.
  * @returns The mat.
- * @throws {AutoMovieArchetypeRefusal} For a layout the rules do not give or one named for a high jump mat, a fixed dimension outside its band, or one only the other kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a layout the rules do not give or one
+ *   named for a high jump mat, a fixed dimension outside its band, or one only
+ *   the other kind has.
  */
 export function createLandingMat(
   params: createLandingMat.IParams,
@@ -87,9 +94,7 @@ export function createLandingMat(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createLandingMat}.
- */
+/** Companion types and bands of {@link createLandingMat}. */
 export namespace createLandingMat {
   /** The kinds of mat. */
   export type Kind = "highJump" | "poleVault";
@@ -123,7 +128,11 @@ export namespace createLandingMat {
   /** A pole vault mat's layouts. */
   export type Layout = "without front pads" | "with front pads";
 
-  /** The figures each layout fixes, by kind, the default first: the pole vault's landing area "6 m by 6 m by 0.8 m behind the box, 8 m with the front pads" (at the address `POLE` gives). */
+  /**
+   * The figures each layout fixes, by kind, the default first: the pole vault's
+   * landing area "6 m by 6 m by 0.8 m behind the box, 8 m with the front pads"
+   * (at the address `POLE` gives).
+   */
   export const LAYOUTS: Readonly<
     Partial<
       Record<
@@ -138,12 +147,18 @@ export namespace createLandingMat {
     },
   };
 
-  /** The parameters: the kind, a pole vault mat's layout, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, a pole vault mat's layout, and any free dimension
+   * fixed to a value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which mat. */
     kind: Kind;
 
-    /** A pole vault mat's layout; drawn from the seed when absent. A high jump mat has none. */
+    /**
+     * A pole vault mat's layout; drawn from the seed when absent. A high jump
+     * mat has none.
+     */
     layout?: Layout;
 
     /** The model's id, unique in a scene; `landingMat` when absent. */

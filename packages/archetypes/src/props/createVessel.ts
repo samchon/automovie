@@ -33,12 +33,16 @@ type Producer = (
 ) => AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension>;
 
 /**
- * Replay a saved vessel variant with the original dimensions, identifier and model choices.
+ * Replay a saved vessel variant with the original dimensions, identifier and
+ * model choices.
  *
- * @param params The historic selector and optional fixed settings in the original units.
- * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @param params The historic selector and optional fixed settings in the
+ *   original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless
+ *   defaults.
  * @returns The original generated model and its local contacts.
- * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
+ *   outside its admitted range.
  */
 export function createVessel(
   params: createVessel.IParams,
@@ -56,9 +60,7 @@ export function createVessel(
   return produce(params, seed);
 }
 
-/**
- * Companion types, constants and bands of {@link createVessel}.
- */
+/** Companion types, constants and bands of {@link createVessel}. */
 export namespace createVessel {
   /** Each saved selector's named producer. */
   export interface IProducers {
@@ -115,7 +117,10 @@ export namespace createVessel {
   /** A handle's diameter, metres: an estimate. */
   export const GRIP: number = 0.025;
 
-  /** A saucepan handle's length, metres: the IKEA saucepan's 35 cm with its handle less its 17 cm across. */
+  /**
+   * A saucepan handle's length, metres: the IKEA saucepan's 35 cm with its
+   * handle less its 17 cm across.
+   */
   export const HANDLE: number = 0.18;
 
   /** Each kind's flat colour, sRGB. */
@@ -134,7 +139,8 @@ export namespace createVessel {
    * - `inside`: the floor inside, facing up.
    * - `body`: a bowl or an ashtray held from beneath; a vase round its middle.
    * - `handle`: a saucepan's long handle along `+X`.
-   * - `leftHandle`, `rightHandle`: a stockpot's two side handles at `+X` and `-X`.
+   * - `leftHandle`, `rightHandle`: a stockpot's two side handles at `+X` and
+   *   `-X`.
    */
   export type Affordance =
     | "rim"
@@ -162,7 +168,10 @@ export namespace createVessel {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which vessel. */
     kind: Kind;
@@ -177,7 +186,10 @@ export namespace createVessel {
   /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /** The models read: IKEA 365+'s bowl and Thomas's Sunny Day bowl 18 cm and cereal bowl; Nachtmann's Cigar Cuba and Harris's glass ashtrays. */
+  /**
+   * The models read: IKEA 365+'s bowl and Thomas's Sunny Day bowl 18 cm and
+   * cereal bowl; Nachtmann's Cigar Cuba and Harris's glass ashtrays.
+   */
   export type Model =
     | "ikea365"
     | "sunnyDay18"
@@ -186,9 +198,20 @@ export namespace createVessel {
     | "harris";
 
   /**
-   * Each kind's models whole, the default first. The bowls: IKEA 365+ bowl, rounded sides, 16 cm across and 7 cm high, 0.44 kg packed, a provisional mass the bowl alone is lighter than by an unread amount (https://www.ikea.com/gb/en/p/ikea-365-bowl-rounded-sides-white-20278351/); Thomas Sunny Day bowl 18 cm, 16.60 cm across, 7.90 cm high, 477 g (https://www.thomas-porzellan.de/en-de/bowl-18-cm/10850-408547-13388.html); Thomas Sunny Day cereal bowl, 12.20 cm across, 8.00 cm high, 300 g (https://www.thomas-porzellan.de/en-de/cereal-bowl/10850-408530-15456.html).
+   * Each kind's models whole, the default first. The bowls: IKEA 365+ bowl,
+   * rounded sides, 16 cm across and 7 cm high, 0.44 kg packed, a provisional
+   * mass the bowl alone is lighter than by an unread amount
+   * (https://www.ikea.com/gb/en/p/ikea-365-bowl-rounded-sides-white-20278351/);
+   * Thomas Sunny Day bowl 18 cm, 16.60 cm across, 7.90 cm high, 477 g
+   * (https://www.thomas-porzellan.de/en-de/bowl-18-cm/10850-408547-13388.html);
+   * Thomas Sunny Day cereal bowl, 12.20 cm across, 8.00 cm high, 300 g
+   * (https://www.thomas-porzellan.de/en-de/cereal-bowl/10850-408530-15456.html).
    *
-   * The ashtrays: 10 cm across, 3 cm high and 258 g (https://www.galaxus.de/en/s14/product/nachtmann-cigar-cuba-ashtrays-10169053) and 16.8 cm across, 3.5 cm high and 1.7 kg (https://www.centrepointstores.com/sa/en/buy-harris-glass-ashtray/p/163634992), retailer listings.
+   * The ashtrays: 10 cm across, 3 cm high and 258 g
+   * (https://www.galaxus.de/en/s14/product/nachtmann-cigar-cuba-ashtrays-10169053)
+   * and 16.8 cm across, 3.5 cm high and 1.7 kg
+   * (https://www.centrepointstores.com/sa/en/buy-harris-glass-ashtray/p/163634992),
+   * retailer listings.
    */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
@@ -204,7 +227,10 @@ export namespace createVessel {
     },
   };
 
-  /** The band of each free dimension, by kind; a bowl's and an ashtray's are its model's. */
+  /**
+   * The band of each free dimension, by kind; a bowl's and an ashtray's are its
+   * model's.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {

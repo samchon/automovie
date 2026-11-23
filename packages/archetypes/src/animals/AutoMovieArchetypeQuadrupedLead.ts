@@ -8,9 +8,11 @@ import { QuadrupedLeadPlan } from "./QuadrupedLeadPlan";
  * @param builder The animal under construction.
  * @param rig Its rest landmarks.
  * @param id The producer's declared lead contact identity.
- * @param tack Positive authored lengths in metres, including the whole straight lead.
+ * @param tack Positive authored lengths in metres, including the whole straight
+ *   lead.
  * @param archetype Producer identity used in refusals.
- * @throws {AutoMovieArchetypeRefusal} For invalid lengths or a collar longer than the neck.
+ * @throws {AutoMovieArchetypeRefusal} For invalid lengths or a collar longer
+ *   than the neck.
  */
 export function AutoMovieArchetypeQuadrupedLead<
   Id extends string,
@@ -25,9 +27,7 @@ export function AutoMovieArchetypeQuadrupedLead<
   new QuadrupedLeadPlan(rig, tack, archetype).emit(builder, id);
 }
 
-/**
- * Authored shared collar/lead dimensions, without species or maker defaults.
- */
+/** Authored shared collar/lead dimensions, without species or maker defaults. */
 export namespace AutoMovieArchetypeQuadrupedLead {
   /** All four lengths are positive finite metres; width also fits the neck. */
   export interface IParams {

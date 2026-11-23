@@ -13,7 +13,10 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 /** World up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Turns that bring world -X, +X, -Z and +Z to world down, so a part's lowest surface in each gives its horizontal extent. */
+/**
+ * Turns that bring world -X, +X, -Z and +Z to world down, so a part's lowest
+ * surface in each gives its horizontal extent.
+ */
 const SIDES: readonly IAutoMovieQuaternion[] = [
   Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
   Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
@@ -22,11 +25,22 @@ const SIDES: readonly IAutoMovieQuaternion[] = [
 ];
 
 /**
- * The least vertical lift that keeps every solid of a displayed model out of every authored footing plane it overlaps, zero when none enters one.
+ * The least vertical lift that keeps every solid of a displayed model out of
+ * every authored footing plane it overlaps, zero when none enters one.
  *
- * A contact correction applied after an inertialized cut (Holden, Dead Blending, 2023; the engine's `inertializePose` places contact corrections after the blend): the decaying offsets start with a finite acceleration, so a hoof released from a planted stance can dip micrometres into its bed before the target carries it clear. Lifting the whole displayed body by the depth keeps the bed a support, never a solid passed through, and the lift is zero once nothing enters.
+ * A contact correction applied after an inertialized cut (Holden, Dead
+ * Blending, 2023; the engine's `inertializePose` places contact corrections
+ * after the blend): the decaying offsets start with a finite acceleration, so a
+ * hoof released from a planted stance can dip micrometres into its bed before
+ * the target carries it clear. Lifting the whole displayed body by the depth
+ * keeps the bed a support, never a solid passed through, and the lift is zero
+ * once nothing enters.
  *
- * Each part's horizontal extent and its lowest surface along each overlapping plane's normal are read from its primitive (`QuadrupedRestFloor`), as `AutoMovieArchetypeQuadrupedFooting.prepare`'s verification reads them; a separation `d` below a plane of upward normal `n` needs a vertical lift of `d / n_y`.
+ * Each part's horizontal extent and its lowest surface along each overlapping
+ * plane's normal are read from its primitive (`QuadrupedRestFloor`), as
+ * `AutoMovieArchetypeQuadrupedFooting.prepare`'s verification reads them; a
+ * separation `d` below a plane of upward normal `n` needs a vertical lift of `d
+ * / n_y`.
  *
  * @param scene The authored footing.
  * @param model The displayed model, in its placement's model space.

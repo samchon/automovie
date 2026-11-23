@@ -8,8 +8,8 @@ import {
 import { TabletopStack } from "./TabletopStack";
 
 /**
- * A United States banknote: "6.14 length × 2.61 width × 0.0043 in thickness
- * = 156 × 66.3 × 0.11 mm" and "Approx. 1 g" (English Wikipedia, United States
+ * A United States banknote: "6.14 length × 2.61 width × 0.0043 in thickness =
+ * 156 × 66.3 × 0.11 mm" and "Approx. 1 g" (English Wikipedia, United States
  * one-dollar bill, read 2026-11-21).
  */
 const NOTE: Readonly<createBanknote.INote> = {
@@ -62,9 +62,7 @@ export function createBanknote(
   return builder.build(NOTE.mass);
 }
 
-/**
- * The inputs, contacts and size of {@link createBanknote}.
- */
+/** The inputs, contacts and size of {@link createBanknote}. */
 export namespace createBanknote {
   /** The shared pinch, underside and upper sockets. */
   export type Affordance = TabletopStack.Contact;

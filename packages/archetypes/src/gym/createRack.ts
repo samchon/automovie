@@ -13,13 +13,14 @@ import {
 /**
  * A squat rack: two uprights, each with a hook a barbell rests on.
  *
- * It stands on the floor with the middle of its footprint at the origin,
- * the uprights on either side of `X`, the hooks reaching toward `-Z`,
- * where the lifter stands. `rest` is the place between the two hooks where
- * the bar's middle lies, on the bar's axis, with `+Y` up.
+ * It stands on the floor with the middle of its footprint at the origin, the
+ * uprights on either side of `X`, the hooks reaching toward `-Z`, where the
+ * lifter stands. `rest` is the place between the two hooks where the bar's
+ * middle lies, on the bar's axis, with `+Y` up.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The rack.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -86,9 +87,7 @@ export function createRack(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createRack}.
- */
+/** Companion types and bands of {@link createRack}. */
 export namespace createRack {
   /** The kinds of rack. */
   export type Kind = "squat";
@@ -99,16 +98,25 @@ export namespace createRack {
   /** An upright's square section, metres. An estimate, not read at a source. */
   export const POST: number = 0.06;
 
-  /** A hook's reach before its upright, metres. An estimate, not read at a source. */
+  /**
+   * A hook's reach before its upright, metres. An estimate, not read at a
+   * source.
+   */
   export const HOOK: number = 0.08;
 
   /** A hook's thickness, metres. An estimate, not read at a source. */
   export const LIP: number = 0.02;
 
-  /** How far a resting bar's axis lies above the hook's top, metres: half a 28 mm bar. */
+  /**
+   * How far a resting bar's axis lies above the hook's top, metres: half a 28
+   * mm bar.
+   */
   export const SEAT: number = 0.014;
 
-  /** The affordance ids: `rest`, where a bar laid on both hooks has its middle, on the bar's axis, `+Y` up. */
+  /**
+   * The affordance ids: `rest`, where a bar laid on both hooks has its middle,
+   * on the bar's axis, `+Y` up.
+   */
   export type Affordance = "rest";
 
   /**

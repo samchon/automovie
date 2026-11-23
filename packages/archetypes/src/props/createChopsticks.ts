@@ -8,10 +8,10 @@ import {
 } from "../core";
 
 /**
- * An adult's pair of chopsticks: 0.24 m long, the length Hsu and Wu found
- * best for adults, and 6 mm across, the diameter Chan (1999, Int J Ind
- * Ergon) found best for food-pinching efficiency, both as the 2017 MATEC
- * Web of Conferences study of chopstick operation summarizes them
+ * An adult's pair of chopsticks: 0.24 m long, the length Hsu and Wu found best
+ * for adults, and 6 mm across, the diameter Chan (1999, Int J Ind Ergon) found
+ * best for food-pinching efficiency, both as the 2017 MATEC Web of Conferences
+ * study of chopstick operation summarizes them
  * (https://www.matec-conferences.org/10.1051/matecconf/201711901017, read
  * through its search summary). The spread and the mass are provisional
  * construction estimates.
@@ -25,16 +25,15 @@ const SIZE: Readonly<createChopsticks.ISize> = {
 
 /**
  * A pair of chopsticks held in the conventional hold: the lower stick fixed
- * against the thumb's base and the ring finger, the upper stick moved by
- * the index and middle fingers.
+ * against the thumb's base and the ring finger, the upper stick moved by the
+ * index and middle fingers.
  *
- * The lower stick is the prop's frame, running along `+Z` from its butt at
- * the origin to its tip. The upper stick lies above it (`+Y`) and turns
- * about a fulcrum a third of the way along, at the thumb's tip, on the
- * `pinch` hinge: open at 0, spread `spread` degrees, and closed at
- * `spread`, its tip on the lower one's. `grip` is the hold a third of the
- * way along, `tips` the meeting point of the two tips, where a morsel is
- * pinched.
+ * The lower stick is the prop's frame, running along `+Z` from its butt at the
+ * origin to its tip. The upper stick lies above it (`+Y`) and turns about a
+ * fulcrum a third of the way along, at the thumb's tip, on the `pinch` hinge:
+ * open at 0, spread `spread` degrees, and closed at `spread`, its tip on the
+ * lower one's. `grip` is the hold a third of the way along, `tips` the meeting
+ * point of the two tips, where a morsel is pinched.
  *
  * @param params The optional scene id.
  * @returns The chopsticks and their contacts, metres.
@@ -107,9 +106,7 @@ export function createChopsticks(
   return builder.build(SIZE.mass);
 }
 
-/**
- * The inputs, contacts and size of {@link createChopsticks}.
- */
+/** The inputs, contacts and size of {@link createChopsticks}. */
 export namespace createChopsticks {
   /** The upper stick's hinge, the hold and the tips. */
   export type Affordance = "pinch" | "grip" | "tips";

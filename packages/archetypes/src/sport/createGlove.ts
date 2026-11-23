@@ -14,10 +14,15 @@ import {
 /**
  * A baseball glove: a fielder's glove or a catcher's mitt.
  *
- * It lies on its back on the floor, the pocket up, the fingers toward `+Z` and the wrist opening toward `-Z`, its centre over the origin. `hand` is the wrist opening the hand slides into, its `+Y` out of the opening; `pocket` the catching face a ball comes to, facing up. A glove is worn on the hand (`IHumanProp.worn`), so a catch reads the pocket where the hand carries it.
+ * It lies on its back on the floor, the pocket up, the fingers toward `+Z` and
+ * the wrist opening toward `-Z`, its centre over the origin. `hand` is the
+ * wrist opening the hand slides into, its `+Y` out of the opening; `pocket` the
+ * catching face a ball comes to, facing up. A glove is worn on the hand
+ * (`IHumanProp.worn`), so a catch reads the pocket where the hand carries it.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The glove.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -79,9 +84,7 @@ export function createGlove(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createGlove}.
- */
+/** Companion types, constants and bands of {@link createGlove}. */
 export namespace createGlove {
   /** The kinds. */
   export type Kind = "fielder" | "catcher";
@@ -99,7 +102,8 @@ export namespace createGlove {
    * The affordance ids:
    *
    * - `hand`: the wrist opening, its `+Y` out of it toward `-Z`.
-   * - `pocket`: the catching face, facing up, a half of the width and a third of the length.
+   * - `pocket`: the catching face, facing up, a half of the width and a third of
+   *   the length.
    */
   export type Affordance = "hand" | "pocket";
 
@@ -121,7 +125,10 @@ export namespace createGlove {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which glove. */
     kind: Kind;

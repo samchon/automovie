@@ -43,18 +43,57 @@ interface IBar {
 const SWEEP: number = 96;
 
 /**
- * An equid crossing water on one film clock: it wades down a ford on its own legs, floats free and swims with its measured fore and hind strokes, then lands on the far bank and climbs out on its legs again.
+ * An equid crossing water on one film clock: it wades down a ford on its own
+ * legs, floats free and swims with its measured fore and hind strokes, then
+ * lands on the far bank and climbs out on its legs again.
  *
- * The water is a horizontal plane at `water`, and every bed and bank is an authored world plane of `footing` (`AutoMovieArchetypeQuadrupedFooting`). The wading and climbing are the grounded ride (`rideQuadruped`) on that footing, the wading course ending, and the climbing course starting, at the swim's speed. Between them the animal floats with its back `immersion` below the water, its trunk level on the wading course's final heading, travelling straight at the swim speed, its neck raised by `neck` degrees, and each limb paddling its end's measured stroke (`EquineSwimStroke`, `EquineSwimPose`), the diagonal pairs half a cycle apart. Each cut, from the last grounded second into the swim and from the swim into the first grounded second, is inertialized over `transition` seconds (`QuadrupedWorldPose`), so every displayed bar and its velocity are continuous there; within each cut the whole body rises by the depth of any solid that would enter a bed (`QuadrupedFootingClearance`), the contact correction applied after an inertialized blend. Each grounded ride runs with its course datum at the authored ground under its start, an exact vertical translation, so a graded bed is followed by its course legs' rise.
+ * The water is a horizontal plane at `water`, and every bed and bank is an
+ * authored world plane of `footing` (`AutoMovieArchetypeQuadrupedFooting`). The
+ * wading and climbing are the grounded ride (`rideQuadruped`) on that footing,
+ * the wading course ending, and the climbing course starting, at the swim's
+ * speed. Between them the animal floats with its back `immersion` below the
+ * water, its trunk level on the wading course's final heading, travelling
+ * straight at the swim speed, its neck raised by `neck` degrees, and each limb
+ * paddling its end's measured stroke (`EquineSwimStroke`, `EquineSwimPose`),
+ * the diagonal pairs half a cycle apart. Each cut, from the last grounded
+ * second into the swim and from the swim into the first grounded second, is
+ * inertialized over `transition` seconds (`QuadrupedWorldPose`), so every
+ * displayed bar and its velocity are continuous there; within each cut the
+ * whole body rises by the depth of any solid that would enter a bed
+ * (`QuadrupedFootingClearance`), the contact correction applied after an
+ * inertialized blend. Each grounded ride runs with its course datum at the
+ * authored ground under its start, an exact vertical translation, so a graded
+ * bed is followed by its course legs' rise.
  *
- * Named contact changes: `float` when the hooves leave the ford's bed, `swim` when the stroke is established, `<limb>Stroke` at each stroke's start, `land` when the hooves meet the far bank and `climb` when the climbing gait's footholds hold; the wading ride's instants come before `float` and the climbing ride's after `climb`.
+ * Named contact changes: `float` when the hooves leave the ford's bed, `swim`
+ * when the stroke is established, `<limb>Stroke` at each stroke's start, `land`
+ * when the hooves meet the far bank and `climb` when the climbing gait's
+ * footholds hold; the wading ride's instants come before `float` and the
+ * climbing ride's after `climb`.
  *
- * The crossing is admitted only where the water floats the animal and the far bank can be reached. The floating animal's standing sole level is the water's surface less the immersion and the neutral back's height; the stroke's lowest sole is read from the swim pose over one cycle, and each limb's straight reach from its neutral attachment and bar lengths. At the last wading second the authored bed under every hoof lies below the stroke's lowest sole, so the swim leaves it; at the first climbing second the bank under every hoof lies at or above the straight reach of the shortest-reaching limb and below the stroke's lowest sole, so the hooves can stand on it yet the stroke never strikes it. Every floating second is checked against the footing for any solid entering a bed, and every second of the established stroke against the water for the head; over the entry cut the head rises out of the grounded ride's carriage.
+ * The crossing is admitted only where the water floats the animal and the far
+ * bank can be reached. The floating animal's standing sole level is the water's
+ * surface less the immersion and the neutral back's height; the stroke's lowest
+ * sole is read from the swim pose over one cycle, and each limb's straight
+ * reach from its neutral attachment and bar lengths. At the last wading second
+ * the authored bed under every hoof lies below the stroke's lowest sole, so the
+ * swim leaves it; at the first climbing second the bank under every hoof lies
+ * at or above the straight reach of the shortest-reaching limb and below the
+ * stroke's lowest sole, so the hooves can stand on it yet the stroke never
+ * strikes it. Every floating second is checked against the footing for any
+ * solid entering a bed, and every second of the established stroke against the
+ * water for the head; over the entry cut the head rises out of the grounded
+ * ride's carriage.
  *
  * @param animal The equid, in its neutral pose.
- * @param params The water, the footing, the three courses and the authored swim.
+ * @param params The water, the footing, the three courses and the authored
+ *   swim.
  * @returns The crossing, sampled by film second.
- * @throws {AutoMovieArchetypeRefusal} For malformed swim or water values, water too shallow to float at the end of the wading, a far bank beyond reach or inside the stroke, a head below the water, a swim shorter than its transition or a bed met while swimming; and as the grounded ride refuses its courses and footing.
+ * @throws {AutoMovieArchetypeRefusal} For malformed swim or water values, water
+ *   too shallow to float at the end of the wading, a far bank beyond reach or
+ *   inside the stroke, a head below the water, a swim shorter than its
+ *   transition or a bed met while swimming; and as the grounded ride refuses
+ *   its courses and footing.
  */
 export function AutoMovieArchetypeEquineFord<
   Id extends string,
@@ -370,7 +409,10 @@ export function AutoMovieArchetypeEquineFord<
     };
   }
 
-  /** Emit a blended cut pose, lifted by the depth of any solid in a bed, then verified. */
+  /**
+   * Emit a blended cut pose, lifted by the depth of any solid in a bed, then
+   * verified.
+   */
   function supported(
     pose: QuadrupedWorldPose.IPose,
     placement: IAutoMovieTransform,
@@ -405,7 +447,10 @@ export function AutoMovieArchetypeEquineFord<
     return archetype;
   }
 
-  /** A grounded segment at the ground's datum under its start (`AutoMovieArchetypeQuadrupedDatumRide`). */
+  /**
+   * A grounded segment at the ground's datum under its start
+   * (`AutoMovieArchetypeQuadrupedDatumRide`).
+   */
   function grounded(
     leg: AutoMovieArchetypeEquineFordPlan.IGrounded,
     start: AutoMovieArchetypeCourse.ICourse["start"],
@@ -440,7 +485,10 @@ export function AutoMovieArchetypeEquineFord<
     };
   }
 
-  /** The authored bed height under each hoof of a grounded sample, planted or swinging. */
+  /**
+   * The authored bed height under each hoof of a grounded sample, planted or
+   * swinging.
+   */
   function soles(
     grounded: AutoMovieArchetypeRide.ISample<Id, Dimension>,
   ): number[] {

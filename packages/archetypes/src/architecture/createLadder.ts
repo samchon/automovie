@@ -17,7 +17,10 @@ import {
 const OSHA: string =
   "29 CFR 1910.23 (https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.23)";
 
-/** The pitch of a ladder whose foot stands a quarter of its length from the wall, degrees: the arccosine of one quarter. */
+/**
+ * The pitch of a ladder whose foot stands a quarter of its length from the
+ * wall, degrees: the arccosine of one quarter.
+ */
 const QUARTER: number = Math.acos(0.25) / AutoMovieArchetypeUnits.DEGREE;
 
 /** A rung's diameter, which the regulation does not give. */
@@ -27,12 +30,19 @@ const RUNG: string =
 /**
  * A ladder: fixed upright to a wall, or leaning against one.
  *
- * The ladder's foot is on the floor at the origin and it is climbed facing `-Z`, toward the wall. A fixed ladder is upright; a leaning one tilts back toward the wall at the pitch its bands give, its foot a quarter of its length out. Each rung is a `bar` named `rung1` upward, and each side rail a `bar` along the ladder.
+ * The ladder's foot is on the floor at the origin and it is climbed facing
+ * `-Z`, toward the wall. A fixed ladder is upright; a leaning one tilts back
+ * toward the wall at the pitch its bands give, its foot a quarter of its length
+ * out. Each rung is a `bar` named `rung1` upward, and each side rail a `bar`
+ * along the ladder.
  *
- * @param params The kind, the number of rungs and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the number of rungs and any dimension the author
+ *   fixes.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The ladder.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a number of rungs that is not a whole number from 2 to 30.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
+ *   or a number of rungs that is not a whole number from 2 to 30.
  */
 export function createLadder(
   params: createLadder.IParams,
@@ -149,9 +159,7 @@ export function createLadder(
   return builder.build(d.mass * rungs);
 }
 
-/**
- * Companion types and bands of {@link createLadder}.
- */
+/** Companion types and bands of {@link createLadder}. */
 export namespace createLadder {
   /** The kinds of ladder. */
   export type Kind = "fixed" | "leaning";
@@ -159,21 +167,27 @@ export namespace createLadder {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["fixed", "leaning"];
 
-  /** The most rungs a ladder may have. An estimate, not read at a source: a bound on the model's size, not a regulation's. */
+  /**
+   * The most rungs a ladder may have. An estimate, not read at a source: a
+   * bound on the model's size, not a regulation's.
+   */
   export const RUNGS: number = 30;
 
   /**
    * The affordance ids:
    *
-   * - `rung1` to `rung<rungs>`: each rung from the bottom up, a bar across the ladder.
-   * - `leftRail`, `rightRail`: the side rails on `+X` and `-X`, each a bar along the ladder.
+   * - `rung1` to `rung<rungs>`: each rung from the bottom up, a bar across the
+   *   ladder.
+   * - `leftRail`, `rightRail`: the side rails on `+X` and `-X`, each a bar along
+   *   the ladder.
    */
   export type Affordance = `rung${number}` | "leftRail" | "rightRail";
 
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `spacing`: from one rung to the next along the ladder; the first rung is one spacing from the foot.
+   * - `spacing`: from one rung to the next along the ladder; the first rung is
+   *   one spacing from the foot.
    * - `width`: the clear width of a rung between the rails.
    * - `rungDiameter`: a rung's and a rail's round section.
    * - `pitch`: the ladder's angle from the floor, degrees.
@@ -197,7 +211,10 @@ export namespace createLadder {
     mass: "kg",
   };
 
-  /** The parameters: the kind, the count, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, the count, and any free dimension fixed to a
+   * value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which ladder. */
     kind: Kind;

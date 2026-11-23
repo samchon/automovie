@@ -5,20 +5,25 @@ import { BallBuild } from "./BallBuild";
 import type { createBall } from "./createBall";
 
 /**
- * A golf ball's rolling resistance on a green: the USGA Stimpmeter releases
- * the ball at 1.83 m/s, and a medium green of 10 ft (3.05 m) gives
- * mu = v^2 / (2 g S), about 0.056.
+ * A golf ball's rolling resistance on a green: the USGA Stimpmeter releases the
+ * ball at 1.83 m/s, and a medium green of 10 ft (3.05 m) gives mu = v^2 / (2 g
+ * S), about 0.056.
  */
 const GREEN: number = 1.83 ** 2 / (2 * 9.80665 * 3.05);
 
 /**
  * A spherical ball with a centre grip and upper surface.
  *
- * The model rests on the floor at the origin with its centre one radius above it. Select a sport for size, mass and finish.
- * @param params The sport profile, identifier and dimensions fixed within their bands. Omission selects football.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
+ * The model rests on the floor at the origin with its centre one radius above
+ * it. Select a sport for size, mass and finish.
+ *
+ * @param params The sport profile, identifier and dimensions fixed within their
+ *   bands. Omission selects football.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createSphericalBall(
   params: createSphericalBall.IParams = {},
@@ -84,11 +89,12 @@ export function createSphericalBall(
   );
 }
 
-/**
- * The authored parameters and contact names for {@link createSphericalBall}.
- */
+/** The authored parameters and contact names for {@link createSphericalBall}. */
 export namespace createSphericalBall {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "mass";
 
   /** The contacts used by floor, grip and strike motions. */

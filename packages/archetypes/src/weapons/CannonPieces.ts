@@ -18,9 +18,17 @@ type Builder = AutoMovieArchetypeBuilder<
 type Drawn = Readonly<Partial<Record<createCannon.Dimension, number>>>;
 
 /**
- * The naval gun, the mortar and the swivel gun, built on their read figures: a 32-pounder of 56 cwt on a four-truck carriage, a mortar on its bed at its fixed 45 degrees, and a swivel gun on its yoke. Every size the sources do not give is a named estimate in `ESTIMATES`; the searches are recorded in records-cannon.md.
+ * The naval gun, the mortar and the swivel gun, built on their read figures: a
+ * 32-pounder of 56 cwt on a four-truck carriage, a mortar on its bed at its
+ * fixed 45 degrees, and a swivel gun on its yoke. Every size the sources do not
+ * give is a named estimate in `ESTIMATES`; the searches are recorded in
+ * records-cannon.md.
  *
- * Each stands on level ground or deck, its muzzle toward `+Z`. `muzzle` is the muzzle's face and `vent` the vent's orifice, sockets, `+Y` out; a naval gun's tube turns on `elevation`, a hinge on its trunnions' axis, and its trucks stand under the carriage's cheeks; a mortar's tube is fixed on its bed at 45 degrees.
+ * Each stands on level ground or deck, its muzzle toward `+Z`. `muzzle` is the
+ * muzzle's face and `vent` the vent's orifice, sockets, `+Y` out; a naval gun's
+ * tube turns on `elevation`, a hinge on its trunnions' axis, and its trucks
+ * stand under the carriage's cheeks; a mortar's tube is fixed on its bed at 45
+ * degrees.
  */
 export namespace CannonPieces {
   /**
@@ -28,14 +36,20 @@ export namespace CannonPieces {
    *
    * - `tube`: a tube's outside radius over its bore's, a ratio.
    * - `trunnion`: the trunnions behind the tube's middle, a share of its length.
-   * - `carriage`: a naval carriage's length, width and height of its cheeks, metres, and its trucks' spacing along it as a share of its length.
+   * - `carriage`: a naval carriage's length, width and height of its cheeks,
+   *   metres, and its trucks' spacing along it as a share of its length.
    * - `elevation`, `depression`: a naval gun's quoin range, degrees.
    * - `vent`: the vent ahead of the breech's end, a share of the tube's length.
-   * - `mortar`: a mortar's trunnions above its bed's top, a share of the bed's width.
+   * - `mortar`: a mortar's trunnions above its bed's top, a share of the bed's
+   *   width.
    * - `bed`: a mortar bed's height, a share of its width.
-   * - `swivel`: a swivel gun's pin above its socket, the yoke's arms' height and their spread, metres, its tilt either way, degrees, and the tiller's length, metres; the National Park Service's demonstration manual draws a Y-shaped swivel and a wooden tiller without sizes (secondary).
+   * - `swivel`: a swivel gun's pin above its socket, the yoke's arms' height and
+   *   their spread, metres, its tilt either way, degrees, and the tiller's
+   *   length, metres; the National Park Service's demonstration manual draws a
+   *   Y-shaped swivel and a wooden tiller without sizes (secondary).
    *
-   * Searched: the 1861 Ordnance Manual, Griffiths 1856, Douglas 1860, the 1852 and 1866 US Navy ordnance instructions (records-cannon.md).
+   * Searched: the 1861 Ordnance Manual, Griffiths 1856, Douglas 1860, the 1852
+   * and 1866 US Navy ordnance instructions (records-cannon.md).
    */
   export const ESTIMATES: Readonly<{
     tube: number;
@@ -71,7 +85,11 @@ export namespace CannonPieces {
   };
 
   /**
-   * Lay a swivel gun: its pin standing in a socket at the origin, the Y-shaped yoke on it, the tube on the yoke's arms and the tiller behind the breech. The `traverse` hinge turns the pin about the vertical, and the `elevation` hinge, riding it, tilts the tube on the arms: a hinge riding a hinge, so the gun pans and tilts.
+   * Lay a swivel gun: its pin standing in a socket at the origin, the Y-shaped
+   * yoke on it, the tube on the yoke's arms and the tiller behind the breech.
+   * The `traverse` hinge turns the pin about the vertical, and the `elevation`
+   * hinge, riding it, tilts the tube on the arms: a hinge riding a hinge, so
+   * the gun pans and tilts.
    *
    * @param builder The cannon under construction.
    * @param d The cannon's dimensions.
@@ -177,7 +195,13 @@ export namespace CannonPieces {
     });
   }
 
-  /** A mortar's fixed elevation, degrees: mortars are fired "under the constant angle of 45°, and the charge is varied according to the range required" (Roberts, The Hand-Book of Artillery, 1861, p. 66, https://www.gutenberg.org/cache/epub/71575/pg71575.txt); every range the 1861 Ordnance Manual tables for both mortars is at 45 degrees (p. 390). */
+  /**
+   * A mortar's fixed elevation, degrees: mortars are fired "under the constant
+   * angle of 45°, and the charge is varied according to the range required"
+   * (Roberts, The Hand-Book of Artillery, 1861, p. 66,
+   * https://www.gutenberg.org/cache/epub/71575/pg71575.txt); every range the
+   * 1861 Ordnance Manual tables for both mortars is at 45 degrees (p. 390).
+   */
   export const MORTAR_ELEVATION: number = 45;
 
   /**

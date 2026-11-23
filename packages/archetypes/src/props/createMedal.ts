@@ -18,16 +18,18 @@ const RIBBON: string =
   "a neck ribbon hanging about 0.4 to 0.5 m from the nape to the disc's ring (provisional)";
 
 /**
- * A ribbon medal: a disc on a neck ribbon, presented by the ribbon above the disc
- * and worn with the disc on the breastbone.
+ * A ribbon medal: a disc on a neck ribbon, presented by the ribbon above the
+ * disc and worn with the disc on the breastbone.
  *
- * It hangs from the origin, the ribbon's top, down `-Y`, the disc's face
- * toward `+Z`. `hold` is where fingers take the ribbon just above the disc,
- * as a medal is pinned; `wear` is the disc's back, facing `-Z`, the point
- * laid on the wearer's chest.
+ * It hangs from the origin, the ribbon's top, down `-Y`, the disc's face toward
+ * `+Z`. `hold` is where fingers take the ribbon just above the disc, as a medal
+ * is pinned; `wear` is the disc's back, facing `-Z`, the point laid on the
+ * wearer's chest.
  *
- * @param params Any dimension the author fixes inside its band, and an optional scene id.
- * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
+ * @param params Any dimension the author fixes inside its band, and an optional
+ *   scene id.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, the middle of each band.
  * @returns The medal.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -95,9 +97,7 @@ export function createMedal(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createMedal}.
- */
+/** Companion types, constants and bands of {@link createMedal}. */
 export namespace createMedal {
   /** The contacts: the ribbon's top a hand takes, and the disc's worn back. */
   export type Affordance = "hold" | "wear";

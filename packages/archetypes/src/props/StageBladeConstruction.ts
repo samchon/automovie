@@ -77,16 +77,20 @@ const PROFILES = {
 /**
  * Build a padded hand-held silhouette.
  *
- * The common digital profile has a grip, capped shaft and optional form-specific guard detail.
+ * The common digital profile has a grip, capped shaft and optional
+ * form-specific guard detail.
  *
  * @param kind The selected stored profile label.
  * @param twoHand Whether the contact admits an authored two-hand pose.
  * @param decorate Places any guard and profile-dependent details.
- * @param edge The striking part as shares of the length from the handle's end, for a silhouette that cuts; none for a point weapon.
+ * @param edge The striking part as shares of the length from the handle's end,
+ *   for a silhouette that cuts; none for a point weapon.
  * @param params The scene identifier and display length in metres.
  * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames: the grip, the point and any edge.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @returns The digital model and its authored contact frames: the grip, the
+ *   point and any edge.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function StageBladeConstruction(
   kind: createStageBladeProp.Kind,
@@ -190,9 +194,7 @@ export function StageBladeConstruction(
   return builder.build(0.2);
 }
 
-/**
- * Shared display measurements and guard geometry.
- */
+/** Shared display measurements and guard geometry. */
 export namespace StageBladeConstruction {
   /** Model-space locations and sizes for a form’s additional geometry. */
   export interface IProfile {

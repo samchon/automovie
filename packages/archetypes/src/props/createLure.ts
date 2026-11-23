@@ -9,18 +9,23 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** A spinning lure's size and weight, from a maker's catalogue seen in search results. */
+/**
+ * A spinning lure's size and weight, from a maker's catalogue seen in search
+ * results.
+ */
 const LURE: string =
   "Mepps Aglia spinners, sizes 0 to 5: blade lengths about 2 to 5 cm and weights 2.5 to 13 g, catalogue figures seen only in search results; a lure's body drawn as one block (provisional)";
 
 /**
- * A small fishing lure: a body the line ties to at its `eye`, cast from a
- * rod's tip and drawn back through the water.
+ * A small fishing lure: a body the line ties to at its `eye`, cast from a rod's
+ * tip and drawn back through the water.
  *
  * It lies at the origin along `+Z`, the eye at its front end.
  *
- * @param params Any dimension the author fixes inside its band, and an optional scene id.
- * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
+ * @param params Any dimension the author fixes inside its band, and an optional
+ *   scene id.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, the middle of each band.
  * @returns The lure.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -67,9 +72,7 @@ export function createLure(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createLure}.
- */
+/** Companion types, constants and bands of {@link createLure}. */
 export namespace createLure {
   /** The contact: the eye the line ties to. */
   export type Affordance = "eye";

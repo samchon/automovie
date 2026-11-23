@@ -9,12 +9,12 @@ import {
 } from "../core";
 
 /**
- * FIDE's Standards of Chess Equipment, section 2.3: "King – 9.5 cm",
- * "Queen – 8.5 cm", "Bishop – 7 cm", "Knight – 6 cm", "Rook – 5.5 cm",
- * "Pawn – 5 cm"; section 2.4: "The diameter of a piece's base should
- * measure 40-50% of its height" (handbook.fide.com, version effective until
- * 28 February 2026, read 2026-11-21). The base is taken at 45 percent. The
- * profile's proportions and the weighted mass are provisional estimates.
+ * FIDE's Standards of Chess Equipment, section 2.3: "King – 9.5 cm", "Queen –
+ * 8.5 cm", "Bishop – 7 cm", "Knight – 6 cm", "Rook – 5.5 cm", "Pawn – 5 cm";
+ * section 2.4: "The diameter of a piece's base should measure 40-50% of its
+ * height" (handbook.fide.com, version effective until 28 February 2026, read
+ * 2026-11-21). The base is taken at 45 percent. The profile's proportions and
+ * the weighted mass are provisional estimates.
  */
 const HEIGHTS: Readonly<Record<createChessPiece.Kind, number>> = {
   king: 0.095,
@@ -25,19 +25,25 @@ const HEIGHTS: Readonly<Record<createChessPiece.Kind, number>> = {
   pawn: 0.05,
 };
 
-/** A piece's base diameter as a share of its height, within FIDE's 40 to 50 percent. */
+/**
+ * A piece's base diameter as a share of its height, within FIDE's 40 to 50
+ * percent.
+ */
 const BASE: number = 0.45;
 
-/** A weighted piece's mass per metre of height, kilograms: a provisional estimate. */
+/**
+ * A weighted piece's mass per metre of height, kilograms: a provisional
+ * estimate.
+ */
 const MASS_PER_HEIGHT: number = 0.5;
 
 /**
  * One chess piece standing on its base.
  *
- * The piece stands along `+Y` from the centre of its base at the origin.
- * Its `base` socket is that origin, set on a board square's socket to place
- * it; its `grip` is a precision pinch at the head, where a player takes a
- * piece, as FIDE's laws have a move made with one hand.
+ * The piece stands along `+Y` from the centre of its base at the origin. Its
+ * `base` socket is that origin, set on a board square's socket to place it; its
+ * `grip` is a precision pinch at the head, where a player takes a piece, as
+ * FIDE's laws have a move made with one hand.
  *
  * @param params The piece's kind, side and optional scene id.
  * @returns The inert piece and its contact frames, metres.
@@ -108,9 +114,7 @@ export function createChessPiece(
   return builder.build(MASS_PER_HEIGHT * height);
 }
 
-/**
- * The inputs, contacts and kinds of {@link createChessPiece}.
- */
+/** The inputs, contacts and kinds of {@link createChessPiece}. */
 export namespace createChessPiece {
   /** The six kinds of piece. */
   export type Kind = "king" | "queen" | "bishop" | "knight" | "rook" | "pawn";

@@ -11,8 +11,8 @@ import {
  * FIDE's Standards of Chess Equipment, section 3.3: "The side of the square
  * should measure 5-6 cm. Four pawns should fit on one square"
  * (handbook.fide.com, version effective until 28 February 2026, read
- * 2026-11-21). The board's border, thickness and mass are not read, so they
- * are provisional estimates.
+ * 2026-11-21). The board's border, thickness and mass are not read, so they are
+ * provisional estimates.
  */
 const BOARD: Readonly<createChessBoard.IBoard> = {
   square: 0.055,
@@ -48,11 +48,10 @@ const RANKS: readonly createChessBoard.Rank[] = [
 /**
  * A chessboard lying flat with a socket on every named square.
  *
- * The board lies in the `XZ` plane, its origin the centre of its underside.
- * The files `a` to `h` run along `+X` and the ranks `1` to `8` along `+Z`,
- * so White sits at `-Z`. Each square's socket is at the centre of its face,
- * upright, where a piece's `base` is set; `top` is the board's playing
- * surface.
+ * The board lies in the `XZ` plane, its origin the centre of its underside. The
+ * files `a` to `h` run along `+X` and the ranks `1` to `8` along `+Z`, so White
+ * sits at `-Z`. Each square's socket is at the centre of its face, upright,
+ * where a piece's `base` is set; `top` is the board's playing surface.
  *
  * @param params The optional scene id.
  * @returns The inert board and its contact frames, metres.
@@ -112,9 +111,7 @@ export function createChessBoard(
   return builder.build(BOARD.mass);
 }
 
-/**
- * The inputs, contacts and size of {@link createChessBoard}.
- */
+/** The inputs, contacts and size of {@link createChessBoard}. */
 export namespace createChessBoard {
   /** A file, from White's left. */
   export type File = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h";

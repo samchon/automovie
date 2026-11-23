@@ -9,10 +9,12 @@ import { createViolin } from "./createViolin";
 /**
  * Reads a saved instrument recipe using its canonical producer.
  *
- * @param params The saved kind, optional identifier and any dimensions or choices the author supplied.
+ * @param params The saved kind, optional identifier and any dimensions or
+ *   choices the author supplied.
  * @param seed The seed used by the selected producer.
  * @returns The original model and its contacts.
- * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension
+ *   cannot be realized.
  */
 export function createInstrument(
   params: createInstrument.IParams,
@@ -27,9 +29,7 @@ export function createInstrument(
   return createInstrument.PRODUCERS[kind](params, seed);
 }
 
-/**
- * Companion types and bands of {@link createInstrument}.
- */
+/** Companion types and bands of {@link createInstrument}. */
 export namespace createInstrument {
   /** The kinds of instrument. */
   export type Kind =
@@ -51,11 +51,13 @@ export namespace createInstrument {
   /**
    * The affordance ids, by kind:
    *
-   * - uprightPiano: `key1` to `key88` (buttons), `keybed` (surface), `lid` and `damperPedalHinge` (hinges), `damperPedal` (pedal);
-   * - guitar: `fret1` to `fret20` and `string1` to `string6` (bars), `neck` (bar), `body` (surface);
-   * - violin: `string1` to `string4` (bars), `neck` (bar);
-   * - sideDrum: `head` (surface), `sling` (hook);
-   * - bugle: `grip` (handle), `mouthpiece` (socket).
+   * - UprightPiano: `key1` to `key88` (buttons), `keybed` (surface), `lid` and
+   *   `damperPedalHinge` (hinges), `damperPedal` (pedal);
+   * - Guitar: `fret1` to `fret20` and `string1` to `string6` (bars), `neck`
+   *   (bar), `body` (surface);
+   * - Violin: `string1` to `string4` (bars), `neck` (bar);
+   * - SideDrum: `head` (surface), `sling` (hook);
+   * - Bugle: `grip` (handle), `mouthpiece` (socket).
    */
   export type Affordance =
     | `key${number}`
@@ -76,10 +78,18 @@ export namespace createInstrument {
    * The free dimensions, metres unless stated:
    *
    * - `height`, `width`, `depth`: a piano's case; a drum's shell `depth`.
-   * - `keyHeight`, `octave`, `keyLength`, `blackLength`: a piano's key tops above the floor, one octave's span, a white and a black key's length; `dip`: a key's travel; `blackRise`: a black key's top above the white keys'.
-   * - `scale`: the strings' sounding length from the nut; `nut`: a guitar's nut width; `saddle`: its outer strings' span at the saddle.
-   * - `bodyLength`, `bodyWidth`, `bodyDepth`: a guitar's body; a violin's back length.
-   * - `neck`: a violin's neck from the body to the nut; `upperBout`, `waist`, `lowerBout`: its widths; `rib`: its rib height; `neckThickness`, `fingerboard`: its neck's thickness and its fingerboard's width; `nutSpacing`, `bridgeSpacing`, `bridgeHeight`: its outer strings' span at the nut and the bridge and the bridge's height.
+   * - `keyHeight`, `octave`, `keyLength`, `blackLength`: a piano's key tops above
+   *   the floor, one octave's span, a white and a black key's length; `dip`: a
+   *   key's travel; `blackRise`: a black key's top above the white keys'.
+   * - `scale`: the strings' sounding length from the nut; `nut`: a guitar's nut
+   *   width; `saddle`: its outer strings' span at the saddle.
+   * - `bodyLength`, `bodyWidth`, `bodyDepth`: a guitar's body; a violin's back
+   *   length.
+   * - `neck`: a violin's neck from the body to the nut; `upperBout`, `waist`,
+   *   `lowerBout`: its widths; `rib`: its rib height; `neckThickness`,
+   *   `fingerboard`: its neck's thickness and its fingerboard's width;
+   *   `nutSpacing`, `bridgeSpacing`, `bridgeHeight`: its outer strings' span at
+   *   the nut and the bridge and the bridge's height.
    * - `length`: a bugle's; `diameter`: a drum's; `bell`: a bugle's bell.
    * - `mass`: kilograms.
    */
@@ -117,7 +127,10 @@ export namespace createInstrument {
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: typeof InstrumentBuild.UNITS = InstrumentBuild.UNITS;
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which instrument. */
     kind: Kind;

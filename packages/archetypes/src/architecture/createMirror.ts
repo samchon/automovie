@@ -23,21 +23,37 @@ const BOBRICK: string =
 const IKORNNES: string =
   "IKEA IKORNNES standing mirror 302.983.96: width 52 cm, height 167 cm, depth 52 cm (https://www.ikea.com/gb/en/p/ikornnes-standing-mirror-ash-30298396)";
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `panel`, a standing mirror's frame thickness; `foot`, its feet's height. */
+/**
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `panel`, a standing mirror's frame thickness;
+ * `foot`, its feet's height.
+ */
 const ESTIMATES: Readonly<{ panel: number; foot: number }> = {
   panel: 0.03,
   foot: 0.04,
 };
 
 /**
- * A mirror: a framed mirror on a wall, or a standing (cheval) mirror on the floor.
+ * A mirror: a framed mirror on a wall, or a standing (cheval) mirror on the
+ * floor.
  *
- * A wall mirror is one of Bobrick's standard sizes, given or drawn from the seed; it hangs in the `XY` plane with the wall at `z = 0` behind it and its face toward `+Z`, the bottom of its reflecting surface at the standard's height. A standing mirror stands on the floor at the origin, its panel upright facing `+Z` on two feet running front to back. `face` is the reflecting surface, a surface a person stands before and looks into, its `+Y` out of the glass.
+ * A wall mirror is one of Bobrick's standard sizes, given or drawn from the
+ * seed; it hangs in the `XY` plane with the wall at `z = 0` behind it and its
+ * face toward `+Z`, the bottom of its reflecting surface at the standard's
+ * height. A standing mirror stands on the floor at the origin, its panel
+ * upright facing `+Z` on two feet running front to back. `face` is the
+ * reflecting surface, a surface a person stands before and looks into, its `+Y`
+ * out of the glass.
  *
- * @param params The kind, a wall mirror's size and any dimension the author fixes.
- * @param seed The seed that draws a wall mirror's size when it is not given and every dimension left free inside its band; absent, the first size and the middle of each band.
+ * @param params The kind, a wall mirror's size and any dimension the author
+ *   fixes.
+ * @param seed The seed that draws a wall mirror's size when it is not given and
+ *   every dimension left free inside its band; absent, the first size and the
+ *   middle of each band.
  * @returns The mirror.
- * @throws {AutoMovieArchetypeRefusal} For a size Bobrick does not list or one named for a standing mirror, a fixed dimension outside its band, or one only another kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a size Bobrick does not list or one
+ *   named for a standing mirror, a fixed dimension outside its band, or one
+ *   only another kind has.
  */
 export function createMirror(
   params: createMirror.IParams,
@@ -129,9 +145,7 @@ export function createMirror(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createMirror}.
- */
+/** Companion types and bands of {@link createMirror}. */
 export namespace createMirror {
   /** The kinds of mirror. */
   export type Kind = "wall" | "cheval";
@@ -149,7 +163,11 @@ export namespace createMirror {
     | "24x60"
     | "24x72";
 
-  /** Each kind's standard sizes with the reflecting surface's width and height each gives, metres, the default first: Bobrick B-290's for a wall mirror; a standing mirror has one read model. */
+  /**
+   * Each kind's standard sizes with the reflecting surface's width and height
+   * each gives, metres, the default first: Bobrick B-290's for a wall mirror; a
+   * standing mirror has one read model.
+   */
   export const SIZES: Readonly<
     Partial<
       Record<
@@ -192,15 +210,20 @@ export namespace createMirror {
     },
   };
 
-  /** The affordance id: `face`, the reflecting surface, its `+Y` out of the glass. */
+  /**
+   * The affordance id: `face`, the reflecting surface, its `+Y` out of the
+   * glass.
+   */
   export type Affordance = "face";
 
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `width`, `height`: a standing mirror's overall size; a wall mirror's are its standard size's.
+   * - `width`, `height`: a standing mirror's overall size; a wall mirror's are
+   *   its standard size's.
    * - `bottom`: a wall mirror's reflecting surface's bottom edge above the floor.
-   * - `frame`: a wall mirror's frame around the glass; `offset`: its face off the wall.
+   * - `frame`: a wall mirror's frame around the glass; `offset`: its face off the
+   *   wall.
    * - `depth`: a standing mirror's feet front to back.
    * - `mass`: kilograms.
    */
@@ -226,12 +249,18 @@ export namespace createMirror {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which mirror. */
     kind: Kind;
 
-    /** A wall mirror's standard size; drawn from the seed when absent. A standing mirror has none. */
+    /**
+     * A wall mirror's standard size; drawn from the seed when absent. A
+     * standing mirror has none.
+     */
     size?: Size;
 
     /** The model's id, unique in a scene; `mirror` when absent. */

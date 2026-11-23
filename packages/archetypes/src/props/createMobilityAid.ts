@@ -40,12 +40,16 @@ type Producer = (
 >;
 
 /**
- * Replay a saved mobilityAid variant with the original dimensions, identifier and model choices.
+ * Replay a saved mobilityAid variant with the original dimensions, identifier
+ * and model choices.
  *
- * @param params The historic selector and optional fixed settings in the original units.
- * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @param params The historic selector and optional fixed settings in the
+ *   original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless
+ *   defaults.
  * @returns The original generated model and its local contacts.
- * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
+ *   outside its admitted range.
  */
 export function createMobilityAid(
   params: createMobilityAid.IParams,
@@ -66,9 +70,7 @@ export function createMobilityAid(
   return produce(params, seed);
 }
 
-/**
- * Companion types, constants and bands of {@link createMobilityAid}.
- */
+/** Companion types, constants and bands of {@link createMobilityAid}. */
 export namespace createMobilityAid {
   /** Each saved selector's named producer. */
   export interface IProducers {
@@ -101,7 +103,13 @@ export namespace createMobilityAid {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["cane", "walker", "infusionStand"];
 
-  /** The infusion stand's read construction, metres and kilograms: its castors' and base legs' diameters, its outer tube's length, its inner tube's diameter and its weighted base's mass, Provita's I-PRE003 / I-PRE013; its five legs are counted in the catalogue's photographs of the stand (pp. 13 and 16), as its text states no count. */
+  /**
+   * The infusion stand's read construction, metres and kilograms: its castors'
+   * and base legs' diameters, its outer tube's length, its inner tube's
+   * diameter and its weighted base's mass, Provita's I-PRE003 / I-PRE013; its
+   * five legs are counted in the catalogue's photographs of the stand (pp. 13
+   * and 16), as its text states no count.
+   */
   export const STAND: Readonly<{
     legs: number;
     castor: number;
@@ -118,14 +126,20 @@ export namespace createMobilityAid {
     base: 8.9,
   };
 
-  /** The cane's offset handle, forward of the shaft, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html), the length a hand closes round. */
+  /**
+   * The cane's offset handle, forward of the shaft, metres: the 120 mm CCOHS
+   * recommends for a tool handle
+   * (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html), the
+   * length a hand closes round.
+   */
   export const HANDLE: number = 0.12;
 
   /**
    * The affordance ids:
    *
    * - `grip`: a cane's handle, taken from above.
-   * - `leftGrip`, `rightGrip`: a walker's side rails at `+X` and `-X`, taken from above.
+   * - `leftGrip`, `rightGrip`: a walker's side rails at `+X` and `-X`, taken from
+   *   above.
    * - `tip`: the foot on the floor, facing down.
    * - `hook`: an infusion stand's hooks at its top, where the bags hang.
    */
@@ -134,9 +148,12 @@ export namespace createMobilityAid {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `height`: the handle's top above the floor; an infusion stand's top, where its hooks are.
-   * - `diameter`: a cane's shaft, a walker's tube, an infusion stand's outer tube.
-   * - `width`, `depth`: a walker's across `X` and along `Z`; `width` an infusion stand's base diameter.
+   * - `height`: the handle's top above the floor; an infusion stand's top, where
+   *   its hooks are.
+   * - `diameter`: a cane's shaft, a walker's tube, an infusion stand's outer
+   *   tube.
+   * - `width`, `depth`: a walker's across `X` and along `Z`; `width` an infusion
+   *   stand's base diameter.
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "diameter" | "width" | "depth" | "mass";
@@ -152,7 +169,10 @@ export namespace createMobilityAid {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which aid. */
     kind: Kind;
@@ -167,10 +187,17 @@ export namespace createMobilityAid {
   /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /** The walkers read: Drive Medical's deluxe two-button folding walker, adult (10210-1, 10210-4ASM) and junior (10211-4ASM). */
+  /**
+   * The walkers read: Drive Medical's deluxe two-button folding walker, adult
+   * (10210-1, 10210-4ASM) and junior (10211-4ASM).
+   */
   export type Model = "adult" | "junior";
 
-  /** Each kind's models whole, the default first: the adult walker 7.5 lb and the junior 7 lb, the sheet's weights in the order of its item rows (https://shop.drivemedical.com/us/en/products/mobility/walkers/push-button/deluxe-folding-walker-two-button-with-5-wheels/p/10210-1/downloadPdf). */
+  /**
+   * Each kind's models whole, the default first: the adult walker 7.5 lb and
+   * the junior 7 lb, the sheet's weights in the order of its item rows
+   * (https://shop.drivemedical.com/us/en/products/mobility/walkers/push-button/deluxe-folding-walker-two-button-with-5-wheels/p/10210-1/downloadPdf).
+   */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
   > = {
@@ -180,7 +207,10 @@ export namespace createMobilityAid {
     },
   };
 
-  /** Each walker model's own handle height range, metres: the sheet's 32 to 39 in for the adult and 25 to 32.25 in for the junior. */
+  /**
+   * Each walker model's own handle height range, metres: the sheet's 32 to 39
+   * in for the adult and 25 to 32.25 in for the junior.
+   */
   export const HANDLE_HEIGHTS: Readonly<
     Partial<Record<Model, IAutoMovieArchetypeBand>>
   > = {

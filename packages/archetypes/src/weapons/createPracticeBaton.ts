@@ -7,11 +7,16 @@ import type { createClub } from "./createClub";
 /**
  * An inert straight practice baton for film staging.
  *
- * The digital prop stands on its butt along +Y. The saved grip and contact frames remain available to existing takes.
- * @param params The identifier, existing display profile and any free dimensions set within their bands.
- * @param seed The seed selects an unspecified profile and draws free dimensions. Without a seed, it uses the first profile and band midpoints.
+ * The digital prop stands on its butt along +Y. The saved grip and contact
+ * frames remain available to existing takes.
+ *
+ * @param params The identifier, existing display profile and any free
+ *   dimensions set within their bands.
+ * @param seed The seed selects an unspecified profile and draws free
+ *   dimensions. Without a seed, it uses the first profile and band midpoints.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createPracticeBaton(
   params: createPracticeBaton.IParams = {},
@@ -41,14 +46,18 @@ export function createPracticeBaton(
   return builder.build(d.mass!);
 }
 
-/**
- * The authored parameters and contact names for {@link createPracticeBaton}.
- */
+/** The authored parameters and contact names for {@link createPracticeBaton}. */
 export namespace createPracticeBaton {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "length" | "mass";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  /**
+   * The contacts this producer builds; a numbered family's count follows its
+   * inputs.
+   */
   export type Affordance = "grip" | "strike";
 
   /** The recorded digital prop profiles. */
@@ -59,7 +68,10 @@ export namespace createPracticeBaton {
     createClub.IParams,
     "id" | "diameter" | "mass"
   > {
-    /** A recorded profile. Omission uses the seed or the first profile without a seed. */
+    /**
+     * A recorded profile. Omission uses the seed or the first profile without a
+     * seed.
+     */
     model?: Model;
   }
 }

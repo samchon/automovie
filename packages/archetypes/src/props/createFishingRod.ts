@@ -6,10 +6,13 @@ import { LongImplementDraw } from "./LongImplementDraw";
 /**
  * Fishing rod standing on its butt, with a lower grip and an axial tip.
  *
- * @param params The optional scene ID, shaft diameter in metres and Daiwa model of the rendered rod.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
+ * @param params The optional scene ID, shaft diameter in metres and Daiwa model
+ *   of the rendered rod.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createFishingRod(
   params: Pick<LongImplementDraw.IParams, "id" | "shaftDiameter"> & {
@@ -64,13 +67,17 @@ export function createFishingRod(
   return builder.build(d.mass!);
 }
 
-/**
- * The contacts and dimensions of {@link createFishingRod}.
- */
+/** The contacts and dimensions of {@link createFishingRod}. */
 export namespace createFishingRod {
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  /**
+   * The contacts this producer builds; a numbered family's count follows its
+   * inputs.
+   */
   export type Affordance = "grip" | "tip";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "length" | "mass" | "shaftDiameter";
 }

@@ -4,15 +4,19 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { ObstacleDraw } from "./ObstacleDraw";
 
 /**
- * Two freestanding stanchions with grip frames on their shafts and the rope between them.
+ * Two freestanding stanchions with grip frames on their shafts and the rope
+ * between them.
  *
- * The measured dimensions set the foot clearance and positions of the three bar contacts. The rope stays straight as in the saved design.
- * The object stands on Y = 0 and is approached from +Z.
+ * The measured dimensions set the foot clearance and positions of the three bar
+ * contacts. The rope stays straight as in the saved design. The object stands
+ * on Y = 0 and is approached from +Z.
  *
- * @param params The scene identifier and any dimensions to fix inside their bands.
+ * @param params The scene identifier and any dimensions to fix inside their
+ *   bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
  */
 export function createRopeStanchions(
   params: createRopeStanchions.IParams = {},
@@ -102,9 +106,7 @@ export function createRopeStanchions(
   return builder.build(d.mass!);
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createRopeStanchions}.
- */
+/** Inputs, dimensions and contacts for {@link createRopeStanchions}. */
 export namespace createRopeStanchions {
   /** The named contacts built by this producer. */
   export type Affordance = "leftPost" | "rightPost" | "rope";

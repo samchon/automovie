@@ -6,11 +6,17 @@ import type { createInstrument } from "./createInstrument";
 /**
  * An upright piano with articulating keys, fallboard and damper pedal.
  *
- * The piano stands with its back at the origin's Z, its keyboard toward +Z and the bass keys at -X. A foot presses damperPedal and each key has its own travel.
- * @param params The optional identifier and dimensions fixed within their recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
+ * The piano stands with its back at the origin's Z, its keyboard toward +Z and
+ * the bass keys at -X. A foot presses damperPedal and each key has its own
+ * travel.
+ *
+ * @param params The optional identifier and dimensions fixed within their
+ *   recorded bands.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createUprightPiano(
   params: createUprightPiano.IParams = {},
@@ -28,11 +34,12 @@ export function createUprightPiano(
   );
 }
 
-/**
- * The authored parameters and contact names for {@link createUprightPiano}.
- */
+/** The authored parameters and contact names for {@link createUprightPiano}. */
 export namespace createUprightPiano {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "blackLength"
     | "blackRise"

@@ -8,14 +8,17 @@ import type {
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import type { createLift } from "./createLift";
 
-/** Metre or unit-axis proximity used only to recognize equivalent authoring frames. */
+/**
+ * Metre or unit-axis proximity used only to recognize equivalent authoring
+ * frames.
+ */
 const ALIGNMENT: number = 1e-6;
 
 /**
- * Resolve named stops on an upright shaft, in increasing local height.
- * A referenced sill must coincide with the local vertical axis and its +Z
- * direction must face the same landing as the lift. A numeric stop gives
- * its local height directly. A result never changes the shaft's scale.
+ * Resolve named stops on an upright shaft, in increasing local height. A
+ * referenced sill must coincide with the local vertical axis and its +Z
+ * direction must face the same landing as the lift. A numeric stop gives its
+ * local height directly. A result never changes the shaft's scale.
  */
 export function liftStopHeights(
   context: IAutoMovieEnvironmentModule.IContext,
@@ -81,13 +84,11 @@ export function liftStopHeights(
   return result;
 }
 
-/**
- * The resolved layout record shared by lift geometry and clip lowering.
- */
+/** The resolved layout record shared by lift geometry and clip lowering. */
 export namespace liftStopHeights {
   /**
-   * One stop of an upright shaft in its authored local frame.
-   * The model and clip builders share the stop name and admitted metre height.
+   * One stop of an upright shaft in its authored local frame. The model and
+   * clip builders share the stop name and admitted metre height.
    */
   export interface IStop {
     /** Unique stop name within the lift. */

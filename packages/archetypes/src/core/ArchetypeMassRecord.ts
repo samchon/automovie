@@ -3,12 +3,11 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
 import type { AutoMovieArchetypeMass } from "./AutoMovieArchetypeMass";
 
-/**
- * Admission and final reduction of a mass-property record.
- */
+/** Admission and final reduction of a mass-property record. */
 export namespace ArchetypeMassRecord {
   /**
    * Admit total body mass before allocation or a moment calculation.
+   *
    * @param value Total mass, kilograms.
    * @throws {Error} Unless mass is finite and positive.
    */
@@ -19,6 +18,7 @@ export namespace ArchetypeMassRecord {
 
   /**
    * Admit a finite record with nonnegative coordinate-axis moments.
+   *
    * @param properties SI mass, centre in metres and tensor in kg m².
    * @throws {Error} For unsupported mass, centre or tensor components.
    */
@@ -49,11 +49,14 @@ export namespace ArchetypeMassRecord {
 
   /**
    * Finish each complete tensor sum before deciding output representability.
+   *
    * @param value Total mass, kilograms.
    * @param centre Common centre, metres.
-   * @param terms Each axis component's contributions, kg m², in reduction order.
+   * @param terms Each axis component's contributions, kg m², in reduction
+   *   order.
    * @returns One admitted mass-property record.
-   * @throws {Error} For non-finite contributions or an unsupported final record.
+   * @throws {Error} For non-finite contributions or an unsupported final
+   *   record.
    */
   export function finish(
     value: number,

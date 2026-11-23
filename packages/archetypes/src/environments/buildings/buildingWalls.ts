@@ -5,7 +5,8 @@ import type { buildingPlans } from "./buildingPlans";
 import type { createBuilding } from "./createBuilding";
 
 /**
- * Split room edges at incident endpoints, identify shared walls, and bind each opening.
+ * Split room edges at incident endpoints, identify shared walls, and bind each
+ * opening.
  *
  * The canonical ring windings put room interiors to the left of their own
  * directed edges. Canonical segment direction makes coincident sections from
@@ -70,13 +71,9 @@ export function buildingWalls(
   return wallsInOrder;
 }
 
-/**
- * Normalized plan segments and their authored aperture bindings.
- */
+/** Normalized plan segments and their authored aperture bindings. */
 export namespace buildingWalls {
-  /**
-   * One positive-length wall in a local XZ storey.
-   */
+  /** One positive-length wall in a local XZ storey. */
   export interface IWall {
     /** Deterministic coordinate key within the level. */
     readonly key: string;
@@ -97,9 +94,7 @@ export namespace buildingWalls {
     readonly openings: IBinding[];
   }
 
-  /**
-   * An authored aperture with its orientation in the chosen wall.
-   */
+  /** An authored aperture with its orientation in the chosen wall. */
   export interface IBinding {
     /** Opening in the original metre plan. */
     readonly opening: createBuilding.Opening;
@@ -109,7 +104,10 @@ export namespace buildingWalls {
   }
 }
 
-/** Order a straight segment by X then Z, preserving exact authored point identities. */
+/**
+ * Order a straight segment by X then Z, preserving exact authored point
+ * identities.
+ */
 function compare(a: IAutoMovieProfilePoint, b: IAutoMovieProfilePoint): number {
   return a.x - b.x || a.y - b.y;
 }
@@ -119,7 +117,10 @@ function pointKey(point: IAutoMovieProfilePoint): string {
   return `${point.x},${point.y}`;
 }
 
-/** Check whether an authored endpoint exactly names the already-admitted wall endpoint. */
+/**
+ * Check whether an authored endpoint exactly names the already-admitted wall
+ * endpoint.
+ */
 function matches(
   point: IAutoMovieProfilePoint,
   pair: createBuilding.Point,

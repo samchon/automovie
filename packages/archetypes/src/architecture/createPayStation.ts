@@ -3,7 +3,10 @@ import { Vector3 } from "@automovie/engine";
 import { type AutoMovieArchetype } from "../core";
 import { ServiceCabinet } from "./ServiceCabinet";
 
-/** A pay station's head on its body, metres: the StradaPAL's 90 mm spacer and its 475 x 226 x 379 mm top. */
+/**
+ * A pay station's head on its body, metres: the StradaPAL's 90 mm spacer and
+ * its 475 x 226 x 379 mm top.
+ */
 const HEAD: Readonly<{
   spacer: number;
   width: number;
@@ -12,15 +15,19 @@ const HEAD: Readonly<{
 }> = { spacer: 0.09, width: 0.475, height: 0.226, depth: 0.379 };
 
 /**
- * A parking pay station with a raised control head, a front contact and a side contact.
+ * A parking pay station with a raised control head, a front contact and a side
+ * contact.
  *
- * The measured StradaPAL cabinet, spacer and head preserve the installation's dimensions. The measured contact set covers its exterior faces.
- * The cabinet rests on the floor at the origin and faces +Z.
+ * The measured StradaPAL cabinet, spacer and head preserve the installation's
+ * dimensions. The measured contact set covers its exterior faces. The cabinet
+ * rests on the floor at the origin and faces +Z.
  *
- * @param params The scene identifier and any dimensions to fix inside their bands.
+ * @param params The scene identifier and any dimensions to fix inside their
+ *   bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
  */
 export function createPayStation(
   params: createPayStation.IParams = {},
@@ -51,9 +58,7 @@ export function createPayStation(
   return cabinet.builder.build(cabinet.mass);
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createPayStation}.
- */
+/** Inputs, dimensions and contacts for {@link createPayStation}. */
 export namespace createPayStation {
   /** The named contacts built by this producer. */
   export type Affordance = "front" | "side";

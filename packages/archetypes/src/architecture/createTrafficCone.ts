@@ -15,7 +15,10 @@ interface ICone {
   top: number;
 }
 
-/** The Brimar 28 in cone's proportions to its height: its square base, its cone's foot and its top (13.4, 9.8 and 2.1 in of 28). */
+/**
+ * The Brimar 28 in cone's proportions to its height: its square base, its
+ * cone's foot and its top (13.4, 9.8 and 2.1 in of 28).
+ */
 const CONE: Readonly<ICone> = {
   base: 13.4 / 28,
   foot: 9.8 / 28,
@@ -28,13 +31,15 @@ const PLATE_RATIO: number = 0.04;
 /**
  * A stepped traffic cone with its top grasp and square base on the pavement.
  *
- * The Brimar proportions shape the cone after the chosen height class and its original mass draw.
- * The lowest point of the fixture stands on Y = 0.
+ * The Brimar proportions shape the cone after the chosen height class and its
+ * original mass draw. The lowest point of the fixture stands on Y = 0.
  *
- * @param params The scene identifier, model choice and supported dimension overrides.
+ * @param params The scene identifier, model choice and supported dimension
+ *   overrides.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
  */
 export function createTrafficCone(
   params: createTrafficCone.IParams = {},
@@ -89,9 +94,7 @@ export function createTrafficCone(
   return builder.build(d.mass!);
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createTrafficCone}.
- */
+/** Inputs, dimensions and contacts for {@link createTrafficCone}. */
 export namespace createTrafficCone {
   /** The `model` choices this producer admits. */
   export type Model = "cone 18 in" | "cone 28 in";
@@ -102,10 +105,16 @@ export namespace createTrafficCone {
   /** The dimensions an author may fix, in the same units. */
   export type Fixed = "mass";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "height" | "mass";
 
-  /** The numeric overrides and optional scene identifier. The model fixes the height class. */
+  /**
+   * The numeric overrides and optional scene identifier. The model fixes the
+   * height class.
+   */
   export interface IParams extends Partial<Record<Fixed, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;

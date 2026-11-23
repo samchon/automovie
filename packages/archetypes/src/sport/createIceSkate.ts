@@ -33,9 +33,9 @@ const GEOMETRY: Readonly<{
 };
 
 /**
- * One coarse hockey skate, resting on the runner with the toe toward +Z.
- * Its intended foot length and runner length are from the CCM 2016 size guide.
- * The boot, holder and steel cross section use provisional outer dimensions.
+ * One coarse hockey skate, resting on the runner with the toe toward +Z. Its
+ * intended foot length and runner length are from the CCM 2016 size guide. The
+ * boot, holder and steel cross section use provisional outer dimensions.
  * https://www.iceglace.com/catalogues/Catalogue_ICE_CCM_2016.pdf
  *
  * @param params The scene id and optional mass in kilograms.
@@ -117,9 +117,7 @@ export function createIceSkate(
   return builder.build(mass);
 }
 
-/**
- * Scene inputs and named positions of the skate.
- */
+/** Scene inputs and named positions of the skate. */
 export namespace createIceSkate {
   /** The boot socket, runner centerline and its two lower edges. */
   export type Affordance = "boot" | "blade" | "leftEdge" | "rightEdge";
@@ -129,7 +127,10 @@ export namespace createIceSkate {
     /** Scene id, unique when staging more than one skate. */
     id?: string;
 
-    /** Mass in kilograms, drawn from the documented provisional band when absent. */
+    /**
+     * Mass in kilograms, drawn from the documented provisional band when
+     * absent.
+     */
     mass?: number;
   }
 }

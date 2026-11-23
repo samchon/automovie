@@ -17,10 +17,15 @@ const RULE: string =
 /**
  * A competition javelin, the men's or the women's.
  *
- * It stands on its point at the origin, the shaft straight up along `+Y` to its tail. `grip` is the cord binding over the centre of gravity, where the throwing hand closes, taken from `-Z`; `point` the metal tip, its `+Y` running out of the javelin, which the throw leads with and the landing plants.
+ * It stands on its point at the origin, the shaft straight up along `+Y` to its
+ * tail. `grip` is the cord binding over the centre of gravity, where the
+ * throwing hand closes, taken from `-Z`; `point` the metal tip, its `+Y`
+ * running out of the javelin, which the throw leads with and the landing
+ * plants.
  *
  * @param params The category and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The javelin.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -106,9 +111,7 @@ export function createJavelin(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createJavelin}.
- */
+/** Companion types, constants and bands of {@link createJavelin}. */
 export namespace createJavelin {
   /** The categories. */
   export type Kind = "men" | "women";
@@ -116,10 +119,16 @@ export namespace createJavelin {
   /** Every category, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["men", "women"];
 
-  /** The cord's thickness over the shaft, metres: an estimate inside Technical Rule 38.8's 8 mm over the shaft's diameter. */
+  /**
+   * The cord's thickness over the shaft, metres: an estimate inside Technical
+   * Rule 38.8's 8 mm over the shaft's diameter.
+   */
   export const CORD: number = 0.003;
 
-  /** The cord's width along the shaft, metres, by category: the rule's 150 to 160 mm and 140 to 150 mm, their middles. */
+  /**
+   * The cord's width along the shaft, metres, by category: the rule's 150 to
+   * 160 mm and 140 to 150 mm, their middles.
+   */
   export const CORD_WIDTH: Readonly<Record<Kind, number>> = {
     men: 0.155,
     women: 0.145,
@@ -153,7 +162,10 @@ export namespace createJavelin {
     mass: "kg",
   };
 
-  /** The parameters: the category, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the category, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which category. */
     kind: Kind;

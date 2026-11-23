@@ -22,8 +22,10 @@ import { QuadrupedScapula } from "./QuadrupedScapula";
  *
  * @param rig The admitted tree used to prepare reader.
  * @param reader That same tree's independently prepared generic FK reader.
- * @returns A time-independent resolver; omitted limbs preview the axial goals only.
- * @throws {RangeError} For mismatched vocabulary, unknown/incomplete goals, nonfinite/degenerate directions or inadmissible rigid root.
+ * @returns A time-independent resolver; omitted limbs preview the axial goals
+ *   only.
+ * @throws {RangeError} For mismatched vocabulary, unknown/incomplete goals,
+ *   nonfinite/degenerate directions or inadmissible rigid root.
  */
 export function QuadrupedPoseAngles(
   rig: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>,
@@ -184,7 +186,10 @@ export function QuadrupedPoseAngles(
     return { joints, frames: checked(reader.read(joints, root)) };
   }
 
-  /** Finite inputs can still overflow derived world positions; they cannot be reported as achieved frames. */
+  /**
+   * Finite inputs can still overflow derived world positions; they cannot be
+   * reported as achieved frames.
+   */
   function checked(
     frames: ReadonlyMap<
       AutoMovieArchetypeQuadrupedBody.Bone,

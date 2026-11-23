@@ -6,10 +6,13 @@ import { WornPropDraw } from "./WornPropDraw";
 /**
  * Hat with a brim pinch and a crown socket.
  *
- * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
+ * @param params The optional scene ID and any fixed free dimension in metres or
+ *   kilograms.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createHat(
   params: Pick<
@@ -61,13 +64,17 @@ export function createHat(
   return builder.build(d.mass);
 }
 
-/**
- * The contacts and dimensions of {@link createHat}.
- */
+/** The contacts and dimensions of {@link createHat}. */
 export namespace createHat {
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  /**
+   * The contacts this producer builds; a numbered family's count follows its
+   * inputs.
+   */
   export type Affordance = "hold" | "wear";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "depth" | "height" | "mass" | "width";
 }

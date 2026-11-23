@@ -35,8 +35,10 @@ import { requireEnvironmentFrame } from "./requireEnvironmentFrame";
  * Emitted arrays keep source item order even when a reference is forward.
  *
  * @param recipe Named items, optional seed and optional rigid world frame.
- * @returns The stage set and space, compile runtime records, architectural records and named world frames.
- * @throws For malformed identity or placement, missing or cyclic references, conflicting emitted identities or invalid support or prop declarations.
+ * @returns The stage set and space, compile runtime records, architectural
+ *   records and named world frames.
+ * @throws For malformed identity or placement, missing or cyclic references,
+ *   conflicting emitted identities or invalid support or prop declarations.
  */
 export function createEnvironment(
   recipe: IAutoMovieEnvironmentRecipe,
@@ -62,7 +64,10 @@ export function createEnvironment(
   const resolved: Map<string, IAutoMovieEnvironmentContribution> = new Map();
   const stack: Set<string> = new Set();
 
-  /** Read a referenced item's origin or named anchor with the caller's diagnostic path. */
+  /**
+   * Read a referenced item's origin or named anchor with the caller's
+   * diagnostic path.
+   */
   function anchor(reference: string, caller: string): IAutoMovieTransform {
     requirePath(reference, caller);
     const separator: number = reference.indexOf("/");
@@ -280,12 +285,18 @@ export function createEnvironment(
   };
 }
 
-/** Report a JSON-style item path even for source keys containing spaces or quotes. */
+/**
+ * Report a JSON-style item path even for source keys containing spaces or
+ * quotes.
+ */
 function itemPath(key: string): string {
   return `$input.items[${JSON.stringify(key)}]`;
 }
 
-/** Every authored path has at least one nonblank segment and no implicit trimming. */
+/**
+ * Every authored path has at least one nonblank segment and no implicit
+ * trimming.
+ */
 function requirePath(value: string, path: string): void {
   if (
     value

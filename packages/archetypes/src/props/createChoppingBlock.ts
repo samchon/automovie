@@ -14,9 +14,9 @@ const STAGED: string =
   "a chopping block: its dimensions and mass are provisional estimates of a sawn round";
 
 /**
- * A chopping block: a sawn round standing on its end, on which logs are
- * split. Its origin is the centre of its foot on the ground, `+Y` up; `top`
- * is the chopping surface facing up.
+ * A chopping block: a sawn round standing on its end, on which logs are split.
+ * Its origin is the centre of its foot on the ground, `+Y` up; `top` is the
+ * chopping surface facing up.
  *
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
@@ -63,9 +63,7 @@ export function createChoppingBlock(
   return builder.build(d.mass);
 }
 
-/**
- * Dimensions and the surface of {@link createChoppingBlock}.
- */
+/** Dimensions and the surface of {@link createChoppingBlock}. */
 export namespace createChoppingBlock {
   /** The chopping surface. */
   export type Affordance = "top";

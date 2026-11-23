@@ -6,10 +6,13 @@ import { createLighter } from "./createLighter";
 /**
  * Read a saved smoking prop recipe and call the producer for its kind.
  *
- * @param params The saved kind, fixed values, optional identifier and model when applicable.
- * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+ * @param params The saved kind, fixed values, optional identifier and model
+ *   when applicable.
+ * @param seed The seed that draws the saved dimensions and model, or undefined
+ *   for the original defaults.
  * @returns The selected prop in its original frame.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createSmoking(
   params: createSmoking.IParams,
@@ -31,9 +34,7 @@ export function createSmoking(
   return produce(params, seed);
 }
 
-/**
- * Compatibility tables and types for saved smoking prop recipes.
- */
+/** Compatibility tables and types for saved smoking prop recipes. */
 export namespace createSmoking {
   /** The original kind for the saved smoking prop recipe. */
   export type Kind = SmokingPropDraw.Kind;

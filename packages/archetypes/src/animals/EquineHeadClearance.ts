@@ -14,12 +14,17 @@ import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBo
 /**
  * Refuse a muzzle reach whose head or neck passes through a forelimb.
  *
- * Every bar of the shared quadruped is a capsule or cylinder, so two bars overlap exactly when the distance between their axis segments is less than the sum of their radii. The head and the neck are checked against each of the eight forelimb bars of the posed equid; a bar the target lies on, within its radius, is the surface the muzzle is meant to touch and is skipped.
+ * Every bar of the shared quadruped is a capsule or cylinder, so two bars
+ * overlap exactly when the distance between their axis segments is less than
+ * the sum of their radii. The head and the neck are checked against each of the
+ * eight forelimb bars of the posed equid; a bar the target lies on, within its
+ * radius, is the surface the muzzle is meant to touch and is skipped.
  *
  * @param archetype The producer's name, for the refusal.
  * @param posed The posed equid's parts, model space.
  * @param point The reach's target, model space.
- * @throws {AutoMovieArchetypeRefusal} When the head or neck overlaps a forelimb bar that does not bear the target, with the overlap in metres.
+ * @throws {AutoMovieArchetypeRefusal} When the head or neck overlaps a forelimb
+ *   bar that does not bear the target, with the overlap in metres.
  */
 export function EquineHeadClearance(
   archetype: string,

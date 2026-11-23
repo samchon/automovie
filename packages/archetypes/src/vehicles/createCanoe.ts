@@ -6,12 +6,15 @@ import { createBoat } from "./createBoat";
 /**
  * Tandem canoe.
  *
- * The bow points along +Z at the waterline. Both thwarts face forward for paddlers and the hull is drawn from its selected layup.
+ * The bow points along +Z at the waterline. Both thwarts face forward for
+ * paddlers and the hull is drawn from its selected layup.
  *
- * @param params The scene identity and this hull's accepted dimensions and catalogue choices.
+ * @param params The scene identity and this hull's accepted dimensions and
+ *   catalogue choices.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createCanoe(
   params: createCanoe.IParams = {},
@@ -20,9 +23,7 @@ export function createCanoe(
   return BoatConstruction("canoe", params, seed, outfit);
 }
 
-/**
- * Authoring options for {@link createCanoe}.
- */
+/** Authoring options for {@link createCanoe}. */
 export namespace createCanoe {
   /** The `model` choices this producer admits. */
   export type Model =
@@ -32,12 +33,14 @@ export namespace createCanoe {
     | "minnesotaII";
 
   /**
-   * The boat construction's dimension set, which the rowing ride reads. This producer records beam, depth, endHeight, length, mass, seatHeight.
+   * The boat construction's dimension set, which the rowing ride reads. This
+   * producer records beam, depth, endHeight, length, mass, seatHeight.
    */
   export type Dimension = createBoat.Dimension;
 
   /**
-   * The createBoat contact set its shared construction types. This producer builds bow, floor, gunwale, stern, thwart0, thwart1.
+   * The createBoat contact set its shared construction types. This producer
+   * builds bow, floor, gunwale, stern, thwart0, thwart1.
    */
   export type Affordance = createBoat.Affordance;
 

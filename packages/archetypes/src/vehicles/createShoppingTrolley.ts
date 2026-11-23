@@ -6,12 +6,15 @@ import type { createCart } from "./createCart";
 /**
  * Shopping trolley.
  *
- * A four-castor basket carrier pushed from the rear bar at −Z. The basket floor supports upright cargo.
+ * A four-castor basket carrier pushed from the rear bar at −Z. The basket floor
+ * supports upright cargo.
  *
- * @param params The scene identity and the dimensions and catalogue choices this carrier admits.
+ * @param params The scene identity and the dimensions and catalogue choices
+ *   this carrier admits.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createShoppingTrolley(
   params: createShoppingTrolley.IParams = {},
@@ -23,11 +26,12 @@ export function createShoppingTrolley(
   return CartConstruction("trolley", params, seed, CartPushed.trolley);
 }
 
-/**
- * Authoring options for {@link createShoppingTrolley}.
- */
+/** Authoring options for {@link createShoppingTrolley}. */
 export namespace createShoppingTrolley {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "gripDiameter"
     | "handleHeight"
@@ -38,7 +42,8 @@ export namespace createShoppingTrolley {
     | "width";
 
   /**
-   * The createCart contact set its shared construction types. This producer builds handle, load.
+   * The createCart contact set its shared construction types. This producer
+   * builds handle, load.
    */
   export type Affordance = createCart.Affordance;
 
@@ -53,7 +58,10 @@ export namespace createShoppingTrolley {
     | "gripDiameter"
     | "mass"
   > {
-    /** The trolley's rear and front castor diameter, selected from the catalogue. */
+    /**
+     * The trolley's rear and front castor diameter, selected from the
+     * catalogue.
+     */
     castor?: createCart.Castor;
   }
 }

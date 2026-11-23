@@ -8,10 +8,10 @@ import {
 import { TabletopStack } from "./TabletopStack";
 
 /**
- * A poker-size playing card: 3½ × 2½ in, Bicycle's poker deck listed as
- * 88 × 63 mm (English Wikipedia, Standard 52-card deck, card-size table,
- * read 2026-11-21). The board's thickness and the card's mass are not read,
- * so they are provisional estimates.
+ * A poker-size playing card: 3½ × 2½ in, Bicycle's poker deck listed as 88 × 63
+ * mm (English Wikipedia, Standard 52-card deck, card-size table, read
+ * 2026-11-21). The board's thickness and the card's mass are not read, so they
+ * are provisional estimates.
  */
 const CARD: Readonly<createPlayingCard.ICard> = {
   width: 2.5 * 0.0254,
@@ -26,8 +26,8 @@ const CARD: Readonly<createPlayingCard.ICard> = {
  * The card lies in the `XZ` plane, its long side along `Z`, its origin the
  * centre of its underside. It stacks and is placed by the shared tabletop
  * contacts (`TabletopStack`): a pinch at its upper face, its `base` and its
- * `top`. A deck is cards stacked by their sockets, and a dealt card is put
- * down on a seat's place.
+ * `top`. A deck is cards stacked by their sockets, and a dealt card is put down
+ * on a seat's place.
  *
  * @param params The optional scene id.
  * @returns The inert card and its contact frames, metres.
@@ -67,9 +67,7 @@ export function createPlayingCard(
   return builder.build(CARD.mass);
 }
 
-/**
- * The inputs, contacts and size of {@link createPlayingCard}.
- */
+/** The inputs, contacts and size of {@link createPlayingCard}. */
 export namespace createPlayingCard {
   /** The shared pinch, underside and upper sockets. */
   export type Affordance = TabletopStack.Contact;

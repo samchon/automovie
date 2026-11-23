@@ -19,10 +19,15 @@ const UNREAD: string = "the listings read do not give it";
 /**
  * A single-lever mixer tap of a sink or a basin.
  *
- * It stands on the counter at the origin, its body rising along `+Y` and its spout reaching out along `+Z` over the basin, toward whoever uses it. `lever` is the lever's hub on the body's top, a knob turned about its upright axis, `+Y` up toward the hand that comes from above; `spout` the spout's mouth, facing down, where the water comes out and a hand or a glass is held under.
+ * It stands on the counter at the origin, its body rising along `+Y` and its
+ * spout reaching out along `+Z` over the basin, toward whoever uses it. `lever`
+ * is the lever's hub on the body's top, a knob turned about its upright axis,
+ * `+Y` up toward the hand that comes from above; `spout` the spout's mouth,
+ * facing down, where the water comes out and a hand or a glass is held under.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The tap.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -87,9 +92,7 @@ export function createTap(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createTap}.
- */
+/** Companion types, constants and bands of {@link createTap}. */
 export namespace createTap {
   /** The spout's diameter, metres: an estimate. */
   export const SPOUT: number = 0.02;

@@ -13,19 +13,25 @@ import {
 const ESTIMATE: string =
   "Coarse playground construction estimate; no source read gives it";
 
-/** Grab bar height above the platform and its distance inboard of the rim, metres (provisional construction estimate). */
+/**
+ * Grab bar height above the platform and its distance inboard of the rim,
+ * metres (provisional construction estimate).
+ */
 const BAR: number = 0.7;
 
-/** The grab bar's distance inboard of the rim, metres (provisional construction estimate). */
+/**
+ * The grab bar's distance inboard of the rim, metres (provisional construction
+ * estimate).
+ */
 const INBOARD: number = 0.1;
 
 /**
- * A playground roundabout's base: the spindle the disc turns on, whose
- * axis is `+y` through the origin, with the ground at `y = 0`.
+ * A playground roundabout's base: the spindle the disc turns on, whose axis is
+ * `+y` through the origin, with the ground at `y = 0`.
  *
  * The rotating disc with its grab bars is a separate rigid model,
- * `createRoundabout.disc`, whose origin is on the spindle at ground level,
- * so a rotation of its frame about `+y` turns it (`rideRoundabout`).
+ * `createRoundabout.disc`, whose origin is on the spindle at ground level, so a
+ * rotation of its frame about `+y` turns it (`rideRoundabout`).
  *
  * @param params Fixed dimensions.
  * @param seed The seed for any unfixed dimension.
@@ -72,9 +78,7 @@ export function createRoundabout(
   return builder.build(mass);
 }
 
-/**
- * The roundabout's dimensions and its rotating disc.
- */
+/** The roundabout's dimensions and its rotating disc. */
 export namespace createRoundabout {
   /** The ground around the roundabout. */
   export type Affordance = "ground";
@@ -111,10 +115,10 @@ export namespace createRoundabout {
   };
 
   /**
-   * The disc with its four grab bars as one rigid model whose origin is on
-   * the spindle at ground level: the platform's top at the roundabout's
-   * height, bar `k` at the angle `k` quarter turns from `+z` toward `+x`,
-   * just inboard of the rim.
+   * The disc with its four grab bars as one rigid model whose origin is on the
+   * spindle at ground level: the platform's top at the roundabout's height, bar
+   * `k` at the angle `k` quarter turns from `+z` toward `+x`, just inboard of
+   * the rim.
    *
    * @param roundabout The roundabout whose disc this is.
    * @returns The disc model.

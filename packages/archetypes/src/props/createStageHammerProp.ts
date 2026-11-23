@@ -7,12 +7,14 @@ import type { createStageWeaponProp } from "./createStageWeaponProp";
 /**
  * Padded offset stage hammer.
  *
- * A digital asymmetrical block marks the visible face above one hand contact. Display height is along +Y.
+ * A digital asymmetrical block marks the visible face above one hand contact.
+ * Display height is along +Y.
  *
  * @param params The scene identity and optional total display height in metres.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createStageHammerProp(
   params: createStageHammerProp.IParams = {},
@@ -51,15 +53,17 @@ export function createStageHammerProp(
   );
 }
 
-/**
- * Authoring options for {@link createStageHammerProp}.
- */
+/** Authoring options for {@link createStageHammerProp}. */
 export namespace createStageHammerProp {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "height";
 
   /**
-   * The createStageWeaponProp contact set its shared construction types. This producer builds face, grip.
+   * The createStageWeaponProp contact set its shared construction types. This
+   * producer builds face, grip.
    */
   export type Affordance = createStageWeaponProp.Affordance;
 

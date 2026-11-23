@@ -9,7 +9,8 @@ import {
 } from "../core";
 
 /**
- * An adult cricket wicket at the origin, with three separately named stumps and two separately named bails across X.
+ * An adult cricket wicket at the origin, with three separately named stumps and
+ * two separately named bails across X.
  *
  * @param params Optional scene id.
  * @param seed Seed for stump diameter.
@@ -89,7 +90,8 @@ export function createCricketWicket(
 }
 
 /**
- * Named aiming and inspection points for an adult wicket. The three stump centers and two bail barrel centers have frames in model metres.
+ * Named aiming and inspection points for an adult wicket. The three stump
+ * centers and two bail barrel centers have frames in model metres.
  */
 export namespace createCricketWicket {
   /** Three stump centers and two bail barrel centers. */

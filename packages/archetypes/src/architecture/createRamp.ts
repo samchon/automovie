@@ -16,10 +16,14 @@ const ADA: string =
 /**
  * A ramp with its top landing.
  *
- * The ramp rises along `+Z` from the floor at the origin to its `rise`, at the drawn slope, then runs level for a landing. The `slope` is the walking surface, its frame at the middle of the incline with `+Y` square to it; `top` is the edge where the incline meets the landing.
+ * The ramp rises along `+Z` from the floor at the origin to its `rise`, at the
+ * drawn slope, then runs level for a landing. The `slope` is the walking
+ * surface, its frame at the middle of the incline with `+Y` square to it; `top`
+ * is the edge where the incline meets the landing.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The ramp.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -127,11 +131,12 @@ export function createRamp(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createRamp}.
- */
+/** Companion types and bands of {@link createRamp}. */
 export namespace createRamp {
-  /** The landing's length, metres: the 60 in (1525 mm) minimum of 2010 ADA Standards 405.7.3. */
+  /**
+   * The landing's length, metres: the 60 in (1525 mm) minimum of 2010 ADA
+   * Standards 405.7.3.
+   */
   export const LANDING: number = 1.525;
 
   /**

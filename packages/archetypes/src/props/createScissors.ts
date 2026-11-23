@@ -8,10 +8,9 @@ import {
 } from "../core";
 
 /**
- * Household scissors of eight inches overall (8 × 0.0254 m), the blades
- * about the front half. No source is read: every size here, the rings'
- * bore, the blades' opening and the mass are provisional construction
- * estimates.
+ * Household scissors of eight inches overall (8 × 0.0254 m), the blades about
+ * the front half. No source is read: every size here, the rings' bore, the
+ * blades' opening and the mass are provisional construction estimates.
  */
 const SIZE: Readonly<createScissors.ISize> = {
   length: 8 * 0.0254,
@@ -24,14 +23,13 @@ const SIZE: Readonly<createScissors.ISize> = {
 /**
  * A pair of scissors lying flat, its two blades on one pivot.
  *
- * The pivot is at the origin, the blades running along `+Z` and the rings
- * along `-Z`, the flat of the blades in `XZ`. The lower blade and the
- * finger ring are the prop's own frame, held in the hand; the upper blade
- * and the thumb ring turn about the pivot's `+Y` on the `pivot` hinge,
- * from closed at 0 to open at `opening` degrees. `fingerRing` is the
- * handle the fingers hold, `thumbRing` the ring the thumb works; `cut` is
- * the fixed blade's edge midway along it, where a cut advances, and `tip`
- * its point.
+ * The pivot is at the origin, the blades running along `+Z` and the rings along
+ * `-Z`, the flat of the blades in `XZ`. The lower blade and the finger ring are
+ * the prop's own frame, held in the hand; the upper blade and the thumb ring
+ * turn about the pivot's `+Y` on the `pivot` hinge, from closed at 0 to open at
+ * `opening` degrees. `fingerRing` is the handle the fingers hold, `thumbRing`
+ * the ring the thumb works; `cut` is the fixed blade's edge midway along it,
+ * where a cut advances, and `tip` its point.
  *
  * @param params The optional scene id.
  * @returns The scissors and their contacts, metres.
@@ -133,9 +131,7 @@ export function createScissors(
   return builder.build(SIZE.mass);
 }
 
-/**
- * The inputs, contacts and size of {@link createScissors}.
- */
+/** The inputs, contacts and size of {@link createScissors}. */
 export namespace createScissors {
   /** The hinge, the two rings, the cutting point and the tip. */
   export type Affordance = "pivot" | "fingerRing" | "thumbRing" | "cut" | "tip";

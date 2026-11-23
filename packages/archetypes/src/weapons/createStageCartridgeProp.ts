@@ -7,12 +7,15 @@ import type { createProjectile } from "./createProjectile";
 /**
  * Paper cylinder stage silhouette.
  *
- * A display cylinder with a precision hand contact at mid-height and an end mark along +Y.
+ * A display cylinder with a precision hand contact at mid-height and an end
+ * mark along +Y.
  *
- * @param params The scene id and this digital form's catalogue or sizing options.
+ * @param params The scene id and this digital form's catalogue or sizing
+ *   options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createStageCartridgeProp(
   params: createStageCartridgeProp.IParams = {},
@@ -51,15 +54,17 @@ export function createStageCartridgeProp(
   });
 }
 
-/**
- * Authoring options for {@link createStageCartridgeProp}.
- */
+/** Authoring options for {@link createStageCartridgeProp}. */
 export namespace createStageCartridgeProp {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "length" | "mass";
 
   /**
-   * The createProjectile contact set its shared construction types. This producer builds end, grip.
+   * The createProjectile contact set its shared construction types. This
+   * producer builds end, grip.
    */
   export type Affordance = createProjectile.Affordance;
 

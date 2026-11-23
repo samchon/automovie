@@ -8,15 +8,24 @@ import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadru
 import { rideQuadruped } from "./rideQuadruped";
 
 /**
- * A grounded ride on authored footing whose course datum is the ground under its start, for a ride that begins on a bank or bed far above or below Y=0.
+ * A grounded ride on authored footing whose course datum is the ground under
+ * its start, for a ride that begins on a bank or bed far above or below Y=0.
  *
- * A course starts on Y=0 and the ride keeps its body near that datum, so footing far from it cannot be stood on. The ride here runs over the footing lowered by the authored ground height under the course's start, and every sample and contact frame is raised by the same height: an exact vertical translation of the whole scene. The returned `plan` stays in the ride's own datum frame, so its placements' horizontal coordinates and headings are the world's and its heights are relative to the datum.
+ * A course starts on Y=0 and the ride keeps its body near that datum, so
+ * footing far from it cannot be stood on. The ride here runs over the footing
+ * lowered by the authored ground height under the course's start, and every
+ * sample and contact frame is raised by the same height: an exact vertical
+ * translation of the whole scene. The returned `plan` stays in the ride's own
+ * datum frame, so its placements' horizontal coordinates and headings are the
+ * world's and its heights are relative to the datum.
  *
  * @param animal The quadruped, in its neutral pose.
  * @param course Its course and the authored footing, in world metres.
- * @param gait The gait of every stride whose leg names none; the speed chooses it when absent.
+ * @param gait The gait of every stride whose leg names none; the speed chooses
+ *   it when absent.
  * @returns The ride, its samples in the world.
- * @throws {AutoMovieArchetypeRefusal} When no authored surface lies under the course's start, and as `rideQuadruped` refuses.
+ * @throws {AutoMovieArchetypeRefusal} When no authored surface lies under the
+ *   course's start, and as `rideQuadruped` refuses.
  */
 export function AutoMovieArchetypeQuadrupedDatumRide<
   Affordance extends string,
@@ -78,9 +87,7 @@ export function AutoMovieArchetypeQuadrupedDatumRide<
   };
 }
 
-/**
- * Types of {@link AutoMovieArchetypeQuadrupedDatumRide}.
- */
+/** Types of {@link AutoMovieArchetypeQuadrupedDatumRide}. */
 export namespace AutoMovieArchetypeQuadrupedDatumRide {
   /** A quadruped's course with its authored footing required. */
   export interface ICourse extends rideQuadruped.ICourse {

@@ -15,14 +15,24 @@ import {
 const WALL: number = 0.008;
 
 /**
- * A carrier worn on the body (`IHumanProp.worn`) for a club: a belt loop a baton hangs through, or a back sleeve a bat stands in.
+ * A carrier worn on the body (`IHumanProp.worn`) for a club: a belt loop a
+ * baton hangs through, or a back sleeve a bat stands in.
  *
- * It stands on its lower end at the origin, its opening straight up along `+Y`: a belt loop is a short square ring under a strap up to the belt, a back sleeve a long square channel with the strap at its middle. `socket` is the opening's top, facing up: the club stands grip up through it, drawn out upward by its grip. `belt` is where the strap meets the wearer, facing the body on `-X`.
+ * It stands on its lower end at the origin, its opening straight up along `+Y`:
+ * a belt loop is a short square ring under a strap up to the belt, a back
+ * sleeve a long square channel with the strap at its middle. `socket` is the
+ * opening's top, facing up: the club stands grip up through it, drawn out
+ * upward by its grip. `belt` is where the strap meets the wearer, facing the
+ * body on `-X`.
  *
- * @param params The kind, a belt loop's ring and any dimension the author fixes.
- * @param seed The seed that picks the ring left free and draws every dimension left free inside its band; absent, the first ring and the middle of each band.
+ * @param params The kind, a belt loop's ring and any dimension the author
+ *   fixes.
+ * @param seed The seed that picks the ring left free and draws every dimension
+ *   left free inside its band; absent, the first ring and the middle of each
+ *   band.
  * @returns The carrier.
- * @throws {AutoMovieArchetypeRefusal} For a ring not of the kind, a fixed dimension outside its band, or one the ring gives.
+ * @throws {AutoMovieArchetypeRefusal} For a ring not of the kind, a fixed
+ *   dimension outside its band, or one the ring gives.
  */
 export function createWeaponLoop(
   params: createWeaponLoop.IParams,
@@ -100,11 +110,12 @@ export function createWeaponLoop(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types, constants and bands of {@link createWeaponLoop}.
- */
+/** Companion types, constants and bands of {@link createWeaponLoop}. */
 export namespace createWeaponLoop {
-  /** The kinds: a belt loop a baton hangs through, a back sleeve a bat stands in. */
+  /**
+   * The kinds: a belt loop a baton hangs through, a back sleeve a bat stands
+   * in.
+   */
   export type Kind = "belt" | "back";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -145,7 +156,16 @@ export namespace createWeaponLoop {
   /** The read baton rings: Safariland's 692S, Rothco's and High Speed Gear's. */
   export type Model = "safariland692s" | "rothco" | "highSpeedGear";
 
-  /** Each kind's rings whole, the default first, by their opening inside: Safariland 692S 35 mm (https://varusteleka.com/en-us/products/safariland-model-692s-baton-ring-unissued), Rothco 1.5 in (https://rothco.com/product/rothco-two-ring-baton-flashlight-holder) and High Speed Gear 1.5 in (https://www.highspeedgear.com/products/duty-baton-ring-holder); a back sleeve has none. */
+  /**
+   * Each kind's rings whole, the default first, by their opening inside:
+   * Safariland 692S 35 mm
+   * (https://varusteleka.com/en-us/products/safariland-model-692s-baton-ring-unissued),
+   * Rothco 1.5 in
+   * (https://rothco.com/product/rothco-two-ring-baton-flashlight-holder) and
+   * High Speed Gear 1.5 in
+   * (https://www.highspeedgear.com/products/duty-baton-ring-holder); a back
+   * sleeve has none.
+   */
   export const MODELS: Readonly<
     Partial<
       Record<
@@ -161,12 +181,18 @@ export namespace createWeaponLoop {
     },
   };
 
-  /** The parameters: the kind, a belt loop's ring, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, a belt loop's ring, and any free dimension fixed
+   * to a value inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which carrier. */
     kind: Kind;
 
-    /** Which of the read rings a belt loop is; picked from the seed when absent. A back sleeve has none. */
+    /**
+     * Which of the read rings a belt loop is; picked from the seed when absent.
+     * A back sleeve has none.
+     */
     model?: Model;
 
     /** The model's id, unique in a scene; `weaponLoop` when absent. */

@@ -23,7 +23,8 @@ const BILLY: string =
   "IKEA BILLY bookcase, 80 x 28 x 202 cm, one fixed and four adjustable shelves, 30 kg a shelf (https://www.ikea.com/de/en/p/billy-bookcase-white-00263850)";
 
 /**
- * The band of each free dimension of {@link createStorage}, by kind, but those its models fix.
+ * The band of each free dimension of {@link createStorage}, by kind, but those
+ * its models fix.
  */
 export const STORAGE_BANDS: Readonly<
   Record<

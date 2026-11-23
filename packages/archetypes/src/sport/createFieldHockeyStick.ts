@@ -14,11 +14,16 @@ const TOE: number = 0.1;
 /**
  * A field hockey stick with a flat head face and round shaft grip.
  *
- * The head sits on the ground at the origin. The shaft points up and the playing face points +Z.
- * @param params The optional identifier and dimensions fixed within their recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a seed.
+ * The head sits on the ground at the origin. The shaft points up and the
+ * playing face points +Z.
+ *
+ * @param params The optional identifier and dimensions fixed within their
+ *   recorded bands.
+ * @param seed The seed for free dimensions. The band midpoints apply without a
+ *   seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
+ *   cannot be realized.
  */
 export function createFieldHockeyStick(
   params: createFieldHockeyStick.IParams = {},
@@ -61,11 +66,12 @@ export function createFieldHockeyStick(
   return builder.build(d.mass!);
 }
 
-/**
- * The authored parameters and contact names for {@link createFieldHockeyStick}.
- */
+/** The authored parameters and contact names for {@link createFieldHockeyStick}. */
 export namespace createFieldHockeyStick {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "head" | "length" | "mass" | "width";
 
   /** The named contacts on this stick or bat. */

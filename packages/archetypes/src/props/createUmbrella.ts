@@ -17,12 +17,24 @@ const POWER: string =
 /**
  * A stick umbrella, open over the head or closed and carried.
  *
- * It stands along `+Y` from the bottom of its handle at the origin to the ferrule's tip at its closed length. `grip` is the straight handle a hand closes round, taken from `-Z`. Open, its canopy is a disc of the open diameter whose top is the shaft's top, and `canopy` is the canopy's top, facing up, where the rain falls; closed, it is the shaft and the handle with its ribs furled along the shaft, and declares no canopy: its `runner` slides up the shaft and swings the ribs out through their stretchers (`AutoMovieArchetypeUmbrellaRunner`), so an act opens it. A folding umbrella is not made: no maker read gives its shaft's open length.
+ * It stands along `+Y` from the bottom of its handle at the origin to the
+ * ferrule's tip at its closed length. `grip` is the straight handle a hand
+ * closes round, taken from `-Z`. Open, its canopy is a disc of the open
+ * diameter whose top is the shaft's top, and `canopy` is the canopy's top,
+ * facing up, where the rain falls; closed, it is the shaft and the handle with
+ * its ribs furled along the shaft, and declares no canopy: its `runner` slides
+ * up the shaft and swings the ribs out through their stretchers
+ * (`AutoMovieArchetypeUmbrellaRunner`), so an act opens it. A folding umbrella
+ * is not made: no maker read gives its shaft's open length.
  *
- * @param params Whether it is open, its model, and any dimension the author fixes.
- * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
+ * @param params Whether it is open, its model, and any dimension the author
+ *   fixes.
+ * @param seed The seed that picks the model when none is given and draws every
+ *   dimension left free inside its band; absent, the first model and the middle
+ *   of each band.
  * @returns The umbrella.
- * @throws {AutoMovieArchetypeRefusal} For a model BLUNT's comparison does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a model BLUNT's comparison does not
+ *   list, or a fixed dimension outside its band.
  */
 export function createUmbrella(
   params: createUmbrella.IParams = {},
@@ -113,17 +125,24 @@ export function createUmbrella(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createUmbrella}.
- */
+/** Companion types, constants and bands of {@link createUmbrella}. */
 export namespace createUmbrella {
-  /** The shaft's radius, metres: a construction estimate that no act reads and no band declares. */
+  /**
+   * The shaft's radius, metres: a construction estimate that no act reads and
+   * no band declares.
+   */
   export const SHAFT: number = 0.006;
 
-  /** The handle's length, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html). */
+  /**
+   * The handle's length, metres: the 120 mm CCOHS recommends for a tool handle
+   * (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html).
+   */
   export const HANDLE: number = 0.12;
 
-  /** The canopy's thickness as drawn, metres: a construction estimate that no act reads and no band declares. */
+  /**
+   * The canopy's thickness as drawn, metres: a construction estimate that no
+   * act reads and no band declares.
+   */
   export const CANOPY: number = 0.01;
 
   /**
@@ -159,7 +178,10 @@ export namespace createUmbrella {
     mass: "kg",
   };
 
-  /** The parameters: whether it is open, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: whether it is open, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Whether the canopy is open; closed when absent. */
     open?: boolean;
@@ -177,7 +199,12 @@ export namespace createUmbrella {
   /** The stick umbrellas read: BLUNT's Classic and Exec. */
   export type Model = "classic" | "exec";
 
-  /** Each model whole, the default first: closed length, open canopy and mass, the Classic's 84 cm, 120 cm and 660 g and the Exec's 95.5 cm, 138 cm and 910 g (BLUNT model comparison, https://bluntumbrellas.com/pages/compare-model). */
+  /**
+   * Each model whole, the default first: closed length, open canopy and mass,
+   * the Classic's 84 cm, 120 cm and 660 g and the Exec's 95.5 cm, 138 cm and
+   * 910 g (BLUNT model comparison,
+   * https://bluntumbrellas.com/pages/compare-model).
+   */
   export const MODELS: Readonly<Record<Model, Figures>> = {
     classic: { length: 0.84, canopy: 1.2, mass: 0.66 },
     exec: { length: 0.955, canopy: 1.38, mass: 0.91 },

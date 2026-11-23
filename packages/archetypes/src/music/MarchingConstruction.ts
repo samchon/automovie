@@ -22,11 +22,14 @@ const v: typeof Vector3.create = Vector3.create;
 const BRASS: string = "#c9a227";
 
 /**
- * How {@link createInstrument} builds the instruments a marching column carries: a side drum and a bugle.
+ * How {@link createInstrument} builds the instruments a marching column carries:
+ * a side drum and a bugle.
  */
 export namespace MarchingConstruction {
   /**
-   * The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `tube`, a bugle's tube diameter; `flare`, its bell's depth.
+   * The construction sizes no source read gives, metres, each an estimate no
+   * act reads and no band declares: `tube`, a bugle's tube diameter; `flare`,
+   * its bell's depth.
    */
   export const ESTIMATES: Readonly<{
     tube: number;
@@ -37,9 +40,12 @@ export namespace MarchingConstruction {
   };
 
   /**
-   * A side drum standing on its bottom head: the shell as one cylinder of the drawn diameter and depth.
+   * A side drum standing on its bottom head: the shell as one cylinder of the
+   * drawn diameter and depth.
    *
-   * `head` is the batter head on top, the surface the sticks strike; `sling` the hook on the shell's side at its top edge, where a sling or a carrier holds it.
+   * `head` is the batter head on top, the surface the sticks strike; `sling`
+   * the hook on the shell's side at its top edge, where a sling or a carrier
+   * holds it.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
@@ -67,9 +73,13 @@ export namespace MarchingConstruction {
   }
 
   /**
-   * A bugle lying on its side: two straight runs of tube along `X` joined at both ends, the bell on the lower run's `+X` end and the mouthpiece on the upper run's `-X` end.
+   * A bugle lying on its side: two straight runs of tube along `X` joined at
+   * both ends, the bell on the lower run's `+X` end and the mouthpiece on the
+   * upper run's `-X` end.
    *
-   * `grip` is the upper run's middle, where a hand holds it; `mouthpiece` the mouthpiece's rim, a socket whose `+Y` points back out along `-X` toward the lips.
+   * `grip` is the upper run's middle, where a hand holds it; `mouthpiece` the
+   * mouthpiece's rim, a socket whose `+Y` points back out along `-X` toward the
+   * lips.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.

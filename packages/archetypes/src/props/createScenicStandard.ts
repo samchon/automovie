@@ -15,15 +15,16 @@ const SCENIC: string =
   "Authored set size. Staff and panel silhouettes draw on the Met standard bearer (https://www.metmuseum.org/art/collection/search/546175) and the British Museum textile banner (https://islamicworld.britishmuseum.org/collection/RRM186437).";
 
 /**
- * A carried processional standard with a banner panel or a round sign.
- * The staff starts at local ground and points up. The scene can mount a hand
- * on `grip` along the exposed shaft and use `face` as a framing point.
- * The panel keeps a fixed silhouette through the authored carry.
+ * A carried processional standard with a banner panel or a round sign. The
+ * staff starts at local ground and points up. The scene can mount a hand on
+ * `grip` along the exposed shaft and use `face` as a framing point. The panel
+ * keeps a fixed silhouette through the authored carry.
  *
  * @param params The silhouette and any fixed set dimensions.
  * @param seed The seed for the remaining dimensions.
  * @returns A scenic prop with a shaft grip and a front-facing marker.
- * @throws {AutoMovieArchetypeRefusal} For an unsupported silhouette or dimension.
+ * @throws {AutoMovieArchetypeRefusal} For an unsupported silhouette or
+ *   dimension.
  */
 export function createScenicStandard(
   params: createScenicStandard.IParams,
@@ -117,28 +118,18 @@ export function createScenicStandard(
   return builder.build(dimensions.mass);
 }
 
-/**
- * Author controls for a carried scenic standard.
- */
+/** Author controls for a carried scenic standard. */
 export namespace createScenicStandard {
-  /**
-   * A carried textile-shaped panel or a circular emblem.
-   */
+  /** A carried textile-shaped panel or a circular emblem. */
   export type Kind = "banner" | "roundel";
 
-  /**
-   * The recognized silhouette choices.
-   */
+  /** The recognized silhouette choices. */
   export const KINDS: readonly Kind[] = ["banner", "roundel"];
 
-  /**
-   * The clear shaft handle and the front of the displayed head.
-   */
+  /** The clear shaft handle and the front of the displayed head. */
   export type Affordance = "grip" | "face";
 
-  /**
-   * The overall shaft height, diameter, head width, head depth and model mass.
-   */
+  /** The overall shaft height, diameter, head width, head depth and model mass. */
   export type Dimension =
     | "length"
     | "shaftDiameter"
@@ -146,9 +137,7 @@ export namespace createScenicStandard {
     | "faceDepth"
     | "mass";
 
-  /**
-   * Each dimension uses metres or kilograms.
-   */
+  /** Each dimension uses metres or kilograms. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -159,9 +148,7 @@ export namespace createScenicStandard {
     mass: "kg",
   };
 
-  /**
-   * Set dimensions sized for a hand-carried silhouette with an exposed shaft.
-   */
+  /** Set dimensions sized for a hand-carried silhouette with an exposed shaft. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     length: AutoMovieArchetypeBand.metres(1.2, 2.1, SCENIC, true),
     shaftDiameter: AutoMovieArchetypeBand.metres(0.026, 0.048, SCENIC, true),
@@ -170,9 +157,7 @@ export namespace createScenicStandard {
     mass: AutoMovieArchetypeBand.of("kg", 0.3, 1.5, SCENIC, true),
   };
 
-  /**
-   * The named silhouette and optional fixed dimensions of the standard.
-   */
+  /** The named silhouette and optional fixed dimensions of the standard. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** The principal outline. */
     kind: Kind;

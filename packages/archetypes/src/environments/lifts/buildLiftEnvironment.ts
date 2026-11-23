@@ -26,11 +26,11 @@ import type { liftStopHeights } from "./liftStopHeights";
 const LEAVES: readonly ["leftDoor", "rightDoor"] = ["leftDoor", "rightDoor"];
 
 /**
- * Assemble the cab, hoistway and declared landings on a single lift axis.
- * The stock cab sets both door layers and the width of the boarding strips.
- * Each landing has a fixed call plate and a full bearing surface.
- * The lift unit's connector records each stopped location for admission by
- * the building engine. All transforms inside the model are in metres.
+ * Assemble the cab, hoistway and declared landings on a single lift axis. The
+ * stock cab sets both door layers and the width of the boarding strips. Each
+ * landing has a fixed call plate and a full bearing surface. The lift unit's
+ * connector records each stopped location for admission by the building engine.
+ * All transforms inside the model are in metres.
  */
 export function buildLiftEnvironment(
   props: buildLiftEnvironment.IProps,
@@ -377,7 +377,10 @@ function boxPart(
   };
 }
 
-/** Assemble a rigid subset with its original materials and only its own contacts. */
+/**
+ * Assemble a rigid subset with its original materials and only its own
+ * contacts.
+ */
 function isolated(
   car: IAutoMovieModel,
   id: string,
@@ -436,14 +439,13 @@ function rectangle(
   ];
 }
 
-/**
- * The lift assembly's geometry input and portable result contracts.
- */
+/** The lift assembly's geometry input and portable result contracts. */
 export namespace buildLiftEnvironment {
   /**
    * The placed lift and the resolved dimensions shared by its staged members.
    * The context supplies the rigid world frame. The car supplies its aperture
-   * and contacts at the original scale, and the stops give the sill elevations.
+   * and contacts at the original scale, and the stops give the sill
+   * elevations.
    */
   export interface IProps {
     /** The upright module instance layout and ownership. */
@@ -466,15 +468,18 @@ export namespace buildLiftEnvironment {
   }
 
   /**
-   * Geometry, logical stations and current-state prop facts for one lift.
-   * Each prop references its model in the design. Anchors locate fixed
-   * attachments in world metres, and the object clip supplies cab motion.
+   * Geometry, logical stations and current-state prop facts for one lift. Each
+   * prop references its model in the design. Anchors locate fixed attachments
+   * in world metres, and the object clip supplies cab motion.
    */
   export interface IResult {
     /** Built design owning shaft, landings, and connector. */
     environment: IAutoMovieBuiltEnvironment;
 
-    /** The fixed landing and moving cab support props, plus the fixed call plates. */
+    /**
+     * The fixed landing and moving cab support props, plus the fixed call
+     * plates.
+     */
     props: IAutoMoviePropSpec[];
 
     /** World-space sill, call and approach points keyed by stop. */

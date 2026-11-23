@@ -12,10 +12,13 @@ import { createTableKnife } from "./createTableKnife";
 /**
  * Read a saved tool recipe and call the producer for its kind.
  *
- * @param params The saved kind, fixed values, optional identifier and model when applicable.
- * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+ * @param params The saved kind, fixed values, optional identifier and model
+ *   when applicable.
+ * @param seed The seed that draws the saved dimensions and model, or undefined
+ *   for the original defaults.
  * @returns The selected prop in its original frame.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createTool(
   params: createTool.IParams,
@@ -37,9 +40,7 @@ export function createTool(
   return produce(params, seed);
 }
 
-/**
- * Compatibility tables and types for saved tool recipes.
- */
+/** Compatibility tables and types for saved tool recipes. */
 export namespace createTool {
   /** The original kind for the saved tool recipe. */
   export type Kind = HandToolDraw.Kind;

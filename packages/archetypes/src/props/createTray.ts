@@ -18,12 +18,16 @@ type Producer = (
 ) => AutoMovieArchetype<createTray.Affordance, createTray.Dimension>;
 
 /**
- * Replay a saved tray variant with the original dimensions, identifier and model choices.
+ * Replay a saved tray variant with the original dimensions, identifier and
+ * model choices.
  *
- * @param params The historic selector and optional fixed settings in the original units.
- * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @param params The historic selector and optional fixed settings in the
+ *   original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless
+ *   defaults.
  * @returns The original generated model and its local contacts.
- * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
+ *   outside its admitted range.
  */
 export function createTray(
   params: createTray.IParams,
@@ -41,9 +45,7 @@ export function createTray(
   return produce(params, seed);
 }
 
-/**
- * Companion types, constants and bands of {@link createTray}.
- */
+/** Companion types, constants and bands of {@link createTray}. */
 export namespace createTray {
   /** Each saved selector's named producer. */
   export interface IProducers {
@@ -76,17 +78,22 @@ export namespace createTray {
   /** A basket handle's diameter, metres: an estimate. */
   export const GRIP: number = 0.025;
 
-  /** A basket handle's height above the rim, metres: a hand's clearance, an estimate. */
+  /**
+   * A basket handle's height above the rim, metres: a hand's clearance, an
+   * estimate.
+   */
   export const CLEARANCE: number = 0.12;
 
   /**
    * The affordance ids:
    *
    * - `inside`: the floor inside, facing up.
-   * - `leftHandle`, `rightHandle`: a tray's short end rims at `+X` and `-X`, taken from outside.
+   * - `leftHandle`, `rightHandle`: a tray's short end rims at `+X` and `-X`,
+   *   taken from outside.
    * - `handle`: a basket's bar over its middle, along `Z`.
    * - `palm`: a serving tray's flat-hand hold under its floor's centre.
-   * - `rest`: a serving tray's socket on its floor's centre, where a glass stands.
+   * - `rest`: a serving tray's socket on its floor's centre, where a glass
+   *   stands.
    */
   export type Affordance =
     | "inside"
@@ -116,7 +123,10 @@ export namespace createTray {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which carrier. */
     kind: Kind;
@@ -131,7 +141,10 @@ export namespace createTray {
   /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /** The models read: IKEA's SMÖRLING, GRILLTIDER and SMULA trays and its two RISATORP baskets. GOKVÄLLÅ is not built: its page gives no height. */
+  /**
+   * The models read: IKEA's SMÖRLING, GRILLTIDER and SMULA trays and its two
+   * RISATORP baskets. GOKVÄLLÅ is not built: its page gives no height.
+   */
   export type Model =
     | "smorling"
     | "grilltider"
@@ -139,7 +152,16 @@ export namespace createTray {
     | "risatorp25"
     | "risatorp42";
 
-  /** Each kind's models whole, the default first, width x depth x height: SMÖRLING 36 x 20 x 3, GRILLTIDER 40 x 30 x 2 and SMULA 52 x 35 x 3 cm (https://www.ikea.com/gb/en/p/smoerling-serving-tray-set-of-2-beech-10570660/, https://www.ikea.com/gb/en/p/grilltider-serving-tray-stainless-steel-40615153/, https://www.ikea.com/gb/en/p/smula-tray-transparent-40041131/); RISATORP 25 x 26 x 18 and 42 x 27 x 23 cm (https://www.ikea.com/au/en/p/risatorp-basket-white-60480544/, https://www.ikea.com/gb/en/p/risatorp-basket-white-20527633/). */
+  /**
+   * Each kind's models whole, the default first, width x depth x height:
+   * SMÖRLING 36 x 20 x 3, GRILLTIDER 40 x 30 x 2 and SMULA 52 x 35 x 3 cm
+   * (https://www.ikea.com/gb/en/p/smoerling-serving-tray-set-of-2-beech-10570660/,
+   * https://www.ikea.com/gb/en/p/grilltider-serving-tray-stainless-steel-40615153/,
+   * https://www.ikea.com/gb/en/p/smula-tray-transparent-40041131/); RISATORP 25
+   * x 26 x 18 and 42 x 27 x 23 cm
+   * (https://www.ikea.com/au/en/p/risatorp-basket-white-60480544/,
+   * https://www.ikea.com/gb/en/p/risatorp-basket-white-20527633/).
+   */
   export const MODELS: Readonly<
     Record<Kind, Readonly<Partial<Record<Model, Figures>>>>
   > = {

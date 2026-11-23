@@ -17,18 +17,23 @@ import type { createQuadruped } from "./createQuadruped";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
- * A quadruped ride's techniques and terrain, prepared once for its route: the admitted equine footwork, the authored footing, each hoof's foothold kept clear of the footing's concave edges by its own pastern (`QuadrupedCorner`), each hoof's goal under the techniques (`EquineFootwork.limbGoal`), and the tail carried over the footing a bank technique meets (`QuadrupedTail`).
+ * A quadruped ride's techniques and terrain, prepared once for its route: the
+ * admitted equine footwork, the authored footing, each hoof's foothold kept
+ * clear of the footing's concave edges by its own pastern (`QuadrupedCorner`),
+ * each hoof's goal under the techniques (`EquineFootwork.limbGoal`), and the
+ * tail carried over the footing a bank technique meets (`QuadrupedTail`).
  */
 export namespace EquineRideTerrain {
-  /**
-   * The prepared techniques and terrain of one ride.
-   */
+  /** The prepared techniques and terrain of one ride. */
   export interface ITerrain<Id extends string, D extends string> {
     /** The admitted equine footwork. */
     footwork: EquineFootwork.IPlan;
     /** The authored footing, absent on level ground. */
     ground: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined;
-    /** Each hoof's foothold mover, clear of the footing's concave edges by its pastern. */
+    /**
+     * Each hoof's foothold mover, clear of the footing's concave edges by its
+     * pastern.
+     */
     clear: Readonly<
       Record<
         AutoMovieArchetypeQuadrupedBody.Limb,
@@ -36,7 +41,8 @@ export namespace EquineRideTerrain {
       >
     >;
     /**
-     * A hoof's goal at a film second under the techniques, from its gait's goal in the body's placement.
+     * A hoof's goal at a film second under the techniques, from its gait's goal
+     * in the body's placement.
      */
     goal: (
       limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -45,7 +51,8 @@ export namespace EquineRideTerrain {
       placement: IAutoMovieTransform,
     ) => QuadrupedRidePose.IGoal;
     /**
-     * A posed model with its tail carried over the footing, when a bank technique meets a face.
+     * A posed model with its tail carried over the footing, when a bank
+     * technique meets a face.
      */
     tail: (
       model: AutoMovieArchetype<Id, D>,
@@ -63,7 +70,8 @@ export namespace EquineRideTerrain {
    * @param gait The ride's fixed gait, if any.
    * @param rig The animal's admitted joints.
    * @returns The terrain.
-   * @throws {AutoMovieArchetypeRefusal} As `EquineFootwork.prepare` and `AutoMovieArchetypeQuadrupedFooting.prepare` refuse.
+   * @throws {AutoMovieArchetypeRefusal} As `EquineFootwork.prepare` and
+   *   `AutoMovieArchetypeQuadrupedFooting.prepare` refuse.
    */
   export function prepare<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,

@@ -22,10 +22,17 @@ import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQu
 import { EquineRecumbency } from "./EquineRecumbency";
 import { rideQuadruped } from "./rideQuadruped";
 
-/** How often the mare's path is read for a following foal's course, seconds: authored. */
+/**
+ * How often the mare's path is read for a following foal's course, seconds:
+ * authored.
+ */
 const STEP: number = 0.25;
 
-/** Where a suckling foal stands, facing in at the udder: its centre's distance from the udder, metres, the degrees and radius of its turn in; its walking speed and its pause before reaching: authored. */
+/**
+ * Where a suckling foal stands, facing in at the udder: its centre's distance
+ * from the udder, metres, the degrees and radius of its turn in; its walking
+ * speed and its pause before reaching: authored.
+ */
 const NURSE: Readonly<INurseShape> = {
   out: 1.12,
   turn: 90,
@@ -56,10 +63,16 @@ interface INurseShape {
   ease: number;
 }
 
-/** The udder's place along the mare's trunk bar from its rear end, a share of the bar: authored. */
+/**
+ * The udder's place along the mare's trunk bar from its rear end, a share of
+ * the bar: authored.
+ */
 const UDDER: number = 0.3;
 
-/** How far the udder hangs below the barrel's underside, metres: authored, the coarse body draws no udder. */
+/**
+ * How far the udder hangs below the barrel's underside, metres: authored, the
+ * coarse body draws no udder.
+ */
 const HANG: number = 0.15;
 
 /** A mare's lying for the foaling: everything but its start. */
@@ -71,12 +84,20 @@ type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
 /**
  * A mare and her foal: following at her flank, suckling, and the foaling.
  *
- * A following foal's course is the mare's own path read every `STEP` seconds and offset to her flank in her heading's frame, ridden as a timed course on the foal's own gait table, so its gait follows its speed as hers does. Suckling is a touching muzzle reach of the foal onto the mare's udder, read from her trunk bar: `HANG` below its underside at `UDDER` of the bar from the rear, the coarse body drawing no udder of its own. The foaling lies the mare down on her side with her limbs extended (`EquineRecumbency`); the newborn appears lying behind her at the delivery, rises through the shared sternal rest's rise and, once both stand, walks round to her flank, turns in to face her udder and makes its first suckling attempts. The offsets and the udder's place are authored.
+ * A following foal's course is the mare's own path read every `STEP` seconds
+ * and offset to her flank in her heading's frame, ridden as a timed course on
+ * the foal's own gait table, so its gait follows its speed as hers does.
+ * Suckling is a touching muzzle reach of the foal onto the mare's udder, read
+ * from her trunk bar: `HANG` below its underside at `UDDER` of the bar from the
+ * rear, the coarse body drawing no udder of its own. The foaling lies the mare
+ * down on her side with her limbs extended (`EquineRecumbency`); the newborn
+ * appears lying behind her at the delivery, rises through the shared sternal
+ * rest's rise and, once both stand, walks round to her flank, turns in to face
+ * her udder and makes its first suckling attempts. The offsets and the udder's
+ * place are authored.
  */
 export namespace AutoMovieArchetypeEquineFoal {
-  /**
-   * Where a following foal keeps to.
-   */
+  /** Where a following foal keeps to. */
   export interface IFollow {
     /** The mare's side it keeps to. */
     side: AutoMovieArchetypeEquineExpressionCue.Side;
@@ -88,14 +109,15 @@ export namespace AutoMovieArchetypeEquineFoal {
     back: number;
   }
 
-  /**
-   * The foaling's timing.
-   */
+  /** The foaling's timing. */
   export interface IFoaling {
     /** Film second the mare starts lying down. */
     from: number;
 
-    /** The mare's lateral recumbency, its side, transition and hold, her limbs extended. */
+    /**
+     * The mare's lateral recumbency, its side, transition and hold, her limbs
+     * extended.
+     */
     mare: Lying;
 
     /** Film second the foal is delivered, while the mare lies on her side. */
@@ -112,7 +134,8 @@ export namespace AutoMovieArchetypeEquineFoal {
   }
 
   /**
-   * A newborn's first suckling: it walks to the mare's flank and reaches for her udder.
+   * A newborn's first suckling: it walks to the mare's flank and reaches for
+   * her udder.
    */
   export interface INurse {
     /** The mare's side the foal suckles from. */
@@ -160,7 +183,8 @@ export namespace AutoMovieArchetypeEquineFoal {
   }
 
   /**
-   * The mare's udder in a sample, world metres: `HANG` below the underside of her trunk bar at `UDDER` of it from the rear.
+   * The mare's udder in a sample, world metres: `HANG` below the underside of
+   * her trunk bar at `UDDER` of it from the rear.
    *
    * @param mare A sample of the mare.
    * @returns The udder.
@@ -205,7 +229,8 @@ export namespace AutoMovieArchetypeEquineFoal {
   }
 
   /**
-   * A foal's suckling: a touching muzzle reach onto the mare's udder over a window.
+   * A foal's suckling: a touching muzzle reach onto the mare's udder over a
+   * window.
    *
    * @param mare The mare's ride.
    * @param window The suckling's window.
@@ -232,7 +257,8 @@ export namespace AutoMovieArchetypeEquineFoal {
   }
 
   /**
-   * The foaling: the mare lies down on her side, the foal is delivered lying behind her and rises.
+   * The foaling: the mare lies down on her side, the foal is delivered lying
+   * behind her and rises.
    *
    * @param mare The mare at rest.
    * @param ride The mare's ride, halted where she foals.
@@ -328,7 +354,12 @@ export namespace AutoMovieArchetypeEquineFoal {
     ];
   }
 
-  /** The risen foal walks to the risen mare's flank and suckles: an S-curve of two opposite quarter turns steps it across, a straight brings it level with the udder, and a last turn faces it in at the udder from beside the barrel, where it reaches up under the belly. */
+  /**
+   * The risen foal walks to the risen mare's flank and suckles: an S-curve of
+   * two opposite quarter turns steps it across, a straight brings it level with
+   * the udder, and a last turn faces it in at the udder from beside the barrel,
+   * where it reaches up under the belly.
+   */
   function nursed<Id extends string, D extends string>(
     foal: AutoMovieArchetype<Id, D | AutoMovieArchetypeQuadrupedBody.Dimension>,
     born: AutoMovieArchetypeRide.IRide<

@@ -17,13 +17,15 @@ const NORMS: string =
 
 /**
  * A competition still-rings frame. Each ring has its own grip and fore-aft
- * travel around its cable attachment. The model stands on the floor and the
- * two rings sit side by side along X.
+ * travel around its cable attachment. The model stands on the floor and the two
+ * rings sit side by side along X.
  *
  * @param params Fixed dimensions within the admitted bands and its model id.
- * @param seed Draws unspecified dimensions within their bands; absent selects their midpoints.
+ * @param seed Draws unspecified dimensions within their bands; absent selects
+ *   their midpoints.
  * @returns The framed apparatus with two independently posed suspensions.
- * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its
+ *   band.
  */
 export function createStillRings(
   params: createStillRings.IParams = {},
@@ -169,7 +171,8 @@ export function createStillRings(
 }
 
 /**
- * Companion dimensions and independently posed contacts of {@link createStillRings}.
+ * Companion dimensions and independently posed contacts of
+ * {@link createStillRings}.
  */
 export namespace createStillRings {
   /** One grip and the fore-aft pivot that carries it on each side. */
@@ -179,7 +182,10 @@ export namespace createStillRings {
     | "leftPivot"
     | "rightPivot";
 
-  /** Ring bore, wall thickness, lower inner edge above the floor, attachment span and spacing, strap dimensions, and model mass. */
+  /**
+   * Ring bore, wall thickness, lower inner edge above the floor, attachment
+   * span and spacing, strap dimensions, and model mass.
+   */
   export type Dimension =
     | "opening"
     | "diameter"

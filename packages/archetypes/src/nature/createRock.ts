@@ -19,12 +19,20 @@ const GRANITE: string =
   "granite's dry bulk density, 2.66 g/cm3 with a standard deviation of 0.06 over 334 samples (Encyclopaedia Britannica, Rock: physical properties, https://www.britannica.com/science/rock-geology/Physical-properties)";
 
 /**
- * A loose stone: a cobble a hand picks up, or a boulder a person sits on, hides behind or climbs.
+ * A loose stone: a cobble a hand picks up, or a boulder a person sits on, hides
+ * behind or climbs.
  *
- * It rests on the ground on its lowest point at the origin, a ball of the drawn diameter. Its mass is its volume at the drawn specific gravity, so a bigger stone is heavier by the cube of its size. A cobble's `grip` closes one hand round it from `-X`; a boulder's `top` is its highest point, facing up, where a person sits or stands, and its `side` its `+Z` face at mid-height, facing out, where one leans or crouches behind it. Its surface is stone, granite's, and it rests on that stone, so its body's friction is stone's on concrete.
+ * It rests on the ground on its lowest point at the origin, a ball of the drawn
+ * diameter. Its mass is its volume at the drawn specific gravity, so a bigger
+ * stone is heavier by the cube of its size. A cobble's `grip` closes one hand
+ * round it from `-X`; a boulder's `top` is its highest point, facing up, where
+ * a person sits or stands, and its `side` its `+Z` face at mid-height, facing
+ * out, where one leans or crouches behind it. Its surface is stone, granite's,
+ * and it rests on that stone, so its body's friction is stone's on concrete.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The stone.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -95,9 +103,7 @@ export function createRock(
   });
 }
 
-/**
- * Companion types, constants and bands of {@link createRock}.
- */
+/** Companion types, constants and bands of {@link createRock}. */
 export namespace createRock {
   /** The kinds: the Udden-Wentworth cobble and boulder classes. */
   export type Kind = "cobble" | "boulder";
@@ -130,7 +136,10 @@ export namespace createRock {
     gravity: "",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which class. */
     kind: Kind;
@@ -139,7 +148,10 @@ export namespace createRock {
     id?: string;
   }
 
-  /** Granite's specific gravity, its mean density plus and minus one standard deviation over water's 1 g/cm3. */
+  /**
+   * Granite's specific gravity, its mean density plus and minus one standard
+   * deviation over water's 1 g/cm3.
+   */
   const GRAVITY: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
     "",
     2.6,

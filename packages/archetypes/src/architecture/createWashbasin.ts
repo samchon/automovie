@@ -7,13 +7,16 @@ import type { createSanitary } from "./createSanitary";
 /**
  * A wall-backed washbasin with a rim, tap lever and spout contact.
  *
- * The mixer tap and lift retain their shared lever and parented articulation in `SanitaryConstruction.washbasin`.
- * The fixture is centred on X, with its back at Z = 0 and its front towards +Z.
+ * The mixer tap and lift retain their shared lever and parented articulation in
+ * `SanitaryConstruction.washbasin`. The fixture is centred on X, with its back
+ * at Z = 0 and its front towards +Z.
  *
- * @param params The scene identifier and any dimensions to fix inside their bands.
+ * @param params The scene identifier and any dimensions to fix inside their
+ *   bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
  */
 export function createWashbasin(
   params: createWashbasin.IParams = {},
@@ -34,9 +37,7 @@ export function createWashbasin(
   );
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createWashbasin}.
- */
+/** Inputs, dimensions and contacts for {@link createWashbasin}. */
 export namespace createWashbasin {
   /** The named contacts built by this producer. */
   export type Affordance = "bowl" | "lift" | "rim" | "spout" | "tap";

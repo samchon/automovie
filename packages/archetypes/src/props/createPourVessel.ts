@@ -23,10 +23,16 @@ interface ISection {
   outer: IAutoMovieVector3[];
 }
 
-/** A dishware-scale porcelain cup and a larger stoneware jug, without their decoration or proprietary profiles. */
+/**
+ * A dishware-scale porcelain cup and a larger stoneware jug, without their
+ * decoration or proprietary profiles.
+ */
 const CUP: string =
   "BHS tabletop SMART stackable 0.19 L (82 mm, 55 mm, 165 g, https://www.bhs-tabletop.com/en-en/product/smart-cup-stackable-000675511811000000/) and SMART coffee cup 0.18 L (90 mm, 55 mm, 180 g, https://www.bhs-tabletop.com/de-int/produkt/smart-obertasse-000675528511000000-sku-000675526811000000/)";
-/** Two tabletop serving jugs of comparable capacity bracket empty mass and height. */
+/**
+ * Two tabletop serving jugs of comparable capacity bracket empty mass and
+ * height.
+ */
 const JUG: string =
   "La Poterie de Taizé Cruche 08 (170 mm, 110 mm, 680 g, https://www.lapoteriedetaize.com/en/products/wasserkrug-cruche-08-1-l) and Form & Refine Alcoa Pitcher (210 mm, 110 mm, 900 g, https://formandrefine.com/product/alcoa-pitcher-1l/)";
 /** The units written into each archetype's provenance. */
@@ -54,25 +60,29 @@ const BANDS: Readonly<
   },
 };
 
-/** Sixteen facets preserve a readable round rim and provide vertices on the contact axes. */
+/**
+ * Sixteen facets preserve a readable round rim and provide vertices on the
+ * contact axes.
+ */
 const SIDES: number = 16;
 
 /**
  * Build a rigid, empty ceramic serving cup or pouring pitcher. Both stand at
  * the base centre with +Y up and a loop handle on the -Z side. The upward
- * `mouth` socket lies at the centre of the open rim. The cup's `lip` is on
- * the +Z inner rim, and the pitcher's is on its +Z projecting spout.
+ * `mouth` socket lies at the centre of the open rim. The cup's `lip` is on the
+ * +Z inner rim, and the pitcher's is on its +Z projecting spout.
  *
- * The pitcher uses a tapered open body with a spout opposite its handle,
- * a layout documented on Chesapeake Pottery's tankard pitcher at The Met
+ * The pitcher uses a tapered open body with a spout opposite its handle, a
+ * layout documented on Chesapeake Pottery's tankard pitcher at The Met
  * (https://www.metmuseum.org/art/collection/search/768777). The original stage
- * profile uses the dimensions bracketed by CUP and JUG and modelled wall,
- * floor and loop thicknesses. The motion author supplies liquid separately.
+ * profile uses the dimensions bracketed by CUP and JUG and modelled wall, floor
+ * and loop thicknesses. The motion author supplies liquid separately.
  *
  * @param params Vessel kind, scene id and any fixed dimensions.
  * @param seed Draws remaining dimensions. Omit it to use the band midpoints.
  * @returns The model and its three rigid contact sites.
- * @throws {AutoMovieArchetypeRefusal} For an unknown kind or out-of-band fixed dimension.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown kind or out-of-band fixed
+ *   dimension.
  */
 export function createPourVessel(
   params: createPourVessel.IParams,
@@ -209,7 +219,10 @@ export function createPourVessel(
   return builder.build(mass);
 }
 
-/** Generate a horizontal ceramic annulus with an optional projecting tip and two spout shoulders at its front. */
+/**
+ * Generate a horizontal ceramic annulus with an optional projecting tip and two
+ * spout shoulders at its front.
+ */
 function section(
   radius: number,
   wall: number,
@@ -231,21 +244,18 @@ function section(
   return { inner, outer };
 }
 
-/**
- * Authoring types for the two rigid serving vessels.
- */
+/** Authoring types for the two rigid serving vessels. */
 export namespace createPourVessel {
-  /** The serving vessel variants admitted by the factory and listed in the catalogue. */
+  /**
+   * The serving vessel variants admitted by the factory and listed in the
+   * catalogue.
+   */
   export const KINDS = ["cup", "pitcher"] as const;
 
-  /**
-   * The receiving cup or the pouring pitcher.
-   */
+  /** The receiving cup or the pouring pitcher. */
   export type Kind = (typeof KINDS)[number];
 
-  /**
-   * Select a serving vessel and optionally fix its size and empty mass.
-   */
+  /** Select a serving vessel and optionally fix its size and empty mass. */
   export interface IParams {
     /** Which silhouette to construct. */
     kind: Kind;

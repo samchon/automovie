@@ -6,10 +6,13 @@ import { HandToolDraw } from "./HandToolDraw";
 /**
  * Hammer with a power grip near the butt and a head face toward +Z.
  *
- * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
+ * @param params The optional scene ID and any fixed free dimension in metres or
+ *   kilograms.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  */
 export function createHammer(
   params: Pick<
@@ -49,13 +52,17 @@ export function createHammer(
   return builder.build(d.mass!);
 }
 
-/**
- * The contacts and dimensions of {@link createHammer}.
- */
+/** The contacts and dimensions of {@link createHammer}. */
 export namespace createHammer {
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  /**
+   * The contacts this producer builds; a numbered family's count follows its
+   * inputs.
+   */
   export type Affordance = "face" | "grip";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "gripDiameter" | "length" | "mass";
 }

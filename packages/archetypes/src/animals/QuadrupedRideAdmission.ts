@@ -11,12 +11,11 @@ import type { createQuadruped } from "./createQuadruped";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
- * Admission of a quadruped ride's requested gaits and speeds before any stride is planned.
+ * Admission of a quadruped ride's requested gaits and speeds before any stride
+ * is planned.
  */
 export namespace QuadrupedRideAdmission {
-  /**
-   * One gait's declared speed domain for the ride's animal.
-   */
+  /** One gait's declared speed domain for the ride's animal. */
   export interface IDomain {
     /** The gait. */
     gait: AutoMovieArchetypeQuadrupedGait.Gait;
@@ -37,7 +36,9 @@ export namespace QuadrupedRideAdmission {
    * @param withers The animal's withers height, metres.
    * @param rig The limb chains, whose hip height sets the change points.
    * @param dimensions The animal's dimensions, for mass-scaled change points.
-   * @throws {AutoMovieArchetypeRefusal} When a named gait is absent, a requested speed lies outside every applicable declared domain, or a yielding footing sinks a hoof as deep as its carpus or hock stands.
+   * @throws {AutoMovieArchetypeRefusal} When a named gait is absent, a
+   *   requested speed lies outside every applicable declared domain, or a
+   *   yielding footing sinks a hoof as deep as its carpus or hock stands.
    */
   export function admit(
     species: createQuadruped.ISpecies,
@@ -117,7 +118,10 @@ export namespace QuadrupedRideAdmission {
           fix: "Declare a shallower yield, or plan the passage as a plunge or a stuck interval.",
         });
 
-    /** Requested named gaits are strict; automatic requests need declared coverage. */
+    /**
+     * Requested named gaits are strict; automatic requests need declared
+     * coverage.
+     */
     function speed(
       which: AutoMovieArchetypeQuadrupedGait.Gait | undefined,
       value: number,

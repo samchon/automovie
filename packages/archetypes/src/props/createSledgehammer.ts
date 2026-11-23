@@ -15,9 +15,9 @@ const STAGED: string =
 
 /**
  * A sledgehammer or a pickaxe: a heavy head on a long handle, swung in two
- * hands. As the forest axe's, its head lies at the origin with the handle
- * up `+Y`; `face` is the striking face toward `+Z` (a pick's point), and
- * `shaft` the handle the two hands hold, the lead hand sliding along it.
+ * hands. As the forest axe's, its head lies at the origin with the handle up
+ * `+Y`; `face` is the striking face toward `+Z` (a pick's point), and `shaft`
+ * the handle the two hands hold, the lead hand sliding along it.
  *
  * @param params Scene identity, the kind and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
@@ -92,9 +92,7 @@ export function createSledgehammer(
   return builder.build(d.mass);
 }
 
-/**
- * Kinds, dimensions and contacts of {@link createSledgehammer}.
- */
+/** Kinds, dimensions and contacts of {@link createSledgehammer}. */
 export namespace createSledgehammer {
   /** A blunt sledgehammer, or a pickaxe whose point strikes. */
   export type Kind = "sledgehammer" | "pickaxe";

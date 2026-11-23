@@ -7,12 +7,15 @@ import type { createHolster } from "./createHolster";
 /**
  * Worn quiver silhouette.
  *
- * The upright tube exposes a common top socket, separate display slots, a belt hook and a strap hook.
+ * The upright tube exposes a common top socket, separate display slots, a belt
+ * hook and a strap hook.
  *
- * @param params The scene id, optional display dimensions and this carrier's own fit options.
+ * @param params The scene id, optional display dimensions and this carrier's
+ *   own fit options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createStageQuiver(
   params: createStageQuiver.IParams = {},
@@ -71,15 +74,18 @@ export function createStageQuiver(
   );
 }
 
-/**
- * Authoring options for {@link createStageQuiver}.
- */
+/** Authoring options for {@link createStageQuiver}. */
 export namespace createStageQuiver {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "length" | "mass";
 
   /**
-   * The createHolster contact set its shared construction types. This producer builds belt, slot1, slot10, slot11, slot12, slot2, slot3, slot4, slot5, slot6, slot7, slot8, slot9, socket, strap.
+   * The createHolster contact set its shared construction types. This producer
+   * builds belt, slot1, slot10, slot11, slot12, slot2, slot3, slot4, slot5,
+   * slot6, slot7, slot8, slot9, socket, strap.
    */
   export type Affordance = createHolster.Affordance;
 

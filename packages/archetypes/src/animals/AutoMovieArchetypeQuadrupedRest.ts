@@ -22,24 +22,28 @@ import { QuadrupedRestLimb } from "./QuadrupedRestLimb";
 /**
  * Plan a deterministic standing-to-sternal-rest hold and supported rise.
  *
- * Four foot footprints stay at their source X/Z coordinates. Their terminal
- * cap centres follow the exact sole clearance of their bar shape as it
- * rotates; this permits geometric rolling, not a claimed no-slip material
- * contact. The trunk surface determines the supported belly height.
- * All source contact ids and semantics follow their explicitly declared bones.
+ * Four foot footprints stay at their source X/Z coordinates. Their terminal cap
+ * centres follow the exact sole clearance of their bar shape as it rotates;
+ * this permits geometric rolling, not a claimed no-slip material contact. The
+ * trunk surface determines the supported belly height. All source contact ids
+ * and semantics follow their explicitly declared bones.
  *
  * Ellis et al. 2018, Frontiers in Bioengineering and Biotechnology 6:162,
  * doi:10.3389/fbioe.2018.00162, motivates symmetric belly-lying and fixed foot
  * placements. Their measured greyhound hip/knee/ankle extension windows were
- * approximately 0–20%, 10–50%, 25–60% of rising. This rig's goal fit couples the
- * proximal joints; it does not reproduce those clinical curves, forces or
+ * approximately 0–20%, 10–50%, 25–60% of rising. This rig's goal fit couples
+ * the proximal joints; it does not reproduce those clinical curves, forces or
  * other species' behavior. Distal windows, pitch and durations remain authored.
  * Descent reverses the authored geometric path; side rolling is unsupported.
  *
  * @param animal The independently built quadruped; never modified.
- * @param params Explicit floor, cycle clock, distal carriage, pitch and complete carriers.
- * @returns A finite cycle with named contact/standing events and time-only sampling.
- * @throws {RangeError} For malformed authoring input, inconsistent source geometry, unsupported parts, impossible reach, a goal miss or below-floor geometry at a requested sample.
+ * @param params Explicit floor, cycle clock, distal carriage, pitch and
+ *   complete carriers.
+ * @returns A finite cycle with named contact/standing events and time-only
+ *   sampling.
+ * @throws {RangeError} For malformed authoring input, inconsistent source
+ *   geometry, unsupported parts, impossible reach, a goal miss or below-floor
+ *   geometry at a requested sample.
  */
 export function AutoMovieArchetypeQuadrupedRest<
   Id extends string,
@@ -388,7 +392,10 @@ function window(
   return [start, end];
 }
 
-/** Copy degree carriage as radians in a single-turn chart; terminal bars point down. */
+/**
+ * Copy degree carriage as radians in a single-turn chart; terminal bars point
+ * down.
+ */
 function directions(
   value: readonly [number, number],
 ): readonly [number, number] {
@@ -401,7 +408,10 @@ function directions(
   return [(a * Math.PI) / 180, (b * Math.PI) / 180];
 }
 
-/** A window holds either endpoint outside its movement and follows minimum jerk inside. */
+/**
+ * A window holds either endpoint outside its movement and follows minimum jerk
+ * inside.
+ */
 function progress(
   value: number,
   span: AutoMovieArchetypeQuadrupedRestPlan.Window,

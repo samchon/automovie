@@ -11,9 +11,9 @@ import {
 } from "../core";
 
 /**
- * Build a feathered badminton shuttlecock. The rounded cork's nose sits at
- * the model origin and the hollow skirt opens along local +Y. The cork
- * supplies both a sized grip and the normal of its leading strike surface.
+ * Build a feathered badminton shuttlecock. The rounded cork's nose sits at the
+ * model origin and the hollow skirt opens along local +Y. The cork supplies
+ * both a sized grip and the normal of its leading strike surface.
  *
  * @param params The scene subject and optional fixed rule dimensions.
  * @param seed Draws omitted dimensions reproducibly inside their bands.
@@ -115,9 +115,7 @@ export function createShuttlecock(
   return builder.build(dimensions.mass);
 }
 
-/**
- * Inputs and BWF Law 2 dimensions for a feather shuttle.
- */
+/** Inputs and BWF Law 2 dimensions for a feather shuttle. */
 export namespace createShuttlecock {
   /** The scene subject and optional fixed values for the drawn dimensions. */
   export interface IParams extends Partial<Record<Dimension, number>> {

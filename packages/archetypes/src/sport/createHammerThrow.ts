@@ -16,12 +16,17 @@ const RULE: string =
   "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 36.6 and 36.8, the hammer";
 
 /**
- * A competition hammer of the hammer throw, the men's or the women's: a metal head on a steel wire with a two-hand handle.
+ * A competition hammer of the hammer throw, the men's or the women's: a metal
+ * head on a steel wire with a two-hand handle.
  *
- * It stands on its head with the wire straight up along `+Y`, the handle level along `X` at the top. `handle` is the loop both hands close on; `head` the ball's centre, its `+Y` out along the wire's line away from the handle, the end a swing whirls.
+ * It stands on its head with the wire straight up along `+Y`, the handle level
+ * along `X` at the top. `handle` is the loop both hands close on; `head` the
+ * ball's centre, its `+Y` out along the wire's line away from the handle, the
+ * end a swing whirls.
  *
  * @param params The category and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The hammer.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -100,9 +105,7 @@ export function createHammerThrow(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createHammerThrow}.
- */
+/** Companion types, constants and bands of {@link createHammerThrow}. */
 export namespace createHammerThrow {
   /** The categories. */
   export type Kind = "men" | "women";
@@ -145,7 +148,10 @@ export namespace createHammerThrow {
     mass: "kg",
   };
 
-  /** The parameters: the category, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the category, and any free dimension fixed to a value
+   * inside its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which category. */
     kind: Kind;

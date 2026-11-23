@@ -8,12 +8,14 @@ import type { createStageWeaponProp } from "./createStageWeaponProp";
 /**
  * Padded linked stage ornament.
  *
- * A shaft and visibly jointed distal ornament with a grip, hinge, and following end mark.
+ * A shaft and visibly jointed distal ornament with a grip, hinge, and following
+ * end mark.
  *
  * @param params The scene identity and optional total display height in metres.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createStageLinkedProp(
   params: createStageLinkedProp.IParams = {},
@@ -58,15 +60,17 @@ export function createStageLinkedProp(
   );
 }
 
-/**
- * Authoring options for {@link createStageLinkedProp}.
- */
+/** Authoring options for {@link createStageLinkedProp}. */
 export namespace createStageLinkedProp {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "height";
 
   /**
-   * The createStageWeaponProp contact set its shared construction types. This producer builds end, grip, link.
+   * The createStageWeaponProp contact set its shared construction types. This
+   * producer builds end, grip, link.
    */
   export type Affordance = createStageWeaponProp.Affordance;
 

@@ -9,9 +9,9 @@ import {
 } from "../core";
 
 /**
- * Each portion's size, metres and kilograms. No source is read: every
- * figure is a provisional construction estimate of a plated portion, a
- * bite-sized piece cut from it, and a morsel taken with chopsticks.
+ * Each portion's size, metres and kilograms. No source is read: every figure is
+ * a provisional construction estimate of a plated portion, a bite-sized piece
+ * cut from it, and a morsel taken with chopsticks.
  */
 const SIZES: Readonly<Record<createFoodPortion.Kind, createFoodPortion.ISize>> =
   {
@@ -21,14 +21,14 @@ const SIZES: Readonly<Record<createFoodPortion.Kind, createFoodPortion.ISize>> =
   };
 
 /**
- * A plated portion of food: a steak cut at the table, a bite-sized piece
- * of it, or a morsel taken with chopsticks or a serving spoon.
+ * A plated portion of food: a steak cut at the table, a bite-sized piece of it,
+ * or a morsel taken with chopsticks or a serving spoon.
  *
- * The portion is a slab standing on its underside at the origin, its
- * width along `X`. `top` is its upper face, the surface a knife saws and a
- * fork's tines pin, facing `+Y`; `base` is the underside, the socket set on
- * a plate; `pick` is the centre of its upper face, where a fork's tines or
- * chopstick tips take it.
+ * The portion is a slab standing on its underside at the origin, its width
+ * along `X`. `top` is its upper face, the surface a knife saws and a fork's
+ * tines pin, facing `+Y`; `base` is the underside, the socket set on a plate;
+ * `pick` is the centre of its upper face, where a fork's tines or chopstick
+ * tips take it.
  *
  * @param params The kind and the optional scene id.
  * @returns The portion and its contacts, metres.
@@ -95,9 +95,7 @@ export function createFoodPortion(
   return builder.build(size.mass);
 }
 
-/**
- * The inputs, contacts and sizes of {@link createFoodPortion}.
- */
+/** The inputs, contacts and sizes of {@link createFoodPortion}. */
 export namespace createFoodPortion {
   /** A steak, a piece cut from it, or a morsel. */
   export type Kind = "steak" | "piece" | "morsel";

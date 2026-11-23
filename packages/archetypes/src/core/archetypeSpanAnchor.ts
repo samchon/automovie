@@ -16,7 +16,8 @@ import type { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
  * @param id The real part carrying the anchor.
  * @param point Construction point in model metres.
  * @returns A part-local span endpoint derived from that part frame.
- * @throws {AutoMovieArchetypeRefusal} For a missing carrier, nonfinite point or non-rigid frame.
+ * @throws {AutoMovieArchetypeRefusal} For a missing carrier, nonfinite point or
+ *   non-rigid frame.
  */
 export function archetypeSpanAnchor(
   archetype: string,

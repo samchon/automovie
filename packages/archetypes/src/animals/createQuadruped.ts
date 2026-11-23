@@ -32,20 +32,25 @@ import { createOx } from "./createOx";
 import { createPony } from "./createPony";
 
 /**
- * A four-legged animal of a kind, with its kind's tack: every kind shares one body of the horse's bone vocabulary (`AutoMovieArchetypeQuadrupedBody`) and one ride (`rideQuadruped`), and differs from the others only by its species' data, its proportions, its gaits and its tack.
+ * A four-legged animal of a kind, with its kind's tack: every kind shares one
+ * body of the horse's bone vocabulary (`AutoMovieArchetypeQuadrupedBody`) and
+ * one ride (`rideQuadruped`), and differs from the others only by its species'
+ * data, its proportions, its gaits and its tack.
  *
  * The four equids retain their existing producers and tack. A `dog` is
  * createDog's coarse Husky cohort prototype with required authored mass and
  * optional authored collar. A bare adult domestic cat supplies a level walk.
- * Ox, single-hump camel and Boso sika are coherent
- * coarse cohort references, with identifying parts and optional authored
- * equipment. Source limitations remain with each body/gait owner; fixed cohort
- * means are not measured population variation or complete animal dynamics.
+ * Ox, single-hump camel and Boso sika are coherent coarse cohort references,
+ * with identifying parts and optional authored equipment. Source limitations
+ * remain with each body/gait owner; fixed cohort means are not measured
+ * population variation or complete animal dynamics.
  *
  * @param params The kind, and the kind's own parameters.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The animal.
- * @throws {AutoMovieArchetypeRefusal} For a kind that is not one of `KINDS`, and as the kind's producer refuses.
+ * @throws {AutoMovieArchetypeRefusal} For a kind that is not one of `KINDS`,
+ *   and as the kind's producer refuses.
  */
 export function createQuadruped(
   params: createQuadruped.IParams,
@@ -61,9 +66,7 @@ export function createQuadruped(
   return createQuadruped.PRODUCERS[params.kind](params, seed);
 }
 
-/**
- * Companion types and species of {@link createQuadruped}.
- */
+/** Companion types and species of {@link createQuadruped}. */
 export namespace createQuadruped {
   /** The kinds. */
   export type Kind =
@@ -98,12 +101,18 @@ export namespace createQuadruped {
     "mule",
   ];
 
-  /** The affordance ids of every kind: each kind's own, as its producer lists them. */
+  /**
+   * The affordance ids of every kind: each kind's own, as its producer lists
+   * them.
+   */
   export type Affordance =
     | AutoMovieArchetypeEquine.Affordance
     | createCohortQuadruped.Affordance;
 
-  /** The free dimensions of every kind: each kind's own, as its producer lists them. */
+  /**
+   * The free dimensions of every kind: each kind's own, as its producer lists
+   * them.
+   */
   export type Dimension = AutoMovieArchetypeEquine.Dimension;
 
   /** The parameters: the kind, and the kind's own parameters. */
@@ -141,27 +150,45 @@ export namespace createQuadruped {
   };
 
   /**
-   * A species: what the shared body and the ride read for an animal of its kind.
-   *
+   * A species: what the shared body and the ride read for an animal of its
+   * kind.
    */
   export interface ISpecies {
-    /** The producer's name, which the animal's `archetype` carries and refusals name. */
+    /**
+     * The producer's name, which the animal's `archetype` carries and refusals
+     * name.
+     */
     archetype: string;
 
-    /** Producer neutral standing directions, degrees: AutoMovieArchetypeQuadrupedBody.IBody.stance builds the declared form, while pose solvers recover constructed control directions. */
+    /**
+     * Producer neutral standing directions, degrees:
+     * AutoMovieArchetypeQuadrupedBody.IBody.stance builds the declared form,
+     * while pose solvers recover constructed control directions.
+     */
     stance: Readonly<QuadrupedProportions.IStance>;
 
     /** The gaits. */
     table: AutoMovieArchetypeQuadrupedGait.ITable;
 
-    /** Producer part-id vocabulary carried by the common neck nod, including neck/head themselves and optional tack that need not exist on every animal. QuadrupedCarriage binds existing accessories only. */
+    /**
+     * Producer part-id vocabulary carried by the common neck nod, including
+     * neck/head themselves and optional tack that need not exist on every
+     * animal. QuadrupedCarriage binds existing accessories only.
+     */
     nodding: readonly string[];
 
-    /** Producer contact-id vocabulary carried by the common neck nod; optional contacts need not exist on every animal. Absent or unlisted contacts preserve trunk carriage, including the legacy equid held-rein policy. */
+    /**
+     * Producer contact-id vocabulary carried by the common neck nod; optional
+     * contacts need not exist on every animal. Absent or unlisted contacts
+     * preserve trunk carriage, including the legacy equid held-rein policy.
+     */
     noddingContacts?: readonly string[];
   }
 
-  /** Equid head-carried vocabulary: neck, head, bridle, optional ear plates, the optional jaw, upper lip and nostrils. */
+  /**
+   * Equid head-carried vocabulary: neck, head, bridle, optional ear plates, the
+   * optional jaw, upper lip and nostrils.
+   */
   export const BRIDLED: readonly string[] = [
     "neck",
     ...EquineHarness.HEAD,
@@ -173,7 +200,17 @@ export namespace createQuadruped {
     "rightNostril",
   ];
 
-  /** Each kind's species. Every equid stands at the horse's angles (`createHorse.STANCE`; no pony's, donkey's or mule's were found) and rides the horse's measured gaits, `AutoMovieArchetypeEquineGait.TABLE`, scaled to its height by dynamic similarity, which Bullimore and Burn 2006 (J Exp Biol 209:455, abstract) found to hold across trotting horses of 86 to 714 kg: relative stride length and duty factor at equal Froude number were not related to body mass. For the donkey and the mule the table is provisional: no study gives their duty factors, limb phases or transitions (the searches are in the sources record). */
+  /**
+   * Each kind's species. Every equid stands at the horse's angles
+   * (`createHorse.STANCE`; no pony's, donkey's or mule's were found) and rides
+   * the horse's measured gaits, `AutoMovieArchetypeEquineGait.TABLE`, scaled to
+   * its height by dynamic similarity, which Bullimore and Burn 2006 (J Exp Biol
+   * 209:455, abstract) found to hold across trotting horses of 86 to 714 kg:
+   * relative stride length and duty factor at equal Froude number were not
+   * related to body mass. For the donkey and the mule the table is provisional:
+   * no study gives their duty factors, limb phases or transitions (the searches
+   * are in the sources record).
+   */
   export const SPECIES: Readonly<Record<Kind, ISpecies>> = {
     horse: {
       archetype: createHorse.PROFILE.archetype,
@@ -274,8 +311,8 @@ export namespace createQuadruped {
    *
    * @param animal The animal.
    * @returns Its species.
-   * @throws {AutoMovieArchetypeRefusal} When the animal is no quadruped's, listing the kinds.
-   *
+   * @throws {AutoMovieArchetypeRefusal} When the animal is no quadruped's,
+   *   listing the kinds.
    */
   export function species(animal: {
     archetype: string;

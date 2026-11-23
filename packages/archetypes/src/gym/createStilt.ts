@@ -10,15 +10,16 @@ import {
 } from "../core";
 
 /**
- * A walking stilt: a foot platform strapped under the foot on an upright
- * pole that ends in a rubber tip.
+ * A walking stilt: a foot platform strapped under the foot on an upright pole
+ * that ends in a rubber tip.
  *
  * It stands on its tip at the origin, the pole along `Y`. `foot` is the
  * platform's top at the pole's head, `+Y` up, `+Z` the toes' way: the sole
  * stands there. `tip` is the pole's foot on the floor.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The stilt.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -77,9 +78,7 @@ export function createStilt(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types and bands of {@link createStilt}.
- */
+/** Companion types and bands of {@link createStilt}. */
 export namespace createStilt {
   /** The pole's radius, metres. An estimate, not read at a source. */
   export const POLE: number = 0.025;
@@ -87,7 +86,10 @@ export namespace createStilt {
   /** The platform's thickness, metres. An estimate. */
   export const PLATFORM: number = 0.03;
 
-  /** The affordance ids: `foot`, the platform's top; `tip`, the pole's foot on the floor. */
+  /**
+   * The affordance ids: `foot`, the platform's top; `tip`, the pole's foot on
+   * the floor.
+   */
   export type Affordance = "foot" | "tip";
 
   /**

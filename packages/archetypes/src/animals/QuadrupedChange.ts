@@ -5,11 +5,19 @@ import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGa
 import type { createQuadruped } from "./createQuadruped";
 
 /**
- * Where a quadruped changes gait with its speed: each gait is changed into from the one below at a change point its species' `Rule` gives, worked from the animal's own dimensions, and past each point by the species' gap that keeps the gait from flickering.
+ * Where a quadruped changes gait with its speed: each gait is changed into from
+ * the one below at a change point its species' `Rule` gives, worked from the
+ * animal's own dimensions, and past each point by the species' gap that keeps
+ * the gait from flickering.
  */
 export namespace QuadrupedChange {
   /**
-   * How a gait is changed into from the one below: froude on hip height, mass through a measured scaling law, overlap at the middle of common measured ranges, or speed at an inclusive declared reference-height boundary. A declared speed may be authored; its producer must distinguish that from a measured biological transition. Froude, mass and overlap keep their existing strict upward policy.
+   * How a gait is changed into from the one below: froude on hip height, mass
+   * through a measured scaling law, overlap at the middle of common measured
+   * ranges, or speed at an inclusive declared reference-height boundary. A
+   * declared speed may be authored; its producer must distinguish that from a
+   * measured biological transition. Froude, mass and overlap keep their
+   * existing strict upward policy.
    */
   export type Rule =
     | { kind: "froude"; froude: number }
@@ -23,8 +31,10 @@ export namespace QuadrupedChange {
    * @param species The species.
    * @param low The slower gait.
    * @param high The faster gait, the next in the species' order.
-   * @param dimensions The animal's dimensions: its withers height and mass are read.
-   * @param hip The animal's hip joint's height above the ground at rest, metres, the leg's length a Froude number is taken on.
+   * @param dimensions The animal's dimensions: its withers height and mass are
+   *   read.
+   * @param hip The animal's hip joint's height above the ground at rest,
+   *   metres, the leg's length a Froude number is taken on.
    * @returns The change point, metres per second.
    */
   export function point(
@@ -71,7 +81,10 @@ export namespace QuadrupedChange {
   }
 
   /**
-   * The gait a speed calls for: up at a declared speed boundary plus hysteresis, strictly past other rule boundaries, and down strictly below a boundary minus hysteresis. With zero hysteresis the exact speed boundary belongs to the faster gait independently of the starting gait.
+   * The gait a speed calls for: up at a declared speed boundary plus
+   * hysteresis, strictly past other rule boundaries, and down strictly below a
+   * boundary minus hysteresis. With zero hysteresis the exact speed boundary
+   * belongs to the faster gait independently of the starting gait.
    *
    * @param species The species.
    * @param speed The speed, metres per second.

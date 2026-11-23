@@ -2,14 +2,14 @@ import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
 import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
 
 /**
- * A course's path: its legs measured and laid end to end from its start, and the place and heading a distance along a leg reaches.
+ * A course's path: its legs measured and laid end to end from its start, and
+ * the place and heading a distance along a leg reaches.
  *
- * `ArchetypeCourseLegs.plan` is its one caller; the path is kept apart from the speed so each file stays within its size.
+ * `ArchetypeCourseLegs.plan` is its one caller; the path is kept apart from the
+ * speed so each file stays within its size.
  */
 export namespace ArchetypeCoursePath {
-  /**
-   * One leg with where it starts.
-   */
+  /** One leg with where it starts. */
   export interface IRow {
     /** The leg. */
     leg: AutoMovieArchetypeCourse.Leg;
@@ -17,7 +17,10 @@ export namespace ArchetypeCoursePath {
     /** Distance along the path at which the leg starts, metres. */
     from: number;
 
-    /** The leg's length along the path, metres: its run on the ground, lengthened by its grade. */
+    /**
+     * The leg's length along the path, metres: its run on the ground,
+     * lengthened by its grade.
+     */
     span: number;
 
     /** The leg's run on the ground, metres. */
@@ -29,7 +32,10 @@ export namespace ArchetypeCoursePath {
     /** Whether the support goes backward along it. */
     reverse: boolean;
 
-    /** The signed distance rolled where the leg starts, metres: forward legs add their span, reversed legs take it away. */
+    /**
+     * The signed distance rolled where the leg starts, metres: forward legs add
+     * their span, reversed legs take it away.
+     */
     progress: number;
 
     /** The root's X where the leg starts, metres. */
@@ -45,9 +51,7 @@ export namespace ArchetypeCoursePath {
     heading: number;
   }
 
-  /**
-   * A place on the path and the heading faced there.
-   */
+  /** A place on the path and the heading faced there. */
   export interface IPose {
     /** X, metres. */
     x: number;
@@ -67,8 +71,11 @@ export namespace ArchetypeCoursePath {
    *
    * @param course The course.
    * @param refuse The plan's refusal, which names the course's field.
-   * @returns One row per leg, and the path's whole length along its grades, metres.
-   * @throws {AutoMovieArchetypeRefusal} Through `refuse`, for a leg whose length or radius is not positive, a turn of no angle, or a rise that is not finite.
+   * @returns One row per leg, and the path's whole length along its grades,
+   *   metres.
+   * @throws {AutoMovieArchetypeRefusal} Through `refuse`, for a leg whose
+   *   length or radius is not positive, a turn of no angle, or a rise that is
+   *   not finite.
    */
   export function lay(
     course: AutoMovieArchetypeCourse.ICourse,

@@ -26,7 +26,8 @@ const SEAT: AutoMovieArchetypeBuilder.IOptions = { color: "#306f80" };
 const v: typeof Vector3.create = Vector3.create;
 
 /**
- * Adds forward-facing passenger rows and the aisle-side seat contact in bus-local metres.
+ * Adds forward-facing passenger rows and the aisle-side seat contact in
+ * bus-local metres.
  */
 export function addTransitBusSeating(
   builder: BusBuilder,

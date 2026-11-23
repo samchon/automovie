@@ -9,13 +9,15 @@ const BLANK_THICKNESS: number = 0.003;
 /**
  * An upright square post carrying a STOP sign blank above its grip span.
  *
- * The sign faces +Z, and its measured lower edge bounds the upright post contact.
- * The lowest point of the fixture stands on Y = 0.
+ * The sign faces +Z, and its measured lower edge bounds the upright post
+ * contact. The lowest point of the fixture stands on Y = 0.
  *
- * @param params The scene identifier, model choice and supported dimension overrides.
+ * @param params The scene identifier, model choice and supported dimension
+ *   overrides.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
  */
 export function createSignPost(
   params: createSignPost.IParams = {},
@@ -58,9 +60,7 @@ export function createSignPost(
   return builder.build(d.mass!);
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createSignPost}.
- */
+/** Inputs, dimensions and contacts for {@link createSignPost}. */
 export namespace createSignPost {
   /** The `model` choices this producer admits. */
   export type Model = "STOP 30 in" | "STOP 36 in";
@@ -71,10 +71,16 @@ export namespace createSignPost {
   /** The dimensions an author may fix, in the same units. */
   export type Fixed = "height" | "diameter" | "mass";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "diameter" | "head" | "height" | "mass";
 
-  /** The numeric overrides and optional scene identifier. The model fixes the size of the sign blank. */
+  /**
+   * The numeric overrides and optional scene identifier. The model fixes the
+   * size of the sign blank.
+   */
   export interface IParams extends Partial<Record<Fixed, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;

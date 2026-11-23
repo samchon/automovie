@@ -22,7 +22,8 @@ const PROFILE: string = "Coarse wall-mounted climbing ledge for a film set";
  * @param params The optional scene identifier and fixed dimensions.
  * @param seed The seed for any unspecified size or mass.
  * @returns A rigid hold with named grip and toe frames.
- * @throws {AutoMovieArchetypeRefusal} When a prescribed dimension is outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When a prescribed dimension is outside
+ *   its band.
  */
 export function createClimbingHold(
   params: createClimbingHold.IParams = {},
@@ -85,14 +86,15 @@ export function createClimbingHold(
   return builder.build(mass);
 }
 
-/**
- * The ledge's dimensions, scene placement inputs and named actor contacts.
- */
+/** The ledge's dimensions, scene placement inputs and named actor contacts. */
 export namespace createClimbingHold {
   /** The exposed lip and the top bearing patch. */
   export type Affordance = "grip" | "toe";
 
-  /** Width along X, rise along Y and projected depth along Z in metres, plus mass in kilograms. */
+  /**
+   * Width along X, rise along Y and projected depth along Z in metres, plus
+   * mass in kilograms.
+   */
   export type Dimension = "width" | "rise" | "depth" | "mass";
 
   /** The dimensions the author fixes inside the corresponding bands. */

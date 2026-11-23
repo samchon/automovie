@@ -19,9 +19,11 @@ const NORMS: string =
  * them. `lowBar` and `highBar` mark the centres of their respective grip axes.
  *
  * @param params Fixed dimensions inside the admitted bands and its model id.
- * @param seed Draws unspecified dimensions inside their bands; absent selects midpoints.
+ * @param seed Draws unspecified dimensions inside their bands; absent selects
+ *   midpoints.
  * @returns The uneven bars with both round grip surfaces.
- * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its
+ *   band.
  */
 export function createUnevenBars(
   params: createUnevenBars.IParams = {},
@@ -106,14 +108,15 @@ export function createUnevenBars(
   return builder.build(values.mass);
 }
 
-/**
- * The competition uneven bars dimensions and named grips.
- */
+/** The competition uneven bars dimensions and named grips. */
 export namespace createUnevenBars {
   /** The central grip of the low and high rails. */
   export type Affordance = "lowBar" | "highBar";
 
-  /** Rail dimensions, upper edge heights, the inner diagonal separation, and model mass. */
+  /**
+   * Rail dimensions, upper edge heights, the inner diagonal separation, and
+   * model mass.
+   */
   export type Dimension =
     | "length"
     | "diameter"

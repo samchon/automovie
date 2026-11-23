@@ -34,9 +34,7 @@ const TAP: Readonly<
   tapOutlet: createTap.BANDS.outlet,
 };
 
-/**
- * The band of each free dimension of {@link createSanitary}, by kind.
- */
+/** The band of each free dimension of {@link createSanitary}, by kind. */
 export const SANITARY_BANDS: Readonly<
   Record<
     createSanitary.Kind,

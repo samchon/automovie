@@ -232,7 +232,10 @@ export function createTerrain(
   };
 }
 
-/** Select the authoritative height and choose sufficient sampling density for relief and local grades. */
+/**
+ * Select the authoritative height and choose sufficient sampling density for
+ * relief and local grades.
+ */
 function terrainHeight(
   context: IAutoMovieEnvironmentModule.IContext,
   recipe: IAutoMovieTerrainRecipe,
@@ -321,7 +324,10 @@ function terrainBase(
   };
 }
 
-/** Split only holed footprints because compact world surfaces carry one outer ring each. */
+/**
+ * Split only holed footprints because compact world surfaces carry one outer
+ * ring each.
+ */
 function worldPieces(
   surface: IAutoMovieSurface,
   walkable: boolean,

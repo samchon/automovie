@@ -6,17 +6,18 @@ import { createStagePoleBladeProp } from "./createStagePoleBladeProp";
 import { createStageShaftProp } from "./createStageShaftProp";
 
 /**
- * A digital stage prop with a padded silhouette. The mace has a round
- * ornament, the pike a narrow upright capsule, the shuo a wider elongated
- * oval, and the halberd a side ornament. Additional profiles provide blade
- * marks, an offset ornament, and a linked ornament with an authored hinge.
- * The model stands from the origin along +Y at rest. The round shaft's
- * grip is approached from -Z.
+ * A digital stage prop with a padded silhouette. The mace has a round ornament,
+ * the pike a narrow upright capsule, the shuo a wider elongated oval, and the
+ * halberd a side ornament. Additional profiles provide blade marks, an offset
+ * ornament, and a linked ornament with an authored hinge. The model stands from
+ * the origin along +Y at rest. The round shaft's grip is approached from -Z.
  *
- * @param params The outline, scene id and optional overall display height in metres.
+ * @param params The outline, scene id and optional overall display height in
+ *   metres.
  * @param seed A seed for the builder's draw session.
  * @returns A foam model with a named grip for kinematic staging.
- * @throws {AutoMovieArchetypeRefusal} When the outline or height is out of range.
+ * @throws {AutoMovieArchetypeRefusal} When the outline or height is out of
+ *   range.
  */
 export function createStageWeaponProp(
   params: createStageWeaponProp.IParams,
@@ -46,9 +47,7 @@ export function createStageWeaponProp(
   return produce(params, seed);
 }
 
-/**
- * Authoring controls and affordance ids for the stage silhouettes.
- */
+/** Authoring controls and affordance ids for the stage silhouettes. */
 export namespace createStageWeaponProp {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
@@ -84,7 +83,10 @@ export namespace createStageWeaponProp {
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 
-  /** The padded silhouette variants admitted by the factory and listed in the catalogue. */
+  /**
+   * The padded silhouette variants admitted by the factory and listed in the
+   * catalogue.
+   */
   export const KINDS = [
     "mace",
     "pike",
@@ -98,15 +100,14 @@ export namespace createStageWeaponProp {
     "linked",
   ] as const;
 
-  /**
-   * The authored display silhouettes.
-   */
+  /** The authored display silhouettes. */
   export type Kind = (typeof KINDS)[number];
 
   /**
-   * The common hand grip, shaft bar and two discrete support sites on the
-   * blade profiles, and outline-dependent tip, edge, rear, face, hinge and end:
-   * a pole blade's `rear` is the back of its marked edge cell, facing away from the edge.
+   * The common hand grip, shaft bar and two discrete support sites on the blade
+   * profiles, and outline-dependent tip, edge, rear, face, hinge and end: a
+   * pole blade's `rear` is the back of its marked edge cell, facing away from
+   * the edge.
    */
   export type Affordance =
     | "grip"
@@ -121,14 +122,10 @@ export namespace createStageWeaponProp {
     | "link"
     | "end";
 
-  /**
-   * The overall display height in metres.
-   */
+  /** The overall display height in metres. */
   export type Dimension = "height";
 
-  /**
-   * Stage outline, optional scale override, and scene identity.
-   */
+  /** Stage outline, optional scale override, and scene identity. */
   export interface IParams {
     /** The padded outline. */
     kind: Kind;
@@ -136,7 +133,10 @@ export namespace createStageWeaponProp {
     /** Scene-unique model id. */
     id?: string;
 
-    /** Overall display height in metres. Defaults to the outline's display height. */
+    /**
+     * Overall display height in metres. Defaults to the outline's display
+     * height.
+     */
     height?: number;
   }
 }

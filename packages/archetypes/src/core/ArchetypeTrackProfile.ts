@@ -1,7 +1,10 @@
 import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
-/** One crossing, located by time from the nearer endpoint rather than a rounded whole-span share. */
+/**
+ * One crossing, located by time from the nearer endpoint rather than a rounded
+ * whole-span share.
+ */
 interface IEvent {
   /** Seconds from the selected time endpoint. */
   offset: number;
@@ -20,14 +23,16 @@ interface IProfile {
 }
 
 /**
- * Compile the same minimum-jerk quintic in a scale-aware, endpoint-anchored form.
+ * Compile the same minimum-jerk quintic in a scale-aware, endpoint-anchored
+ * form.
  *
  * @param archetype The refusal name.
  * @param from Initial finite travel.
  * @param to Final finite travel.
  * @param seconds Admitted finite positive duration.
  * @returns Scalar playback and a monotone crossing computation.
- * @throws {AutoMovieArchetypeRefusal} For an unrepresentable span, unsupported crossing or rate/offset.
+ * @throws {AutoMovieArchetypeRefusal} For an unrepresentable span, unsupported
+ *   crossing or rate/offset.
  */
 export function ArchetypeTrackProfile(
   archetype: string,
@@ -50,7 +55,10 @@ export function ArchetypeTrackProfile(
     return 10 - 15 * r + 6 * r * r;
   }
 
-  /** Evaluate displacement before rounding a tiny polynomial into a standalone scalar. */
+  /**
+   * Evaluate displacement before rounding a tiny polynomial into a standalone
+   * scalar.
+   */
   function value(r: number, fromEnd: boolean): number {
     if (!(Number.isFinite(r) && r >= 0 && r <= 1))
       refuse(
@@ -71,7 +79,10 @@ export function ArchetypeTrackProfile(
     return result;
   }
 
-  /** Solve from the closer physical endpoint, preserving tiny interior targets and their rates. */
+  /**
+   * Solve from the closer physical endpoint, preserving tiny interior targets
+   * and their rates.
+   */
   function crossing(requested: number): IEvent {
     if (
       !(

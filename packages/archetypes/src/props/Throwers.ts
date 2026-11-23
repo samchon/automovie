@@ -36,12 +36,24 @@ const PETTIGREW: string =
   "Pettigrew, The Ballistics of Archaic North American Atlatls and Darts (MA thesis, University of Arkansas, 2015), Table 2, p. 25: typical and hard throws by seven atlatlists, 16.7 to 28.7 m/s, filmed over 3 m from the launch (https://scholarworks.uark.edu/context/etd/article/2168/viewcontent/Pettigrew_uark_0011O_11678.pdf)";
 
 /**
- * The two throwers among the long tools: a hand sling and a spear-thrower (atlatl), each with its read sizes and the measured speeds it throws at, and the contacts a throwing act reads.
+ * The two throwers among the long tools: a hand sling and a spear-thrower
+ * (atlatl), each with its read sizes and the measured speeds it throws at, and
+ * the contacts a throwing act reads.
  *
- * A sling hangs folded from the hand at the top, both cords down to the pouch at the origin: `grip` is the finger loop, `release` the release cord's knot held between thumb and finger, and `pouch` the pouch a stone sits in, facing up. An atlatl lies along `+Y` from its butt at the origin: `grip` is its handle with the finger loops, and `spur` the hook at the far end whose groove takes the dart's butt, facing along the shaft.
+ * A sling hangs folded from the hand at the top, both cords down to the pouch
+ * at the origin: `grip` is the finger loop, `release` the release cord's knot
+ * held between thumb and finger, and `pouch` the pouch a stone sits in, facing
+ * up. An atlatl lies along `+Y` from its butt at the origin: `grip` is its
+ * handle with the finger loops, and `spur` the hook at the far end whose groove
+ * takes the dart's butt, facing along the shaft.
  */
 export namespace Throwers {
-  /** The finger loop's size and the knot's, metres, and an atlatl's thickness, metres: estimates, no source read giving them (searched: Finney 2005, Skov 2013, Carter 1933, Kidder and Guernsey 1919, Museums Victoria; records-sling-atlatl.md). */
+  /**
+   * The finger loop's size and the knot's, metres, and an atlatl's thickness,
+   * metres: estimates, no source read giving them (searched: Finney 2005, Skov
+   * 2013, Carter 1933, Kidder and Guernsey 1919, Museums Victoria;
+   * records-sling-atlatl.md).
+   */
   export const ESTIMATES: Readonly<{
     loop: number;
     knot: number;
@@ -52,7 +64,10 @@ export namespace Throwers {
     thickness: 0.012,
   };
 
-  /** The bands of a sling and an atlatl, each a read figure or a measured spread, the unread masses estimates. */
+  /**
+   * The bands of a sling and an atlatl, each a read figure or a measured
+   * spread, the unread masses estimates.
+   */
   export const BANDS: Readonly<
     Record<
       "sling" | "atlatl",
@@ -108,7 +123,8 @@ export namespace Throwers {
   };
 
   /**
-   * Lay a sling: its two cords from the hand down to the pouch, the finger loop and the release knot at the top.
+   * Lay a sling: its two cords from the hand down to the pouch, the finger loop
+   * and the release knot at the top.
    *
    * @param builder The tool under construction.
    * @param d The tool's dimensions.
@@ -167,7 +183,8 @@ export namespace Throwers {
   }
 
   /**
-   * Lay an atlatl: a flat shaft from its butt to its spur end, the handle at the butt and the spur near the far end.
+   * Lay an atlatl: a flat shaft from its butt to its spur end, the handle at
+   * the butt and the spur near the far end.
    *
    * @param builder The tool under construction.
    * @param d The tool's dimensions.

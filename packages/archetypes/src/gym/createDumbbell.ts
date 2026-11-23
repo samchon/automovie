@@ -12,16 +12,16 @@ import {
 } from "../core";
 
 /**
- * A dumbbell: a short handle with a steel head at each end, held in one
- * hand.
+ * A dumbbell: a short handle with a steel head at each end, held in one hand.
  *
  * It lies along `X` with the handle's middle at the origin. Each head is a
- * solid steel cylinder as thick as its own radius times `SQUAT`, sized so
- * the two heads and the handle weigh the dumbbell's mass, so a heavier one
- * is larger. `grip` is the handle, taken from the `-Z` side.
+ * solid steel cylinder as thick as its own radius times `SQUAT`, sized so the
+ * two heads and the handle weigh the dumbbell's mass, so a heavier one is
+ * larger. `grip` is the handle, taken from the `-Z` side.
  *
  * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The dumbbell.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -105,9 +105,7 @@ export function createDumbbell(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createDumbbell}.
- */
+/** Companion types and bands of {@link createDumbbell}. */
 export namespace createDumbbell {
   /** The kinds of dumbbell. */
   export type Kind = "fixed";
@@ -118,7 +116,10 @@ export namespace createDumbbell {
   /** A head's thickness in its own radii. An estimate, not read at a source. */
   export const SQUAT: number = 0.8;
 
-  /** The affordance ids: `grip`, the handle between the heads, taken from the `-Z` side. */
+  /**
+   * The affordance ids: `grip`, the handle between the heads, taken from the
+   * `-Z` side.
+   */
   export type Affordance = "grip";
 
   /**

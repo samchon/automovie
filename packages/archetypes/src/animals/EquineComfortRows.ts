@@ -22,10 +22,17 @@ import { EquineStanceSupport } from "./EquineStanceSupport";
 /** The zero vector. */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/** The share of a lifting row's entry spent moving the weight off the hoof before it leaves the floor: authored. */
+/**
+ * The share of a lifting row's entry spent moving the weight off the hoof
+ * before it leaves the floor: authored.
+ */
 const LOAD: number = 0.35;
 
-/** A resting hind hoof's tip onto its toe, its terminal bar's lower end turned this many degrees behind vertical so the rim's front is lowest; its forward set and lift, metres; the hips' tilt, degrees: authored. */
+/**
+ * A resting hind hoof's tip onto its toe, its terminal bar's lower end turned
+ * this many degrees behind vertical so the rim's front is lowest; its forward
+ * set and lift, metres; the hips' tilt, degrees: authored.
+ */
 const REST: Readonly<IRestShape> = {
   tip: 20,
   forward: 0.05,
@@ -66,9 +73,20 @@ interface IShakeShape {
 }
 
 /**
- * The comfort rows of the stance: the standing rest on a tipped hind hoof, pawing, stamping, the cow-kick, the trunk shake and the camped-out stance.
+ * The comfort rows of the stance: the standing rest on a tipped hind hoof,
+ * pawing, stamping, the cow-kick, the trunk shake and the camped-out stance.
  *
- * Each row follows the stance's shares and support rules (`EquineStanceRows`): before a hoof leaves the floor the weight moves inside the other three (`EquineStanceSupport.transfer`); every authored shift and turn is in the horse's own heading. The rest locks one hind and tilts the hips about its hip joint toward the resting side, setting the other hoof down on its toe with its terminal bar turned past vertical, its lower end behind its upper, so only the rim's front touches the floor (Equine posture ethogram, Animals 2021; the stay apparatus). A shake rolls the trunk over four planted hooves in whole cycles through its hold. Pawing, stamping and the cow-kick are `EquineHoofRows`' and camping out `EquineCampOut`'s. Every row returns to its start through its exit. All amplitudes are authored.
+ * Each row follows the stance's shares and support rules (`EquineStanceRows`):
+ * before a hoof leaves the floor the weight moves inside the other three
+ * (`EquineStanceSupport.transfer`); every authored shift and turn is in the
+ * horse's own heading. The rest locks one hind and tilts the hips about its hip
+ * joint toward the resting side, setting the other hoof down on its toe with
+ * its terminal bar turned past vertical, its lower end behind its upper, so
+ * only the rim's front touches the floor (Equine posture ethogram, Animals
+ * 2021; the stay apparatus). A shake rolls the trunk over four planted hooves
+ * in whole cycles through its hold. Pawing, stamping and the cow-kick are
+ * `EquineHoofRows`' and camping out `EquineCampOut`'s. Every row returns to its
+ * start through its exit. All amplitudes are authored.
  */
 export namespace EquineComfortRows {
   /**
@@ -90,7 +108,8 @@ export namespace EquineComfortRows {
    * @param start The state it starts from.
    * @param cue The row.
    * @returns Its plan, returning to the start.
-   * @throws {RangeError} For a paw whose strokes are not a positive whole number.
+   * @throws {RangeError} For a paw whose strokes are not a positive whole
+   *   number.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -105,7 +124,10 @@ export namespace EquineComfortRows {
     return EquineCampOut.plan(body, start, cue);
   }
 
-  /** The standing rest: load the locked hind, tilt the hips about its hip joint and set the resting hoof down on its toe. */
+  /**
+   * The standing rest: load the locked hind, tilt the hips about its hip joint
+   * and set the resting hoof down on its toe.
+   */
   function rest<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,

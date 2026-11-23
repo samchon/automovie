@@ -1,18 +1,16 @@
 import type { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
 
 /**
- * Published normal-impact measurements, with the counterface and speed
- * retained so a material name cannot silently become a universal constant.
+ * Published normal-impact measurements, with the counterface and speed retained
+ * so a material name cannot silently become a universal constant.
  *
  * Jankowski's specimen tests use a ball and a massive plate of the same
  * material. They do not measure furniture, a fabric bag or an inflated ball.
- * The table records those limits instead of assigning unmeasured materials
- * the former builder-wide coefficient of 0.2.
+ * The table records those limits instead of assigning unmeasured materials the
+ * former builder-wide coefficient of 0.2.
  */
 export namespace AutoMovieArchetypeRestitution {
-  /**
-   * A primary-source normal restitution measurement for a specified test.
-   */
+  /** A primary-source normal restitution measurement for a specified test. */
   export interface IMeasurement {
     /** The impacting material, matching the shared physical surface vocabulary. */
     readonly material: AutoMovieArchetypeMaterial.Kind;
@@ -35,10 +33,11 @@ export namespace AutoMovieArchetypeRestitution {
 
   /**
    * Measurements at 1 m/s from Robert Jankowski, Journal of Theoretical and
-   * Applied Mechanics 45(4), 931–942 (2007), section 3, Tables 1 and 2.
-   * A steel ball impacts a massive steel plate, a concrete ball a concrete
-   * plate, and a pinewood ball a pinewood plate. Only these three material rows at this speed are included here; the
-   * source also reports other speeds and ceramic specimens.
+   * Applied Mechanics 45(4), 931–942 (2007), section 3, Tables 1 and 2. A steel
+   * ball impacts a massive steel plate, a concrete ball a concrete plate, and a
+   * pinewood ball a pinewood plate. Only these three material rows at this
+   * speed are included here; the source also reports other speeds and ceramic
+   * specimens.
    */
   export const MEASUREMENTS: readonly IMeasurement[] = Object.freeze([
     Object.freeze<IMeasurement>({
@@ -79,7 +78,8 @@ export namespace AutoMovieArchetypeRestitution {
    * @param material The moving specimen's physical material.
    * @param against The massive stationary counterface's material.
    * @param speed Normal approach speed, metres per second.
-   * @returns The immutable source record, or null when this table has no such test.
+   * @returns The immutable source record, or null when this table has no such
+   *   test.
    */
   export function measurement(
     material: AutoMovieArchetypeMaterial.Kind,

@@ -15,12 +15,17 @@ const BUGABOO: string =
   "Bugaboo Fox 5: 36.6 x 23.6 x 41.3 in open, 22.9 to 27.8 lb by configuration, 8.5 in front and 12 in rear wheels (https://www.modernnursery.com/collections/all/products/bugaboo-fox-5-stroller, https://www.bugaboo.com/fr-en/refurbished/refurbished-parts/refurbished-bugaboo-fox-5-base-graphitegrey-melange-PP100052022.html, https://snugglebugz.ca/learning_centre/bugaboo-fox-5-stroller-review)";
 
 /**
- * A pram (a baby carriage): a bassinet on a four-wheeled chassis, pushed by a bar at its back.
+ * A pram (a baby carriage): a bassinet on a four-wheeled chassis, pushed by a
+ * bar at its back.
  *
- * It stands on the floor with its front toward `+Z` and the person pushing it behind at `-Z`, as `createCart`'s trolley does. `handle` is the push bar across its back, taken from above along `+X`; `bassinet` the bassinet's floor, where a baby lies.
+ * It stands on the floor with its front toward `+Z` and the person pushing it
+ * behind at `-Z`, as `createCart`'s trolley does. `handle` is the push bar
+ * across its back, taken from above along `+X`; `bassinet` the bassinet's
+ * floor, where a baby lies.
  *
  * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
  * @returns The pram.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  */
@@ -116,11 +121,12 @@ export function createPram(
   return builder.build(d.mass);
 }
 
-/**
- * Companion types, constants and bands of {@link createPram}.
- */
+/** Companion types, constants and bands of {@link createPram}. */
 export namespace createPram {
-  /** The wheels' radii, metres: the Bugaboo Fox 5's 8.5 in front and 12 in rear wheels. */
+  /**
+   * The wheels' radii, metres: the Bugaboo Fox 5's 8.5 in front and 12 in rear
+   * wheels.
+   */
   export const WHEEL: Readonly<{ front: number; rear: number }> = {
     front: (8.5 * AutoMovieArchetypeUnits.INCH) / 2,
     rear: (12 * AutoMovieArchetypeUnits.INCH) / 2,

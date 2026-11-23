@@ -2,13 +2,20 @@ import { AutoMovieArchetypeRefusal, AutoMovieArchetypeUnits } from "../core";
 import { createBow } from "./createBow";
 
 /**
- * Each limb's turn against the string's travel: the table a bow's `upperLimb` and `lowerLimb` follow, and what `createBow.limbs` gives.
+ * Each limb's turn against the string's travel: the table a bow's `upperLimb`
+ * and `lowerLimb` follow, and what `createBow.limbs` gives.
  *
- * @param half The finite positive limb-tip height from the grip, half the length nock to nock, metres.
- * @param brace The finite positive braced-string distance behind the grip, metres.
- * @param travel Finite nonnegative full string travel, metres, admitting the fixed limb/string triangle.
- * @returns Rows of string travel, metres, and limb turn, degrees, from brace to full draw; a zero stroke has just the neutral row.
- * @throws {AutoMovieArchetypeRefusal} For invalid or impossible geometry, unrepresentable intermediate geometry or insufficient binary64 travel resolution.
+ * @param half The finite positive limb-tip height from the grip, half the
+ *   length nock to nock, metres.
+ * @param brace The finite positive braced-string distance behind the grip,
+ *   metres.
+ * @param travel Finite nonnegative full string travel, metres, admitting the
+ *   fixed limb/string triangle.
+ * @returns Rows of string travel, metres, and limb turn, degrees, from brace to
+ *   full draw; a zero stroke has just the neutral row.
+ * @throws {AutoMovieArchetypeRefusal} For invalid or impossible geometry,
+ *   unrepresentable intermediate geometry or insufficient binary64 travel
+ *   resolution.
  */
 export function bowLimbs(
   half: number,
@@ -107,7 +114,10 @@ export function bowLimbs(
   fill(0, travel);
   return rows;
 
-  /** Refuse unsupported geometry before a NaN table or nonterminating subdivision escapes. */
+  /**
+   * Refuse unsupported geometry before a NaN table or nonterminating
+   * subdivision escapes.
+   */
   function refuse(axis: string, value: number, reason: string): never {
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",

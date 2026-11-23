@@ -7,13 +7,16 @@ import type { createAppliance } from "./createAppliance";
 /**
  * A freestanding range with a cooktop and four pan landing surfaces.
  *
- * The hob and its four load surfaces remain in `ApplianceConstruction.cooker`; the visible oven door and knobs carry no motion contacts.
- * The fixture is centred on X, with its back at Z = 0 and its front towards +Z.
+ * The hob and its four load surfaces remain in `ApplianceConstruction.cooker`;
+ * the visible oven door and knobs carry no motion contacts. The fixture is
+ * centred on X, with its back at Z = 0 and its front towards +Z.
  *
- * @param params The scene identifier and any dimensions to fix inside their bands.
+ * @param params The scene identifier and any dimensions to fix inside their
+ *   bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
  */
 export function createRange(
   params: createRange.IParams = {},
@@ -34,9 +37,7 @@ export function createRange(
   );
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createRange}.
- */
+/** Inputs, dimensions and contacts for {@link createRange}. */
 export namespace createRange {
   /** The named contacts built by this producer. */
   export type Affordance = "top" | `zone${number}`;

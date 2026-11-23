@@ -19,9 +19,11 @@ const NORMS: string =
  * lower pole where the upward-facing hand can bear the ball in a held pose.
  *
  * @param params Fixed dimensions inside their admitted bands and its model id.
- * @param seed Draws unspecified dimensions within their bands; absent selects their midpoints.
+ * @param seed Draws unspecified dimensions within their bands; absent selects
+ *   their midpoints.
  * @returns The ball with its handling and palm contacts.
- * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its
+ *   band.
  */
 export function createRhythmicBall(
   params: createRhythmicBall.IParams = {},
@@ -70,9 +72,7 @@ export function createRhythmicBall(
   return builder.build(values.mass);
 }
 
-/**
- * The rhythmic ball dimensions and its handling contacts.
- */
+/** The rhythmic ball dimensions and its handling contacts. */
 export namespace createRhythmicBall {
   /** The centre and lower surface of the ball. */
   export type Affordance = "grip" | "palm";

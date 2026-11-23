@@ -13,20 +13,39 @@ import {
 import { DOOR_BANDS } from "./DOOR_BANDS";
 import { DOOR_SIZES } from "./DOOR_SIZES";
 
-/** Radius of a lever arm or a pull bar, metres: a 20 to 25 mm bar, the pull's diameter seen only in a listing. */
+/**
+ * Radius of a lever arm or a pull bar, metres: a 20 to 25 mm bar, the pull's
+ * diameter seen only in a listing.
+ */
 const BAR: number = 0.011;
 
 /**
- * A door in its frame: a hinged leaf with lever, knob or push-and-pull hardware, or a sliding leaf.
+ * A door in its frame: a hinged leaf with lever, knob or push-and-pull
+ * hardware, or a sliding leaf.
  *
- * The door stands in the `XY` plane with its threshold's middle at the origin. A hinged leaf opens toward `+Z`, the side it is pulled from, about the `hinge` on the side `hinge` names as seen from there; a sliding leaf runs toward that side. The leaf, its hardware and the hardware's affordances all move with the articulation, so a hand on the handle follows the leaf's arc. The two levers or knobs share one spindle, the `latch`, a `knob` articulation on the leaf: its travel presses both levers down or turns both knobs to draw the latch.
+ * The door stands in the `XY` plane with its threshold's middle at the origin.
+ * A hinged leaf opens toward `+Z`, the side it is pulled from, about the
+ * `hinge` on the side `hinge` names as seen from there; a sliding leaf runs
+ * toward that side. The leaf, its hardware and the hardware's affordances all
+ * move with the articulation, so a hand on the handle follows the leaf's arc.
+ * The two levers or knobs share one spindle, the `latch`, a `knob` articulation
+ * on the leaf: its travel presses both levers down or turns both knobs to draw
+ * the latch.
  *
- * `pull` and `push` are where a hand takes the door from the `+Z` and the `-Z` side; `aperture` is the clear opening a body passes through.
+ * `pull` and `push` are where a hand takes the door from the `+Z` and the `-Z`
+ * side; `aperture` is the clear opening a body passes through.
  *
- * @param params The kind, the hinge side, the hardware, the leaf's standard sizes, a latch's backset, a lever's style and any dimension the author fixes.
- * @param seed The seed that draws each size and style not given and every dimension left free inside its band; absent, the first of each list and the middle of each band.
+ * @param params The kind, the hinge side, the hardware, the leaf's standard
+ *   sizes, a latch's backset, a lever's style and any dimension the author
+ *   fixes.
+ * @param seed The seed that draws each size and style not given and every
+ *   dimension left free inside its band; absent, the first of each list and the
+ *   middle of each band.
  * @returns The door.
- * @throws {AutoMovieArchetypeRefusal} For a size or style the standard or the maker does not list, a backset or lever named for hardware without one, a fixed dimension outside its band or one the door's hardware lacks, or hardware named for a sliding door.
+ * @throws {AutoMovieArchetypeRefusal} For a size or style the standard or the
+ *   maker does not list, a backset or lever named for hardware without one, a
+ *   fixed dimension outside its band or one the door's hardware lacks, or
+ *   hardware named for a sliding door.
  */
 export function createDoor(
   params: createDoor.IParams = {},
@@ -314,11 +333,16 @@ export function createDoor(
   return builder.build(d.mass!);
 }
 
-/**
- * Companion types and bands of {@link createDoor}.
- */
+/** Companion types and bands of {@link createDoor}. */
 export namespace createDoor {
-  /** A hinged leaf's breaking energy, joules: 80 J, the lowest impact level of ASTM F476-14's ram test, at which "a typical softwood door frame without reinforcement will break and allow the door to be forced open", as US patent 11280110 B1 states it (https://patents.google.com/patent/US11280110B1/en); a ram's blow, provisional for a kick, which no source read measures. */
+  /**
+   * A hinged leaf's breaking energy, joules: 80 J, the lowest impact level of
+   * ASTM F476-14's ram test, at which "a typical softwood door frame without
+   * reinforcement will break and allow the door to be forced open", as US
+   * patent 11280110 B1 states it
+   * (https://patents.google.com/patent/US11280110B1/en); a ram's blow,
+   * provisional for a kick, which no source read measures.
+   */
   export const BREAKING: number = 80;
 
   /** The kinds of door. */
@@ -327,25 +351,40 @@ export namespace createDoor {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["hinged", "sliding"];
 
-  /** What a hand operates a hinged door by: a lever or a knob that draws a latch, or a push plate and a pull bar on a door without one. */
+  /**
+   * What a hand operates a hinged door by: a lever or a knob that draws a
+   * latch, or a push plate and a pull bar on a door without one.
+   */
   export type Hardware = "lever" | "knob" | "plate";
 
   /** Every hardware, for a caller that reads one at run time. */
   export const HARDWARE: readonly Hardware[] = ["lever", "knob", "plate"];
 
-  /** A pull bar's centre above the floor, metres: ANSI/SDI A250.8-2017 Table 5, centreline of grip at 42 in. */
+  /**
+   * A pull bar's centre above the floor, metres: ANSI/SDI A250.8-2017 Table 5,
+   * centreline of grip at 42 in.
+   */
   export const PULL_HEIGHT: number = 42 * AutoMovieArchetypeUnits.INCH;
 
-  /** A push plate's centre above the floor, metres: ANSI/SDI A250.8-2017 Table 5, centreline at 45 in. */
+  /**
+   * A push plate's centre above the floor, metres: ANSI/SDI A250.8-2017 Table
+   * 5, centreline at 45 in.
+   */
   export const PLATE_HEIGHT: number = 45 * AutoMovieArchetypeUnits.INCH;
 
-  /** A push plate's width and height, metres: a 4 by 16 in plate, a common catalogue size, not read at a source. */
+  /**
+   * A push plate's width and height, metres: a 4 by 16 in plate, a common
+   * catalogue size, not read at a source.
+   */
   export const PLATE: Readonly<{ width: number; height: number }> = {
     width: 4 * AutoMovieArchetypeUnits.INCH,
     height: 16 * AutoMovieArchetypeUnits.INCH,
   };
 
-  /** A pull bar's grip length and its clearance from the leaf's face, metres: estimates, not read at a source. */
+  /**
+   * A pull bar's grip length and its clearance from the leaf's face, metres:
+   * estimates, not read at a source.
+   */
   export const PULL: Readonly<{ length: number; clearance: number }> = {
     length: 0.2,
     clearance: 0.038,
@@ -355,11 +394,16 @@ export namespace createDoor {
    * The affordance ids:
    *
    * - `hinge`: a hinged leaf's axis; its travel swings the leaf toward `+Z`.
-   * - `slide`: a sliding leaf's run toward the side `hinge` names, out past the frame, which has no jamb on that side.
+   * - `slide`: a sliding leaf's run toward the side `hinge` names, out past the
+   *   frame, which has no jamb on that side.
    * - `aperture`: the clear opening, passed through along `+Z` or against it.
-   * - `pull`: what a hand takes on the `+Z` face: the lever's arm, the knob, or the pull bar.
-   * - `push`: what a hand takes on the `-Z` face: the lever's arm, the knob, the push plate of a hinged plate door, or a sliding door's pull bar.
-   * - `latch`: the spindle that joins the two levers or knobs, a `knob` articulation on the face its axis points out of; its travel presses both levers down or turns both knobs, and `pull` and `push` ride it.
+   * - `pull`: what a hand takes on the `+Z` face: the lever's arm, the knob, or
+   *   the pull bar.
+   * - `push`: what a hand takes on the `-Z` face: the lever's arm, the knob, the
+   *   push plate of a hinged plate door, or a sliding door's pull bar.
+   * - `latch`: the spindle that joins the two levers or knobs, a `knob`
+   *   articulation on the face its axis points out of; its travel presses both
+   *   levers down or turns both knobs, and `pull` and `push` ride it.
    */
   export type Affordance =
     | "hinge"
@@ -374,9 +418,11 @@ export namespace createDoor {
    *
    * - `width`, `height`, `thickness`: the leaf.
    * - `hardwareHeight`: the lever's or knob's axis above the floor.
-   * - `backset`: the lever's or knob's axis, the push plate's centre or a sliding door's pull from the leaf's latch edge.
+   * - `backset`: the lever's or knob's axis, the push plate's centre or a sliding
+   *   door's pull from the leaf's latch edge.
    * - `grip`: the length of a lever's arm, or a knob's diameter.
-   * - `projection`: how far the lever's arm or the knob's centre stands off the leaf's face.
+   * - `projection`: how far the lever's arm or the knob's centre stands off the
+   *   leaf's face.
    * - `latchTurn`: the turn that draws the latch, degrees.
    * - `swing`: the widest opening, degrees.
    * - `force`: the push or pull that opens the leaf, newtons.
@@ -436,20 +482,36 @@ export namespace createDoor {
     | "SPA"
     | "TLR";
 
-  /** The parameters: the kind, the hinge side, the hardware, the picked sizes and style, and any remaining free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, the hinge side, the hardware, the picked sizes
+   * and style, and any remaining free dimension fixed to a value inside its
+   * band.
+   */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "width" | "height" | "thickness">, number>
   > {
-    /** The leaf's nominal width, which sets its width; drawn from the seed when absent. */
+    /**
+     * The leaf's nominal width, which sets its width; drawn from the seed when
+     * absent.
+     */
     nominalWidth?: Width;
 
-    /** The leaf's nominal height, which sets its height; drawn from the seed when absent. */
+    /**
+     * The leaf's nominal height, which sets its height; drawn from the seed
+     * when absent.
+     */
     nominalHeight?: Height;
 
-    /** The leaf's nominal thickness, which sets its `thickness`; drawn from the seed when absent. */
+    /**
+     * The leaf's nominal thickness, which sets its `thickness`; drawn from the
+     * seed when absent.
+     */
     nominalThickness?: Thickness;
 
-    /** A lever's or knob's backset, or a sliding door's pull's, the same lock's; drawn from the seed when absent. */
+    /**
+     * A lever's or knob's backset, or a sliding door's pull's, the same lock's;
+     * drawn from the seed when absent.
+     */
     latchBackset?: Backset;
 
     /** A lever's style; drawn from the seed when absent. */
@@ -458,10 +520,17 @@ export namespace createDoor {
     /** Which door; hinged when absent. */
     kind?: Kind;
 
-    /** The side the hinges are on, or a sliding leaf runs toward, as seen by someone on the `+Z` side facing the door: `left` is `-X`. Right when absent. */
+    /**
+     * The side the hinges are on, or a sliding leaf runs toward, as seen by
+     * someone on the `+Z` side facing the door: `left` is `-X`. Right when
+     * absent.
+     */
     hinge?: "left" | "right";
 
-    /** A hinged door's hardware; a lever when absent. A sliding door has a pull bar on each face and refuses this parameter. */
+    /**
+     * A hinged door's hardware; a lever when absent. A sliding door has a pull
+     * bar on each face and refuses this parameter.
+     */
     hardware?: Hardware;
 
     /** The model's id, unique in a scene; `door` when absent. */

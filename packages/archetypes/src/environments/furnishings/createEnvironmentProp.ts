@@ -18,7 +18,8 @@ import { environmentModel } from "../environmentModel";
  * validation. An imported appearance keeps the model's own proxy geometry and
  * contacts.
  *
- * @param props The model and any existing prop claims, articulation or asset reference.
+ * @param props The model and any existing prop claims, articulation or asset
+ *   reference.
  * @returns The environment module that emits the staged prop.
  */
 export function createEnvironmentProp(

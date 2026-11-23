@@ -7,12 +7,15 @@ import type { createCart } from "./createCart";
 /**
  * Horse-drawn two-wheeled cart.
  *
- * The axle crosses X at the origin. The coupling is ahead along +Z. The seat, footboard and driving-line contacts move with the cart.
+ * The axle crosses X at the origin. The coupling is ahead along +Z. The seat,
+ * footboard and driving-line contacts move with the cart.
  *
- * @param params The scene identity and the dimensions and catalogue choices this carrier admits.
+ * @param params The scene identity and the dimensions and catalogue choices
+ *   this carrier admits.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
+ *   cannot use.
  */
 export function createHorseCart(
   params: createHorseCart.IParams = {},
@@ -27,14 +30,15 @@ export function createHorseCart(
   );
 }
 
-/**
- * Authoring options for {@link createHorseCart}.
- */
+/** Authoring options for {@link createHorseCart}. */
 export namespace createHorseCart {
   /** The `model` choices this producer admits. */
   export type Model = "multiUse" | "dennettGig";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension =
     | "clearance"
     | "girth"
@@ -46,7 +50,9 @@ export namespace createHorseCart {
     | "withersHeight";
 
   /**
-   * The createCart contact set its shared construction types. This producer builds coupling, footboard, leftLine, leftLineEnd, leftLineGrip, leftSpin, rightLine, rightLineEnd, rightLineGrip, rightSpin, seat.
+   * The createCart contact set its shared construction types. This producer
+   * builds coupling, footboard, leftLine, leftLineEnd, leftLineGrip, leftSpin,
+   * rightLine, rightLineEnd, rightLineGrip, rightSpin, seat.
    */
   export type Affordance = createCart.Affordance;
 

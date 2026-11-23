@@ -92,12 +92,11 @@ function draw<Id extends createTray.Affordance>(
 }
 
 /**
- * Open hand carriers with shared floor and wall geometry and separate gripping arrangements.
+ * Open hand carriers with shared floor and wall geometry and separate gripping
+ * arrangements.
  */
 export namespace TrayConstruction {
-  /**
-   * The contact ids {@link servingTray} builds or reads.
-   */
+  /** The contact ids {@link servingTray} builds or reads. */
   export type ServingTrayContact =
     | "inside"
     | "leftHandle"
@@ -161,14 +160,10 @@ export namespace TrayConstruction {
     return builder.build(d.mass);
   }
 
-  /**
-   * The contact ids {@link basket} builds or reads.
-   */
+  /** The contact ids {@link basket} builds or reads. */
   export type BasketContact = "inside" | "handle";
 
-  /**
-   * Build a deep carry basket with an overhead grip.
-   */
+  /** Build a deep carry basket with an overhead grip. */
   export function basket(
     params: Omit<createTray.IParams, "kind">,
     seed?: number | string,

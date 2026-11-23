@@ -45,37 +45,42 @@ interface Target {
   constraint: AutoMovieArchetypeQuadrupedRootRange.IConstraint;
 }
 
-/**
- * Fixed-attachment locomotion lowered through the animal's shared rig.
- */
+/** Fixed-attachment locomotion lowered through the animal's shared rig. */
 export namespace QuadrupedRidePose {
-  /**
-   * A terminal footprint and positive surface clearance above its local floor.
-   */
+  /** A terminal footprint and positive surface clearance above its local floor. */
   export interface IGoal {
-    /** Terminal endpoint's lateral coordinate in model space, metres. Defaults to its attachment's sagittal plane. */
+    /**
+     * Terminal endpoint's lateral coordinate in model space, metres. Defaults
+     * to its attachment's sagittal plane.
+     */
     x?: number;
     /** Terminal endpoint's forward coordinate in model space, metres. */
     z: number;
-    /** Model-space rotation of the terminal's neutral axis. Defaults to its neutral model-space direction. */
+    /**
+     * Model-space rotation of the terminal's neutral axis. Defaults to its
+     * neutral model-space direction.
+     */
     orientation?: IAutoMovieQuaternion;
     /** Optional local landing plane. Defaults to the nominal model floor. */
     surface?: AutoMovieArchetypeQuadrupedFooting.ISurface;
-    /** Exact terminal solid clearance normal to its support surface, nonnegative metres. */
+    /**
+     * Exact terminal solid clearance normal to its support surface, nonnegative
+     * metres.
+     */
     lift: number;
     /** Relative carpus/hock fold beyond the neutral angle, degrees. */
     fold: number;
-    /** The share of a stance's load the hoof bears, 0 to 1 (`AutoMovieArchetypeQuadrupedRootRange.IConstraint.load`); one, planted, when absent. */
+    /**
+     * The share of a stance's load the hoof bears, 0 to 1
+     * (`AutoMovieArchetypeQuadrupedRootRange.IConstraint.load`); one, planted,
+     * when absent.
+     */
     load?: number;
   }
 
-  /**
-   * One prepared model, reused by independent time samples.
-   */
+  /** One prepared model, reused by independent time samples. */
   export interface IPrepared<Id extends string, Dimension extends string> {
-    /**
-     * Emit all four exact chains under one physically feasible body root.
-     */
+    /** Emit all four exact chains under one physically feasible body root. */
     sample: (
       goals: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, IGoal>>,
       nod: number,
@@ -89,9 +94,11 @@ export namespace QuadrupedRidePose {
    *
    * @param animal The neutral model, never changed by preparation or sampling.
    * @param species Declared carriage selectors of this ride's producer.
-   * @param source Admitted independent joints and attachments read from that same model.
+   * @param source Admitted independent joints and attachments read from that
+   *   same model.
    * @returns A sampler retaining no caller-owned goal or returned-frame state.
-   * @throws {RangeError} For unsupported terminal solids, malformed neutral chains/carriers or physically incompatible current goals.
+   * @throws {RangeError} For unsupported terminal solids, malformed neutral
+   *   chains/carriers or physically incompatible current goals.
    */
   export function prepare<Id extends string, Dimension extends string>(
     animal: AutoMovieArchetype<Id, Dimension>,
@@ -156,11 +163,17 @@ export namespace QuadrupedRidePose {
         ],
       ),
     );
-    /** Identity of the private chain workspaces and admitted rig in this prepared source. */
+    /**
+     * Identity of the private chain workspaces and admitted rig in this
+     * prepared source.
+     */
     const geometryOwner: object = {};
     return { sample };
 
-    /** Achieve four unchanged foot poses with one explicit whole-body trajectory. */
+    /**
+     * Achieve four unchanged foot poses with one explicit whole-body
+     * trajectory.
+     */
     function sample(
       goals: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, IGoal>>,
       nod: number,
@@ -284,9 +297,17 @@ export namespace QuadrupedRidePose {
       };
 
       /**
-       * A swinging hoof's endpoint where its leg reaches at the chosen root: its goal where the leg reaches it, otherwise raised under the joint (its forward place kept, or drawn in as far as the leg's reach requires) until the leg just reaches, as a swinging foot adapts to the body the planted ones carry. A loaded hoof keeps its goal: its leg's reach capped the root.
+       * A swinging hoof's endpoint where its leg reaches at the chosen root:
+       * its goal where the leg reaches it, otherwise raised under the joint
+       * (its forward place kept, or drawn in as far as the leg's reach
+       * requires) until the leg just reaches, as a swinging foot adapts to the
+       * body the planted ones carry. A loaded hoof keeps its goal: its leg's
+       * reach capped the root.
        */
-      function short(target: Target, joint: IAutoMovieVector3): IAutoMovieVector3 {
+      function short(
+        target: Target,
+        joint: IAutoMovieVector3,
+      ): IAutoMovieVector3 {
         if ((target.constraint.load ?? 1) >= 1) return target.endpoint;
         const goal: IAutoMovieVector3 = target.constraint.goal;
         const reach: number =
@@ -299,7 +320,9 @@ export namespace QuadrupedRidePose {
         const across: number = Math.max(0, reach * reach - dx * dx);
         const forward: number =
           dz * dz <= across ? dz : Math.sign(dz) * Math.sqrt(across);
-        const down: number = -Math.sqrt(Math.max(0, across - forward * forward));
+        const down: number = -Math.sqrt(
+          Math.max(0, across - forward * forward),
+        );
         return {
           x: target.endpoint.x,
           y: target.endpoint.y + (down - dy),
@@ -357,7 +380,10 @@ export namespace QuadrupedRidePose {
         }
       return result;
 
-      /** A fore limb's shoulder joint at the chosen root: its blade turns only as far as reach needs, and the turn joins the axial goals. */
+      /**
+       * A fore limb's shoulder joint at the chosen root: its blade turns only
+       * as far as reach needs, and the turn joins the axial goals.
+       */
       function shoulder(
         target: Target,
         height: number,
@@ -380,7 +406,10 @@ export namespace QuadrupedRidePose {
         return QuadrupedScapula.glenoid(joint, angle);
       }
 
-      /** An axial bar's goal turned by an angle about model X from its previewed direction. */
+      /**
+       * An axial bar's goal turned by an angle about model X from its previewed
+       * direction.
+       */
       function bar(
         bone: QuadrupedPosePlan.Axial,
         angle: number,

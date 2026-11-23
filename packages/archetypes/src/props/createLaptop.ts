@@ -12,6 +12,7 @@ import { KeyboardHardware } from "./KeyboardHardware";
  * An open laptop with a key field, screen and lid grasp.
  *
  * The base rests centered at the origin with its typing edge toward `+Z`.
+ *
  * @param params The manufacturer's model and optional model identifier.
  * @param seed The seed used to select a model when omitted.
  * @returns The input device and its named contacts.
@@ -71,20 +72,24 @@ export function createLaptop(
   return builder.build(d.mass);
 }
 
-/**
- * The parameters and contact identifiers of {@link createLaptop}.
- */
+/** The parameters and contact identifiers of {@link createLaptop}. */
 export namespace createLaptop {
   /** The `model` choices this producer admits. */
   export type Model = "air13" | "air15";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "depth" | "height" | "mass" | "width";
 
   /** The identifiers of contacts this producer builds. */
   export type Affordance = "homeRow" | "keys" | Display;
 
-  /** The display contacts the laptop adds to the shared keyboard deck: its screen and its lid hinge. */
+  /**
+   * The display contacts the laptop adds to the shared keyboard deck: its
+   * screen and its lid hinge.
+   */
   export type Display = "screen" | "lid";
 
   /** The constructor input. */

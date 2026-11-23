@@ -16,21 +16,24 @@ import {
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
- * The places a handler touches when caring for an equid, read from its parts: each side of the barrel to brush, the poll a headstall crosses, the head's socket a halter is put on, the trunk's socket a saddle is laid on, and each hoof to hold up.
+ * The places a handler touches when caring for an equid, read from its parts:
+ * each side of the barrel to brush, the poll a headstall crosses, the head's
+ * socket a halter is put on, the trunk's socket a saddle is laid on, and each
+ * hoof to hold up.
  *
- * Each care point is a contact on the surface of one part, its frame's +Y the outward normal and +X the direction a brush strokes along the coat (backward along the barrel) or the bar's axis for a held hoof. A point is carried by its part, so in any posed sample of the equid its frame is the rest frame moved by that part's own rigid change.
+ * Each care point is a contact on the surface of one part, its frame's +Y the
+ * outward normal and +X the direction a brush strokes along the coat (backward
+ * along the barrel) or the bar's axis for a held hoof. A point is carried by
+ * its part, so in any posed sample of the equid its frame is the rest frame
+ * moved by that part's own rigid change.
  */
 export namespace AutoMovieArchetypeEquineCare {
-  /**
-   * The care points of one equid and their posed frames.
-   */
+  /** The care points of one equid and their posed frames. */
   export interface IPoints {
     /** The care points at rest, model space. */
     affordances: readonly IAutoMovieAffordance[];
 
-    /**
-     * A care point's world frame in a posed sample.
-     */
+    /** A care point's world frame in a posed sample. */
     frame(
       sample: AutoMovieArchetypeRide.IPose<string, string>,
       id: string,
