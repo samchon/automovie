@@ -67,6 +67,7 @@ export * from "./designLineageProject";
 export * from "./designLineageRecord";
 export * from "./designLineageViewDigest";
 export * from "./designReferenceWorldPoint";
+export * from "./environmentSupportReport";
 export * from "./generateAutoMovieSurfacePattern";
 export * from "./isAutoMovieDesignReferenceMedia";
 export * from "./lowerBuiltEnvironment";
