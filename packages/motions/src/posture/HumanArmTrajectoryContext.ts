@@ -623,4 +623,16 @@ function boxes(
     Math.max(twist.max, rest[2]!, back[2]!),
   ];
   (["flexion", "abduction", "twist"] as const).forEach(
-    (key: "flexion"
+    (key: "flexion" | "abduction" | "twist", i: number): void => {
+      for (const [constraint, o] of [
+        [setup.constraint.lower, 3],
+        [setup.constraint.hand, 6],
+      ] as const) {
+        const r: { min: number; max: number } | null | undefined =
+          constraint?.[key];
+        if (r !== null && r !== undefined) out[o + i] = [r.min, r.max];
+      }
+    },
+  );
+  return out;
+}
