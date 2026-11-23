@@ -7,10 +7,8 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanTouch,
-  HumanFoot,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanTouch } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";

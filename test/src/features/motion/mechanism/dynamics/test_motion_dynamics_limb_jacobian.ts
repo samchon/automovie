@@ -2,9 +2,10 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanStance, poseBones } from "@automovie/motions";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   HumanJacobian,
+  poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";

@@ -22,12 +22,10 @@ import {
   AutoMovieMotionHumanRide,
   AutoMovieMotionHumanSwim,
   HumanChain,
-  HumanFoot,
-  HumanHand,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
-import { HumanFrame } from "@automovie/motions/internal";
+import { HumanFoot, HumanFrame, HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

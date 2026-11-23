@@ -13,11 +13,11 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { HumanPerformance } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAudit,
   AutoMovieMotionHumanAuditMotion,
-  HumanPerformance,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 
 import { motionHumanFrame } from "./motionHumanFrame";
 

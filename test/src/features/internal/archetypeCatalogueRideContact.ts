@@ -17,12 +17,11 @@ import type {
 import {
   AutoMovieMotionHumanMount,
   HumanChain,
-  HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  poseBones,
 } from "@automovie/motions";
+import { HumanFoot, poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "./archetypeExtent";

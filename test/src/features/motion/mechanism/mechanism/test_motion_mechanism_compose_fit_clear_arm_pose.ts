@@ -7,13 +7,12 @@ import type {
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance, HumanRefusal } from "@automovie/motions";
 import {
-  AutoMovieMotionHumanStance,
-  HumanRefusal,
   fitClearArmPose,
   poseBones,
-} from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

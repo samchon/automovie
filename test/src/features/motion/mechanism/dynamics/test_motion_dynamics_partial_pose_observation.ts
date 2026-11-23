@@ -13,8 +13,8 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance, poseBones } from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { poseBones, resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

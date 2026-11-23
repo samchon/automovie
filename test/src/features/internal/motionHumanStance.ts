@@ -4,8 +4,8 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanStance, poseBones } from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
+import { poseBones, resolveHumanPosture } from "@automovie/motions/internal";
 
 /**
  * The displayed bones of a body in the quiet stance every performer starts

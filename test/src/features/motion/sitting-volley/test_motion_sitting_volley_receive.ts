@@ -7,12 +7,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanSittingVolley,
-  HUMAN_LEXICON,
   HumanChain,
-  HumanHand,
   HumanPerformance,
   HumanSignature,
 } from "@automovie/motions";
+import { HUMAN_LEXICON, HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

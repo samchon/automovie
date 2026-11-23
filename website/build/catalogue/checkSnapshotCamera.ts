@@ -11,7 +11,7 @@ import {
   AutoMovieMotionHumanAuditTangle,
   HumanColliders,
   poseBones,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import assert from "node:assert/strict";
 
 import { PlaygroundPerformance } from "../../src/playground/package/PlaygroundPerformance";

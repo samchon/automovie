@@ -17,8 +17,8 @@ import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanPropFrame,
 } from "@automovie/motions";
+import { HumanPropFrame } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";

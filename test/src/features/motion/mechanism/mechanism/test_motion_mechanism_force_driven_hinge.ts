@@ -3,11 +3,8 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropDynamics,
 } from "@automovie/interface";
-import {
-  HumanObject,
-  HumanPerformance,
-  HumanPropDynamics,
-} from "@automovie/motions";
+import { HumanObject, HumanPerformance } from "@automovie/motions";
+import { HumanPropDynamics } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

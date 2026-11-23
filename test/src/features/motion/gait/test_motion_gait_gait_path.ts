@@ -9,10 +9,10 @@ import type {
 import {
   AutoMovieMotionHumanGait,
   HumanChain,
-  HumanFoot,
   HumanPerformance,
   HumanVerdicts,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
@@ -60,20 +60,20 @@ export function test_motion_gait_gait_path(): void {
   for (const swing of [0.999, 1, 1.001]) {
     const plan: IAutoMovieMotionHumanWalkSteps.IPlan =
       AutoMovieMotionHumanGait.walkSteps.plan({
-      body,
-      entry,
-      to: {
-        x: (entry.feet.left.ankle.x + entry.feet.right.ankle.x) / 2,
-        y: 0,
-        z: start + distance,
-      },
-      speed: 1,
-      longest: 1,
-      swing,
-      period: (): number => 1,
-      travel: (seconds: number): number =>
-        Math.max(0, Math.min(1, seconds / distance)),
-    });
+        body,
+        entry,
+        to: {
+          x: (entry.feet.left.ankle.x + entry.feet.right.ankle.x) / 2,
+          y: 0,
+          z: start + distance,
+        },
+        speed: 1,
+        longest: 1,
+        swing,
+        period: (): number => 1,
+        travel: (seconds: number): number =>
+          Math.max(0, Math.min(1, seconds / distance)),
+      });
     const strikes = plan.events.filter((event) =>
       event.name.includes("HeelStrike"),
     );

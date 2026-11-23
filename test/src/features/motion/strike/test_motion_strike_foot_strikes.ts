@@ -13,11 +13,11 @@ import type {
 import {
   AutoMovieMotionHumanStrike,
   HumanChain,
-  HumanFoot,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";

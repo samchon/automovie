@@ -17,16 +17,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanHeld,
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanSwing,
   AutoMovieMotionHumanThrowCatch,
   HumanChain,
-  HumanFoot,
-  HumanHand,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanHeld,
+  HumanFoot,
+  HumanHand,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

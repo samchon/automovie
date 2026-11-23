@@ -15,7 +15,8 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFoot, createHumanBody, poseBones } from "@automovie/motions";
+import { createHumanBody } from "@automovie/motions";
+import { HumanFoot, poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";

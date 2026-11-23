@@ -10,12 +10,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanBlade,
-  HumanFoot,
-  HumanHand,
   HumanObject,
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanFoot, HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

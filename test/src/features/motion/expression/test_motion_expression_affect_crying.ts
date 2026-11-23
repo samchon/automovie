@@ -19,12 +19,11 @@ import type {
 import {
   AutoMovieMotionHumanExpression,
   AutoMovieMotionHumanTouch,
-  HUMAN_EVERYDAY_LAWS,
   HumanChain,
-  HumanHand,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { HUMAN_EVERYDAY_LAWS, HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

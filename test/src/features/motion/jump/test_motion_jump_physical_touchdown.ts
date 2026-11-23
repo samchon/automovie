@@ -16,10 +16,10 @@ import {
   AutoMovieMotionHumanJump,
   AutoMovieMotionHumanStance,
   HumanChain,
-  HumanFoot,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";

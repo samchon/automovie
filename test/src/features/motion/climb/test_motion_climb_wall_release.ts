@@ -7,7 +7,8 @@ import type {
   IAutoMovieMotionHumanWallClimb,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanClimb, HumanChain, HumanHand } from "@automovie/motions";
+import { AutoMovieMotionHumanClimb, HumanChain } from "@automovie/motions";
+import { HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { collectTakeClean } from "../../internal/collectTakeClean";
@@ -125,7 +126,9 @@ function take(key: BodyKey, failures: string[]): void {
   const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
     "exercise-climb",
     [{ subject: "a", body }],
-    HumanChain.subject("a").support(AutoMovieMotionHumanClimb.wallClimbSupport(route)),
+    HumanChain.subject("a").support(
+      AutoMovieMotionHumanClimb.wallClimbSupport(route),
+    ),
     [wall],
   );
   collectTakeClean(`${key} wall release`, film.performance, failures);

@@ -11,13 +11,15 @@ import type {
 import {
   AutoMovieMotionHumanGait,
   HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
+import {
   HumanColliders,
   HumanFoot,
   HumanHand,
   HumanObstacle,
-  HumanPerformance,
-  HumanRefusal,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../../internal/motionComplaints";
 import { motionHumanBody } from "../../../internal/motionHumanBody";

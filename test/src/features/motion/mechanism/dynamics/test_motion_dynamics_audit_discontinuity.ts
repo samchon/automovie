@@ -1,4 +1,4 @@
-import { AutoMovieMotionHumanAuditContinuity } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditContinuity } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditPoints } from "../../../internal/motionAuditPoints";

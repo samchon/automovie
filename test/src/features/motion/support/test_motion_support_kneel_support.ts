@@ -1,9 +1,9 @@
 import {
   HumanChain,
-  HumanFoot,
   HumanPerformance,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";

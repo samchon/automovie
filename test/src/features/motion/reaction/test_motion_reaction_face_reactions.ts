@@ -8,11 +8,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanTouch,
-  HUMAN_EVERYDAY_LAWS,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HUMAN_EVERYDAY_LAWS } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

@@ -14,11 +14,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanPolo,
-  HumanFoot,
   HumanObject,
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

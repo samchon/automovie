@@ -1,9 +1,9 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanCarryPerson,
-  HumanLoad,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanLoad } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

@@ -7,16 +7,18 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanLean,
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanSupport,
-  AutoMovieMotionHumanTrunk,
   HumanChain,
   HumanPerformance,
-  HumanPhysics,
   HumanRefusal,
 } from "@automovie/motions";
-import { HumanBalance } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanLean,
+  AutoMovieMotionHumanTrunk,
+  HumanBalance,
+  HumanPhysics,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionComposeTrunk } from "./motionComposeTrunk";

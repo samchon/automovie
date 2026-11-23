@@ -2,10 +2,8 @@ import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditDifference,
-  HumanChain,
-} from "@automovie/motions";
+import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditDifference } from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionContactArmFixture as fixture } from "../../internal/motionContactArmFixture";

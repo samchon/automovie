@@ -16,16 +16,18 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditContinuity,
   AutoMovieMotionHumanCrossing,
   AutoMovieMotionHumanGait,
   HumanChain,
-  HumanColliders,
-  HumanFoot,
   HumanObject,
-  HumanObstacle,
   HumanPerformance,
 } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanAuditContinuity,
+  HumanColliders,
+  HumanFoot,
+  HumanObstacle,
+} from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";

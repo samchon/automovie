@@ -9,16 +9,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditPartner,
-  AutoMovieMotionHumanLean,
   AutoMovieMotionHumanStance,
   HumanChain,
   HumanMutual,
-  HumanPerception,
   HumanRefusal,
-  poseBones,
 } from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditPartner,
+  AutoMovieMotionHumanLean,
+  HumanPerception,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 
 import { MOTION_HUMAN_LAW_STAGES_TOUCH } from "./MOTION_HUMAN_LAW_STAGES_TOUCH";
 import { motionComplaints } from "./motionComplaints";

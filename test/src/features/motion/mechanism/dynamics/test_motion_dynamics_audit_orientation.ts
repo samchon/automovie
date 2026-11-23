@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditSpin } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditSpin } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

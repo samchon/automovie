@@ -8,14 +8,16 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanLean,
   AutoMovieMotionHumanSeat,
   AutoMovieMotionHumanStance,
-  AutoMovieMotionHumanTrunk,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanLean,
+  AutoMovieMotionHumanTrunk,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionComposeTrunk } from "../../../internal/motionComposeTrunk";

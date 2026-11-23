@@ -5,15 +5,17 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieMotionHumanChain } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditContinuity,
   AutoMovieMotionHumanSeat,
-  HUMAN_LEXICON,
   HumanChain,
-  HumanHand,
   HumanPerformance,
   HumanRefusal,
   HumanVerdicts,
 } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanAuditContinuity,
+  HUMAN_LEXICON,
+  HumanHand,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

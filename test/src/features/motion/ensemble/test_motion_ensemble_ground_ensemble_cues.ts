@@ -32,11 +32,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanEnsemble,
-  HUMAN_LEXICON,
-  HumanFoot,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { HUMAN_LEXICON, HumanFoot } from "@automovie/motions/internal";
 import * as THREE from "three";
 
 import { motionComplaints } from "../../internal/motionComplaints";

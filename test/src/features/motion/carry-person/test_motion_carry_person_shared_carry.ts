@@ -15,14 +15,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanSharedCarry,
   AutoMovieMotionHumanStance,
   HumanChain,
-  HumanHand,
   HumanPerformance,
-  poseBones,
 } from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanSharedCarry,
+  HumanHand,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

@@ -19,15 +19,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditContact,
-  AutoMovieMotionHumanAuditGround,
-  AutoMovieMotionHumanAuditRange,
   AutoMovieMotionHumanSwim,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanVerdicts,
 } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanAuditContact,
+  AutoMovieMotionHumanAuditGround,
+  AutoMovieMotionHumanAuditRange,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditMoved } from "../../internal/motionAuditMoved";

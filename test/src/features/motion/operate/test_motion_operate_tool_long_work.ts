@@ -17,11 +17,11 @@ import type {
 import {
   AutoMovieMotionHumanLabour,
   HumanChain,
-  HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

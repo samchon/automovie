@@ -14,11 +14,11 @@ import type {
 import {
   AutoMovieMotionHumanSeat,
   HumanChain,
-  HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
@@ -89,11 +89,14 @@ export function test_motion_seat_seated_heel_bounce(): void {
           { subject: "a", body, at, yaw: 0, proficiency: { level: "trained" } },
         ],
         laws: [AutoMovieMotionHumanSeat.seatedHeelBounce],
-        composition: chain.registered(AutoMovieMotionHumanSeat.seatedHeelBounce.name, {
-          ...props,
-          amplitude,
-          side,
-        }).node,
+        composition: chain.registered(
+          AutoMovieMotionHumanSeat.seatedHeelBounce.name,
+          {
+            ...props,
+            amplitude,
+            side,
+          },
+        ).node,
       });
     };
     const performance: IAutoMovieMotionHumanPerformance = perform(

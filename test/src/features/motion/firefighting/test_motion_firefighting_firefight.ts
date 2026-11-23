@@ -17,12 +17,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanFirefighting,
-  HUMAN_LEXICON,
   HumanChain,
-  HumanHand,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HUMAN_LEXICON, HumanHand } from "@automovie/motions/internal";
 
 import { everydayTake } from "../../internal/everydayTake";
 import { motionComplaints } from "../../internal/motionComplaints";

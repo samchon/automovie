@@ -4,7 +4,8 @@ import type {
   IAutoMovieMotionHumanPropOutcome,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPropOutcome, HumanRefusal } from "@automovie/motions";
+import { HumanRefusal } from "@automovie/motions";
+import { HumanPropOutcome } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../../internal/vclose";

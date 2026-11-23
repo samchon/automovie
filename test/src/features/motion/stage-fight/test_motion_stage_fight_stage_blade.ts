@@ -11,12 +11,8 @@ import type {
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-} from "@automovie/motions";
+import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
+import { HUMAN_LEXICON } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

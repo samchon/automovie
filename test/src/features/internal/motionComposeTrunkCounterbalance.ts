@@ -7,15 +7,12 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance, HumanRefusal } from "@automovie/motions";
 import {
-  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTrunk,
-  HumanRefusal,
-  poseBones,
-} from "@automovie/motions";
-import {
   HumanBalance,
   HumanTrunk,
+  poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
 

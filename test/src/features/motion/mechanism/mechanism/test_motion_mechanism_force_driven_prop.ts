@@ -3,7 +3,8 @@ import type {
   IAutoMovieMotionHumanPropDynamics,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanPerformance, HumanPropDynamics } from "@automovie/motions";
+import { HumanPerformance } from "@automovie/motions";
+import { HumanPropDynamics } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose } from "../../../internal/qclose";

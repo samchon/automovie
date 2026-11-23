@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
-import { AutoMovieMotionManner, HumanChain, HumanPerformance, HumanVerdicts } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanVerdicts,
+} from "@automovie/motions";
+import { AutoMovieMotionManner } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
+
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
@@ -17,8 +26,8 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership One actual public plan per historical failing input.
  */
 export function test_motion_manner_manner_foot_lock(): void {
- const findings: string[]=[];
-   const box: IAutoMovieMotionHumanProp = {
+  const findings: string[] = [];
+  const box: IAutoMovieMotionHumanProp = {
     subject: "box",
     frame: {
       position: { x: 0, y: 0, z: 0.6 },
@@ -49,19 +58,41 @@ export function test_motion_manner_manner_foot_lock(): void {
       },
     ],
   };
- for (const name of ["f-small","m-average"] as const) {
-   const body=motionHumanBody(name);
-   const actor=HumanChain.subject("a");
-       const manner = AutoMovieMotionManner.PRESETS.weary;
-    const chain = name === "f-small" ? actor.stepOver({obstacle:"box",manner}) : actor.walk({to:{x:0,y:0,z:3},manner});
-   try {
-    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-       seed:"recompose-travel",props:name === "f-small" ? [box] : [], performers:[{subject:"a",body,at:{x:0,y:0,z:0},yaw:0,proficiency:{level:"trained"}}],composition:chain.node
-    });
+  for (const name of ["f-small", "m-average"] as const) {
+    const body = motionHumanBody(name);
+    const actor = HumanChain.subject("a");
+    const manner = AutoMovieMotionManner.PRESETS.weary;
+    const chain =
+      name === "f-small"
+        ? actor.stepOver({ obstacle: "box", manner })
+        : actor.walk({ to: { x: 0, y: 0, z: 3 }, manner });
+    try {
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed: "recompose-travel",
+          props: name === "f-small" ? [box] : [],
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: chain.node,
+        });
 
-    const verdict = HumanVerdicts.of(performance);
-    if (!verdict.clean) findings.push(name + ": " + HumanVerdicts.describe(verdict));
-   } catch(error) { findings.push(name+": "+String(error)); }
- }
- TestValidator.equals("the composed support and exposed limb remain admissible",findings,[]);
+      const verdict = HumanVerdicts.of(performance);
+      if (!verdict.clean)
+        findings.push(name + ": " + HumanVerdicts.describe(verdict));
+    } catch (error) {
+      findings.push(name + ": " + String(error));
+    }
+  }
+  TestValidator.equals(
+    "the composed support and exposed limb remain admissible",
+    findings,
+    [],
+  );
 }

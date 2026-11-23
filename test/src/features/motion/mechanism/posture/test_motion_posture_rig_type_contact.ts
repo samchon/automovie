@@ -1,8 +1,6 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditTangle,
-  HumanVerdicts,
-} from "@automovie/motions";
+import { HumanVerdicts } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditTangle } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { MOTION_HUMAN_LAW_STAGES_POSTURE } from "../../../internal/MOTION_HUMAN_LAW_STAGES_POSTURE";

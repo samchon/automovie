@@ -22,12 +22,12 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanBoardGame,
-  HUMAN_LEXICON,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HUMAN_LEXICON } from "@automovie/motions/internal";
 
 import { everydayTake } from "../../internal/everydayTake";
 import { motionComplaints } from "../../internal/motionComplaints";

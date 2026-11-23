@@ -20,13 +20,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanHeld,
   AutoMovieMotionHumanStrike,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { AutoMovieMotionHumanHeld } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

@@ -10,8 +10,8 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  poseBones,
 } from "@automovie/motions";
+import { poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

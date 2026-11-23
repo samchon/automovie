@@ -9,18 +9,18 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   AutoMovieMotionHumanBend,
   AutoMovieMotionHumanClearance,
   AutoMovieMotionHumanDrinkingArm,
   AutoMovieMotionHumanDrinkingSwivel,
   AutoMovieMotionHumanGoal,
-  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTarget,
   AutoMovieMotionHumanTargetGrid,
   poseBones,
-} from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

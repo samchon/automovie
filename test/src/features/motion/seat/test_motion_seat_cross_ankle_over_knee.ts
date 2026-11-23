@@ -20,12 +20,12 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanSeat,
-  createHumanBody,
   HumanChain,
-  HumanColliders,
   HumanPerformance,
   HumanRefusal,
+  createHumanBody,
 } from "@automovie/motions";
+import { HumanColliders } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import PEOPLE from "../../internal/MOTION_HUMAN_PEOPLE.json";
@@ -243,7 +243,10 @@ export function test_motion_seat_cross_ankle_over_knee(): void {
         .sit({
           seat: {
             ...chair,
-            at: { ...chair.at, y: AutoMovieMotionHumanSeat.seated.popliteal(standard) },
+            at: {
+              ...chair.at,
+              y: AutoMovieMotionHumanSeat.seated.popliteal(standard),
+            },
           },
         })
         .registered("crossAnkleOverKnee", { side: "right", hold: 1 }).node,

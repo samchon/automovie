@@ -9,12 +9,8 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanFoot,
-  HumanHand,
-  HumanRefusal,
-  HumanSignature,
-} from "@automovie/motions";
+import { HumanRefusal, HumanSignature } from "@automovie/motions";
+import { HumanFoot, HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

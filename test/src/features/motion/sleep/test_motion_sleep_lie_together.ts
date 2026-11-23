@@ -13,10 +13,10 @@ import type {
 import {
   AutoMovieMotionHumanSleep,
   HumanChain,
-  HumanColliders,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanColliders } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

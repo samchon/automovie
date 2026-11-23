@@ -14,12 +14,11 @@ import type {
 import {
   AutoMovieMotionHumanRide,
   HumanChain,
-  HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  poseBones,
 } from "@automovie/motions";
+import { HumanHand, poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

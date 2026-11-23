@@ -7,12 +7,11 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance, HumanRefusal } from "@automovie/motions";
 import {
   AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanStance,
-  HumanRefusal,
-} from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

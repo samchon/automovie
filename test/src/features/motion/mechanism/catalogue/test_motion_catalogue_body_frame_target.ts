@@ -14,17 +14,17 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanBend,
   AutoMovieMotionHumanPlaced,
-  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTarget,
   HumanFoot,
   HumanHand,
   poseBones,
-} from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../../internal/motionComplaints";
 import { motionHumanBody } from "../../../internal/motionHumanBody";

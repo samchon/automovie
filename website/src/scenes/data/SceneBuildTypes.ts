@@ -4,11 +4,8 @@ import type {
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionObstacleAperture,
 } from "@automovie/interface";
-import type {
-  AutoMovieMotionHumanCarryPerson,
-  HumanSocial,
-  shoulderClasp,
-} from "@automovie/motions";
+import type { AutoMovieMotionHumanCarryPerson } from "@automovie/motions";
+import type { HumanSocial, shoulderClasp } from "@automovie/motions/internal";
 
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 

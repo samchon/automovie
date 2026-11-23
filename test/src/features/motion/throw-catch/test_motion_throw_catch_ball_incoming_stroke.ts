@@ -17,10 +17,10 @@ import {
   AutoMovieMotionHumanSwing,
   AutoMovieMotionHumanThrowCatch,
   HumanChain,
-  HumanHand,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

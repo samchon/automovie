@@ -12,10 +12,10 @@ import {
   AutoMovieMotionHumanStageFight,
   AutoMovieMotionHumanStrike,
   AutoMovieMotionHumanThrowCatch,
-  HumanFoot,
   HumanPerformance,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 
 /**
  * The combat-style specs' shared staging: two performers facing at a

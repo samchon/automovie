@@ -17,12 +17,12 @@ import {
   AutoMovieMotionHumanBlade,
   AutoMovieMotionHumanStageFight,
   HumanChain,
-  HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";
@@ -234,7 +234,8 @@ function stage(body: IAutoMovieMotionHumanBody, bout: IBout): IStaged {
     duration: SECONDS,
     result: bout.result,
   };
-  const placed: AutoMovieMotionHumanStageFight.HumanStagePiste.IPlaced = AutoMovieMotionHumanStageFight.HumanStagePiste.compose(take);
+  const placed: AutoMovieMotionHumanStageFight.HumanStagePiste.IPlaced =
+    AutoMovieMotionHumanStageFight.HumanStagePiste.compose(take);
   const film: HumanPerformance = new HumanPerformance({
     seed: `piste-${bout.kind}-${bout.result}`,
     laws: [
@@ -320,9 +321,9 @@ function play(
   const label: string = `${bout.kind}/${bout.result}`;
 
   // 1. The announced result at the decisive instant of the scoring touch.
-  const announced: AutoMovieMotionHumanStageFight.HumanStagePiste.IAnnouncement | undefined = placed.announced(
-    film.schedule,
-  );
+  const announced:
+    | AutoMovieMotionHumanStageFight.HumanStagePiste.IAnnouncement
+    | undefined = placed.announced(film.schedule);
   const touch: Touch =
     bout.result === "first"
       ? ["bout.attack", "b", bout.attack]
@@ -338,7 +339,8 @@ function play(
   // 2. The approach: the lead leaves first, the rear holds, both feet settle
   // the approach's distance forward and the pelvis follows.
   const count: number = Math.ceil(
-    Math.max(bout.distance, ANSWERING) / AutoMovieMotionHumanStageFight.HumanStagePiste.ADVANCE,
+    Math.max(bout.distance, ANSWERING) /
+      AutoMovieMotionHumanStageFight.HumanStagePiste.ADVANCE,
   );
   const first: IAutoMovieScheduleEntry | undefined = entry(film, "bout.first");
   const last: IAutoMovieScheduleEntry | undefined = entry(
@@ -452,9 +454,9 @@ function double(
     film,
     "bout.counter",
   );
-  const announced: AutoMovieMotionHumanStageFight.HumanStagePiste.IAnnouncement | undefined = placed.announced(
-    film.schedule,
-  );
+  const announced:
+    | AutoMovieMotionHumanStageFight.HumanStagePiste.IAnnouncement
+    | undefined = placed.announced(film.schedule);
   const gaps: readonly number[] = [
     missed(body, film, bout, ["bout.attack", "b", bout.attack]),
     missed(body, film, bout, ["bout.counter", "a", bout.answer]),
@@ -470,7 +472,8 @@ function double(
   );
 
   // A counter landing outside the window scores no double touch.
-  const late: number = AutoMovieMotionHumanStageFight.HumanStagePiste.DOUBLE + 0.01;
+  const late: number =
+    AutoMovieMotionHumanStageFight.HumanStagePiste.DOUBLE + 0.01;
   complaints.check(
     "epee/both: a counter later than the epee's window is not announced",
     placed.announced({
@@ -526,14 +529,18 @@ function rules(complaints: motionComplaints.IGatherer): void {
     ["sabre", "kneeRight", "first", "first.target"],
   ] as const)
     try {
-      AutoMovieMotionHumanStageFight.HumanStagePiste.compose(take(kind, region, result));
+      AutoMovieMotionHumanStageFight.HumanStagePiste.compose(
+        take(kind, region, result),
+      );
       complaints.list.push(`${kind}: admitted ${result} on ${region}`);
     } catch (error) {
       if (!(error instanceof HumanRefusal) || error.axis !== axis)
         complaints.list.push(`${kind}: unexpected refusal ${String(error)}`);
     }
   try {
-    AutoMovieMotionHumanStageFight.HumanStagePiste.compose(take("epee", "thighFrontLeft", "first"));
+    AutoMovieMotionHumanStageFight.HumanStagePiste.compose(
+      take("epee", "thighFrontLeft", "first"),
+    );
   } catch (error) {
     complaints.list.push(`epee: refused a valid thigh touch ${String(error)}`);
   }

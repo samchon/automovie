@@ -10,7 +10,7 @@ import type {
 import {
   AutoMovieMotionHumanAuditBalance,
   HumanFoot,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditMoved } from "../../../internal/motionAuditMoved";

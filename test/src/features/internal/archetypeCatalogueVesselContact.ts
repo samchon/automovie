@@ -19,12 +19,8 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanColliders,
-  HumanObject,
-  HumanRefusal,
-} from "@automovie/motions";
+import { HumanChain, HumanObject, HumanRefusal } from "@automovie/motions";
+import { HumanColliders } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeCatalogueRigidGrip } from "./archetypeCatalogueRigidGrip";

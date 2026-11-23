@@ -10,10 +10,10 @@ import type {
 import {
   AutoMovieMotionHumanStance,
   createHumanBody,
-  poseBones,
 } from "@automovie/motions";
 import {
   HumanJacobian,
+  poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";

@@ -20,11 +20,10 @@ import type {
 import {
   AutoMovieMotionHumanStance,
   HumanChain,
-  HumanFoot,
   HumanPerformance,
   HumanRefusal,
-  poseBones,
 } from "@automovie/motions";
+import { HumanFoot, poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionComplaints } from "../../internal/motionComplaints";

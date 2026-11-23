@@ -12,13 +12,12 @@ import type {
 import {
   AutoMovieMotionHumanRide,
   HumanChain,
-  HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
-import { HumanFrame } from "@automovie/motions/internal";
+import { HumanFoot, HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { bicycleRiders } from "../../internal/bicycleRiders";

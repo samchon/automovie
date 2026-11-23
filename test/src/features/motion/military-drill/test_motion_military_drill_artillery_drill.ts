@@ -23,11 +23,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanMilitaryDrill,
-  HUMAN_LEXICON,
   HumanChain,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { HUMAN_LEXICON } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";

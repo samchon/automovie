@@ -14,10 +14,12 @@ import type {
 import {
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanSupport,
+} from "@automovie/motions";
+import {
   HumanFoot,
   poseBones,
-} from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
@@ -154,7 +156,9 @@ export function test_motion_support_transfer(): void {
         0,
         (t: number): number => 9 * Math.max(0, t - (start + 1.7)) ** 2,
       );
-    const context: Parameters<typeof AutoMovieMotionHumanSupport.supportTransfer>[0] = {
+    const context: Parameters<
+      typeof AutoMovieMotionHumanSupport.supportTransfer
+    >[0] = {
       body,
       entry,
       start,
@@ -168,7 +172,8 @@ export function test_motion_support_transfer(): void {
         seconds,
       },
     };
-    const plan: ReturnType<typeof AutoMovieMotionHumanSupport.supportTransfer> = AutoMovieMotionHumanSupport.supportTransfer(context);
+    const plan: ReturnType<typeof AutoMovieMotionHumanSupport.supportTransfer> =
+      AutoMovieMotionHumanSupport.supportTransfer(context);
     const support = (
       side: "left" | "right",
       share: number,
@@ -301,7 +306,9 @@ export function test_motion_support_transfer(): void {
       );
     const movingProps = (id: string): IAutoMovieMotionHumanPropReader =>
       id === "platform" ? gangway : movingDeck;
-    const movingParams: Parameters<typeof AutoMovieMotionHumanSupport.supportTransfer>[0]["params"] = {
+    const movingParams: Parameters<
+      typeof AutoMovieMotionHumanSupport.supportTransfer
+    >[0]["params"] = {
       ...context.params,
       docking: "co-moving",
     };
@@ -324,7 +331,9 @@ export function test_motion_support_transfer(): void {
           },
         };
       };
-      const crossing: ReturnType<typeof AutoMovieMotionHumanSupport.supportTransfer> = AutoMovieMotionHumanSupport.supportTransfer({
+      const crossing: ReturnType<
+        typeof AutoMovieMotionHumanSupport.supportTransfer
+      > = AutoMovieMotionHumanSupport.supportTransfer({
         ...context,
         prop,
         params: movingParams,
@@ -426,7 +435,9 @@ export function test_motion_support_transfer(): void {
     supportTransferFixture.checkRefusals(context, movingProps, newEdge);
 
     // This smooth relative shift stays inside the 1 mm docking tolerance.
-    const almostDocked: ReturnType<typeof AutoMovieMotionHumanSupport.supportTransfer> = AutoMovieMotionHumanSupport.supportTransfer({
+    const almostDocked: ReturnType<
+      typeof AutoMovieMotionHumanSupport.supportTransfer
+    > = AutoMovieMotionHumanSupport.supportTransfer({
       ...context,
       params: movingParams,
       prop: (id: string): IAutoMovieMotionHumanPropReader =>

@@ -2,7 +2,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanJoints } from "@automovie/motions";
+import { AutoMovieMotionHumanJoints } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../../internal/throwsError";

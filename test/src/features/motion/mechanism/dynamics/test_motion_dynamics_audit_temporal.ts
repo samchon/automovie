@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanAuditMotion as Motion } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditMotion } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditMotion } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditPoints } from "../../../internal/motionAuditPoints";

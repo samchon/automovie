@@ -1,10 +1,7 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditTangle,
-  AutoMovieMotionHumanTouch,
-  HumanVerdicts,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanTouch, HumanVerdicts } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditTangle } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { MOTION_HUMAN_LAW_STAGES_POSTURE } from "../../internal/MOTION_HUMAN_LAW_STAGES_POSTURE";

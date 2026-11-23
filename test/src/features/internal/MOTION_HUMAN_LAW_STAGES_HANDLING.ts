@@ -15,9 +15,9 @@ import {
   AutoMovieMotionHumanHandover,
   AutoMovieMotionHumanThrowCatch,
   HumanChain,
-  HumanFoot,
   HumanObject,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 

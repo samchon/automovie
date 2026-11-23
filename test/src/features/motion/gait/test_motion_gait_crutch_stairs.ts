@@ -18,11 +18,11 @@ import type {
 import {
   AutoMovieMotionHumanGait,
   HumanChain,
-  HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 
 import { checkTakeClean } from "../../internal/checkTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";

@@ -3,13 +3,11 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAuditTangle,
-  AutoMovieMotionHumanStance,
-  poseBones,
-} from "@automovie/motions";
-import {
   HumanArmClearance,
+  poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";

@@ -16,15 +16,13 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
-  AutoMovieMotionHumanStance,
   HumanFoot,
-  poseBones,
-} from "@automovie/motions";
-import {
   HumanFrame,
   hipJoints,
   humanRig,
+  poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
 

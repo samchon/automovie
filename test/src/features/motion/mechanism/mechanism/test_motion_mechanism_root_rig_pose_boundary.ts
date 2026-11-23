@@ -5,7 +5,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { poseBones } from "@automovie/motions";
+import { poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../../../internal/joint";
@@ -28,8 +28,15 @@ import { vclose } from "../../../internal/vclose";
  */
 export function test_motion_mechanism_root_rig_pose_boundary(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const names: ReadonlySet<AutoMovieHumanoidBone> = new Set(["rightLowerArm", "rightHand"]);
-  const placed: IAutoMoviePose = { skeleton: body.skeleton.id, root: null, joints: [] };
+  const names: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+    "rightLowerArm",
+    "rightHand",
+  ]);
+  const placed: IAutoMoviePose = {
+    skeleton: body.skeleton.id,
+    root: null,
+    joints: [],
+  };
   const translated: IAutoMoviePose = {
     ...placed,
     root: {
@@ -40,20 +47,35 @@ export function test_motion_mechanism_root_rig_pose_boundary(): void {
   };
   const straight: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(body, placed, undefined, names);
-  const moved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-    poseBones(body, translated, undefined, names);
-  const bent: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-    poseBones(body, { ...translated, joints: [joint("rightLowerArm", { flexion: 60 })] }, undefined, names);
+  const moved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    body,
+    translated,
+    undefined,
+    names,
+  );
+  const bent: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    body,
+    { ...translated, joints: [joint("rightLowerArm", { flexion: 60 })] },
+    undefined,
+    names,
+  );
   // The model spans metres. This allows round-off in several transform products.
   const rounding: number = 128 * Number.EPSILON;
-  TestValidator.equals("the borrowed rig returns only requested bones", [...moved.keys()], [...names]);
+  TestValidator.equals(
+    "the borrowed rig returns only requested bones",
+    [...moved.keys()],
+    [...names],
+  );
   for (const name of names) {
     const original: IAutoMovieVector3 = straight.get(name)!.worldPosition;
-    TestValidator.predicate(`${name} follows the world translation`, vclose(
-      moved.get(name)!.worldPosition,
-      { x: original.x + 1, y: original.y + 2, z: original.z - 1 },
-      rounding,
-    ));
+    TestValidator.predicate(
+      `${name} follows the world translation`,
+      vclose(
+        moved.get(name)!.worldPosition,
+        { x: original.x + 1, y: original.y + 2, z: original.z - 1 },
+        rounding,
+      ),
+    );
   }
   const elbow: IAutoMovieVector3 = moved.get("rightLowerArm")!.worldPosition;
   const wrist: IAutoMovieVector3 = moved.get("rightHand")!.worldPosition;

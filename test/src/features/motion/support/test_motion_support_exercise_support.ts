@@ -14,13 +14,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HUMAN_LEXICON,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
+import { HUMAN_LEXICON } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertSportSaltoFlight } from "../../internal/assertSportSaltoFlight";

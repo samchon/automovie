@@ -23,9 +23,8 @@ import {
   AutoMovieMotionHumanStance,
   HumanChain,
   HumanPerformance,
-  poseBones,
 } from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+import { poseBones, resolveHumanPosture } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../../internal/assertTakeClean";
 import { motionComplaints } from "../../../internal/motionComplaints";
@@ -443,8 +442,7 @@ function rounding(
             let bone: string | undefined = segment.bone;
             bone !== undefined;
             bone = body.profile.joints.find(
-              (joint: IAutoMoviePhysicalJoint): boolean =>
-                joint.child === bone,
+              (joint: IAutoMoviePhysicalJoint): boolean => joint.child === bone,
             )?.parent
           )
             depth++;

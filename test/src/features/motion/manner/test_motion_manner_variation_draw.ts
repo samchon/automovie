@@ -2,7 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanVariation,
   AutoMovieMotionHumanVariationDraw,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionComplaints } from "../../internal/motionComplaints";

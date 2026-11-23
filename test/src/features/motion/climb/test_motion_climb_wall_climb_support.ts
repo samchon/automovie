@@ -14,9 +14,9 @@ import type {
 import {
   AutoMovieMotionHumanClimb,
   HumanChain,
-  HumanHand,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { collectTakeClean } from "../../internal/collectTakeClean";
@@ -133,7 +133,8 @@ function take(key: BodyKey, failures: string[]): void {
     },
     moves: [{ limb: "rightFoot", to: hold("ledge") }],
   };
-  const params: IAutoMovieMotionHumanSupport.IParams = AutoMovieMotionHumanClimb.wallClimbSupport(route);
+  const params: IAutoMovieMotionHumanSupport.IParams =
+    AutoMovieMotionHumanClimb.wallClimbSupport(route);
   const first: IAutoMovieMotionHumanSupport.IStance = params.stances[0]!;
   for (const pause of [false, true]) {
     const performance: HumanPerformance = new HumanPerformance({

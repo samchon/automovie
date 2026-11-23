@@ -10,14 +10,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
   AutoMovieMotionHumanAcrobatics,
   AutoMovieMotionHumanStance,
+} from "@automovie/motions";
+import {
+  AutoMovieMotionClock,
   AutoMovieMotionHumanTrunk,
+  HumanBalance,
   HumanFoot,
   poseBones,
-} from "@automovie/motions";
-import { HumanBalance, resolveHumanPosture } from "@automovie/motions/internal";
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";

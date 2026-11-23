@@ -22,13 +22,12 @@ import {
   AutoMovieMotionHumanSeat,
   AutoMovieMotionHumanStance,
   HumanChain,
-  HumanFoot,
   HumanObject,
-  HumanObstacle,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanFoot, HumanObstacle } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

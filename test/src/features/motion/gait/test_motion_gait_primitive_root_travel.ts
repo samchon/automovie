@@ -4,10 +4,8 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanRoot,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanRoot,
-  AutoMovieMotionHumanStance,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
+import { AutoMovieMotionHumanRoot } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

@@ -9,12 +9,11 @@ import type {
 import {
   AutoMovieMotionHumanFall,
   HumanChain,
-  HumanFoot,
-  HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanFoot, HumanHand } from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";

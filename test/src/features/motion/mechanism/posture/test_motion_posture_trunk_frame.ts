@@ -14,11 +14,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanChannel,
   AutoMovieMotionHumanMount,
   AutoMovieMotionHumanStance,
 } from "@automovie/motions";
-import { HumanTrunk, HumanTrunkTurn } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanChannel,
+  HumanTrunk,
+  HumanTrunkTurn,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

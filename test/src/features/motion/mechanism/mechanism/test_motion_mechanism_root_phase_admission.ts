@@ -1,4 +1,4 @@
-import { HumanPhysics } from "@automovie/motions";
+import { HumanPhysics } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**

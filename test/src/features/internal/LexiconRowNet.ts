@@ -6,10 +6,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanTouch,
-  HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
 } from "@automovie/motions";
+import { HUMAN_LEXICON } from "@automovie/motions/internal";
 
 import { lexiconRowInputs } from "./lexiconRowInputs";
 import { motionHumanBody } from "./motionHumanBody";
@@ -390,7 +390,9 @@ export namespace LexiconRowNet {
         () =>
           starting("a")
             .walk({ to: { x: 0, y: 0, z: -2 } })
-            .with(starting("b").registered("carried", { partner: "a", hold: 2 })),
+            .with(
+              starting("b").registered("carried", { partner: "a", hold: 2 }),
+            ),
         HUMAN_LEXICON.carried!,
       );
       check(

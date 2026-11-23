@@ -14,12 +14,11 @@ import type {
 import {
   AutoMovieMotionHumanMount,
   HumanChain,
-  HumanHand,
   HumanObject,
   HumanPerformance,
   HumanSignature,
 } from "@automovie/motions";
-import { HumanFrame } from "@automovie/motions/internal";
+import { HumanFrame, HumanHand } from "@automovie/motions/internal";
 
 /**
  * A rider staged on a tacked horse that stands while the rider sits and then

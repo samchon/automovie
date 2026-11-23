@@ -7,12 +7,12 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanBase,
   AutoMovieMotionHumanSupport,
   HumanChain,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { AutoMovieMotionHumanBase } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
@@ -57,7 +57,9 @@ export function test_motion_carry_person_carried_stationarity(): void {
         }),
         legsStill: [0, 1],
       };
-      ground = AutoMovieMotionHumanSupport.carry.plan(context, local, ["leftArm"]);
+      ground = AutoMovieMotionHumanSupport.carry.plan(context, local, [
+        "leftArm",
+      ]);
       carried = AutoMovieMotionHumanSupport.carry.plan(
         {
           ...context,

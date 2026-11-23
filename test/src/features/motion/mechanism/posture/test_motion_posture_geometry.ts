@@ -8,17 +8,19 @@ import type {
   IAutoMovieMotionHumanSignature,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditDifference,
   AutoMovieMotionHumanSeat,
-  HUMAN_LEXICON,
   HumanChain,
-  HumanFoot,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
   HumanVerdicts,
 } from "@automovie/motions";
-import { HumanFrame } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditDifference,
+  HUMAN_LEXICON,
+  HumanFoot,
+  HumanFrame,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

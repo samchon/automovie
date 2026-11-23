@@ -2,13 +2,11 @@ import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBend,
 } from "@automovie/interface";
+import { HumanChain, HumanRefusal, HumanVerdicts } from "@automovie/motions";
 import {
   AutoMovieMotionHumanRange,
-  HumanChain,
   HumanPhysics,
-  HumanRefusal,
-  HumanVerdicts,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionCrouchSignature } from "../../internal/motionCrouchSignature";

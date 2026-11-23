@@ -6,15 +6,15 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanAudit,
-  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTarget,
   HumanHand,
   poseBones,
-} from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

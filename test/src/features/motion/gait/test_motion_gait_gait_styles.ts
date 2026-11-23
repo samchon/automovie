@@ -8,12 +8,11 @@ import type {
   IAutoMovieMotionHumanSignature,
 } from "@automovie/interface";
 import {
-  HUMAN_LEXICON,
   HumanChain,
-  HumanFoot,
   HumanPerformance,
   HumanSignature,
 } from "@automovie/motions";
+import { HUMAN_LEXICON, HumanFoot } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

@@ -17,9 +17,8 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  poseBones,
 } from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+import { poseBones, resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../../internal/archetypeExtent";

@@ -22,10 +22,10 @@ import type {
 import {
   AutoMovieMotionHumanStageFight,
   HumanChain,
-  HumanColliders,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanColliders } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
@@ -218,8 +218,7 @@ function beat(
     .stand()
     .pickUp({ prop: "shaft", handle: "grip-lower", hand: "right", lift: 0 })
     .pickUp({ prop: "shaft", handle: "grip-upper", hand: "left", lift: 0 });
-  const composition: IAutoMovieChain =
-    AutoMovieMotionHumanStageFight.stageProp(
+  const composition: IAutoMovieChain = AutoMovieMotionHumanStageFight.stageProp(
     enrolled,
     { beat: "figureEight", prop: "shaft", support: "grip-upper" },
     "shaft-display",

@@ -15,12 +15,12 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance, HumanVerdicts } from "@automovie/motions";
 import {
-  AutoMovieMotionHumanStance,
-  HumanVerdicts,
+  HumanBodyFit,
   poseBones,
-} from "@automovie/motions";
-import { HumanBodyFit, resolveHumanPosture } from "@automovie/motions/internal";
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionComplaints } from "../../../internal/motionComplaints";

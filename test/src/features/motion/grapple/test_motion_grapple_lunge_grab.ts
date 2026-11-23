@@ -8,12 +8,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanGrapple,
-  HUMAN_LEXICON,
   HumanChain,
-  HumanHand,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HUMAN_LEXICON, HumanHand } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";

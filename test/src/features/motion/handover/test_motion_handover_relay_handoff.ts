@@ -9,13 +9,8 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanHand,
-  HumanObject,
-  HumanPartner,
-  HumanPerformance,
-} from "@automovie/motions";
+import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
+import { HumanHand, HumanPartner } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

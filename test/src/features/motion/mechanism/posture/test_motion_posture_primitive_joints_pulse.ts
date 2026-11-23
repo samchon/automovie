@@ -6,7 +6,7 @@ import type {
 import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanJoints,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

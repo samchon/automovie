@@ -24,8 +24,8 @@ import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanPropFrame,
 } from "@automovie/motions";
+import { HumanPropFrame } from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
@@ -93,7 +93,8 @@ function apart(body: IAutoMovieMotionHumanBody): number {
  */
 function closing(body: IAutoMovieMotionHumanBody): number {
   return (
-    AutoMovieMotionHumanStrike.step.STEP_SHARE * AutoMovieMotionHumanStrike.StrikingStance.length(body)
+    AutoMovieMotionHumanStrike.step.STEP_SHARE *
+    AutoMovieMotionHumanStrike.StrikingStance.length(body)
   );
 }
 
@@ -362,16 +363,17 @@ function stage(
       use,
     })
     .registered(AutoMovieMotionHumanBlade.HumanBlade.advance.name, {});
-  const composition: IAutoMovieChain = AutoMovieMotionHumanStageFight.bladeExchange(
-    opener,
-    HumanChain.subject("b").pickUp({
-      prop: "b.blade",
-      handle: "grip",
-      hand: "right",
-      use,
-    }),
-    exchange,
-  );
+  const composition: IAutoMovieChain =
+    AutoMovieMotionHumanStageFight.bladeExchange(
+      opener,
+      HumanChain.subject("b").pickUp({
+        prop: "b.blade",
+        handle: "grip",
+        hand: "right",
+        use,
+      }),
+      exchange,
+    );
   // The landing branch is the same opening authored to land, unblocked.
   const node: IAutoMovieChain["node"] = branch.reply
     ? composition.node

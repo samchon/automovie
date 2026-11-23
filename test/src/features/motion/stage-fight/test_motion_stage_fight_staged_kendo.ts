@@ -16,12 +16,12 @@ import {
   AutoMovieMotionHumanBlade,
   AutoMovieMotionHumanStageFight,
   HumanChain,
-  HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";
@@ -130,7 +130,9 @@ export function test_motion_stage_fight_staged_kendo(): void {
 }
 
 /** The bout: the glides, then the first's men strike, scored for the first. */
-function take(point: string): AutoMovieMotionHumanStageFight.HumanStagePiste.ITake {
+function take(
+  point: string,
+): AutoMovieMotionHumanStageFight.HumanStagePiste.ITake {
   return {
     anchor: "kendo",
     kind: "kendo",
@@ -199,10 +201,11 @@ function bout(
     );
     for (const piece of ARMOUR) props.push(worn(body, subject, piece));
   }
-  const placed: AutoMovieMotionHumanStageFight.HumanStagePiste.IPlaced = AutoMovieMotionHumanStageFight.HumanStagePiste.compose({
-    ...take("men"),
-    reserve: [opening, 0.25],
-  });
+  const placed: AutoMovieMotionHumanStageFight.HumanStagePiste.IPlaced =
+    AutoMovieMotionHumanStageFight.HumanStagePiste.compose({
+      ...take("men"),
+      reserve: [opening, 0.25],
+    });
   const film: HumanPerformance = new HumanPerformance({
     seed: "kendo-men",
     laws: [
@@ -303,9 +306,9 @@ function bout(
         struck,
       ),
     );
-  const announced: AutoMovieMotionHumanStageFight.HumanStagePiste.IAnnouncement | undefined = placed.announced(
-    film.schedule,
-  );
+  const announced:
+    | AutoMovieMotionHumanStageFight.HumanStagePiste.IAnnouncement
+    | undefined = placed.announced(film.schedule);
   complaints.check(
     `the men strike's edge lands ${missed} m from the struck men and scores for the first at that instant`,
     missed <= TOUCH &&

@@ -11,13 +11,11 @@ import type {
   IAutoMoviePose,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanStance,
-  HumanColliders,
-  poseBones,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   HumanArmClearance,
+  HumanColliders,
+  poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
 

@@ -6,7 +6,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditGround } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditGround } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditMoved } from "../../internal/motionAuditMoved";

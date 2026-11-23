@@ -22,18 +22,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanDress,
+  AutoMovieMotionHumanPrehension,
   AutoMovieMotionHumanStance,
   HumanChain,
-  HumanHand,
   HumanObject,
   HumanPerformance,
-  HumanPropFrame,
   HumanRefusal,
-  AutoMovieMotionHumanDress,
-  poseBones,
-  AutoMovieMotionHumanPrehension,
 } from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+import {
+  HumanHand,
+  HumanPropFrame,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
@@ -173,7 +175,11 @@ export function test_motion_blade_carrier_draw(): void {
       new HumanPerformance({
         seed: "blade-carrier-draw",
         props,
-        laws: [AutoMovieMotionHumanDress.HumanCarrierCustody, AutoMovieMotionHumanDress.drawFromCarrier, putDownAperture],
+        laws: [
+          AutoMovieMotionHumanDress.HumanCarrierCustody,
+          AutoMovieMotionHumanDress.drawFromCarrier,
+          putDownAperture,
+        ],
         performers: [
           {
             subject: "fencer",
@@ -204,9 +210,11 @@ export function test_motion_blade_carrier_draw(): void {
 
     run(cast.name + " draw, hold and return", () => {
       const film: HumanPerformance = scene(
-        AutoMovieMotionHumanDress.HumanSheath.sheathe(drawn().stand(hold), staged.sheath, "right").walk(
-          walk,
-        ),
+        AutoMovieMotionHumanDress.HumanSheath.sheathe(
+          drawn().stand(hold),
+          staged.sheath,
+          "right",
+        ).walk(walk),
       );
       const [
         ,
@@ -340,9 +348,11 @@ export function test_motion_blade_carrier_draw(): void {
           film.prop(staged.sheath.blade, t),
       );
       const again: HumanPerformance = scene(
-        AutoMovieMotionHumanDress.HumanSheath.sheathe(drawn().stand(hold), staged.sheath, "right").walk(
-          walk,
-        ),
+        AutoMovieMotionHumanDress.HumanSheath.sheathe(
+          drawn().stand(hold),
+          staged.sheath,
+          "right",
+        ).walk(walk),
       );
       for (const i of [...times.keys()].reverse().concat([...times.keys()]))
         TestValidator.predicate(
@@ -581,7 +591,11 @@ function longsword(): void {
   const film: HumanPerformance = new HumanPerformance({
     seed: "blade-carrier-longsword",
     props,
-    laws: [AutoMovieMotionHumanDress.HumanCarrierCustody, AutoMovieMotionHumanDress.drawFromCarrier, putDownAperture],
+    laws: [
+      AutoMovieMotionHumanDress.HumanCarrierCustody,
+      AutoMovieMotionHumanDress.drawFromCarrier,
+      putDownAperture,
+    ],
     performers: [
       {
         subject: "fencer",
@@ -746,11 +760,12 @@ function stage(
       offset: HumanPropFrame.relative(hips, placed),
     },
   };
-  const staging: IAutoMovieMotionHumanSheath.IStaging = AutoMovieMotionHumanDress.HumanSheath.of(
-    worn,
-    HumanObject.prop("blade", blade, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
-    { mouth, tip: "point", handle: "grip", clearance: CLEARANCE },
-  );
+  const staging: IAutoMovieMotionHumanSheath.IStaging =
+    AutoMovieMotionHumanDress.HumanSheath.of(
+      worn,
+      HumanObject.prop("blade", blade, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
+      { mouth, tip: "point", handle: "grip", clearance: CLEARANCE },
+    );
   return {
     props: [staging.carrier, staging.blade],
     sheath: staging.sheath,

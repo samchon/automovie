@@ -7,10 +7,10 @@ import type {
 import {
   AutoMovieMotionHumanTouch,
   HumanChain,
-  HumanPartner,
   HumanPerformance,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanPartner } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

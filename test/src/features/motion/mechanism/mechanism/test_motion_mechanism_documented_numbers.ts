@@ -7,10 +7,12 @@ import {
   AutoMovieMotionHumanGait,
   AutoMovieMotionHumanReaction,
   AutoMovieMotionHumanStrike,
+} from "@automovie/motions";
+import {
   AutoMovieMotionManner,
   HumanEffort,
-} from "@automovie/motions";
-import { HumanSkill } from "@automovie/motions/internal";
+  HumanSkill,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /** The reference hip the documentation states, metres. */

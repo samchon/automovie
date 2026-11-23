@@ -10,11 +10,11 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStrike } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAuditTangle,
-  AutoMovieMotionHumanStrike,
   HumanColliders,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";

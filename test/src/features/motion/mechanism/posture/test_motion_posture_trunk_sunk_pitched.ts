@@ -2,10 +2,8 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanStance,
-  AutoMovieMotionHumanTrunk,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
+import { AutoMovieMotionHumanTrunk } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

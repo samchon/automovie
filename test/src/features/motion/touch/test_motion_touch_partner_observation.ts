@@ -2,12 +2,8 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanStance,
-  HumanChain,
-  poseBones,
-} from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanStance, HumanChain } from "@automovie/motions";
+import { poseBones, resolveHumanPosture } from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionContactArmFixture as fixture } from "../../internal/motionContactArmFixture";

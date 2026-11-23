@@ -5,15 +5,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanReach,
   AutoMovieMotionHumanStance,
   HumanChain,
-  HumanHand,
   HumanPerformance,
+} from "@automovie/motions";
+import {
+  AutoMovieMotionHumanReach,
+  HumanHand,
   HumanSport,
   poseBones,
-} from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../../internal/motionComplaints";
 import { motionContactArmFixture as fixture } from "../../../internal/motionContactArmFixture";

@@ -7,11 +7,8 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanStrike,
-  HumanColliders,
-  HumanFoot,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanStrike } from "@automovie/motions";
+import { HumanColliders, HumanFoot } from "@automovie/motions/internal";
 import { strict as assert } from "node:assert";
 import { Group, type Object3D, PointLight } from "three";
 

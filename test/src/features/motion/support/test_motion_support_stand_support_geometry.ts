@@ -25,9 +25,9 @@ import type {
 import {
   AutoMovieMotionHumanStance,
   HumanChain,
-  HumanFoot,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

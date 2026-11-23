@@ -6,17 +6,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanArm,
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanStrike,
   HumanChain,
-  HumanHand,
   HumanPerformance,
-  poseBones,
 } from "@automovie/motions";
 import {
+  AutoMovieMotionHumanArm,
   HumanBodyFit,
+  HumanHand,
   HumanSkill,
+  poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
 

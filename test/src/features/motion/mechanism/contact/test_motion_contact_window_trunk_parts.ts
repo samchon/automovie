@@ -6,12 +6,11 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
+import { HumanChain, HumanPerformance } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAuditStatics,
-  HumanChain,
   HumanContactWindow,
-  HumanPerformance,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

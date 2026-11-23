@@ -29,8 +29,8 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanSportCarry,
 } from "@automovie/motions";
+import { HumanSportCarry } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

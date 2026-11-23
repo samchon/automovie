@@ -12,8 +12,8 @@ import {
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  HumanWater,
 } from "@automovie/motions";
+import { HumanWater } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

@@ -9,11 +9,10 @@ import type {
 import {
   AutoMovieMotionHumanSeat,
   HumanChain,
-  HumanFoot,
   HumanPerformance,
   HumanSignature,
 } from "@automovie/motions";
-import { HumanFrame } from "@automovie/motions/internal";
+import { HumanFoot, HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

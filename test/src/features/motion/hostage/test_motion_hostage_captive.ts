@@ -15,12 +15,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanGetDressed,
-  HUMAN_LEXICON,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanPropFrame,
 } from "@automovie/motions";
+import { HUMAN_LEXICON, HumanPropFrame } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";
@@ -122,9 +121,9 @@ export function test_motion_hostage_captive(): void {
         },
       ],
       laws: [
-      ...Object.values(HUMAN_LEXICON).flat(),
-      AutoMovieMotionHumanGetDressed.bindPartner,
-    ],
+        ...Object.values(HUMAN_LEXICON).flat(),
+        AutoMovieMotionHumanGetDressed.bindPartner,
+      ],
       props: [
         HumanObject.prop("chair", chair, placement),
         ...BINDINGS.map(

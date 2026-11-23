@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS, HumanChain } from "@automovie/motions";
+import * as internal from "@automovie/motions/internal";
 
 import { PLAYGROUND_BODIES } from "../data/PLAYGROUND_BODIES";
 import { playgroundActionParams } from "../data/playgroundActionParams";
@@ -71,9 +72,10 @@ export namespace PlaygroundChain {
   }
 
   /** The package's exports by name, for the tables only some releases have. */
-  const EXPORTS: Readonly<Record<string, unknown>> = motions as Readonly<
-    Record<string, unknown>
-  >;
+  const EXPORTS: Readonly<Record<string, unknown>> = {
+    ...(motions as Readonly<Record<string, unknown>>),
+    ...(internal as Readonly<Record<string, unknown>>),
+  };
 
   /** A chain's prototype, which shows the operators the installed package has. */
   const PROTOTYPE: Record<string, unknown> =

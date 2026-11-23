@@ -9,13 +9,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HUMAN_LEXICON,
+  AutoMovieMotionHumanDress,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanPropFrame,
-  AutoMovieMotionHumanDress,
 } from "@automovie/motions";
+import { HUMAN_LEXICON, HumanPropFrame } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";
@@ -60,28 +59,37 @@ export function test_motion_seat_seated_draw(): void {
       const knife: ReturnType<typeof createSword> = createSword({
         kind: "knife",
       });
-      const staged: IAutoMovieMotionHumanSheath.IStaging = AutoMovieMotionHumanDress.HumanSheath.of(
-        {
-          ...HumanObject.prop("sheath", sheath, {
+      const staged: IAutoMovieMotionHumanSheath.IStaging =
+        AutoMovieMotionHumanDress.HumanSheath.of(
+          {
+            ...HumanObject.prop("sheath", sheath, {
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+            }),
+            worn: {
+              subject: "s",
+              bone: "hips",
+              offset: {
+                position: {
+                  x: -0.2 * (body.measure.stature / 1.75),
+                  y: -0.25,
+                  z: 0.05,
+                },
+                rotation: { x: 0, y: 0, z: 0, w: 1 },
+              },
+            },
+          },
+          HumanObject.prop("knife", knife, {
             at: { x: 0, y: 0, z: 0 },
             yaw: 0,
           }),
-          worn: {
-            subject: "s",
-            bone: "hips",
-            offset: {
-              position: {
-                x: -0.2 * (body.measure.stature / 1.75),
-                y: -0.25,
-                z: 0.05,
-              },
-              rotation: { x: 0, y: 0, z: 0, w: 1 },
-            },
+          {
+            mouth: "mouth",
+            tip: "point",
+            handle: "grip",
+            clearance: CLEARANCE,
           },
-        },
-        HumanObject.prop("knife", knife, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
-        { mouth: "mouth", tip: "point", handle: "grip", clearance: CLEARANCE },
-      );
+        );
       // The draw, its grip on the hilt included, is timed to the settled
       // seat and the return follows it.
       const sitting: IAutoMovieMotionHumanChain = HumanChain.subject("s")

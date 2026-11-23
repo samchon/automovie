@@ -12,12 +12,14 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanDance,
-  AutoMovieMotionHumanRange,
   HumanChain,
-  HumanFoot,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanRange,
+  HumanFoot,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

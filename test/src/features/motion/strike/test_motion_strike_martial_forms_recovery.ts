@@ -8,7 +8,8 @@ import type {
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanFoot, HumanPerformance } from "@automovie/motions";
+import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 import { PerspectiveCamera, Vector3 as ScreenPoint } from "three";
 

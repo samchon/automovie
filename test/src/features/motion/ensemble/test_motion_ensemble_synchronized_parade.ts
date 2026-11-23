@@ -9,10 +9,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanEnsemble,
-  HUMAN_LEXICON,
   HumanCue,
   HumanPerformance,
 } from "@automovie/motions";
+import { HUMAN_LEXICON } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

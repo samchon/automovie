@@ -11,14 +11,16 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditBalance,
-  AutoMovieMotionHumanAuditMotion,
   AutoMovieMotionHumanSeat,
   AutoMovieMotionHumanSupport,
   HumanChain,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanAuditBalance,
+  AutoMovieMotionHumanAuditMotion,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
@@ -87,7 +89,12 @@ export function test_motion_support_support_frame(): void {
       AutoMovieMotionHumanSupport.carry.of(frame, 0, 1).point(pickup),
       { x: 3, y: 1, z: 1 },
       1e-9,
-    ) && vclose(AutoMovieMotionHumanSupport.carry.of(frame, 0, 0).point(pickup), pickup, 1e-9),
+    ) &&
+      vclose(
+        AutoMovieMotionHumanSupport.carry.of(frame, 0, 0).point(pickup),
+        pickup,
+        1e-9,
+      ),
   );
   const findings: string[] = [];
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });

@@ -10,7 +10,7 @@ import type {
 import {
   AutoMovieMotionHumanAuditContinuity,
   AutoMovieMotionHumanAuditSpin,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditPoints } from "../../../internal/motionAuditPoints";
@@ -41,9 +41,12 @@ export function test_motion_dynamics_audit_rotation_step(): void {
     let reads: number = 0;
     const base: IAutoMovieMotionHumanAuditMotion = motionAuditPoints(
       2,
-      (t: number): Partial<Record<AutoMovieHumanoidBone, IAutoMovieVector3>> => ({
+      (
+        t: number,
+      ): Partial<Record<AutoMovieHumanoidBone, IAutoMovieVector3>> => ({
         rightHand: {
-          x: Math.cos(omega * t) + (stepped && t >= start && t < end ? 0.02 : 0),
+          x:
+            Math.cos(omega * t) + (stepped && t >= start && t < end ? 0.02 : 0),
           y: 1 + Math.sin(omega * t),
           z: 0,
         },
@@ -63,24 +66,26 @@ export function test_motion_dynamics_audit_rotation_step(): void {
   };
 
   const stepped: ICounted = circle(true);
-  const jump: IAutoMovieMotionHumanAuditMeasure = AutoMovieMotionHumanAuditContinuity.measure(
-    stepped.motion,
-    "a",
-    24,
-    0.005,
-  ).jump;
+  const jump: IAutoMovieMotionHumanAuditMeasure =
+    AutoMovieMotionHumanAuditContinuity.measure(
+      stepped.motion,
+      "a",
+      24,
+      0.005,
+    ).jump;
   TestValidator.predicate(
     "the one-frame step on the fast turn is found",
     Math.abs(jump.value - 0.02) < 1e-3 && jump.where === "rightHand",
   );
 
   const smooth: ICounted = circle(false);
-  const clean: IAutoMovieMotionHumanAuditMeasure = AutoMovieMotionHumanAuditContinuity.measure(
-    smooth.motion,
-    "a",
-    24,
-    0.005,
-  ).jump;
+  const clean: IAutoMovieMotionHumanAuditMeasure =
+    AutoMovieMotionHumanAuditContinuity.measure(
+      smooth.motion,
+      "a",
+      24,
+      0.005,
+    ).jump;
   TestValidator.equals("the fast smooth turn reads no jump", clean.value, 0);
   TestValidator.predicate(
     "the fast smooth turn is quartered once at most",
@@ -97,7 +102,12 @@ export function test_motion_dynamics_audit_rotation_step(): void {
       const degrees: number =
         720 * t + (snapped && t >= start && t < end ? 20 : 0);
       const half: number = (degrees * Math.PI) / 360;
-      const rotation: IAutoMovieQuaternion = { x: 0, y: Math.sin(half), z: 0, w: Math.cos(half) };
+      const rotation: IAutoMovieQuaternion = {
+        x: 0,
+        y: Math.sin(half),
+        z: 0,
+        w: Math.cos(half),
+      };
       return new Map([
         [
           "head",
@@ -111,7 +121,8 @@ export function test_motion_dynamics_audit_rotation_step(): void {
       ]);
     },
   });
-  const snap: IAutoMovieMotionHumanAuditSpin.IResult = AutoMovieMotionHumanAuditSpin.measure(head(true), "a", 24, 5);
+  const snap: IAutoMovieMotionHumanAuditSpin.IResult =
+    AutoMovieMotionHumanAuditSpin.measure(head(true), "a", 24, 5);
   TestValidator.predicate(
     "the one-frame snap on the fast spin is found",
     Math.abs(snap.turn.value - 20) < 0.1 && snap.turn.where === "head",

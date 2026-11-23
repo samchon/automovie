@@ -6,13 +6,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAudit,
   HumanChain,
-  HumanColliders,
   HumanPerformance,
   HumanSignature,
   HumanVerdicts,
 } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanAudit,
+  HumanColliders,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

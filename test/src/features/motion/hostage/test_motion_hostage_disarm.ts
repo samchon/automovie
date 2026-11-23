@@ -10,13 +10,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HUMAN_LEXICON,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanPropFrame,
   HumanRefusal,
 } from "@automovie/motions";
+import { HUMAN_LEXICON, HumanPropFrame } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";

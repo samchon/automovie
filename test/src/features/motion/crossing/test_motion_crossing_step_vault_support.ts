@@ -12,9 +12,9 @@ import type {
 import {
   AutoMovieMotionHumanCrossing,
   HumanChain,
-  HumanColliders,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanColliders } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
@@ -94,7 +94,9 @@ export function test_motion_crossing_step_vault_support(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a").support(AutoMovieMotionHumanCrossing.stepVaultSupport(route)).node,
+    composition: HumanChain.subject("a").support(
+      AutoMovieMotionHumanCrossing.stepVaultSupport(route),
+    ).node,
   });
   const segment: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
   /** Read a planned transition in the same action-share units as the windows. */

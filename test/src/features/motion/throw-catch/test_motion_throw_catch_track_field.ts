@@ -18,8 +18,8 @@ import {
   HumanObject,
   HumanPerformance,
   HumanSignature,
-  HumanSport,
 } from "@automovie/motions";
+import { HumanSport } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

@@ -17,12 +17,11 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanTouch, HumanChain } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAuditMotion,
-  AutoMovieMotionHumanTouch,
-  HumanChain,
   HumanColliders,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanJointText } from "./motionHumanJointText";

@@ -7,7 +7,8 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanHand, HumanObject } from "@automovie/motions";
+import { HumanChain, HumanObject } from "@automovie/motions";
+import { HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { householdFilm } from "../../../internal/householdFilm";

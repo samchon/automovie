@@ -13,9 +13,9 @@ import {
   AutoMovieMotionHumanRitual,
   AutoMovieMotionHumanTouch,
   HumanChain,
-  HumanFoot,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

@@ -7,20 +7,22 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditTangle,
   AutoMovieMotionHumanFall,
   AutoMovieMotionHumanGait,
   AutoMovieMotionHumanMilitaryDrill,
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanWorkout,
   HumanChain,
-  HumanFoot,
   HumanPerformance,
   HumanSignature,
   HumanVerdicts,
-  poseBones,
 } from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditTangle,
+  HumanFoot,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

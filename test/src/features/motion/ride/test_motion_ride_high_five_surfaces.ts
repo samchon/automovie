@@ -5,12 +5,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditPartner,
   AutoMovieMotionHumanTouch,
   HumanChain,
   HumanMutual,
   HumanRefusal,
 } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditPartner } from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";

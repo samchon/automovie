@@ -6,13 +6,15 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
   AutoMovieMotionHumanExpression,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  composeAutoMovieMotionHumanAction,
 } from "@automovie/motions";
+import {
+  AutoMovieMotionClock,
+  composeAutoMovieMotionHumanAction,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

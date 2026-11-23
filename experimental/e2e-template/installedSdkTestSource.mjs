@@ -1,5 +1,7 @@
 /** Source of the generated test for installed archetypes, contacts and room props. */
-export const installedSdkTestSource = (contactBody) => `import assert from "node:assert/strict";
+export const installedSdkTestSource = (
+  contactBody,
+) => `import assert from "node:assert/strict";
 import {
   createCamera, createCargoPod, createDesktopKeyboard, createLaptop, createPhone,
   createRadio, createRemote, createRing, createScenicContainer, createTablet,
@@ -8,9 +10,8 @@ import * as props from "@automovie/archetypes/props";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type { IAutoMovieHumanParameters } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanOperate, createHumanBody, HumanChain, HumanHand, HumanObject, HumanPerformance,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanOperate, createHumanBody, HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
+import { HumanHand } from "@automovie/motions/internal";
 
 import type { IFilmProduction } from "../../../src/IFilmProduction";
 import { starter } from "../../../src/composition/films/starter";

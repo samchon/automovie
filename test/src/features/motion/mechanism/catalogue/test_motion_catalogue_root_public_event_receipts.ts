@@ -7,7 +7,7 @@ import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanBase,
   composeAutoMovieMotionHumanAction,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -37,16 +37,28 @@ export function test_motion_catalogue_root_public_event_receipts(): void {
     joints: {},
     limbs: {},
   };
-  const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.still(4, posture);
+  const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.still(
+    4,
+    posture,
+  );
   const unmarked: IAutoMovieMotionHumanActionPlan =
     composeAutoMovieMotionHumanAction({ base, clock, primitives: [] });
   const marked: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({ base, clock, primitives: [], contact: "signal" });
-  TestValidator.equals("both event identities appear at the same share", unmarked.events, [
-    { name: "depart", share: 1 / 4 },
-    { name: "signal", share: 1 / 4 },
-    { name: "release", share: 3 / 4 },
-  ]);
+    composeAutoMovieMotionHumanAction({
+      base,
+      clock,
+      primitives: [],
+      contact: "signal",
+    });
+  TestValidator.equals(
+    "both event identities appear at the same share",
+    unmarked.events,
+    [
+      { name: "depart", share: 1 / 4 },
+      { name: "signal", share: 1 / 4 },
+      { name: "release", share: 3 / 4 },
+    ],
+  );
   TestValidator.predicate(
     "only the explicitly named optional contact becomes a receipt",
     marked.contact === 1 && unmarked.contact === undefined,

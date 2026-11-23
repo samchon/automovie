@@ -13,11 +13,10 @@ import {
   AutoMovieMotionHumanCarryPerson,
   AutoMovieMotionHumanGrapple,
   HumanChain,
-  HumanColliders,
-  HumanFoot,
   HumanPerformance,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanColliders, HumanFoot } from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";

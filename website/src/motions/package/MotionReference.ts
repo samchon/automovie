@@ -1,5 +1,6 @@
 import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS } from "@automovie/motions";
+import * as internal from "@automovie/motions/internal";
 
 import type { IMotionReference } from "../structures/IMotionReference";
 
@@ -13,9 +14,10 @@ import type { IMotionReference } from "../structures/IMotionReference";
  */
 export namespace MotionReference {
   /** The package's exports by name, for the tables only some releases have. */
-  const EXPORTS: Readonly<Record<string, unknown>> = motions as Readonly<
-    Record<string, unknown>
-  >;
+  const EXPORTS: Readonly<Record<string, unknown>> = {
+    ...(motions as Readonly<Record<string, unknown>>),
+    ...(internal as Readonly<Record<string, unknown>>),
+  };
 
   /**
    * Everything the reference lists.

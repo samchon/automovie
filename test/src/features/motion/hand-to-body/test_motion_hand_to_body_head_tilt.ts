@@ -6,11 +6,8 @@ import type {
   IAutoMoviePose,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import {
-  HUMAN_EVERYDAY_LAWS,
-  HumanChain,
-  HumanPerformance,
-} from "@automovie/motions";
+import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { HUMAN_EVERYDAY_LAWS } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

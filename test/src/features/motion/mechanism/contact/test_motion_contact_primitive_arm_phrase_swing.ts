@@ -2,7 +2,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanArm } from "@automovie/motions";
+import { AutoMovieMotionHumanArm } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionContactArmFixture as fixture } from "../../../internal/motionContactArmFixture";

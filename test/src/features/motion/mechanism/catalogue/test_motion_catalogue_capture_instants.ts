@@ -2,7 +2,7 @@ import type {
   IAutoMovieCaptureInstant,
   IAutoMovieCaptureTime,
 } from "@automovie/interface";
-import { planMotionCaptureInstants } from "@automovie/motions";
+import { planMotionCaptureInstants } from "@automovie/motions/internal";
 import { planAutoMovieCaptureFrames } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 

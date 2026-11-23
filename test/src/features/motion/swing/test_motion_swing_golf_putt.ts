@@ -20,14 +20,16 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanBilliards,
-  AutoMovieMotionHumanHeld,
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanSwing,
   HumanChain,
-  HumanHand,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanHeld,
+  HumanHand,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

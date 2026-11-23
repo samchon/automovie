@@ -2,8 +2,10 @@ import type {
   IAutoMovieMotionHumanSkill,
   IAutoMovieMotionHumanVariation,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanVariation } from "@automovie/motions";
-import { HumanSkill } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanVariation,
+  HumanSkill,
+} from "@automovie/motions/internal";
 
 /**
  * Build the variation source of one action instance from real seeded streams,

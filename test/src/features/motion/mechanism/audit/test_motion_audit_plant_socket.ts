@@ -9,7 +9,10 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditGround, HumanFoot } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanAuditGround,
+  HumanFoot,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

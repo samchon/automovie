@@ -12,12 +12,14 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanGetDressed,
-  HUMAN_LEXICON,
   HumanChain,
-  HumanHand,
   HumanPerformance,
-  HumanPropFrame,
 } from "@automovie/motions";
+import {
+  HUMAN_LEXICON,
+  HumanHand,
+  HumanPropFrame,
+} from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";
@@ -117,9 +119,9 @@ export function test_motion_fall_arrest(): void {
         },
       ],
       laws: [
-      ...Object.values(HUMAN_LEXICON).flat(),
-      AutoMovieMotionHumanGetDressed.bindPartner,
-    ],
+        ...Object.values(HUMAN_LEXICON).flat(),
+        AutoMovieMotionHumanGetDressed.bindPartner,
+      ],
       props: [cuffs(officer)],
       composition: officerChain.with(subjectChain).node,
     });

@@ -10,12 +10,14 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanSupport,
-  HUMAN_LEXICON,
   HumanChain,
-  HumanHand,
   HumanPerformance,
-  HumanSport,
 } from "@automovie/motions";
+import {
+  HUMAN_LEXICON,
+  HumanHand,
+  HumanSport,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

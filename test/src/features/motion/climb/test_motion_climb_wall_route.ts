@@ -18,13 +18,15 @@ import type {
 import {
   AutoMovieMotionHumanClimb,
   HumanChain,
-  HumanColliders,
-  HumanHand,
   HumanObject,
-  HumanObstacle,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import {
+  HumanColliders,
+  HumanHand,
+  HumanObstacle,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../../internal/archetypeExtent";

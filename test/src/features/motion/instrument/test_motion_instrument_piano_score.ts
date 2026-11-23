@@ -11,10 +11,10 @@ import type {
 import {
   AutoMovieMotionHumanInstrument,
   HumanChain,
-  HumanFoot,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../../internal/archetypeExtent";

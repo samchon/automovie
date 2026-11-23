@@ -13,11 +13,11 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   AutoMovieMotionClock,
-  AutoMovieMotionHumanStance,
   HumanColliders,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";

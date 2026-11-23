@@ -13,12 +13,8 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-} from "@automovie/motions";
+import { HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import { HUMAN_LEXICON } from "@automovie/motions/internal";
 
 import { diningTable } from "../../internal/diningTable";
 import { everydayTake } from "../../internal/everydayTake";

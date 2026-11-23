@@ -17,8 +17,8 @@ import {
   HumanObject,
   HumanPerformance,
   HumanSignature,
-  chiSau,
 } from "@automovie/motions";
+import { chiSau } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionCombatPair } from "../../internal/motionCombatPair";

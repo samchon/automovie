@@ -12,12 +12,11 @@ import {
   AutoMovieMotionHumanThrowCatch,
   AutoMovieMotionHumanWorkout,
   HumanChain,
-  HumanColliders,
-  HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanColliders, HumanFoot } from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";

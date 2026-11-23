@@ -3,7 +3,7 @@ import type {
   IAutoMovieMark,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { markMotionCaptureCase } from "@automovie/motions";
+import { markMotionCaptureCase } from "@automovie/motions/internal";
 import {
   parseAutoMovieCapturePlanRequest,
   planAutoMovieCapture,

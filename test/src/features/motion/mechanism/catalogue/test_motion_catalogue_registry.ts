@@ -1,12 +1,14 @@
 import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
 import {
   HUMAN_ACTIONS,
-  HUMAN_LEXICON,
-  HUMAN_LEXICON_FAMILIES,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import {
+  HUMAN_LEXICON,
+  HUMAN_LEXICON_FAMILIES,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";

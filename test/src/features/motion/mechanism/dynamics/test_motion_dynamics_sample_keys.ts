@@ -1,9 +1,17 @@
 import { sampleMotion } from "@automovie/engine";
-import type { IAutoMovieMotion, IAutoMovieMotionClock } from "@automovie/interface";
-import { AutoMovieMotionClock as C } from "@automovie/motions";
+import type {
+  IAutoMovieMotion,
+  IAutoMovieMotionClock,
+} from "@automovie/interface";
+import { AutoMovieMotionClock as C } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { joint, keyframe, makeMotion, makePose } from "../../../internal/fixtures";
+import {
+  joint,
+  keyframe,
+  makeMotion,
+  makePose,
+} from "../../../internal/fixtures";
 import { nclose } from "../../../internal/nclose";
 
 /**

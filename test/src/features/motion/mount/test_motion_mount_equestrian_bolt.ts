@@ -7,7 +7,8 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFoot, HumanSignature } from "@automovie/motions";
+import { HumanSignature } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

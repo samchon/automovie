@@ -21,13 +21,15 @@ import {
   AutoMovieMotionHumanPrehension,
   AutoMovieMotionHumanStance,
   HumanChain,
-  HumanHand,
   HumanPerformance,
-  HumanPropFrame,
   HumanRefusal,
-  poseBones,
 } from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+import {
+  HumanHand,
+  HumanPropFrame,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

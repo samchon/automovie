@@ -2,7 +2,7 @@ import type {
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditBalance } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditBalance } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /** The instant read, film seconds. */

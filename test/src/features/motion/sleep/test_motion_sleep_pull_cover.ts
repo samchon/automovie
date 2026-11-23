@@ -17,10 +17,10 @@ import type {
 import {
   AutoMovieMotionHumanSleep,
   HumanChain,
-  HumanColliders,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanColliders } from "@automovie/motions/internal";
 
 import { checkTakeClean } from "../../internal/checkTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";

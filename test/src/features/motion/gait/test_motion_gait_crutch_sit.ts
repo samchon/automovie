@@ -20,12 +20,11 @@ import {
   AutoMovieMotionHumanGait,
   AutoMovieMotionHumanSeat,
   HumanChain,
-  HumanFoot,
-  HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanFoot, HumanHand } from "@automovie/motions/internal";
 
 import { checkTakeClean } from "../../internal/checkTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";

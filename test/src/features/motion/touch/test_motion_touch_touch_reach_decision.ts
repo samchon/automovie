@@ -1,7 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionHumanReach, poseBones } from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanReach,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionContactArmFixture as fixture } from "../../internal/motionContactArmFixture";

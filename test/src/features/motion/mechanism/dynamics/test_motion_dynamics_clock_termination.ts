@@ -8,12 +8,12 @@ import {
   windowSampleTimes,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieMotionHumanConversation } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAuditMotion,
-  AutoMovieMotionHumanConversation,
+  HumanFreedomChoice,
   HumanWater,
-} from "@automovie/motions";
-import { HumanFreedomChoice } from "@automovie/motions/internal";
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { createValidMotion } from "../../../internal/fixtures";

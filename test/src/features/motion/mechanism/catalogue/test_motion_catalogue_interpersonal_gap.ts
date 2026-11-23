@@ -1,5 +1,6 @@
 import type { IAutoMovieMotionHumanEffort } from "@automovie/interface";
-import { AutoMovieMotionHumanGait, HumanEffort } from "@automovie/motions";
+import { AutoMovieMotionHumanGait } from "@automovie/motions";
+import { HumanEffort } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../../internal/throwsError";

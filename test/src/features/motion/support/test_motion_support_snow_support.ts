@@ -22,12 +22,11 @@ import type {
 import {
   AutoMovieMotionHumanRide,
   HumanChain,
-  HumanFoot,
-  HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanFoot, HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { collectTakeClean } from "../../internal/collectTakeClean";

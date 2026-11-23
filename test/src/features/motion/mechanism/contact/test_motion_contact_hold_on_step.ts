@@ -11,12 +11,8 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionManner,
-  HumanChain,
-  HumanObject,
-  HumanVerdicts,
-} from "@automovie/motions";
+import { HumanChain, HumanObject, HumanVerdicts } from "@automovie/motions";
+import { AutoMovieMotionManner } from "@automovie/motions/internal";
 
 import { motionComplaints } from "../../../internal/motionComplaints";
 import { motionHumanBody } from "../../../internal/motionHumanBody";

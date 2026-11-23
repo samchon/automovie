@@ -1,9 +1,8 @@
+import { AutoMovieMotionHumanGait, HumanCue } from "@automovie/motions";
 import {
   AutoMovieMotionClock,
-  AutoMovieMotionHumanGait,
   AutoMovieMotionManner,
-  HumanCue,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

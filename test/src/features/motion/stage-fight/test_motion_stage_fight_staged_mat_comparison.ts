@@ -12,11 +12,11 @@ import {
   AutoMovieMotionHumanCarryPerson,
   AutoMovieMotionHumanGrapple,
   HumanChain,
-  HumanColliders,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanColliders } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";

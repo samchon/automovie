@@ -9,10 +9,10 @@ import type {
 import {
   AutoMovieMotionHumanAcrobatics,
   HumanChain,
-  HumanHand,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";

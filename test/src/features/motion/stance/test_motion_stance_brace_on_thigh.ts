@@ -4,13 +4,13 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMoviePose,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanLean,
-  AutoMovieMotionHumanStance,
   poseBones,
-} from "@automovie/motions";
-import { resolveHumanPosture } from "@automovie/motions/internal";
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionContactArmFixture as fixture } from "../../internal/motionContactArmFixture";
@@ -37,14 +37,15 @@ export function test_motion_stance_brace_on_thigh(): void {
   );
   const entry: IAutoMoviePose = resolveHumanPosture(f.body, rest);
   const original: ReturnType<typeof poseBones> = poseBones(f.body, entry);
-  const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanStance.braceOnThigh(
-    f.body,
-    "right",
-    AutoMovieMotionHumanArm.angles(entry, "right"),
-    2,
-    (s: number): number => (s <= 1 ? s : 2 - s),
-    { start: 0, ready: 1, relax: 1, end: 2 },
-  );
+  const arm: IAutoMovieMotionHumanPrimitive =
+    AutoMovieMotionHumanStance.braceOnThigh(
+      f.body,
+      "right",
+      AutoMovieMotionHumanArm.angles(entry, "right"),
+      2,
+      (s: number): number => (s <= 1 ? s : 2 - s),
+      { start: 0, ready: 1, relax: 1, end: 2 },
+    );
   const before = (): IAutoMovieMotionHumanPosture => rest;
   arm.prepare!(before);
   const held: ReturnType<typeof poseBones> = poseBones(

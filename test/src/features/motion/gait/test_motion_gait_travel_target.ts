@@ -12,15 +12,14 @@ import type {
 import {
   AutoMovieMotionHumanGait,
   AutoMovieMotionHumanRide,
-  HUMAN_LEXICON,
   HumanChain,
   HumanObject,
-  HumanObstacle,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
   HumanVerdicts,
 } from "@automovie/motions";
+import { HUMAN_LEXICON, HumanObstacle } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";

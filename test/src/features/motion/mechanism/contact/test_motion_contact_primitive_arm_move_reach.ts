@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanPrimitive } from "@automovie/interface";
-import { AutoMovieMotionHumanArm } from "@automovie/motions";
+import { AutoMovieMotionHumanArm } from "@automovie/motions/internal";
 
 import { motionContactArmFixture as fixture } from "../../../internal/motionContactArmFixture";
 

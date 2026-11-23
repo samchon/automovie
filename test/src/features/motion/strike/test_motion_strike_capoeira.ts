@@ -10,10 +10,10 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
-  HumanColliders,
   HumanPerformance,
   HumanSignature,
 } from "@automovie/motions";
+import { HumanColliders } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionCombatPair } from "../../internal/motionCombatPair";
