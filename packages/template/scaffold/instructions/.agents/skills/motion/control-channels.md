@@ -8,7 +8,7 @@ A motion hint reaches its receiver through control channels rendered from the pe
 
 Render only the receiver's required channels. Use outlines for edge inputs and scene-projected points for exact tracks.
 
-Material channels, such as base color and roughness, carry only what the forms' materials hold, so they serve only a film that switched on its [detail options](../development/entities.md#detail).
+The installed material channel is the `albedo` pass: each surface's base colour, unlit and on black. It carries only what the forms' materials hold, so it serves only a film that switched on its [detail options](../development/entities.md#detail). No installed pass produces roughness or metalness.
 
 Read the installed packages' documentation for what each channel outputs, because a mode name or a plausible image does not establish the representation another tool expects. When no installed path produces an essential channel, tell the user.
 

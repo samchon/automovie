@@ -14,7 +14,7 @@ Resolves an unknown mode before mutation and restores boundary suspensions if it
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Explains all six modes, semantic/legacy mask distinction, frame-independent depth default, outline extrusion, pose population gap, caller options and the returned restoration obligation.
+Explains all seven modes, the albedo pass's per-material base-colour override, semantic/legacy mask distinction, frame-independent depth default, outline extrusion, pose population gap, caller options and the returned restoration obligation.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

@@ -20,18 +20,28 @@ const caught: (operation: () => void) => unknown = (
 };
 
 /**
- * A failed resource listener cannot retain a structural override or skip its neighboring scene state. Existing real materials and their disposal events exercise that failure while GPU pixels and physical release remain unobserved.
+ * A failed resource listener cannot retain a structural override or skip its
+ * neighboring scene state. Existing real materials and their disposal events
+ * exercise that failure while GPU pixels and physical release remain
+ * unobserved.
  *
  * Scenarios:
- * 1. Empty and successful restoration sets finish without altering error state.
- * 2. Primary, single, multiple and nested errors retain every independent failure while all later operations still execute.
- * 3. Depth, normal, mask and outline dispose failures still restore original materials, fog, environment, background and non-mesh visibility.
- * 4. Pose geometry disposal failure removes the overlay and restores original mesh visibility and scene state; repeated failed restores keep their original cause without repeating real disposal events.
- * 5. A generic subtree shares geometry and standard/custom shadow materials; the collector names each distinct owner once and adds the shared texture only when decoded textures are owned.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Exercises independent restoration, actual Three disposal events, source-state restoration and owned-resource collection. Failed depth/normal/mask/outline/pose restores must retain their original error and attempt each owned disposal only once; neighboring owners and borrowed scene state must still restore.
+ * 1. Empty and successful restoration sets finish without altering error state.
+ * 2. Primary, single, multiple and nested errors retain every independent failure
+ *    while all later operations still execute.
+ * 3. Depth, normal, mask, outline and albedo dispose failures still restore
+ *    original materials, fog, environment, background and non-mesh visibility.
+ * 4. Pose geometry disposal failure removes the overlay and restores original mesh
+ *    visibility and scene state; repeated failed restores keep their original
+ *    cause without repeating real disposal events.
+ * 5. A generic subtree shares geometry and standard/custom shadow materials; the
+ *    collector names each distinct owner once and adds the shared texture only
+ *    when decoded textures are owned.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises independent restoration, actual Three disposal events, source-state restoration and owned-resource collection. Failed depth/normal/mask/outline/albedo/pose restores must retain their original error and attempt each owned disposal only once; neighboring owners and borrowed scene state must still restore.
  * @evidence contracts/development/testing.md#independent-expectations Original material/scene object identities and independently recorded dispose events define restoration and ownership. Box resources are actual Three objects without a renderer, so these assertions do not prove hardware pixels, anatomical validity, kernel memory release or physical process shutdown.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers empty/successful restoration, primary/single/multiple/opaque aggregate failures, four material passes plus pose, shared custom-shadow resources, borrowed versus decoded textures and an empty subtree. Shader appearance and actual browser lifecycle remain separate observation obligations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers empty/successful restoration, primary/single/multiple/opaque aggregate failures, five material passes plus pose, shared custom-shadow resources, borrowed versus decoded textures and an empty subtree. Shader appearance and actual browser lifecycle remain separate observation obligations.
  * @evidence contracts/development/testing.md#execution-ownership This named unit entry calls production source through existing exports, with real CPU-side Three objects and their own event listeners. It creates no browser, GPU, native process, Human model, new probe or dynamic test registration.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty and successful restoration sets finish without altering error state.).
  */
@@ -102,7 +112,13 @@ export function test_viewer_render_mode_restoration(): void {
       ]),
     ) === emptyAggregate,
   );
-  for (const pass of ["depth", "normal", "mask", "outline"] as const) {
+  for (const pass of [
+    "depth",
+    "normal",
+    "mask",
+    "outline",
+    "albedo",
+  ] as const) {
     const scene: THREE.Scene = new THREE.Scene(),
       geometry: THREE.BoxGeometry = new THREE.BoxGeometry(),
       material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial(),

@@ -1,19 +1,27 @@
 /**
  * One beauty or structural render pass over an engine frame.
  *
- * `beauty` delivers the ordinary shaded film frame. Structural passes support inspection and can also supply external conditioning; each name selects the viewer projection of the current scene:
+ * `beauty` delivers the ordinary shaded film frame. Structural passes support
+ * inspection and can also supply external conditioning; each name selects the
+ * viewer projection of the current scene:
  *
  * - `beauty`: the ordinary shaded render and the default preview.
  * - `depth`: grays linear in camera-space distance over a scene-stable metric
  *   range rather than the clip planes, with a black background for infinite
  *   distance; the depth hint.
- * - `mask`: flat unlit colours per semantic entity, or per top-level scene
- *   child when the scene carries no semantic palette; the segmentation hint.
+ * - `mask`: flat unlit colours per semantic entity, or per top-level scene child
+ *   when the scene carries no semantic palette; the segmentation hint.
  * - `normal`: the unlit surface-normal render; the normal-map hint.
  * - `outline`: white inverted-hull silhouette contours on black, with no host
  *   post-processing; the line hint.
- * - `pose`: meshes hidden and every bone-to-child segment drawn over black;
- *   the pose hint.
+ * - `pose`: meshes hidden and every bone-to-child segment drawn over black; the
+ *   pose hint.
+ * - `albedo`: every mesh drawn unlit in its material's base colour, the colour
+ *   factor times the base-colour texture where the material has one, encoded to
+ *   sRGB once, on black, with no light, environment, shadow, fog or tone
+ *   mapping; alpha-test cutouts are kept, a surface the beauty pass skips stays
+ *   hidden and every other surface is opaque; the material channel. Roughness,
+ *   metalness and emission are not produced.
  *
  * The closed union makes an unknown pass name a type error at the authoring
  * surface; render's `AUTOMOVIE_GUIDE_PASSES` carries the matching runtime list
@@ -36,4 +44,7 @@ export type AutoMovieGuidePass =
   | "outline"
 
   /** Bone segments over black with meshes hidden. */
-  | "pose";
+  | "pose"
+
+  /** Unlit material base colour on black. */
+  | "albedo";

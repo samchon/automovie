@@ -12,14 +12,18 @@ import { createDisplayCompositionRenderer } from "../internal/createDisplayCompo
 import { nclose } from "../internal/predicates";
 
 /**
- * The sampled-film consumer separates beauty weights from structural samples and refuses invalid admission before changing the previous display.
+ * The sampled-film consumer separates beauty weights from structural samples
+ * and refuses invalid admission before changing the previous display.
  *
  * Scenarios:
+ *
  * 1. Direct, fade and dissolve call their exact sampled source and pass owner.
  * 2. Every structural pass uses Engine's dominant sample and incoming tie rule.
  * 3. Invalid cardinality and weights refuse before a callback mutates display.
  * 4. Empty/invalid dimensions refuse, with positive resize recovering normally.
- * 5. Null context attributes remain supported, while disposal attempts all resources, retains failed closed ownership and preserves its completion without retry, while successful ended ownership is removed.
+ * 5. Null context attributes remain supported, while disposal attempts all
+ *    resources, retains failed closed ownership and preserves its completion
+ *    without retry, while successful ended ownership is removed.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Invokes the real film/pass boundary and compositor ownership paths with the existing controlled renderer, then observes actual Three texture disposal events and registry residency; catches malformed sampling mutation, skipped release, failure-erased ownership and native release retries without claiming GPU pixel parity.
  * @evidence contracts/development/testing.md#independent-expectations Authored source callbacks pin sample/pass order, engine dominant-sample rule pins structural ties, and supplied Error identities/dispose counts pin one attempt per owner; closed failure must stay in potential residency rather than disappear because a registry entry was deleted.
@@ -111,7 +115,14 @@ export function test_viewer_film_display_boundary(): void {
         },
       ),
   );
-  for (const pass of ["depth", "mask", "normal", "outline", "pose"] as const) {
+  for (const pass of [
+    "depth",
+    "mask",
+    "normal",
+    "outline",
+    "pose",
+    "albedo",
+  ] as const) {
     renderAutoMovieFilmFrame(host.renderer, layers, pass, render);
     const actual: (typeof calls)[number] = calls.at(-1)!;
     TestValidator.predicate(

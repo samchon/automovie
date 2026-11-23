@@ -78,16 +78,21 @@ const STRUCTURAL: AutoMovieGuidePass[] = [
   "outline",
   "mask",
   "pose",
+  "albedo",
 ];
 
 /**
- * Structural guide passes hide existing non-mesh renderables before drawing and restore their visibility afterward. This unit reads real Three scene flags and the newly created pose overlay, without measuring rendered guide pixels.
+ * Structural guide passes hide existing non-mesh renderables before drawing and
+ * restore their visibility afterward. This unit reads real Three scene flags
+ * and the newly created pose overlay, without measuring rendered guide pixels.
  *
  * Scenarios:
  *
- * 1. Each structural pass hides the existing non-mesh renderables and restore makes them visible again.
+ * 1. Each structural pass hides the existing non-mesh renderables and restore
+ *    makes them visible again.
  * 2. `beauty` leaves every non-mesh renderable visible (no override at all).
- * 3. Pose hides existing helpers while keeping its own subsequently added skeleton overlay visible.
+ * 3. Pose hides existing helpers while keeping its own subsequently added skeleton
+ *    overlay visible.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Applies each structural mode to a built scene carrying actual grid/line/point/sprite objects and restores it, then checks a newly created pose overlay separately; catches helper visibility bleeding into guides or suspension hiding the pass's own overlay.
  * @evidence contracts/development/testing.md#independent-expectations Original visibility flags and the fixed pre-existing helper population define expected hide/restore behavior; beauty preserves those flags and pose creates its own overlay after suspension. These object-state checks do not observe pixels or submitted draws.
