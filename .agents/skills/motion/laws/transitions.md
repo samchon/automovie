@@ -2,7 +2,7 @@
 
 ## Pose by time
 
-Prepare the path, events, active constraints and required physical response once. Carry resolved entry state through cuts and layers. Sample poses as `f(plan, t)` in any order using time curves, carrier-relative transforms and any direct fit needed at that instant. Share the evaluated pose across consumers.
+Prepare the path, events, active constraints and required physical response once. Carry resolved entry state through cuts and layers. Sample poses as a light `f(plan, t)` in any order: evaluate only what the caller reads at that instant, from time curves, carrier-relative transforms and any direct fit needed there. Pass an evaluated pose to its consumers; never cache or memoize samples. Move the time-independent work of a slow sample into preparation.
 
 Use closed-form paths and fits where they satisfy the constraints. Limit coupled search to the interval and degrees of freedom that need it and resolve it during preparation. Retain event states, curves or solver trajectories that preserve the checked result between events.
 
