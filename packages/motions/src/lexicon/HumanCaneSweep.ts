@@ -57,7 +57,7 @@ interface ITouch {
 }
 
 /**
- * Sweep a long cane while walking (#3994), performed over the walk. The
+ * Sweep a long cane while walking, performed over the walk. The
  * cane hand is held at the midline, `AHEAD` of the forearm before the hips
  * at the waist's height (the hand's place in the walker's moving frame).
  * The walk's own steps are read from its posture at `RATE`: each instant a
