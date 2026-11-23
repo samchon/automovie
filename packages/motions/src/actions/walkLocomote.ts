@@ -22,6 +22,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSkill } from "../skill/HumanSkill";
+import { WALK_TICK } from "./WALK_TICK";
 import { runStance } from "./runStance";
 import { walk } from "./walk";
 import { walkCarriage } from "./walkCarriage";
@@ -39,7 +40,7 @@ import { walkReach } from "./walkReach";
 import { walkStation } from "./walkStation";
 import { walkSteps } from "./walkSteps";
 import { walkSupportHeight } from "./walkSupportHeight";
-import { TICK, walkSwing } from "./walkSwing";
+import { walkSwing } from "./walkSwing";
 import { walkWindows } from "./walkWindows";
 
 /** The already evaluated pelvis at the current action second. */
@@ -283,7 +284,7 @@ export function walkLocomote(
               0,
               sampled,
               undefined,
-              end(side, swing.off - TICK, resolution).ankle,
+              end(side, swing.off - WALK_TICK, resolution).ankle,
             ),
             reaching(side, swing, 1, sampled),
           ];
@@ -376,8 +377,14 @@ export function walkLocomote(
   // The landings of footfalls taken in place at the arrival, by foot and heel strike.
   const turning: ReadonlySet<string> = new Set(
     steps.stances
-      .filter((s: IAutoMovieMotionHumanWalkSteps.IStance): boolean => s.inPlace === true)
-      .map((s: IAutoMovieMotionHumanWalkSteps.IStance): string => `${s.side}:${s.from}`),
+      .filter(
+        (s: IAutoMovieMotionHumanWalkSteps.IStance): boolean =>
+          s.inPlace === true,
+      )
+      .map(
+        (s: IAutoMovieMotionHumanWalkSteps.IStance): string =>
+          `${s.side}:${s.from}`,
+      ),
   );
   // Each swing's departure excess: how far its leg's reach moves the stance
   // it leaves, settled at its toe-off; none for a stance left inside it. A
@@ -529,24 +536,29 @@ export function walkLocomote(
         return posture;
       // A long held prop is carried tip raised ahead, lowered to a plant
       // the walk is cut into (`walkPoleCarriage`).
-      return walkPoleCarriage.write(body, HumanArmSwing.carry(
-        posture,
-        (carried ??= walkCarriage.of(
-          body,
-          steps.events,
-          duration,
-          (
-            at: number,
-            _channels?: Parameters<
-              IAutoMovieMotionHumanActionPlan["posture"]
-            >[1],
-            read?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-          ): IAutoMovieMotionHumanPosture =>
-            unswung(at, undefined, undefined, read),
-          resolution,
-          projection,
-        )),
-      ), poles, seconds);
+      return walkPoleCarriage.write(
+        body,
+        HumanArmSwing.carry(
+          posture,
+          (carried ??= walkCarriage.of(
+            body,
+            steps.events,
+            duration,
+            (
+              at: number,
+              _channels?: Parameters<
+                IAutoMovieMotionHumanActionPlan["posture"]
+              >[1],
+              read?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+            ): IAutoMovieMotionHumanPosture =>
+              unswung(at, undefined, undefined, read),
+            resolution,
+            projection,
+          )),
+        ),
+        poles,
+        seconds,
+      );
     },
   };
 

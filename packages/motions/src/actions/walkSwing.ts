@@ -9,11 +9,15 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
+import { WALK_TICK } from "./WALK_TICK";
 import { walkFoot } from "./walkFoot";
 import { walkSteps } from "./walkSteps";
 
 /** Swing endpoints in action seconds. */
-type Swing = Pick<NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>, "off" | "on">;
+type Swing = Pick<
+  NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>,
+  "off" | "on"
+>;
 
 /** A swing evaluated at its normalized time from toe-off to heel strike. */
 type ReadSwing = (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot;
@@ -29,7 +33,7 @@ interface IArrival {
 
 /**
  * Prepare a swing from the stance reader that owns its endpoints: the
- * departure, its predecessor a `TICK` earlier and the arrival are read once,
+ * departure, its predecessor a `WALK_TICK` earlier and the arrival are read once,
  * and the returned reader evaluates the swing at any share of it.
  *
  * @param body The plan's fixed body.
@@ -48,15 +52,26 @@ interface IArrival {
  */
 export function walkSwing(
   body: IAutoMovieMotionHumanBody,
-  gait: Pick<IAutoMovieMotionHumanWalkGait, "lift" | "stiff" | "swing" | "toeClearance" | "width">,
-  at: (side: "left" | "right", seconds: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => walkFoot.IEnd,
-  closing: (side: "left" | "right", on: number) => boolean = (): boolean => false,
+  gait: Pick<
+    IAutoMovieMotionHumanWalkGait,
+    "lift" | "stiff" | "swing" | "toeClearance" | "width"
+  >,
+  at: (
+    side: "left" | "right",
+    seconds: number,
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+  ) => walkFoot.IEnd,
+  closing: (side: "left" | "right", on: number) => boolean = (): boolean =>
+    false,
 ): (
   side: "left" | "right",
   swing: Swing,
   resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
 ) => ReadSwing {
-  const readers: Record<AutoMovieHumanSide, Map<number, IArrival>> = { left: new Map(), right: new Map() };
+  const readers: Record<AutoMovieHumanSide, Map<number, IArrival>> = {
+    left: new Map(),
+    right: new Map(),
+  };
   return (
     side: "left" | "right",
     swing: Swing,
@@ -72,8 +87,12 @@ export function walkSwing(
     // 4.8 degrees and 12.6 mm off its stance a tick before), and the rates
     // read across that seam carried the swing's foot past upright and its
     // ankle away behind the running hip.
-    const before: walkFoot.IEnd = at(side, swing.off - TICK, resolution);
-    const earlier: walkFoot.IEnd = at(side, swing.off - 2 * TICK, resolution);
+    const before: walkFoot.IEnd = at(side, swing.off - WALK_TICK, resolution);
+    const earlier: walkFoot.IEnd = at(
+      side,
+      swing.off - 2 * WALK_TICK,
+      resolution,
+    );
     const from: walkFoot.IEnd = {
       ankle: Vector3.add(
         before.ankle,
@@ -96,26 +115,32 @@ export function walkSwing(
       (gait.width ?? walkSteps.WIDTH) * body.measure.hipHeight,
       from.ankle,
       to.ankle,
-      at(side === "left" ? "right" : "left", (swing.off + swing.on) / 2, resolution),
+      at(
+        side === "left" ? "right" : "left",
+        (swing.off + swing.on) / 2,
+        resolution,
+      ),
     );
     const read: ReadSwing = walkFoot.prepareSwing(body, side, {
       from,
       velocity: Vector3.scale(
         Vector3.subtract(before.ankle, earlier.ankle),
-        1 / TICK,
+        1 / WALK_TICK,
       ),
       rates: {
         pitch:
           (HumanFoot.pitch(before.rotation) -
             HumanFoot.pitch(earlier.rotation)) /
-          TICK,
-        toes: (before.toes - earlier.toes) / TICK,
+          WALK_TICK,
+        toes: (before.toes - earlier.toes) / WALK_TICK,
       },
       to,
       ...(bow === undefined ? {} : { bow }),
       seconds: swing.on - swing.off,
       lift: gait.lift,
-      ...(gait.toeClearance === undefined ? {} : { clearance: gait.toeClearance }),
+      ...(gait.toeClearance === undefined
+        ? {}
+        : { clearance: gait.toeClearance }),
       stiff: gait.stiff === side,
       // A walking foot sets down at rest; a running one strikes moving,
       // except into a closing stance, which lands flat to bear a body coming
@@ -154,11 +179,18 @@ function passing(
   const forward: IAutoMovieVector3 = { x: Math.sin(r), y: 0, z: Math.cos(r) };
   // The swinging foot's own side of the stance foot.
   const sign: number = side === "left" ? 1 : -1;
-  const out: IAutoMovieVector3 = { x: sign * Math.cos(r), y: 0, z: -sign * Math.sin(r) };
-  const along: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
+  const out: IAutoMovieVector3 = {
+    x: sign * Math.cos(r),
+    y: 0,
+    z: -sign * Math.sin(r),
+  };
+  const along: (p: IAutoMovieVector3) => number = (
+    p: IAutoMovieVector3,
+  ): number =>
     (p.x - stance.ankle.x) * forward.x + (p.z - stance.ankle.z) * forward.z;
-  const aside: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
-    (p.x - stance.ankle.x) * out.x + (p.z - stance.ankle.z) * out.z;
+  const aside: (p: IAutoMovieVector3) => number = (
+    p: IAutoMovieVector3,
+  ): number => (p.x - stance.ankle.x) * out.x + (p.z - stance.ankle.z) * out.z;
   const a0: number = along(from);
   const a1: number = along(to);
   if (!(a0 < 0 && a1 > 0)) return undefined;
@@ -174,6 +206,3 @@ function passing(
   const at: number = Math.min(0.75, Math.max(0.25, u));
   return Vector3.scale(out, short / Math.sin(Math.PI * at) ** 2);
 }
-
-/** Seconds before toe-off over which a stance's departure rates are read: a backward difference over a millisecond, far under a stance's tenths of a second, whose endpoints are settled to the reach owner's nanometre root tolerance. */
-export const TICK: number = 1e-3;
