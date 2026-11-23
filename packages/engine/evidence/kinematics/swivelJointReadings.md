@@ -120,7 +120,7 @@ States the cone's condition on the two cosines, which sinusoids give them, the a
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-`swingConeAngle` is `2 acos(cos(f/2) cos(a/2))` and `4 cos²(f/2) cos²(a/2) = (1 + cos f)(1 + cos a)`; the middle angle's cosine is `sqrt(1 - s²)` and the outer angle's vector `x` is that cosine times its own, as the decomposition reads them; the alternate chart's half turns negate both cosines.
+The cone `swingConeAngle` is `2 acos(cos(f/2) cos(a/2))` and `4 cos²(f/2) cos²(a/2) = (1 + cos f)(1 + cos a)`; the middle angle's cosine is `sqrt(1 - s²)` and the outer angle's vector `x` is that cosine times its own, as the decomposition reads them; the alternate chart's half turns negate both cosines.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
