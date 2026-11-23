@@ -23,20 +23,10 @@ type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
  * Lateral recumbency with the limbs extended, as a mare lies during the expulsion of a foal (MSD Veterinary Manual, parturition in horses), and the rise from it.
  *
  * The lying pose is the halted body itself turned a quarter about its long axis through its trunk's centre onto the given side, every joint kept as it stood so all four limbs lie extended, and set down so its lowest part rests on the floor. The horse goes down into it over the authored seconds by blending its halted pose into the lying one on a minimum-jerk share, held on the floor by its lowest part (`EquineBlend`), holds still, and rises back by the reverse blend. The lower limbs, which stand out a little from the barrel's side, bear with the flank.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the lying pose, its source, the transitions and what bears.
- * @evidence contracts/development/design.md#principled-representation A ride in and a ride out on the same clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One entry and its cue.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The pose is the halted body turned rigidly; no limb is refolded.
  */
 export namespace EquineRecumbency {
   /**
    * When and onto which side the horse lies.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Film seconds and the side it lies on.
-   * @evidence contracts/development/design.md#principled-representation A start, a side, a transition length and a hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `after` takes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ICue {
     /** Film second it starts going down, halted. */
@@ -60,14 +50,6 @@ export namespace EquineRecumbency {
    * @param cue When and how.
    * @returns The ride with the recumbency over its halt.
    * @throws {AutoMovieArchetypeRefusal} For a start before the halt or a transition or hold that is not finite and positive (the hold may be zero).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Turn the halted placement a quarter about the trunk's long axis, set it on the floor by its lowest part, then sample the blend down, the hold and the blend up.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lying placement, a four-phase sampler.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing passes under the floor: the blend is held on it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(P + A) per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared pose blend and floor reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the base ride and the halt.
    */
   export function after<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,

@@ -39,11 +39,6 @@ const v: typeof Vector3.create = Vector3.create;
 
 /**
  * The sport-stick draw and contacts shared by the individual shape producers.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the original stick draw namespace and the model record it preserves.
- * @evidence contracts/development/design.md#principled-representation Keeps dimensions in metres and mass in kilograms with the original per-kind bands and provenance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One draw and its tables serve the public producers and the saved-recipe dispatcher.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The same draw records bands, fixed figures and model choices.
  */
 export namespace StickBuild {
   /** The units of the recorded stick dimensions. */
@@ -166,11 +161,6 @@ export namespace StickBuild {
 
   /**
    * What {@link draw} prepares for its caller.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the builder and the drawn dimensions draw returns, in the family's recorded units.
-   * @evidence contracts/development/design.md#principled-representation The builder typed by the caller's contact ids and the draw's own dimension record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the named producers read after draw.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional where every call sets it.
    */
   export interface IDrawResult<Id extends createStick.Affordance> {
     /** The prepared `builder` this call returns. */
@@ -182,14 +172,6 @@ export namespace StickBuild {
 
   /**
    * Draw a stick profile in its original seed domain and prepare its builder.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the compatibility draw and the local model it fills.
-   * @evidence contracts/development/implementation.md#principled-implementation Each sport uses its own cited bands and the retained model coordinates.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keep draw and model assembly together, separate from shape construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserve the published parameter checks and contact conventions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One draw pass over the profile's bands and one construction pass.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the dimension checks and composite material of the four sports profiles.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or draw state between calls.
    */
   export function draw<Id extends createStick.Affordance>(
     kind: createStick.Kind,
@@ -214,11 +196,6 @@ export namespace StickBuild {
 
   /**
    * The values {@link contacts} accepts at this place in its signature.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of contacts.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only contacts and its callers read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
    */
   export type ContactsSymmetry = "half" | "round";
 
@@ -232,14 +209,6 @@ export namespace StickBuild {
    * @param faceWidth The width of the playing face along X, in metres.
    * @param symmetry The grip symmetry from the shaft's section.
    * @param aperture The measured grasp aperture in metres when the profile gives one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the shaft span, measured playing face and aperture options.
-   * @evidence contracts/development/implementation.md#principled-implementation The grip spans the shaft above the working end. The blade's outward normal follows the local face.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Put one affordance on the shaft and one affordance on the face.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keep the measured head and face anchors. Retain the absence of an aperture on the cricket handle.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The fixed grip and face each contribute one frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shaft and face frames are common to four shapes. Each shape supplies its own face position and width.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or draw state between calls.
    */
   export function contacts(
     builder: AutoMovieArchetypeBuilder<

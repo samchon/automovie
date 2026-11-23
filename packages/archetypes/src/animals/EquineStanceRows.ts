@@ -53,20 +53,10 @@ const FOLDS: Readonly<Record<Fold, readonly [number, number, number, number]>> =
  * The rows of the stance: for each response, the whole-body pose at each share of its performance.
  *
  * A row's share runs from 0 at its entry to 1 at its hold. A response that returns plays the same shares back through its exit; a step aside goes on from 1 to 2 through its exit, settling its weight over the hooves it stepped to. Before a hoof leaves the floor the trunk first carries the proxy centre of mass inside the triangle of the hooves that stay (`EquineStanceSupport.transfer`), and a rear or a buck first lowers the haunches or the forehand onto the supports that stay; the released limb then folds from where it was released, so the pose is continuous there.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the share convention, the weight transfer before each release and the continuity at release.
- * @evidence contracts/development/design.md#principled-representation A start state, an end state and a pose as a function of share.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `AutoMovieArchetypeEquineStance`; each response is one row.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every amplitude is a named authored value.
  */
 export namespace EquineStanceRows {
   /**
    * Where the stance stands: the trunk's motion and the four hoof anchors.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The trunk's rigid motion from the rest model and the anchors in the base model's space, metres.
-   * @evidence contracts/development/design.md#principled-representation A motion and four points.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each row's start and end.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IState {
     /** The trunk's motion. */
@@ -80,11 +70,6 @@ export namespace EquineStanceRows {
 
   /**
    * A support event: a hoof leaving or meeting the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The label, which phase it falls in and its fraction of that phase's time.
-   * @evidence contracts/development/design.md#principled-representation A label, a phase flag and a time fraction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Turned into instants by the stance.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IEvent {
     /** The instant's label. */
@@ -99,11 +84,6 @@ export namespace EquineStanceRows {
 
   /**
    * One response planned from a state.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The cue, its start and end states, its pose by share, the shares admitted and its support events.
-   * @evidence contracts/development/design.md#principled-representation A record with a pose function.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IPlan {
     /** The response. */
@@ -123,27 +103,11 @@ export namespace EquineStanceRows {
 
     /**
      * The pose at a share.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Share 0 to 1, or to 2 for a step aside.
-     * @evidence contracts/development/implementation.md#principled-implementation The row's interpolation of trunk motion and limb states.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose per share.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Release chains are computed once when planned.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     goal(share: number): EquineBodyPose.IGoal;
 
     /**
      * The pose at a second into the hold, for a response that moves while held, such as an air's leaps; absent, the hold keeps the pose at share 1.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Seconds from the hold's start.
-     * @evidence contracts/development/implementation.md#principled-implementation The row's own motion through its hold.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose per second.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the row's planned chains.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     hold?(seconds: number): EquineBodyPose.IGoal;
   }
@@ -153,14 +117,6 @@ export namespace EquineStanceRows {
    *
    * @param state The state.
    * @returns Every hoof on its anchor under the state's trunk.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Four placed limbs at zero fold.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every row.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function still(state: IState): EquineBodyPose.IGoal {
     return {
@@ -176,14 +132,6 @@ export namespace EquineStanceRows {
    * @param start The state it starts from.
    * @param cue The response.
    * @returns Its plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and output.
-   * @evidence contracts/development/implementation.md#principled-implementation Shifts translate the trunk over planted hooves; a lift first carries the proxy centre of mass inside the remaining supports, then folds the released limb from its release chain; a step aside does that for each hoof in turn and swings it on a lifted minimum-jerk path; a rear or a buck pitches about the shoulders or hips to gather, then about the hips or shoulders to lift.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per response kind.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pitch outside (0, 90) degrees is not planned: the stance refuses it as unreachable.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Release chains are solved once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its states and chains.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,

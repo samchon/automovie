@@ -7,20 +7,10 @@ import type { createQuadruped } from "./createQuadruped";
  * The timing of a quadruped's gaits: how long a stride lasts and how much of it each foot is on the ground at a speed, and when in the stride each foot lands, read from its species' declared observed, derived or authored table and scaled to the animal's height by dynamic similarity.
  *
  * A species' `ITable` gives its gaits in order of speed, each with declared stride and stance durations by speed, whose owner states observed, derived or authored provenance, the phase at which each foot lands, how it is changed into from the gait below, and the ranges the ride poses with. Unless the table declares absolute clocks, another height uses the table's stated reference and provisional dynamic similarity (`scale`): read at the speed of equal Froude number and multiplied by the square root of the height ratio. A stride starts when the left fore foot lands; a leaded gait is given on the left lead, and the right lead is its mirror image.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a species gives, how height enters and the stride's zero.
- * @evidence contracts/development/design.md#principled-representation Declared period/contact rows by speed and touchdown fractions describe a gait in SI units; each supplying table owns whether its values are observed statistics, derived representative clocks or authored construction inputs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `rideQuadruped` reads to pose the limbs and name the footfalls, and what a riding act reads to lock a rising trot to a diagonal (#3352).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No fitted curve stands in for the rows; a speed outside a gait's declared range, or a gait the species has no table for, is refused.
  */
 export namespace AutoMovieArchetypeQuadrupedGait {
   /**
    * The gaits.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is.
-   * @evidence contracts/development/design.md#principled-representation The supported gait vocabulary, as a closed union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; a parameter of `rideQuadruped` and the key of every species' table.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
    */
   export type Gait =
     | "walk"
@@ -59,21 +49,11 @@ export namespace AutoMovieArchetypeQuadrupedGait {
 
   /**
    * The sides a leaded gait leads on.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it names.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the two leads.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; a stride's lead.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
    */
   export type Lead = "left" | "right";
 
   /**
    * One stride's gait and lead.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is.
-   * @evidence contracts/development/design.md#principled-representation The two choices a stride is taken at.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; read by `phase`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IStride {
     /** The gait. */
@@ -85,11 +65,6 @@ export namespace AutoMovieArchetypeQuadrupedGait {
 
   /**
    * One declared SI clock point: speed, period, timing spread and contact durations; its table owner identifies observed, derived or authored values.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation One declared speed in metres per second, with period, spread and fore/hind contact durations in seconds; the table owner distinguishes experimental statistics, derived representative clocks and explicit authoring.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the element of `IGait.rows`, read by `timing`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No provenance is inferred from the schema; the source table must distinguish measurements, derivations and author inputs.
    */
   export interface IRow {
     /** Speed, metres per second. */
@@ -110,11 +85,6 @@ export namespace AutoMovieArchetypeQuadrupedGait {
 
   /**
    * One declared gait of a species: its clock rows, its footfalls, how it is changed into, and the ranges the ride poses with.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation The gait's clock and pose variables in seconds, metres, degrees and fractions; their observed, derived or authored origin belongs to the supplying table.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; each species states its own in its `ITable`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None; a value one gait borrows from another says so where the species states it.
    */
   export interface IGait {
     /** Declared clock rows in strictly increasing speed order; the source table states their provenance. */
@@ -144,11 +114,6 @@ export namespace AutoMovieArchetypeQuadrupedGait {
 
   /**
    * A swing height named by the limb's own anatomical landmarks rather than by a share of the withers height.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the coordinate, its two ends and that the ride reads it from the rig.
-   * @evidence contracts/development/design.md#principled-representation One unitless coordinate per limb end along the neutral cannon, so the height scales with the animal's own segments.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read only by the ride's swing lift for gaits whose source states heights by landmark, such as the FEI passage and piaffe.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Admission keeps each coordinate inside zero to one; no withers fraction is fitted to stand in for the landmark.
    */
   export interface IElevation {
     /** Fore toe height along the fore cannon, 0 at the fetlock and 1 at the carpus. */
@@ -160,11 +125,6 @@ export namespace AutoMovieArchetypeQuadrupedGait {
 
   /**
    * A species' gaits.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation Gaits by name in speed order, a declared scaling reference and the cross-gait controls; imported source tables own observed statistics, derived clocks and authored construction values.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; a species' `createQuadruped.ISpecies.table`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ITable {
     /** The species' automatically selected gaits, slowest first. */
@@ -194,11 +154,6 @@ export namespace AutoMovieArchetypeQuadrupedGait {
 
   /**
    * The timing of a gait at a speed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation A gait's timing at a speed: stride time and its deviation in seconds, and the duty factor, a fraction between 0 and 1.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by `timing` and read by `rideQuadruped`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ITiming {
     /** Stride time, seconds. */
@@ -221,14 +176,6 @@ export namespace AutoMovieArchetypeQuadrupedGait {
    * @param gait The gait.
    * @returns The gait's table.
    * @throws {AutoMovieArchetypeRefusal} When the species has no such gait, listing those it has.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A lookup in the species' table.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find, or refuse with the alternatives.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A gait the species lacks is refused, never borrowed from another species.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(species: createQuadruped.ISpecies, gait: Gait): IGait {
     const found: IGait | undefined = species.table.gaits[gait];
@@ -254,14 +201,6 @@ export namespace AutoMovieArchetypeQuadrupedGait {
    * @param species The species.
    * @param withers The animal's height at the withers, metres.
    * @returns The factor; 1 at the declared reference height, and at every height for absolute tables.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the similarity rule, its sources, what stands for leg length and how far it falls short of a measured case.
-   * @evidence contracts/development/implementation.md#principled-implementation The existing square-root rule is unchanged by default; an absolute table preserves its declared seconds and speeds without inferring an experimental reference height.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One square root.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No factor is fitted to the warmblood figures; the shortfall is stated instead.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function scale(
     species: createQuadruped.ISpecies,
@@ -279,14 +218,6 @@ export namespace AutoMovieArchetypeQuadrupedGait {
    * @param withers The animal's withers height in metres; the table's declared reference when absent.
    * @returns The least and greatest speed, metres per second.
    * @throws {AutoMovieArchetypeRefusal} When the species has no such gait.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the range is and how height enters.
-   * @evidence contracts/development/implementation.md#principled-implementation The first and last declared rows' speeds times `scale`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two lookups and one factor.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of` and `scale`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function range(
     species: createQuadruped.ISpecies,
@@ -311,14 +242,6 @@ export namespace AutoMovieArchetypeQuadrupedGait {
    * @param withers The animal's withers height, metres; the declared reference when absent. Absolute tables preserve their clocks without a measured-height claim.
    * @returns Declared stride time, timing spread and fore duty, with separate hind duty when supplied. Duties are ratios of interpolated contact durations to period, not a claim to reproduce independently averaged biological statistics. Height similarity remains provisional as `scale` states.
    * @throws {AutoMovieArchetypeRefusal} When the species has no such gait, the speed lies outside the gait's range for that height, giving the range, the tempo lies outside -1 to 1, or the height is not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units and ranges, what height does, that scaled values are provisional and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Read the bracket at speed over scale, interpolate declared period/contact durations, and apply the table's scaling rule. Fore and optional hind duty are each contact duration over the common declared period; a missing hind row retains that row's prior fore approximation. Legacy tables emit no new field.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit height, tempo and speed, find the bracket, interpolate the common times and optional hind stance, then return their ratios.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is extrapolated beyond the rows.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A linear scan in the declared row count; authored tables have no inferred experimental row-count bound.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of`, `scale` and `range`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function timing(
     species: createQuadruped.ISpecies,
@@ -416,14 +339,6 @@ export namespace AutoMovieArchetypeQuadrupedGait {
    * @param limb The foot.
    * @returns The phase, 0 to 1.
    * @throws {AutoMovieArchetypeRefusal} When the species has no such gait.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the zero and the mirror.
-   * @evidence contracts/development/implementation.md#principled-implementation The right lead is the left lead's mirror image: each foot takes its opposite's phase, shifted so the left fore still lands at 0.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup, or a mirrored lookup and a shift.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function phase(
     species: createQuadruped.ISpecies,

@@ -22,20 +22,10 @@ const MASS: number = 7;
  * The prop keeps the saddled horse's model frame: every rigid part a saddled horse has and the same horse untacked or bareback lacks (the saddle tree, its leathers and stirrups) is laid again at its own place, so laying the prop's `seat` on the horse's `saddle` socket (`AutoMovieArchetypeEquineCare`) puts every part exactly where the producer saddles it. Flexible spans such as reins stay with the horse. `grip` is the near (left) edge of the saddle tree, where a hand carries and lays the saddle from the horse's near side.
  *
  * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the prop is made of, its frame, why the seat fits the socket, what stays with the horse and its contacts.
- * @evidence contracts/development/design.md#principled-representation A model of the saddle parts in the saddled horse's model frame, with a seat at its origin.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One producer read by a scene that saddles a horse.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No saddle geometry is redrawn: every part is the producer's own.
  */
 export namespace AutoMovieArchetypeEquineSaddleProp {
   /**
    * The contacts: `grip`, the saddle tree's near edge a hand carries the saddle by; `seat`, the saddle's frame, laid on the horse's `saddle` socket.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names both contacts.
-   * @evidence contracts/development/design.md#principled-representation Closed literals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a carrying and placing scene names.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Affordance = "grip" | "seat";
 
@@ -46,14 +36,6 @@ export namespace AutoMovieArchetypeEquineSaddleProp {
    * @param bare The same horse without it, untacked or bareback.
    * @returns The saddle prop.
    * @throws {RangeError} When the saddled horse has no box saddle tree or a saddle part is not a primitive box, bar or ball.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The saddle's parts are the saddled model's rigid parts missing from the bare model; each is laid again as the same primitive at the same transform.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Difference of part sets, one primitive each, two contacts, build.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Spans are left out by the model's own span list; an unsupported part refuses.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the producer's own saddle geometry.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new model and retains nothing.
    */
   export function of(
     saddled: AutoMovieArchetype<string, string>,

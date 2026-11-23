@@ -11,11 +11,6 @@ import type * as weapons from "./weapons";
 
 /**
  * The model-producing families by their package subpaths, each the module its subpath exports.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each member is: the module behind one package subpath.
- * @evidence contracts/development/design.md#principled-representation One member per model-producing subpath, typed as that subpath's module, so a family cannot hold a producer its subpath does not export.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The type of `ARCHETYPE_FAMILIES`, read by the object gallery and the family spec; `environments` builds places, not models, and is not a member.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No string-keyed record: a missing or misspelt family fails the type check. It is an object type rather than an interface so the gallery can read it as a record of modules by name.
  */
 export type IAutoMovieArchetypeFamilies = {
   /** `@automovie/archetypes/props`. */

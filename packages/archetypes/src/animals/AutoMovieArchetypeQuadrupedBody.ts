@@ -15,20 +15,10 @@ import { QuadrupedScapula } from "./QuadrupedScapula";
  * A four-legged animal's body as one bar per bone, built from its species' proportions: the bone vocabulary every quadruped shares, the joints at rest, and the bars laid on a model under construction.
  *
  * The animal stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its bones are a trunk, the hindquarters behind it, a neck, a head and a tail, and four bones down each limb; each is a bar from joint to joint, so the animal is posed by moving joints. A species differs from another only by its `IBody`: bone lengths and standing angles as fractions of the height at the withers and degrees, mass shares as percentages, and the few shapes of the head, neck and tail.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the animal stands, what its bones are and what a species gives.
- * @evidence contracts/development/design.md#principled-representation One bone vocabulary and one rest rig for every quadruped, with each species' proportions as data in the forms the anatomical studies report: fractions of withers height, degrees and percentages of body mass.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The vocabulary lives with the animals because `IAutoMovieBone` names humanoid bones only (#3373, #2805); the producers lay the body here and add their tack, and the ride poses these bones.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No species branch: a species is its `IBody`, never a case in this code.
  */
 export namespace AutoMovieArchetypeQuadrupedBody {
   /**
    * The four limbs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it names.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the four limbs by side and end.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the key of every limb table and of the rig's joints.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
    */
   export type Limb = "leftFore" | "rightFore" | "leftHind" | "rightHind";
 
@@ -42,11 +32,6 @@ export namespace AutoMovieArchetypeQuadrupedBody {
 
   /**
    * The bones, each also the id of the part that draws it: the trunk (with the shoulder blades and the pelvis's front), the hindquarters (the pelvis behind the hip joints and the buttock's muscles, out to the point of buttock), the neck, the head and the tail; down a fore limb the humerus, the radius, the cannon and the pastern (with the hoof or the paw); down a hind limb the femur, the tibia, the cannon and the pastern. The cannon is the metacarpus or metatarsus and the pastern the digit, under the names a horse's carry. Every limb bone hangs from the one above it; a fore limb's uppermost hangs from its shoulder blade, which hangs from the trunk, and a hind limb's from the hindquarters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each bone and what it includes.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the trunk, the head and tail and four bones a limb, as template literals over the limbs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the ids of the parts the body lays and the ride poses.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No humanoid bone stands in for a quadruped's, the defect #2805 removed.
    */
   export type Bone =
     | "trunk"
@@ -95,21 +80,11 @@ export namespace AutoMovieArchetypeQuadrupedBody {
    * - `mass`: body mass, kilograms.
    * - `girth`: the heart girth's circumference, which sizes the barrel.
    * - `tempo`: how far this animal's stride time lies from the mean, in standard deviations.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each dimension's unit and meaning.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the four dimensions every quadruped draws.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; what the rig and the ride read of any species.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
    */
   export type Dimension = "withersHeight" | "mass" | "girth" | "tempo";
 
   /**
    * A species' body: the proportions the rig and the bars are built from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation Fractions of withers height, degrees from straight down and percentages of body mass, the forms the anatomical studies report.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; each species states its own, read by `rig` and `lay`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None; every member is a proportion a species states with its source or as an estimate.
    */
   export interface IBody {
     /** Bone lengths as fractions of withers height, from the top of each limb down, and the torso's axial control span. */
@@ -154,11 +129,6 @@ export namespace AutoMovieArchetypeQuadrupedBody {
 
   /**
    * The joints and landmarks of a quadruped at rest, in the model's space.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
-   * @evidence contracts/development/design.md#principled-representation Points in the model's space and lengths in metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by `rig`, read by the producers' tack and the ride.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IRig {
     /** The back's height above the ground, metres. */
@@ -210,14 +180,6 @@ export namespace AutoMovieArchetypeQuadrupedBody {
    * @param body The species' body.
    * @param dimensions The animal's dimensions: its withers height and girth are read.
    * @returns The rest rig.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Initial chains define body landmarks from declared lengths/directions without changing sourced dimensions. The common neutral construction then grounds the terminal cylinders by their support clearance and connects detached roots to the unchanged torso capsules with an exact length-preserving proximal fit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Construct initial chains and body landmarks, then connect the neutral chains using the same capsule definitions the body layout emits.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species, speed or screenshot selects a correction. Parent solids, measured dimensions, all four lengths, footprints and distal carriage remain fixed; the terminal-centre height follows the real sole rather than a whole-model offset, and impossible connection refuses instead of stretching or hiding a motion-goal clamp.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen initial links and at most four closed-form neutral proximal fits take O(1) time/space; no mesh search, iteration history or motion sampling occurs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Layout and conformation share the torso capsule definition, and neutral fitting reuses the existing exact four-bar owner while preserving already grounded and connected coordinates.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rig(
     body: IBody,
@@ -332,14 +294,6 @@ export namespace AutoMovieArchetypeQuadrupedBody {
    * @param builder The model under construction.
    * @param withers The animal's height at the withers, metres.
    * @param rig The animal's rest rig, from `rig`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it adds and what it reads.
-   * @evidence contracts/development/implementation.md#principled-implementation Each bar joins the rig's endpoints. Known mass shares are normalized by their printed sum (Kubo's horse sums to 100.4); the torso's share is divided by drawn capsule volumes. With no segment study the shares remain absent and the existing builder uses solid volume under the authored total mass.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk and hindquarters, withers, neck, shared head/pinna assembly, tail and limbs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scapula's and pelvis's mass remain in the source torso allocation; each shoulder blade's bar is massless. Optional explicitly sourced pinnae divide the unchanged whole-head share with the head capsule by solid volume; no biological ear density or mass fraction is invented. Mane and detailed hooves remain unmodelled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-three bone bars, the withers and at most two prepared ear plates take constant construction work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared torso definition serves conformation/layout and AutoMovieArchetypeQuadrupedHead owns the complete capsule/pinna geometry and source-budget allocation without duplicate ear planning.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay<Affordance extends string, D extends string>(
     body: IBody,

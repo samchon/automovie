@@ -20,11 +20,6 @@ const BATON: string =
 
 /**
  * The measured club recipes, seed draw and model contacts retained by the bat and screen practice prop.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the original club draw namespace and the model record it preserves.
- * @evidence contracts/development/design.md#principled-representation Keeps dimensions in metres and mass in kilograms with the original per-kind bands and provenance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One draw and its tables serve the public producers and the saved-recipe dispatcher.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The same draw records bands, fixed figures and model choices.
  */
 export namespace ClubBuild {
   /** The retained barrel length in metres. */
@@ -129,21 +124,11 @@ export namespace ClubBuild {
 
   /**
    * The values {@link draw} accepts at this place in its signature.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of draw.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only draw and its callers read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
    */
   export type DrawMaterial = "wood" | "plastic";
 
   /**
    * What {@link draw} prepares for its caller.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the builder and the drawn dimensions draw returns, in the family's recorded units.
-   * @evidence contracts/development/design.md#principled-representation The builder typed by the caller's contact ids and the draw's own dimension record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the named producers read after draw.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional where every call sets it.
    */
   export interface IDrawResult {
     /** The prepared `builder` this call returns. */
@@ -158,14 +143,6 @@ export namespace ClubBuild {
 
   /**
    * Draw the bat or screen practice profile under its original club namespace.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the compatibility draw and the local model it fills.
-   * @evidence contracts/development/implementation.md#principled-implementation Admit one model and its fixed dimensions, then draw the dimensions left free and preserve the provenance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keep draw and model assembly together, separate from shape construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserve the published parameter checks and contact conventions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One draw pass over the profile's bands and one construction pass.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both independently constructed models share the former club draw.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or draw state between calls.
    */
   export function draw(
     kind: createClub.Kind,
@@ -193,11 +170,6 @@ export namespace ClubBuild {
 
   /**
    * The values {@link contacts} accepts at this place in its signature.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of contacts.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only contacts and its callers read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
    */
   export type ContactsGrip = "two-hand" | "power";
 
@@ -211,14 +183,6 @@ export namespace ClubBuild {
    * @param middle The grip midpoint along local Y, in metres.
    * @param span The extent of the grip along local Y, in metres.
    * @param grip The grip convention used by the stored prop shape.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the original model coordinates and the location of the two scene contacts.
-   * @evidence contracts/development/implementation.md#principled-implementation The grip frame uses the centre and thickness of the held portion, and the facing surface stays on the positive Z side.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Add the shared grasp and positive-Z surface after the producer emits its model parts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retain contact coordinates in the model's published resting frame.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The fixed surface pair requires two frame constructions.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The bat and the inert replica share the saved contact convention.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or draw state between calls.
    */
   export function contacts(
     builder: AutoMovieArchetypeBuilder<

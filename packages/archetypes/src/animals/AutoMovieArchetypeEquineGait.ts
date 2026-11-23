@@ -6,20 +6,10 @@ import type { QuadrupedChange } from "./QuadrupedChange";
  * The horse's gaits as measured: the stride and stance times by speed, the footfalls, the change points, and the ranges the ride poses the trunk, the head and the limbs with, gathered into the horse's gait table, `TABLE`.
  *
  * The timing is from Robilliard, Pfau and Wilson 2007, Gait characterisation and classification in horses, J Exp Biol 210:187 (https://journals.biologists.com/jeb/article/210/2/187/17107/Gait-characterisation-and-classification-in-horses): stride time and left-fore stance time by speed (Tables 2 and 3), the order of footfalls (Table 1) and the fore and hind phase ratios (Table 4). Its eight horses were Icelandic, about 1.4 m at the withers; warmbloods of 1.6 m stride about 15 % slower at the same speed (Back, Schamhardt and Barneveld 1996, Vet Q 18:79: 1.09 s at a 1.6 m/s walk, 0.67 s at a 4.0 m/s trot). For a horse of another height the rows are scaled by dynamic similarity (`AutoMovieArchetypeQuadrupedGait.scale`), which closes about half of the gap to those warmblood figures: provisional.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source of every number, the population it measured and the known gap to a larger horse.
- * @evidence contracts/development/design.md#principled-representation Measured rows by gait and speed, one landing phase per hoof per gait, and the ride's ranges, each in its source's own variables, gathered into one `AutoMovieArchetypeQuadrupedGait.ITable`.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The horse's gait data; the timing, the change points and the pose that read it are the shared quadruped's (`AutoMovieArchetypeQuadrupedGait`, `QuadrupedChange`, `rideQuadruped`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No fitted curve stands in for the rows; a value one gait borrows from another, and every estimate, says so.
  */
 export namespace AutoMovieArchetypeEquineGait {
   /**
    * The four measured equine gaits represented by this table.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the measured horse subset independently of other species' gait vocabulary.
-   * @evidence contracts/development/design.md#principled-representation The existing four closed literals describe exactly the horse rows and phase data.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Horse data excludes the camel's pace without narrowing the shared quadruped grammar.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adding a gait to another species cannot invent an unmeasured horse row.
    */
   export type Gait = "walk" | "trot" | "canter" | "gallop";
 

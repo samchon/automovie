@@ -19,20 +19,10 @@ import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBo
  * The places a handler touches when caring for an equid, read from its parts: each side of the barrel to brush, the poll a headstall crosses, the head's socket a halter is put on, the trunk's socket a saddle is laid on, and each hoof to hold up.
  *
  * Each care point is a contact on the surface of one part, its frame's +Y the outward normal and +X the direction a brush strokes along the coat (backward along the barrel) or the bar's axis for a held hoof. A point is carried by its part, so in any posed sample of the equid its frame is the rest frame moved by that part's own rigid change.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each care point, its frame convention and how it follows the posed equid.
- * @evidence contracts/development/design.md#principled-representation Affordance records in the rest model's space, each bound to one part.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by a scene that stages a handler: the points join the horse prop's contacts and their frames its contact reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every point is on a part's surface; none is placed by a fitted offset.
  */
 export namespace AutoMovieArchetypeEquineCare {
   /**
    * The care points of one equid and their posed frames.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each member gives.
-   * @evidence contracts/development/design.md#principled-representation The affordances and a frame reader.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `of`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IPoints {
     /** The care points at rest, model space. */
@@ -40,14 +30,6 @@ export namespace AutoMovieArchetypeEquineCare {
 
     /**
      * A care point's world frame in a posed sample.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation World frame; refuses an unknown id.
-     * @evidence contracts/development/implementation.md#principled-implementation The rest frame moved by its part's change from rest to the sample, then placed.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One part lookup, two compositions.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown id refuses.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the sample's parts.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Rest frames are prepared once.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     frame(
       sample: AutoMovieArchetypeRide.IPose<string, string>,
@@ -60,14 +42,6 @@ export namespace AutoMovieArchetypeEquineCare {
    *
    * @param animal The equid at rest.
    * @returns Its care points.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and output.
-   * @evidence contracts/development/implementation.md#principled-implementation Each point is on its part's surface: the trunk capsule's side at the middle of its axis, the head capsule's dorsal surface at the poll, and each pastern bar's axis at its middle, a round handle of the bar's diameter facing out.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record per point, built from the part it lies on.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The rest part frames serve every posed read.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the care records and rest part frames.
    */
   export function of(animal: Pick<AutoMovieArchetype, "parts">): IPoints {
     const parts: Map<string, IAutoMovieModelPart> = new Map(

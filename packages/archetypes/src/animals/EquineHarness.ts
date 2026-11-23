@@ -11,11 +11,6 @@ import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
  * A single horse's driving harness, laid on the horse's body: a breast collar with its neck strap, a driving saddle with its tugs, terrets and girth, a backstrap and crupper, hip straps and a breeching, and a bridle with blinkers and a bit.
  *
  * Every strap lies on the body where the fitting guides read put it. The breast collar runs from just behind one elbow round the front of the chest to the other at the point of shoulder's height (IVC Carriage's measuring chart; Harness Stuff: at the point of shoulder, not rubbing it); its ends are the points of draft, where the traces pull. The driving saddle sits where a riding saddle would, its tugs at the barrel's sides on the trunk's axis, where a cart's shafts are held (Harness Stuff: the tugs stay at the saddle's centre in draft), and its terrets on top carry the driving lines back to the driver. The backstrap runs from behind the saddle along the back to the tail, the hip straps down from the croup to the breeching, and the breeching round the hindquarters `breechingDrop` below the point of buttock (Hammill). The bridle's cheekpieces run from the poll to the bit rings at the mouth, a blinker on each.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is laid, where each strap lies and the source for its place.
- * @evidence contracts/development/design.md#principled-representation Straps as round bars along the body's surface, the curved ones as short straight segments; the ends the traces and the driving lines leave from are small balls a line's end names.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `lay`, the parts that ride the head, the line ends and the construction estimates; `createHorse` calls it for `tack` `harness`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The places come from the horse's own rig, so the harness fits whatever horse is drawn; every value no source gives is a named estimate here.
  */
 export namespace EquineHarness {
   /**
@@ -70,14 +65,6 @@ export namespace EquineHarness {
    * @param rig The horse's rest rig.
    * @param angle Radians from the `+X` side, `pi / 2` the chest's front, `pi` the `-X` side.
    * @returns The point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the space and the angle's sense.
-   * @evidence contracts/development/implementation.md#principled-implementation A circle of the points of draft's spread about the trunk's front axis end at the point of draft's height.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One point.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of the collar's round, read by `lay` for its segments and by `passes` for the neck strap's foot.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function chest(
     rig: AutoMovieArchetypeEquine.IRig,
@@ -95,14 +82,6 @@ export namespace EquineHarness {
    *
    * @param rig The horse's rest rig.
    * @returns The places, from the bit back.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the space, the side and the order.
-   * @evidence contracts/development/implementation.md#principled-implementation The bit ring a strap's radius outside the head at the mouth, the neck strap from the collar's front, a sixth of a turn round the chest from the point of draft's side, up to a strap's radius over the rig's crest, its ring halfway up, the terret on the pad.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Five points.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of these places, read by `lay` and by a vehicle's lines.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function passes(rig: AutoMovieArchetypeEquine.IRig): Readonly<{
     bit: IAutoMovieVector3;
@@ -136,14 +115,6 @@ export namespace EquineHarness {
    * @param builder The horse under construction, its body laid.
    * @param d The horse's drawn dimensions.
    * @param rig The horse's rest rig.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it adds and what it reads.
-   * @evidence contracts/development/implementation.md#principled-implementation Each strap is placed on the body the rig describes: the collar on the barrel's surface at the point of shoulder's height, the saddle at the rig's `hitch`, the breeching on the hindquarters' rounded end at the drop below the point of buttock, the bridle along the head from the poll to the mouth.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Collar, saddle, backstrap and breeching, bridle, then the hitch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No maker's weight was read for a single horse's harness, so every part is massless, a share of 0, and the horse keeps its drawn mass and measured distribution exactly.
-   * @evidence contracts/development/implementation.md#efficient-algorithms About forty parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one harness.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
@@ -343,14 +314,6 @@ export namespace EquineHarness {
    * @param sag The middle's drop below the chord, metres.
    * @param count The points laid, ends included, at least three.
    * @returns The points in order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the ends, the sag's meaning and that the shape is authored.
-   * @evidence contracts/development/implementation.md#principled-implementation A parabola through both ends, `4 sag u (1 - u)` below the chord, the small-sag form of a hanging strap.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the points.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse; callers admit the sag.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(count).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of a slack strap's look, used by a single horse's draft and by a team's.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh points and retains nothing.
    */
   export function slack(
     from: IAutoMovieVector3,

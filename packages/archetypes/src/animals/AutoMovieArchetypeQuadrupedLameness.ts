@@ -20,30 +20,15 @@ import type { rideQuadruped } from "./rideQuadruped";
  * - a compensatory head nod can mimic an ipsilateral forelimb lameness.
  *
  * A forelimb case nods the head up about the neck's root, peaking at the lame fore's mid-stance. A hindlimb case pitches the trunk nose-down during the lame hind's stance about the lateral axis that gives that withers-to-pelvis ratio of −0.55. That pitch lowers the head too, by its lever ahead of the axis; the head asymmetry the literature measures is the head's whole vertical movement (a poll sensor), so a compensatory nod supplies only the measured head asymmetry less that passive part. The grade's rows are in `head` and `pelvis`. Its stance timing is left as the gait's: Rhodin et al. report no stance-duration change.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source, its three findings, the mechanism and what stays unchanged.
- * @evidence contracts/development/design.md#principled-representation A limb, a closed grade and an optional compensation flag; rows are millimetres of the cited asymmetry measures.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the ride's nod and body placement.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Canter, gallop and other gaits are refused; no unmeasured stance change is invented.
  */
 export namespace AutoMovieArchetypeQuadrupedLameness {
   /**
    * The lameness grades.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the three grades of Rhodin et al.'s clinical scoring.
-   * @evidence contracts/development/design.md#principled-representation A closed literal union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `head` and `pelvis`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Grade = "subtle" | "mild" | "moderate";
 
   /**
    * An authored lameness.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The lame limb, its grade and whether a hindlimb case shows a compensatory head nod.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Carried on the quadruped course.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ILameness {
     /** The lame limb. */
@@ -59,14 +44,6 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
    *
    * @param grade The grade.
    * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each value's origin.
-   * @evidence contracts/development/implementation.md#principled-implementation The cited threshold and its stated multiples.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One switch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored multiples are labelled provisional.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function head(grade: Grade): number {
     return 0.006 * multiple(grade);
@@ -77,14 +54,6 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
    *
    * @param grade The grade.
    * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each value's origin.
-   * @evidence contracts/development/implementation.md#principled-implementation The cited threshold and its stated multiples.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One switch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored multiples are labelled provisional.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pelvis(grade: Grade): number {
     return 0.003 * multiple(grade);
@@ -92,11 +61,6 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
 
   /**
    * The head nod and trunk tilt of a lame stride at one phase.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the units.
-   * @evidence contracts/development/design.md#principled-representation A nod change in degrees, positive nose-down, and a body tilt.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the ride's nod and placement.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IOffset {
     /** Nod change, degrees, positive nose-down. */
@@ -107,11 +71,6 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
 
   /**
    * A prepared lameness for one animal's ride.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the reader takes and returns.
-   * @evidence contracts/development/design.md#principled-representation A pure function of the stride plan, the phase and each limb's duty.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Called by the ride per sample.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Offset = (
     strides: QuadrupedStridePlan.IPlan,
@@ -130,14 +89,6 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
    * @param limbs The neutral limb chains.
    * @returns The offset reader, or undefined without a lameness.
    * @throws {AutoMovieArchetypeRefusal} For a gait other than walk or trot, an unknown grade or a malformed record.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The nod angle δ raises the head's centre by its asymmetry: δ = asin((A + y)/R) − atan2(y, z) for the centre at (y, z) from the neck's root, R its distance. The hind tilt turns about the pivot z_c = (z_w + 0.55 z_p)/1.55 between the withers (the shoulder joints) and the pelvis (the hindquarters' centre), by the angle that lifts the pelvis by its asymmetry; it lowers the head's centre (y, z) by (z − z_c) sin θ − y (cos θ − 1), which a compensatory nod's asymmetry is reduced by. Both follow sin² of the stance share, peaking at mid-stance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, measure the neutral geometry once, then return the reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No speed or gait the source did not cover is admitted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the stride plan's landings and the pitch helper.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains a few neutral measurements.
    */
   export function prepare(
     archetype: string,

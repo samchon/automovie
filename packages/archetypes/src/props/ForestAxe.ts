@@ -30,11 +30,6 @@ const FOREST_AXE_SHOP: string =
  * The forest axe among the long tools: Gränsfors Bruk's Scandinavian Forest Axe as its maker and a retailer give it, its bands and its builder, kept apart from `createLongTool` so each file stays within its size.
  *
  * The axe stands on its head at the origin, its handle rising along `+Y`; its `face` is the edge, facing `+Z` the way the swing goes, with the handle's back flush with the poll, and both hands hold the handle as the `shaft` bar.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the axe stands, its contacts, and why it is its own file.
- * @evidence contracts/development/design.md#principled-representation The axe's read figures as bands, the hickory density that sizes its handle, and one builder.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bands and the builder `createLongTool` takes for its forest axe.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The head's place on the handle, which no source gives, is a provisional band; the head's thickness is the retailer's.
  */
 export namespace ForestAxe {
   /** Shagbark hickory's density at 12 % moisture, kilograms per cubic metre, which sizes an axe's handle from its mass (The Wood Database, https://www.wood-database.com/shagbark-hickory/, average dried weight 800 kg/m3). */
@@ -84,14 +79,6 @@ export namespace ForestAxe {
    *
    * @param builder The long tool's builder.
    * @param d The drawn dimensions: the length, the edge, the head's length and mass, and the mass.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and how the handle is sized.
-   * @evidence contracts/development/implementation.md#principled-implementation The handle's diameter from its read mass and hickory's density; the head a block of the read edge and length, its poll flush with the handle's back.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The handle's size, the head and its edge, the handle and its bar.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wedge head is a block of the retailer's poll thickness, and the oval handle, which slims below the grip, a round rod.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function build(builder: Builder, d: Drawn): void {
     const length: number = d.length!;

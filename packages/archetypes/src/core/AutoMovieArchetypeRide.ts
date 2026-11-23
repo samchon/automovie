@@ -20,20 +20,10 @@ import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
  * A moving support in time: an archetype following a course, with whatever of it moves as it goes.
  *
  * A ride is what the support publishes for whoever is carried by it or walks beside it: at any second, the archetype in its state at that second, the placement of its root in the world, and through `frame` the world frame of any of its contacts, which is the support frame a seated, standing or holding body is kept on. Its named instants are the course's, plus those the support adds, such as a crank's top dead centres or a horse's footfalls.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a ride publishes and to whom, and where its instants come from.
- * @evidence contracts/development/design.md#principled-representation A function of film seconds returning plain data, so a consumer samples it at its own instants and nothing is baked at one rate.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record and one constructor, shared by every vehicle and animal of this package (#3368's moving supports).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No vehicle is named here: what moves with the course is a function its producer's ride supplies.
  */
 export namespace AutoMovieArchetypeRide {
   /**
    * The support at a second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation A pose together with the course state it was taken at.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by a ride's `at` and read by whoever is carried and by the capture subjects.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None; it extends `IPose` and repeats none of its members.
    */
   export interface ISample<
     Id extends string,
@@ -48,11 +38,6 @@ export namespace AutoMovieArchetypeRide {
 
   /**
    * A line between two independently moving supports, such as a trace from a horse's collar to a cart's single tree, or a driving line from the bit through the terrets to the driver's hands: a round strap through its points in order, each a point of the leader or of the towed support.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what a line is and what its points name.
-   * @evidence contracts/development/design.md#principled-representation An id, a radius in metres and an ordered list of attachment points, each an end of either model in the form a span's end takes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here, beside the coupling that moves both models; read by `towed`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A point names its model by its one key, so it cannot name both.
    */
   export interface ILine {
     /** The line's id, unique among a ride's lines. */
@@ -67,11 +52,6 @@ export namespace AutoMovieArchetypeRide {
 
   /**
    * One point of a line: an end on the leader's posed model, one on the towed support's, or a point a performer holds it at.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what a point names.
-   * @evidence contracts/development/design.md#principled-representation A union of an end on either model or a held point, the others absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the points of `ILine`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type ILinePoint =
     | { leader: AutoMovieArchetypeSpan.End; trailer?: never; held?: never }
@@ -80,23 +60,10 @@ export namespace AutoMovieArchetypeRide {
 
   /**
    * A line point held by a performer: its world position at each film second, such as a driver's displayed palm, so a held line follows the hand that shakes, takes up or gives it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the reader's unit and space.
-   * @evidence contracts/development/design.md#principled-representation A pure reader of film seconds returning world metres, the other ends absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by a performance's hand reader and read by `towed`'s line laying.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reader is the performer's; the line owner invents no hand position.
    */
   export interface ILineHeld {
     /**
      * The held point in the world, metres, at a film second.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the film second it takes and the world point it returns, metres.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback the caller supplies; its implementation is the caller's.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback the caller supplies; its implementation is the caller's.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback the caller supplies; its implementation is the caller's.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback the caller supplies; its implementation is the caller's.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback the caller supplies; its implementation is the caller's.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback the caller supplies; its implementation is the caller's.
      */
     held: (seconds: number) => IAutoMovieVector3;
     /** Absent: a held point is on neither model. */
@@ -107,11 +74,6 @@ export namespace AutoMovieArchetypeRide {
 
   /**
    * A line at one second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and space.
-   * @evidence contracts/development/design.md#principled-representation The line's id, its radius in metres and its points in the world, in order.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; carried by a towed ride's samples.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ILineState {
     /** The line's id. */
@@ -126,11 +88,6 @@ export namespace AutoMovieArchetypeRide {
 
   /**
    * What moves with the course at one of its states: the archetype in its state there and its root's placement in the world.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation A support's own state at one course state: the archetype as posed there and its root's placement in the world with unit scale.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by each ride's pose function to `along`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IPose<Id extends string, Dimension extends string> {
     /** The archetype in its state at that point of the course. */
@@ -142,11 +99,6 @@ export namespace AutoMovieArchetypeRide {
 
   /**
    * A ride.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation A ride as plain data and two pure samplers over film seconds: the plan, its duration in seconds, labelled instants in time order, the sample at a second and a contact's world frame at a second.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by `along` and by every ride of the package.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IRide<Id extends string, Dimension extends string> {
     /** The planned course. */
@@ -160,49 +112,23 @@ export namespace AutoMovieArchetypeRide {
 
     /**
      * The support at a second, held at its start before its course begins and at its end after it ends.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and what is returned outside the course's range.
-     * @evidence contracts/development/implementation.md#principled-implementation The plan's state at that second, mapped by the ride's pose function to the archetype's own state and placement.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One course sample, one pose.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is interpolated between samples: each is computed from the second alone.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One course sample and one pose per call.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the plan with every other sample; samples are not cached, since a consumer asks each second once.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the ride's own closure.
      */
     at: (seconds: number) => ISample<Id, Dimension>;
 
     /**
      * The world frame of one of the support's contacts at a second, seconds held to the ride as `at` holds them; an id the archetype lacks is refused as `AutoMovieArchetype.affordance` refuses it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and what is returned outside the course's range.
-     * @evidence contracts/development/implementation.md#principled-implementation The contact's model-local frame in the archetype's state at that second, composed under the root's placement.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One sample, one lookup, one composition.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing id is refused, never given a default frame.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One sample per call.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `at` and `AutoMovieArchetypeFrame.compose`.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the ride's own closure.
      */
     frame(id: Id, seconds: number): IAutoMovieTransform;
   }
 
   /**
    * The world placement and selected contact frames at one tow instant.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Refers to the selected tow observation at one film second.
-   * @evidence contracts/development/design.md#principled-representation Shares the contact query and its current posed geometry contract.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the canonical snapshot through the existing ride namespace.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Alias leaves all field types and query behavior to the tow geometry owner.
    */
   export type ITowedSample<Id extends string> =
     ArchetypeTowedGeometry.ITowedSample<Id>;
 
   /**
    * A ride with an exact arbitrary-time contact query for the towed support.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the extended ride and the use of its query.
-   * @evidence contracts/development/design.md#principled-representation The canonical tow-specific extension of a general ride.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the tow return type accessible from the ride namespace.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Alias adds no alternative query representation.
    */
   export type ITowedRide<
     Id extends string,
@@ -218,14 +144,6 @@ export namespace AutoMovieArchetypeRide {
    * @param instants Instants the support adds to the course's.
    * @returns The ride.
    * @throws {AutoMovieArchetypeRefusal} As {@link AutoMovieArchetypeCourse.plan} does for a malformed course.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input's role and the default.
-   * @evidence contracts/development/implementation.md#principled-implementation The plan gives the course state in closed form and the pose function maps it to the support's own state, so each sample is independent of every other.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan the course unless a plan was handed in, merge the instants, return two samplers.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the owners it calls.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One course sample and one pose per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is shared by every sample, and a ride that planned the course for its own instants hands that plan in; samples are not cached, since a consumer asks each second once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride holds the rest archetype and the plan for as long as its caller keeps it.
    */
   export function along<Id extends string, D extends string>(
     archetype: AutoMovieArchetype<Id, D>,
@@ -280,14 +198,6 @@ export namespace AutoMovieArchetypeRide {
    * @param options support is producer-read axle geometry: a single axle permits body pitch, and fixedGround keeps two axles grounded with an optional drawbar hinge. Without it only an unchanged level coupling height is supported. Existing axle/front declarations must agree with supplied support; pose supplies current articulations and lines supplies inter-model spans. ground, with single-axle support, seats the wheels on the authored plane under the axle instead of the leader's course datum.
    * @returns The trailer's ride.
    * @throws {AutoMovieArchetypeRefusal} For inconsistent support/options, an unreachable or unsupported hitch height, an invalid support/articulation, a coupling that does not close, a nonpositive projected reach, missing contacts/line ends or front steering beyond its declared lock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is held, the trailer model, the integration, determinism and what is published.
-   * @evidence contracts/development/implementation.md#principled-implementation Planar no-side-slip heading uses the height-dependent horizontal lever projection from ArchetypeTowing. The existing millisecond central difference and shared RK4 trajectory remain; a front pivot's velocity includes both heading and projected-length derivatives. Exact axle/pole pitch closes the coupling while keeping declared wheel supports at the common course-ground datum.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare one declared geometry owner, integrate the existing planar headings, then sample its supported placement and source joint travels before emitting inter-model lines.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unknown support is inferred, chassis height correction or stretched shaft hides mismatch. Coupling closure is checked at scale-dependent binary64 error. This planar model does not solve terrain profiles, suspension, wheel loads or tyre slip.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The existing four RK4 evaluations per default step use a fixed number of leader/course reads and closed geometry operations; sampling reads the prepared trajectory and source articulations once, without another solver loop.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The integrated heading serves every sample.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride holds the leader, the trailer and the heading's knots for as long as its caller keeps it.
    */
   export function towed<
     LeaderId extends string,

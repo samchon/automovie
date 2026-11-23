@@ -29,11 +29,6 @@ type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
  * A trained fall from a canter or gallop onto prepared ground: the horse goes down on one side, slides to a stop, lies still and rises.
  *
  * At the fall's start the horse is in its stride at speed v. It decelerates uniformly over the authored slide distance d, so it stops after 2d / v seconds, its travel s(τ) = vτ − v²τ² / 4d along its heading. Through the authored drop its every part blends, on a minimum-jerk share, from the stride's pose at the fall's start to the lateral rest's lying pose (`AutoMovieArchetypeQuadrupedLateralRest`) on the landing side, both carried along the slide; the blended body is held on the floor by its lowest part, so nothing passes under it, and once down it slides lying. From the stop it plays the lateral rest on from its lying pose: the still hold, the roll back to the sternum and the rise to standing; it then may walk off from where it stood up, its first steps a ride from standing along its heading. The ground must be declared prepared and the speed at most `FALL_SPEED` (American Humane, horse guidelines for filmed media).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the deceleration, the blend, the floor support, the lateral rest that follows and the refusals.
- * @evidence contracts/development/design.md#principled-representation A ride in and a ride out on the same clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One entry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No tripping device and no simulation: the slide is a closed-form deceleration and the rest is the shared one.
  */
 export namespace AutoMovieArchetypeEquineFall {
   /**
@@ -44,14 +39,6 @@ export namespace AutoMovieArchetypeEquineFall {
    * @param cue The fall.
    * @returns The ride up to the fall, then the fall, the lying hold and the rise.
    * @throws {AutoMovieArchetypeRefusal} For unprepared ground, a fall started at a halt, outside the ride or above `FALL_SPEED`, or a drop or slide that is not finite and positive or a drop longer than the slide's time.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Admit the cue, build the lateral rest at the stop, then per sample play the ride, the blended drop with the slide, or the rest from its lying pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, one clip, a three-phase sampler.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refusals are typed; the floor support raises the body by its lowest part only.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(P + A) per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared lateral rest and floor reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the ride and the clip.
    */
   export function after<Id extends string, D extends string>(
     animal: AutoMovieArchetype<

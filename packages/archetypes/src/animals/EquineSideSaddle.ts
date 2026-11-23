@@ -12,11 +12,6 @@ import { EquineSaddle } from "./EquineSaddle";
  * An equid's side saddle, laid on its body: a flat seat, the fixed head (the upper pommel) the right leg goes round, the leaping head (the lower pommel) curved over the left thigh, one stirrup on the near side and the two reins. The Side Saddle Association's introduction gives the arrangement: "your right leg goes around the top one, and then hangs down", the left leg lies under "the second or lower pommel – the leaping head", the "left foot will be in a stirrup", and the rider sits "absolutely straight and square" (https://sidesaddleassociation.co.uk/introsidesaddle.asp). Both legs are on the near side, `+X`, so the tack is asymmetric by construction.
  *
  * The seat is entered sideways, facing the near side, as a rider is legged up onto a side saddle before lifting the right leg over the fixed head; its `seat` contact therefore faces `+X`, is sat with the legs ahead and reaches back across the saddle to its spine. Every size is an estimate no source read gives, named here; the saddle's weight is a press figure.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is laid, which side carries what, the source of the arrangement and which values are estimates.
- * @evidence contracts/development/design.md#principled-representation The saddle as a box, the two heads as bars a thigh hooks over or lies under, one stirrup and the shared reins, as contacts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `lay` and the weight and estimates it reads; `createHorse` calls it for `tack` `sidesaddle`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The off side carries no stirrup and no head; nothing mirrors the riding saddle.
  */
 export namespace EquineSideSaddle {
   /** The side saddle's mass, kilograms: traditional side saddles of beechwood, iron and leather "typically weighed around 22lb (10kg)" (Horse & Hound, "Riding side-saddle", https://www.horseandhound.co.uk/news/riding-side-saddle-39657). Added on top of the equid's drawn mass; the stirrup, the reins and the lead are massless, as on the riding saddle. */
@@ -40,14 +35,6 @@ export namespace EquineSideSaddle {
    * @param builder The equid under construction, its body laid.
    * @param d The equid's dimensions.
    * @param rig The equid's rest rig.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it adds and what it reads.
-   * @evidence contracts/development/implementation.md#principled-implementation The saddle sits over the rig's hitch as the riding saddle does; the fixed head rises at the front of the seat just left of the spine, the leaping head runs down and forward on the near side below it, and the near stirrup hangs `SHORTER` above the riding drop.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The saddle and its sideways seat, the two heads, the stirrup, then the shared reins.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the saddle carries mass, its press weight; every size is a named estimate.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Seven parts and six contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `EquineSaddle.rein`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<

@@ -39,11 +39,6 @@ const PETTIGREW: string =
  * The two throwers among the long tools: a hand sling and a spear-thrower (atlatl), each with its read sizes and the measured speeds it throws at, and the contacts a throwing act reads.
  *
  * A sling hangs folded from the hand at the top, both cords down to the pouch at the origin: `grip` is the finger loop, `release` the release cord's knot held between thumb and finger, and `pouch` the pouch a stone sits in, facing up. An atlatl lies along `+Y` from its butt at the origin: `grip` is its handle with the finger loops, and `spur` the hook at the far end whose groove takes the dart's butt, facing along the shaft.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each thrower stands and what each contact is.
- * @evidence contracts/development/design.md#principled-representation Each thrower as rods and boxes from its read sizes, its contacts as handles and sockets.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two builders `createLongTool` calls for its throwers, and their bands.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sling's cords are straight, a coarse stand-in for flexible cords; every unread size is a named estimate.
  */
 export namespace Throwers {
   /** The finger loop's size and the knot's, metres, and an atlatl's thickness, metres: estimates, no source read giving them (searched: Finney 2005, Skov 2013, Carter 1933, Kidder and Guernsey 1919, Museums Victoria; records-sling-atlatl.md). */
@@ -117,14 +112,6 @@ export namespace Throwers {
    *
    * @param builder The tool under construction.
    * @param d The tool's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation Folded in the hand, each cord runs half the read length less the pouch's to the pouch's ends, so the whole sling is its read length; the finger loop and the knot are balls of their sizes where the cords meet the hand, each grip on its own.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Pouch, cords, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cords are straight; the loop and the knot are `ESTIMATES`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one sling.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function sling(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -184,14 +171,6 @@ export namespace Throwers {
    *
    * @param builder The tool under construction.
    * @param d The tool's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation The shaft of the read length and spur-end width; the handle runs from the butt to the read point the handle proper begins, the hand closing across the shaft's thickness from its face, and the spur stands the read setback from the far end.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shaft, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The taper to the grip end, the finger loops and the weight stone are not modelled; the thickness is `ESTIMATES.thickness`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one atlatl.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function atlatl(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;

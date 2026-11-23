@@ -73,11 +73,6 @@ const LIMBS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
  * The standing horse's rest, comfort and elimination behaviours over a halt, and seeded idle cycles of them.
  *
  * Each act expands into stance rows (`EquineComfortRows` through `AutoMovieArchetypeEquineStance`) and expression cues (`AutoMovieArchetypeEquineExpression`), both ending in the neutral halt by the act's end: a standing rest rests a hind hoof on its toe; a doze lowers the neck toward horizontal, droops both ears sideways and slackens the lower lip; the flehmen raises the head and curls the upper lip; a yawn stretches the head and opens the jaw wide; a shake rolls the neck first and the trunk after it, the hooves planted; pawing, stamping and the cow-kick are their stance rows; a swish swings the tail; a skin twitch is a named mark; urination camps out with the tail raised and defecation lifts the tail. Each act's phase split is authored. An idle cycle lays acts one after another from a seed, each kind's length and every neutral gap drawn within authored bounds and the rest's side alternating, so a seed always gives the same cycle and every act returns to neutral before the next.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each act's expansion, the neutral return, the seeded cycle and what is authored.
- * @evidence contracts/development/design.md#principled-representation Acts in, a ride out; an idle cycle is a list of acts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two entries: play acts over a halt, and draw an idle cycle.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The behaviours are the stance's and the expression layer's own; no pose is duplicated here.
  */
 export namespace AutoMovieArchetypeEquineComfort {
   /**
@@ -88,14 +83,6 @@ export namespace AutoMovieArchetypeEquineComfort {
    * @param acts The acts, not overlapping.
    * @returns The ride with the acts layered over its halt.
    * @throws {AutoMovieArchetypeRefusal} For an act asked for while the horse is moving, a window that is not finite and positive, pawing with a stroke count that is not a positive whole number, overlapping acts, or anything the stance or the expression layer refuses.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Admit each act, expand it into stance rows and expression cues, play the rows through the stance and layer the cues over it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, expansion, two layers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A moving horse refuses; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pass over the acts; sampling costs are the two layers'.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the stance and the expression layer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned ride retains the layers'.
    */
   export function after<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
@@ -161,14 +148,6 @@ export namespace AutoMovieArchetypeEquineComfort {
    * @param from Film second the cycle starts, the horse halted.
    * @param to Film second by which every act has returned to neutral.
    * @returns The acts, one after another.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the determinism and the bound on the last act.
-   * @evidence contracts/development/implementation.md#principled-implementation Each slot draws a neutral gap, a kind, a length within that kind's bounds and its parameters from `seededValue` over the seed, the slot and a domain number; rests alternate sides; the cycle stops before an act would end after `to`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of slots.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No global random stream: every draw is a pure function of its seed parts.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per act.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's seeded value.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh acts and retains nothing.
    */
   export function idle(
     seed: number,

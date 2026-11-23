@@ -18,11 +18,6 @@ import type { rideQuadruped } from "./rideQuadruped";
  * A horse's slide down a steep bank on a supported route: on a face too steep for its loaded hooves to hold, the horse sits back on its haunches, its hind hooves planted under the body and sliding down the face, while its fore hooves keep walking to steer, then rises onto the run-out at the foot.
  *
  * A loaded hoof holds on a face while the slope's tangent stays under the hoof–surface friction coefficient; past it the hooves slide whatever the horse does, which is when a rider asks the horse to sit and slide rather than stumble (the technique's lower bound). The upper bound is an authored limit past which a slide becomes a fall. The trunk pitches nose-up against the face by `SIT`, about the root, and the hind hooves are brought `TUCK` of the hind limb's length forward under the body; held there in the body's frame they travel with it down the face, projected onto the face at every instant.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the technique, its physical admission, the authored bounds and the pose it adds.
- * @evidence contracts/development/design.md#principled-representation A face's friction and the course's own grade admit it; a window with its entry and exit carries it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineFootwork`'s admission and hind goals and by the ride's pitch.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The slide comes from the face's slope and friction, never a flag; the hooves stay on the authored face.
  */
 export namespace AutoMovieArchetypeEquineBank {
   /** The trunk's nose-up pitch against the face while the horse sits, degrees, at most: authored, provisional; a rigid tail that would meet the face bounds it lower (`sit`). */
@@ -33,11 +28,6 @@ export namespace AutoMovieArchetypeEquineBank {
 
   /**
    * A rigid tail's lowest end in the neutral model and its radius.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The end that hangs lowest and the bar's radius.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `tail`, read by `admit`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ITail {
     /** The lower end of the tail bar's axis, model metres. */
@@ -63,11 +53,6 @@ export namespace AutoMovieArchetypeEquineBank {
 
   /**
    * A slide down the steep face a course leg descends.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and source.
-   * @evidence contracts/development/design.md#principled-representation The face's friction with its source and the two blends in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A member of `EquineFootwork.Technique`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No default friction: the face's author states it.
    */
   export interface ISlide {
     /** The discriminator. */
@@ -84,11 +69,6 @@ export namespace AutoMovieArchetypeEquineBank {
 
   /**
    * An admitted slide on the film clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit.
-   * @evidence contracts/development/design.md#principled-representation The leg's film interval and the two blends.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `admit`, read by `sit` and `goal`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IWindow {
     /** The film second the face begins. */
@@ -117,14 +97,6 @@ export namespace AutoMovieArchetypeEquineBank {
    * @param tail The rigid tail, which bounds how far the horse sits.
    * @returns The window.
    * @throws {AutoMovieArchetypeRefusal} For a leg that is not a straight descent over footing with a run-out at its foot, a face its hooves hold or one steeper than `STEEPEST`, and nonfinite or overlapping blends.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The face's grade is the leg's own rise over its length; a loaded hoof slides once that tangent exceeds the friction coefficient. The sit begins once the hindquarters are REAR hind-hoof distances down the face.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Leg shape, face, run-out, blends, then the window.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A face outside the technique's bounds is refused, never flattened.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two plan reads.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The course plan's own leg span and clock.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one window.
    */
   export function admit(
     archetype: string,
@@ -205,14 +177,6 @@ export namespace AutoMovieArchetypeEquineBank {
    * @param windows The admitted slides.
    * @param seconds The film second.
    * @returns The share, by minimum jerk through each entry and exit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the range and the blends.
-   * @evidence contracts/development/implementation.md#principled-implementation Minimum jerk in, held, minimum jerk out, so the pitch and the hooves change smoothly.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One window lookup and one blend.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the few windows.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
    */
   export function share(windows: readonly IWindow[], seconds: number): number {
     for (const window of windows) {
@@ -234,14 +198,6 @@ export namespace AutoMovieArchetypeEquineBank {
    * @param windows The admitted slides.
    * @param seconds The film second.
    * @returns The pitch, zero outside a slide.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit and sign.
-   * @evidence contracts/development/implementation.md#principled-implementation The window's own sit, bounded by its tail, by the sit's share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one product.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the few windows.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
    */
   export function pitch(windows: readonly IWindow[], seconds: number): number {
     for (const window of windows)
@@ -256,14 +212,6 @@ export namespace AutoMovieArchetypeEquineBank {
    * @param parts The model's parts.
    * @returns The tail.
    * @throws {RangeError} When the model has no tail bar.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame and the failure.
-   * @evidence contracts/development/implementation.md#principled-implementation The bar's two axis ends from its transform and length; the lower one.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and two ends.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing tail refuses.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, once per ride.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one record.
    */
   export function tail(parts: readonly IAutoMovieModelPart[]): ITail {
     const bar: IAutoMovieModelPart | undefined = parts.find(
@@ -303,14 +251,6 @@ export namespace AutoMovieArchetypeEquineBank {
    * @param placement The body's world placement.
    * @param footing The course's prepared footing.
    * @returns The goal, the gait's outside a slide.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frames, units and when the gait's goal is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation A hoof fixed in the body's frame moves with the body, which descends the face; the face's own landing at the hoof's world point gives its support plane and turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Blend the model position, land it on the face, express the plane in model space.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hoof is laid on the authored face, never at a nominal floor.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One landing query per sliding hoof.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The footing's own landing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one goal.
    */
   export function goal(
     windows: readonly IWindow[],
@@ -367,14 +307,6 @@ export namespace AutoMovieArchetypeEquineBank {
    * @param seconds The film second.
    * @param goal The gait's goal for the hoof.
    * @returns The goal, the gait's outside a slide.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what changes and when.
-   * @evidence contracts/development/implementation.md#principled-implementation The gait keeps the footfalls and their world footholds; only the swing's clearance and fold grow with the sit's share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two scalings.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A standing hoof, lift zero, is unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `share`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one goal.
    */
   export function step(
     windows: readonly IWindow[],

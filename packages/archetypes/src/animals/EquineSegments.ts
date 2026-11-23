@@ -5,20 +5,10 @@ import { createHorse } from "./createHorse";
  * Equids' limb and back segments measured on the body's surface, by breed, and the bone fractions an equid derives from them against the horse's.
  *
  * The measures are Brooks et al. 2010, Morphological variation in the horse: defining complex traits of body size and shape, Animal Genetics 41 (Suppl. 2):159, its protocol read at p. 160 (https://srvanderplas.github.io/stat-computing-r-python/data/bonus_horse_morphometric_dataset/Brooks_et_al-2010-Animal_Genetics.pdf); each breed's means are computed from the paper's published per-animal rows, in inches, converted at 2.54 cm (https://raw.githubusercontent.com/srvanderplas/stat-computing-r-python/main/data/bonus_horse_morphometric_dataset/Brooks%20Sutter%20Horse%20Morphometrics.txt): no paper prints these means, so they are this campaign's arithmetic on the paper's data. The forearm runs from the point of the elbow to the back of the knee, the cannons from the knee or the point of the hock to the ergot, the gaskin from the stifle to the point of the hock, and the back from the withers to the point of the croup; none is a bone's length, and neither the humerus nor the femur is measured.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source, how the means were obtained, what each measure spans and what is not measured.
- * @evidence contracts/development/design.md#principled-representation Each breed's mean surface lengths in centimetres with its sample size, as the dataset reports them, and the bone fractions derived from them in the horse's own form.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The measures the equids read, and the one derivation every equid shares.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No fraction is guessed: a measured segment scales the horse's fraction by its breed's ratio to the Thoroughbred's, and an unmeasured one keeps the horse's, stated as provisional.
  */
 export namespace EquineSegments {
   /**
    * One breed's mean measures, centimetres, and its sample size.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation The dataset's own measures, by its own landmarks.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the element of `BREEDS`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IBreed {
     /** How many animals of the breed the rows hold. */
@@ -158,14 +148,6 @@ export namespace EquineSegments {
    *
    * @param breed The breed.
    * @returns The bone fractions, in `createHorse.LENGTHS`'s form.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the scaling, the landmark each bone is scaled by and the provisional bones.
-   * @evidence contracts/development/implementation.md#principled-implementation Each measure over the breed's withers height, divided by the Thoroughbred's measure over its withers height; the horse's fraction times that ratio is the equid's.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ratio per measure, then the fractions.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The unmeasured bones are named as the horse's, not invented.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Seven ratios.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function, called once per equid.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lengths(
     breed: IBreed,

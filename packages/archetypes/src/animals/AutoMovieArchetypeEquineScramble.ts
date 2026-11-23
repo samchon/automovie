@@ -18,11 +18,6 @@ import type { rideQuadruped } from "./rideQuadruped";
  * A horse's scramble up a steep bank on a supported route: on a face too steep for its loaded hooves to walk, it climbs in bounds, both fores reaching up the face together while the hinds push, then both hinds landing under the body while the fores push, over the top edge onto the run-out.
  *
  * Each bound covers `bound` metres of the leg's course distance. The fores swing through the first half of a bound's time and stand through the second; the hinds stand through the first half and swing through the second, so each pair lands as the other leaves. Every foothold is the hoof's neutral point under the course's placement at its landing, laid on the authored footing, and is held fixed in the world while it stands; a swing travels between its two footholds, raised by `REACH` (fores) or `PUSH` (hinds) of the limb's length clear of the face. A face whose hooves would hold walks; one steeper than `AutoMovieArchetypeEquineBank.STEEPEST` is a fall; a bound that climbs more than `CLIMB` of the fore limb's length is beyond its reach.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the technique, its bound timing, its footholds and its admission.
- * @evidence contracts/development/design.md#principled-representation A face's friction, the course's own grade and the bound's length admit it; footholds come from the course and the footing.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineFootwork`'s admission and limb goals.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The climb comes from the face's slope and friction and the horse's reach, never a flag; a standing hoof never slides.
  */
 export namespace AutoMovieArchetypeEquineScramble {
   /** A fore swing's clearance of the face, shares of the fore limb's length: authored, provisional, a reaching bound. */
@@ -39,11 +34,6 @@ export namespace AutoMovieArchetypeEquineScramble {
 
   /**
    * A scramble up the steep face a course leg climbs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and source.
-   * @evidence contracts/development/design.md#principled-representation The face's friction with its source, the bound's length and the two blends.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A member of `EquineFootwork.Technique`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No default friction: the face's author states it.
    */
   export interface IScramble {
     /** The discriminator. */
@@ -62,11 +52,6 @@ export namespace AutoMovieArchetypeEquineScramble {
 
   /**
    * An admitted scramble on the film clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit.
-   * @evidence contracts/development/design.md#principled-representation The leg's film interval, the blends, and each bound's boundary seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `admit`, read by `goal`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IWindow {
     /** The film second the face begins. */
@@ -81,14 +66,6 @@ export namespace AutoMovieArchetypeEquineScramble {
     bounds: readonly number[];
     /**
      * The course's body placement at a film second.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the film second it takes and the placement it returns.
-     * @evidence contracts/development/implementation.md#principled-implementation Reads the placement of the admitted course's sample at the second.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One sample and one field read.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The placement is the course's own; nothing is interpolated here.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One course sample per call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads a different second.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     place: (seconds: number) => IAutoMovieTransform;
   }
@@ -106,14 +83,6 @@ export namespace AutoMovieArchetypeEquineScramble {
    * @param reach The fore limb's length, metres.
    * @returns The window.
    * @throws {AutoMovieArchetypeRefusal} For a leg that is not a straight climb over footing with a run-out at its top, a face its hooves hold or one steeper than `AutoMovieArchetypeEquineBank.STEEPEST`, a bound climbing beyond `CLIMB` of the fore's reach, and nonfinite or overlapping blends.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The face's grade is the leg's own rise over its length; loaded hooves slip once that tangent exceeds the friction, so the horse bounds; a bound climbs the grade times its length.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Leg shape, face, run-out, reach, blends, then the bound boundaries.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A face outside the technique's bounds is refused, never flattened.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One plan read per bound.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The course plan's own leg span and clock.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one window over the caller's plan.
    */
   export function admit(
     archetype: string,
@@ -205,14 +174,6 @@ export namespace AutoMovieArchetypeEquineScramble {
    * @param placement The body's world placement.
    * @param footing The course's prepared footing.
    * @returns The goal, the gait's outside a scramble.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frames, units and when the gait's goal is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation Fores swing in each bound's first half and stand in its second, hinds the other way round; a foothold is the neutral point under the course's placement at the landing, laid on the footing, held in the world while it stands.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the bound, the half, the two footholds; blend with the gait at the window's ends.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foothold is laid on the authored footing, never a nominal floor.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two landing queries per scrambling hoof.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The course plan's placement and the footing's own landing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one goal.
    */
   export function goal(
     windows: readonly IWindow[],

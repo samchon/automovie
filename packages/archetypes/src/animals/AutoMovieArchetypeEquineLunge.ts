@@ -39,20 +39,10 @@ interface ISegment<Id extends string, D extends string> {
  * A circle is refused when it is tighter than a work's gait admits: on a circle of radius r at speed v the hooves `d` either side of the path's line travel at v(r ∓ d)/r, and both must stay within the gait's admitted speeds (`AutoMovieArchetypeQuadrupedGait.range`), so r ≥ max(d·v/(v − v_min), d·v/(v_max − v)), the bound a team horse's turn is held to. Two consecutive reins on the same side, which no change of rein joins, are refused.
  *
  * `AutoMovieArchetypeEquineLungeLine` lays the equid's lead out as the lunge line to the handler's line hand at the centre.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each rein's course, the speeds, the lean, the halt, the turns and the refusals.
- * @evidence contracts/development/design.md#principled-representation A centre, a radius, a starting bearing and the reins with their works, in metres, seconds and degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The plan and its line; the gaits, lean and turns are the ride's and the stance's.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The least radius is the gait's own speed bound; no circle is admitted by a table.
  */
 export namespace AutoMovieArchetypeEquineLunge {
   /**
    * A point on the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation World metres.
-   * @evidence contracts/development/design.md#principled-representation Two coordinates.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The circle's centre.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IPoint {
     /** World X, metres. */
@@ -64,21 +54,11 @@ export namespace AutoMovieArchetypeEquineLunge {
 
   /**
    * Which side the centre is on: the left rein circles with the centre on the equid's left, turning left.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The equid's side facing the centre.
-   * @evidence contracts/development/design.md#principled-representation Closed literals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A rein's side.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Side = "left" | "right";
 
   /**
    * One work on a rein: laps at a gait.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The gait, the laps and the speed in metres per second.
-   * @evidence contracts/development/design.md#principled-representation A gait, a positive lap count and an optional speed.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a rein's course is made of.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IWork {
     /** The gait. */
@@ -93,11 +73,6 @@ export namespace AutoMovieArchetypeEquineLunge {
 
   /**
    * One rein: its side and its works in order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names its side and works.
-   * @evidence contracts/development/design.md#principled-representation A side and at least one work.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One ride of the lunge.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IRein {
     /** The side the centre is on. */
@@ -109,11 +84,6 @@ export namespace AutoMovieArchetypeEquineLunge {
 
   /**
    * A lunge.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation World metres, degrees and seconds.
-   * @evidence contracts/development/design.md#principled-representation The circle, the start, the reins and the authored rates and times.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `ride` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IParams {
     /** The circle's centre, where the handler stands. */
@@ -145,14 +115,6 @@ export namespace AutoMovieArchetypeEquineLunge {
    * @param params The lunge.
    * @returns The ride on the film clock from 0.
    * @throws {AutoMovieArchetypeRefusal} For malformed parameters, two reins on one side in a row, or a circle tighter than a work's gait admits; as the ride and the stance refuse.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the output and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Per rein a course of turn legs round the centre, its halt continued by the stance's turns on the centre, the next rein starting where they leave the root; a sample finds its rein by film second.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, one ride per rein, one dispatching sampler.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every rein is the ride's own course; nothing is blended between reins.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One ride and one stance per rein; a sample scans the reins.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the ride, its lean and the stance's turns.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the reins' rides.
    */
   export function ride<Id extends string, D extends string>(
     animal: AutoMovieArchetype<

@@ -72,20 +72,10 @@ type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
  * A mare and her foal: following at her flank, suckling, and the foaling.
  *
  * A following foal's course is the mare's own path read every `STEP` seconds and offset to her flank in her heading's frame, ridden as a timed course on the foal's own gait table, so its gait follows its speed as hers does. Suckling is a touching muzzle reach of the foal onto the mare's udder, read from her trunk bar: `HANG` below its underside at `UDDER` of the bar from the rear, the coarse body drawing no udder of its own. The foaling lies the mare down on her side with her limbs extended (`EquineRecumbency`); the newborn appears lying behind her at the delivery, rises through the shared sternal rest's rise and, once both stand, walks round to her flank, turns in to face her udder and makes its first suckling attempts. The offsets and the udder's place are authored.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how following, suckling and the foaling are staged and what is authored.
- * @evidence contracts/development/design.md#principled-representation Rides in, rides and cues out on one clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three entries and the udder reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rests and the reach are the shared ones.
  */
 export namespace AutoMovieArchetypeEquineFoal {
   /**
    * Where a following foal keeps to.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Metres in the mare's heading frame.
-   * @evidence contracts/development/design.md#principled-representation A side, a lateral and a back offset.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `follow` takes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IFollow {
     /** The mare's side it keeps to. */
@@ -100,11 +90,6 @@ export namespace AutoMovieArchetypeEquineFoal {
 
   /**
    * The foaling's timing.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Film seconds and the rests the mare and foal play.
-   * @evidence contracts/development/design.md#principled-representation A start, a delivery second, the rests and the suckling window.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `foaling` takes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IFoaling {
     /** Film second the mare starts lying down. */
@@ -128,11 +113,6 @@ export namespace AutoMovieArchetypeEquineFoal {
 
   /**
    * A newborn's first suckling: it walks to the mare's flank and reaches for her udder.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The side and the suckling's seconds.
-   * @evidence contracts/development/design.md#principled-representation A side and a length.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The foaling's optional suckling.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface INurse {
     /** The mare's side the foal suckles from. */
@@ -149,14 +129,6 @@ export namespace AutoMovieArchetypeEquineFoal {
    * @param mare The mare's ride.
    * @param keep Where the foal keeps to.
    * @returns The foal's ride over the mare's duration.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and output.
-   * @evidence contracts/development/implementation.md#principled-implementation Read the mare's placement every `STEP`, offset it in her heading frame and ride the foal on that timed course.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One sampled course, one ride.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(T / STEP) samples.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the quadruped ride.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride retains its course.
    */
   export function follow<Id extends string, D extends string>(
     foal: AutoMovieArchetype<Id, D | AutoMovieArchetypeQuadrupedBody.Dimension>,
@@ -192,14 +164,6 @@ export namespace AutoMovieArchetypeEquineFoal {
    *
    * @param mare A sample of the mare.
    * @returns The udder.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the construction.
-   * @evidence contracts/development/implementation.md#principled-implementation The point on the bar's axis at the share, moved down by the bar's radius across the axis.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bar read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by suckling.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function udder<Id extends string, D extends string>(
     mare: AutoMovieArchetypeRide.IPose<Id, D>,
@@ -246,14 +210,6 @@ export namespace AutoMovieArchetypeEquineFoal {
    * @param mare The mare's ride.
    * @param window The suckling's window.
    * @returns The foal's expression cue.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the cue.
-   * @evidence contracts/development/implementation.md#principled-implementation A tracked target on the mare's displayed udder, its course planned around her displayed body.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One cue.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One mare sample per foal sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the expression layer's reach.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cue retains the mare's ride.
    */
   export function suckling<Id extends string, D extends string>(
     mare: AutoMovieArchetypeRide.IRide<Id, D>,
@@ -283,14 +239,6 @@ export namespace AutoMovieArchetypeEquineFoal {
    * @param foal The newborn at rest.
    * @param timing The foaling's timing.
    * @returns The mare's ride and the foal's.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and outputs.
-   * @evidence contracts/development/implementation.md#principled-implementation The mare's recline through the shared lateral rest; the foal's sternal rest played from lying at the delivery, placed behind the mare's halt.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two rides.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One clip each.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the liberty recline and the shared rest.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The rides retain their clips.
    */
   export function foaling<Id extends string, D extends string>(
     mare: AutoMovieArchetype<Id, D | AutoMovieArchetypeQuadrupedBody.Dimension>,

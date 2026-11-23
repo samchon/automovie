@@ -24,11 +24,6 @@ type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
  * An equid's standing performance after its ride halts: authored whole-body responses played one after another over the halted stance.
  *
  * The halt is the base ride's own last sample (#3908's grounded halt): its four hoof endpoints are the stance's anchors and its trunk the stance's rest. Each response is a row of `EquineStanceRows` that gives a whole-body pose (`EquineBodyPose`) at each share of its entry, held through its hold and played back through its exit, the settle; a step aside ends standing where it stepped, and the next response starts from there. A response requested while the base ride still moves is refused, as is one whose pose a limb cannot reach or that puts a part under the floor, found when the response is admitted at its key instants. Before a response, and between responses, the sample is the stance at rest. The ride publishes each response's `<kind>:entry`, `:hold`, `:settle` and `:end` and its support events, such as `leftForeOff` and `leftForeOn`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the base, the rows, the chaining of responses, the refusals and the instants.
- * @evidence contracts/development/design.md#principled-representation A ride in, a ride out on the same film clock, the base ride's before its end.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One continuation; the poses are the rows' and the solve `EquineBodyPose`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No response runs over a moving base.
  */
 export namespace AutoMovieArchetypeEquineStance {
   /**
@@ -39,14 +34,6 @@ export namespace AutoMovieArchetypeEquineStance {
    * @param cues The responses, in time order, not overlapping.
    * @returns The ride continued by the stance.
    * @throws {AutoMovieArchetypeRefusal} For a response at a gait, overlapping or malformed phases, or a pose the rig cannot take.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Read the halt's anchors and trunk motion, admit the responses in order, each row starting from the previous one's end state, and admit each row's poses at its key instants by solving them; a sample finds its response by its film second and solves the row's pose at its share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Base reading, admission, a stateless sampler.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Before the first response the base ride's own sample is returned.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A sample does one scan of the C responses and one whole-body solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The prepared solver, anchors and row plans serve every sample.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the base ride, the solver and the row plans for as long as the caller keeps the ride.
    */
   export function after<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,

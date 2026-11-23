@@ -8,20 +8,10 @@ import type { rideQuadruped } from "./rideQuadruped";
 
 /**
  * A rider's or a cue's named-gait requests on a timed path: over each film-second interval the ride takes the named gait and lead, as a course leg naming them does; elsewhere the declared change rule chooses by speed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a cue requests and where the speed still chooses.
- * @evidence contracts/development/design.md#principled-representation A cue is a film-second interval and a gait, lowered to the same legs a course of legs states.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by QuadrupedTimedRoute; the stride decision and admission read the legs as they always do.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row order or speed picks a cued gait; a gait the speed cannot carry is refused by the ride's admission.
  */
 export namespace QuadrupedTimedCues {
   /**
    * One named-gait request.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Film seconds and the gait's names.
-   * @evidence contracts/development/design.md#principled-representation An interval and the leg's own gait and lead.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a timed path adds to a plan.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ICue {
     /** The film second the request begins. */
@@ -36,11 +26,6 @@ export namespace QuadrupedTimedCues {
 
   /**
    * A timed path with its cues.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both members.
-   * @evidence contracts/development/design.md#principled-representation The plan as given and its requests.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Accepted by rideQuadruped beside a plan and a course.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ICued {
     /** The planned course, such as `AutoMovieArchetypeCourse.timed`'s. */
@@ -57,14 +42,6 @@ export namespace QuadrupedTimedCues {
    * @param archetype The archetype's name, for a refusal.
    * @returns The route with one leg per cued or uncued stretch, and its leg spans with each stretch's fastest speed.
    * @throws {AutoMovieArchetypeRefusal} For a cue that is not finite, is empty, runs backward or overlaps the one before.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the split and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation A cue's seconds become the plan's distances there; the stretches between keep no gait, so the speed chooses there by the declared change rule; each stretch's span records its fastest speed for the admission.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, cut, scan.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The plan's geometry and timing are untouched; only the legs' names change.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(C) cuts and a 10 ms scan of the plan for the fastest speeds, as the halts are scanned.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the plan's samplers.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a small route.
    */
   export function split(
     route: QuadrupedTimedRoute.IRoute,

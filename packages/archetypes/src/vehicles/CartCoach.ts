@@ -11,11 +11,6 @@ import { createCart } from "./createCart";
 
 /**
  * The drawn carriers on two axles: a wagon and a closed carriage, each with its rear axle along `X` under the origin and its front axle turning about a pivot `wheelbase` ahead, carrying the pole.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what it builds and where the axles stand.
- * @evidence contracts/development/design.md#principled-representation One running gear for both: a rear pair, a front pair on a two-sided `wheel` articulation, and the pole on it; each body on that gear.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two builders `createCart` calls for its four-wheeled kinds.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The running gear is one helper, not a copy per kind.
  */
 export namespace CartCoach {
   /**
@@ -23,14 +18,6 @@ export namespace CartCoach {
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
-   * @evidence contracts/development/implementation.md#principled-implementation The specification's wheels, track, king-bolt station and tongue on the running gear, the tongue's end hanging `WAGON.drop` above the ground; the body's inside length, width and depth, its floor `WAGON.bed` above the hind axle, centred between the axles; the `bed` affordance on its floor. The hind wheels have fourteen spokes and the front twelve, as specified, and iron tyres: the specification's tyre, 2.5 in wide and 5/8 in thick, is bolted through each felloe, as only a metal tyre is (p. 1), so the wagon rests on iron, measured against stone.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Running gear, then the body.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's floor height and the front axle's lock are named provisional values; the cover, the bows and the feed trough are not built.
-   * @evidence contracts/development/implementation.md#efficient-algorithms About forty parts, most of them spokes.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function wagon(
     builder: AutoMovieArchetypeBuilder<
@@ -98,14 +85,6 @@ export namespace CartCoach {
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
-   * @evidence contracts/development/implementation.md#principled-implementation The museum broughams' wheels, wheelbase, length, width and height; the track the width less `CARRIAGE.hubs`; the carriage centred on its wheelbase; the closed body from the rear to just behind the front wheels' reach, its roof at `height`, a door on each side in its middle with the opening behind it, as `createCar`'s doors are, and a forward-facing seat across its back; the driver's `box` over the front axle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Running gear, the body, the doors, the seats.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The track, the floor, the seats, the doors, the pole and the lock are named provisional values (`CARRIAGE`); the lamps, the glass and the springs are not built.
-   * @evidence contracts/development/implementation.md#efficient-algorithms About forty parts, most of them spokes.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function carriage(
     builder: AutoMovieArchetypeBuilder<

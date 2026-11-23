@@ -69,11 +69,6 @@ interface IShakeShape {
  * The comfort rows of the stance: the standing rest on a tipped hind hoof, pawing, stamping, the cow-kick, the trunk shake and the camped-out stance.
  *
  * Each row follows the stance's shares and support rules (`EquineStanceRows`): before a hoof leaves the floor the weight moves inside the other three (`EquineStanceSupport.transfer`); every authored shift and turn is in the horse's own heading. The rest locks one hind and tilts the hips about its hip joint toward the resting side, setting the other hoof down on its toe with its terminal bar turned past vertical, its lower end behind its upper, so only the rim's front touches the floor (Equine posture ethogram, Animals 2021; the stay apparatus). A shake rolls the trunk over four planted hooves in whole cycles through its hold. Pawing, stamping and the cow-kick are `EquineHoofRows`' and camping out `EquineCampOut`'s. Every row returns to its start through its exit. All amplitudes are authored.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each row, the shared support rules and that amplitudes are authored.
- * @evidence contracts/development/design.md#principled-representation Each row is a stance plan: start and end states, a pose by share and, for the paw and the shake, a pose by second of the hold.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineStanceRows.plan` for the comfort rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sliding support: a planted hoof keeps its anchor and a moving hoof is lifted or scrapes on the floor plane by intent.
  */
 export namespace EquineComfortRows {
   /**
@@ -81,14 +76,6 @@ export namespace EquineComfortRows {
    *
    * @param cue The cue.
    * @returns Whether `plan` owns it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A set of the rows' kinds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The kinds are built once.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function owns(
     cue: AutoMovieArchetypeEquineStanceCue.Cue,
@@ -104,14 +91,6 @@ export namespace EquineComfortRows {
    * @param cue The row.
    * @returns Its plan, returning to the start.
    * @throws {RangeError} For a paw whose strokes are not a positive whole number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation One branch per row, each moving the weight before any release.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A dispatch over private rows.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are left to the stance's admission, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stance's support rules.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its states and chains.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,

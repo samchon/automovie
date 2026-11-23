@@ -8,20 +8,10 @@ import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadru
  * The ambling breeds' extra gaits, each a four-beat lateral-sequence stepping gait a horse takes only when its breed declares it: the Tennessee Walking Horse's running walk, the racking horse's rack, the Missouri Fox Trotter's fox trot, the Peruvian Paso's paso llano and the Paso Fino's paso corto.
  *
  * Source for the measured clocks: "Laterally Coordinated Gaits in the Modern Horse (Equus ferus caballus)", IntechOpen chapter 83285 (https://www.intechopen.com/chapters/83285), its text, Table 3 and supplementary Tables S2 and S7, which also summarise the literature (Nicodemus and Clayton 2003, Appl Anim Behav Sci 80:133, among others). A footfall's phase follows the lateral advanced placement L, the share of a stride by which each hind lands before its own side's fore: the left hind at 1 - L, the right fore at one half and the right hind at one half less L, from the left fore's landing.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names each gait, its breed and the source of each clock.
- * @evidence contracts/development/design.md#principled-representation Each gait is a species gait row set with its own phases, read by the shared ride as any gait.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies one table per breed; the ordinary horse keeps its four gaits.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Only a declared breed admits its gait, which is explicit-only: the speed never chooses it and no other gait stands in for it.
  */
 export namespace AutoMovieArchetypeEquineGaitedProfile {
   /**
    * The ambling breeds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each breed's gait: walking the running walk, racking the rack, foxTrotter the fox trot, peruvian the paso llano and pasoFino the paso corto.
-   * @evidence contracts/development/design.md#principled-representation A closed union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A horse's breed option.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals.
    */
   export type Breed =
     | "walking"
@@ -44,14 +34,6 @@ export namespace AutoMovieArchetypeEquineGaitedProfile {
    *
    * @param base The ordinary horse's profile.
    * @returns The gaited profile.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what changes.
-   * @evidence contracts/development/implementation.md#principled-implementation The band is the breeds' usual 1.42 to 1.63 m, provisional; the horse's proportions stand for the gaited body.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One spread.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body is the existing horse's, a construction proxy.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a profile.
    */
   export function shape(
     base: AutoMovieArchetypeEquine.IProfile,
@@ -133,14 +115,6 @@ export namespace AutoMovieArchetypeEquineGaitedProfile {
    *
    * @param breed The breed.
    * @returns The table.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is added.
-   * @evidence contracts/development/implementation.md#principled-implementation The four ordinary gaits, rules and scaling stay the horse's.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One spread.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The gait is explicit-only.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a small table.
    */
   export function table(breed: Breed): AutoMovieArchetypeQuadrupedGait.ITable {
     const [name, entry] = GAITS[breed];

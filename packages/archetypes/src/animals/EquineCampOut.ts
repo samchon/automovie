@@ -39,11 +39,6 @@ const HINDS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
  * The camped-out stance of urination: the hindquarters lowered, then each hind hoof stepped back in turn.
  *
  * A hind limb standing square is nearly straight, so stepping its hoof back with the hips where they were would take it out of its reach. The hindquarters are first lowered by pitching the trunk up about the shoulders, through the least angle that brings each hind's hip to within its halt distance of its stepped-back ankle, less `ROOM`: a circle-to-point distance on the sagittal plane, solved in closed form by the law of cosines. Each hind then steps back like any lifted hoof, the weight first moved inside the other three (`EquineStanceSupport.transfer`). The exit plays the entry back. The step length, swing height and room are authored.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States why the hindquarters lower, the closed-form angle, the stepping and what is authored.
- * @evidence contracts/development/design.md#principled-representation A stance plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineComfortRows.plan` for the camp row.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No search: the pitch is closed form; reach is still admitted by the stance.
  */
 export namespace EquineCampOut {
   /**
@@ -53,14 +48,6 @@ export namespace EquineCampOut {
    * @param start The state it starts from.
    * @param cue The camp row.
    * @returns Its plan, returning to the start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the output.
-   * @evidence contracts/development/implementation.md#principled-implementation Lower the hindquarters by the closed-form pitch, then step each hind back after its weight transfer.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Pitch, two steps, one pose function.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are left to the stance's admission, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan and pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stance's support rules.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its states.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,

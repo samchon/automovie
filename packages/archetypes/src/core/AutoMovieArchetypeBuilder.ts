@@ -32,11 +32,6 @@ import { buildNativeArchetype } from "./buildNativeArchetype";
  *
  * @template Id The archetype's affordance ids.
  * @template Dimension The archetype's free dimensions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a producer writes with it, the coarseness rule it serves and what `build` derives.
- * @evidence contracts/development/design.md#principled-representation Code CAD over named dimensions and formula-defined primitives or convex cells. One recorded cell supplies visible and physical boundaries; producer-authored corner formulas own the wall profile.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Existing primitive, span, contact and build calls remain unchanged. Armour uses convex to express hollow walls that filled primitives cannot represent; recording/material ownership is shared with existing parts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No call knows a kind of object; a repeated part id is a producer's defect and throws at once.
  */
 export class AutoMovieArchetypeBuilder<
   Id extends string,
@@ -76,14 +71,6 @@ export class AutoMovieArchetypeBuilder<
    * @param options Colour, relative density and rotation.
    * @returns This builder.
    * @throws {Error} When the id repeats one already used, a producer's defect.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's box primitive at the stated centre and rotation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of the shared part recorder.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A repeated id throws; nothing is renamed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts so far for the id, tens at most.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records one independent part or contact per call.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
    */
   public box(
     id: string,
@@ -110,14 +97,6 @@ export class AutoMovieArchetypeBuilder<
    * @param options Colour and relative density; `round` gives the bar hemispherical ends beyond the two points; a rotation is ignored, because the two ends fix it.
    * @returns This builder.
    * @throws {Error} When the id repeats one already used, a producer's defect.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation A cylinder or capsule whose axis, the primitive's `+Y`, is turned onto the line between the two ends by the shortest rotation and centred between them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Span, then one call of the shared part recorder.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Two coincident ends give a bar of no length, which the model validator refuses; nothing is guessed here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts so far for the id, tens at most.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records one independent part or contact per call.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
    */
   public rod(
     id: string,
@@ -149,14 +128,6 @@ export class AutoMovieArchetypeBuilder<
    * @param options Colour and relative density.
    * @returns This builder.
    * @throws {Error} When the id repeats one already used, a producer's defect.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's sphere primitive at the stated centre.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of the shared part recorder.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A repeated id throws; nothing is renamed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts so far for the id, tens at most.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records one independent part or contact per call.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
    */
   public ball(
     id: string,
@@ -175,13 +146,6 @@ export class AutoMovieArchetypeBuilder<
    * @param options Existing colour, rigid rotation, mass weight and surface options.
    * @returns This builder.
    * @throws {Error} For a repeated id or inadmissible convex cell.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the copied local point set, rigid placement and cell premise.
-   * @evidence contracts/development/implementation.md#principled-implementation AutoMovieArchetypeConvexCell derives the visible polyhedron, hull collider and local integrated mass from one explicit convex volume. An already admitted immutable cell can be reused for exactly rigid-equivalent instances, with each part's own transform. Hollow forms use separate wall cells.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Use a prepared cell or derive it from copied corners, record its exact mesh through the common part owner, then retain its physical correspondence by id.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No whole-shell hull or hidden solid fills a cavity, and no arbitrary mesh is guessed convex.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Raw corners require one small V-corner hull preparation. A prepared cell reuses all geometry and integration in constant time; every added part still scans P existing ids. Both build reductions reuse the prepared mass record.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One admitted cell serves rendering, mass, collision and subsequent rigid poses; optical material recording is shared with primitives.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Raw corners are copied into owned cell buffers; a supplied immutable prepared cell is explicitly shared. The builder retains cells until build hands them to the archetype. No caller raw-point array or external resource is retained.
    */
   public convex(
     id: string,
@@ -198,14 +162,6 @@ export class AutoMovieArchetypeBuilder<
 
   /**
    * Place a visual mesh in model metres with an optional flat colour and rotation. The builder takes the mesh buffers as supplied.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States placement, optional inputs and buffer ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Records a mesh through the common part inventory without declaring a primitive or convex cell, so mass and shape reductions omit it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One inventory call using the mesh unchanged.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither assigns mass options nor implies that the mesh is a collider.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The shared inventory scans the existing part ids; the vertex buffers are neither scanned nor copied.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same placement, material and id recording as primitives.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Buffers pass through the inventory to the built model without external resources.
    */
   public visualMesh(
     id: string,
@@ -230,14 +186,6 @@ export class AutoMovieArchetypeBuilder<
    * @returns This builder.
    * @throws {Error} When the id repeats one already used, a producer's defect.
    * @throws {AutoMovieArchetypeRefusal} When an end names a part or affordance not yet recorded, or the two ends meet at rest.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input's unit, what an end may name and when, and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation Shared span state resolves both rest anchors and any held extension before recording the cylinder, so rest mass uses its full drawn length. The archetype resolves the same declaration after each pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Locate, record the rod, record the span.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An end must already exist, so the rest line is the one every pose lays; coincident ends are refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts and affordances so far, tens at most.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses rod construction and the same state operation used by posed lines and grip frames.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
    */
   public span(
     id: string,
@@ -271,14 +219,6 @@ export class AutoMovieArchetypeBuilder<
 
   /**
    * Bind a construction point to a real part already laid by this builder.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Converts model metres to the named carrier's local span coordinates.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegate rigid-frame inversion to the shared span-anchor owner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call, without recording an extra part or contact.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No reconstructed carrier frame or hidden world anchor is substituted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The owner performs one O(P) part lookup and constant rigid arithmetic.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the already-built frame and the common anchor conversion.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new local endpoint without retaining a query or external handle.
    */
   public anchor(
     id: string,
@@ -297,14 +237,6 @@ export class AutoMovieArchetypeBuilder<
    *
    * @param affordance The contact at rest, its frame in the model's space; `extent` is null for every kind but `stack-top`.
    * @returns This builder.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The record is kept as written; its id is checked against the producer's closed id type by the compiler.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One push.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is validated here: `validateModel` admits the built archetype's affordances, as the contract test runs for every producer.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records one independent part or contact per call.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
    */
   public affordance(affordance: IAutoMovieAffordance & { id: Id }): this {
     this.#affordances.push(affordance);
@@ -317,14 +249,6 @@ export class AutoMovieArchetypeBuilder<
    * @param sets The fragment sets, each an id, the parts it carries away and the contacts on them that move none; declared after those contacts.
    * @returns This builder.
    * @throws {Error} When a set's id is declared twice, a set carries no part, a set names a part not yet recorded or one a set already names (its own included), or a contact not yet declared or one a set already carries, a producer's defect.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what a set is, where the threshold goes and the failures.
-   * @evidence contracts/development/implementation.md#principled-implementation Each set's id is unique and its parts exist, at least one, each named once across the sets, so every part is in at most one fragment and the remainder is the rest; each contact a set carries is declared and carried by one set only.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One check per part, then the record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A repeated id, an empty set, or an unknown or shared part or contact throws rather than being dropped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts per named part, tens at most.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records once per producer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps the sets until `build` hands them to the archetype.
    */
   public fracture(sets: readonly AutoMovieArchetypeFracture.ISet[]): this {
     const named: Set<string> = new Set(
@@ -390,14 +314,6 @@ export class AutoMovieArchetypeBuilder<
    * @returns The archetype at rest.
    * @throws {Error} As `AutoMovieArchetypeMass.of` does when no part has mass.
    * @throws {AutoMovieArchetypeRefusal} When the physical material is missing or unknown, an explicit restitution is invalid, or no source measured a declared resting pair.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation Admits the producer's physical material and only an explicit authored restitution through AutoMovieArchetypeMaterial, selects cited resting-pair friction, and computes mass properties from the recorded parts under the stated mass. Published restitution measurements retain pair, speed and specimen conditions separately.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Material and contact admission precede one construction from the builder's recorded geometry and mass properties.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing material is refused. Unmeasured restitution and undeclared resting friction remain absent; neither becomes zero or a universal coefficient. The mass remains the producer's cited value rather than a guessed density-derived total.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, through `AutoMovieArchetypeMass.of`.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Aggregate and per-part mass reductions share admitted cell integration records and the same local-solid/weight owners; geometry and material records pass directly to the built archetype.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
    */
   public build(
     mass: number,
@@ -488,22 +404,12 @@ export namespace AutoMovieArchetypeBuilder {
 
   /**
    * The producer identity and draw record, with an explicit physical material.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Preserves the public builder-input name and delegates fields and units to the shared type owner.
-   * @evidence contracts/development/design.md#principled-representation Aliases the unchanged producer identity, typed dimension provenance and physical reference material record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Existing constructors and producer helpers keep their established import and generic dimension parameter.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Introduces no parallel fields or broader name/coefficient representation.
    */
   export type IProps<Dimension extends string> =
     ArchetypeBuilderTypes.IProps<Dimension>;
 
   /**
    * The primitive-part options, preserving the existing public builder name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Delegates optical colour, mass, rigid placement and physical surface meanings to the shared type owner.
-   * @evidence contracts/development/design.md#principled-representation Aliases the same part-option record and existing geometry/material types.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Existing box, rod and ball callers retain their current option type while its fields have one owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no producer-specific option or duplicate physical coefficient.
    */
   export type IOptions = ArchetypeBuilderTypes.IOptions;
 }

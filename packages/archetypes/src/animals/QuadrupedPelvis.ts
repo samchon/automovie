@@ -10,11 +10,6 @@ const STEPS: number = 60;
  * The pelvis turning in the sagittal plane at the lumbosacral joint, carrying both hip joints fore and aft so the hind limbs follow a planted hoof's reach, as the shoulder blade does for a fore (`QuadrupedScapula`).
  *
  * The pelvis is the rig's hindquarters bar, from which both femurs hang; its origin, where it joins the trunk, stands for the lumbosacral joint, so the lever from the joint to each hip is the rig's own (no measured lumbosacral-to-hip distance was found; the identification is provisional). At rest the pelvis is unturned, so every rest pose stays as it was. Both hips turn together, so the two hinds bound the root jointly: the highest root at which one turn within half the pelvis's range either way lets both reach (`high`), and at the chosen root the turn nearest rest that does (`turn`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the bar, its joint, the provisional lever, its rest and the joint bound and turn.
- * @evidence contracts/development/design.md#principled-representation A turn about the model X axis through the lumbosacral joint moves each hip on an arc, the shoulder blade's arc (`QuadrupedScapula.glenoid`), shared by both hips.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the pelvis's range, the hinds' joint root bound and the shared turn; the root interval and the ride pose read them.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No detached hip or stretched bone; the pelvis turns rigidly within the cited range.
  */
 export namespace QuadrupedPelvis {
   /** The bone that turns: the hindquarters bar, the femurs' parent. */
@@ -25,11 +20,6 @@ export namespace QuadrupedPelvis {
 
   /**
    * One hind's hip and the root constraint it must meet.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Model space, metres, before the root translation.
-   * @evidence contracts/development/design.md#principled-representation The pelvis's joint with this hip, the hind's ankle goal and its radial reach.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `high` and `turn` read for each hind.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IHip {
     /** The lumbosacral joint and this hip at rest. */
@@ -47,14 +37,6 @@ export namespace QuadrupedPelvis {
    *
    * @param hips Each hind's hip and constraint.
    * @returns The bound, metres; negative infinity when no turn lets them all reach.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bound and its unit.
-   * @evidence contracts/development/implementation.md#principled-implementation Each hind's highest root at a turn is its goal's height less the turned hip's plus the vertical leg of its reach over the remaining horizontal offset; the lowest over the hinds is concave in the turn on the range, so its maximum is found by a golden-section search, an out-of-reach hind counted by its horizontal excess so the search climbs back toward reach.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One search over one angle.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No reach is padded; an unreachable set is negative infinity.
-   * @evidence contracts/development/implementation.md#efficient-algorithms `STEPS` evaluations of two closed forms.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the scapula's arc.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function high(hips: readonly IHip[]): number {
     const best: number = search(hips, 0);
@@ -68,14 +50,6 @@ export namespace QuadrupedPelvis {
    * @param height The chosen root translation, metres.
    * @param margin The coordinate roundoff budget, metres: each hip is aimed this far inside its reach so the exact limb solve admits it.
    * @returns The turn, radians, right-handed about +X; zero when the rest hips reach; the best turn when none lets all reach, which the limb solve then refuses.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the choice, the unit and the unreachable case.
-   * @evidence contracts/development/implementation.md#principled-implementation The set of turns admitting the root is an interval about the best turn, the joint bound being concave; bisect between rest and the best turn for its end nearest rest.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Rest, the best turn, one bisection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turn never leaves the cited range.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most two `STEPS` searches.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the bound's closed forms.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function turn(
     hips: readonly IHip[],

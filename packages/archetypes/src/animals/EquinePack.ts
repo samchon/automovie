@@ -15,11 +15,6 @@ import { EquineHarness } from "./EquineHarness";
  * An equid's pack saddle, laid on its body: the Phillips cargo pack saddle of FM 25-7 (War Department, Pack Transportation, 1944; https://ciehub.info/ref/FM/25-7_1944.pdf), its pads over the back, a cinch round the barrel, a breast collar, a croup piece and a breeching, with a load against each side.
  *
  * The saddle is sized for the equid it is laid on: the manual's cargo saddle fits its pack mule, 14 3/4 to 15 1/2 hands, so an equid of another height takes its pads scaled by its height over that mule's, and its weight by the cube of that ratio, the isometric similarity the equids' mass law rests on (`AutoMovieArchetypeEquine.mass`); a mule of the manual's middle height carries the read saddle. The pads drape over the barrel from the spine, centred where a riding saddle sits (`AutoMovieArchetypeEquine.SADDLE`, an estimate the manual's placement, 2 or 3 inches behind the shoulder blade, cannot replace, since the body has no shoulder blade). The breast collar bears just above the point of shoulder (par. 13d), the breeching's body piece an inch behind the buttocks (par. 13c(1)), and the croup piece ends over the croup a hand's breadth above the tail's root (par. 13c(1)), the packer's hand being ANSUR II's (`BANDS`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is laid, where each part lies, how it is sized and the source of each place.
- * @evidence contracts/development/design.md#principled-representation The pads as straight segments round the barrel, the straps as round bars, the loads as surfaces on the pads' sides.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `lay`, the read saddle, the mule it fits, the breeching's clearance and the hand's band; `createHorse` calls it for `tack` `pack`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The places come from the equid's own rig and the sizes from the read saddle by one stated similarity; every value no source gives is a named estimate.
  */
 export namespace EquinePack {
   /** The Phillips cargo pack saddle, FM 25-7 par. 8a, p. 20: "Pads are 23 by 25 inches", taken as 23 along the back and 25 across it, a provisional assignment since the manual does not say which is which; it "weighs 72 pounds (exclusive of breeching and cinches)", and rigged "with these accessories, it weighs approximately 95 pounds" (par. 9, p. 20). */
@@ -60,14 +55,6 @@ export namespace EquinePack {
    *
    * @param withers The equid's height at the withers, metres.
    * @returns The pads' length along and width across the back, metres, and the saddle's mass and its rigged mass, kilograms.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the scaling and its anchor.
-   * @evidence contracts/development/implementation.md#principled-implementation Isometric similarity from the read saddle on the manual's mule: lengths by the height's ratio, mass by its cube.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ratio, four products.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of the saddle's size, read by `lay` and by a caller loading the equid.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function saddle(
     withers: number,
@@ -87,14 +74,6 @@ export namespace EquinePack {
    * @param builder The equid under construction, its body laid.
    * @param d The equid's dimensions.
    * @param rig The equid's rest rig.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it adds and what it reads.
-   * @evidence contracts/development/implementation.md#principled-implementation Each part on the body the rig describes: the pads on the barrel's surface from the spine down each side by half their width, the cinch round the barrel through the pads' lower edges, the breast collar on `EquineHarness.chest`'s round at the point of shoulder's height, the breeching an inch behind the hindquarters' rounded end at the point of buttock's height, the croup piece along the spine to its clearance above the tail's root.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Pads and loads, cinch, breast collar, croup piece, breeching.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every part carries read mass, as a percent of the equid's, the body's shares being percents of its mass (`AutoMovieArchetypeQuadrupedBody.lay`): the pads the saddle's, the straps the rigged saddle's rest, shared evenly, so the equid built at its mass plus the rigged saddle's keeps its body at its own.
-   * @evidence contracts/development/implementation.md#efficient-algorithms About forty parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one saddle.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<

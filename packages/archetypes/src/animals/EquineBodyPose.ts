@@ -23,20 +23,10 @@ import { createQuadruped } from "./createQuadruped";
  * A whole-body pose of an equid on its own hooves: its trunk moved as one rigid body, each limb either placed with its hoof at a point or folded off the floor, solved through the rig.
  *
  * The trunk with the hindquarters, neck, head and tail is one rigid body moved from the rest model by `trunk`. A placed limb keeps its terminal endpoint on an anchor with the terminal bar's base direction in the world, so a flat hoof stays flat, and its proximal bars are solved by the shared exact limb owner (`AutoMovieArchetypeQuadrupedLimb`) with a declared relative fold; an anchor on the floor is a planted support. A folded limb turns its joints from a given chain by declared angles, forward kinematics in the trunk's own frame. Each bar is then turned from its rest direction onto its posed one and every part and contact rides its declared carrier (`AutoMovieArchetypeQuadrupedSkeleton.apply`). A limb that cannot reach its anchor, or a pose that puts any part under the floor, is refused. The centre of mass is approximated by the rest model's carried rigidly with the trunk, neglecting what the limbs, neck and head shift: a stated coarse proxy for weight transfer, not a load distribution.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the rigid trunk, the placed and folded limb rules, the solve and emission owners, the refusals and the centre-of-mass proxy with its limitation.
- * @evidence contracts/development/design.md#principled-representation A trunk motion and four limb states in metres and degrees in the base model's space; the placed/folded union separates the two limb rules.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One solver shared by every standing behaviour of `AutoMovieArchetypeEquineStance`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No stretched bar, moved attachment or clamped endpoint: an unreachable limb refuses.
  */
 export namespace EquineBodyPose {
   /**
    * A limb whose hoof is placed at a point: on the floor it is a planted support.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The anchor is the terminal endpoint in the base model's space; fold is the relative carpus or hock fold in degrees.
-   * @evidence contracts/development/design.md#principled-representation An anchor and a fold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A `Limb` member.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IPlaced {
     /** Discriminator. */
@@ -54,11 +44,6 @@ export namespace EquineBodyPose {
 
   /**
    * A limb folded off the floor: a chain in the trunk's frame with its joints turned.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The chain's five joints are in the rest model's space, which moves with the trunk; each angle turns the bar below its joint and everything under it about the limb's lateral axis, degrees, positive swinging the distal end backward.
-   * @evidence contracts/development/design.md#principled-representation A source chain and four joint angles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A `Limb` member.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IFolded {
     /** Discriminator. */
@@ -73,21 +58,11 @@ export namespace EquineBodyPose {
 
   /**
    * One limb's state.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Placed or folded.
-   * @evidence contracts/development/design.md#principled-representation A discriminated union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The limbs of `IGoal`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Limb = IPlaced | IFolded;
 
   /**
    * A whole-body pose.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The trunk's rigid motion from the rest model into the base model's space, and every limb's state.
-   * @evidence contracts/development/design.md#principled-representation One rigid motion and four limbs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `IPrepared.solve` takes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IGoal {
     /** The trunk's rigid motion. */
@@ -102,11 +77,6 @@ export namespace EquineBodyPose {
 
   /**
    * One equid's rest data and its solver.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each member gives and its frame.
-   * @evidence contracts/development/design.md#principled-representation The rest chains and centre of mass in the rest model's space, and the solver.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the stance planner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IPrepared<Id extends string, D extends string> {
     /** Each limb's five rest joints, shoulder or hip to terminal endpoint, rest model space. */
@@ -122,14 +92,6 @@ export namespace EquineBodyPose {
 
     /**
      * Each limb's five posed joints in the trunk's frame (rest model space).
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Returns the solved or folded chain; refuses an unreachable anchor.
-     * @evidence contracts/development/implementation.md#principled-implementation A placed limb is the exact oriented limb solve toward its anchor carried into the trunk's frame with the base terminal direction; a folded limb turns its chain joint by joint about the lateral axis.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per limb state.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach is refused by the limb owner, never clamped.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per limb.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared limb solvers serve every call.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh points and retains nothing.
      */
     chain(
       limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -139,14 +101,6 @@ export namespace EquineBodyPose {
 
     /**
      * How far a limb's terminal part reaches below its endpoint when its bar points along a direction.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Metres; the direction runs from the bar's start to its endpoint.
-     * @evidence contracts/development/implementation.md#principled-implementation A capsule's cap reaches its radius below its endpoint; a cylinder's end disc reaches its radius times the bar's horizontal share, the rim's lowest point.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per primitive.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read from the terminal part.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The terminal parts are read once when prepared.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     sole(
       limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -155,14 +109,6 @@ export namespace EquineBodyPose {
 
     /**
      * The posed equid in the base model's space.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Returns the model; refuses an unreachable limb or a part under the floor at the given placement.
-     * @evidence contracts/development/implementation.md#principled-implementation Move the axial bones rigidly, pose each limb with `chain`, turn each bar onto its posed direction and emit through the carriers; then measure every part's lowest point under the placement.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Trunk, four limbs, emission, floor check.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are refused, never clamped.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Four constant-size limb poses, O(B) frames and O(P+A) emission and floor work.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared chains, solvers and carriers serve every sample.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh model and retains nothing.
      */
     solve(
       goal: IGoal,
@@ -176,14 +122,6 @@ export namespace EquineBodyPose {
    * @param animal The equid at rest, as its producer built it.
    * @returns The prepared solver.
    * @throws {RangeError} For a model missing a rig bar.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and output.
-   * @evidence contracts/development/implementation.md#principled-implementation Read the rest FK frames, each limb's five joints from its four bars, the rest centre of mass and the declared carriers.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rig read, one chain read per limb, one carrier read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Chains come from the bars, never from a species table.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(B+P) once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Everything prepared serves every pose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the rest frames, chains, carriers and the source model for as long as the caller keeps the solver.
    */
   export function prepare<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
@@ -409,14 +347,6 @@ export namespace EquineBodyPose {
    * @param shift The translation after the turns, metres.
    * @param heading The frame whose X and Z the turns are about, such as a stance's yaw after a spin; the base model's own axes when absent.
    * @returns The motion.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each argument's unit, axis and sign.
-   * @evidence contracts/development/implementation.md#principled-implementation A turn about X by minus the pitch raises +Z, a turn about Z by the roll raises +X, conjugated into the heading's frame, composed about the pivot and followed by the shift.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two axis-angle turns and one translation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every stance row.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function turn(
     pitch: number,
@@ -452,14 +382,6 @@ export namespace EquineBodyPose {
    * @param motion The motion.
    * @param point The point.
    * @returns The moved point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Rotation then translation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the stance planner's centre-of-mass and pivot reads.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function point(
     motion: AutoMovieArchetypeFrame.IMotion,

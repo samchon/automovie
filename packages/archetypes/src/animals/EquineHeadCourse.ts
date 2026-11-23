@@ -35,20 +35,10 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
  * The head channel's course from one carriage of the neck and head to another, planned around another body.
  *
  * The neck is the bar from its root to the poll and the head the bar from the poll to the muzzle's end, each a capsule of its drawn radius. A course runs straight from the start turns to the goal turns, each bar's turn slerped by the share, when that path keeps both bars clear of every bar of the other body at `CHECKS` shares; otherwise it passes through the first of the authored dips (`DIPS`, the carriage `EquineHeadReach.pitched` gives) whose two legs, start to dip over the first half and dip to goal over the second, keep them clear. No course clears, and it refuses. It is the head's counterpart of planning an arm's course around obstacles: closed-form legs, chosen from a short authored list by an exact segment-distance test.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the bars, the direct and dipped courses, the clearance test and the refusal.
- * @evidence contracts/development/design.md#principled-representation Turns in, a chosen course out.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the expression layer's head channel.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No penetration is accepted: a course that cannot clear refuses.
  */
 export namespace EquineHeadCourse {
   /**
    * A bar of the other body: a capsule's segment and radius in this animal's model space.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Metres in the moving animal's model space.
-   * @evidence contracts/development/design.md#principled-representation Two ends and a radius.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a course is checked against.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IObstacle {
     /** The bar's part id. */
@@ -66,11 +56,6 @@ export namespace EquineHeadCourse {
 
   /**
    * The neck's and head's drawn radii.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Metres.
-   * @evidence contracts/development/design.md#principled-representation Two radii.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The moving bars' thickness.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IRadii {
     /** The neck bar's radius. */
@@ -82,11 +67,6 @@ export namespace EquineHeadCourse {
 
   /**
    * A chosen course: the turns it passes through, the start itself for a direct course.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what a direct course is.
-   * @evidence contracts/development/design.md#principled-representation A via turn and whether it is used.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `plan`, read by `shown`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IPath {
     /** Whether the course runs straight from start to goal. */
@@ -106,14 +86,6 @@ export namespace EquineHeadCourse {
    * @param obstacles The other body's bars.
    * @returns The course.
    * @throws {RangeError} When no candidate course clears the other body.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Test the direct path, then each dip in order, at `CHECKS` shares by exact segment distances.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One candidate loop and one clearance test.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A course that only clears by tolerance at its end, where it touches, is the only allowance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(C × CHECKS × O) for C candidates and O obstacle bars.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the head channel's carriage.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh course.
    */
   export function plan(
     bars: EquineHeadReach.IBars,
@@ -162,14 +134,6 @@ export namespace EquineHeadCourse {
    * @param goal Its goal turns.
    * @param share The share, 0 to 1.
    * @returns The turns to show in full.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two forms.
-   * @evidence contracts/development/implementation.md#principled-implementation A direct course slerps each bar from start to goal; a dipped one slerps to the dip over the first half and on to the goal over the second.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same shown turns the plan was checked on.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function shown(
     path: IPath,
@@ -187,14 +151,6 @@ export namespace EquineHeadCourse {
    * The rest carriage: no turn.
    *
    * @returns The identity turns.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Two unit quaternions.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A course's start from rest.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rest(): EquineHeadReach.ITurn {
     return { neck: IDENTITY, head: IDENTITY };

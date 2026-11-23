@@ -21,11 +21,6 @@ type Drawn = Readonly<Partial<Record<createLongGun.Dimension, number>>>;
  * The mechanisms of the period and repeating long guns, laid on the gun `createLongGun` builds along `+Z`, its barrel's line at `y = 0` and its lock on the right, `-X`: a musket's flintlock and ramrod, a bolt action's bolt and magazine, and a lever action's lever and the hammer it cocks.
  *
  * Every place and angle the read sources do not give is a named estimate in `ESTIMATES`; the searches are recorded in the sources record (records-firearms-flintlock.md, records-firearms-rifles.md).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each mechanism adds, how the gun lies and where the unread places are.
- * @evidence contracts/development/design.md#principled-representation Each mechanism as the parts a hand works and the articulations that move them, the hinges about the axes they turn on and the sliders along the bore.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The contacts #3488's drill, cycling and loading rows bind to: `cock`, `frizzen`, `pan`, `ramrod`, `pipe`, `muzzle` and `bayonet`; `bolt`, `boltSlide` and `magazine`; `lever` and `hammer`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every unread place is a named estimate here, never a bare number in a builder.
  */
 export namespace LongGunLock {
   /**
@@ -116,14 +111,6 @@ export namespace LongGunLock {
    *
    * @param d The gun's dimensions.
    * @returns The swell's place along `+Z`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States where the hand goes, the drill that puts it there and where the place comes from.
-   * @evidence contracts/development/implementation.md#principled-implementation The swell at the rearmost of the pipes laid along the fore-end, the ramrod's entry into the stock.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression over the pipes' spacing.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pipes' places are `ESTIMATES.rod`'s, and so the swell's.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per musket.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function swell(d: Drawn): number {
     const breech: number = d.length! - d.barrel!;
@@ -136,14 +123,6 @@ export namespace LongGunLock {
    *
    * @param builder The gun under construction, its stock and barrel laid.
    * @param d The gun's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each part's place and each articulation's sense.
-   * @evidence contracts/development/implementation.md#principled-implementation The ramrod is the barrel's length, so rammed home its tip reaches the breech, and its travel takes its tail out of the front pipe, so a fully drawn rod is free; the lock is the shared flintlock at the breech.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The lock, the rod and its pipes, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pipes' places and the rod's setback are `ESTIMATES.rod`'s.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms About ten parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one lock.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function musket(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -232,14 +211,6 @@ export namespace LongGunLock {
    *
    * @param builder The gun under construction.
    * @param d The gun's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two motions and the magazine's opening.
-   * @evidence contracts/development/implementation.md#principled-implementation The handle stands out on the right at the breech; the lift turns it up about the bore's axis, and the slide, riding the lift, draws bolt and handle back along the bore.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bolt and handle, then the three contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lift, the stroke and the handle's reach are `ESTIMATES.bolt`'s; the cocking piece and the extractor are not modelled.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one bolt.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bolt(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -297,14 +268,6 @@ export namespace LongGunLock {
    *
    * @param builder The gun under construction.
    * @param d The gun's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two hinges and their coupling.
-   * @evidence contracts/development/implementation.md#principled-implementation One leader and one follower by a ratio, the hammer reaching full cock at the lever's full swing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Lever and hammer, then the two contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The swing, the fall and the loop are `ESTIMATES.lever`'s; the carrier and the tube magazine's gate are not modelled.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one action.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lever(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;

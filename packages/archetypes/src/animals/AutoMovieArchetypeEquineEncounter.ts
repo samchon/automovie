@@ -69,11 +69,6 @@ type Pair<T> = readonly [T, T];
  * Two horses' agonistic encounter on one scene clock: threats, bites, rearing strikes and double-barrel kicks aimed at named regions of the other horse, the struck horse's response and an optional retreat.
  *
  * Each horse rides into the encounter and halts. A strike or kick is a stance row (`EquineEncounterRows`) whose hooves go to the aimed region's surface on the other horse's halted body, read from its bar: the region's point on the bar's axis pushed out along the bar's radius toward the attacker; the hoof's endpoint goes onto that point with its terminal bar along the inward normal, so the hoof's sole meets the surface end-on without entering it. A bite is a touching muzzle reach (`AutoMovieArchetypeEquineExpression`) onto the region's surface facing the biter's poll, so the head comes in along the surface's normal, tracked on the other horse's staged ride. A threat pins both ears back and faces the other horse's head. When each contact act ends the struck horse pins its ears and turns its head to the attacker for `RESPONSE`, so the touched region holds still while touched and the attacker's limbs are back down. A retreat plays its own ride from its start second, beginning at the halt. An unreachable region is refused by the stance or the reach.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the clock, how each act is aimed and staged, the response, the retreat and the refusals.
- * @evidence contracts/development/design.md#principled-representation Two rides in, two rides out on the same clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One entry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Contacts are touches at surfaces; no physics.
  */
 export namespace AutoMovieArchetypeEquineEncounter {
   /**
@@ -84,14 +79,6 @@ export namespace AutoMovieArchetypeEquineEncounter {
    * @param acts The acts.
    * @returns The two staged rides.
    * @throws {AutoMovieArchetypeRefusal} As the stance and the expression layer refuse: an act while moving, overlapping acts, or an unreachable region.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Aim each strike and kick at the other horse's halted body and stage both stances; then aim the bites, threats and responses at the staged rides and layer the expressions; then append the retreats.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Stances, expressions, retreats.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per act; sampling is the layers'.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the stance and the expression layer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The rides retain their layers.
    */
   export function stage<Id extends string, D extends string>(
     animals: Pair<AutoMovieArchetype<Id, D>>,

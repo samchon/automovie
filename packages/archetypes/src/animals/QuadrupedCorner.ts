@@ -4,20 +4,10 @@ import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQua
 
 /**
  * Footholds kept clear of a concave edge between authored footing planes: where a steeper plane meets a gentler one below it, at the foot of a bank or the bottom of a climb, a hoof landing within its pastern's length of the edge lays the pastern back over the rising plane and into it. A landing that falls within that reach moves away from the edge along its own plane until it is a pastern's length clear, the nearer of the two sides the stride could take; a convex edge, the top of a bank, keeps its landings.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the geometry, the reach, the move and the edges left alone.
- * @evidence contracts/development/design.md#principled-representation The footing's own planes and their shared bounds, and the limb's pastern length.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the hoof track's foothold placement.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No constant: the reach is the pastern's own length, the edges the planes' own bounds.
  */
 export namespace QuadrupedCorner {
   /**
    * Move a world foothold clear of the concave edges within a reach of it, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the point and the reach in metres and the returned point.
-   * @evidence contracts/development/design.md#principled-representation A function from a world point and a reach to the cleared point.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The one shape `QuadrupedCorner` takes and returns.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Clear = (
     point: IAutoMovieVector3,
@@ -35,14 +25,6 @@ export namespace QuadrupedCorner {
    *
    * @param scene The authored footing, absent for level ground.
    * @returns The mover; the identity without footing.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the identity case.
-   * @evidence contracts/development/implementation.md#principled-implementation Two planes abutting along a bound meet at an edge; it is concave when the plane on the bound's low side falls toward it more steeply than the plane on its high side, so the surface turns upward across it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the plane under the foothold, test each abutting plane along each axis, move off each concave edge in reach.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foothold is moved only along its own plane and never past another edge it then reaches; convex edges are left alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Quadratic in the few planes per foothold.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The scene's own planes and bounds.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the caller's scene.
    */
   export function of(
     scene: AutoMovieArchetypeQuadrupedFooting.IScene | undefined,

@@ -11,20 +11,10 @@ const CIGARETTE: string =
 
 /**
  * The seeded recipes originally published as `createSmoking`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The seeded recipes originally published as `createSmoking`.
- * @evidence contracts/development/design.md#principled-representation The original dimension order, units, bands and model choices define the saved seed streams.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The named producers read their recipes here and own their geometry and contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Makes no alternate draws for a named producer.
  */
 export namespace SmokingPropDraw {
   /**
    * The kinds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The saved recipe's closed selector.
-   * @evidence contracts/development/design.md#principled-representation One literal identifies each saved prop recipe, including stored selections.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The dispatcher and seeded preparation consume the same names.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second producer or geometry is drawn for a saved alias.
    */
   export type Kind = "cigarette" | "lighter";
 
@@ -39,11 +29,6 @@ export namespace SmokingPropDraw {
    * - `flame`: where fire is: a cigarette's lit end, or the point above a lighter's top where its flame stands.
    * - `wheel`: a lighter's spark wheel, a knob the thumb rolls a quarter turn (the turn is an estimate).
    * - `valve`: a lighter's gas lever, a button under the thumb pressed 3 mm (an estimate).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The saved contact identifiers for these props.
-   * @evidence contracts/development/design.md#principled-representation A closed union covers the contacts built by every shape in this family.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The compatibility surface keeps existing contact names while named producers declare the contacts they own.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The saved union does not manufacture contact frames absent from a shape.
    */
   export type Affordance = "grip" | "mouth" | "flame" | "wheel" | "valve";
 
@@ -55,11 +40,6 @@ export namespace SmokingPropDraw {
    * - `width`: a lighter's width along `+X`.
    * - `filter`: the length of a cigarette's filter.
    * - `mass`: kilograms.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The saved axis names for drawn dimensions.
-   * @evidence contracts/development/design.md#principled-representation Each member records a length, mass, or documented quantity in the associated unit table.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seeded preparation records values under the names that existing callers inspect.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The variant and model tables determine which values can be overridden.
    */
   export type Dimension = "length" | "diameter" | "width" | "filter" | "mass";
 
@@ -76,11 +56,6 @@ export namespace SmokingPropDraw {
 
   /**
    * The parameters: the kind, and any free dimension fixed to a value inside its band.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The input to the prop recipe.
-   * @evidence contracts/development/design.md#principled-representation The optional identifier and dimensions use the existing declared units and per-variant bounds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The input carries the selection fields and has no separate copied geometry.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Runtime admission rejects refused values and dependent overrides.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which thing. */
@@ -95,21 +70,11 @@ export namespace SmokingPropDraw {
 
   /**
    * A model's read figures, by dimension.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Read figures of a manufacturer model.
-   * @evidence contracts/development/design.md#principled-representation The optional per-dimension entries describe the figures a model fixes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seeded preparation records figures on the chosen model axis.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Fields fixed by a model remain fixed by that choice.
    */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
   /**
    * The lighters read: BIC's Maxi J26 and Mini J25.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The admitted manufacturer model names.
-   * @evidence contracts/development/design.md#principled-representation A closed union identifies each named set of recorded manufacturer dimensions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Used by the saved selector and by the relevant named producer.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Model choice retains its original table and selection order.
    */
   export type Model = "J26" | "J25";
 
@@ -144,11 +109,6 @@ export namespace SmokingPropDraw {
 
   /**
    * What {@link prepare} prepares for its caller.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the builder and the drawn dimensions prepare returns, in the family's recorded units.
-   * @evidence contracts/development/design.md#principled-representation The builder typed by the caller's contact ids and the draw's own dimension record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the named producers read after prepare.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional where every call sets it.
    */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
@@ -166,14 +126,6 @@ export namespace SmokingPropDraw {
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
    * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Prepare an empty builder and the previously recorded smoking dimensions.
-   * @evidence contracts/development/implementation.md#principled-implementation The `smoking` draw session uses the original seeds, model table, and bands in their original order.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The named producer chooses a kind. This helper handles admission, provenance, and identity before geometry is added.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The session rejects inadmissible overrides or model names and records the values that a producer consumes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Draws a bounded list of dimensions and prepares one builder.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producers and the saved dispatcher share their exact recipe preparation.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,

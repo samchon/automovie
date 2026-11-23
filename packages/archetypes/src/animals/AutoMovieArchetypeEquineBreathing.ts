@@ -55,20 +55,10 @@ type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
  * An equid's breathing, a layer over any of its rides: the barrel's displayed girth swells and shrinks with each breath and the nostrils flare, the rider's and harness's contacts riding the moving barrel.
  *
  * At the canter and gallop each breath is locked 1:1 to the stride (Lafortuna et al. 1996, J Exp Biol 166:19): the girth is fullest at the left fore's landing, as expiration runs through the forelimbs' stance, so the breath's phase is that hoof's place between its landings, read from the ride's own instants. At other gaits and at a halt the breath runs on its own clock at the rest rate (MSD Veterinary Manual), raised after an authored effort: the rate and the depth start at the effort's peak and fall monotonically on a minimum-jerk curve to the rest values over the effort's recovery time, the clock being the closed-form integral of that rate. The girth swing is a radial growth of the barrel capsule; every part and contact the barrel carries (saddle, girth, harness, rider contacts) moves out with its surface by the same growth, so none separates from it or sinks into it. The nostrils, where the head has them, widen on each breath in proportion to the rate. The depths and the flare are authored.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the stride lock and its source, the free clock and its rest source, the recovery, how the girth and the carried tack move, the nostrils and what is authored.
- * @evidence contracts/development/design.md#principled-representation A ride in and a ride out on the same clock, with the breath readable per second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One layer and its breath reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No simulation: every value is a closed form of the clock and the ride's own hoof events.
  */
 export namespace AutoMovieArchetypeEquineBreathing {
   /**
    * An effort the horse recovers from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Film seconds, breaths per minute and metres.
-   * @evidence contracts/development/design.md#principled-representation A start, a recovery time and peak rate and depth.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One recovery.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IEffort {
     /** Film second the recovery starts, when the effort ends. */
@@ -86,11 +76,6 @@ export namespace AutoMovieArchetypeEquineBreathing {
 
   /**
    * What the layer is told about the ride.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The ride's first gait and the efforts.
-   * @evidence contracts/development/design.md#principled-representation The gait the ride starts in; later gaits are its `gait:` instants.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `layer` takes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IOptions {
     /** The gait the ride starts in. */
@@ -102,11 +87,6 @@ export namespace AutoMovieArchetypeEquineBreathing {
 
   /**
    * One second's breath.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The phase, rate, depth and whether it is locked to the stride.
-   * @evidence contracts/development/design.md#principled-representation Four values.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `breath` and by the posing.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IBreath {
     /** The cycle's phase in [0, 1), zero at the girth's fullest. */
@@ -124,11 +104,6 @@ export namespace AutoMovieArchetypeEquineBreathing {
 
   /**
    * The breathing ride.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the added reader.
-   * @evidence contracts/development/design.md#principled-representation A ride with its breath.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `layer`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IRide<
     Id extends string,
@@ -136,14 +111,6 @@ export namespace AutoMovieArchetypeEquineBreathing {
   > extends AutoMovieArchetypeRide.IRide<Id, D> {
     /**
      * The breath at a film second.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Returns the breath the layer poses.
-     * @evidence contracts/development/implementation.md#principled-implementation The stride lock or the free clock, as the layer documents.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-     * @evidence contracts/development/implementation.md#efficient-algorithms O(I + E) over the instants and efforts.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The same reader poses every sample.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     breath(seconds: number): IBreath;
   }
@@ -156,14 +123,6 @@ export namespace AutoMovieArchetypeEquineBreathing {
    * @param options The ride's first gait and the efforts.
    * @returns The breathing ride.
    * @throws {AutoMovieArchetypeRefusal} For an effort whose window is not finite and positive, whose rate or depth is below rest, or that overlaps another.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Admit the efforts, read the carriers once, then per sample read the breath, grow the barrel and move what it carries out with its surface, and widen the nostrils.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, carriers, a stateless sampler.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped; the ride's own frames are kept apart from the barrel's growth.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(I + E + P + A) per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared carriers and the ride's instants.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the base ride, the carriers and the efforts.
    */
   export function layer<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,

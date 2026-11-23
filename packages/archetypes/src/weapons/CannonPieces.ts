@@ -21,11 +21,6 @@ type Drawn = Readonly<Partial<Record<createCannon.Dimension, number>>>;
  * The naval gun, the mortar and the swivel gun, built on their read figures: a 32-pounder of 56 cwt on a four-truck carriage, a mortar on its bed at its fixed 45 degrees, and a swivel gun on its yoke. Every size the sources do not give is a named estimate in `ESTIMATES`; the searches are recorded in records-cannon.md.
  *
  * Each stands on level ground or deck, its muzzle toward `+Z`. `muzzle` is the muzzle's face and `vent` the vent's orifice, sockets, `+Y` out; a naval gun's tube turns on `elevation`, a hinge on its trunnions' axis, and its trucks stand under the carriage's cheeks; a mortar's tube is fixed on its bed at 45 degrees.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each piece stands, its contacts and where its unread sizes are.
- * @evidence contracts/development/design.md#principled-representation Each piece as its tube, its carriage or bed and its trucks, with the tube's contacts riding its hinge.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two builders `createCannon` calls for its naval and mortar kinds, and their estimates.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every unread size is a named estimate, never a bare number in a builder.
  */
 export namespace CannonPieces {
   /**
@@ -80,14 +75,6 @@ export namespace CannonPieces {
    *
    * @param builder The cannon under construction.
    * @param d The cannon's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lays and how the two hinges compose.
-   * @evidence contracts/development/implementation.md#principled-implementation The tube of its read length and bore balanced on the yoke's arms at its middle, the yoke on the pin, the pin in its socket; the elevation rides the traverse, so a tilt is made in the panned direction.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Pin, yoke, tube and tiller, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pin, the yoke, the tilt and the tiller are `ESTIMATES.swivel`; the post or rail the socket is in is the scene's.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one swivel gun.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function swivel(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -198,14 +185,6 @@ export namespace CannonPieces {
    *
    * @param builder The cannon under construction.
    * @param d The cannon's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation The tube of its read length and bore on trunnions over the carriage's cheeks, the fore and hind trucks of their read diameters under them, so the tube's axis stands on the cheeks' top.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Carriage, trucks, tube, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The carriage's size, the trunnions' place and the quoin's range are `ESTIMATES`; the breeching is a dimension for a ship's composition to lay, not a part.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Seven parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one gun.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function naval(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -292,14 +271,6 @@ export namespace CannonPieces {
    *
    * @param builder The cannon under construction.
    * @param d The cannon's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation The bed of its read length and width on the ground, the tube of its read length and bore on trunnions over it, turned up by the read 45 degrees.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bed, tube, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bed's height and the trunnions' rise are `ESTIMATES`; the tube does not elevate, as a mortar's does not.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one mortar.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function mortar(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;

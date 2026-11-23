@@ -20,20 +20,10 @@ import { QuadrupedSwingChord } from "./QuadrupedSwingChord";
 
 /**
  * One hoof's anchored position and orientation through a turn or grounded departure.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Owns the articulation goals derived from native landing frames and signed stance travel.
- * @evidence contracts/development/design.md#principled-representation A landed body frame, centre offset and interval determine a fixed hoof target. A following stance is present during swing only.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the ride's curved footprint path. Gait, stance timing and exact terminal geometry remain in their existing owners.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact moves only during the declared swing and the model-space relative orientation uses the original landing frame.
  */
 export namespace QuadrupedHoofTrack {
   /**
    * A committed stance, before it is converted into a world footprint.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the state at landing, signed stance travel and duty fraction.
-   * @evidence contracts/development/design.md#principled-representation The course owns the rigid landing frame and signed metres. The gait owns the stride fraction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The ride uses duty to distinguish stance/swing and this owner reads the geometry and signed travel.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It stores no current body frame or previous sample.
    */
   export interface IStance {
     /** Fraction of a stride between this hoof's landing and lifting. */
@@ -52,11 +42,6 @@ export namespace QuadrupedHoofTrack {
 
   /**
    * The sideways shift a two-track figure gives the stances of the legs away from its movement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the side and the metres.
-   * @evidence contracts/development/design.md#principled-representation A body-frame lateral direction, +1 toward the body's left (+x) or -1 toward its right, and a nonnegative distance in metres; it applies to the hooves on the other side of the body.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Produced by `EquineLateral.crossing` and read by `footprint`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ICross {
     /** The body-frame side the figure moves toward: +1 for +x (left), -1 for -x (right). */
@@ -67,11 +52,6 @@ export namespace QuadrupedHoofTrack {
 
   /**
    * Read a stance's crossover from its landing and release seconds, its signed travel and its end.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Film seconds, metres and whether the stance is a fore's; undefined outside a two-track figure.
-   * @evidence contracts/development/design.md#principled-representation A pure reader over the admitted figures.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Produced by `EquineLateral.crossing`, called by `stances`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Crossing = (
     from: number,
@@ -82,14 +62,6 @@ export namespace QuadrupedHoofTrack {
 
   /**
    * Read a stance from the admitted course and its gait clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Connects touchdown phase and hoof duty to the route's signed stance advance.
-   * @evidence contracts/development/implementation.md#principled-implementation Read native body states at touchdown and separately at release; a stance after the course's end, such as the next footfall of a timed path that ends at speed, follows the course's final velocity (`onward`), and a two-track figure's crossover from the optional `crossing` reader over the same seconds and travel. A rein-back keeps at least one diagonal down.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reusable query combines phase-to-time, course distance and this gait's fore or hind duty.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Forward motion and signed reverse progress read the same route instead of synthesizing stance travel from speed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two existing course reads and one gait timing read per queried stance.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing route and resolved gait supply all geometry and timing.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the tiered course and clock readers stay with the returned sampler until the ride is released.
    */
   export function stances(
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -146,14 +118,6 @@ export namespace QuadrupedHoofTrack {
    * @param plan The course plan.
    * @param seconds The film second.
    * @returns The state.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the continuation.
-   * @evidence contracts/development/implementation.md#principled-implementation Within the course its own state; after it, the final state advanced along its heading by its speed times the overrun.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bound check, one advance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The course itself is never edited.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over one plan read.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one state.
    */
   export function onward(
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -204,14 +168,6 @@ export namespace QuadrupedHoofTrack {
    * @param landmark The gait's landmark elevation.
    * @param fore Whether the limb is a fore.
    * @returns Metres of swing clearance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame, the points and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The cannon runs from the fetlock (chain point 3) to the carpus or hock (chain point 2); the coordinate interpolates their heights, less the hoof endpoint's.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heights are the rig's; no withers share stands in.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function elevation(
     chain: readonly IAutoMovieVector3[],
@@ -229,14 +185,6 @@ export namespace QuadrupedHoofTrack {
    * @param support The stance.
    * @param under The model fore-aft position the hoof is centred toward: the proximal attachment's less the fetlock's lead on the hoof, so the fetlock, which the limb's reach holds, travels centred under the attachment; the neutral hoof's when absent.
    * @returns The world footprint before any authored surface is applied.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame and that terrain is applied afterwards.
-   * @evidence contracts/development/implementation.md#principled-implementation Centre the hoof on its stance: half the signed travel ahead of its neutral point at landing, or, when the body heading departs from the travel heading, midway between its neutral points at landing and at release, so the hoof sits under the same body point at both ends. That body point is the neutral hoof moved toward the limb's attachment by at most half the stance's travel: a long stance is centred under the attachment, where the rigid limb's reach is greatest, and every stance still passes through the neutral footprint, so a standing hoof stays at its neutral place. A crossing leg of a two-track figure centres on its neutral point shifted sideways by the stance's `across`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rigid point or the mean of two.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; both forms read the stance's own placements.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieArchetypeFrame.point`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function footprint(
     rest: IAutoMovieVector3,
@@ -275,13 +223,6 @@ export namespace QuadrupedHoofTrack {
    * @param archetype Owner printed in the typed course refusal.
    * @returns The initial course state for holding the neutral footprints, when requested.
    * @throws {AutoMovieArchetypeRefusal} If the explicit flag or starting speed cannot represent standing.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the course frame and admission rule without taking ownership of route math.
-   * @evidence contracts/development/implementation.md#principled-implementation Evaluate the native course at its distance-zero time so delayed starts retain the right world placement.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure An absent request exits immediately. One initial state admits the explicit request or reports its conflict.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A moving start never silently reinterprets as a standing start or moves the route mark.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Reads one existing course point only for requested departure.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The route owns the initial time and placement through existing queries.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the requested state escapes. No viewer or external handle exists.
    */
   export function departure(
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -312,13 +253,6 @@ export namespace QuadrupedHoofTrack {
    * @param current Predicted ordinary stance and its admitted duty.
    * @param standing Starting placement when the rider requests a stand.
    * @returns Chosen anchor, contact state, and normalized swing displacement/height.
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes provisional earlier stance from a hooved neutral standing departure.
-   * @evidence contracts/development/implementation.md#principled-implementation Replace a pre-start stance anchor by the real start footprint with no prior advance and begin that hoof swing no earlier than phase zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the start anchor and lift boundary, then evaluate the existing clearance and interpolation law on the normalized interval.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Do not move the anchored hoof by authoring a virtual step before the course.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time and storage over one stance, with no temporal search.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing step law owns minimum jerk and the admitted stance owns ordinary phase/travel.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No sample or handle is retained.
    */
   export function step(
     phase: number,
@@ -356,14 +290,6 @@ export namespace QuadrupedHoofTrack {
    * @param under The model fore-aft position the hoof is centred toward (`footprint`'s).
    * @param clear Moves a world foothold clear of the footing's concave edges (`QuadrupedCorner`); footholds stand where the course puts them when absent.
    * @returns Model-space coordinates in metres. The world-anchor path also returns the relative terminal axis rotation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines frames, units and the optional next stance.
-   * @evidence contracts/development/implementation.md#principled-implementation Straight signed progress gives the same distance from the half-stance-centred landing in a common basis. World-space points and frames anchor through turns, departures and terrain, then convert to current model space. A terrain landing also retains its support plane. Swing interpolates both adjacent landings.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan world points from landed states, optionally blend one next point/rotation, and apply the inverse current body placement.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The current yaw establishes only the relative readback and cannot reorient a planted sole in the world.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work over at most two admitted stances.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing rigid frame, vector and quaternion arithmetic. The route and gait already own the touchdown states.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh footprint and retains nothing between calls.
    */
   export function target(
     state: AutoMovieArchetypeCourse.IState,

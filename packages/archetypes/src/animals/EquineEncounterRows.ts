@@ -39,11 +39,6 @@ const KINDS: ReadonlySet<string> = new Set<
  * The encounter's stance rows: a rearing foreleg strike and a double-barrel kick, each bringing hooves onto a point on the other horse.
  *
  * A strike pitches the trunk up about the hips by `STRIKE_PITCH` with both hind hooves planted, folds the other foreleg and carries the striking hoof on a lifted path to the struck point, its terminal bar turning to drive straight into the surface along its inward normal, held there through the hold. A kick pitches the trunk down about the shoulders by `KICK_PITCH` with both fore hooves planted and carries each hind hoof to its own kicked point, their terminal bars driving into the surface along its inward normal. An unreachable point is refused by the stance's admission. The pitches are authored.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both rows, their planted supports and what is authored.
- * @evidence contracts/development/design.md#principled-representation Stance plans.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the stance's extra rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No clamp: reach is admitted by the stance.
  */
 export namespace EquineEncounterRows {
   /**
@@ -51,14 +46,6 @@ export namespace EquineEncounterRows {
    *
    * @param cue The cue.
    * @returns Whether `plan` owns it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A set of the rows' kinds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The kinds are built once.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function owns(
     cue: AutoMovieArchetypeEquineStanceCue.Cue,
@@ -73,14 +60,6 @@ export namespace EquineEncounterRows {
    * @param start The state it starts from.
    * @param cue The row.
    * @returns Its plan, returning to the start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and output.
-   * @evidence contracts/development/implementation.md#principled-implementation Pitch the trunk about the planted pair by the share, fold or carry the free limbs to their targets by the same share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per row.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are left to the stance's admission.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stance's support rules.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its chains and targets.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,

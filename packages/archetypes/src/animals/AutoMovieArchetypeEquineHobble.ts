@@ -23,11 +23,6 @@ const WORLD: IAutoMovieTransform = AutoMovieArchetypeFrame.upright({
  * A fore hobble (`createHobble`) worn by a moving equid: at each film second each cuff closes round its foreleg's cannon a little above the fetlock, along the cannon's own axis, and the strap is laid between the cuffs' inner sides.
  *
  * The cuffs are posed in world coordinates from the equid's sample, so the strap's drawn length is the distance the forelegs hold the cuffs apart; read with `AutoMovieArchetype.span("strap")`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where each cuff is, along which axis, and what the strap measures.
- * @evidence contracts/development/design.md#principled-representation A ride of the hobble on the equid's clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The cuffs follow the equid's own posed cannons.
  */
 export namespace AutoMovieArchetypeEquineHobble {
   /** How far above the fetlock a cuff's middle sits, metres: authored, a cuff's width above the joint so it closes round the cannon. */
@@ -39,14 +34,6 @@ export namespace AutoMovieArchetypeEquineHobble {
    * @param hobble The hobble.
    * @param ride The equid's ride.
    * @returns The hobble's ride.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and output.
-   * @evidence contracts/development/implementation.md#principled-implementation Per sample read each fore cannon's posed frame, put the cuff's middle `ABOVE` metres up the cannon from the fetlock, turned as the cannon is, and re-lay the strap through the hobble's own span owner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two cuffs, one re-lay.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One equid sample and one re-lay per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the span owner.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the hobble and the ride.
    */
   export function ride<Id extends string, D extends string>(
     hobble: AutoMovieArchetype<never, never>,

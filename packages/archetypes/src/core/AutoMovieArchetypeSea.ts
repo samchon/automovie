@@ -19,20 +19,10 @@ import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
  * A seeded swell: the sea surface as a sum of sinusoids drawn from a measured wave spectrum, and a water-borne ride heaving, pitching and rolling on it.
  *
  * The surface is long-crested: every component travels the one `heading`, its frequencies spread over the Pierson-Moskowitz spectrum of a fully developed sea of the stated significant height (WMO, Guide to Wave Analysis and Forecasting, WMO-No. 702, 1998, eqs. 1.28 to 1.30, pp. 13-14), each component's amplitude the spectrum's energy in its band and its phase drawn from the seed. A boat on it follows the surface: it heaves with the elevation under its root and pitches and rolls with the surface's slope along and across it, which holds while the waves are long beside the hull. The same seed and second always give the same sea.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the surface model, the spectrum and its source, the boat's following and when it holds, and determinism.
- * @evidence contracts/development/design.md#principled-representation A sea is its components (frequency, wavenumber, amplitude, phase) and the heading they travel, from which elevation and slope are closed-form at any point and second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `of` builds a sea and `float` carries a level still-water ride on it, the `sea` option water-borne rides take (#3497).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No random source but the seed's counter stream; no frame grid enters the surface.
  */
 export namespace AutoMovieArchetypeSea {
   /**
    * What a sea is drawn from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation A significant height in metres, a heading in degrees and a seed.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; read by `of`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IOptions {
     /** The significant wave height, metres: the WMO sea state code 3700's bands (0 to 0.1 m calm-rippled, 0.1 to 0.5 smooth, 0.5 to 1.25 slight, 1.25 to 2.5 moderate). */
@@ -47,11 +37,6 @@ export namespace AutoMovieArchetypeSea {
 
   /**
    * One sinusoid of the surface.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation Frequency in hertz, wavenumber in radians a metre, amplitude in metres and phase in radians.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; made by `of` and read by its readers and the swell test.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IComponent {
     /** Its frequency, hertz. */
@@ -69,11 +54,6 @@ export namespace AutoMovieArchetypeSea {
 
   /**
    * A sea.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation Its components and heading with the two closed-form readers and their bounds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; made by `of` and read by `motion`, `float` and the swell test.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ISea {
     /** The direction the waves travel, degrees about `+Y` from `+Z`. */
@@ -95,14 +75,6 @@ export namespace AutoMovieArchetypeSea {
      * @param z The point's `Z`, metres.
      * @param seconds The film second.
      * @returns The elevation, metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units and the result.
-     * @evidence contracts/development/implementation.md#principled-implementation Each component a cosine of its wavenumber times the distance along the heading less its angular frequency times the second, plus its phase.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One sum over the components.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the components.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     elevation(x: number, z: number, seconds: number): number;
 
@@ -113,14 +85,6 @@ export namespace AutoMovieArchetypeSea {
      * @param z The point's `Z`, metres.
      * @param seconds The film second.
      * @returns The two slopes.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units and the result.
-     * @evidence contracts/development/implementation.md#principled-implementation The elevation's gradient: each component's derivative along the heading, resolved on X and Z.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One sum over the components.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the components.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     slope(x: number, z: number, seconds: number): { x: number; z: number };
   }
@@ -137,14 +101,6 @@ export namespace AutoMovieArchetypeSea {
    * @param options The significant height, the heading and the seed.
    * @returns The sea.
    * @throws {AutoMovieArchetypeRefusal} When the height is negative or not finite, the heading is not finite, or the height's spectrum and bounds cannot be represented by finite positive numbers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the measured spectrum, angular periodicity and scalar or derived-representation refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation WMO-No. 702: a fully developed sea of significant height H has the wind at 10 m u10 = (H / 0.0246) ^ 0.5 (eq. 1.30), the wind at 19.5 m 1.075 times that (the eq. 1.28 note), the peak frequency 0.877 g / (2 pi u19.5) (eq. 1.29), and the spectrum E(f) = 0.0081 g^2 (2 pi)^-4 f^-5 exp(-0.74 (g / (2 pi u19.5 f))^4) (eq. 1.28). Substituting r=f/peak before taking the amplitude avoids dimensional fifth powers and H squared; each amplitude is H times a dimensionless factor. Deep-water wavenumber is (2 pi f / sqrt(g)) squared. Only representable components and summed bounds are admitted.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit scalar inputs, form the peak-relative components and their bounds, then expose the two closed-form readers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Long-crested: the directional spread no source here gives is left out; a calm sea of zero height has no components.
-   * @evidence contracts/development/implementation.md#efficient-algorithms `COMPONENTS` cosines per reading.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent sea.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sea holds its components for as long as its caller keeps it.
    */
   export function of(options: IOptions): ISea {
     const height: number = options.height;
@@ -284,11 +240,6 @@ export namespace AutoMovieArchetypeSea {
 
   /**
    * How a floating root moves on the sea at a second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation Heave in metres, pitch and roll in radians about the support's own axes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; made by `motion` and read by `float`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IMotion {
     /** The rise above still water, metres. */
@@ -308,14 +259,6 @@ export namespace AutoMovieArchetypeSea {
    * @param placement The support's placement on still water.
    * @param seconds The film second.
    * @returns Its heave, pitch and roll.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the level-support premise, axes and order of the coupled rotations.
-   * @evidence contracts/development/implementation.md#principled-implementation Resolve the gradient along the level support's forward and left axes as f and l. Rx(-p)Rz(r) maps up to (-sin(r),cos(p)cos(r),-sin(p)cos(r)); matching the plane normal (-l,1,-f) gives p=atan(f) and r=atan2(l,hypot(1,f)), including oblique waves. Heave is the elevation under the root.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One elevation, one slope, two projections.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hull follows the surface at its root, its own response to waves of its length's order left out, as `AutoMovieArchetypeSea` states.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two sums over the components.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the sea's readers.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function motion(
     sea: ISea,
@@ -343,14 +286,6 @@ export namespace AutoMovieArchetypeSea {
 
   /**
    * Place a level support on the sampled sea tangent, without posing the support's own parts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Returns the root world frame from the sea, level course placement and film second.
-   * @evidence contracts/development/implementation.md#principled-implementation Apply heave, pitch about local minus X and roll about local Z from the same motion reader as a floating ride.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One sea motion and one transform.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts All headings use the same tangent-plane construction.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One sea evaluation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by floating whole rides and selected sockets.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function floated(
     sea: ISea,
@@ -384,14 +319,6 @@ export namespace AutoMovieArchetypeSea {
    * @param ride The ride on still water.
    * @param sea The sea.
    * @returns The ride on the sea, with the same plan, duration and instants.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what changes and what is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation Each sample's placement is raised by the heave and turned by the pitch about its own `-X` and the roll about its own `+Z` (`motion`), the course state's placement replaced likewise, so what is carried reads the moving deck.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One sampler wrapping the ride's.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond `motion`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One motion per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the ride's own sampler.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the ride and the sea for as long as its caller keeps the result.
    */
   export function float<Id extends string, Dimension extends string>(
     ride: AutoMovieArchetypeRide.IRide<Id, Dimension>,

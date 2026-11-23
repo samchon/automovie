@@ -16,11 +16,6 @@ import {
  * The flintlock lies on the right of a gun's breech, the gun lying along `+Z` with its barrel's line at `y = 0`: the `pan` holding the priming by the touch hole, the `frizzen`, the steel standing over the pan on its pivot ahead, opened forward to prime and thrown open by the cock's fall, and the `cock` behind on its pivot, resting down on the frizzen and drawn back to half and full cock by the thumb on its `spur`, the thumb piece at the top of its jaw, which rides it. The lock's places and angles are not read at any source: the searches (museum records, the 1764 Manual Exercise, replica lock makers, high-speed ignition studies) are recorded in the sources record, records-firearms-flintlock.md; each is a named estimate in `FLINTLOCK`.
  *
  * A gun's calibre, its ball's diameter, stays each producer's own dimension: the handgun's and the long gun's bands come from different read guns.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the shared lock-time and flintlock model once, which lock times are read and why the others borrow, and where the unread lock values are.
- * @evidence contracts/development/design.md#principled-representation Two read lock times in seconds and the band spanning them; the flintlock's three worked parts, their two hinges about the gun's cross axis and the pan as a socket.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one owner of what the handguns and long guns share; each producer keeps its own calibre, dimensions and bands.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No forum or encyclopedia figure stands as a source; a borrowed band names its lenders and the failed search, and every unread lock place and angle is a named estimate.
  */
 export namespace AutoMovieArchetypeFirearm {
   /** The M1903's service firing pin's time of fall, seconds: "the time of fall of the usual firing pin in the U. S. rifle is .0057 seconds", J. C. Garand, US Patent 1,780,521 (1930) (https://patents.google.com/patent/US1780521A/en), measured at Springfield Armory on a smoked disc (Hatcher's Notebook, pp. 397-398). */
@@ -94,14 +89,6 @@ export namespace AutoMovieArchetypeFirearm {
    * @param builder The gun under construction.
    * @param hole The touch hole on the barrel's line, at the breech.
    * @param ids The gun's ids for the cock, its spur, the frizzen and the pan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it adds.
-   * @evidence contracts/development/implementation.md#principled-implementation The pan by the touch hole, the frizzen's pivot ahead of it and the cock's behind, each hinge turning about the cross axis: the frizzen forward to open, the cock back to cock; the spur at the cock's jaw end, the farthest point from its pivot, where a thumb has the most leverage, riding the cock.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Plate, pan, frizzen and cock, then the three contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flint, the springs and the tumbler are not modelled; half cock is a travel of the one hinge, `FLINTLOCK.half`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one lock.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function layFlintlock<
     Affordance extends string,

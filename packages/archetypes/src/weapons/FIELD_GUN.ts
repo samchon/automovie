@@ -18,11 +18,6 @@ const YARD: number = 3 * AutoMovieArchetypeUnits.FOOT;
  * The 6-pdr bronze field gun, Model 1839-1844, on its M1841 carriage, as the 1862 Ordnance Manual gives them, in metres, kilograms and degrees: kept apart from `createCannon` so each file stays within its size, and drawn by `buildFieldGun`.
  *
  * The gun stands on level ground at `y = 0`, its axle across `X` at `z = 0`, its muzzle toward `+Z`. Every place an act reads comes from a read figure or is derived from read figures; the construction estimates below size only parts no act reads, and the elevating screw's place, read from an undimensioned plate, is provisional.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, what each figure is and its page, and which places are provisional or construction.
- * @evidence contracts/development/design.md#principled-representation The read figures as named members converted through `AutoMovieArchetypeUnits`, the construction estimates apart; the builder is `buildFieldGun`'s.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `createCannon`'s bands and by `buildFieldGun`, which its producer calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every construction estimate is named as one; the vent's lean and the screw's place say where they come from; the service figures (`SERVICE`) are each the manual's or Gibbon's, with their pages.
  */
 export namespace FIELD_GUN {
   /** The tube's table (p. 19), the carriage's (p. 74), the wheel's and axle's (p. 68), the vent (p. 16), Plate 2, and Gibbon's vent and trunnions. */

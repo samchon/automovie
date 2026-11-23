@@ -22,11 +22,6 @@ type Drawn = Readonly<Partial<Record<createHandgun.Dimension, number>>>;
  * The revolver's and the flintlock pistol's bodies and mechanisms, the handgun standing as `createHandgun` stands it: on the base of its grip at the origin, its muzzle toward `+Z` and its backstrap at `z = 0`, its lock or loading gate on the right, `-X`.
  *
  * A revolver's `hammer` is cocked back on its pivot at the frame's rear, and its `cylinder` turns one chamber per full cock by following the hammer (`follows`); the `gate` swings out on the right to load, and each chamber is a socket on the cylinder's rear face that rides the cylinder. A flintlock pistol is a stock and a barrel with the musket's lock (`AutoMovieArchetypeFirearm.layFlintlock`). Every place no source gives is a named estimate in `ESTIMATES`; the searches are recorded in the sources record (records-firearms-revolver.md, records-firearms-flintlock.md).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each handgun stands, what each mechanism does and where the unread places are.
- * @evidence contracts/development/design.md#principled-representation The parts a hand works and the articulations that move them, the cylinder's turn coupled to the hammer's by a ratio.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The contacts the firearm laws read (`grip`, `trigger`, `sight`, `frontSight`, `muzzle`) and the ones #3488's revolver rows bind to: `hammer`, `cylinder`, `gate` and the chambers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every unread place is a named estimate here; the hammer's angle is derived from Colt's read travel at its spur.
  */
 export namespace HandgunActions {
   /**
@@ -100,14 +95,6 @@ export namespace HandgunActions {
    *
    * @param travel The spur's travel, metres.
    * @returns The angle.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the conversion.
-   * @evidence contracts/development/implementation.md#principled-implementation An arc's angle is its length over its radius.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quotient.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one conversion the hammer's travel and the cylinder's ratio share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hammer(travel: number): number {
     return travel / ESTIMATES.spur / AutoMovieArchetypeUnits.DEGREE;
@@ -118,14 +105,6 @@ export namespace HandgunActions {
    *
    * @param d The revolver's dimensions, its length and barrel drawn or read.
    * @returns The sight radius, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two ends.
-   * @evidence contracts/development/implementation.md#principled-implementation The sights stand where `revolver` lays them, so the radius is their distance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One difference.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of the rear sight's place, read by `revolver` and by `createHandgun`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function radius(d: Drawn): number {
     return d.barrel! + ESTIMATES.cylinder;
@@ -136,14 +115,6 @@ export namespace HandgunActions {
    *
    * @param builder The handgun under construction.
    * @param d The handgun's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation The cylinder's top chamber lines up with the bore; a full cock of the hammer turns the cylinder by one chamber, a whole turn over the chamber count, so the ratio is that angle over the hammer's full angle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Grip, frame, cylinder, barrel, hammer and gate, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hand, the bolt and the ejector rod are not modelled; half cock is a travel of the one hinge (`HAMMER.half`).
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Six parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one revolver.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function revolver(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -254,14 +225,6 @@ export namespace HandgunActions {
    *
    * @param builder The handgun under construction.
    * @param d The handgun's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation The barrel ends at the read overall length and runs back its read length to the breech, where the shared flintlock stands; the sight line runs along the barrel, which carries no sights.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Stock, barrel and trigger, the lock, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ramrod and its pipe are not modelled: no act loads a pistol.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Seven parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one pistol.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function flintlock(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;

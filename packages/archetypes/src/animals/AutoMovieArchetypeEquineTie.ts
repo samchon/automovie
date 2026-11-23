@@ -15,20 +15,10 @@ import { EquineLine } from "./EquineLine";
  * An equid tied by its lead to a ring or rail and untied again: the lead's held run is carried from where it hangs to the ring, wrapped round the ring's bar and made fast on top of it, stays there while the equid stands tied, and is unwrapped and carried back to hang from the halter.
  *
  * The held run moves on the handler's hand's path, so a handler whose hand holds the lead (`tendHorse`, task `lead`) carries, wraps and unwraps it: the carry is a minimum-jerk share from the lead's own hanging place, read live from the equid's sample, to the top of the bar; each wrap is one turn round the bar's axis at the ring's radius; untying runs the same path back, ending on the live hanging place, so the line is the equid's own lead before the tie and after the untie. No knot is tied finger by finger, as no knot law exists to compose one from: the wraps and the hand that closes on the lead through them stand for the hitch. The line is laid from the held run to the halter (`EquineLine`). While tied the lead's drawn length is the tether, the distance the head may go from the ring: a sample whose halter is farther from the knot than the tether is refused, so a tied head stays within the tether's reach.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the path, who carries it, the tied interval and the refusal.
- * @evidence contracts/development/design.md#principled-representation A ride in, a ride out on the same clock; the ring is a world point with a bar axis and radius, the phases in film seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One layer over `EquineLine`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The lead is the equid's own span; the tether is a bound, not a pull simulated.
  */
 export namespace AutoMovieArchetypeEquineTie {
   /**
    * One tying or untying: when it starts, how long the carry takes and the wraps round the bar.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Film seconds, seconds and a whole count.
-   * @evidence contracts/development/design.md#principled-representation A start, a carry, a count and a turn's time.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The tie's and the untie's phases.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IPhase {
     /** Film second it starts. */
@@ -46,11 +36,6 @@ export namespace AutoMovieArchetypeEquineTie {
 
   /**
    * A tie.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation World metres and the phases.
-   * @evidence contracts/development/design.md#principled-representation The ring's centre, its bar's axis and radius, the tether and the phases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `layer` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ITie {
     /** The ring's centre on its bar, world metres. */
@@ -82,14 +67,6 @@ export namespace AutoMovieArchetypeEquineTie {
    * @returns The ride with the lead tied.
    * @throws {RangeError} For malformed phases or geometry.
    * @throws {AutoMovieArchetypeRefusal} At a tied sample whose halter is beyond the tether, or as `EquineLine.layer` refuses.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The held point by phase: the live hanging place, the carry's share between it and the bar's top, a turn round the bar's axis per wrap, the knot; the line laid to it; the tether measured on the laid span while tied.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A held-point function and one check.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped to the tether.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per sample beyond the line's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `EquineLine`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the ride and the tie.
    */
   export function layer<Id extends string, D extends string>(
     ride: AutoMovieArchetypeRide.IRide<Id, D>,
@@ -237,14 +214,6 @@ export namespace AutoMovieArchetypeEquineTie {
    *
    * @param phase The phase.
    * @returns Its start, carry and wraps summed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the sum.
-   * @evidence contracts/development/implementation.md#principled-implementation The carry and the wraps run one after the other.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function end(phase: IPhase): number {
     return phase.from + phase.carry + phase.wraps * phase.wrap;

@@ -30,11 +30,6 @@ const HINDS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
 
 /**
  * The hobbled equid's hops (`EquineHobbleCue.IHops`): in each hop the trunk pitches nose-up about the hind hooves to unload the forehand and carries both fores forward together on one path that rises with the pitched shoulders and lifts over that, then each hind in turn takes the weight off itself and steps up the same length, so the fores keep the separation they started with and the strap is never drawn tighter.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the order, the pitch, what the fores keep and the refusal.
- * @evidence contracts/development/design.md#principled-representation A stance row in the rows' own plan form.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `owns` and `plan`, dispatched by `EquineStanceExtras`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The pitch, lift and load share are named authored values.
  */
 export namespace EquineHobbleRows {
   /**
@@ -42,14 +37,6 @@ export namespace EquineHobbleRows {
    *
    * @param cue The cue.
    * @returns Whether it is.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The discriminator.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One comparison.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure test.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function owns(
     cue: AutoMovieArchetypeEquineStanceCue.Cue,
@@ -65,14 +52,6 @@ export namespace EquineHobbleRows {
    * @param cue The hops.
    * @returns Its plan.
    * @throws {AutoMovieArchetypeRefusal} For a count that is not whole and positive, a nonpositive length or strap, or fores already standing wider than the strap.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Per hop three pieces: the fores' joint arc with the trunk pitched about the hind hooves' middle and carried half the length, then each hind's weight transfer (`EquineStanceSupport.transfer`) and arc with the trunk carried a quarter each.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the states, the events, then the pose by share.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both fores move by one offset, so their separation never changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two weight transfers per hop, solved once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The states and loads are prepared once per plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its states.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,

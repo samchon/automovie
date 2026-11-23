@@ -21,11 +21,6 @@ const DEGREE: number = 180 / Math.PI;
  * The figures follow the USEF Dressage Rules DR111 and DR112 (2023, https://www.usdf.org/EduDocs/Training/2023%20Work%20on%20Two%20Tracks,%20Lateral%20Movements.pdf), which follow the FEI's. In shoulder-in the inside hind steps in the track of the outside fore while the inside fore crosses in front of the outside fore. In leg-yielding and half-pass the legs on the side away from the movement cross in front of the others; leg-yielding along the wall is ridden at about 35 degrees to the direction of movement, and the half-pass keeps the body nearly parallel to the long side while it travels the diagonal. In the pirouette the forehand moves round the haunches on a circle whose radius is the horse's length, the inside hind foot forming the pivot and the outside hind moving round it.
  *
  * The trunk is one rigid body, so the bend and the poll flexion that tell leg-yielding from half-pass are not represented; both are the same heading offset with crossing legs. Shoulder-in's 30 degrees in DR111 includes the bend; a rigid trunk puts its inside hind in its outside fore's track at the angle the two stance centres set, which is used instead.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each figure's rule, its source, the frame of the offset and what the rigid trunk leaves out.
- * @evidence contracts/development/design.md#principled-representation Each figure is a record discriminated by `kind` with only the fields its geometry needs; the plan is a heading offset in degrees as a function of film seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineFootwork` when a leg names a figure and by the ride's body placement.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Angles beyond the rule's, legs of the wrong shape and pirouette radii the hind pivot cannot hold are refused.
  */
 export namespace EquineLateral {
   /** The largest heading offset admitted for leg-yielding and half-pass: the "about 35 degrees" of DR111.2.b, the largest angle the lateral movements prescribe. */
@@ -33,31 +28,16 @@ export namespace EquineLateral {
 
   /**
    * The side the horse moves toward, relative to its own body.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the side of the sideways travel.
-   * @evidence contracts/development/design.md#principled-representation A closed literal union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the figures' heading sign.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Side = "left" | "right";
 
   /**
    * The two figures whose angle the author states.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names leg-yielding and half-pass.
-   * @evidence contracts/development/design.md#principled-representation A closed literal union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `ITwoTrack.kind`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type TwoTrackKind = "leg-yield" | "half-pass";
 
   /**
    * Shoulder-in on a straight leg: the forehand brought in so three tracks show.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the side and the blend.
-   * @evidence contracts/development/design.md#principled-representation The angle is not authored: the hooves fix it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A member of `Technique`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IShoulderIn {
     /** The discriminator. */
@@ -70,11 +50,6 @@ export namespace EquineLateral {
 
   /**
    * Leg-yielding or half-pass on a straight leg at an authored angle.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the side, the angle in degrees and the blend.
-   * @evidence contracts/development/design.md#principled-representation The angle between the body heading and the travel heading, positive degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A member of `Technique`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The angle is bounded by `MAXIMUM` at admission.
    */
   export interface ITwoTrack {
     /** The figure. */
@@ -89,11 +64,6 @@ export namespace EquineLateral {
 
   /**
    * A pirouette on a turn leg about the inside hind hoof.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the blend; the turn's sign gives the inside.
-   * @evidence contracts/development/design.md#principled-representation The leg's radius is the root's circle; the heading follows from the pivot hoof.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A member of `Technique`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IPirouette {
     /** The discriminator. */
@@ -104,21 +74,11 @@ export namespace EquineLateral {
 
   /**
    * A lateral figure on one course leg.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Lists the figures.
-   * @evidence contracts/development/design.md#principled-representation A discriminated union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Part of `EquineFootwork.Technique`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Technique = IShoulderIn | ITwoTrack | IPirouette;
 
   /**
    * One admitted figure on the film clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States its film seconds, its blend and its full offset.
-   * @evidence contracts/development/design.md#principled-representation An interval with a ramp at each end and a signed offset in degrees, positive to the left.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `heading`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IWindow {
     /** The figure's name, for its instants. */
@@ -145,14 +105,6 @@ export namespace EquineLateral {
    * @param centred The stance centres of a moving limb: each neutral hoof brought fore and aft under its attachment, in model metres.
    * @returns The admitted window.
    * @throws {AutoMovieArchetypeRefusal} For a leg of the wrong shape, a reversed or graded leg, an angle outside (0, `MAXIMUM`], a blend that does not fit twice in the leg, or a pirouette radius the pivot cannot hold.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each refusal and the units.
-   * @evidence contracts/development/implementation.md#principled-implementation Headings are degrees positive to the left, so moving toward the left puts the travel left of the body and the body offset is negative. Shoulder-in's offset puts the inside hind and the outside fore on one line along the travel. A pirouette turns the body so the vector from the root to the inside hind points at the turn's centre; the hind's circle is the leg's radius less that hoof's distance, admitted from zero up to the hind track width so the outside hind still moves round the inside hind (DR112.3).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Check the leg, then compute the one offset its figure defines.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle is clamped and no radius widened.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the course plan's leg times and the hooves.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one small record.
    */
   export function admit(
     archetype: string,
@@ -239,14 +191,6 @@ export namespace EquineLateral {
    * @param windows The admitted figures.
    * @param seconds The film second.
    * @returns Degrees, positive to the left; zero outside every figure.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the units and the zero outside.
-   * @evidence contracts/development/implementation.md#principled-implementation Inside its leg each figure ramps in over its blend from the leg's start and out over its blend to the leg's end on the minimum-jerk profile, so the heading and its rate are continuous with straight travel at both ends.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the windows.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(W) in the figures.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's `minimumJerk`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function heading(
     windows: readonly IWindow[],
@@ -268,14 +212,6 @@ export namespace EquineLateral {
    * @param limbs The neutral limb points in model metres, the hoof endpoint last.
    * @param parts The neutral model parts, read for each pastern's radius.
    * @returns The stance shift of a two-track figure's crossing legs, or undefined when the ride has no leg-yield or half-pass.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the formula, its symbols and units, the provisional adduction and the search that found no bound.
-   * @evidence contracts/development/implementation.md#principled-implementation Δ is the shift that puts the crossing footprint 2r beyond its partner's release point given the rigid trunk's lateral travel D; the stance's figure share and heading are read at the stance's middle second.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The figure owns which legs cross and by how much; the hoof track only offsets the neutral point it already centres.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle is clamped; W and r are the rig's; an unreachable shift is refused by the limb fit, not shortened.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(W) in the figures per stance, after one read of four pasterns.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the heading's minimum-jerk share.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader retains the windows and two widths and radii for the ride's lifetime.
    */
   export function crossing(
     windows: readonly IWindow[],

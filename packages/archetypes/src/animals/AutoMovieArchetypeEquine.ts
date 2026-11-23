@@ -25,20 +25,10 @@ import { createHorse } from "./createHorse";
  * - Gait: the measured equine gait table is `AutoMovieArchetypeEquineGait`, scaled to the equid's height by `AutoMovieArchetypeQuadrupedGait.scale`.
  *
  * The model faces `+Z` with its left on `+X`, stands square on level ground with the middle of its trunk over the origin, and measures in metres and kilograms.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the shared build, breed, tack, dimension and gait model once, with the frame and units.
- * @evidence contracts/development/design.md#principled-representation Closed unions for tack, contact, dimension and seat and rein sizes, a profile record per equid, and one builder over them.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members every equid producer reads; each producer keeps its own proportions, bands and params.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No producer copies the build or the tack: a new equid supplies a profile.
  */
 export namespace AutoMovieArchetypeEquine {
   /**
    * The riding, harness, combined, pack and untacked configurations, and the alternative mounted supports: a bareback bridle, a side saddle and a vaulting surcingle, a double saddle and a trick saddle.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Lists each tack and what it carries.
-   * @evidence contracts/development/design.md#principled-representation A closed union, so an unknown tack fails the type check; `equid` refuses one at run time with `TACKS`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `IParams.tack`, `equid`, `EquineTack` and each profile's names.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No free-text tack.
    */
   export type Tack =
     | "saddle"
@@ -54,11 +44,6 @@ export namespace AutoMovieArchetypeEquine {
 
   /**
    * The alternative mounted supports, which a profile may leave unnamed: the model then takes the producer's name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the alternative supports a profile may leave unnamed.
-   * @evidence contracts/development/design.md#principled-representation A closed subset of `Tack`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `Unnamed`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second list of supports: it is a subset of the tack union.
    */
   export type Alternative =
     | "bareback"
@@ -69,31 +54,16 @@ export namespace AutoMovieArchetypeEquine {
 
   /**
    * The tacks a profile may leave unnamed: the untacked equid and the alternative supports.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the tacks a profile may leave unnamed.
-   * @evidence contracts/development/design.md#principled-representation The union of `bare` and `Alternative`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `Named` and `Names`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Unnamed = "bare" | Alternative;
 
   /**
    * The tacks every profile names.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that every profile names these tacks.
-   * @evidence contracts/development/design.md#principled-representation The complement of `Unnamed` within `Tack`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `Names`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Named = Exclude<Tack, Unnamed>;
 
   /**
    * The model's name under each tack: required for the named tacks, optional for the others.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which names are required and which optional.
-   * @evidence contracts/development/design.md#principled-representation A record of required and optional names by tack, so a profile cannot omit a named tack.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `IProfile.names` and by `equid` for the model's name.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An unnamed tack falls back to the producer's name, never to another tack's.
    */
   export type Names = Readonly<
     Record<Named, string> & Partial<Record<Unnamed, string>>
@@ -115,11 +85,6 @@ export namespace AutoMovieArchetypeEquine {
 
   /**
    * The horse cohorts with their own profile: the warmblood default, the Icelandic horse and the ambling breeds (`AutoMovieArchetypeEquineGaitedProfile`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Lists the horse cohorts with their own profile.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the warmblood default, the Icelandic horse and the ambling breeds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `createHorse.IParams.breed`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A pony's breeds stay `createPony.Breed`: read figures, not a profile change.
    */
   export type Breed =
     | "warmblood"
@@ -144,11 +109,6 @@ export namespace AutoMovieArchetypeEquine {
    * - `horn`, `leftHandhold`, `rightHandhold`, `leftStrap`, `rightStrap`, `hippodrome`: on a trick saddle (`tack` `trick`), its tall horn, the handholds on each side of the pommel, the foot straps on each side for the drags and the hippodrome strap across the seat a standing rider's feet go under (`EquineSaddle.trick`).
    *
    * A tack lacks the ids of the others; the `lead` is the riding saddle's and the pack saddle's.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Lists each contact and the tack that offers it.
-   * @evidence contracts/development/design.md#principled-representation A closed union, so a misspelt contact fails the type check.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The contacts every equid producer's model offers; `EquineTack` lays them.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A tack lacks the ids of the others; no contact is offered without its part.
    */
   export type Affordance =
     | "seat"
@@ -190,11 +150,6 @@ export namespace AutoMovieArchetypeEquine {
    * - `tempo`: how far this equid's stride time lies from the mean, in standard deviations.
    * - `breechingDrop`: in harness, the breeching's seat below the point of buttock.
    * - `croupClearance`: under a pack saddle, the croup piece's end above the tail's root, a packer's hand's breadth (`EquinePack.BANDS`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each dimension's meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation A closed union keyed by `UNITS`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by every equid producer's draw session and model.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No dimension without a unit.
    */
   export type Dimension =
     | "withersHeight"
@@ -226,31 +181,16 @@ export namespace AutoMovieArchetypeEquine {
 
   /**
    * The dimensions that follow from others (`girth`, `mass`) or are a read model's (`seatSize`, `reinWidth`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the dimensions that are not drawn from a band.
-   * @evidence contracts/development/design.md#principled-representation A closed subset of `Dimension`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `Free`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Derived = "girth" | "mass" | "seatSize" | "reinWidth";
 
   /**
    * The dimensions drawn from a band.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that these dimensions are drawn from a band.
-   * @evidence contracts/development/design.md#principled-representation The complement of `Derived` within `Dimension`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `IParams`, the profiles' bands and `equid`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Free = Exclude<Dimension, Derived>;
 
   /**
    * The parameters every equid producer takes: the tack, the seat and the reins by their read sizes, any free dimension fixed inside its band, and the id.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each parameter and its default.
-   * @evidence contracts/development/design.md#principled-representation Optional tack, seat, rein and id, and any free dimension fixed inside its band, which the draw session checks.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `equid` and extended by each equid producer's params.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No breed here: only the horse has breeds that change the profile.
    */
   export interface IParams extends Partial<Record<Free, number>> {
     /** The saddle's seat size; drawn from the seed when absent. */
@@ -271,11 +211,6 @@ export namespace AutoMovieArchetypeEquine {
 
   /**
    * The equid's joints and landmarks at rest, in the model's space: the shared quadruped's (`AutoMovieArchetypeQuadrupedBody.IRig`) and the two places a harness is laid by.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each landmark's meaning and frame.
-   * @evidence contracts/development/design.md#principled-representation Points in the model's space, metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the tack (`EquineTack`), the harness and the carts.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IRig extends AutoMovieArchetypeQuadrupedBody.IRig {
     /** The point of draft on the `+X` side: where the breast collar meets the barrel's side at the point of shoulder's height, just behind the elbow, as the IVC Carriage measuring chart takes the breast collar from the centre of the chest to just behind the elbow; the `-X` side's is its mirror. */
@@ -291,14 +226,6 @@ export namespace AutoMovieArchetypeEquine {
    * @param dimensions The equid's dimensions, as `AutoMovieArchetype.dimensions` gives them.
    * @param body The body's proportions; the horse's (`createHorse.BODY`) when absent.
    * @returns The rest rig.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rig, its inputs and the horse default.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared quadruped rig, with the point of draft where the shoulder joint's height meets the barrel's circle and the hitch on the trunk's axis `SADDLE` behind the shoulder joints.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared rig plus two landmarks.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SADDLE` is a named estimate.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one rig.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rig(
     dimensions: Readonly<Partial<Record<Dimension, number>>>,
@@ -326,14 +253,6 @@ export namespace AutoMovieArchetypeEquine {
    * @param draw The equid's draw session, opened with its name, the seed and the dimensions the author fixed; a pony's has already picked its breed.
    * @returns The equid.
    * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, a tack that is not one of `TACKS`, or a seat or reins not among `SEATS` and `REINS`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, what the mass includes and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Draw the free dimensions in the profile's bands, derive the girth and the mass, pick the seat and reins among their read sizes, lay the body (`AutoMovieArchetypeQuadrupedBody.lay`) and the tack (`EquineTack`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, derive, lay the body, lay the tack, build.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `AutoMovieArchetypeQuadrupedBody.lay`'s and the tack's estimates are stated by each tack's owner.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones, the withers and a few tens of tack parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every equid producer calls it; each call builds one independent model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function equid(
     profile: IProfile,
@@ -389,11 +308,6 @@ export namespace AutoMovieArchetypeEquine {
 
   /**
    * An equid's build: what `equid` builds one from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's role and unit.
-   * @evidence contracts/development/design.md#principled-representation A name per tack, the bands of the free dimensions, optional read figures and mass, a girth law and the body's proportions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members `equid` reads; each producer supplies its own.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A read mass replaces the mass law instead of being blended with it.
    */
   export interface IProfile {
     /** The producer's name, which refusals carry and the ride finds the species by. */
@@ -410,14 +324,6 @@ export namespace AutoMovieArchetypeEquine {
 
     /**
      * The heart girth at a height at the withers, both in metres: the profile's girth law.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and their units.
-     * @evidence contracts/development/implementation.md#principled-implementation Each profile supplies its law: the horse's keeps the warmbloods' girth-to-height proportion (`JENSEN`), a read breed or cohort keeps its own measured proportion.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One function per profile, called once per model by `equid`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fitted curve: each law is a stated proportion.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     girth: (withers: number) => number;
 
@@ -430,11 +336,6 @@ export namespace AutoMovieArchetypeEquine {
 
   /**
    * A measured cohort's mean size.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit.
-   * @evidence contracts/development/design.md#principled-representation Three means in metres and kilograms.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The figures `mass` anchors on.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No relation between the means is implied.
    */
   export interface IMeans {
     /** The height at the withers, metres. */
@@ -464,14 +365,6 @@ export namespace AutoMovieArchetypeEquine {
    * @param withers The height at the withers, metres.
    * @param girth The heart girth, metres.
    * @returns The mass, kilograms.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the law, its source, its anchor and the units.
-   * @evidence contracts/development/implementation.md#principled-implementation Carroll and Huntington's girth-squared-times-length law with the length isometric to the withers height, anchored on Jensen et al.'s means.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fitted coefficient: the only constants are the cited means.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function mass(withers: number, girth: number): number {
     return (
@@ -481,11 +374,6 @@ export namespace AutoMovieArchetypeEquine {
 
   /**
    * The seat sizes, inches: Wintec's 16, 16.5, 17, 17.5 and 18 in seats, measured from the saddle nail to the middle of the cantle (https://wintec-saddles.com.au/pages/measuring-your-seat-size).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the sizes and where they are read.
-   * @evidence contracts/development/design.md#principled-representation A closed union of read sizes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `IParams.seat` and `SEATS`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No seat between the read sizes.
    */
   export type Seat = "16in" | "16.5in" | "17in" | "17.5in" | "18in";
 
@@ -502,11 +390,6 @@ export namespace AutoMovieArchetypeEquine {
 
   /**
    * The rein widths: Dover Saddlery's snaffle reins, 5/8 and 3/4 in wide (https://www.doversaddlery.com/pages/reins-for-english-riding-disciplines).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the widths and where they are read.
-   * @evidence contracts/development/design.md#principled-representation A closed union of read widths.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `IParams.rein` and `REINS`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No rein between the read widths.
    */
   export type Rein = "5/8in" | "3/4in";
 

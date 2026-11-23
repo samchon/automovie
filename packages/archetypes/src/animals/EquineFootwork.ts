@@ -21,20 +21,10 @@ import type { rideQuadruped } from "./rideQuadruped";
 
 /**
  * Admission and sample goals for individually authored equine footwork.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the supported film techniques, trust boundary and existing body/ground ownership.
- * @evidence contracts/development/design.md#principled-representation Rein-back is a diagonal phase choice. An arena stop is an authored finite interval and a geometric displacement within the floor-support solve.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps equine-specific authored positions and times out of the general gait table and Engine. Only the existing ride calls this planning seam.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Supplies no anatomical limits, clinical measurements or real-horse guidance.
  */
 export namespace EquineFootwork {
   /**
    * Named equine film-animation technique on one course leg.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines both techniques and the authored slide values and units.
-   * @evidence contracts/development/design.md#principled-representation Each legal variant has the fields necessary for its motion and no fields for the other variant.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The ride already declares travel and speed. This type adds only the footwork performed over it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies the brief motion window. The documented kinematic form does not imply a default measured duration or fit.
    */
   export type Technique =
     | IReinBack
@@ -46,11 +36,6 @@ export namespace EquineFootwork {
 
   /**
    * A named film-second cue a technique adds to the ride.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the units.
-   * @evidence contracts/development/design.md#principled-representation The shape of a ride's instants.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the ride's instant list.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IInstant {
     /** Film second. */
@@ -61,11 +46,6 @@ export namespace EquineFootwork {
 
   /**
    * Backing on alternating diagonals from rest to rest.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the technique.
-   * @evidence contracts/development/design.md#principled-representation A marker; the reversed walk leg carries the travel.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A member of `Technique`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IReinBack {
     /** The discriminator. */
@@ -74,11 +54,6 @@ export namespace EquineFootwork {
 
   /**
    * A terminal arena slide on both hind feet.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each authored value's unit.
-   * @evidence contracts/development/design.md#principled-representation Two durations in seconds and an advance in metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A member of `Technique`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies the window; no measured duration is implied.
    */
   export interface ISlideStop {
     /** The discriminator. */
@@ -103,11 +78,6 @@ export namespace EquineFootwork {
 
   /**
    * Admit a reusable individual film-footwork plan and its authored timed cues.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines phase and goal sampling as well as event ownership.
-   * @evidence contracts/development/design.md#principled-representation A fixed set of per-leg rein-back flags and an optional terminal slide replace only the contact pattern that the author requests.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The horse phase reader and pose emitter share one admitted technique plan.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The flag and geometric goals come from the admitted course. No call inspects eventual render output to select a result.
    */
   export interface IPlan {
     /** Original course leg numbers, zero-based, explicitly authored for rein-back. */
@@ -128,14 +98,6 @@ export namespace EquineFootwork {
     readonly edges: readonly EquineEdge.IEdge[];
     /**
      * The root's course distance at a film second.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the film second it takes and the course distance it returns.
-     * @evidence contracts/development/implementation.md#principled-implementation Reads the distance of the admitted course's sample at the second.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One sample and one field read.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The distance is the course's own; nothing is interpolated here.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One course sample per call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads a different second.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     readonly distance: (second: number) => number;
   }
@@ -153,14 +115,6 @@ export namespace EquineFootwork {
    * @param tail The rigid tail, which bounds a bank slide's sit.
    * @returns Independent registration for the gait selector, event reader, goal sampler, lateral headings and the jump request.
    * @throws {AutoMovieArchetypeRefusal} For an unsupported animal, travel context, inconsistent authored timing, an inadmissible lateral figure, jump or baulk, or a second jump.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the source identity, route and typed refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Read route boundaries and ensure the diagonal backing is on a reversed level straight walk leg and a slide consumes only an independently authored terminal deceleration.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Inspect each explicitly authored technique at its own typed leg and use the native plan to validate its applicability.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No generated measurements substitute for authored input and no other species receives horse footwork.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(L) pass over L legs plus the bounded native plan queries for explicitly selected techniques.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the checked course plan's times and speeds rather than constructing another trajectory.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one flag per backing leg and at most one terminal slide and its three cues.
    */
   export function prepare(
     archetype: string,
@@ -373,14 +327,6 @@ export namespace EquineFootwork {
    *
    * @param limb The named hoof.
    * @returns Stride fraction, zero for the left fore and right hind, one half for the opposite diagonal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the origin and normalized phases.
-   * @evidence contracts/development/implementation.md#principled-implementation FEI Dressage Rules Article 406 defines a two-beat rearward diagonal without aerial time. The ride uses a duty greater than one half to retain ground support. https://inside.fei.org/system/files/FEI_Dressage_Rules_2022_Clean_Version_V2.pdf
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One division into the two named diagonal pairs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The result names contact order. It supplies no invented measured speed or stride period.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the quadruped limb vocabulary.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds no sample or external resource.
    */
   export function reinBackPhase(
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -396,14 +342,6 @@ export namespace EquineFootwork {
    * @param neutral The neutral terminal point in model metres.
    * @param goal Current gait's candidate foot goal.
    * @returns Current foot goal, with the two stance channels blended only inside the authored slide.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States time, model metres and the scope of the slide.
-   * @evidence contracts/development/implementation.md#principled-implementation The NRHA Judges' Guide depicts sliding ground contact at both hind feet while the horse proceeds straight into the stop. Minimum-jerk progress transitions the existing gait into that authored model-space stance. The admitted deceleration carries it to zero world speed. https://nrha.com/wp-content/uploads/2026/05/2026-NRHA-Handbook.pdf
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Compute one blend and retain a fixed terminal pose after contact.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The candidate still goes through the geometric contact solver and will refuse an infeasible foot placement.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and output per hind hoof.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Blends the existing gait goal and uses the same prepared terminal solver.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Changes no history and retains no caller state.
    */
   export function slideGoal(
     slide: ISlide | undefined,
@@ -442,14 +380,6 @@ export namespace EquineFootwork {
    * @param plan The admitted technique plan.
    * @param second The film second.
    * @returns The pitch, zero outside a slide.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit, sign and source of the pitch.
-   * @evidence contracts/development/implementation.md#principled-implementation The sit's share of `AutoMovieArchetypeEquineBank.SIT`, nose-up.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One product.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the few slides.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `AutoMovieArchetypeEquineBank.share`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
    */
   export function sit(plan: IPlan, second: number): number {
     return (
@@ -472,14 +402,6 @@ export namespace EquineFootwork {
    * @param placement The body's world placement.
    * @param footing The course's prepared footing.
    * @returns The goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frames and the order the techniques apply in.
-   * @evidence contracts/development/implementation.md#principled-implementation Each technique replaces the gait's goal only inside its own window.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A chain of compositions.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work outside a technique's window.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `AutoMovieArchetypeEquineScramble.goal`, `slideGoal` and `AutoMovieArchetypeEquineBank.goal`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one goal.
    */
   export function limbGoal(
     plan: IPlan,

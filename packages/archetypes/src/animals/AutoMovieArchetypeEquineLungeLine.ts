@@ -9,20 +9,10 @@ import { EquineLine } from "./EquineLine";
  * The lunge line of a lunged equid (`AutoMovieArchetypeEquineLunge`): its own lead paid out from the halter to the handler's line hand at the circle's centre, and carried from one hand to the other at a change of rein.
  *
  * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is laid and where the hand is.
- * @evidence contracts/development/design.md#principled-representation The hand in the handler's frame, a change on the film clock and one layer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The line's hand, change and layer; the line itself is `EquineLine`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace AutoMovieArchetypeEquineLungeLine {
   /**
    * The handler's line hand: where the lunge line leaves it, in the frame of the handler at the centre facing the equid.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Metres: up from the floor, out toward the equid and aside toward the rein's side.
-   * @evidence contracts/development/design.md#principled-representation Three distances.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `layer` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IHand {
     /** Height above the floor, metres. */
@@ -37,11 +27,6 @@ export namespace AutoMovieArchetypeEquineLungeLine {
 
   /**
    * A change of the line from one hand to the other at a change of rein, on the film clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Film seconds; three phases of equal seconds: in to the middle, held there while the other hand takes it, out to the other side.
-   * @evidence contracts/development/design.md#principled-representation A start and a phase length.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `layer` reads; the handler's law changes hands on the same clock.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IChange {
     /** Film second the line hand starts in to the middle. */
@@ -63,14 +48,6 @@ export namespace AutoMovieArchetypeEquineLungeLine {
    * @param change When the line passes to the other hand at a change of rein; kept in the one hand when absent.
    * @returns The ride with the line laid.
    * @throws {AutoMovieArchetypeRefusal} As `EquineLine.layer` refuses a stretched line.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame the hand is read in.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand stands out from the centre toward the equid's root, aside toward the line hand's side and up by its height; across a change it comes in to the middle over one phase on a minimum-jerk share, stays there through the second while the other hand takes it, and goes out to the other side over the third; the line runs from there to the halter.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One held point per sample.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One placement read per sample beyond the layer's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `EquineLine`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the ride and the hand.
    */
   export function layer<Id extends string, D extends string>(
     ride: AutoMovieArchetypeRide.IRide<Id, D>,

@@ -7,20 +7,10 @@ import type { createQuadruped } from "./createQuadruped";
 
 /**
  * A cutting horse's course from the cow it works: the horse mirrors the cow's movement along the herd's line after a declared reaction time, holding a declared distance off the cow on the herd's side, so it stays between the cow and the herd.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the mirror law, the reaction and the protected side.
- * @evidence contracts/development/design.md#principled-representation The horse's timed marks are the cow's, delayed by the reaction time and offset toward the herd; the shared timed ride rides them.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One planner returning ordinary timed marks.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No speed or reversal beyond the declared gaits and reaction is admitted; the refusal gives the bound.
  */
 export namespace AutoMovieArchetypeEquineCutting {
   /**
    * The cutting work's declared values.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member's unit.
-   * @evidence contracts/development/design.md#principled-representation A reaction time, a distance and the herd's line.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the planner reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ICut {
     /** How long after the cow the horse answers it, seconds. */
@@ -40,14 +30,6 @@ export namespace AutoMovieArchetypeEquineCutting {
    * @param cut The declared reaction, offset and herd line.
    * @returns The horse's timed marks, for `AutoMovieArchetypeCourse.timed`.
    * @throws {AutoMovieArchetypeRefusal} For a malformed cut, a cow on the herd's side of the line, a mirrored speed beyond the fastest gait, or two reversals closer than the reaction time.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the law and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each cow mark at second t becomes a horse mark at t plus the reaction, at the cow's X and the cow's Z moved the offset toward the herd. A mark-to-mark speed above the fastest gait's declared maximum, or a reversal of the cow's X travel sooner than one reaction after the last, cannot be answered.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, then one pass over the marks.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cow's path is never smoothed or edited.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(M) for M marks.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the species' gait ranges.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh marks.
    */
   export function plan(
     species: createQuadruped.ISpecies,

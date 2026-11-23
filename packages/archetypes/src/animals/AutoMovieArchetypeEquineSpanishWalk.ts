@@ -29,11 +29,6 @@ type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
  * The Spanish walk, a layer over an equid's walk: each forelimb, while it swings, is carried straight up and forward from the shoulder and set down on the footprint the walk gives it.
  *
  * The walk's own stride, footfalls and stance limbs are kept exactly. A fore limb whose displayed sole is off the floor is in its swing; its progress through the swing is the hoof's displayed forward travel in the world between its previous and next footprints, read from the walk at the landings the ride names (`leftForeOn`, `rightForeOn`). On the same half-sine share the cannon and pastern turn about the carpus into the forearm's line, and the whole limb turns forward about the shoulder joint by up to `RAISE`, so it rises extended and comes back to the walk's own path at lift-off and landing. The peak swing is authored.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is kept, how a swing and its progress are read and how the limb is turned.
- * @evidence contracts/development/design.md#principled-representation A ride in and a ride out on the same clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One layer read by a scene staging the Spanish walk.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The swing is read from the displayed walk, never from a separate clock.
  */
 export namespace AutoMovieArchetypeEquineSpanishWalk {
   /**
@@ -41,14 +36,6 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
    *
    * @param ride The equid's walking ride.
    * @returns The layered ride.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and output.
-   * @evidence contracts/development/implementation.md#principled-implementation Per sample, each swinging fore limb's progress is its endpoint's world forward travel between the footprints sampled at its neighbouring landings; its bars turn rigidly about the shoulder by a half-sine of that progress.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Base sample, swing detection, rigid turn, repose.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stance limbs and every other part keep the walk's frames exactly.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A sample reads the base once and, for a swinging fore limb, the base at its two neighbouring landings.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the walk's own landings and footprints.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the base ride and its landing lists.
    */
   export function layer<Id extends string, D extends string>(
     ride: AutoMovieArchetypeRide.IRide<Id, D>,

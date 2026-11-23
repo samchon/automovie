@@ -12,20 +12,10 @@ import type { rideQuadruped } from "./rideQuadruped";
 
 /**
  * Admission of a quadruped ride's requested gaits and speeds before any stride is planned.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States which speeds are admitted against which gait and how gaps are refused.
- * @evidence contracts/development/design.md#principled-representation A pure check over the admitted course plan and the species' declared gait domains.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Called only by `rideQuadruped`, kept apart so the ride stays within its size.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No speed is clamped into a domain; an undeclared one is refused.
  */
 export namespace QuadrupedRideAdmission {
   /**
    * One gait's declared speed domain for the ride's animal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the gait and its speed bounds in metres per second.
-   * @evidence contracts/development/design.md#principled-representation The closed interval `AutoMovieArchetypeQuadrupedGait.range` returns, tagged by gait.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the automatic-speed coverage check and its refusal text.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IDomain {
     /** The gait. */
@@ -48,14 +38,6 @@ export namespace QuadrupedRideAdmission {
    * @param rig The limb chains, whose hip height sets the change points.
    * @param dimensions The animal's dimensions, for mass-scaled change points.
    * @throws {AutoMovieArchetypeRefusal} When a named gait is absent, a requested speed lies outside every applicable declared domain, or a yielding footing sinks a hoof as deep as its carpus or hock stands.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States every input and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Cruise, each leg's fastest speed, positive speed marks and nonzero boundary speeds are each read against the gait the leg names, or against the union of declared domains when the speed chooses; a positive speed below the slowest gait's floor is the slowest gait's, at its slowest clock. A collected explicit gait also admits its parent's speeds it is decelerated from, where its clock holds its fastest row (`QuadrupedRideClock.collectedSpeed`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper admits one speed; the passes over legs, marks and boundaries call it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Named gaits remain strict except for the declared collection rule; no clamp.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(L + G) for L legs and G gaits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the plan's measured leg spans and the strict timing owner.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after the call.
    */
   export function admit(
     species: createQuadruped.ISpecies,
@@ -182,14 +164,6 @@ export namespace QuadrupedRideAdmission {
    * @param plan The admitted plan.
    * @param distance Metres along the path.
    * @returns The zero-based leg index; the last leg past the end.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit and the end case.
-   * @evidence contracts/development/implementation.md#principled-implementation A scan of the plan's ordered leg spans.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(L) in the legs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the plan's spans.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function legIndex(
     plan: AutoMovieArchetypeCourse.IPlan,

@@ -12,11 +12,6 @@ import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
  * An archetype's affordances as inspection marks, so a still shows where each contact sits, which way it faces and how far it extends.
  *
  * Each affordance gives an arrow from its frame's origin along `+Y`, the way out of the contact, and, where its kind has an extent, the outline of that extent: a line for a `handle`, `bar`, `ledge`, `rein` and `stirrup`, a rectangle for a `seat`, `surface`, `pedal` and `aperture`, a circle for a `wheel`'s rim, a spoke for a `crank`'s arm and a line along its run for a `slider`, from its other way's end to its forward one. The marks are grouped by kind (`affordance/seat`, `affordance/hinge`, ...) so a request selects and colours them by kind, and each is named `<path>/affordance/<id>` so a pattern on the archetype selects them with it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each mark draws, how marks are grouped and how they are named.
- * @evidence contracts/development/design.md#principled-representation Plain `IAutoMovieMark` data in the model's placed space, the form the shared inspection instrument draws for any owner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function; the archetypes own it because they own what an affordance's fields mean.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The outline is computed from the same fields the sites read, so a mark cannot show an extent a site does not have.
  */
 export namespace AutoMovieArchetypeMarks {
   /** Default length of the arrow along `+Y`, metres: readable on furniture and larger things. */
@@ -30,14 +25,6 @@ export namespace AutoMovieArchetypeMarks {
    * @param placement The archetype's placement in the world, with unit scale; at the origin when absent.
    * @param arrow The length of each arrow, metres; `ARROW` when absent. A caller drawing something small passes a shorter one so the arrows do not hide it.
    * @returns Two marks per affordance with an extent, one per point contact, in world coordinates.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the path, the placement's premise and the count of marks.
-   * @evidence contracts/development/implementation.md#principled-implementation Each outline is the kind's extent in the frame's coordinates, carried to the world through the placed frame.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One arrow, then one outline by kind.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent dimension gives no outline rather than a guessed one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in affordances; a rim takes a fixed 24 points.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Computed per drawn state.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
     path: string,

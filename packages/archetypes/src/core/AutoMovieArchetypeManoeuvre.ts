@@ -9,20 +9,10 @@ import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
  * Timed paths for mounted manoeuvres, as samples `AutoMovieArchetypeCourse.timed` plans: a circular arc at an even rate, a line wheeling about a centre, a station kept on a moving carrier, a place kept behind a leader on its own path, and the windows in which a body faces a target.
  *
  * Arcs and wheels are admitted against the speed range of the gait they are ridden at, such as `AutoMovieArchetypeQuadrupedGait.range` gives, and refused with the radii that range allows. Headings are degrees about `+Y` from `+Z`, positive toward `+X`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each path, the admission and the heading convention.
- * @evidence contracts/development/design.md#principled-representation World metres, film seconds, degrees and metres per second; paths are course samples, windows intervals of film seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The paths the cavalry, escort, herd and skirmish stagings plan (#3957, #3958, #3959, #3965); the timed plan and its rides are `AutoMovieArchetypeCourse`'s and `AutoMovieArchetypeRide`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The speed range is the caller's from its gait source, never a constant here.
  */
 export namespace AutoMovieArchetypeManoeuvre {
   /**
    * A gait's admitted speeds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit and the source.
-   * @evidence contracts/development/design.md#principled-representation Two speeds in metres per second, the least not above the greatest.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The shape `AutoMovieArchetypeQuadrupedGait.range` returns, read by `arc` and `wheel`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ISpeedRange {
     /** The slowest admitted speed, metres per second. */
@@ -34,11 +24,6 @@ export namespace AutoMovieArchetypeManoeuvre {
 
   /**
    * A circular arc ridden at an even rate.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and meaning.
-   * @evidence contracts/development/design.md#principled-representation A centre in metres, a radius in metres, a start bearing and a signed sweep in degrees, and a window in film seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `arc`; a wheel's files and a loop are arcs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IArc {
     /** The arc's centre on the floor, world metres. */
@@ -62,11 +47,6 @@ export namespace AutoMovieArchetypeManoeuvre {
 
   /**
    * A line wheeling about a centre: its files on one ray from the centre, each sweeping the same angle in the same time.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and meaning.
-   * @evidence contracts/development/design.md#principled-representation The centre, the ray's bearing, the inner file's radius and the file spacing in metres, the count, a signed sweep in degrees and a window in film seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `wheel` (#3957).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IWheel {
     /** The wheel's centre on the floor, world metres. */
@@ -96,11 +76,6 @@ export namespace AutoMovieArchetypeManoeuvre {
 
   /**
    * An interval of film seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit.
-   * @evidence contracts/development/design.md#principled-representation Two film seconds, the first not after the second.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `facing`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IWindow {
     /** The first second. */
@@ -119,14 +94,6 @@ export namespace AutoMovieArchetypeManoeuvre {
    * @param step Seconds between samples, positive.
    * @returns The samples in time order.
    * @throws {AutoMovieArchetypeRefusal} On `radius` when the even speed, the swept length over the time, falls outside the range, with the radii that range allows over the same sweep and time; on `end` when the arc does not run forward.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the sampling and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation An even angular rate gives the speed radius times rate, so the admitted radii are the range's speeds over the rate, in closed form.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, then one point per sample.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A radius outside the range is refused, never moved.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the samples.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function arc(
     archetype: string,
@@ -153,14 +120,6 @@ export namespace AutoMovieArchetypeManoeuvre {
    * @param step Seconds between samples, positive.
    * @returns Each file's samples.
    * @throws {AutoMovieArchetypeRefusal} On `inner` when a file's speed falls outside the range, with the inner radii for which every file stays inside it; on `files` for a count that is not a positive whole number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Each file sweeps the same angle in the same time, so its speed is its radius times the common rate: the outer files ride faster in proportion to their radius, the drill rule of a wheel. The inner radius admits every file between the range's least speed over the rate and its greatest over the rate less the line's width.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the line, then one `arc` per file.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A line the gait cannot wheel is refused, never respaced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in files times samples.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function wheel(
     archetype: string,
@@ -205,14 +164,6 @@ export namespace AutoMovieArchetypeManoeuvre {
    * @param to The last film second, after `from`.
    * @param step Seconds between samples, positive.
    * @returns The samples in time order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame and the sampling.
-   * @evidence contracts/development/implementation.md#principled-implementation The carrier's placement at each second carries the offset, the same rigid transform its own parts ride.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement per sample.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One plan read per sample.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function station(
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -243,14 +194,6 @@ export namespace AutoMovieArchetypeManoeuvre {
    * @param to The last film second, after `from`.
    * @param step Seconds between samples, positive.
    * @returns The samples in time order; before the leader has gone `gap` the follower stands at the path's start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule and its start.
-   * @evidence contracts/development/implementation.md#principled-implementation The leader's distance less the gap, read back to the second the leader passed it, so the follower treads the leader's line.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One distance and one inverse per sample.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The plan's inverse per sample.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function follow(
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -276,14 +219,6 @@ export namespace AutoMovieArchetypeManoeuvre {
    * @param to The last film second, after `from`.
    * @param step Seconds between readings, positive.
    * @returns The windows in time order, their ends placed by bisection between readings.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the window, its unit and its ends.
-   * @evidence contracts/development/implementation.md#principled-implementation The angle between the aim and the bearing to the target, folded into 0 to 180 degrees, read every step; bisection between a reading inside and one outside places each end. A window shorter than a step between two outside readings is not found.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read, then scan runs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in readings plus a fixed bisection per end.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the readings until it returns.
    */
   export function facing(
     plan: AutoMovieArchetypeCourse.IPlan,

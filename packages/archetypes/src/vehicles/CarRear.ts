@@ -9,11 +9,6 @@ import { createCar } from "./createCar";
 
 /**
  * What a car carries behind its cabin, built on `CarBody`'s layout: a sedan's or a hatchback's boot, a van's cargo body, a pickup's bed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what it builds and on what.
- * @evidence contracts/development/design.md#principled-representation Each class's rear as boxes on the layout's planes, with its lid, door or gate as an articulation and its floor as a surface.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One builder, `build`, called by `createCar`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One branch per class, each reading the layout.
  */
 export namespace CarRear {
   /**
@@ -21,14 +16,6 @@ export namespace CarRear {
    *
    * @param builder The car under construction.
    * @param l The layout.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which class gets which rear.
-   * @evidence contracts/development/implementation.md#principled-implementation A sedan's boot lid lies on the boot and lifts at its rear edge, its hinge's `+Y` along `+X`; a hatchback's tailgate hangs from the roof's rear edge and swings up and out; the van's bulkhead stands `loadLength` ahead of its rear doors with the sliding door's opening behind it; the pickup's bed floor is at its lift-in height and its tailgate drops to level about its foot.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper per class.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None beyond the layout's marked constants.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A handful of parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function build(
     builder: AutoMovieArchetypeBuilder<

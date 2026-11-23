@@ -13,20 +13,10 @@ import type { createObstacle } from "./createObstacle";
 
 /**
  * The draw and forward-facing ledge shared by ground obstacles with a rectangular top.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the shared seeded dimensions and the contact coordinates.
- * @evidence contracts/development/design.md#principled-representation Per-profile construction uses the measured bounding dimensions and its own top depth to supply the ledge.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Seeded input validation and the common top and edge only; each producer defines its geometry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Ties keep the two original whole-model axes. No support frame is inferred from an object's category.
  */
 export namespace ObstacleDraw {
   /**
    * The obstacle's seeded dimensions and its empty builder.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the measurements and builder returned to each obstacle.
-   * @evidence contracts/development/design.md#principled-representation The recorded shape keys refer to the fixed obstacle profile and its selected model dimensions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The dimensions and builder are the only intermediate outputs needed to construct the selected obstacle.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The same draw gives construction dimensions and stored provenance.
    */
   export interface IObstacle<Id extends string> {
     /** A fresh builder with the drawn identity and physical material. */
@@ -46,14 +36,6 @@ export namespace ObstacleDraw {
    * @param seed The seed for unresolved dimensions and choices.
    * @returns The dimensions and the builder awaiting the selected geometry.
    * @throws {AutoMovieArchetypeRefusal} For a model or dimension the given profile cannot admit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the original axes and returned builder.
-   * @evidence contracts/development/implementation.md#principled-implementation Apply two whole crosstie draws and then validate the selected bands, preserving the recorded figures.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw model axes, draw bands and open the builder.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A tie dimension set by a section or length remains model-owned; other profiles refuse supplied tie models.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One fixed set of dimension draws.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work All obstacle profiles reuse the original draw and dimensional checks.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only returns the drawn dimensions and new builder.
    */
   export function begin<Id extends string>(
     kind: createObstacle.Kind,
@@ -90,11 +72,6 @@ export namespace ObstacleDraw {
 
   /**
    * The contact ids {@link ledge} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of ledge.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only ledge and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type LedgeContact = "top" | "edge";
 
@@ -106,14 +83,6 @@ export namespace ObstacleDraw {
    * @param length The top measured along X, metres.
    * @param depth The top measured along Z, metres.
    * @param centre The middle of the top along Z, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two frames and their rectangle's measurements.
-   * @evidence contracts/development/implementation.md#principled-implementation Use the top's own dimensions for its surface and put its forward edge at the near boundary.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The rectangle gives one surface and one front ledge.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A barrier's narrow top supplies the contact depth independently of the full base.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Records two affordances.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The three solid obstacles reuse the same surface-and-edge construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the builder receives the contacts.
    */
   export function ledge(
     builder: FixtureDraw.IContactWriter<LedgeContact>,

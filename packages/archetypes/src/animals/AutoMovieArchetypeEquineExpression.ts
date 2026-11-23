@@ -102,20 +102,10 @@ type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
  * An equid's expression layer over any of its rides: attention, muzzle reaches for sniffing, greeting, feeding, drinking, rubbing and grooming, held head carriages (doze, flehmen, yawn), each ear, the jaw, the lips, a neck shake and the tail, and vocal and skin-twitch marks.
  *
  * The layer is a pose layer in the motion skill's sense: it samples the base ride and re-poses only the neck and head, the ears, the jaw and the tail through the animal's rig (`EquineExpressionPose`), so the base's stride, hooves, trunk, tack and contacts are kept exactly and its timing and instants are kept. Each held cue blends in and out on a minimum-jerk share over its `ease`; outside every cue a sample is the base ride's own. On the head channel a cue that starts where the one before it ends blends from that cue's turns rather than from rest, and the one before holds until it hands over; a reach given another body to go around plans its neck and head course around that body's bars (`EquineHeadCourse`), refusing when none clears. A muzzle reach solves the neck and head in closed form (`EquineHeadReach`), a suckling foal's with its poll bent down so it reaches up under the belly, its head first dipped low and then raised to the udder (`EquineHeadReach.dipping`, `rising`), against the target read at that sample, in the horse's current frame, so a moving partner is tracked; a target out of reach, or one the head or neck could only reach through a forelimb (`EquineHeadClearance`), is refused. A carriage pitches the neck and head by authored angles (`EquineHeadReach.pitched`); a curled upper lip turns about its root and a slack lower lip drops the jaw a little; a shake rolls the neck about its own bar. Each vocalization adds exactly one mark, `vocal:<call>`, to the instants and to `marks`, and each skin twitch one instant `twitch:<region>`; each reach adds `<act>On` and `<act>Off` where it is fully held.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is layered, what is kept, the blending, the reach solve and its refusals, and the instants added.
- * @evidence contracts/development/design.md#principled-representation A ride in, a ride out with its marks, on the same film clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One layer and its ride type; the cues are `AutoMovieArchetypeEquineExpressionCue`'s and the posing `EquineExpressionPose`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No species branch beyond the admission of an equid's bridled head; no change to the base ride.
  */
 export namespace AutoMovieArchetypeEquineExpression {
   /**
    * The layered ride: the base ride's plan and duration, its instants with the cues' added, and its vocal marks.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is added to the ride.
-   * @evidence contracts/development/design.md#principled-representation A ride with its sound marks.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `layer`; read as any ride and by sound.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IRide<
     Id extends string,
@@ -133,14 +123,6 @@ export namespace AutoMovieArchetypeEquineExpression {
    * @param cues The cues.
    * @returns The layered ride.
    * @throws {AutoMovieArchetypeRefusal} For a non-equid, a malformed window, cues overlapping on one channel, a clearance that contradicts its act, or a fixed target out of reach where it is first fully held; a tracked target out of reach refuses at the sample that reads it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Admit the cues, read the source's rest frames and carriers, then for each sample weight each active channel by its cue's minimum-jerk share and re-pose the base sample; fixed reach targets are solved once at admission to refuse early.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, preparation, then a stateless sampler that delegates the solve and the posing.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Outside every cue the base sample is returned unchanged; no target is clamped and no forelimb penetration is accepted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A sample scans the C cues once, reads the rig once and does constant solve work plus the O(B+P+A) emission; idle samples cost one base sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Rest frames, carriers and the admitted cue list serve every sample.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the base ride, the rest rotations, the carriers and the cues for as long as the caller keeps the ride.
    */
   export function layer<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
