@@ -1,9 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupportAim,
   IAutoMovieMotionHumanSupportCarry,
@@ -19,24 +21,24 @@ import { HumanSupportAim } from "./HumanSupportAim";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 
 /**
- * The one owner of goals in a moving support's frame (#3491): a posture
- * planned in the world at an action's start, expressed in the support's
- * frame there and carried back to the world at every second by the
- * support's rigid motion since then. A stance on a cart's bed, a bow held on
- * its target from a cantering horse and a carbine presented from a moving
- * car all plan once at their start and are carried this way, so a goal on
- * the support stays on it and the plan stays a pure function of its seconds.
+ * The one owner of goals in a moving support's frame (#3491): a posture planned
+ * in the world at an action's start, expressed in the support's frame there and
+ * carried back to the world at every second by the support's rigid motion since
+ * then. A stance on a cart's bed, a bow held on its target from a cantering
+ * horse and a carbine presented from a moving car all plan once at their start
+ * and are carried this way, so a goal on the support stays on it and the plan
+ * stays a pure function of its seconds.
  *
- * The carry is the rigid transform `D(t) = F(t) F(start)^-1` of the
- * support's frame `F`: a point `p` goes to `F(t) F(start)^-1 p`, a rotation
- * is turned by the support's turn, and the heading by that turn's yaw about
- * the vertical. A goal attached to a bone (`HumanPosture.IGoal.on`) rides
- * its bone already and is left alone. On the ground the carry is the
- * identity, so nothing changes there.
+ * The carry is the rigid transform `D(t) = F(t) F(start)^-1` of the support's
+ * frame `F`: a point `p` goes to `F(t) F(start)^-1 p`, a rotation is turned by
+ * the support's turn, and the heading by that turn's yaw about the vertical. A
+ * goal attached to a bone (`HumanPosture.IGoal.on`) rides its bone already and
+ * is left alone. On the ground the carry is the identity, so nothing changes
+ * there.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is carried, by which transform, what is left alone and why the plan stays pure.
  * @evidence contracts/development/design.md#principled-representation A rigid transform of SE(3) between the support's frame at the start and at a second, applied to a posture's world quantities.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The carry by a frame function, a posture carried, and a plan carried with the channels it claims and the aim it keeps (`HumanSupportAim`).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The carry by a frame function, a posture carried, an entry read on its support, and a plan carried with the channels it claims and the aim it keeps (`HumanSupportAim`).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The support's frame is read through its one reader (`HumanSupportFrame`) or the prop's own frame; nothing is extrapolated.
  */
 export namespace HumanSupportCarry {
@@ -71,16 +73,15 @@ export namespace HumanSupportCarry {
   }
 
   /**
-   * Blend the rigid carries that share a staging frame at entry.
-   * End weights preserve the exact source or destination carry. Intermediate
-   * weights interpolate the carried anchor and take the shortest turn.
+   * Blend the rigid carries that share a staging frame at entry. End weights
+   * preserve the exact source or destination carry. Intermediate weights
+   * interpolate the carried anchor and take the shortest turn.
    *
    * @param from The current support's carry from entry.
    * @param to The next support's carry from the same entry.
    * @param anchor An entry-world point near the goals being carried, metres.
    * @param weight The destination weight from zero to one.
    * @returns A rigid carry of points, turns and headings.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation Specifies the shared entry frame, destination weight and exact endpoints.
    * @evidence contracts/development/implementation.md#principled-implementation Represents each rigid carry by a carried anchor and rotation. The engine interpolates the anchor linearly and the rotation on its shorter arc.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Computes one blended carry for every world-space posture channel. The caller owns the load-transfer schedule and each plant's carrier.
@@ -129,10 +130,10 @@ export namespace HumanSupportCarry {
   }
 
   /**
-   * A posture carried: its root, its heading and every limb goal not
-   * attached to a bone moved by the carry; joint angles are the body's own
-   * and stay. Contacts and task-limit points are end-joint-local offsets
-   * and remain unchanged by the world's rigid motion.
+   * A posture carried: its root, its heading and every limb goal not attached
+   * to a bone moved by the carry; joint angles are the body's own and stay.
+   * Contacts and task-limit points are end-joint-local offsets and remain
+   * unchanged by the world's rigid motion.
    *
    * @param carry The carry.
    * @param posture The posture planned at the start.
@@ -171,15 +172,66 @@ export namespace HumanSupportCarry {
   }
 
   /**
-   * A plan made on a named prop carried by that prop's motion: a walk along
-   * a wagon's bed planned on the bed as it stood at the walk's start, each
-   * foot planted on the prop.
+   * An action's entry as the prop it is planned on carries it: the pelvis's and
+   * each foot's velocity and acceleration less the prop's own at the action's
+   * start (`HumanSupportFrame.at`, the rate of the prop's origin), places and
+   * joint rates unchanged. A plan made on the prop as it stood at the start and
+   * then carried by its motion (`on`) reads the body's motion on the prop, not
+   * in the world: a body standing still on a wagon rolling at 2 m/s enters a
+   * walk on the bed at rest, not already walking at 2 m/s, or the carry would
+   * add the wagon's motion a second time.
+   *
+   * @param context The action's context.
+   * @param prop The prop the action is planned on.
+   * @returns The entry relative to the prop's motion.
+   */
+  export function entry(
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "entry" | "prop" | "performer" | "start"
+    >,
+    prop: string,
+  ): IAutoMovieMotionHumanEntryState {
+    const support: IAutoMovieMotionHumanSupportFrame.IFrame =
+      HumanSupportFrame.at(context, context.start, {
+        kind: "prop",
+        subject: prop,
+      });
+    const entered: IAutoMovieMotionHumanEntryState = context.entry;
+    const foot = (
+      side: AutoMovieHumanSide,
+    ): IAutoMovieMotionHumanEntryState.IFoot => ({
+      ...entered.feet[side],
+      velocity: Vector3.subtract(entered.feet[side].velocity, support.velocity),
+      acceleration: Vector3.subtract(
+        entered.feet[side].acceleration,
+        support.acceleration,
+      ),
+    });
+    return {
+      ...entered,
+      velocity: {
+        ...entered.velocity,
+        linear: Vector3.subtract(entered.velocity.linear, support.velocity),
+      },
+      acceleration: Vector3.subtract(
+        entered.acceleration,
+        support.acceleration,
+      ),
+      feet: { left: foot("left"), right: foot("right") },
+    };
+  }
+
+  /**
+   * A plan made on a named prop carried by that prop's motion: a walk along a
+   * wagon's bed planned on the bed as it stood at the walk's start, each foot
+   * planted on the prop.
    *
    * @param context The action's context.
    * @param plan The plan made in the world at the start.
    * @param prop The prop the body stands or walks on.
-   * @returns The carried plan with its plants on the prop. The prop frame
-   * does not certify a stationary window in world coordinates.
+   * @returns The carried plan with its plants on the prop. The prop frame does
+   *   not certify a stationary window in world coordinates.
    */
   export function on(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
@@ -217,19 +269,20 @@ export namespace HumanSupportCarry {
    * (`HumanSupportFrame`), claiming the channels it writes over its carrier:
    * the plan an act made in the world at its start, kept on the support.
    *
-   * With an aim, the line planned at the start is re-taken on its world
-   * target at every second (`HumanSupportAim`), and an aim the trunk and
-   * the arms cannot keep at a frame of the act is refused here. The plan's
-   * launches (a shot) are carried to their seconds with it, so a shot
-   * leaves the muzzle where the displayed weapon is.
+   * With an aim, the line planned at the start is re-taken on its world target
+   * at every second (`HumanSupportAim`), and an aim the trunk and the arms
+   * cannot keep at a frame of the act is refused here. The plan's launches (a
+   * shot) are carried to their seconds with it, so a shot leaves the muzzle
+   * where the displayed weapon is.
    *
    * @param context The action's context.
    * @param plan The plan made at the start.
    * @param channels The channels the plan claims over its carrier.
    * @param aim The line kept on a world target; none when absent.
-   * @returns The carried plan. The ground branch keeps the input's
-   * stationarity bounds; another support can move its world goals.
-   * @throws {HumanRefusal} When keeping the aim asks the arms to present past their bound (`HumanSupportAim.check`).
+   * @returns The carried plan. The ground branch keeps the input's stationarity
+   *   bounds; another support can move its world goals.
+   * @throws {HumanRefusal} When keeping the aim asks the arms to present past
+   *   their bound (`HumanSupportAim.check`).
    */
   export function plan(
     context: Pick<
@@ -306,10 +359,9 @@ export namespace HumanSupportCarry {
   }
 
   /**
-   * A launch planned at the start carried to its second: its point and
-   * rotation by the carry, its velocity relative to the support turned by
-   * the carry's turn, the support's own velocity there (which the act
-   * already added) kept.
+   * A launch planned at the start carried to its second: its point and rotation
+   * by the carry, its velocity relative to the support turned by the carry's
+   * turn, the support's own velocity there (which the act already added) kept.
    */
   function launch(
     context: Pick<
