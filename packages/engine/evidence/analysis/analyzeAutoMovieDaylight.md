@@ -6,7 +6,7 @@ Sums beam, isotropic-sky and point-luminaire illuminance at each cell centre, wi
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One function owns sampling, metrics and sealing with a private helper per light component; request checking and frame resolution live in `resolveAutoMovieDaylightRequest`, and directions, occlusion, metric building and sealing are shared analysis helpers.
+One function owns sampling, metrics and sealing, with a private helper for the beam and luminaire components and the sky term from `autoMovieSkyIlluminance`, which the illuminance meter shares; request checking and frame resolution live in `resolveAutoMovieDaylightRequest`, and directions, occlusion, metric building and sealing are shared analysis helpers.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

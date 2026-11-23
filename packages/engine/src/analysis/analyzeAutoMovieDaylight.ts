@@ -18,9 +18,8 @@ import { Vector3 } from "../math/Vector3";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
 import { autoMovieContextSolids } from "./autoMovieContextSolids";
-import { autoMovieHemisphereDirections } from "./autoMovieHemisphereDirections";
 import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
-import { autoMovieSkyward } from "./autoMovieSkyward";
+import { autoMovieSkyIlluminance } from "./autoMovieSkyIlluminance";
 import { AUTOMOVIE_DAYLIGHT_SKY_MODEL } from "./constants/AUTOMOVIE_DAYLIGHT_SKY_MODEL";
 import { resolveAutoMovieDaylightRequest } from "./resolveAutoMovieDaylightRequest";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
@@ -39,7 +38,8 @@ const EPSILON: number = 1e-12;
  *   the ray to the sun;
  * - Sky illuminance is the isotropic vault `DHI * V`, where `V` is the fraction
  *   of a cosine-weighted hemisphere that reaches the sky unobstructed and above
- *   the reference ground. An unobstructed ground-facing-up plane has V=1; tilted or shaded planes retain sampling error;
+ *   the reference ground. An unobstructed ground-facing-up plane has V=1;
+ *   tilted or shaded planes retain sampling error;
  * - Each luminaire contributes `I * max(0, dot(n, d)) / r^2`, zeroed when a solid
  *   stands between the fitting and the point;
  * - Ground-reflected light is **not** modelled, and says so as an `unsupported`
@@ -51,11 +51,15 @@ const EPSILON: number = 1e-12;
  * with a dark point returns a gap, because `max / 0` is not a large number, it
  * is not a number.
  *
- * Settings text covers the declared study fields and preserves list order; equivalent covered JSON values repeat the digest, while ignored fields, signed zero and possible hash collisions limit identity claims.
+ * Settings text covers the declared study fields and preserves list order;
+ * equivalent covered JSON values repeat the digest, while ignored fields,
+ * signed zero and possible hash collisions limit identity claims.
  *
  * The cosine-weighted sky estimate is exact only for an unobstructed plane
  * whose hemisphere lies wholly above the reference ground; a tilted or shaded
- * plane's sky term depends on `diffuseSamples`. This identity is mathematical: binary64 light products and summation can overflow, and nonfinite computed metrics throw even when scalar inputs were admitted.
+ * plane's sky term depends on `diffuseSamples`. This identity is mathematical:
+ * binary64 light products and summation can overflow, and nonfinite computed
+ * metrics throw even when scalar inputs were admitted.
  */
 export const analyzeAutoMovieDaylight: (
   props: IAutoMovieAnalyzeDaylight.IProps,
@@ -124,23 +128,16 @@ export const analyzeAutoMovieDaylight: (
   // depends on the direction alone. Both are settled once instead of once per
   // point, which is what keeps a fine grid under a fine sky a study rather than
   // a wait.
-  const sky: {
-    open: IAutoMovieVector3[];
-    count: number;
-    illuminance: number;
-  } | null =
+  const sky: ((point: IAutoMovieVector3) => number) | null =
     instant === null
       ? null
-      : {
-          open: autoMovieHemisphereDirections({
-            normal: resolved.normal,
-            count: request.diffuseSamples,
-          }).filter((direction: IAutoMovieVector3): boolean =>
-            autoMovieSkyward(direction, request.context.ground),
-          ),
+      : autoMovieSkyIlluminance({
+          normal: resolved.normal,
+          ground: request.context.ground,
           count: request.diffuseSamples,
           illuminance: instant.diffuseHorizontalIlluminance,
-        };
+          solids,
+        });
   const beam: { sun: IAutoMovieVector3; illuminance: number } | null =
     instant === null
       ? null
@@ -171,8 +168,7 @@ export const analyzeAutoMovieDaylight: (
               solids,
               ...beam,
             });
-      const skylight: number =
-        sky === null ? 0 : skyIlluminance({ point, solids, ...sky });
+      const skylight: number = sky === null ? 0 : sky(point);
       const lamp: number = artificialIlluminance({
         point,
         normal: resolved.normal,
@@ -327,9 +323,13 @@ export const analyzeAutoMovieDaylight: (
 };
 
 /**
- * Multiply declared beam illuminance by positive normal/sun incidence, returning zero behind the face or when the convex-solid union blocks the sky ray. Unit resolved directions are the caller premise; this helper does not admit nonfinite arithmetic.
+ * Multiply declared beam illuminance by positive normal/sun incidence,
+ * returning zero behind the face or when the convex-solid union blocks the sky
+ * ray. Unit resolved directions are the caller premise; this helper does not
+ * admit nonfinite arithmetic.
  *
- * One incidence check and at most one O(total solid planes) ray test allocate only ray props, with no cached visibility or retained point.
+ * One incidence check and at most one O(total solid planes) ray test allocate
+ * only ray props, with no cached visibility or retained point.
  */
 const beamIlluminance: (props: {
   point: IAutoMovieVector3;
@@ -359,41 +359,14 @@ const beamIlluminance: (props: {
 };
 
 /**
- * Count unobstructed directions from the study's already-skyward subset, dividing by the original positive hemisphere count so rejected ground directions still reduce illuminance. This deterministic visibility fraction retains the sampler and slab-test approximations.
+ * Sum positive-incidence point-light I*cos/r^2 contributions that reach this
+ * point without obstruction. A fitting within 1e-12 metres contributes zero and
+ * appends one warning per fitting id through the caller's study-wide set; raw
+ * distance/energy arithmetic can overflow.
  *
- * Each open direction scans the solid union until blocked, reusing borrowed directions/solids and retaining only a count; no visibility result persists between points.
- */
-const skyIlluminance: (props: {
-  point: IAutoMovieVector3;
-  illuminance: number;
-  solids: readonly IAutoMovieAnalysisSolid[];
-  open: readonly IAutoMovieVector3[];
-  count: number;
-}) => number = (props: {
-  point: IAutoMovieVector3;
-  illuminance: number;
-  solids: readonly IAutoMovieAnalysisSolid[];
-  open: readonly IAutoMovieVector3[];
-  count: number;
-}): number => {
-  let visible: number = 0;
-  for (const direction of props.open)
-    if (
-      !autoMovieRayObstructed({
-        origin: props.point,
-        direction,
-        solids: props.solids,
-        maxDistance: Infinity,
-      })
-    )
-      ++visible;
-  return (props.illuminance * visible) / props.count;
-};
-
-/**
- * Sum positive-incidence point-light I*cos/r^2 contributions that reach this point without obstruction. A fitting within 1e-12 metres contributes zero and appends one warning per fitting id through the caller's study-wide set; raw distance/energy arithmetic can overflow.
- *
- * One luminaire pass and at most one solid-union ray test per fitting reuse the study's solids; only caller-owned warnings and coincidence ids survive this call.
+ * One luminaire pass and at most one solid-union ray test per fitting reuse the
+ * study's solids; only caller-owned warnings and coincidence ids survive this
+ * call.
  */
 const artificialIlluminance: (props: {
   point: IAutoMovieVector3;
@@ -449,9 +422,13 @@ const artificialIlluminance: (props: {
 };
 
 /**
- * Place cell (i,j) at half-cell offsets on the request's normalized U/V axes, in model metres from its origin. Admitted positive dimensions/counts and in-range loop indices are premises; oblique axes form a parallelogram and finite inputs do not guarantee finite sums.
+ * Place cell (i,j) at half-cell offsets on the request's normalized U/V axes,
+ * in model metres from its origin. Admitted positive dimensions/counts and
+ * in-range loop indices are premises; oblique axes form a parallelogram and
+ * finite inputs do not guarantee finite sums.
  *
- * Constant arithmetic returns a new vector without changing or retaining the borrowed workplane/frame.
+ * Constant arithmetic returns a new vector without changing or retaining the
+ * borrowed workplane/frame.
  */
 const gridPoint: (
   workplane: IAutoMovieAnalysisWorkplane,
@@ -474,9 +451,12 @@ const gridPoint: (
 };
 
 /**
- * Sum then divide a nonempty illuminance list in stored order; the positive admitted grid count supplies nonemptiness. This binary64 mean has ordinary summation error and can overflow before division.
+ * Sum then divide a nonempty illuminance list in stored order; the positive
+ * admitted grid count supplies nonemptiness. This binary64 mean has ordinary
+ * summation error and can overflow before division.
  *
- * One O(N) fold uses constant extra storage, with no copy, cache or retained list.
+ * One O(N) fold uses constant extra storage, with no copy, cache or retained
+ * list.
  */
 const average: (values: readonly number[]) => number = (
   values: readonly number[],
@@ -485,9 +465,13 @@ const average: (values: readonly number[]) => number = (
   values.length;
 
 /**
- * Serialize context id/ground/north, resolved instant, ordered solids/grid/luminaires, sky settings and projected targets. Nested records are serialized as supplied, so extra runtime fields and serialization hooks are not filtered by this fixed-order outer projection.
+ * Serialize context id/ground/north, resolved instant, ordered
+ * solids/grid/luminaires, sky settings and projected targets. Nested records
+ * are serialized as supplied, so extra runtime fields and serialization hooks
+ * are not filtered by this fixed-order outer projection.
  *
- * Entry/text-linear serialization creates temporary projections and the returned string once per study; no request or cache survives sealing.
+ * Entry/text-linear serialization creates temporary projections and the
+ * returned string once per study; no request or cache survives sealing.
  */
 const daylightSettings: (
   request: IAutoMovieDaylightRequest,

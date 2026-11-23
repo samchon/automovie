@@ -10,6 +10,7 @@ export type { IAutoMovieCameraClearanceSample } from "./IAutoMovieCameraClearanc
 export type { IAutoMovieCameraCoverageEntry } from "./IAutoMovieCameraCoverageEntry";
 export type { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
 export type { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
+export type { IAutoMovieCheckExposureContinuity } from "./IAutoMovieCheckExposureContinuity";
 export type { IAutoMovieCompileCameraClearanceReports } from "./IAutoMovieCompileCameraClearanceReports";
 export type { IAutoMovieCompileCameraCoverage } from "./IAutoMovieCompileCameraCoverage";
 export type { IAutoMovieCompileCameraMove } from "./IAutoMovieCompileCameraMove";
@@ -33,6 +34,7 @@ export type { IAutoMovieIntersectsPerspectiveFrustumBox } from "./IAutoMovieInte
 export type { IAutoMovieIntersectsPerspectiveFrustumSegment } from "./IAutoMovieIntersectsPerspectiveFrustumSegment";
 export type { IAutoMovieIntersectsPerspectiveFrustumSphere } from "./IAutoMovieIntersectsPerspectiveFrustumSphere";
 export type { IAutoMovieLocalSegmentMeetsPerspectiveFrustum } from "./IAutoMovieLocalSegmentMeetsPerspectiveFrustum";
+export type { IAutoMovieMeterIlluminance } from "./IAutoMovieMeterIlluminance";
 export type { IAutoMovieNormalizedGrammarShot } from "./IAutoMovieNormalizedGrammarShot";
 export type { IAutoMoviePerspectiveFrustumLens } from "./IAutoMoviePerspectiveFrustumLens";
 export type { IAutoMoviePoseKeypoint } from "./IAutoMoviePoseKeypoint";

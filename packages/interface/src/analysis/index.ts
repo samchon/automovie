@@ -39,6 +39,7 @@ export type { IAutoMovieRayObstruction } from "./IAutoMovieRayObstruction";
 export type { IAutoMovieReferenceGround } from "./IAutoMovieReferenceGround";
 export type { IAutoMovieResolveDaylightRequest } from "./IAutoMovieResolveDaylightRequest";
 export type { IAutoMovieSealAnalysisRun } from "./IAutoMovieSealAnalysisRun";
+export type { IAutoMovieSkyIlluminance } from "./IAutoMovieSkyIlluminance";
 export type { IAutoMovieSolidBlockQuery } from "./IAutoMovieSolidBlockQuery";
 export type { IAutoMovieSolveSunPosition } from "./IAutoMovieSolveSunPosition";
 export type { IAutoMovieSpaceAirRequest } from "./IAutoMovieSpaceAirRequest";

@@ -13,6 +13,7 @@ export * from "./autoMovieDewPoint";
 export * from "./autoMovieEnvironmentInstant";
 export * from "./autoMovieHemisphereDirections";
 export * from "./autoMovieRayObstructed";
+export * from "./autoMovieSkyIlluminance";
 export * from "./autoMovieSkyward";
 export * from "./autoMovieSolidBlocks";
 export * from "./autoMovieSunDirection";

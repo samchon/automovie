@@ -23,6 +23,7 @@ export * from "./deriveAutoMovieSemanticMask";
 export * from "./digestAutoMovieSemanticMask";
 export * from "./encodeAutoMoviePng";
 export * from "./evaluateAutoMovieRenderBudget";
+export * from "./exposure";
 export * from "./measure";
 export * from "./measureAutoMovieRenderInventory";
 export * from "./measureAutoMovieRenderTextureClosure";
