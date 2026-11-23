@@ -59,11 +59,14 @@ type Frame = HumanMountOnFrame.Frame;
  * leave, at the latest at the contact, or astride at 35 %, then follows over
  * 30 % of the climb; astride it crosses as the pelvis crosses, arriving at
  * the contact, its ankle passing above and behind the seat
- * (`HumanMount.OVER`). A foot bears on its rest once the seat has taken the
- * body and the foot has arrived: a leg cannot hold a fixed rest under a pelvis
- * that still travels. So between the push-off and the contact the body is off
- * the floor, as in a hop onto a stool or a vault onto a saddle; a climb that
- * stands in a stirrup is not modelled. A seat on a carrier
+ * (`HumanMount.OVER`). Astride, the leading foot bears on its rest from its
+ * arrival, so the body rises standing in the near stirrup while the far leg
+ * swings over, as a rider mounts from the ground (Geutjens, Clayton and
+ * Kuhnke 2008, Vet J 175:332); any other foot bears on its rest once the
+ * seat has taken the body and the foot has arrived, since nothing else holds
+ * its rest under a pelvis that still travels. A seat with no rest for the
+ * leading foot leaves the body off the floor between the push-off and the
+ * contact, as in a hop onto a stool. A seat on a carrier
  * (`IAutoMovieMotionHumanSeated.ISeat.carrier`) bears, with its rests, on
  * that carrier, while the floor plants stay on the floor the feet leave.
  *
@@ -288,9 +291,13 @@ export namespace HumanMountOn {
       astride ? crossing[1] : Math.min(climb, off + 0.3 * climb),
     ];
 
-    // A foot bears on its rest once the seat has taken the body and the foot has arrived: before that the pelvis is still on its way, and a leg cannot hold a fixed rest under a pelvis that travels.
+    // Astride, the leading foot bears on its rest from its arrival: the body rises standing in the near stirrup while the far leg swings over (Geutjens, Clayton and Kuhnke 2008). Any other foot bears once the seat has taken the body and the foot has arrived: before that the pelvis is still on its way, and nothing else holds that rest under it.
     const bears = (side: "left" | "right"): number =>
-      stays[side] ? 0 : Math.max(contact, flight[side][1]);
+      stays[side]
+        ? 0
+        : astride && side === lead
+          ? flight[side][1]
+          : Math.max(contact, flight[side][1]);
     const bearing: Record<"left" | "right", number> = {
       left: bears("left"),
       right: bears("right"),

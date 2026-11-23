@@ -89,6 +89,8 @@ export function test_world_mounted_rider_envelope(): void {
   const saddle: ReturnType<typeof HumanObject.seat> = HumanObject.seat(
     ride.at(0).archetype,
     place(0),
+    undefined,
+    "horse",
   );
   const film: HumanPerformance = new HumanPerformance({
     seed: "rider-envelope",
