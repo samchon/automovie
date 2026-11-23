@@ -470,7 +470,6 @@ export namespace QuadrupedRidePose {
     ): AutoMovieArchetype<Id, Dimension> {
       const {
         axial,
-        preview,
         targets,
         floor,
         coordinateScale,
