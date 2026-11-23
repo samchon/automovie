@@ -437,4 +437,6 @@ function strokePoint(
   return Vector3.lerp(
     a.point,
     b.point,
-    AutoMovieMotionInterval.progress(a.l
+    AutoMovieMotionInterval.progress(a.length, b.length, distance),
+  );
+}
