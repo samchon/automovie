@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieAnalysisLuminaire,
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisMetricGap,
   IAutoMovieAnalysisRun,
@@ -16,17 +15,15 @@ import {
 
 import { Vector3 } from "../math/Vector3";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
-import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
+import { autoMovieArtificialIlluminance } from "./autoMovieArtificialIlluminance";
 import { autoMovieContextSolids } from "./autoMovieContextSolids";
+import { autoMovieDaylightSettings } from "./autoMovieDaylightSettings";
 import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
 import { autoMovieSkyIlluminance } from "./autoMovieSkyIlluminance";
 import { AUTOMOVIE_DAYLIGHT_SKY_MODEL } from "./constants/AUTOMOVIE_DAYLIGHT_SKY_MODEL";
 import { resolveAutoMovieDaylightRequest } from "./resolveAutoMovieDaylightRequest";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
-
-/** Distances this short or shorter put a fitting on the sample point. */
-const EPSILON: number = 1e-12;
 
 /**
  * Measure one workplane under one declared instant, one set of shades and one
@@ -83,7 +80,11 @@ export const analyzeAutoMovieDaylight: (
   const contextSolids: IAutoMovieAnalysisSolid[] = autoMovieContextSolids(
     request.context,
   );
-  const settings: string = daylightSettings(request, instant, contextSolids);
+  const settings: string = autoMovieDaylightSettings(
+    request,
+    instant,
+    contextSolids,
+  );
   const domain: "daylight" | "artificial-light" =
     instant === null ? "artificial-light" : "daylight";
 
@@ -169,7 +170,7 @@ export const analyzeAutoMovieDaylight: (
               ...beam,
             });
       const skylight: number = sky === null ? 0 : sky(point);
-      const lamp: number = artificialIlluminance({
+      const lamp: number = autoMovieArtificialIlluminance({
         point,
         normal: resolved.normal,
         luminaires: request.luminaires,
@@ -359,69 +360,6 @@ const beamIlluminance: (props: {
 };
 
 /**
- * Sum positive-incidence point-light I*cos/r^2 contributions that reach this
- * point without obstruction. A fitting within 1e-12 metres contributes zero and
- * appends one warning per fitting id through the caller's study-wide set; raw
- * distance/energy arithmetic can overflow.
- *
- * One luminaire pass and at most one solid-union ray test per fitting reuse the
- * study's solids; only caller-owned warnings and coincidence ids survive this
- * call.
- */
-const artificialIlluminance: (props: {
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-  luminaires: readonly IAutoMovieAnalysisLuminaire[];
-  solids: readonly IAutoMovieAnalysisSolid[];
-  warnings: IAutoMovieAnalysisWarning[];
-  coincident: Set<string>;
-}) => number = (props: {
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-  luminaires: readonly IAutoMovieAnalysisLuminaire[];
-  solids: readonly IAutoMovieAnalysisSolid[];
-  warnings: IAutoMovieAnalysisWarning[];
-  coincident: Set<string>;
-}): number => {
-  let total: number = 0;
-  for (const luminaire of props.luminaires) {
-    const offset: IAutoMovieVector3 = Vector3.subtract(
-      luminaire.position,
-      props.point,
-    );
-    const distance: number = Vector3.length(offset);
-    if (distance <= EPSILON) {
-      // Reported once per fitting rather than once per sample: the fact is
-      // about the luminaire, and a warning repeated per grid cell would bury
-      // every other warning the run carries.
-      if (!props.coincident.has(luminaire.id)) {
-        props.coincident.add(luminaire.id);
-        props.warnings.push({
-          code: "luminaire-on-workplane",
-          detail: `luminaire "${luminaire.id}" sits on the workplane itself, where the inverse square law has no value; it contributes nothing`,
-          subject: luminaire.id,
-        });
-      }
-      continue;
-    }
-    const direction: IAutoMovieVector3 = Vector3.normalize(offset);
-    const incidence: number = Vector3.dot(props.normal, direction);
-    if (incidence <= 0) continue;
-    if (
-      autoMovieRayObstructed({
-        origin: props.point,
-        direction,
-        solids: props.solids,
-        maxDistance: distance,
-      })
-    )
-      continue;
-    total += (luminaire.intensity * incidence) / (distance * distance);
-  }
-  return total;
-};
-
-/**
  * Place cell (i,j) at half-cell offsets on the request's normalized U/V axes,
  * in model metres from its origin. Admitted positive dimensions/counts and
  * in-range loop indices are premises; oblique axes form a parallelogram and
@@ -463,48 +401,3 @@ const average: (values: readonly number[]) => number = (
 ): number =>
   values.reduce((sum: number, value: number): number => sum + value, 0) /
   values.length;
-
-/**
- * Serialize context id/ground/north, resolved instant, ordered
- * solids/grid/luminaires, sky settings and projected targets. Nested records
- * are serialized as supplied, so extra runtime fields and serialization hooks
- * are not filtered by this fixed-order outer projection.
- *
- * Entry/text-linear serialization creates temporary projections and the
- * returned string once per study; no request or cache survives sealing.
- */
-const daylightSettings: (
-  request: IAutoMovieDaylightRequest,
-  instant: IAutoMovieEnvironmentInstant | null,
-  occluders: readonly IAutoMovieAnalysisSolid[],
-) => string = (
-  request: IAutoMovieDaylightRequest,
-  instant: IAutoMovieEnvironmentInstant | null,
-  occluders: readonly IAutoMovieAnalysisSolid[],
-): string =>
-  JSON.stringify({
-    context: request.context.id,
-    ground: request.context.ground,
-    north: request.context.north,
-    instant,
-    occluders,
-    workplane: request.workplane,
-    shades: request.shades.map(
-      (shade: IAutoMovieAnalysisSolid): IAutoMovieAnalysisSolid => ({
-        id: shade.id,
-        planes: shade.planes,
-      }),
-    ),
-    luminaires: request.luminaires.map(
-      (
-        luminaire: IAutoMovieAnalysisLuminaire,
-      ): IAutoMovieAnalysisLuminaire => ({
-        id: luminaire.id,
-        position: luminaire.position,
-        intensity: luminaire.intensity,
-      }),
-    ),
-    sky: request.sky,
-    diffuseSamples: request.diffuseSamples,
-    targets: autoMovieAnalysisSettingsTargets(request.targets),
-  });
