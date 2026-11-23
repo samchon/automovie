@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-World bounds classify complete exclusion by a delivery clip plane. Box overlap and unsupported or unavailable bounds leave the subject ungraded for exact visibility. Actual projection includes the caller's delivery crop. Rigid meshes and owned skins with a stock shader bound the subject through listAutoMovieCameraSubjectMeshes and boundAutoMovieCameraSubject, so an animated actor is graded by its current pose.
+World bounds classify complete exclusion by a delivery clip plane, then a crossing of a side plane by the outermost corner beyond the same 32-ulp slack. Box overlap and unsupported or unavailable bounds leave the subject ungraded for exact visibility. Actual projection includes the caller's delivery crop. Rigid meshes and owned skins with a stock shader bound the subject through listAutoMovieCameraSubjectMeshes and boundAutoMovieCameraSubject, so an animated actor is graded by its current pose.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-The framing path visits only target descendants, uses cached rigid geometry bounds and the skin's pose cache, and checks six support points. The optional witness pass is skipped for excluded subjects, unmeasured bounds, and exact pixel observations.
+The framing path visits only target descendants, uses cached rigid geometry bounds and the skin's pose cache, and checks at most ten support points. The optional witness pass runs for possible and side-crossing subjects and is skipped for excluded subjects, unmeasured bounds, and exact pixel observations.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -14,7 +14,7 @@ Documents original-frame ownership, projected bounds, and the optional triangle 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Admit the target, bound it, classify the six clip planes, optionally sample witnesses, then delegate grading to classifyAutoMovieCameraInspection.
+Admit the target, bound it, classify the six clip planes and then side crossings, optionally sample witnesses, then delegate grading to classifyAutoMovieCameraInspection.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

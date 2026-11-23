@@ -20,11 +20,11 @@ Defines the scope, sample units, matching-raster requirement, and coverage limit
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Names each of the five framing grades.
+Names each of the six framing grades.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Three exclusion grades name the plane that excludes the bounds, apart from possible overlap and missing evidence.
+Three exclusion grades name the plane that excludes the bounds. A crossed frame side is graded apart from overlap inside all four sides, because only the crossing can be cut by the frame edge. Missing evidence stays separate.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -32,7 +32,7 @@ A closed literal union read by the classifier and the frame reporter.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Possible overlap never claims visibility, and missing evidence stays distinct from exclusion.
+Possible overlap and a crossed side never claim visibility or a cut, and missing evidence stays distinct from exclusion.
 
 # src/validation/IAutoMovieCameraInspection.ts#IAutoMovieCameraInspection.IWitnesses
 

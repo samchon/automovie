@@ -39,13 +39,14 @@ interface IProps {
   /** Maximum total triangles admitted to the optional, nine-ray witness pass. */
   triangleBudget?: number;
 
-  /** Matching exact pixel observations, when a capture or delivery audit obtained them. */
+  /**
+   * Matching exact pixel observations, when a capture or delivery audit
+   * obtained them.
+   */
   pixels?: IAutoMovieCameraInspection.IPixels;
 }
 
-/**
- * Observes required-subject framing from the original delivered projection.
- */
+/** Observes required-subject framing from the original delivered projection. */
 export function observeAutoMovieCameraInspection(
   props: IProps,
 ): IAutoMovieCameraInspection.IResult {
@@ -100,10 +101,14 @@ export function observeAutoMovieCameraInspection(
                 .slice(0, 4)
                 .some((plane: Plane): boolean => outsidePlane(bounds, plane))
             ? "outside"
-            : "possible";
+            : frustum.planes
+                  .slice(0, 4)
+                  .some((plane: Plane): boolean => crossesPlane(bounds, plane))
+              ? "crosses-side"
+              : "possible";
   const triangleBudget: number = props.triangleBudget ?? 0;
   const witnesses: IAutoMovieCameraInspection.IWitnesses | undefined =
-    framing === "possible" &&
+    (framing === "possible" || framing === "crosses-side") &&
     pixels === undefined &&
     Number.isSafeInteger(triangleBudget) &&
     triangleBudget > 0
@@ -161,6 +166,22 @@ function outsidePlane(box: Box3, plane: Plane): boolean {
   const xx: number = x * (x >= 0 ? box.max.x : box.min.x);
   const yy: number = y * (y >= 0 ? box.max.y : box.min.y);
   const zz: number = z * (z >= 0 ? box.max.z : box.min.z);
+  const tolerance: number =
+    32 *
+    Number.EPSILON *
+    (1 + Math.abs(xx) + Math.abs(yy) + Math.abs(zz) + Math.abs(plane.constant));
+  return xx + yy + zz + plane.constant < -tolerance;
+}
+
+/**
+ * Tests the outermost corner, with the same slack, for a box that reaches past
+ * the plane.
+ */
+function crossesPlane(box: Box3, plane: Plane): boolean {
+  const { x, y, z } = plane.normal;
+  const xx: number = x * (x >= 0 ? box.min.x : box.max.x);
+  const yy: number = y * (y >= 0 ? box.min.y : box.max.y);
+  const zz: number = z * (z >= 0 ? box.min.z : box.max.z);
   const tolerance: number =
     32 *
     Number.EPSILON *

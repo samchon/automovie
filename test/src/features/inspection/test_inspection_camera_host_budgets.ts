@@ -12,21 +12,24 @@ import * as THREE from "three";
  *
  * Scenarios:
  *
- * 1. A 262,144-triangle sphere reaching 0.25 m in front of the near plane
- *    leaves its required near-clip check deferred in the Viewer, whose
+ * 1. A 262,144-triangle sphere reaching 0.25 m in front of the near plane leaves
+ *    its required near-clip check deferred in the Viewer, whose
  *    200,000-triangle cap it exceeds, and is confirmed clipped with a checked
- *    row in capture and in delivery.
- * 2. A dense opaque sphere of 32,768 triangles hides a box. The optional
- *    sparse occlusion check is deferred in the Viewer, past its 3,000-triangle
- *    ray cap, and finds the blocker as a candidate with a checked row in
- *    capture and delivery.
- * 3. A subject drawing a line has no certified bounds: framing is unsupported
- *    in every host, never deferred.
+ *    row in capture and in delivery. Moved across the right edge at depth 5 m,
+ *    its frame-edge surface check is deferred with a candidate cut in the
+ *    Viewer, while its framing row stays checked, and is checked with a
+ *    confirmed cut in capture and delivery.
+ * 2. A dense opaque sphere of 32,768 triangles hides a box. The optional sparse
+ *    occlusion check is deferred in the Viewer, past its 3,000-triangle ray
+ *    cap, and finds the blocker as a candidate with a checked row in capture
+ *    and delivery.
+ * 3. A subject drawing a line has no certified bounds: framing is unsupported in
+ *    every host, never deferred.
  * 4. A required pixel ratio stays deferred in a delivery sample whose host
  *    supplies no renderer audit, the case only a portable caller produces.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls observeAutoMoviePlacedCamera with real dense meshes in each host mode and asserts coverage statuses and findings; catches a fixed budget leaving a required check deferred in capture or delivery, a lost Viewer budget, and an uncheckable subject reported as deferred.
- * @evidence contracts/development/testing.md#independent-expectations A Three sphere with w width and h height segments draws 2w(h - 1) triangles: 512 by 257 gives 262,144, above the Viewer's 200,000 near-clip cap, and 128 by 129 gives 32,768, above its 3,000 ray cap. A 0.5 m sphere centred 1.25 m from a camera with a 1 m near plane reaches 0.25 m in front of it.
+ * @evidence contracts/development/testing.md#independent-expectations A Three sphere with w width and h height segments draws 2w(h - 1) triangles: 512 by 257 gives 262,144, above the Viewer's 200,000 near-clip cap, and 128 by 129 gives 32,768, above its 3,000 ray cap. A 0.5 m sphere centred 1.25 m from a camera with a 1 m near plane reaches 0.25 m in front of it; centred at x 5 m and depth 5 m under the 90-degree square camera, whose half-width equals depth, it straddles the right edge.
  * @evidence contracts/development/testing.md#distinguishing-cases Pairs each dense subject across the Viewer, capture and delivery, and separates a budget stop from an uncheckable subject and a missing renderer; per-triangle near-clip geometry belongs to test_inspection_camera_near_clip and the aspect seam to test_inspection_camera_delivery_aspect.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit over in-memory Three objects without a GL context; the real pixel audit is exercised by the capture and delivery hosts.
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario, its triangle counts and its expected statuses.
@@ -121,6 +124,37 @@ export function test_inspection_camera_host_budgets(): void {
     [
       ["camera-subject-clipped-near:confirmed"],
       ["camera-subject-clipped-near:confirmed"],
+    ],
+  );
+
+  // 1b. The same dense subject across the right edge of the frame.
+  dense.position.set(5, 0, -5);
+  const edgeRows: (string | undefined)[][] = [];
+  const edgeCodes: string[][] = [];
+  for (const mode of modes) {
+    const packet: IPacket = observe(mode, [{ path: "hero", target: dense }]);
+    edgeRows.push([
+      status(packet, "camera-framing"),
+      status(packet, "camera-frame-edge"),
+    ]);
+    edgeCodes.push(codes(packet));
+  }
+  TestValidator.equals(
+    "the frame-edge surface check is budgeted only in the Viewer",
+    edgeRows,
+    [
+      ["checked", "deferred"],
+      ["checked", "checked"],
+      ["checked", "checked"],
+    ],
+  );
+  TestValidator.equals(
+    "the Viewer reports a candidate cut that capture and delivery confirm",
+    edgeCodes,
+    [
+      ["frame-edge-cut:candidate"],
+      ["frame-edge-cut:confirmed"],
+      ["frame-edge-cut:confirmed"],
     ],
   );
   dense.removeFromParent();

@@ -13,15 +13,17 @@ import {
 import { nclose } from "../internal/predicates";
 
 /**
- * A required box is checked against actual delivery projection and depth
- * while sparse opaque witnesses and exact pixel-occlusion policy stay separate.
+ * A required box is checked against actual delivery projection and depth while
+ * sparse opaque witnesses and exact pixel-occlusion policy stay separate.
  *
  * 1. A shifted box survives the wide frame and lies wholly outside a narrower
- *    delivery frame and a left-hand crop. Near- and far-plane exclusions have
- *    distinct outcomes, even on the optical axis.
- * 2. An opaque wall blocks all sampled target rays. Sliding the wall to one
- *    side gives both blocked and clear witnesses. Alpha-tested geometry and
- *    an insufficient triangle budget leave observation unmeasured.
+ *    delivery frame and a left-hand crop. In the square frame, unit boxes at
+ *    depth 5 m centred at x 3.5, 5 and 6.5 m are `possible`, `crosses-side` and
+ *    `outside`. Near- and far-plane exclusions have distinct outcomes, even on
+ *    the optical axis.
+ * 2. An opaque wall blocks all sampled target rays. Sliding the wall to one side
+ *    gives both blocked and clear witnesses. Alpha-tested geometry and an
+ *    insufficient triangle budget leave observation unmeasured.
  * 3. An exact 25/100 pixel loss passes an inclusive 25% threshold and fails a
  *    lower threshold. Zero and invalid pixel counts have distinct states.
  *
@@ -30,12 +32,16 @@ import { nclose } from "../internal/predicates";
  * with static opaque geometry, alpha-test uncertainty and matched pixel counts.
  * @evidence contracts/development/testing.md#independent-expectations At 90
  * degrees and depth five, the wide half-width is ten and the square
- * half-width is five. The crop ends at the optical axis. The opaque wall is
+ * half-width is five. A point at x over depth d projects to x / d against the
+ * square edge at 1: the x 3.5 m box reaches 4 / 4.5 = 0.889, the x 5 m box
+ * 5.5 / 4.5 = 1.222, and the x 6.5 m box's most inward corner 6 / 5.5 = 1.091.
+ * The crop ends at the optical axis. The opaque wall is
  * nearer than the subject, spans its projection before sliding, and covers
  * only its left side after sliding. A 100-pixel silhouette with 75 remaining
  * has exactly 25% occlusion.
  * @evidence contracts/development/testing.md#distinguishing-cases Inclusive
- * equality is compared with a strict exceedance. A partially hidden box has
+ * equality is compared with a strict exceedance. Boxes inside, across and
+ * beyond the right edge separate the three side grades. A partially hidden box has
  * both ray outcomes and an opaque wall never manufactures pixel counts.
  * @evidence contracts/development/testing.md#execution-ownership Uses Three
  * geometry and math directly in a deterministic unit without a GL context,
@@ -64,6 +70,19 @@ export function test_inspection_camera_visibility(): void {
     observe().framing,
     "outside",
   );
+  for (const [x, framing] of [
+    [3.5, "possible"],
+    [5, "crosses-side"],
+    [6.5, "outside"],
+  ] as const) {
+    target.position.set(x, 0, -5);
+    TestValidator.equals(
+      `square frame grades a box centred at x ${x} m`,
+      observe().framing,
+      framing,
+    );
+  }
+  target.position.set(7, 0, -5);
   camera.setViewOffset(200, 100, 0, 0, 100, 100);
   TestValidator.equals(
     "left crop excludes target",

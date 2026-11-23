@@ -45,6 +45,8 @@ export * from "./listAutoMovieInspectionKinds.js";
 export * from "./listAutoMovieInspectionPaths.js";
 export * from "./markAutoMovieInspectionTrails.js";
 export * from "./matchAutoMovieInspectionPath.js";
+export * from "./measureAutoMovieCameraFrameEdge.js";
+export * from "./measureAutoMovieCameraFrameEdgeSurface.js";
 export * from "./measureAutoMovieCameraNearClip.js";
 export * from "./measureAutoMovieInspectionBounds.js";
 export * from "./measureAutoMovieInspectionDefects.js";

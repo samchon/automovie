@@ -82,7 +82,7 @@ export interface IFilmProduction {
   /**
    * Subjects the current source shot requires the delivery camera to show at the placed second.
    *
-   * Return only the requirements active at `sample.time`: leaving a subject out before its intended entry, or while the shot means it to be hidden, is how a shot allows off-screen or obscured action. Each returned subject is checked against the delivery projection, crop and aspect for leaving the frame, lying wholly before the near or past the far plane and being cut by the near plane, with an actor framed by its current pose. `maxOcclusionRatio` adds a pixel-occlusion limit that only the delivery render measures.
+   * Return only the requirements active at `sample.time`: leaving a subject out before its intended entry, or while the shot means it to be hidden, is how a shot allows off-screen or obscured action. Each returned subject is checked against the delivery projection, crop and aspect for leaving the frame, lying wholly before the near or past the far plane, being cut by the near plane and, as a warning that never blocks delivery, being cut by a side of the frame, with an actor framed by its current pose. `maxOcclusionRatio` adds a pixel-occlusion limit that only the delivery render measures.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which subjects to return at the placed second, how omission allows off-screen action, and what each returned subject is checked against.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the requirement producer; this signature has no algorithm.
