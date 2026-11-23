@@ -14,7 +14,7 @@ The step derives from the flight and stated thickness. Initial overlap is preser
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One signed separation per eligible pair and scan question. A scalar collider needs no point/normal until the chosen hit. Initial departure retains its existing clearance verification.
+One signed separation per eligible pair and scan question; a collider that states a speed bound (the floor and a fixed shape: zero) is read again only as its gap could close at the two bounds together, the flight's own from `projectileFirstContact.speed`. A scalar collider needs no point/normal until the chosen hit. Initial departure retains its existing clearance verification.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

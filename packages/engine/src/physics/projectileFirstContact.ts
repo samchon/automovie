@@ -144,6 +144,12 @@ export function projectileFirstContact(
                 tail: (seconds: number): IAutoMovieVector3 =>
                   tail(projectileAt(projectile, seconds))!,
               }),
+          // Every point of the flight moves no faster over a window than the
+          // step's own bound reads over it (`projectileFirstContact.speed`).
+          speed:
+            (): IAutoMovieResolveContactEvents.Speed =>
+            (from: number, to: number): number =>
+              projectileFirstContact.speed(projectile, { from, to }, options),
         },
       ],
       bodies: colliders.map(
@@ -160,8 +166,18 @@ export function projectileFirstContact(
             scalar === undefined
               ? (a, b, seconds): number => c.nearest(a, b, seconds).distance
               : scalar.bind(c);
+          const moving: IAutoMovieProjectileFirstContact.ICollider["speed"] =
+            c.speed;
           return {
             id: c.id,
+            ...(moving === undefined
+              ? {}
+              : {
+                  speed:
+                    (): IAutoMovieResolveContactEvents.Speed =>
+                    (from: number, to: number): number | undefined =>
+                      moving.call(c, from, to),
+                }),
             distance: (point: IAutoMovieVector3, seconds: number): number =>
               distance(point, point, seconds),
             axis: (
@@ -226,6 +242,30 @@ export namespace projectileFirstContact {
     span: IAutoMovieProjectileFirstContact.ISpan,
     options: IAutoMovieProjectileFirstContact.IOptions,
   ): number {
+    const fastest: number = speed(projectile, span, options);
+    return Math.min(
+      span.to - span.from,
+      fastest > 0 ? options.thickness / fastest : Infinity,
+    );
+  }
+
+  /**
+   * The largest speed any point of the projectile reaches between two seconds
+   * since launch, metres per second: a drag-free flight's larger end speed (its
+   * squared speed is convex in time), a drag flight's finite global bound
+   * (`projectileDragFlight.fastest`), plus a spinning tail's turning speed. The
+   * sweep's step and its conservative advancement both read it.
+   *
+   * @param projectile The flight.
+   * @param span Seconds since launch.
+   * @param options The projectile's tail.
+   * @returns The bound, metres per second.
+   */
+  export function speed(
+    projectile: IAutoMovieProjectile,
+    span: IAutoMovieProjectileFirstContact.ISpan,
+    options: IAutoMovieProjectileFirstContact.IOptions,
+  ): number {
     // Zero drag with gravity has no finite all-time bound. Its finite-span
     // squared speed is convex, so the two endpoint speeds bound this search.
     const flightBound: number | undefined =
@@ -245,11 +285,7 @@ export namespace projectileFirstContact {
       projectile.attitude?.kind === "spin"
         ? ((Math.abs(projectile.attitude.rate) * Math.PI) / 180) * reach
         : 0;
-    const fastest: number = centre + turning;
-    return Math.min(
-      span.to - span.from,
-      fastest > 0 ? options.thickness / fastest : Infinity,
-    );
+    return centre + turning;
   }
 
   /**
@@ -271,6 +307,7 @@ export namespace projectileFirstContact {
       Vector3.dot(Vector3.subtract(endpoint, point), n);
     return {
       id,
+      speed: (): number => 0,
       distance: (a, b): number => Math.min(height(a), height(b)),
       departure: (
         projectile: IAutoMovieProjectile,
@@ -365,6 +402,8 @@ export namespace projectileFirstContact {
           }
         : still !== undefined
           ? {
+              // A shape in a fixed frame does not move.
+              speed: (): number => 0,
               // A fixed convex shape lies behind its supporting plane at the
               // contact, so a projectile leaving that plane leaves the shape:
               // the plane's own departure proof holds for it.

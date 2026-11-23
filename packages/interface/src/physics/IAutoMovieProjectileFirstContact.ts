@@ -61,6 +61,16 @@ export namespace IAutoMovieProjectileFirstContact {
     ): number;
 
     /**
+     * Optional bound on how fast any point of the collider's surface moves
+     * between two launch-relative seconds, metres per second, finite and not
+     * negative, or undefined where none is known. With it and the flight's own
+     * bound the sweep reads this collider only as their gap could close
+     * (conservative advancement); absent, every scan step reads it. A bound a
+     * point exceeds lets a contact be missed, so state only a certified one.
+     */
+    speed?(from: number, to: number): number | undefined;
+
+    /**
      * Optional synchronous certificate for an explicitly resolved initial
      * contact, on the supplied flight clock. Return undefined when the model
      * cannot prove departure; shared resolver validation may throw. No callback

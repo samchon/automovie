@@ -18,7 +18,7 @@ Adds no bounce blacklist, time epsilon or fabricated gap: a separating contact c
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Preparing P props repeats their action-segment/launch scans and scans profile shapes; C collider closures feed the engine's contact queries, whose cost also includes dynamic FK/nearest-body reads. The engine owns step/bisection cost; this method claims no measured speedup. A hull's width is one nearest query per shape for the module's lifetime, a departure certificate one nearest query, three reads of the struck bone or prop frame and one gap read, asked only for a collider in contact at the sweep's start, and the surface velocity the same reads once per meeting.
+Preparing P props repeats their action-segment/launch scans and scans profile shapes; C collider closures feed the engine's contact queries, whose cost also includes dynamic FK/nearest-body reads. The engine owns step/bisection cost; this method claims no measured speedup. A person states the audit's part speed as the bound on their surface, so the engine's conservative advancement reads them only as the gap could close; a held prop states none and is read at every step, its holder's reach reject keeping the far reads to a root read. A hull's width is one nearest query per shape for the module's lifetime, a departure certificate one nearest query, three reads of the struck bone or prop frame and one gap read, asked only for a collider in contact at the sweep's start, and the surface velocity the same reads once per meeting.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

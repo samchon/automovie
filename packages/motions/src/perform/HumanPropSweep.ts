@@ -25,6 +25,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditLimits } from "../audit/AutoMovieMotionHumanAuditLimits";
 import { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
@@ -41,12 +42,15 @@ import { HumanPropOutcome } from "./HumanPropOutcome";
  * holds (a bat striking the incoming ball), and the floor, through the engine's
  * one resolver (`projectileFirstContact`). The step keeps the prop from
  * crossing the thinnest collider it may meet in one step, finger bones aside: a
- * finger is the stated blind spot. A hull counts by twice the depth of its
- * vertices' centroid inside it, the diameter of the largest ball about that
- * point within it, which no width of the hull is less than. A pass leaves the
- * body it passes through behind. A bounce separately names its resolved
- * collider for the engine's physical departure certificate; that collider stays
- * eligible for later entry.
+ * finger is the stated blind spot. A person is read only as the gap to them
+ * could close at the audit's part speed and the flight's own (conservative
+ * advancement), the floor and a prop standing still only as the flight could
+ * close on them. A hull counts by twice the depth of its vertices' centroid
+ * inside it, the diameter of the largest ball about that point within it, which
+ * no width of the hull is less than. A pass leaves the body it passes through
+ * behind. A bounce separately names its resolved collider for the engine's
+ * physical departure certificate; that collider stays eligible for later
+ * entry.
  *
  * A prop that nothing grips, wears, mounts, tethers or moves over the sweep
  * stands in its frame at the sweep's start, a fixed frame whose shapes the
@@ -204,6 +208,11 @@ export namespace HumanPropSweep {
       surfaces.set(`person:${subject}`, surface);
       colliders.push({
         id: `person:${subject}`,
+        // No joint centre of a displayed body moves faster than the audit's
+        // part speed, the one model the take is judged by, so the sweep reads
+        // a person only as the gap to them could close at that speed and the
+        // flight's own.
+        speed: (): number => AutoMovieMotionHumanAuditLimits.speed,
         departure: (
           projectile: IAutoMovieProjectile,
           options: IAutoMovieProjectileFirstContact.IOptions,

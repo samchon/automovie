@@ -23,6 +23,13 @@ import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
  * original times. The caller's physical model owns that proof because an opaque
  * signed-distance function alone cannot determine departure.
  *
+ * Where the weapon and a body both state a speed bound, a gap read on the grid
+ * clears that body for the grid seconds within the gap over the two bounds
+ * together (conservative advancement, Mirtich 1996), so the scan reads it again
+ * only as the gap could close; where every body is cleared, the scan skips the
+ * cleared grid seconds altogether. A body without a bound is read at every grid
+ * step.
+ *
  * The search is one scan (`firstAutoMovieContactImpact.scan`) read to its end
  * or to the horizon; the resolver reads several weapons' scans a grid step at a
  * time instead.
@@ -140,6 +147,13 @@ export namespace firstAutoMovieContactImpact {
       IAutoMovieResolveContactEvents.IBody,
       IAutoMovieResolveContactEvents.Speed
     > = new Map();
+
+    // Each body's own advancement: the second before which the two bounds
+    // together leave its gap clear at every grid second, from the grid second
+    // it was last read. A body whose bound has not run out is not read on a
+    // grid step, so where one body cannot be bound the others still are read
+    // only as their gaps could close.
+    const ahead: Map<IAutoMovieResolveContactEvents.IBody, number> = new Map();
     const certified = (
       value: number | undefined,
       owner: string,
@@ -248,13 +262,19 @@ export namespace firstAutoMovieContactImpact {
           free = Math.min(free, release - t);
           continue;
         }
+        const advanced: number | undefined =
+          certify === undefined ? undefined : ahead.get(body);
+        if (advanced !== undefined && t < advanced) {
+          free = Math.min(free, advanced - t);
+          continue;
+        }
         const d: number = distance(body, t, frame);
 
         // On the grid the gap closes no faster than the two bounds together.
-        free = Math.min(
-          free,
-          certify !== undefined ? clear(body, t, d, certify) : 0,
-        );
+        const certified: number =
+          certify !== undefined ? clear(body, t, d, certify) : 0;
+        free = Math.min(free, certified);
+        if (certified > 0) ahead.set(body, t + certified);
         if (initial && d <= 0 && body.departure !== undefined) {
           const proof: IAutoMovieResolveContactEvents.Departure | undefined =
             body.departure({
