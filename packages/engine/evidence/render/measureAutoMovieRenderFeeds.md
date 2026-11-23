@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Counts what `prepareAutoMovieSurfaceGraphics` builds: one render target per feed layer of every key, sized by `autoMovieSurfaceFeedWidth`, the rule render allocates by, at an RGBA8 colour texture plus a 32-bit depth word per pixel; and one scene pass per feed a frame can show, bounded by the largest key of each track because one key per track is in force at a time.
+Counts what `prepareAutoMovieSurfaceGraphics` builds: one render target per feed layer of every key, sized by `autoMovieSurfaceFeedWidth`, the rule render allocates by, at an RGBA8 colour texture plus a 32-bit depth word per pixel, and, for a directly rendered film, the response stage each feed draws through at its own raster (`measureAutoMovieFilmResponseTargets`) with its medium march target when the scene carries a medium; and one scene pass per feed a frame can show, bounded by the largest key of each track because one key per track is in force at a time.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

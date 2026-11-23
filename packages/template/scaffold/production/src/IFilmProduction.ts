@@ -50,11 +50,15 @@ export interface IFilmProduction {
    */
   softPropsAt?: (seconds: number) => readonly IAutoMovieRenderSoftPropFrame[];
 
-  /** Additional authored diagnostics for the settled film, read before inspection masks or review cameras. */
+  /**
+   * Additional authored diagnostics for the settled film, read before
+   * inspection masks or review cameras.
+   */
   inspectPlaced?: IAutoMovieDrawScene["inspectPlaced"];
 
   /**
-   * Optional source-owned shot layers, exemptions and motion cells for the settled collision scene.
+   * Optional source-owned shot layers, exemptions and motion cells for the
+   * settled collision scene.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States that the film supplies them for the settled sample and what they scope.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the layer producer; this signature has no algorithm.
@@ -69,7 +73,8 @@ export interface IFilmProduction {
   ) => Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"];
 
   /**
-   * Independent support, grip, custody and continuity expectations for the settled film.
+   * Independent support, grip, custody and continuity expectations for the
+   * settled film.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which expectations the film supplies and for which sample.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the expectation producer; this signature has no algorithm.
@@ -84,9 +89,18 @@ export interface IFilmProduction {
   ) => readonly IObserveAutoMoviePlacedScene.ICheck[];
 
   /**
-   * Subjects the current source shot requires the delivery camera to show at the placed second.
+   * Subjects the current source shot requires the delivery camera to show at
+   * the placed second.
    *
-   * Return only the requirements active at `sample.time`: leaving a subject out before its intended entry, or while the shot means it to be hidden, is how a shot allows off-screen or obscured action. Each returned subject is checked against the delivery projection, crop and aspect for leaving the frame, lying wholly before the near or past the far plane, being cut by the near plane and, as a warning that never blocks delivery, being cut by a side of the frame, with an actor framed by its current pose. `maxOcclusionRatio` adds a pixel-occlusion limit that only the delivery render measures.
+   * Return only the requirements active at `sample.time`: leaving a subject out
+   * before its intended entry, or while the shot means it to be hidden, is how
+   * a shot allows off-screen or obscured action. Each returned subject is
+   * checked against the delivery projection, crop and aspect for leaving the
+   * frame, lying wholly before the near or past the far plane, being cut by the
+   * near plane and, as a warning that never blocks delivery, being cut by a
+   * side of the frame, with an actor framed by its current pose.
+   * `maxOcclusionRatio` adds a pixel-occlusion limit that only the delivery
+   * render measures.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which subjects to return at the placed second, how omission allows off-screen action, and what each returned subject is checked against.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the requirement producer; this signature has no algorithm.
@@ -101,7 +115,12 @@ export interface IFilmProduction {
   ) => Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"];
 
   /**
-   * The film's camera response at an exact second: exposure in EV100, white balance, tone curve, glare and the adopted grade as ASC CDL values. Read after the film's own seek, before each beauty picture of the Viewer, a capture or the delivered video. Absent draws the scene light straight to the display under the renderer's default curve, which suits only light values already scaled to the display.
+   * The film's camera response at an exact second: exposure in EV100, white
+   * balance, tone curve, glare and the adopted grade as ASC CDL values. Read
+   * after the film's own seek, before each beauty picture of the Viewer, a
+   * capture or the delivered video. Absent draws the scene light straight to
+   * the display under the renderer's default curve, which suits only light
+   * values already scaled to the display.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the response holds, when it is read and for which pictures, and what absence draws.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the response producer; this signature has no algorithm.
@@ -114,7 +133,12 @@ export interface IFilmProduction {
   optics?: (seconds: number) => IAutoMovieFilmOptics;
 
   /**
-   * The film's indirect shading at an exact second: the ambient occlusion of indirect light around each visible point and one diffuse bounce from probes baked over the static set. Read beside `optics` before each beauty picture, and at each sub-frame sample's own second when `optics` sets `samples`; a member without `optics` is refused. Absent leaves indirect light as the scene's image lighting gives it.
+   * The film's indirect shading at an exact second: the ambient occlusion of
+   * indirect light around each visible point and one diffuse bounce from probes
+   * baked over the static set. Read beside `optics` before each beauty picture,
+   * and at each sub-frame sample's own second when `optics` sets `samples`; a
+   * member without `optics` is refused. Absent leaves indirect light as the
+   * scene's image lighting gives it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the shading holds, when it is read, its dependency on optics and what absence draws.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the shading producer; this signature has no algorithm.
@@ -127,7 +151,14 @@ export interface IFilmProduction {
   shading?: (seconds: number) => IAutoMovieFilmShading;
 
   /**
-   * Render-target work at an exact film second, run on the host's renderer after the film's own seek and before each picture of the Viewer, a capture or the delivered video: draw the shot's surface feeds with `renderFeeds` of the surface graphics `prepareAutoMovieSurfaceGraphics` returned, resolving each feed camera by id. It must leave the renderer's render target as it found it. Absent, no feed is drawn and a feed layer shows an empty target.
+   * Render-target work at an exact film second, run on the host's renderer
+   * after the film's own seek and before each picture of the Viewer, a capture
+   * or the delivered video: draw the shot's surface feeds with `renderFeeds` of
+   * the surface graphics `prepareAutoMovieSurfaceGraphics` returned, resolving
+   * each feed camera by id and passing the film's `optics` at the same second,
+   * so a screen shows an exposed picture rather than raw scene light. It must
+   * leave the renderer's render target as it found it. Absent, no feed is drawn
+   * and a feed layer shows an empty target.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when the work runs, for which pictures, what it draws, the renderer state it must keep and what absence shows.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns its feeds; this signature has no algorithm.
@@ -142,11 +173,22 @@ export interface IFilmProduction {
   /** Optional source intent for the delivered media, including any soundtrack. */
   delivery?: IAutoMovieDeliveryContentAudit.IIntent;
 
-  /** Optional adopted sound: lines with their receipts, cues, speaker bindings and score ducking, which `npm run render` mixes into the delivered soundtrack; a film with a sound list leaves `delivery.audio.path` unset. */
+  /**
+   * Optional adopted sound: lines with their receipts, cues, speaker bindings
+   * and score ducking, which `npm run render` mixes into the delivered
+   * soundtrack; a film with a sound list leaves `delivery.audio.path` unset.
+   */
   sound?: IAutoMovieFilmSound;
 
   /**
-   * Takes the dialogue mouths of `sound`'s lines, handed once before the first frame by the capture and the render. Keep them, and in `seek` read each speaking actor's mouth for the second placed: `jaw(actor, seconds)` as the jaw opening of a Human or polygon man, or `visemes(actor, seconds)` for `applyExpression` on a VRM or imported model, layered over the authored expression. The render measures each phoneme-driven line's lip sync on the mouths read here. Absent, no mouth follows the sound. The Viewer hands none and shows the authored mouth.
+   * Takes the dialogue mouths of `sound`'s lines, handed once before the first
+   * frame by the capture and the render. Keep them, and in `seek` read each
+   * speaking actor's mouth for the second placed: `jaw(actor, seconds)` as the
+   * jaw opening of a Human or polygon man, or `visemes(actor, seconds)` for
+   * `applyExpression` on a VRM or imported model, layered over the authored
+   * expression. The render measures each phoneme-driven line's lip sync on the
+   * mouths read here. Absent, no mouth follows the sound. The Viewer hands none
+   * and shows the authored mouth.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when the mouths arrive, how and where the film reads each form, what the render measures, and what absence and the Viewer show.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns its figures; this signature has no algorithm.
@@ -158,16 +200,29 @@ export interface IFilmProduction {
    */
   speak?: (mouths: IAutoMovieDialogueMouths) => void;
 
-  /** The film's cut, layout and declared breaks, so motion is never examined across a cut or break, and whose sequence's transitions every film picture draws through `seekShot`. Absent treats the whole film as one continuous shot. */
+  /**
+   * The film's cut, layout and declared breaks, so motion is never examined
+   * across a cut or break, and whose sequence's transitions every film picture
+   * draws through `seekShot`. Absent treats the whole film as one continuous
+   * shot.
+   */
   playback?: Pick<
     ISelectAutoMoviePlacedChecks.IContinuity,
     "sequence" | "timeline" | "discontinuities"
   >;
 
-  /** Inspection mark kinds that may first appear after second zero; `marks` still supplies their actual geometry at the drawn second. */
+  /**
+   * Inspection mark kinds that may first appear after second zero; `marks`
+   * still supplies their actual geometry at the drawn second.
+   */
   markKinds?: readonly string[];
 
-  /** Optional physical review source: `markFilmProduction` draws its bodies' skeleton, its contact forces and, when supplied, its support allocation as `joint`, `bone`, `contact`, `support/allocated` and `support/shortfall` marks. */
+  /**
+   * Optional physical review source: `markFilmProduction` draws its bodies'
+   * skeleton, its contact forces and, when supplied, its support allocation as
+   * `joint`, `bone`, `contact`, `support/allocated` and `support/shortfall`
+   * marks.
+   */
   performance?: {
     /** Scene ids and profiles for the displayed bodies. */
     bodies: { id: string; profile: IAutoMoviePhysicalProfile }[];
@@ -175,16 +230,32 @@ export interface IFilmProduction {
     frame: () => IAutoMoviePhysicalFrame;
     /** Actual geometric or solved contact episodes. */
     contacts: () => readonly IAutoMovieContactReceipt[];
-    /** Optional ownership history of the same physics cache or playback, which tells the dynamic bodies a contact must reach from static and kinematic ones. Absent, no contact is flagged as unfelt. */
+    /**
+     * Optional ownership history of the same physics cache or playback, which
+     * tells the dynamic bodies a contact must reach from static and kinematic
+     * ones. Absent, no contact is flagged as unfelt.
+     */
     ownership?: () => readonly IAutoMoviePhysicalOwnershipEvent[];
-    /** Optional support wrenches of the same physics cache or playback, with the cache step each governs in seconds (the reciprocal of its rate). Absent, no support marks exist. */
+    /**
+     * Optional support wrenches of the same physics cache or playback, with the
+     * cache step each governs in seconds (the reciprocal of its rate). Absent,
+     * no support marks exist.
+     */
     supports?: () => {
       wrenches: readonly IAutoMoviePhysicalSupportWrench[];
       interval: number;
     };
-    /** Inspection vector length per newton of contact step-mean force or support force. */
+    /**
+     * Inspection vector length per newton of contact step-mean force or support
+     * force.
+     */
     metresPerNewton: number;
-    /** Optional longest contact arrow, metres, such as the height the camera frames around a body; a longer one, as an impact's, is drawn at this length as a `contact/clamped` mark whose label states the clamp. Absent, contact arrows keep their scaled length. */
+    /**
+     * Optional longest contact arrow, metres, such as the height the camera
+     * frames around a body; a longer one, as an impact's, is drawn at this
+     * length as a `contact/clamped` mark whose label states the clamp. Absent,
+     * contact arrows keep their scaled length.
+     */
     maximumArrowLength?: number;
   };
 
@@ -207,7 +278,11 @@ export interface IFilmProduction {
   >;
 
   /**
-   * Optional inspection marks of the film at an exact second: what its owners locate, such as the construction curves of its built forms from `markAutoMovieConstructionCurves`. They are drawn only when an inspection's `marks` parameter names their kinds, in the Viewer and in a capture alike, and the drawn second's marks are asked for after `seek`.
+   * Optional inspection marks of the film at an exact second: what its owners
+   * locate, such as the construction curves of its built forms from
+   * `markAutoMovieConstructionCurves`. They are drawn only when an inspection's
+   * `marks` parameter names their kinds, in the Viewer and in a capture alike,
+   * and the drawn second's marks are asked for after `seek`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the marks locate, when they are drawn and when they are asked for.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.
@@ -233,7 +308,15 @@ export interface IFilmProduction {
   seek(seconds: number): void;
 
   /**
-   * Places every displayed object and the camera as one shot of `playback.sequence` shows them at its own shot-local `seconds`, during the film second `filmSeconds`: a transition's outgoing shot, which `seek` cannot place because the incoming entry is live there. Read the dialogue mouths and anything else on the film clock at `filmSeconds`. The hosts call it before placing `filmSeconds` again with `seek`, then dissolve the two pictures or dip them through black, as the entry's transition says. Required when the sequence has a transition: a delivered, captured or viewed picture inside one is refused without it.
+   * Places every displayed object and the camera as one shot of
+   * `playback.sequence` shows them at its own shot-local `seconds`, during the
+   * film second `filmSeconds`: a transition's outgoing shot, which `seek`
+   * cannot place because the incoming entry is live there. Read the dialogue
+   * mouths and anything else on the film clock at `filmSeconds`. The hosts call
+   * it before placing `filmSeconds` again with `seek`, then dissolve the two
+   * pictures or dip them through black, as the entry's transition says.
+   * Required when the sequence has a transition: a delivered, captured or
+   * viewed picture inside one is refused without it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the call places, on which two clocks, when the hosts call it, what they do with the picture and when it is required.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.

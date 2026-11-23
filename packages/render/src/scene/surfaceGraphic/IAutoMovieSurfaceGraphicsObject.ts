@@ -1,4 +1,7 @@
+import type { IAutoMovieFilmOptics } from "@automovie/interface";
 import type * as THREE from "three";
+
+import type { IAutoMovieFilmResponseRenderer } from "../filmResponse/IAutoMovieFilmResponseRenderer.js";
 
 /**
  * A shot's surface graphics, built and mounted on their props.
@@ -23,11 +26,26 @@ export interface IAutoMovieSurfaceGraphicsObject {
    * as its graphic's background, so a screen never shows itself. The renderer's
    * render target is restored, and a camera `camera` cannot resolve throws.
    * Does nothing when no feed is shown.
+   *
+   * With `response`, the film's optics at the drawn second, each feed is drawn
+   * through its own `AutoMovieFilmResponseStage`, so the screen shows the
+   * exposed, white-balanced, tone-mapped and graded picture a monitor would,
+   * and the feed's material decodes that display picture, so its white emits
+   * the graphic's `luminance`. A refused optics value throws naming `seconds`.
+   * Without it the scene's linear light is drawn into the target as it is,
+   * which suits only light values already scaled to a display.
    */
   renderFeeds(
-    renderer: THREE.WebGLRenderer,
+    renderer: IAutoMovieFilmResponseRenderer,
     scene: THREE.Scene,
     camera: (id: string) => THREE.Camera | undefined,
+    response?: {
+      /** The film's camera response at the drawn second. */
+      optics: IAutoMovieFilmOptics;
+
+      /** The drawn second, which a refusal of `optics` names. */
+      seconds: number;
+    },
   ): void;
 
   /**

@@ -50,7 +50,7 @@ A member signature has no body; the function that implements it answers.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what it draws into each shown feed target, when to call it, the one-level rule inside a feed, the restored render target and the refusal of an unresolved camera.
+States what it draws into each shown feed target, when to call it, the one-level rule inside a feed, the restored render target, the refusal of an unresolved camera, and the film response a feed is drawn through under the optics passed with it.
 
 ## @evidenceExclude contracts/development/implementation.md#principled-implementation
 

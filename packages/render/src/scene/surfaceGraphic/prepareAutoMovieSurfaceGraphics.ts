@@ -5,6 +5,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieFilmOptics,
   IAutoMovieFont,
   IAutoMovieImage,
   IAutoMovieModel,
@@ -15,7 +16,11 @@ import * as THREE from "three";
 
 import { decodeAutoMovieFontSources } from "../../typography/decodeAutoMovieFontSources.js";
 import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
+import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
+import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { decodeAutoMovieImage } from "../decodeAutoMovieImage.js";
+import { AutoMovieFilmResponseStage } from "../filmResponse/AutoMovieFilmResponseStage.js";
+import type { IAutoMovieFilmResponseRenderer } from "../filmResponse/IAutoMovieFilmResponseRenderer.js";
 import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "./AUTOMOVIE_SURFACE_GRAPHIC_KEY.js";
 import type { IAutoMovieSurfaceGraphicsObject } from "./IAutoMovieSurfaceGraphicsObject.js";
 import type { IPrepareAutoMovieSurfaceGraphicsProps } from "./IPrepareAutoMovieSurfaceGraphicsProps.js";
@@ -75,6 +80,10 @@ export async function prepareAutoMovieSurfaceGraphics(
   const roots: THREE.Group[] = [];
   const keyGroups: THREE.Group[][] = [];
   const feeds: IFeed[] = [];
+
+  // Whether the feed targets hold display-encoded pictures from the film
+  // response stage, which their materials decode, or plain linear light.
+  const encoded: { value: number } = { value: 0 };
   const release: () => void = (): void => {
     for (const root of roots) root.removeFromParent();
     for (const resource of owned) resource.dispose();
@@ -82,6 +91,7 @@ export async function prepareAutoMovieSurfaceGraphics(
     for (const feed of feeds) {
       feed.target.dispose();
       feed.standIn.dispose();
+      feed.stage?.dispose();
     }
   };
 
@@ -177,6 +187,7 @@ export async function prepareAutoMovieSurfaceGraphics(
                 camera: layer.camera,
                 mesh: null!,
                 group: null!,
+                stage: null,
               });
               feeds.push(made[made.length - 1]!);
               return target.texture;
@@ -199,6 +210,10 @@ export async function prepareAutoMovieSurfaceGraphics(
           made.forEach((feed: IFeed, index: number): void => {
             feed.mesh = meshes[index]!;
             feed.group = group;
+            addMaterialShaderPatch(
+              feed.mesh.material as THREE.Material,
+              decodeFeedPatch(encoded),
+            );
           });
           group.visible = false;
           lifted.add(group);
@@ -235,15 +250,17 @@ export async function prepareAutoMovieSurfaceGraphics(
       );
     },
     renderFeeds: (
-      renderer: THREE.WebGLRenderer,
+      renderer: IAutoMovieFilmResponseRenderer,
       scene: THREE.Scene,
       camera: (id: string) => THREE.Camera | undefined,
+      response?: { optics: IAutoMovieFilmOptics; seconds: number },
     ): void => {
       const shown: IFeed[] = feeds.filter(
         (feed: IFeed): boolean =>
           feed.group.visible && feed.group.parent?.parent?.visible === true,
       );
       if (shown.length === 0) return;
+      encoded.value = response === undefined ? 0 : 1;
 
       // Every feed draws as its background inside a feed, so no screen shows
       // a view of itself and the feed stays one level deep.
@@ -273,7 +290,21 @@ export async function prepareAutoMovieSurfaceGraphics(
           // The camera gets its own aspect back even when the draw throws.
           try {
             renderer.setRenderTarget(feed.target);
-            renderer.render(scene, view);
+            if (response === undefined) renderer.render(scene, view);
+            else {
+              // The film's own response, so the screen shows the exposed and
+              // graded picture; each feed keeps a stage at its own raster.
+              feed.stage ??= new AutoMovieFilmResponseStage();
+              feed.stage.draw({
+                renderer,
+                scene,
+                camera: view,
+                optics: response.optics,
+                seconds: response.seconds,
+                width: feed.target.width,
+                height: feed.target.height,
+              });
+            }
           } finally {
             if (perspective !== null) {
               perspective.aspect = aspect!;
@@ -352,4 +383,37 @@ interface IFeed {
 
   /** The key group holding the mesh, visible while its key is in force. */
   group: THREE.Group;
+
+  /** The film response stage the feed draws through, made on its first use. */
+  stage: AutoMovieFilmResponseStage | null;
+}
+
+/**
+ * The shader patch that decodes a feed's sampled picture from sRGB while
+ * `encoded.value` is 1, because the film response stage writes its picture
+ * encoded for a display, so the screen's white is the graphic's luminance. At 0
+ * the target holds the scene's linear light and is read as it is.
+ */
+function decodeFeedPatch(encoded: { value: number }): IMaterialShaderPatch {
+  return {
+    key: "automovie-surface-feed-decode",
+    apply: (shader: THREE.WebGLProgramParametersWithUniforms): void => {
+      shader.uniforms.automovieFeedEncoded = encoded;
+      shader.fragmentShader = shader.fragmentShader
+        .replace(
+          "#include <common>",
+          "#include <common>\nuniform float automovieFeedEncoded;",
+        )
+        .replace(
+          "#include <map_fragment>",
+          [
+            "#ifdef USE_MAP",
+            "  vec4 sampledDiffuseColor = texture2D( map, vMapUv );",
+            "  if ( automovieFeedEncoded > 0.5 ) sampledDiffuseColor = sRGBTransferEOTF( sampledDiffuseColor );",
+            "  diffuseColor *= sampledDiffuseColor;",
+            "#endif",
+          ].join("\n"),
+        );
+    },
+  };
 }

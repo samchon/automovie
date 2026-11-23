@@ -3,6 +3,7 @@ import { validateShotArtifact } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieConstraintViolation,
+  IAutoMovieFilmOptics,
   IAutoMovieModel,
   IAutoMovieScene,
   IAutoMovieShot,
@@ -18,6 +19,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { createFilmResponseRendererDouble } from "../draw/createFilmResponseRendererDouble";
 import { renderFixtureIdentity } from "../internal/renderFixtureIdentity";
 import { renderFixtureNode } from "../internal/renderFixtureNode";
 
@@ -36,12 +38,16 @@ import { renderFixtureNode } from "../internal/renderFixtureNode";
  * 3. While the key holding the feed is not in force, nothing is drawn.
  * 4. The structural shot gate refuses a feed of the shot's own camera, an unknown
  *    camera, and `pixels` of 0, 2049 and 1.5.
- * 5. Disposal releases the target.
+ * 5. Given the film's optics, the feed draws the scene in linear light into a
+ *    stage target of its own and the response's full-frame pass into the feed
+ *    target, leaving the renderer's target as it was, and the feed's material
+ *    decodes the display picture; a later plain draw reads linear light again.
+ * 6. Disposal releases the target.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the laptop, the feed, the recording renderer and each refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Prepares the graphics through the public preparer and calls renderFeeds on a renderer double that records each target, camera and the feed mesh's material at draw time, and runs the public shot gate.
- * @evidence contracts/development/testing.md#independent-expectations The target size follows the screen affordance's extents and the authored height; the self-view rule and refusals follow issue #4099.
- * @evidence contracts/development/testing.md#distinguishing-cases A feed drawing itself, a target left bound, a feed drawn while hidden, or a refused camera admitted fails. The picture inside the screen needs a WebGL host and is judged by eye.
+ * @evidence contracts/development/testing.md#independent-expectations The target size follows the screen affordance's extents and the authored height; the self-view rule and refusals follow issue #4099; a monitor showing an exposed picture whose white is the screen's luminance is the supervisor's decision for #4099, and the stage order is AutoMovieFilmResponseStage's documented contract.
+ * @evidence contracts/development/testing.md#distinguishing-cases A feed drawing itself, a target left bound, a feed drawn while hidden, a feed under optics drawn without the response or read without decoding, or a refused camera admitted fails. The picture inside the screen needs a WebGL host and is judged by eye.
  * @evidence contracts/development/testing.md#execution-ownership The renderer is an in-memory double passed through the preparer's own seam; no GPU.
  */
 export async function test_render_surface_feed(): Promise<void> {
@@ -208,7 +214,61 @@ export async function test_render_surface_feed(): Promise<void> {
     );
   }
 
-  // 5. Disposal.
+  // 5. Under the film's optics the feed is drawn through a response stage and
+  // its material decodes the display picture; without them it reads linear.
+  const encodedFlag = (): unknown => {
+    const shader: {
+      uniforms: Record<string, { value: unknown }>;
+      fragmentShader: string;
+    } = {
+      uniforms: {},
+      fragmentShader: "#include <common>\n#include <map_fragment>",
+    };
+    for (const patch of material.userData.shaderPatches as {
+      key: string;
+      apply: (target: typeof shader) => void;
+    }[])
+      if (patch.key === "automovie-surface-feed-decode") patch.apply(shader);
+    return shader.uniforms.automovieFeedEncoded?.value;
+  };
+  graphics.apply(0);
+  const film: createFilmResponseRendererDouble.IDouble =
+    createFilmResponseRendererDouble({
+      toneMapping: THREE.NoToneMapping,
+      exposure: 1,
+    });
+  const optics: IAutoMovieFilmOptics = { ev100: 6, toneMapping: "none" };
+  graphics.renderFeeds(film.renderer, mounted.scene, (): THREE.Camera => cctv, {
+    optics,
+    seconds: 0.25,
+  });
+  const sceneDraw: createFilmResponseRendererDouble.IRender | undefined =
+    film.renders.find(
+      (entry: createFilmResponseRendererDouble.IRender): boolean =>
+        entry.object === mounted.scene,
+    );
+  const finalDraw: createFilmResponseRendererDouble.IRender | undefined =
+    film.renders.at(-1);
+  TestValidator.predicate(
+    "the feed's scene draws linear into a stage target, the response into the feed target",
+    sceneDraw !== undefined &&
+      sceneDraw.target !== null &&
+      sceneDraw.target.texture !== map &&
+      sceneDraw.exposure === 1 &&
+      finalDraw !== undefined &&
+      finalDraw.program !== null &&
+      finalDraw.target?.texture === map &&
+      film.renderer.getRenderTarget() === null,
+  );
+  TestValidator.equals(
+    "the feed decodes the display picture",
+    encodedFlag(),
+    1,
+  );
+  graphics.renderFeeds(renderer, mounted.scene, (): THREE.Camera => cctv);
+  TestValidator.equals("a plain feed reads linear light", encodedFlag(), 0);
+
+  // 6. Disposal.
   let disposed: boolean = false;
   (draws[0]!.target as THREE.WebGLRenderTarget).addEventListener(
     "dispose",

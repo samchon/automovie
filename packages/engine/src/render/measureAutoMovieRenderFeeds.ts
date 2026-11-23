@@ -8,6 +8,10 @@ import type {
 } from "@automovie/interface";
 
 import { autoMovieSurfaceFeedWidth } from "./autoMovieSurfaceFeedWidth";
+import { measureAutoMovieFilmResponseTargets } from "./measureAutoMovieFilmResponseTargets";
+
+/** Bytes of one RGBA half-float texel, a medium march target's. */
+const HALF: number = 8;
 
 /**
  * Bytes one feed render-target pixel holds: four for its RGBA8 colour texture
@@ -27,6 +31,12 @@ const FEED_BYTES_PER_PIXEL: number = 8;
  * once into its target, so a frame can add as many scene passes as the feed
  * layers shown at once: one key per track is in force, so the bound is the
  * largest feed count of any key, summed over the tracks.
+ *
+ * A directly rendered film, `subject.film`, draws each feed through its optics
+ * on a film response stage of the feed's own, so every feed layer also holds
+ * that stage's targets at its raster,
+ * {@link measureAutoMovieFilmResponseTargets}, and, when the scene carries a
+ * medium, the stage's half-float march target.
  *
  * The face size is the `surface` affordance the track names on the model its
  * node stages; it throws, naming the track, when that cannot be resolved.
@@ -86,14 +96,30 @@ export function measureAutoMovieRenderFeeds(
         `render inventory cannot measure ${owner}: its node's model has no sized "${track.surface}" surface`,
       );
     let bytes: number = 0;
-    for (const layer of feeds.flat())
-      bytes +=
-        autoMovieSurfaceFeedWidth(layer, faceWidth, faceDepth) *
-        layer.pixels *
-        FEED_BYTES_PER_PIXEL;
+    let targets: number = 0;
+    for (const layer of feeds.flat()) {
+      const width: number = autoMovieSurfaceFeedWidth(
+        layer,
+        faceWidth,
+        faceDepth,
+      );
+      bytes += width * layer.pixels * FEED_BYTES_PER_PIXEL;
+      targets += 1;
+      if (subject.film === undefined) continue;
+
+      // The feed's own response stage, and its march of a scene medium.
+      const stage: { targets: number; bytes: number } =
+        measureAutoMovieFilmResponseTargets(width, layer.pixels);
+      targets += stage.targets;
+      bytes += stage.bytes;
+      if ((subject.scene.medium ?? null) !== null) {
+        targets += 1;
+        bytes += width * layer.pixels * HALF;
+      }
+    }
     tracks.push({
       owner,
-      targets: feeds.flat().length,
+      targets,
       bytes,
       passes: Math.max(
         ...feeds.map(
@@ -130,7 +156,10 @@ export namespace measureAutoMovieRenderFeeds {
     /** The track's mask owner, `surface-graphic:<node>/<surface>`. */
     owner: string;
 
-    /** Render targets its keys' feed layers hold. */
+    /**
+     * Texture allocations its keys' feed layers hold: each layer's target and,
+     * under a film's optics, its response stage's targets.
+     */
     targets: number;
 
     /** Bytes those targets hold. */
@@ -145,10 +174,10 @@ export namespace measureAutoMovieRenderFeeds {
     /** One row per track with at least one feed layer, in track order. */
     tracks: ITrack[];
 
-    /** Every feed render target the shot holds. */
+    /** Every texture allocation the shot's feeds hold. */
     targets: number;
 
-    /** Bytes of every feed render target. */
+    /** Bytes of those allocations. */
     bytes: number;
 
     /** Most scene passes the feeds add to one frame. */

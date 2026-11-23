@@ -112,11 +112,14 @@ export namespace IAutoMovieSurfaceGraphicLayer {
    *
    * Before each frame `render` draws the scene at the same scene time from
    * `camera` into the layer's own colour target, `pixels` high and as wide as
-   * the box's aspect on the face, and shows it under the graphic's emission. A
-   * feed's own render draws every feed layer as its graphic's background, so a
-   * screen never shows a view of itself and the feed stays one level deep.
-   * `engine` admission refuses a camera the scene does not stage, the shot's
-   * own camera, and a `pixels` value that is not an integer from 1 to 2048.
+   * the box's aspect on the face, and shows it under the graphic's emission.
+   * Under the film's optics the feed is exposed, tone-mapped and graded as the
+   * film is, so the screen shows a monitor's picture whose white emits the
+   * graphic's `luminance`. A feed's own render draws every feed layer as its
+   * graphic's background, so a screen never shows a view of itself and the feed
+   * stays one level deep. `engine` admission refuses a camera the scene does
+   * not stage, the shot's own camera, and a `pixels` value that is not an
+   * integer from 1 to 2048.
    */
   export interface IFeed extends IBox {
     /** Discriminant. */
