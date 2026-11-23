@@ -23,7 +23,7 @@ States the props, the admission before drawing and the refusal.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Draws the scene into a linear target with the renderer's own curve and exposure neutral, blurs the glare kernels on a box pyramid, then one final pass applies glare, the engine's exposure and white-balance matrix, the curve, the sRGB encoding and the CDL grade, writing the linear depth so display overlays drawn last are occluded by the scene. Absent optics is one plain render, the pre-stage behaviour.
+Draws the scene into a linear target with the renderer's own curve and exposure neutral, blurs the glare kernels on a box pyramid, then one final pass applies glare, the engine's exposure and white-balance matrix, the curve, the sRGB encoding and the CDL grade, writing the linear depth so display overlays drawn last are occluded by the scene. Absent optics is one plain render, the pre-stage behaviour. With `accumulated` the linear target already holds the average of the second's sub-frame samples and the scene draw is skipped, so the response, glare and overlays apply to that average.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -44,6 +44,35 @@ Targets are reused across draws while the raster is unchanged; uniforms are rewr
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Targets are allocated on the first draw with optics and on a raster change, replacing the previous set, which is disposed; the stage owns them until dispose.
+# src/scene/filmResponse/AutoMovieFilmResponseStage.ts#AutoMovieFilmResponseStage.prototype.accumulate
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the caller's placement premise, when optics are admitted, and that the sum belongs to `AutoMovieFilmSampleSum`.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Admits the optics at sample 0, sizes the stage's targets and sets the final pass's uniforms as `draw` does, then hands the linear target to the sample sum, so the averaged frame gets exactly the response a single draw gets.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The stage owns its targets and response; the sum's targets, program and ping-pong live in `AutoMovieFilmSampleSum`, which keeps the stage under one responsibility per class.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+No sample is weighted or skipped; equal weights follow the issue's box filter over the shutter interval and aperture.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Per sample one scene draw and one full-frame pass; one more pass on the last sample.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Targets are reused while the raster is unchanged; sample 0 restarts the sum, so nothing of an earlier second is reused.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The stage's targets as in `draw`, plus the sum's two float targets, released by `dispose`.
 # src/scene/filmResponse/AutoMovieFilmResponseStage.ts#AutoMovieFilmResponseStage.prototype.dispose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -52,7 +81,7 @@ States what is released.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Disposes the targets, the depth texture, the programs and the quad geometry.
+Disposes the targets, the depth texture, the programs, the quad geometry and the sample sum.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

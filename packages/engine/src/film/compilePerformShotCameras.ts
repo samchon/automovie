@@ -151,6 +151,7 @@ export function compilePerformShotCameras(
                 ? null
                 : resolvedPerformShotPoint(context, action.focus),
           focalLength: action.focalLength ?? null,
+          ...(action.fNumber === undefined ? {} : { fNumber: action.fNumber }),
           ...(pull === null ? {} : { focusPull: pull.focusPull }),
         };
       },

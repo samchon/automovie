@@ -38,11 +38,13 @@ export type { IAutoMovieLocalSegmentMeetsPerspectiveFrustum } from "./IAutoMovie
 export type { IAutoMovieMeterIlluminance } from "./IAutoMovieMeterIlluminance";
 export type { IAutoMovieNormalizedGrammarShot } from "./IAutoMovieNormalizedGrammarShot";
 export type { IAutoMoviePerspectiveFrustumLens } from "./IAutoMoviePerspectiveFrustumLens";
+export type { IAutoMoviePlanFilmSamples } from "./IAutoMoviePlanFilmSamples";
 export type { IAutoMoviePoseKeypoint } from "./IAutoMoviePoseKeypoint";
 export type { IAutoMovieProjectToNdc } from "./IAutoMovieProjectToNdc";
 export type { IAutoMovieRenderFrameFormat } from "./IAutoMovieRenderFrameFormat";
 export type { IAutoMovieRenderSpec } from "./IAutoMovieRenderSpec";
 export type { IAutoMovieResolveCameraAt } from "./IAutoMovieResolveCameraAt";
+export type { IAutoMovieResolveLensAt } from "./IAutoMovieResolveLensAt";
 export type { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
 export type { IAutoMovieSequence } from "./IAutoMovieSequence";
 export type { IAutoMovieSequenceEntry } from "./IAutoMovieSequenceEntry";

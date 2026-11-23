@@ -6,7 +6,10 @@ import type { IAutoMovieFilmOptics } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "./AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
+import { AutoMovieFilmSampleSum } from "./AutoMovieFilmSampleSum.js";
 import type { IAutoMovieFilmResponseRenderer } from "./IAutoMovieFilmResponseRenderer.js";
+import { collectAutoMovieFilmOverlays } from "./collectAutoMovieFilmOverlays.js";
+import { freeAutoMovieFilmOverlayLayer } from "./freeAutoMovieFilmOverlayLayer.js";
 import { planAutoMovieFilmGlare } from "./planAutoMovieFilmGlare.js";
 
 /**
@@ -32,6 +35,9 @@ import { planAutoMovieFilmGlare } from "./planAutoMovieFilmGlare.js";
  *    false`, the convention by which inspection colours, marks and witness
  *    boxes state display colours rather than scene light. They are left out of
  *    step 1, so under optics they cast no shadow.
+ *
+ * A sampled film's second replaces step 1 with `accumulate`, once per
+ * sub-frame sample, and then `draw` with `accumulated: true`.
  *
  * Without optics `draw` is one `renderer.render` into the current target,
  * exactly what the host drew before the stage existed. The renderer's target,
@@ -78,15 +84,8 @@ export class AutoMovieFilmResponseStage {
   /** The final response program. */
   private readonly final_: THREE.RawShaderMaterial;
 
-  /** The sub-frame accumulation program. */
-  private readonly accumulate_: THREE.RawShaderMaterial;
-
-  /**
-   * Two float targets the running sum of sub-frame samples ping-pongs between,
-   * or null until the first `accumulate` at the current raster.
-   */
-  private sums_: [THREE.WebGLRenderTarget, THREE.WebGLRenderTarget] | null =
-    null;
+  /** The running sum of a sampled second's sub-frame samples. */
+  private readonly sum_: AutoMovieFilmSampleSum = new AutoMovieFilmSampleSum();
 
   /**
    * Make the stage's programs; no GPU resource is allocated until the first
@@ -134,12 +133,6 @@ export class AutoMovieFilmResponseStage {
       uOffset: { value: new THREE.Vector3() },
       uPower: { value: new THREE.Vector3(1, 1, 1) },
       uSaturation: { value: 1 },
-    });
-    this.accumulate_ = material(AUTOMOVIE_FILM_RESPONSE_SHADERS.accumulate, {
-      tSum: { value: null },
-      tSample: { value: null },
-      uFirst: { value: 1 },
-      uScale: { value: 1 },
     });
     this.quad_ = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.final_);
     this.quad_.frustumCulled = false;
@@ -217,7 +210,8 @@ export class AutoMovieFilmResponseStage {
       background: scene.background,
       cameraMask: camera.layers.mask,
     };
-    const overlays: Map<THREE.Object3D, number> = collectOverlays(scene);
+    const overlays: Map<THREE.Object3D, number> =
+      collectAutoMovieFilmOverlays(scene);
     try {
       // 1. The scene's linear light, without the display overlays.
       for (const object of overlays.keys()) object.layers.mask = 0;
@@ -240,7 +234,10 @@ export class AutoMovieFilmResponseStage {
 
       // 4. Display overlays over the picture, occluded by the scene's depth.
       if (overlays.size !== 0) {
-        const bit: number = freeLayer(scene, prior.cameraMask);
+        const bit: number = freeAutoMovieFilmOverlayLayer(
+          scene,
+          prior.cameraMask,
+        );
         for (const object of overlays.keys()) object.layers.mask = bit;
         camera.layers.mask = bit;
         scene.background = null;
@@ -261,120 +258,37 @@ export class AutoMovieFilmResponseStage {
   }
 
   /**
-   * Render sample `index` of `count` sub-frame samples of one second into the
-   * linear target and add it to the running sum; after the last sample, write
-   * the equal-weight average into the linear target for `draw` with
-   * `accumulated: true`.
-   *
-   * The caller places the scene and the camera at each sample before calling,
-   * in sample order. Sample 0 admits `optics` and starts a new sum, so nothing
-   * of an earlier second survives. Samples sum at unit weight in 32-bit float
-   * targets and are scaled by `1 / count` once, so `count` equal samples
-   * average to exactly their value. Display overlays are hidden as in `draw`'s
-   * step 1, and the renderer's target, curve, exposure and clear policy are
-   * restored before returning or throwing.
+   * Render sample `index` of `count` sub-frame samples of one second, placed by
+   * the caller in sample order, and add it to the running average that `draw`
+   * with `accumulated: true` then responds to. Sample 0 admits `optics`; the
+   * sum itself is `AutoMovieFilmSampleSum`'s.
    */
-  public accumulate(props: {
-    /** The renderer. */
-    renderer: IAutoMovieFilmResponseRenderer;
+  public accumulate(
+    props: Omit<
+      Parameters<AutoMovieFilmResponseStage["draw"]>[0],
+      "optics" | "accumulated"
+    > & {
+      /** The film's response at the frame's second. */
+      optics: IAutoMovieFilmOptics;
 
-    /** The scene, placed at this sample's second. */
-    scene: THREE.Scene;
+      /** This sample's index, from 0. */
+      index: number;
 
-    /** The camera of this sample, its eye on the aperture when a lens is set. */
-    camera: THREE.Camera;
-
-    /** The film's response at the frame's second. */
-    optics: IAutoMovieFilmOptics;
-
-    /** The frame's second, which a refusal of `optics` names. */
-    seconds: number;
-
-    /** Drawn raster width in pixels. */
-    width: number;
-
-    /** Drawn raster height in pixels. */
-    height: number;
-
-    /** This sample's index, from 0. */
-    index: number;
-
-    /** The number of samples of the second, at least 2. */
-    count: number;
-  }): void {
-    const { renderer, scene, camera, optics } = props;
-    if (props.index === 0) admitAutoMovieFilmOptics(optics, props.seconds);
-    const targets: ITargets = this.prepare(props.width, props.height, optics);
-    if (
-      this.sums_ === null ||
-      this.sums_[0].width !== props.width ||
-      this.sums_[0].height !== props.height
-    ) {
-      this.releaseSums();
-      this.sums_ = [
-        sumTarget(props.width, props.height),
-        sumTarget(props.width, props.height),
-      ];
-    }
-    const sums: [THREE.WebGLRenderTarget, THREE.WebGLRenderTarget] =
-      this.sums_;
-    const prior: {
-      target: THREE.WebGLRenderTarget | null;
-      toneMapping: THREE.ToneMapping;
-      exposure: number;
-      autoClear: boolean;
-    } = {
-      target: renderer.getRenderTarget(),
-      toneMapping: renderer.toneMapping,
-      exposure: renderer.toneMappingExposure,
-      autoClear: renderer.autoClear,
-    };
-    const overlays: Map<THREE.Object3D, number> = collectOverlays(scene);
-    const uniforms: Record<string, THREE.IUniform> = this.accumulate_.uniforms;
-    try {
-      for (const object of overlays.keys()) object.layers.mask = 0;
-      renderer.toneMapping = THREE.NoToneMapping;
-      renderer.toneMappingExposure = 1;
-      renderer.autoClear = true;
-      renderer.setRenderTarget(targets.linear);
-      renderer.render(scene, camera);
-
-      // The sum ping-pongs: sample k reads target k mod 2 and writes the other.
-      const read: THREE.WebGLRenderTarget = sums[props.index % 2]!;
-      const write: THREE.WebGLRenderTarget = sums[(props.index + 1) % 2]!;
-      this.quad_.material = this.accumulate_;
-      uniforms.tSum!.value = read.texture;
-      uniforms.tSample!.value = targets.linear.texture;
-      uniforms.uFirst!.value = props.index === 0 ? 1 : 0;
-      uniforms.uScale!.value = 1;
-      renderer.setRenderTarget(write);
-      renderer.render(this.frame_, this.camera_);
-
-      // The last sample writes the average over the linear colour, keeping its
-      // depth for the overlays.
-      if (props.index === props.count - 1) {
-        uniforms.tSample!.value = write.texture;
-        uniforms.uFirst!.value = 1;
-        uniforms.uScale!.value = 1 / props.count;
-        renderer.setRenderTarget(targets.linear);
-        renderer.autoClear = false;
-        renderer.render(this.frame_, this.camera_);
-      }
-    } finally {
-      for (const [object, mask] of overlays) object.layers.mask = mask;
-      this.quad_.material = this.final_;
-      renderer.setRenderTarget(prior.target);
-      renderer.toneMapping = prior.toneMapping;
-      renderer.toneMappingExposure = prior.exposure;
-      renderer.autoClear = prior.autoClear;
-    }
+      /** The number of samples of the second, at least 2. */
+      count: number;
+    },
+  ): void {
+    if (props.index === 0)
+      admitAutoMovieFilmOptics(props.optics, props.seconds);
+    this.sum_.add({
+      ...props,
+      linear: this.prepare(props.width, props.height, props.optics).linear,
+    });
   }
-
   /** Release the stage's targets, programs and quad. */
   public dispose(): void {
     this.release();
-    this.releaseSums();
-    this.accumulate_.dispose();
+    this.sum_.dispose();
     this.downsample_.dispose();
     this.blur_.dispose();
     this.final_.dispose();
@@ -492,13 +406,6 @@ export class AutoMovieFilmResponseStage {
     }
     this.targets_ = null;
   }
-
-  /** Release the accumulation targets, which only sampled films allocate. */
-  private releaseSums(): void {
-    if (this.sums_ === null) return;
-    for (const target of this.sums_) target.dispose();
-    this.sums_ = null;
-  }
 }
 
 /** The targets of one raster. */
@@ -532,23 +439,6 @@ interface IKernelTargets {
 
   /** The frame blurred along rows and columns. */
   output: THREE.WebGLRenderTarget;
-}
-
-/**
- * A 32-bit float target for the running sum of sub-frame samples, read at its
- * own texel centres with nearest filtering.
- */
-function sumTarget(width: number, height: number): THREE.WebGLRenderTarget {
-  return new THREE.WebGLRenderTarget(width, height, {
-    type: THREE.FloatType,
-    format: THREE.RGBAFormat,
-    minFilter: THREE.NearestFilter,
-    magFilter: THREE.NearestFilter,
-    wrapS: THREE.ClampToEdgeWrapping,
-    wrapT: THREE.ClampToEdgeWrapping,
-    generateMipmaps: false,
-    depthBuffer: false,
-  });
 }
 
 /** Make the linear target, the pyramid and the blur targets of a raster. */
@@ -603,46 +493,4 @@ function allocate(width: number, height: number): ITargets {
       },
     ),
   };
-}
-
-/**
- * The drawn objects whose every material states a display colour (`toneMapped:
- * false`), each with its layer mask, so the stage draws them after the
- * response.
- */
-function collectOverlays(scene: THREE.Scene): Map<THREE.Object3D, number> {
-  const overlays: Map<THREE.Object3D, number> = new Map();
-  scene.traverse((object: THREE.Object3D): void => {
-    const material: unknown =
-      "material" in object ? object.material : undefined;
-    if (material === undefined || object.layers.mask === 0) return;
-    const materials: unknown[] = Array.isArray(material)
-      ? material
-      : [material];
-    if (
-      materials.length !== 0 &&
-      materials.every(
-        (entry: unknown): boolean =>
-          entry instanceof THREE.Material && entry.toneMapped === false,
-      )
-    )
-      overlays.set(object, object.layers.mask);
-  });
-  return overlays;
-}
-
-/**
- * The highest layer bit neither the camera nor any object in the scene uses,
- * for drawing the overlays alone.
- */
-function freeLayer(scene: THREE.Scene, cameraMask: number): number {
-  let used: number = cameraMask;
-  scene.traverse((object: THREE.Object3D): void => {
-    used |= object.layers.mask;
-  });
-  for (let bit: number = 31; bit >= 0; --bit)
-    if ((used & (1 << bit)) === 0) return 1 << bit;
-  throw new Error(
-    "The film response stage needs one renderer layer that no object uses to draw display overlays",
-  );
 }

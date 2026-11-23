@@ -2,7 +2,7 @@ import type {
   IAutoMovieDrawCall,
   IAutoMovieDrawDescription,
   IAutoMovieDrawResult,
-  IAutoMovieInspectionCamera,
+  IAutoMovieFilmOptics,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieInspectionLabel,
   IAutoMovieInspectionLegendEntry,
@@ -18,13 +18,13 @@ import { AutoMovieFilmResponseStage } from "../scene/filmResponse/AutoMovieFilmR
 import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
 import type { IAutoMovieInspectionPath } from "../scene/inspection/IAutoMovieInspectionPath.js";
 import { listAutoMovieInspectionPaths } from "../scene/inspection/listAutoMovieInspectionPaths.js";
-import { autoMovieSemanticMaskOf } from "../scene/semanticMask/index.js";
 import { markAutoMovieInspectionTrails } from "../scene/inspection/markAutoMovieInspectionTrails.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
 import { planAutoMovieInspectionTrailTimes } from "../scene/inspection/planAutoMovieInspectionTrailTimes.js";
 import { renderWithAutoMovieInspectionDiagnostics } from "../scene/inspection/renderWithAutoMovieInspectionDiagnostics.js";
 import { resolveAutoMovieInspectionView } from "../scene/inspection/resolveAutoMovieInspectionView.js";
 import { sampleAutoMovieInspectionTrails } from "../scene/inspection/sampleAutoMovieInspectionTrails.js";
+import { autoMovieSemanticMaskOf } from "../scene/semanticMask/index.js";
 import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
 import type { AutoMovieDrawSubjects } from "./AutoMovieDrawSubjects.js";
@@ -32,33 +32,70 @@ import type { IAutoMovieDrawFunction } from "./IAutoMovieDrawFunction.js";
 import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import type { IAutoMovieDrawSubject } from "./IAutoMovieDrawSubject.js";
+import { accumulateAutoMovieFilmSamples } from "./accumulateAutoMovieFilmSamples.js";
 import { describeAutoMovieDrawScene } from "./describeAutoMovieDrawScene.js";
 import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";
+import { isAutoMoviePlainBeautyRequest } from "./isAutoMoviePlainBeautyRequest.js";
 import { observeAutoMoviePlacedInspection } from "./observeAutoMoviePlacedInspection.js";
 import { replaceAutoMovieDrawInspection } from "./replaceAutoMovieDrawInspection.js";
 import { selectAutoMovieDrawSubject } from "./selectAutoMovieDrawSubject.js";
 
 /**
- * Side of the block the beauty pass is drawn at and averaged down from, so its edges are antialiased by area: two, the supersampling the motion harness drew its stills at.
+ * Side of the block the beauty pass is drawn at and averaged down from, so its
+ * edges are antialiased by area: two, the supersampling the motion harness drew
+ * its stills at.
  */
 const SUPERSAMPLE = 2 as const;
 
 /**
- * Install the draw-only function on a page: read the props the host injected, and answer `describe` and `draw` for the subject they name, drawing offscreen with no interface.
+ * Install the draw-only function on a page: read the props the host injected,
+ * and answer `describe` and `draw` for the subject they name, drawing offscreen
+ * with no interface.
  *
- * The page's script calls it once with its module's `subjects`. The subject is created on the first call, with one WebGL renderer on a canvas that is never attached to the document, without antialiasing. A draw then:
+ * The page's script calls it once with its module's `subjects`. The subject is
+ * created on the first call, with one WebGL renderer on a canvas that is never
+ * attached to the document, without antialiasing. A draw then:
  *
- * 1. restores the previous inspection before placement, so a subject may replace its objects during a seek;
- * 2. for a fitted view, places and inspects each framing second and frames the union of what the current inspection leaves drawn, or its focus, measured once per view and selection;
- * 3. for each `trail` pattern of the request, samples the matched objects over `planAutoMovieInspectionTrailTimes` with `sampleAutoMovieInspectionTrails`, then seeks the call's second and awaits readiness. When the subject supplies diagnostics, the draw observes the settled delivery scene before applying a fresh inspection to the resulting objects with their current marks and sampled trails; no seek occurs between this application and drawing;
- * 4. draws through the camera `resolveAutoMovieInspectionView` gives, at the call's raster, or for the `beauty` shade at twice each side with mark lines twice as wide; a `beauty` draw of a subject with `optics` draws through `AutoMovieFilmResponseStage`, which renders the scene's linear light into a half-float target and gives it the film's camera response on the way to the canvas;
- * 5. reads the drawn pixels back, flips them to rows from the top and averages a supersampled picture down, places the request's labels at the label scale, copies the inspection's legend of the marks drawn, and resolves every pattern of the request and view by `resolveAutoMovieCapturePatterns` against the scene's object paths and the selected mark paths, so the record names what each matched.
+ * 1. Restores the previous inspection before placement, so a subject may replace
+ *    its objects during a seek;
+ * 2. For a fitted view, places and inspects each framing second and frames the
+ *    union of what the current inspection leaves drawn, or its focus, measured
+ *    once per view and selection;
+ * 3. For each `trail` pattern of the request, samples the matched objects over
+ *    `planAutoMovieInspectionTrailTimes` with
+ *    `sampleAutoMovieInspectionTrails`, then seeks the call's second and awaits
+ *    readiness. When the subject supplies diagnostics, the draw observes the
+ *    settled delivery scene before applying a fresh inspection to the resulting
+ *    objects with their current marks and sampled trails; no seek occurs
+ *    between this application and drawing. Before this, a delivery or plain
+ *    `beauty` draw of sampled optics runs `accumulateAutoMovieFilmSamples`;
+ * 4. Draws through the camera `resolveAutoMovieInspectionView` gives, at the
+ *    call's raster, or for the `beauty` shade at twice each side with mark
+ *    lines twice as wide; a `beauty` draw of a subject with `optics` draws
+ *    through `AutoMovieFilmResponseStage`, which renders the scene's linear
+ *    light into a half-float target and gives it the film's camera response on
+ *    the way to the canvas; a single-sample `beauty` draw of a subject with
+ *    `shading` runs inside `AutoMovieFilmIndirectStage`, which measures the
+ *    occlusion of indirect light for that draw first;
+ * 5. Reads the drawn pixels back, flips them to rows from the top and averages a
+ *    supersampled picture down, places the request's labels at the label scale,
+ *    copies the inspection's legend of the marks drawn, and resolves every
+ *    pattern of the request and view by `resolveAutoMovieCapturePatterns`
+ *    against the scene's object paths and the selected mark paths, so the
+ *    record names what each matched.
  *
- * It reads the renderer's own canvas back in the same task. Without optics the scene is drawn straight to the canvas, so colour conversion and tone mapping are the ones the interactive page applies to its canvas; with optics the stage's final pass writes the canvas, so the response is the film's whatever the renderer's own curve and exposure. The film camera's aspect is set to the picture's, as the page sets it to its canvas.
+ * It reads the renderer's own canvas back in the same task. Without optics the
+ * scene is drawn straight to the canvas, so colour conversion and tone mapping
+ * are the ones the interactive page applies to its canvas; with optics the
+ * stage's final pass writes the canvas, so the response is the film's whatever
+ * the renderer's own curve and exposure. The film camera's aspect is set to the
+ * picture's, as the page sets it to its canvas.
  *
  * ```ts
  * import { installAutoMovieDraw } from "@automovie/render";
+ *
  * import { subjects } from "./subjects";
+ *
  * installAutoMovieDraw(subjects);
  * ```
  */
@@ -96,6 +133,7 @@ export function installAutoMovieDraw(
         scene,
         renderer,
         response: new AutoMovieFilmResponseStage(),
+        lens: new THREE.PerspectiveCamera(),
       };
     })());
 
@@ -238,9 +276,60 @@ export function installAutoMovieDraw(
           ? await frame(loaded, call, view)
           : null;
 
-      // 3. The second itself, once the subject is ready.
+      // 3a. A sampled film's shutter and lens samples, for delivery and plain beauty draws, accumulated before the inspection seeks the second again.
       let diagnostics: IAutoMovieInspectionDiagnostics | undefined;
       const delivery: boolean = call.inspectionDiagnostics === "delivery";
+      const width: number = call.width * factor;
+      const height: number = call.height * factor;
+      if (scene.camera.aspect !== call.width / call.height) {
+        scene.camera.aspect = call.width / call.height;
+        scene.camera.updateProjectionMatrix();
+      }
+      const resolveAt: (
+        at: number,
+      ) => ReturnType<typeof resolveAutoMovieInspectionView> = (
+        at: number,
+      ): ReturnType<typeof resolveAutoMovieInspectionView> =>
+        resolveAutoMovieInspectionView({
+          view,
+          text: call.view,
+          bounds,
+          camera: scene.camera,
+          ...(scene.views === undefined ? {} : { views: scene.views }),
+          seconds: at,
+          width: call.width,
+          height: call.height,
+        });
+      let sampled: IAutoMovieFilmOptics | undefined;
+      if (
+        scene.optics !== undefined &&
+        ((delivery && call.request.shade === "beauty") ||
+          isAutoMoviePlainBeautyRequest(call.request))
+      ) {
+        applied?.handle.restore();
+        applied = null;
+        await scene.seek(call.seconds);
+        const optics: IAutoMovieFilmOptics = scene.optics(call.seconds);
+        if (optics.samples !== undefined) {
+          await accumulateAutoMovieFilmSamples({
+            stage: loaded.response,
+            renderer,
+            scene: scene.scene,
+            optics,
+            seconds: call.seconds,
+            fps: scene.fps,
+            fovY: scene.camera.fov,
+            width,
+            height,
+            seek: (at: number): Promise<void> => scene.seek(at),
+            camera: (at: number): THREE.Camera => resolveAt(at).camera,
+            scratch: loaded.lens,
+          });
+          sampled = optics;
+        }
+      }
+
+      // 3. The second itself, once the subject is ready.
       const handle: IAutoMovieInspectionHandle = await inspect(
         loaded,
         { ...call.request, stroke: call.request.stroke * factor },
@@ -256,25 +345,7 @@ export function installAutoMovieDraw(
       );
 
       // 4. Draw through the resolved camera at the drawn raster.
-      const width: number = call.width * factor;
-      const height: number = call.height * factor;
-      if (scene.camera.aspect !== call.width / call.height) {
-        scene.camera.aspect = call.width / call.height;
-        scene.camera.updateProjectionMatrix();
-      }
-      const resolved: {
-        camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
-        record: IAutoMovieInspectionCamera;
-      } = resolveAutoMovieInspectionView({
-        view,
-        text: call.view,
-        bounds,
-        camera: scene.camera,
-        ...(scene.views === undefined ? {} : { views: scene.views }),
-        seconds: call.seconds,
-        width: call.width,
-        height: call.height,
-      });
+      const resolved: ReturnType<typeof resolveAt> = resolveAt(call.seconds);
       renderer.setSize(width, height, false);
       handle.resize(width, height);
       const diagnosticLegend: readonly IAutoMovieInspectionLegendEntry[] =
@@ -294,13 +365,13 @@ export function installAutoMovieDraw(
               renderer,
               scene: scene.scene,
               camera: resolved.camera,
-              optics: scene.optics?.(call.seconds),
+              optics: sampled ?? scene.optics?.(call.seconds),
               seconds: call.seconds,
               width,
               height,
+              accumulated: sampled !== undefined,
             });
-          },
-          width,
+          },          width,
           height,
           stroke: call.request.stroke * factor,
         });
@@ -397,8 +468,14 @@ interface ILoaded {
   /** The renderer, on a canvas never attached to the document. */
   renderer: THREE.WebGLRenderer;
 
-  /** The beauty stage that gives a subject's optics their response; it allocates nothing for a subject without optics. */
+  /**
+   * The beauty stage that gives a subject's optics their response; it allocates
+   * nothing for a subject without optics.
+   */
   response: AutoMovieFilmResponseStage;
+
+  /** The camera a lens sample is drawn through, its eye on the aperture. */
+  lens: THREE.PerspectiveCamera;
 }
 
 /** The smallest box holding two boxes, either of which may be absent. */

@@ -24,6 +24,10 @@ Use record and canon materials in the installed format. Get textures and environ
 
 State light in physical units: lux for the sun and other directional lights, candela for lamps and nits for panels. Return the camera response from the film's `optics`, in the film module as [source layout](../development/source-layout.md#source) places it. It holds the exposure in EV100, the white balance as the kelvin of the key light, the tone curve, any lens glare around practical lamps and bright windows, and the adopted grade as ASC CDL slope, offset, power and saturation. Without `optics`, physical light renders white.
 
+Place the sun from the story's site and hour as [staging](../motion/staging.md#the-view) says, and stage it as a directional light; a daylight instant's beam never reaches the frame. Meter each scene's key subject with `meterAutoMovieIlluminance` from `@automovie/engine` and set `ev100` from `autoMovieIncidentEv100` of its lux. Run `checkAutoMovieExposureContinuity` over the film's cuts, grouped by screenplay scene, and mark each exposure change the screenplay decided with `change: true`.
+
+Give the optics a `shutter`, 180 degrees unless the look decides otherwise, and `samples`, so motion blurs as it would on film. Where a shot decides focus, author `fNumber` on its frame action and return `lens` from `resolveAutoMovieLensAt` at each second, so the focus and any focus pull reach the frame.
+
 Tag each color texture as color and each normal or roughness map as data.
 
 ### Faces and speech
@@ -52,4 +56,4 @@ Check the beauty render at delivery size, under the visual debugging skill, for 
 - no surfaces pass through each other, wardrobe through body included, and none flicker where they meet;
 - faces and mouths show what the screenplay decided, with sync left to the user.
 
-Measure camera speed in frame widths per second from the resolved path. [RED's guideline](https://www.reddigitalcinema.com/red-101/camera-panning-speed) is about one frame width per seven seconds at 24 fps with a 180-degree shutter. Ask the user to watch moves above the applicable threshold for judder. Fix observed judder with a slower move, a cut or motion blur.
+Measure camera speed in frame widths per second from the resolved path. [RED's guideline](https://www.reddigitalcinema.com/red-101/camera-panning-speed) is about one frame width per seven seconds at 24 fps with a 180-degree shutter. Ask the user to watch moves above the applicable threshold for judder. Fix observed judder with a slower move, a cut, or the optics' `shutter` and `samples`.

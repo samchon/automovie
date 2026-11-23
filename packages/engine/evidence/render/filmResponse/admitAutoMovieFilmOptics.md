@@ -6,7 +6,7 @@ The doc comment states the input units and frames, the cited method, the output 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Checks each range IAutoMovieFilmOptics states in field order and throws on the first refusal, naming the second and the field. The kelvin range is the domain of the Planckian approximation the balance uses; the glare and grade ranges are the contract's.
+Checks each range IAutoMovieFilmOptics states in field order and throws on the first refusal, naming the second and the field. The kelvin range is the domain of the Planckian approximation the balance uses; the glare, grade, shutter and lens ranges are the contract's, and the sample count must accompany a shutter or a lens and nothing else, because samples exist only to integrate them.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -1,6 +1,7 @@
 export * from "./AUTO_MOVIE_DRAW_GLOBALS.js";
 export * from "./AutoMovieDrawSession.js";
 export * from "./AutoMovieDrawSubjects.js";
+export * from "./accumulateAutoMovieFilmSamples.js";
 export * from "./bindAutoMovieDrawSceneSoftProps.js";
 export * from "./decodeAutoMovieDrawPixels.js";
 export * from "./describeAutoMovieDrawScene.js";
