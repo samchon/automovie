@@ -7,7 +7,6 @@ description: Implements and tests production source.
 
 | Read | To |
 | --- | --- |
-| [AutoMovie packages](../automovie/SKILL.md) | Find the installed package for a need and read its API |
 | [Repair](repair.md) | Change existing behavior or fix a defect |
 | [Entity work](entities.md) | Build or change a subject |
 | [Testing](testing.md) | Choose behavioral checks |

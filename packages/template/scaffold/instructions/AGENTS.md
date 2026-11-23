@@ -56,7 +56,6 @@ Use the [production workflow](.agents/skills/production/workflow.md#commissioned
 | --- | --- |
 | [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Preparing a subject's form, attachment or commissioned detail |
 | [audio](.agents/skills/audio/SKILL.md) | Making commissioned sound, a voice preview or a generated film's sound |
-| [automovie](.agents/skills/automovie/SKILL.md) | Choosing or reading an installed package |
 | [contracts](.agents/skills/contracts/SKILL.md) | Finding what an item asks and which work answers it |
 | [development](.agents/skills/development/SKILL.md) | Writing code, integrations, dependencies, commands or tests |
 | [documentation](.agents/skills/documentation/SKILL.md) | Writing a document, README, evidence answer or doc comment |

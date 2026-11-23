@@ -86,7 +86,7 @@ Each file exports one declaration named as the file and stays under 500 lines; s
 
 Work starts at the document it realizes: a new subject from its settings or brief record, then its entity folder and tests, and a new scene from its screenplay scene file and its [beat elements](../motion/staging.md#reading-the-scene), then its composition folder and its place in the film.
 
-Compose the actions of a [studied performance](../story/planning/research.md#what-needs-a-study) with installed motion modules. [Extend the vocabulary](../motion/laws/extension.md) when those modules cannot realize the action.
+Compose the actions of a [studied performance](../story/planning/research.md#what-needs-a-study) with installed motion modules. [Extend the vocabulary](../motion/laws/SKILL.md) when those modules cannot realize the action.
 
 ## Execution and runtime setup
 

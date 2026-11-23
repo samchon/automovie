@@ -1,6 +1,6 @@
 # Entity work
 
-Prepare scene subjects under the production principles. Read [project context](../production/project-context.md) and the relevant [installed package](../automovie/SKILL.md#reading-a-package) before preparing a body, model or attachment.
+Prepare scene subjects under the production principles. Read [project context](../production/project-context.md) and the relevant installed package's JSDoc before preparing a body, model or attachment.
 
 [Source layout](source-layout.md#source) places each entity. A standalone asset defines its views and controls without a screenplay.
 
@@ -10,7 +10,7 @@ Keep forms simple enough to read motion, staging, timing and camera. Use solid c
 
 ### People
 
-Prepare cast bodies from their records and share the same body between drawing and motion. Compose crowd bodies through the group capability. See [package owners](../automovie/SKILL.md#packages).
+Prepare cast bodies from their records and share the same body between drawing and motion. Compose crowd bodies through the group capability.
 
 A person has no modeled surface of its own: clothing, a face and a build beyond the body facts stay out.
 
