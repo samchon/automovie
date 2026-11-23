@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Admit nonempty id and finite frame, the positivity `IAutoMovieAffordance` states for its optional dimensions, then require stack-top extent plan points to span area or point-like kinds to have null extent.
+Admit nonempty id and finite frame, the positivity `IAutoMovieAffordance` states for its optional dimensions, a surface outline that is a simple polygon of positive area inside the width by depth rectangle, as the render's graphic clip requires, then require stack-top extent plan points to span area or point-like kinds to have null extent.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -18,7 +18,7 @@ Null extent semantics and exact caller-relative frame, point and dimension fault
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-P extent points require linear finite checks and O(P log P) hull construction when admitted.
+P extent points require linear finite checks and O(P log P) hull construction when admitted; Q outline points take linear range and area checks and an O(Q²) edge pair test, Q being a hand-authored handful.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

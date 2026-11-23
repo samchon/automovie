@@ -40,9 +40,10 @@ const LIFT: number = 0.0005;
  * Every track becomes one group named `surface-graphic:<node>/<surface>`,
  * marked for the render-mode boundary, parented to the node's model object at
  * the surface affordance's frame and lifted half a millimetre along `+Y`. It
- * holds one group per key, built by `buildAutoMovieSurfaceGraphicKey`, of which
- * the returned `apply` shows only the key in force. Because the graphic rides
- * the model object, it follows the node's placement, its object motion and its
+ * holds one group per key, built by `buildAutoMovieSurfaceGraphicKey` and
+ * clipped to the surface's `outline` when it declares one, of which the
+ * returned `apply` shows only the key in force. Because the graphic rides the
+ * model object, it follows the node's placement, its object motion and its
  * carriage at every sample time, and two props sharing one model show their own
  * graphics.
  *
@@ -195,6 +196,9 @@ export async function prepareAutoMovieSurfaceGraphics(
             feeds: meshes,
             width: surface.width!,
             depth: surface.depth!,
+            ...(surface.outline === undefined
+              ? {}
+              : { outline: surface.outline }),
             image: (asset: string): THREE.Texture =>
               textures.get(imageKey(model, asset))!,
             font: (id: string): IAutoMovieFont => {

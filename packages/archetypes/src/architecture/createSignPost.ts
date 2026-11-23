@@ -14,9 +14,9 @@ const BLANK_THICKNESS: number = 0.003;
  * contact. The lowest point of the fixture stands on Y = 0. The blank is the
  * R1-1 regular octagon, its across-flats size the model's. `face` is a surface
  * on the blank's front, read with model `+Y` up, whose width and depth are the
- * across-flats size: the square's four corners lie outside the octagon, so
- * content placed in them overhangs the blank. The legend is not drawn here; a
- * production letters it on `face` with its own font.
+ * across-flats size and whose outline is the octagon, so graphics placed in the
+ * square's four corners are clipped at the blank's edge. The legend is not
+ * drawn here; a production letters it on `face` with its own font.
  *
  * @param params The scene identifier, model choice and supported dimension
  *   overrides.
@@ -25,7 +25,7 @@ const BLANK_THICKNESS: number = 0.003;
  * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
  *   selected profile.
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The sign faces +Z, and its measured lower edge bounds the upright post contact. The blank is the regular octagon of the R1-1 sign, its flats at the measured size, and its face carries the reading frame surfaces share.
+ * @evidence contracts/development/implementation.md#principled-implementation The sign faces +Z, and its measured lower edge bounds the upright post contact. The blank is the regular octagon of the R1-1 sign, its flats at the measured size, and its face carries the reading frame surfaces share and the octagon as its outline.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the fixed measurements, then record the parts and their typed contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original measurements, fixed input checks and contact/part geometry are used by both APIs.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Builds a single fixture with a bounded number of parts and contacts.
@@ -86,6 +86,17 @@ export function createSignPost(
     extent: null,
     width: size,
     depth: size,
+    // The blank's octagon in the face's own XZ plane, so graphics stop at
+    // its cut corners.
+    outline: Array.from(
+      { length: 8 },
+      (_: unknown, k: number): IAutoMovieVector3 =>
+        v(
+          radius * Math.cos(Math.PI / 8 + (k * Math.PI) / 4),
+          0,
+          radius * Math.sin(Math.PI / 8 + (k * Math.PI) / 4),
+        ),
+    ),
   });
   builder.affordance({
     id: "post",
@@ -104,9 +115,7 @@ export function createSignPost(
   return builder.build(d.mass!);
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createSignPost}.
- */
+/** Inputs, dimensions and contacts for {@link createSignPost}. */
 export namespace createSignPost {
   /** The `model` choices this producer admits. */
   export type Model = "STOP 30 in" | "STOP 36 in";

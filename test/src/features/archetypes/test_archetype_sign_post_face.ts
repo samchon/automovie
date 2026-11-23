@@ -23,6 +23,8 @@ import { nclose } from "../internal/predicates";
  * 3. The `face` affordance is a `surface` whose `width` and `depth` equal the
  *    size, whose frame lies at the blank's centre on its front, and whose local
  *    `+Y` points along model `+Z`.
+ * 4. The face's outline is the same octagon in the face's XZ plane: eight points
+ *    on the blank's radius at 22.5° + k·45°.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the octagon's vertex, flat and face checks for both models.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the built blank's mesh positions and the face contact from the public producer.
@@ -109,6 +111,21 @@ export function test_archetype_sign_post_face(): void {
         nclose(face.frame.translation.y, cy) &&
         nclose(face.frame.translation.z, front) &&
         nclose(out.z, 1),
+    );
+    TestValidator.predicate(
+      `${model} face outline is the blank's octagon`,
+      face.outline?.length === 8 &&
+        face.outline.every(
+          (point: IAutoMovieVector3, k: number): boolean =>
+            nclose(Math.hypot(point.x, point.z), radii[0]!) &&
+            nclose(
+              Math.atan2(point.z, point.x),
+              Math.atan2(
+                Math.sin(Math.PI / 8 + (k * Math.PI) / 4),
+                Math.cos(Math.PI / 8 + (k * Math.PI) / 4),
+              ),
+            ),
+        ),
     );
   }
 }

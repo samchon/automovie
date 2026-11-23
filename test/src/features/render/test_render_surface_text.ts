@@ -78,10 +78,12 @@ export async function test_render_surface_text(): Promise<void> {
             layers: [
               {
                 kind: "text",
+                // The middle band, along the octagon's left flat, so the
+                // face's outline cuts no glyph.
                 x: 0,
-                y: 0,
+                y: 0.4,
                 width: 1,
-                height: 1,
+                height: 0.6,
                 font: "block",
                 text: "LO",
                 size,

@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { clipAutoMovieSurfaceGraphicGeometry } from "./clipAutoMovieSurfaceGraphicGeometry.js";
 import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
 import { createAutoMovieSurfaceGraphicQuad } from "./createAutoMovieSurfaceGraphicQuad.js";
 import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraphicText.js";
@@ -32,6 +33,10 @@ import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraph
  * `font` returns, in its colour. A feed layer shows the texture `feed` returns,
  * the camera's picture with its first row at the bottom, under the emission.
  *
+ * With an `outline`, every mesh, the face included, is clipped to it by
+ * `clipAutoMovieSurfaceGraphicGeometry`, so neither the face the mask paints
+ * nor any layer reaches past the surface, whatever pass draws them.
+ *
  * Every geometry and material made is pushed to `owned` as it is made, so the
  * caller releases them even when a later layer throws.
  */
@@ -44,6 +49,12 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
 
   /** Face depth along the frame's `Z`, metres. */
   depth: number;
+
+  /**
+   * The surface's outline in the frame's XZ plane, metres; absent, the whole
+   * face rectangle.
+   */
+  outline?: readonly { x: number; z: number }[];
 
   /** The decoded texture for an image layer's asset. */
   image: (asset: string) => THREE.Texture;
@@ -129,6 +140,17 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
       group.add(drawn);
     },
   );
+
+  // Nothing paints past the surface's outline, in any pass.
+  if (props.outline !== undefined)
+    for (const child of group.children as THREE.Mesh[]) {
+      const clipped: THREE.BufferGeometry = clipAutoMovieSurfaceGraphicGeometry(
+        child.geometry,
+        props.outline,
+      );
+      owned.push(clipped);
+      child.geometry = clipped;
+    }
   return group;
 }
 

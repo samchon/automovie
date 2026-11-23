@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the face mesh and why a null background still draws one, the render order, the depth policy, each image fit and resource ownership.
+States the face mesh and why a null background still draws one, the clip to the surface's outline, the render order, the depth policy, each image fit and resource ownership.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
