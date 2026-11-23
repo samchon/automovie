@@ -1,4 +1,4 @@
-# src/index.ts#bindRecoveryOrderedFits
+# src/internal/bindRecoveryOrderedFits.ts#bindRecoveryOrderedFits
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

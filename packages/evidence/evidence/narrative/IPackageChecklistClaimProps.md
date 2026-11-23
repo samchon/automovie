@@ -1,4 +1,4 @@
-# src/internal/index.ts#IPackageChecklistClaimProps
+# src/narrative/IPackageChecklistClaimProps.ts#IPackageChecklistClaimProps
 
 ## @evidence contracts/development/design.md#principled-representation
 

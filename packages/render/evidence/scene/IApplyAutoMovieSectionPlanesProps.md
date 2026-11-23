@@ -1,4 +1,4 @@
-# src/index.ts#IApplyAutoMovieSectionPlanesProps
+# src/scene/IApplyAutoMovieSectionPlanesProps.ts#IApplyAutoMovieSectionPlanesProps
 
 ## @evidence contracts/development/design.md#principled-representation
 

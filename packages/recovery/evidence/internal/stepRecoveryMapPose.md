@@ -1,4 +1,4 @@
-# src/index.ts#stepRecoveryMapPose
+# src/internal/stepRecoveryMapPose.ts#stepRecoveryMapPose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

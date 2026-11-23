@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieRenderModeHandle
+# src/scene/IAutoMovieRenderModeHandle.ts#IAutoMovieRenderModeHandle
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Borrowed original materials survive restoration; only override-created resources
 
 Describes reversible material/visibility/background/overlay changes, temporary-resource release, borrowed ownership and idempotent restore.
 
-# src/index.ts#IAutoMovieRenderModeHandle.update
+# src/scene/IAutoMovieRenderModeHandle.ts#IAutoMovieRenderModeHandle.update
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ The geometries, shells and materials built at application are reused for every f
 
 Retains nothing beyond what application already owns; `restore` still releases all of it.
 
-# src/index.ts#IAutoMovieRenderModeHandle.restore
+# src/scene/IAutoMovieRenderModeHandle.ts#IAutoMovieRenderModeHandle.restore
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

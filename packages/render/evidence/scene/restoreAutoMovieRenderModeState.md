@@ -1,4 +1,4 @@
-# src/index.ts#restoreAutoMovieRenderModeState
+# src/scene/restoreAutoMovieRenderModeState.ts#restoreAutoMovieRenderModeState
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

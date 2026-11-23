@@ -1,4 +1,4 @@
-# src/index.ts#refineRecoveryResection
+# src/internal/refineRecoveryResection.ts#refineRecoveryResection
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

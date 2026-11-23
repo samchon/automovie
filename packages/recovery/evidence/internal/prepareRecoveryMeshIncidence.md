@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoveryMeshIncidence
+# src/internal/prepareRecoveryMeshIncidence.ts#prepareRecoveryMeshIncidence
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

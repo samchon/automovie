@@ -1,4 +1,4 @@
-# src/index.ts#reconstructRecoveryOpen
+# src/internal/reconstructRecoveryOpen.ts#reconstructRecoveryOpen
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

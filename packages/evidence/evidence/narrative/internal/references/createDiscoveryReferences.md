@@ -1,4 +1,4 @@
-# src/internal/index.ts#createDiscoveryReferences
+# src/narrative/internal/references/createDiscoveryReferences.ts#createDiscoveryReferences
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

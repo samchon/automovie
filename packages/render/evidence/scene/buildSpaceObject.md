@@ -1,4 +1,4 @@
-# src/index.ts#buildSpaceObject
+# src/scene/buildSpaceObject.ts#buildSpaceObject
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

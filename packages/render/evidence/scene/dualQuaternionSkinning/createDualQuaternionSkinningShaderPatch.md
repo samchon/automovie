@@ -1,4 +1,4 @@
-# src/index.ts#createDualQuaternionSkinningShaderPatch
+# src/scene/dualQuaternionSkinning/createDualQuaternionSkinningShaderPatch.ts#createDualQuaternionSkinningShaderPatch
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

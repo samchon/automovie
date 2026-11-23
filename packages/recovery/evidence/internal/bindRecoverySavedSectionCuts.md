@@ -1,4 +1,4 @@
-# src/index.ts#bindRecoverySavedSectionCuts
+# src/internal/bindRecoverySavedSectionCuts.ts#bindRecoverySavedSectionCuts
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

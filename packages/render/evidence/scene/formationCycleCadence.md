@@ -1,4 +1,4 @@
-# src/index.ts#formationCycleCadence
+# src/scene/formationCycleCadence.ts#formationCycleCadence
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

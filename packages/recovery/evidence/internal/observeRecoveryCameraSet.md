@@ -1,4 +1,4 @@
-# src/index.ts#observeRecoveryCameraSet
+# src/internal/observeRecoveryCameraSet.ts#observeRecoveryCameraSet
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

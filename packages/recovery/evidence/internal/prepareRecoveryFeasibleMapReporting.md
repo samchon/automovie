@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoveryFeasibleMapReporting
+# src/internal/prepareRecoveryFeasibleMapReporting.ts#prepareRecoveryFeasibleMapReporting
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

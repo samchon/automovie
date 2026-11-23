@@ -1,4 +1,4 @@
-# src/index.ts#locateAutoMovieInspectorFinding
+# src/inspector/locateAutoMovieInspectorFinding.ts#locateAutoMovieInspectorFinding
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

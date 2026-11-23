@@ -1,4 +1,4 @@
-# src/index.ts#readAutoMovieReviewInterval
+# src/transport/readAutoMovieReviewInterval.ts#readAutoMovieReviewInterval
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

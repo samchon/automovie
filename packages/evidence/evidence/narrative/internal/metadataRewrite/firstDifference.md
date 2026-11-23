@@ -1,4 +1,4 @@
-# src/internal/index.ts#firstDifference
+# src/narrative/internal/metadataRewrite/firstDifference.ts#firstDifference
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#IBuildInstancedInstanceSetProps
+# src/scene/IBuildInstancedInstanceSetProps.ts#IBuildInstancedInstanceSetProps
 
 ## @evidence contracts/development/design.md#principled-representation
 

@@ -1,4 +1,4 @@
-# src/index.ts#createAutoMoviePhysicalPoseAdapter
+# src/scene/createAutoMoviePhysicalPoseAdapter.ts#createAutoMoviePhysicalPoseAdapter
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

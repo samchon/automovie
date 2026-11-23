@@ -1,4 +1,4 @@
-# src/index.ts#invalidateAutoMovieSkinnedPose
+# src/scene/invalidateAutoMovieSkinnedPose.ts#invalidateAutoMovieSkinnedPose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

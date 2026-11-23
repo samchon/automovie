@@ -1,4 +1,4 @@
-# src/internal/index.ts#textLocation
+# src/narrative/internal/metadataRewrite/textLocation.ts#textLocation
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

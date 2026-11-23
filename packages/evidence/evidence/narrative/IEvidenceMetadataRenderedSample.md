@@ -1,4 +1,4 @@
-# src/internal/index.ts#IEvidenceMetadataRenderedSample
+# src/narrative/IEvidenceMetadataRenderedSample.ts#IEvidenceMetadataRenderedSample
 
 ## @evidence contracts/development/design.md#principled-representation
 

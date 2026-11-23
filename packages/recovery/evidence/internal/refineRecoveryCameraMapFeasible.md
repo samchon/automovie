@@ -1,4 +1,4 @@
-# src/index.ts#refineRecoveryCameraMapFeasible
+# src/internal/refineRecoveryCameraMapFeasible.ts#refineRecoveryCameraMapFeasible
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#validateSettingsOutline
+# src/narrative/internal/validateSettingsOutline.ts#validateSettingsOutline
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

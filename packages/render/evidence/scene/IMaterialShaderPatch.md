@@ -1,4 +1,4 @@
-# src/index.ts#IMaterialShaderPatch
+# src/scene/IMaterialShaderPatch.ts#IMaterialShaderPatch
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Patch operations use the native compile extension point and complete input; key 
 
 Explains cache identity, registration order, full native input and nontransactional failure effects.
 
-# src/index.ts#IMaterialShaderPatch.apply
+# src/scene/IMaterialShaderPatch.ts#IMaterialShaderPatch.apply
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

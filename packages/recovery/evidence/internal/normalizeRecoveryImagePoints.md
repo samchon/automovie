@@ -1,4 +1,4 @@
-# src/index.ts#normalizeRecoveryImagePoints
+# src/internal/normalizeRecoveryImagePoints.ts#normalizeRecoveryImagePoints
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

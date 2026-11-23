@@ -1,4 +1,4 @@
-# src/internal/index.ts#resolveSkillsDirectory
+# src/internal/resolveSkillsDirectory.ts#resolveSkillsDirectory
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

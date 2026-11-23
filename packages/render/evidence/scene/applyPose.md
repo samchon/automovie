@@ -1,4 +1,4 @@
-# src/index.ts#applyPose
+# src/scene/applyPose.ts#applyPose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

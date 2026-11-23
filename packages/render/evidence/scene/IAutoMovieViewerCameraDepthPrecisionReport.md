@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieViewerCameraDepthPrecisionReport
+# src/scene/IAutoMovieViewerCameraDepthPrecisionReport.ts#IAutoMovieViewerCameraDepthPrecisionReport
 
 ## @evidence contracts/development/design.md#principled-representation
 

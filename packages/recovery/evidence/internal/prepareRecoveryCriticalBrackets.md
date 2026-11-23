@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoveryCriticalBrackets
+# src/internal/prepareRecoveryCriticalBrackets.ts#prepareRecoveryCriticalBrackets
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

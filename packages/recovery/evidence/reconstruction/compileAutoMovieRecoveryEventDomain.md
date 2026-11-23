@@ -1,4 +1,4 @@
-# src/index.ts#compileAutoMovieRecoveryEventDomain
+# src/reconstruction/compileAutoMovieRecoveryEventDomain.ts#compileAutoMovieRecoveryEventDomain
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

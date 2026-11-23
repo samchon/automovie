@@ -1,4 +1,4 @@
-# src/index.ts#IApplyAutoMovieInspectionProps
+# src/scene/inspection/IApplyAutoMovieInspectionProps.ts#IApplyAutoMovieInspectionProps
 
 ## @evidence contracts/development/design.md#principled-representation
 

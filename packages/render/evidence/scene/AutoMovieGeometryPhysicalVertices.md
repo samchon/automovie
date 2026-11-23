@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieGeometryPhysicalVertices
+# src/scene/AutoMovieGeometryPhysicalVertices.ts#AutoMovieGeometryPhysicalVertices
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Missing legacy metadata remains absent; orphan attributes, conflicting namespace
 
 Explains legacy absence, readonly imports, nullable incidence, non-anatomical identity and validation before atomic generated-buffer publication; writeOwned states that undefined removes the prior record.
 
-# src/index.ts#AutoMovieGeometryPhysicalVertices.read
+# src/scene/AutoMovieGeometryPhysicalVertices.ts#AutoMovieGeometryPhysicalVertices.read
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ Buffer attributes and userData can change independently, so each read admits the
 
 Returns an independent correspondence record and retains no geometry, accessor or temporary XYZ array.
 
-# src/index.ts#AutoMovieGeometryPhysicalVertices.writeOwned
+# src/scene/AutoMovieGeometryPhysicalVertices.ts#AutoMovieGeometryPhysicalVertices.writeOwned
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

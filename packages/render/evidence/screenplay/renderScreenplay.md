@@ -1,4 +1,4 @@
-# src/index.ts#renderScreenplay
+# src/screenplay/renderScreenplay.ts#renderScreenplay
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

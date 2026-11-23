@@ -1,4 +1,4 @@
-# src/index.ts#IBuildPropArticulationProps
+# src/scene/IBuildPropArticulationProps.ts#IBuildPropArticulationProps
 
 ## @evidence contracts/development/design.md#principled-representation
 

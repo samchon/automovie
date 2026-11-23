@@ -1,4 +1,4 @@
-# src/index.ts#IBuildAutoMovieMaterialLibraryProps
+# src/scene/IBuildAutoMovieMaterialLibraryProps.ts#IBuildAutoMovieMaterialLibraryProps
 
 ## @evidence contracts/development/design.md#principled-representation
 

@@ -1,4 +1,4 @@
-# src/index.ts#admitRecoveryCameraPair
+# src/internal/admitRecoveryCameraPair.ts#admitRecoveryCameraPair
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

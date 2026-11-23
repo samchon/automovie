@@ -1,4 +1,4 @@
-# src/index.ts#mixRecoveryFeasibleSqpStep
+# src/internal/mixRecoveryFeasibleSqpStep.ts#mixRecoveryFeasibleSqpStep
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

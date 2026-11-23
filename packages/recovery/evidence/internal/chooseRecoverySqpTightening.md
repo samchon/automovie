@@ -1,4 +1,4 @@
-# src/index.ts#chooseRecoverySqpTightening
+# src/internal/chooseRecoverySqpTightening.ts#chooseRecoverySqpTightening
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

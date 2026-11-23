@@ -1,4 +1,4 @@
-# src/index.ts#resumeAutoMovieRecoveryContours
+# src/observation/resumeAutoMovieRecoveryContours.ts#resumeAutoMovieRecoveryContours
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#createAutoMovieMetricOrthographicCamera
+# src/scene/createAutoMovieMetricOrthographicCamera.ts#createAutoMovieMetricOrthographicCamera
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

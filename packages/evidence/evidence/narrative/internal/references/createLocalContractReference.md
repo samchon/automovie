@@ -1,4 +1,4 @@
-# src/internal/index.ts#createLocalContractReference
+# src/narrative/internal/references/createLocalContractReference.ts#createLocalContractReference
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

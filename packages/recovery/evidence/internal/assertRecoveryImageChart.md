@@ -1,4 +1,4 @@
-# src/index.ts#assertRecoveryImageChart
+# src/internal/assertRecoveryImageChart.ts#assertRecoveryImageChart
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#encodeRecoveryDiagnosticNumber
+# src/internal/encodeRecoveryDiagnosticNumber.ts#encodeRecoveryDiagnosticNumber
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

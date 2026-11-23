@@ -1,4 +1,4 @@
-# src/internal/index.ts#createContractDirectory
+# src/narrative/internal/utilities/createContractDirectory.ts#createContractDirectory
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

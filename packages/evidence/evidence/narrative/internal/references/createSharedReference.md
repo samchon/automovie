@@ -1,4 +1,4 @@
-# src/internal/index.ts#createSharedReference
+# src/narrative/internal/references/createSharedReference.ts#createSharedReference
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

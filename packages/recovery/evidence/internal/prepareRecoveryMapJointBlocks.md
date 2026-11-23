@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoveryMapJointBlocks
+# src/internal/prepareRecoveryMapJointBlocks.ts#prepareRecoveryMapJointBlocks
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

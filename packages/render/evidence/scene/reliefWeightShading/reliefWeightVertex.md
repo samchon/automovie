@@ -1,4 +1,4 @@
-# src/index.ts#reliefWeightVertex
+# src/scene/reliefWeightShading/reliefWeightVertex.ts#reliefWeightVertex
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

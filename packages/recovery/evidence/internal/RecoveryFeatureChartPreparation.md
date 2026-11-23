@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryFeatureChartPreparation
+# src/internal/RecoveryFeatureChartPreparation.ts#RecoveryFeatureChartPreparation
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

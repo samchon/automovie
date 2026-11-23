@@ -1,4 +1,4 @@
-# src/index.ts#factorRecoveryMapDesign
+# src/internal/factorRecoveryMapDesign.ts#factorRecoveryMapDesign
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

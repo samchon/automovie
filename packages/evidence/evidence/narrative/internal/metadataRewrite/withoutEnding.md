@@ -1,4 +1,4 @@
-# src/internal/index.ts#withoutEnding
+# src/narrative/internal/metadataRewrite/withoutEnding.ts#withoutEnding
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

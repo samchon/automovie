@@ -1,4 +1,4 @@
-# src/internal/index.ts#settingsEntryAnchor
+# src/narrative/internal/settingsEntryAnchor.ts#settingsEntryAnchor
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

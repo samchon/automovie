@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryChartFit
+# src/internal/RecoveryChartFit.ts#RecoveryChartFit
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ The runtime namespace coordinates preparation, sparse assembly, solve and report
 
 Numerical rank, gradient termination and finite observation residual are independent qualifications; none certifies embedding or continuous source fidelity.
 
-# src/index.ts#RecoveryChartFit.fit
+# src/internal/RecoveryChartFit.ts#RecoveryChartFit.fit
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

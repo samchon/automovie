@@ -1,4 +1,4 @@
-# src/draw/index.ts#replaceAutoMovieDrawInspection
+# src/draw/replaceAutoMovieDrawInspection.ts#replaceAutoMovieDrawInspection
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

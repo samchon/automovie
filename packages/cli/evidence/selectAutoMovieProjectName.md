@@ -1,4 +1,4 @@
-# src/index.ts#selectAutoMovieProjectName
+# src/selectAutoMovieProjectName.ts#selectAutoMovieProjectName
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

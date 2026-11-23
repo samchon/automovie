@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieFluidSurfaceObject
+# src/scene/IAutoMovieFluidSurfaceObject.ts#IAutoMovieFluidSurfaceObject
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Geometry and wet bounds come from the engine surface. Flow metadata is uploaded 
 
 Members state same-domain update refusal and geometry/material ownership. The default material borrows no caller asset; a supplied material remains borrowed.
 
-# src/index.ts#IAutoMovieFluidSurfaceObject.update
+# src/scene/IAutoMovieFluidSurfaceObject.ts#IAutoMovieFluidSurfaceObject.update
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ The native geometry and mesh persist, but each update copies current buffers; no
 
 New attributes replace the previous upload's references on the owned geometry; the caller retains the input surface. Geometry retirement remains the owning object's dispose responsibility.
 
-# src/index.ts#IAutoMovieFluidSurfaceObject.dispose
+# src/scene/IAutoMovieFluidSurfaceObject.ts#IAutoMovieFluidSurfaceObject.dispose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

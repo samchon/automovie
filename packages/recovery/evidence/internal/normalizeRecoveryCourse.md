@@ -1,4 +1,4 @@
-# src/index.ts#normalizeRecoveryCourse
+# src/internal/normalizeRecoveryCourse.ts#normalizeRecoveryCourse
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

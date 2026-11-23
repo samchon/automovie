@@ -1,4 +1,4 @@
-# src/index.ts#materialOverlayVertex
+# src/scene/materialOverlayShading/materialOverlayVertex.ts#materialOverlayVertex
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

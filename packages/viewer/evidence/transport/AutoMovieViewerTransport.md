@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieViewerTransport
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ Owned by the module that declares `AutoMovieViewerTransport` in packages/viewer/
 
 Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
 
-# src/index.ts#AutoMovieViewerTransport.prototype.play
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport.prototype.play
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -46,7 +46,7 @@ Awaits 1 call per invocation and shares no result or in-flight work between invo
 
 The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
 
-# src/index.ts#AutoMovieViewerTransport.prototype.pause
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport.prototype.pause
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -76,7 +76,7 @@ The operation coordinates no requests, phases or consumers and holds no cache: e
 
 The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
 
-# src/index.ts#AutoMovieViewerTransport.prototype.seek
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport.prototype.seek
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -106,7 +106,7 @@ The operation coordinates no requests, phases or consumers and holds no cache: e
 
 The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
 
-# src/index.ts#AutoMovieViewerTransport.prototype.tick
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport.prototype.tick
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -136,7 +136,7 @@ The operation coordinates no requests, phases or consumers and holds no cache: e
 
 The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
 
-# src/index.ts#AutoMovieViewerTransport.prototype.setInterval
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport.prototype.setInterval
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -166,7 +166,7 @@ The operation coordinates no requests, phases or consumers and holds no cache: e
 
 The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
 
-# src/index.ts#AutoMovieViewerTransport.prototype.freeze
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport.prototype.freeze
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -196,7 +196,7 @@ The operation coordinates no requests, phases or consumers and holds no cache: e
 
 The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
 
-# src/index.ts#AutoMovieViewerTransport.IAudio
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport.IAudio
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -214,7 +214,7 @@ Owned by the module that declares `IAudio` in packages/viewer/src/transport/Auto
 
 Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
 
-# src/index.ts#AutoMovieViewerTransport.IAudio.play
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport.IAudio.play
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -244,7 +244,7 @@ Signature only: this declaration has no body, so it carries no method of its own
 
 Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
 
-# src/index.ts#AutoMovieViewerTransport.IAudio.pause
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport.IAudio.pause
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -274,7 +274,7 @@ Signature only: this declaration has no body, so it carries no method of its own
 
 Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
 
-# src/index.ts#AutoMovieViewerTransport.IOptions
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport.IOptions
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -292,7 +292,7 @@ Owned by the module that declares `IOptions` in packages/viewer/src/transport/Au
 
 Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 3 optional members (`speeds`, `audio`, `now`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
 
-# src/index.ts#AutoMovieViewerTransport.IOptions.place
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport.IOptions.place
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -322,7 +322,7 @@ Signature only: this declaration has no body, so it carries no method of its own
 
 Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
 
-# src/index.ts#AutoMovieViewerTransport.IOptions.now
+# src/transport/AutoMovieViewerTransport.ts#AutoMovieViewerTransport.IOptions.now
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

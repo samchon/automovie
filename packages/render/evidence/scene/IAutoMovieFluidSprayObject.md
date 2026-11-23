@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieFluidSprayObject
+# src/scene/IAutoMovieFluidSprayObject.ts#IAutoMovieFluidSprayObject
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ The default PointsMaterial uses uniform size and opacity, not the uploaded custo
 
 Members state upload purpose, sampled count and conditional material ownership. The bounded population comes from engine admission, not a viewer-side cap enforced by this type.
 
-# src/index.ts#IAutoMovieFluidSprayObject.update
+# src/scene/IAutoMovieFluidSprayObject.ts#IAutoMovieFluidSprayObject.update
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ Node, geometry identity and material are reused; every upload rebuilds attribute
 
 The geometry retains only its latest attributes and sphere after replacement. Input arrays remain caller-owned, and final native resources are released by dispose.
 
-# src/index.ts#IAutoMovieFluidSprayObject.dispose
+# src/scene/IAutoMovieFluidSprayObject.ts#IAutoMovieFluidSprayObject.dispose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -76,7 +76,7 @@ The method does not memoize disposal completion, so repeated calls repeat native
 
 The caller must detach the points and invoke disposal. Retained closures still reference resources afterward; updates are not refused by a closed flag.
 
-# src/index.ts#IAutoMovieFluidSprayObject.count
+# src/scene/IAutoMovieFluidSprayObject.ts#IAutoMovieFluidSprayObject.count
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

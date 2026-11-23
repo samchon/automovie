@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieSkinnedMesh
+# src/scene/AutoMovieSkinnedMesh.ts#AutoMovieSkinnedMesh
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Extends Three through its documented override points instead of replacing protot
 
 States the operator order, frames, the invalidation duty, the cache key, the bound padding and the CPU/GPU precision.
 
-# src/index.ts#AutoMovieSkinnedMesh.prototype.tolerance
+# src/scene/AutoMovieSkinnedMesh.ts#AutoMovieSkinnedMesh.prototype.tolerance
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ Reads the current key's evaluation.
 
 Retains nothing beyond the cache.
 
-# src/index.ts#AutoMovieSkinnedMesh.prototype.invalidatePose
+# src/scene/AutoMovieSkinnedMesh.ts#AutoMovieSkinnedMesh.prototype.invalidatePose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -76,7 +76,7 @@ Keeps the cache for a key that turns out unchanged.
 
 Releases only the two bound objects.
 
-# src/index.ts#AutoMovieSkinnedMesh.clearBounds
+# src/scene/AutoMovieSkinnedMesh.ts#AutoMovieSkinnedMesh.clearBounds
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -106,7 +106,7 @@ Consumers recompute once on next read.
 
 Releases the two bound objects.
 
-# src/index.ts#AutoMovieSkinnedMesh.prototype.getVertexPosition
+# src/scene/AutoMovieSkinnedMesh.ts#AutoMovieSkinnedMesh.prototype.getVertexPosition
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -136,7 +136,7 @@ Every query of one key shares one evaluation.
 
 Writes into the caller's vector.
 
-# src/index.ts#AutoMovieSkinnedMesh.prototype.applyBoneTransform
+# src/scene/AutoMovieSkinnedMesh.ts#AutoMovieSkinnedMesh.prototype.applyBoneTransform
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -166,7 +166,7 @@ Batch consumers read the cache instead of calling this per vertex.
 
 Uses module scratch only.
 
-# src/index.ts#AutoMovieSkinnedMesh.prototype.computeBoundingBox
+# src/scene/AutoMovieSkinnedMesh.ts#AutoMovieSkinnedMesh.prototype.computeBoundingBox
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -196,7 +196,7 @@ Reuses the evaluated extent and the Box3 object.
 
 Retains one Box3.
 
-# src/index.ts#AutoMovieSkinnedMesh.prototype.computeBoundingSphere
+# src/scene/AutoMovieSkinnedMesh.ts#AutoMovieSkinnedMesh.prototype.computeBoundingSphere
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -226,7 +226,7 @@ Reuses the rest sphere per geometry version and the Sphere object.
 
 Retains one Sphere.
 
-# src/index.ts#AutoMovieSkinnedMesh.prototype.raycast
+# src/scene/AutoMovieSkinnedMesh.ts#AutoMovieSkinnedMesh.prototype.raycast
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -256,7 +256,7 @@ Every ray of one key shares one evaluation.
 
 Appends to the caller's intersections only.
 
-# src/index.ts#AutoMovieSkinnedMesh.prototype.copy
+# src/scene/AutoMovieSkinnedMesh.ts#AutoMovieSkinnedMesh.prototype.copy
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

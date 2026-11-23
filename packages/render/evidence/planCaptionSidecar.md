@@ -1,4 +1,4 @@
-# src/captionPlan.ts#planCaptionSidecar
+# src/planCaptionSidecar.ts#planCaptionSidecar
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#createDetailNormalShaderPatch
+# src/scene/detailNormalShading/createDetailNormalShaderPatch.ts#createDetailNormalShaderPatch
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

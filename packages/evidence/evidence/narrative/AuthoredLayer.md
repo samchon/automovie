@@ -1,4 +1,4 @@
-# src/internal/index.ts#AuthoredLayer
+# src/narrative/AuthoredLayer.ts#AuthoredLayer
 
 ## @evidence contracts/development/design.md#principled-representation
 

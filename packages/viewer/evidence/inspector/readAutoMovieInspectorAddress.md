@@ -1,4 +1,4 @@
-# src/index.ts#readAutoMovieInspectorAddress
+# src/inspector/readAutoMovieInspectorAddress.ts#readAutoMovieInspectorAddress
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/index.ts#inspectAutoMovieExternalModelBytes
+# src/inspectAutoMovieExternalModelBytes.ts#inspectAutoMovieExternalModelBytes
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

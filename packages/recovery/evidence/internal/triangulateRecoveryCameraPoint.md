@@ -1,4 +1,4 @@
-# src/index.ts#triangulateRecoveryCameraPoint
+# src/internal/triangulateRecoveryCameraPoint.ts#triangulateRecoveryCameraPoint
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

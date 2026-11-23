@@ -1,4 +1,4 @@
-# src/index.ts#describeRecoveryDomains
+# src/internal/describeRecoveryDomains.ts#describeRecoveryDomains
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

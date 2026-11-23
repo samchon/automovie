@@ -1,4 +1,4 @@
-# src/internal/index.ts#referenceLocation
+# src/narrative/internal/utilities/referenceLocation.ts#referenceLocation
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

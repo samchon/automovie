@@ -1,4 +1,4 @@
-# src/index.ts#runAutoMovieFfmpeg
+# src/runAutoMovieFfmpeg.ts#runAutoMovieFfmpeg
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

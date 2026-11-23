@@ -1,4 +1,4 @@
-# src/index.ts#detailNormalVertex
+# src/scene/detailNormalShading/detailNormalVertex.ts#detailNormalVertex
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

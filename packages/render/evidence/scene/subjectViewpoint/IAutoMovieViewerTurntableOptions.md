@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieViewerTurntableOptions
+# src/scene/subjectViewpoint/IAutoMovieViewerTurntableOptions.ts#IAutoMovieViewerTurntableOptions
 
 ## @evidence contracts/development/design.md#principled-representation
 

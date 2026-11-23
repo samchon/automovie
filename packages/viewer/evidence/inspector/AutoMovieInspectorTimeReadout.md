@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieInspectorTimeReadout
+# src/inspector/AutoMovieInspectorTimeReadout.tsx#AutoMovieInspectorTimeReadout
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

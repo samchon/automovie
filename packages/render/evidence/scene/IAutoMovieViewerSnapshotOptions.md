@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieViewerSnapshotOptions
+# src/scene/IAutoMovieViewerSnapshotOptions.ts#IAutoMovieViewerSnapshotOptions
 
 ## @evidence contracts/development/design.md#principled-representation
 

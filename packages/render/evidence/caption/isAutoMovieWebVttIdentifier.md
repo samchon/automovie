@@ -1,4 +1,4 @@
-# src/caption/index.ts#isAutoMovieWebVttIdentifier
+# src/caption/isAutoMovieWebVttIdentifier.ts#isAutoMovieWebVttIdentifier
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

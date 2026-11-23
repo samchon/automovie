@@ -1,4 +1,4 @@
-# src/index.ts#createRecoveryMapMetric
+# src/internal/createRecoveryMapMetric.ts#createRecoveryMapMetric
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#layerFiles
+# src/narrative/internal/references/layerFiles.ts#layerFiles
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

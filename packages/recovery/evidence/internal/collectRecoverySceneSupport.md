@@ -1,4 +1,4 @@
-# src/index.ts#collectRecoverySceneSupport
+# src/internal/collectRecoverySceneSupport.ts#collectRecoverySceneSupport
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#observeAutoMovieRecovery
+# src/observation/observeAutoMovieRecovery.ts#observeAutoMovieRecovery
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

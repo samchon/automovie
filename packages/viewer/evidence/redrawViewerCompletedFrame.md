@@ -1,4 +1,4 @@
-# src/index.ts#redrawViewerCompletedFrame
+# src/redrawViewerCompletedFrame.ts#redrawViewerCompletedFrame
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

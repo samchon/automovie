@@ -1,4 +1,4 @@
-# src/index.ts#IBakeFormationCycleProps
+# src/scene/IBakeFormationCycleProps.ts#IBakeFormationCycleProps
 
 ## @evidence contracts/development/design.md#principled-representation
 

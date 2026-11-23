@@ -1,4 +1,4 @@
-# src/index.ts#assertRecoverySceneLinearRetention
+# src/internal/assertRecoverySceneLinearRetention.ts#assertRecoverySceneLinearRetention
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#replacementSafety
+# src/narrative/internal/metadataRewrite/replacementSafety.ts#replacementSafety
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

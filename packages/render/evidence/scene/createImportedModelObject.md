@@ -1,4 +1,4 @@
-# src/index.ts#createImportedModelObject
+# src/scene/createImportedModelObject.ts#createImportedModelObject
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#mul
+# src/internal/mesh-observations/mul.ts#mul
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

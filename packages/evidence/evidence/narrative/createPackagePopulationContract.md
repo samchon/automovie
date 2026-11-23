@@ -1,4 +1,4 @@
-# src/internal/index.ts#createPackagePopulationContract
+# src/narrative/createPackagePopulationContract.ts#createPackagePopulationContract
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#subsurfacePhysicalChunk
+# src/scene/subsurfaceShading/subsurfacePhysicalChunk.ts#subsurfacePhysicalChunk
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

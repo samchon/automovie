@@ -1,4 +1,4 @@
-# src/index.ts#updateRecoveryRegularization
+# src/internal/updateRecoveryRegularization.ts#updateRecoveryRegularization
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

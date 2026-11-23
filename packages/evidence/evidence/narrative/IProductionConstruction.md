@@ -1,4 +1,4 @@
-# src/index.ts#IProductionConstruction
+# src/narrative/IProductionConstruction.ts#IProductionConstruction
 
 ## @evidence contracts/development/design.md#principled-representation
 

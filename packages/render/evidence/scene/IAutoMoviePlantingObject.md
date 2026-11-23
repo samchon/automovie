@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMoviePlantingObject
+# src/scene/IAutoMoviePlantingObject.ts#IAutoMoviePlantingObject
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Bare foliage is explicit null and count fields describe instances rather than gu
 
 Members distinguish branch/leaf counts, bare state and owned geometry/default-material release versus borrowed supplied materials.
 
-# src/index.ts#IAutoMoviePlantingObject.dispose
+# src/scene/IAutoMoviePlantingObject.ts#IAutoMoviePlantingObject.dispose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieViewerSnapshotRenderer
+# src/scene/IAutoMovieViewerSnapshotRenderer.ts#IAutoMovieViewerSnapshotRenderer
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Shape compatibility, a data URL or a fake implementation cannot prove an actual 
 
 Documents draw-before-read, physical canvas extent and original encoder fallback/failure responsibility.
 
-# src/index.ts#IAutoMovieViewerSnapshotRenderer.render
+# src/scene/IAutoMovieViewerSnapshotRenderer.ts#IAutoMovieViewerSnapshotRenderer.render
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

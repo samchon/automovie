@@ -1,4 +1,4 @@
-# src/delivery/index.ts#productionOpusDescription
+# src/delivery/productionOpusDescription.ts#productionOpusDescription
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

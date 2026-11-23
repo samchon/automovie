@@ -1,4 +1,4 @@
-# src/index.ts#isAutoMovieExternalModelIngestProfile
+# src/isAutoMovieExternalModelIngestProfile.ts#isAutoMovieExternalModelIngestProfile
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

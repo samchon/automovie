@@ -1,4 +1,4 @@
-# src/index.ts#autoMovieRenderTargetSettingsOfShot
+# src/renderBudgetPreflight/autoMovieRenderTargetSettingsOfShot.ts#autoMovieRenderTargetSettingsOfShot
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

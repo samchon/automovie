@@ -1,4 +1,4 @@
-# src/draw/index.ts#stampAutoMovieDrawLegend
+# src/draw/stampAutoMovieDrawLegend.ts#stampAutoMovieDrawLegend
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

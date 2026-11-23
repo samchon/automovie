@@ -1,4 +1,4 @@
-# src/index.ts#renderAutoMovieScenePass
+# src/scene/renderAutoMovieScenePass.ts#renderAutoMovieScenePass
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

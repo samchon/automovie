@@ -1,4 +1,4 @@
-# src/index.ts#autoMovieRenderTargetRendererOfGraphics
+# src/renderBudgetPreflight/autoMovieRenderTargetRendererOfGraphics.ts#autoMovieRenderTargetRendererOfGraphics
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#dualQuaternionSkinningOf
+# src/scene/dualQuaternionSkinning/dualQuaternionSkinningOf.ts#dualQuaternionSkinningOf
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

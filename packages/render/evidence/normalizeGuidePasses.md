@@ -1,4 +1,4 @@
-# src/guidePasses.ts#normalizeGuidePasses
+# src/normalizeGuidePasses.ts#normalizeGuidePasses
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

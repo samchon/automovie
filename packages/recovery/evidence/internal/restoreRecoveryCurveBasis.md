@@ -1,4 +1,4 @@
-# src/index.ts#restoreRecoveryCurveBasis
+# src/internal/restoreRecoveryCurveBasis.ts#restoreRecoveryCurveBasis
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#to2
+# src/internal/mesh-observations/to2.ts#to2
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

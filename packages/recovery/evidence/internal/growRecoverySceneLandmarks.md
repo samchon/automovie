@@ -1,4 +1,4 @@
-# src/index.ts#growRecoverySceneLandmarks
+# src/internal/growRecoverySceneLandmarks.ts#growRecoverySceneLandmarks
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

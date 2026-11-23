@@ -1,4 +1,4 @@
-# src/index.ts#subsurfaceFragment
+# src/scene/subsurfaceShading/subsurfaceFragment.ts#subsurfaceFragment
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

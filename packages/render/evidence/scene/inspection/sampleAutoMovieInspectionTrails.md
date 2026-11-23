@@ -1,4 +1,4 @@
-# src/index.ts#sampleAutoMovieInspectionTrails
+# src/scene/inspection/sampleAutoMovieInspectionTrails.ts#sampleAutoMovieInspectionTrails
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

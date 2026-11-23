@@ -1,4 +1,4 @@
-# src/internal/index.ts#assertProductionEvidenceSources
+# src/narrative/internal/utilities/assertProductionEvidenceSources.ts#assertProductionEvidenceSources
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#applySceneEnvironment
+# src/scene/applySceneEnvironment.ts#applySceneEnvironment
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

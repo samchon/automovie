@@ -1,4 +1,4 @@
-# src/internal/index.ts#IEvidenceMetadataRewriteReport
+# src/narrative/IEvidenceMetadataRewriteReport.ts#IEvidenceMetadataRewriteReport
 
 ## @evidence contracts/development/design.md#principled-representation
 

@@ -1,4 +1,4 @@
-# src/index.ts#observeAutoMoviePlacedScene
+# src/scene/inspection/observeAutoMoviePlacedScene.ts#observeAutoMoviePlacedScene
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

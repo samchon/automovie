@@ -1,4 +1,4 @@
-# src/internal/index.ts#isCanonLayer
+# src/narrative/internal/isCanonLayer.ts#isCanonLayer
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

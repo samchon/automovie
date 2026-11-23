@@ -1,4 +1,4 @@
-# src/internal/index.ts#createSettingsFiles
+# src/narrative/createSettingsFiles.ts#createSettingsFiles
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

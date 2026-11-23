@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieHumanPolygon
+# src/scene/human-polygon/AutoMovieHumanPolygon.ts#AutoMovieHumanPolygon
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ Owned by the module that declares `AutoMovieHumanPolygon` in packages/render/src
 
 Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; the native drawing handle borrows canonical Human placements rather than restating their shape.
 
-# src/index.ts#AutoMovieHumanPolygon.IPresentation
+# src/scene/human-polygon/AutoMovieHumanPolygon.ts#AutoMovieHumanPolygon.IPresentation
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -34,7 +34,7 @@ Render receives the existing source pose and optional staging reader without own
 
 Actor staging remains caller-owned and the pose contains the original evaluated bones.
 
-# src/index.ts#AutoMovieHumanPolygon.IPresentation.poseAt
+# src/scene/human-polygon/AutoMovieHumanPolygon.ts#AutoMovieHumanPolygon.IPresentation.poseAt
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -64,7 +64,7 @@ Captured release placements serve later seeks. Arbitrary live poses are read at 
 
 The sampler borrows the reader for the drawing lifetime and keeps only selected release frames. Disposal drops its sampler reference.
 
-# src/index.ts#AutoMovieHumanPolygon.IPresentation.actorFrameAt
+# src/scene/human-polygon/AutoMovieHumanPolygon.ts#AutoMovieHumanPolygon.IPresentation.actorFrameAt
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -94,7 +94,7 @@ The first active detach cue per seek reads the live frame and its inverse for re
 
 The drawing drops its borrowed reader with the sampler at disposal. Converted live frames are local to each seek.
 
-# src/index.ts#AutoMovieHumanPolygon.IDrawing
+# src/scene/human-polygon/AutoMovieHumanPolygon.ts#AutoMovieHumanPolygon.IDrawing
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -112,7 +112,7 @@ Meshes are rigid modules that can overlap/separate at joints; the registries do 
 
 Gives local-point frame, actor-root ownership, pose admission and resource lifetime including separately owned attached faces.
 
-# src/index.ts#AutoMovieHumanPolygon.IDrawing.setPose
+# src/scene/human-polygon/AutoMovieHumanPolygon.ts#AutoMovieHumanPolygon.IDrawing.setPose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -142,7 +142,7 @@ Reuses stable groups, geometry and matrices; mutable input placements are admitt
 
 Temporary placement references expire after the call; drawing resources retain their existing owner and no clock or task is acquired.
 
-# src/index.ts#AutoMovieHumanPolygon.IDrawing.drawAt
+# src/scene/human-polygon/AutoMovieHumanPolygon.ts#AutoMovieHumanPolygon.IDrawing.drawAt
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -172,7 +172,7 @@ Release frames are captured once and reused by any ordering of seeks.
 
 The drawing releases its sampler at disposal and refuses drawing after retirement.
 
-# src/index.ts#AutoMovieHumanPolygon.IDrawing.setPartColors
+# src/scene/human-polygon/AutoMovieHumanPolygon.ts#AutoMovieHumanPolygon.IDrawing.setPartColors
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -202,7 +202,7 @@ Equal current RGB values share a cloned material; unoverridden parts reuse clay 
 
 The drawing owns current and bounded uncertain palette pools until its guarded retirement; caller-owned faces and equipment are outside that pool.
 
-# src/index.ts#AutoMovieHumanPolygon.IDrawing.dispose
+# src/scene/human-polygon/AutoMovieHumanPolygon.ts#AutoMovieHumanPolygon.IDrawing.dispose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

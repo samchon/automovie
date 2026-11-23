@@ -1,4 +1,4 @@
-# src/index.ts#readAutoMovieShadowTextureTargets
+# src/scene/readAutoMovieShadowTextureTargets.ts#readAutoMovieShadowTextureTargets
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

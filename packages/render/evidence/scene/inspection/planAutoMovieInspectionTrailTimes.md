@@ -1,4 +1,4 @@
-# src/index.ts#planAutoMovieInspectionTrailTimes
+# src/scene/inspection/planAutoMovieInspectionTrailTimes.ts#planAutoMovieInspectionTrailTimes
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

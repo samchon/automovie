@@ -1,4 +1,4 @@
-# src/index.ts#refineRecoveryChartBoundaryChords
+# src/internal/refineRecoveryChartBoundaryChords.ts#refineRecoveryChartBoundaryChords
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

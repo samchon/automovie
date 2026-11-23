@@ -1,4 +1,4 @@
-# src/index.ts#promptAutoMovieProjectName
+# src/promptAutoMovieProjectName.ts#promptAutoMovieProjectName
 
 ## @evidence contracts/development/implementation.md#principled-implementation `isTTY` on both streams identifies an interactive terminal; the readline interface is closed in `finally`, so standard input is released even when the question fails.
 

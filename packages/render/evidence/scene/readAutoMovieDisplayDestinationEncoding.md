@@ -1,4 +1,4 @@
-# src/index.ts#readAutoMovieDisplayDestinationEncoding
+# src/scene/readAutoMovieDisplayDestinationEncoding.ts#readAutoMovieDisplayDestinationEncoding
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#buildFluidSurfaceObject
+# src/scene/buildFluidSurfaceObject.ts#buildFluidSurfaceObject
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

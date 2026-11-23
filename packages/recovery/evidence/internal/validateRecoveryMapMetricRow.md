@@ -1,4 +1,4 @@
-# src/index.ts#validateRecoveryMapMetricRow
+# src/internal/validateRecoveryMapMetricRow.ts#validateRecoveryMapMetricRow
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

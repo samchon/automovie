@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryChartSurface
+# src/internal/RecoveryChartSurface.ts#RecoveryChartSurface
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ Surface fitting coordinates the common boundary, harmonic map and constrained co
 
 Area quadrature, coefficient residual and boundary sharing remain separately qualified; unsupported refinement retains its preceding admitted field.
 
-# src/index.ts#RecoveryChartSurface.fit
+# src/internal/RecoveryChartSurface.ts#RecoveryChartSurface.fit
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

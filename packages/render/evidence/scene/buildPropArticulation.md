@@ -1,4 +1,4 @@
-# src/index.ts#buildPropArticulation
+# src/scene/buildPropArticulation.ts#buildPropArticulation
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

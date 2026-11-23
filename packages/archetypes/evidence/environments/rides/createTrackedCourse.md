@@ -1,4 +1,4 @@
-# src/environments/index.ts#createTrackedCourse
+# src/environments/rides/createTrackedCourse.ts#createTrackedCourse
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

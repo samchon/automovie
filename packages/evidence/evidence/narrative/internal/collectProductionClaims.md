@@ -1,4 +1,4 @@
-# src/internal/index.ts#collectProductionClaims
+# src/narrative/internal/collectProductionClaims.ts#collectProductionClaims
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

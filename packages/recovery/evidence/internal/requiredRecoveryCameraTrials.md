@@ -1,4 +1,4 @@
-# src/index.ts#requiredRecoveryCameraTrials
+# src/internal/requiredRecoveryCameraTrials.ts#requiredRecoveryCameraTrials
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

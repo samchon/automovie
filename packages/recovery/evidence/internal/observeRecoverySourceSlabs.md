@@ -1,4 +1,4 @@
-# src/index.ts#observeRecoverySourceSlabs
+# src/internal/observeRecoverySourceSlabs.ts#observeRecoverySourceSlabs
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

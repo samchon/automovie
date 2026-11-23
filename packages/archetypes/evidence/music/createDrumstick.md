@@ -1,4 +1,4 @@
-# src/index.ts#createDrumstick
+# src/music/createDrumstick.ts#createDrumstick
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

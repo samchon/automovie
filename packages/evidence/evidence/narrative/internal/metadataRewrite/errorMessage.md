@@ -1,4 +1,4 @@
-# src/internal/index.ts#errorMessage
+# src/narrative/internal/metadataRewrite/errorMessage.ts#errorMessage
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#createAutoMovieInspectionStrokes
+# src/scene/inspection/createAutoMovieInspectionStrokes.ts#createAutoMovieInspectionStrokes
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

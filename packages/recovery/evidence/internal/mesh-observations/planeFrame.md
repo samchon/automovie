@@ -1,4 +1,4 @@
-# src/index.ts#planeFrame
+# src/internal/mesh-observations/planeFrame.ts#planeFrame
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

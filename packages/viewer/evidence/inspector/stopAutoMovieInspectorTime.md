@@ -1,4 +1,4 @@
-# src/index.ts#stopAutoMovieInspectorTime
+# src/inspector/stopAutoMovieInspectorTime.ts#stopAutoMovieInspectorTime
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

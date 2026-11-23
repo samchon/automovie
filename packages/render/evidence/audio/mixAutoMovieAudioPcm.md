@@ -1,4 +1,4 @@
-# src/audio/index.ts#mixAutoMovieAudioPcm
+# src/audio/mixAutoMovieAudioPcm.ts#mixAutoMovieAudioPcm
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

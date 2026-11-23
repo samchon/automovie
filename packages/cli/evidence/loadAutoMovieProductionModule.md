@@ -1,4 +1,4 @@
-# src/index.ts#loadAutoMovieProductionModule
+# src/loadAutoMovieProductionModule.ts#loadAutoMovieProductionModule
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/index.ts#describeRecoverySceneRegistration
+# src/internal/describeRecoverySceneRegistration.ts#describeRecoverySceneRegistration
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

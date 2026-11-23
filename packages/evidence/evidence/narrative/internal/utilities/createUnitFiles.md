@@ -1,4 +1,4 @@
-# src/internal/index.ts#createUnitFiles
+# src/narrative/internal/utilities/createUnitFiles.ts#createUnitFiles
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

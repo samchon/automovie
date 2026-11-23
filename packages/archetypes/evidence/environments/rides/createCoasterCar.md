@@ -1,4 +1,4 @@
-# src/environments/index.ts#createCoasterCar
+# src/environments/rides/createCoasterCar.ts#createCoasterCar
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

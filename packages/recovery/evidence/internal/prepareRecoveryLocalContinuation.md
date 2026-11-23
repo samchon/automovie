@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoveryLocalContinuation
+# src/internal/prepareRecoveryLocalContinuation.ts#prepareRecoveryLocalContinuation
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

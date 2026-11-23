@@ -1,4 +1,4 @@
-# src/index.ts#captureAutoMovieMetricFrame
+# src/scene/captureAutoMovieMetricFrame.ts#captureAutoMovieMetricFrame
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

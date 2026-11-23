@@ -1,4 +1,4 @@
-# src/index.ts#planAutoMovieModulePageViteConfig
+# src/planAutoMovieModulePageViteConfig.ts#planAutoMovieModulePageViteConfig
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

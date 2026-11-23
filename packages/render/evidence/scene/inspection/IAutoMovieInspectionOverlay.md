@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieInspectionOverlay
+# src/scene/inspection/IAutoMovieInspectionOverlay.ts#IAutoMovieInspectionOverlay
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ The object holds ordinary three.js lines and points, so every renderer that draw
 
 States what the object is and when each call is made.
 
-# src/index.ts#IAutoMovieInspectionOverlay.update
+# src/scene/inspection/IAutoMovieInspectionOverlay.ts#IAutoMovieInspectionOverlay.update
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -46,7 +46,7 @@ The buffers built once are rewritten in place.
 
 Allocates nothing that outlives the call.
 
-# src/index.ts#IAutoMovieInspectionOverlay.resize
+# src/scene/inspection/IAutoMovieInspectionOverlay.ts#IAutoMovieInspectionOverlay.resize
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -76,7 +76,7 @@ An assignment computes nothing to reuse.
 
 Allocates nothing.
 
-# src/index.ts#IAutoMovieInspectionOverlay.dispose
+# src/scene/inspection/IAutoMovieInspectionOverlay.ts#IAutoMovieInspectionOverlay.dispose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

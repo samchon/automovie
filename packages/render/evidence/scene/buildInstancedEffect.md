@@ -1,4 +1,4 @@
-# src/index.ts#buildInstancedEffect
+# src/scene/buildInstancedEffect.ts#buildInstancedEffect
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

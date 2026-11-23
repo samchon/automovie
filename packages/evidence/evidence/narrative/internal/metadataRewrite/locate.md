@@ -1,4 +1,4 @@
-# src/internal/index.ts#locate
+# src/narrative/internal/metadataRewrite/locate.ts#locate
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

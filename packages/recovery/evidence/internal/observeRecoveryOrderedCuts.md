@@ -1,4 +1,4 @@
-# src/index.ts#observeRecoveryOrderedCuts
+# src/internal/observeRecoveryOrderedCuts.ts#observeRecoveryOrderedCuts
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

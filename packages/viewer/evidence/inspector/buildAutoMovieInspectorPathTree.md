@@ -1,4 +1,4 @@
-# src/index.ts#buildAutoMovieInspectorPathTree
+# src/inspector/buildAutoMovieInspectorPathTree.ts#buildAutoMovieInspectorPathTree
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/draw/index.ts#observeAutoMoviePlacedInspection
+# src/draw/observeAutoMoviePlacedInspection.ts#observeAutoMoviePlacedInspection
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

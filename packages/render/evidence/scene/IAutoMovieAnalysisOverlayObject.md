@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieAnalysisOverlayObject
+# src/scene/IAutoMovieAnalysisOverlayObject.ts#IAutoMovieAnalysisOverlayObject
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Contains no fabricated verdict or fixture marker; borrowed-material distinction 
 
 Documents attachment, selected sample count, color normalization domain and geometry/default-material ownership.
 
-# src/index.ts#IAutoMovieAnalysisOverlayObject.dispose
+# src/scene/IAutoMovieAnalysisOverlayObject.ts#IAutoMovieAnalysisOverlayObject.dispose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ Performs actual retirement each invocation rather than caching success; repeated
 
 Owns the geometry and optionally default material release while preserving borrowed material; the returned handle still references its closed resources and samples until the caller releases the handle.
 
-# src/index.ts#IAutoMovieAnalysisOverlayObject.count
+# src/scene/IAutoMovieAnalysisOverlayObject.ts#IAutoMovieAnalysisOverlayObject.count
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -76,7 +76,7 @@ Reads the already selected collection instead of refiltering the run per inspect
 
 Its closure keeps the selected sample references with the overlay handle, bounded by the metric's sample count and released only when that handle becomes unreachable.
 
-# src/index.ts#IAutoMovieAnalysisOverlayObject.range
+# src/scene/IAutoMovieAnalysisOverlayObject.ts#IAutoMovieAnalysisOverlayObject.range
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

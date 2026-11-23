@@ -1,4 +1,4 @@
-# src/index.ts#encodeAutoMovieRasterPng
+# src/picture/encodeAutoMovieRasterPng.ts#encodeAutoMovieRasterPng
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

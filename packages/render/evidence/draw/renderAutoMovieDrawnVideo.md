@@ -1,4 +1,4 @@
-# src/draw/index.ts#renderAutoMovieDrawnVideo
+# src/draw/renderAutoMovieDrawnVideo.ts#renderAutoMovieDrawnVideo
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

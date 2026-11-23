@@ -1,4 +1,4 @@
-# src/index.ts#applyAutoMovieShadowParticipation
+# src/scene/applyAutoMovieShadowParticipation.ts#applyAutoMovieShadowParticipation
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

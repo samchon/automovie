@@ -1,4 +1,4 @@
-# src/index.ts#solveRecoveryMapDesign
+# src/internal/solveRecoveryMapDesign.ts#solveRecoveryMapDesign
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

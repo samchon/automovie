@@ -1,4 +1,4 @@
-# src/index.ts#stampAutoMovieRasterLabel
+# src/picture/stampAutoMovieRasterLabel.ts#stampAutoMovieRasterLabel
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

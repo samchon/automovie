@@ -1,4 +1,4 @@
-# src/internal/index.ts#invalidUtf8Offset
+# src/narrative/internal/metadataRewrite/invalidUtf8Offset.ts#invalidUtf8Offset
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

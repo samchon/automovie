@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieBuiltPropArticulation
+# src/scene/IAutoMovieBuiltPropArticulation.ts#IAutoMovieBuiltPropArticulation
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Joint addressing follows placementChildNode rather than a viewer-specific prefix
 
 Documents the placement/joint key format and explains why backward seeks require restoring rest transforms before applying partial clips.
 
-# src/index.ts#IAutoMovieBuiltPropArticulation.restore
+# src/scene/IAutoMovieBuiltPropArticulation.ts#IAutoMovieBuiltPropArticulation.restore
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

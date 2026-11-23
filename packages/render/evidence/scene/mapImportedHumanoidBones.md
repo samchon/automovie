@@ -1,4 +1,4 @@
-# src/index.ts#mapImportedHumanoidBones
+# src/scene/mapImportedHumanoidBones.ts#mapImportedHumanoidBones
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

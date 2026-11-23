@@ -1,4 +1,4 @@
-# src/index.ts#reduceAutoMovieInspectionEpisodes
+# src/scene/inspection/reduceAutoMovieInspectionEpisodes.ts#reduceAutoMovieInspectionEpisodes
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

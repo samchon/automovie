@@ -1,4 +1,4 @@
-# src/caption/index.ts#serializeAutoMovieWebVttIdentifier
+# src/caption/serializeAutoMovieWebVttIdentifier.ts#serializeAutoMovieWebVttIdentifier
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#renderWithAutoMovieInspectionDiagnostics
+# src/scene/inspection/renderWithAutoMovieInspectionDiagnostics.ts#renderWithAutoMovieInspectionDiagnostics
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

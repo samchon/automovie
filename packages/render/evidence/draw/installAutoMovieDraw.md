@@ -1,4 +1,4 @@
-# src/draw/index.ts#installAutoMovieDraw
+# src/draw/installAutoMovieDraw.ts#installAutoMovieDraw
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

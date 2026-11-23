@@ -1,4 +1,4 @@
-# src/index.ts#autoMovieSemanticMaskOf
+# src/scene/semanticMask/autoMovieSemanticMaskOf.ts#autoMovieSemanticMaskOf
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoveryOpenRuns
+# src/internal/prepareRecoveryOpenRuns.ts#prepareRecoveryOpenRuns
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

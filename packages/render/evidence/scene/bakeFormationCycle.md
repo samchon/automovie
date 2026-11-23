@@ -1,4 +1,4 @@
-# src/index.ts#bakeFormationCycle
+# src/scene/bakeFormationCycle.ts#bakeFormationCycle
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/guidePasses.ts#planGuidePassOutputs
+# src/planGuidePassOutputs.ts#planGuidePassOutputs
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

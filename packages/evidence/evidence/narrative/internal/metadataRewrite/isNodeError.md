@@ -1,4 +1,4 @@
-# src/internal/index.ts#isNodeError
+# src/narrative/internal/metadataRewrite/isNodeError.ts#isNodeError
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/capture/index.ts#resolveAutoMovieCapturePatterns
+# src/capture/resolveAutoMovieCapturePatterns.ts#resolveAutoMovieCapturePatterns
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

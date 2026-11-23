@@ -1,4 +1,4 @@
-# src/index.ts#releaseViewerRenderer
+# src/scene/releaseViewerRenderer.ts#releaseViewerRenderer
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryAnnularChart
+# src/internal/RecoveryAnnularChart.ts#RecoveryAnnularChart
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

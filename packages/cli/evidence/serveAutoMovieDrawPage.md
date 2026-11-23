@@ -1,4 +1,4 @@
-# src/index.ts#serveAutoMovieDrawPage
+# src/serveAutoMovieDrawPage.ts#serveAutoMovieDrawPage
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

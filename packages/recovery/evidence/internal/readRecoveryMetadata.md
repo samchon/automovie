@@ -1,4 +1,4 @@
-# src/index.ts#readRecoveryMetadata
+# src/internal/readRecoveryMetadata.ts#readRecoveryMetadata
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

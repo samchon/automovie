@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoverySceneFeasibleRouting
+# src/internal/prepareRecoverySceneFeasibleRouting.ts#prepareRecoverySceneFeasibleRouting
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

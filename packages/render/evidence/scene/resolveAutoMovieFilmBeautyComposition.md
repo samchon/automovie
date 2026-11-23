@@ -1,4 +1,4 @@
-# src/index.ts#resolveAutoMovieFilmBeautyComposition
+# src/scene/resolveAutoMovieFilmBeautyComposition.ts#resolveAutoMovieFilmBeautyComposition
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

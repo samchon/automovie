@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieRecoveryOrderedLineage
+# src/observation/AutoMovieRecoveryOrderedLineage.ts#AutoMovieRecoveryOrderedLineage
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ observeCuts and bindSavedFits consume IAutoMovieRecoveryOrderedLineage records; 
 
 A new accepted replay trace proves saved numeric cubic equality only, never historical trace identity, material phase or a replacement fitted surface.
 
-# src/index.ts#AutoMovieRecoveryOrderedLineage.observeCuts
+# src/observation/AutoMovieRecoveryOrderedLineage.ts#AutoMovieRecoveryOrderedLineage.observeCuts
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ A local-to-original injection, admitted incidence registry, vertex heights, inte
 
 The call borrows source arrays and owns O(V+T) preparation plus active cut/binding data; its output grows with all requested contour points, witnesses and face addresses. Temporary references expire on return or throw and copied results transfer to the caller. There is no independent aggregate output-byte limit, handle, background task or cancellation listener.
 
-# src/index.ts#AutoMovieRecoveryOrderedLineage.bindSavedFits
+# src/observation/AutoMovieRecoveryOrderedLineage.ts#AutoMovieRecoveryOrderedLineage.bindSavedFits
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#applyExpression
+# src/scene/applyExpression.ts#applyExpression
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#originalOffset
+# src/narrative/internal/metadataRewrite/originalOffset.ts#originalOffset
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

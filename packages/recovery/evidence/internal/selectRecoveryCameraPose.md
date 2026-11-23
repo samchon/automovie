@@ -1,4 +1,4 @@
-# src/index.ts#selectRecoveryCameraPose
+# src/internal/selectRecoveryCameraPose.ts#selectRecoveryCameraPose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

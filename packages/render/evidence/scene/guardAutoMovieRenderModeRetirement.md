@@ -1,4 +1,4 @@
-# src/index.ts#guardAutoMovieRenderModeRetirement
+# src/scene/guardAutoMovieRenderModeRetirement.ts#guardAutoMovieRenderModeRetirement
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

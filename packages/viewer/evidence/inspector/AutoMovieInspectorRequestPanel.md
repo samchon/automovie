@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieInspectorRequestPanel
+# src/inspector/AutoMovieInspectorRequestPanel.tsx#AutoMovieInspectorRequestPanel
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/index.ts#guardAutoMovieSceneShadowRetirement
+# src/scene/guardAutoMovieSceneShadowRetirement.ts#guardAutoMovieSceneShadowRetirement
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

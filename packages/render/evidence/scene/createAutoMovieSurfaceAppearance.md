@@ -1,4 +1,4 @@
-# src/index.ts#createAutoMovieSurfaceAppearance
+# src/scene/createAutoMovieSurfaceAppearance.ts#createAutoMovieSurfaceAppearance
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

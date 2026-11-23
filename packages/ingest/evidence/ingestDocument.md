@@ -1,4 +1,4 @@
-# src/index.ts#ingestDocument
+# src/ingestDocument.ts#ingestDocument
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

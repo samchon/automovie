@@ -1,4 +1,4 @@
-# src/capture/index.ts#runAutoMovieVideoCapture
+# src/capture/runAutoMovieVideoCapture.ts#runAutoMovieVideoCapture
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

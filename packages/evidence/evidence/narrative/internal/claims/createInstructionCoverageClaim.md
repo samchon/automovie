@@ -1,4 +1,4 @@
-# src/internal/index.ts#createInstructionCoverageClaim
+# src/narrative/internal/claims/createInstructionCoverageClaim.ts#createInstructionCoverageClaim
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

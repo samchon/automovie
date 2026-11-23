@@ -1,4 +1,4 @@
-# src/index.ts#renderPoseKeypointSidecar
+# src/renderPoseKeypointSidecar.ts#renderPoseKeypointSidecar
 
 ## @evidence contracts/development/implementation.md#principled-implementation `JSON.stringify` writes own properties in insertion order and no key for a property that is absent, and the planner inserts them in declaration order, so the text is a deterministic function of the sidecar.
 

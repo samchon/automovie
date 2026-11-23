@@ -1,4 +1,4 @@
-# src/index.ts#formationCycleOf
+# src/scene/formationCycleOf.ts#formationCycleOf
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieArchetypeUmbrellaRunner
+# src/props/AutoMovieArchetypeUmbrellaRunner.ts#AutoMovieArchetypeUmbrellaRunner
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ The construction `createUmbrella` calls and the ids it declares.
 
 The rib count, the open angle and the stretcher's proportions are named construction estimates.
 
-# src/index.ts#AutoMovieArchetypeUmbrellaRunner.Rib
+# src/props/AutoMovieArchetypeUmbrellaRunner.ts#AutoMovieArchetypeUmbrellaRunner.Rib
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -34,7 +34,7 @@ Owned here; the umbrella's contacts include it.
 
 No restated ids.
 
-# src/index.ts#AutoMovieArchetypeUmbrellaRunner.Affordance
+# src/props/AutoMovieArchetypeUmbrellaRunner.ts#AutoMovieArchetypeUmbrellaRunner.Affordance
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -52,7 +52,7 @@ Owned here; `createUmbrella` joins it to its own contacts.
 
 No restated ids.
 
-# src/index.ts#AutoMovieArchetypeUmbrellaRunner.furl
+# src/props/AutoMovieArchetypeUmbrellaRunner.ts#AutoMovieArchetypeUmbrellaRunner.furl
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

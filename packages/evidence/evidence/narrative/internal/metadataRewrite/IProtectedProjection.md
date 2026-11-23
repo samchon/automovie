@@ -1,4 +1,4 @@
-# src/internal/index.ts#IProtectedProjection
+# src/narrative/internal/metadataRewrite/IProtectedProjection.ts#IProtectedProjection
 
 ## @evidence contracts/development/design.md#principled-representation
 

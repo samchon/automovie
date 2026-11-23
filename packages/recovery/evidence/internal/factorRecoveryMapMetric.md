@@ -1,4 +1,4 @@
-# src/index.ts#factorRecoveryMapMetric
+# src/internal/factorRecoveryMapMetric.ts#factorRecoveryMapMetric
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

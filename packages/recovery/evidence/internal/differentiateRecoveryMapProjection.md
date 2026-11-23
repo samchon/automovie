@@ -1,4 +1,4 @@
-# src/index.ts#differentiateRecoveryMapProjection
+# src/internal/differentiateRecoveryMapProjection.ts#differentiateRecoveryMapProjection
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

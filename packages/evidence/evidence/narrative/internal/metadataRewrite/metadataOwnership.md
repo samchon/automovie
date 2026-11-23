@@ -1,4 +1,4 @@
-# src/internal/index.ts#metadataOwnership
+# src/narrative/internal/metadataRewrite/metadataOwnership.ts#metadataOwnership
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

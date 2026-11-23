@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieInspectorTimePanel
+# src/inspector/AutoMovieInspectorTimePanel.tsx#AutoMovieInspectorTimePanel
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

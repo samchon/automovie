@@ -1,4 +1,4 @@
-# src/internal/index.ts#declarationKind
+# src/narrative/internal/metadataRewrite/declarationKind.ts#declarationKind
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

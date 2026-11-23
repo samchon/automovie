@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryChartBoxSolve
+# src/internal/RecoveryChartBoxSolve.ts#RecoveryChartBoxSolve
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

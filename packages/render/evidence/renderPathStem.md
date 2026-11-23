@@ -1,4 +1,4 @@
-# src/index.ts#renderPathStem
+# src/renderPathStem.ts#renderPathStem
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

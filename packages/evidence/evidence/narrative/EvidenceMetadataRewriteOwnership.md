@@ -1,4 +1,4 @@
-# src/internal/index.ts#EvidenceMetadataRewriteOwnership
+# src/narrative/EvidenceMetadataRewriteOwnership.ts#EvidenceMetadataRewriteOwnership
 
 ## @evidence contracts/development/design.md#principled-representation
 

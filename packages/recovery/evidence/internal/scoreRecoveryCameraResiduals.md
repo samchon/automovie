@@ -1,4 +1,4 @@
-# src/index.ts#scoreRecoveryCameraResiduals
+# src/internal/scoreRecoveryCameraResiduals.ts#scoreRecoveryCameraResiduals
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

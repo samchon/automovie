@@ -1,4 +1,4 @@
-# src/index.ts#buildScene
+# src/scene/buildScene.ts#buildScene
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

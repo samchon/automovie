@@ -1,4 +1,4 @@
-# src/index.ts#createZipperPouch
+# src/props/createZipperPouch.ts#createZipperPouch
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

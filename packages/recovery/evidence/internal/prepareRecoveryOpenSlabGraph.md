@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoveryOpenSlabGraph
+# src/internal/prepareRecoveryOpenSlabGraph.ts#prepareRecoveryOpenSlabGraph
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

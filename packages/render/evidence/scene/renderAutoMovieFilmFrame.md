@@ -1,4 +1,4 @@
-# src/index.ts#renderAutoMovieFilmFrame
+# src/scene/renderAutoMovieFilmFrame.ts#renderAutoMovieFilmFrame
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#IMetadataFragment
+# src/narrative/internal/metadataRewrite/IMetadataFragment.ts#IMetadataFragment
 
 ## @evidence contracts/development/design.md#principled-representation
 

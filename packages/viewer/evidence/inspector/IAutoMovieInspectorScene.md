@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieInspectorScene
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -14,7 +14,7 @@ Two calls the component's effects make; what the mount learns flows out through 
 
 States what the handle stands for and what each call does.
 
-# src/index.ts#IAutoMovieInspectorScene.apply
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.apply
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -44,7 +44,7 @@ A request whose inspection writes the same text keeps the applied inspection.
 
 Holds one applied inspection; the replaced one is restored first.
 
-# src/index.ts#IAutoMovieInspectorScene.overlay
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.overlay
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -74,7 +74,7 @@ A flag change computes nothing.
 
 Holds one boolean.
 
-# src/index.ts#IAutoMovieInspectorScene.dispose
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.dispose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -104,7 +104,7 @@ A release computes nothing to reuse.
 
 After the call no frame is pending and the mount holds no renderer, instance or inspection.
 
-# src/index.ts#IAutoMovieInspectorScene.EpisodeBasis
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.EpisodeBasis
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -122,7 +122,7 @@ A playback span is never presented as frame-exact.
 
 States what each value claims.
 
-# src/index.ts#IAutoMovieInspectorScene.IIncident
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.IIncident
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -140,7 +140,7 @@ The span's first sample is kept apart from its first witness, whose time can dif
 
 States the two kinds and what each carries.
 
-# src/index.ts#IAutoMovieInspectorScene.IFacts
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.IFacts
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -158,7 +158,7 @@ First-frame marks carry actual styles, declared names carry availability, and re
 
 States what each member lists and at which second.
 
-# src/index.ts#IAutoMovieInspectorScene.ILabels
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.ILabels
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -176,7 +176,7 @@ No font or colour: the component owns how a label looks.
 
 States the units and the conversion.
 
-# src/index.ts#IAutoMovieInspectorScene.IReport
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.IReport
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -194,7 +194,7 @@ A drawing error and a refused request are separate, because only the second chan
 
 States when each event fires.
 
-# src/index.ts#IAutoMovieInspectorScene.IReport.ready
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.IReport.ready
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -224,7 +224,7 @@ A callback signature; the component implements it.
 
 A callback signature; the component implements it.
 
-# src/index.ts#IAutoMovieInspectorScene.IReport.legend
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.IReport.legend
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -254,7 +254,7 @@ A callback signature; the component implements it.
 
 A callback signature; the component implements it.
 
-# src/index.ts#IAutoMovieInspectorScene.IReport.labels
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.IReport.labels
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -284,7 +284,7 @@ A callback signature; the component implements it.
 
 A callback signature; the component implements it.
 
-# src/index.ts#IAutoMovieInspectorScene.IReport.error
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.IReport.error
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -314,7 +314,7 @@ A callback signature; the component implements it.
 
 A callback signature; the component implements it.
 
-# src/index.ts#IAutoMovieInspectorScene.IReport.diagnostics
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.IReport.diagnostics
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -344,7 +344,7 @@ The packet comes from the painted frame's one observation.
 
 The consumer controls how much observed history it retains.
 
-# src/index.ts#IAutoMovieInspectorScene.IReport.diagnosticIncident
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.IReport.diagnosticIncident
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -374,7 +374,7 @@ Each event comes from the already painted sample.
 
 The listener chooses retention.
 
-# src/index.ts#IAutoMovieInspectorScene.IReport.refused
+# src/inspector/IAutoMovieInspectorScene.ts#IAutoMovieInspectorScene.IReport.refused
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

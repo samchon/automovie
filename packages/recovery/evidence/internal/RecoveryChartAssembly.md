@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryChartAssembly
+# src/internal/RecoveryChartAssembly.ts#RecoveryChartAssembly
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#markdownFiles
+# src/narrative/internal/metadataRewrite/markdownFiles.ts#markdownFiles
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

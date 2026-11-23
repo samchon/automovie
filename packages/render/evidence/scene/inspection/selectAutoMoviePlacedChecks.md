@@ -1,4 +1,4 @@
-# src/index.ts#selectAutoMoviePlacedChecks
+# src/scene/inspection/selectAutoMoviePlacedChecks.ts#selectAutoMoviePlacedChecks
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

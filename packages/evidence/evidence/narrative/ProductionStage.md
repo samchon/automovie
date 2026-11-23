@@ -1,4 +1,4 @@
-# src/index.ts#ProductionStage
+# src/narrative/ProductionStage.ts#ProductionStage
 
 ## @evidence contracts/development/design.md#principled-representation
 

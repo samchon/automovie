@@ -1,4 +1,4 @@
-# src/index.ts#invalidateAutoMovieSceneShadowPrograms
+# src/scene/invalidateAutoMovieSceneShadowPrograms.ts#invalidateAutoMovieSceneShadowPrograms
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

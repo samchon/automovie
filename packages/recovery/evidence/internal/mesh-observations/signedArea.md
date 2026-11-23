@@ -1,4 +1,4 @@
-# src/index.ts#signedArea
+# src/internal/mesh-observations/signedArea.ts#signedArea
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

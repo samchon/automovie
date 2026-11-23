@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieSpringConfig
+# src/scene/IAutoMovieSpringConfig.ts#IAutoMovieSpringConfig
 
 ## @evidence contracts/development/design.md#principled-representation
 

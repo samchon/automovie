@@ -1,4 +1,4 @@
-# src/index.ts#applyObjectMotions
+# src/scene/applyObjectMotions.ts#applyObjectMotions
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

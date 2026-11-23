@@ -1,4 +1,4 @@
-# src/index.ts#applyPracticalSurfaceMaterials
+# src/scene/applyPracticalSurfaceMaterials.ts#applyPracticalSurfaceMaterials
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

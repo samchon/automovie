@@ -1,4 +1,4 @@
-# src/index.ts#GhoshConicApproximationDisplacement
+# src/internal/GhoshConicApproximationDisplacement.ts#GhoshConicApproximationDisplacement
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

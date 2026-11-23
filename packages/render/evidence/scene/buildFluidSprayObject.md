@@ -1,4 +1,4 @@
-# src/index.ts#buildFluidSprayObject
+# src/scene/buildFluidSprayObject.ts#buildFluidSprayObject
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

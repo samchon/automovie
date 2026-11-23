@@ -1,4 +1,4 @@
-# src/index.ts#createAutoMovieInspectorCanvasHost
+# src/inspector/createAutoMovieInspectorCanvasHost.ts#createAutoMovieInspectorCanvasHost
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

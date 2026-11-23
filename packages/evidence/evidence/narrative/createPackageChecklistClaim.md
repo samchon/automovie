@@ -1,4 +1,4 @@
-# src/internal/index.ts#createPackageChecklistClaim
+# src/narrative/createPackageChecklistClaim.ts#createPackageChecklistClaim
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#createSettingCoverageClaim
+# src/narrative/internal/claims/createSettingCoverageClaim.ts#createSettingCoverageClaim
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

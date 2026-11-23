@@ -1,4 +1,4 @@
-# src/index.ts#rebindRecoveryCurveAuthorities
+# src/internal/rebindRecoveryCurveAuthorities.ts#rebindRecoveryCurveAuthorities
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

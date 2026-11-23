@@ -1,4 +1,4 @@
-# src/index.ts#critical
+# src/internal/mesh-observations/critical.ts#critical
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

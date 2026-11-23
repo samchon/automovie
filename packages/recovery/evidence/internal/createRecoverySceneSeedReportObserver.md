@@ -1,4 +1,4 @@
-# src/index.ts#createRecoverySceneSeedReportObserver
+# src/internal/createRecoverySceneSeedReportObserver.ts#createRecoverySceneSeedReportObserver
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

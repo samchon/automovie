@@ -1,4 +1,4 @@
-# src/index.ts#assertAutoMovieSceneShadowProfile
+# src/scene/assertAutoMovieSceneShadowProfile.ts#assertAutoMovieSceneShadowProfile
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

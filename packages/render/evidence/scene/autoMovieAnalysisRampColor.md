@@ -1,4 +1,4 @@
-# src/index.ts#autoMovieAnalysisRampColor
+# src/scene/autoMovieAnalysisRampColor.ts#autoMovieAnalysisRampColor
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

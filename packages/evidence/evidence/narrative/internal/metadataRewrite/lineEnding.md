@@ -1,4 +1,4 @@
-# src/internal/index.ts#lineEnding
+# src/narrative/internal/metadataRewrite/lineEnding.ts#lineEnding
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

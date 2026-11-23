@@ -1,4 +1,4 @@
-# src/index.ts#sampleRecoveryCameraIndices
+# src/internal/sampleRecoveryCameraIndices.ts#sampleRecoveryCameraIndices
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

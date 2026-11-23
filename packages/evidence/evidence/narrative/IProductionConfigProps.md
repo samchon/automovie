@@ -1,4 +1,4 @@
-# src/internal/index.ts#IProductionConfigProps
+# src/narrative/IProductionConfigProps.ts#IProductionConfigProps
 
 ## @evidence contracts/development/design.md#principled-representation
 

@@ -1,4 +1,4 @@
-# src/index.ts#observeAutoMovieRendererFrame
+# src/scene/observeAutoMovieRendererFrame.ts#observeAutoMovieRendererFrame
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

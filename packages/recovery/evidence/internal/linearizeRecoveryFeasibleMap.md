@@ -1,4 +1,4 @@
-# src/index.ts#linearizeRecoveryFeasibleMap
+# src/internal/linearizeRecoveryFeasibleMap.ts#linearizeRecoveryFeasibleMap
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

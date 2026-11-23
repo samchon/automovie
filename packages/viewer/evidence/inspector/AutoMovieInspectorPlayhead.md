@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieInspectorPlayhead
+# src/inspector/AutoMovieInspectorPlayhead.ts#AutoMovieInspectorPlayhead
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -14,7 +14,7 @@ Owned by the inspector, one per mounted component; the scene mount calls `setDur
 
 States who moves and who reads the playhead and what each reader re-renders on, why it lives outside React, the snapshot's identity rule, the range and why the rate is not a request member.
 
-# src/index.ts#AutoMovieInspectorPlayhead.prototype.subscribe
+# src/inspector/AutoMovieInspectorPlayhead.ts#AutoMovieInspectorPlayhead.prototype.subscribe
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -44,7 +44,7 @@ A registration computes nothing.
 
 Holds the listener until its unsubscribe runs; the set grows by one per live subscription, which React keeps at two per mounted inspector, the time panel's and the readout's.
 
-# src/index.ts#AutoMovieInspectorPlayhead.prototype.getSnapshot
+# src/inspector/AutoMovieInspectorPlayhead.ts#AutoMovieInspectorPlayhead.prototype.getSnapshot
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -72,7 +72,7 @@ Returns what is held.
 
 Allocates nothing.
 
-# src/index.ts#AutoMovieInspectorPlayhead.prototype.setDuration
+# src/inspector/AutoMovieInspectorPlayhead.ts#AutoMovieInspectorPlayhead.prototype.setDuration
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -102,7 +102,7 @@ A state change.
 
 Replaces one record.
 
-# src/index.ts#AutoMovieInspectorPlayhead.prototype.play
+# src/inspector/AutoMovieInspectorPlayhead.ts#AutoMovieInspectorPlayhead.prototype.play
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -132,7 +132,7 @@ A state change.
 
 Replaces one record.
 
-# src/index.ts#AutoMovieInspectorPlayhead.prototype.pause
+# src/inspector/AutoMovieInspectorPlayhead.ts#AutoMovieInspectorPlayhead.prototype.pause
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -162,7 +162,7 @@ A state change.
 
 Replaces one record.
 
-# src/index.ts#AutoMovieInspectorPlayhead.prototype.seek
+# src/inspector/AutoMovieInspectorPlayhead.ts#AutoMovieInspectorPlayhead.prototype.seek
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -192,7 +192,7 @@ A state change.
 
 Replaces one record.
 
-# src/index.ts#AutoMovieInspectorPlayhead.prototype.setRate
+# src/inspector/AutoMovieInspectorPlayhead.ts#AutoMovieInspectorPlayhead.prototype.setRate
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -222,7 +222,7 @@ A state change.
 
 Replaces one record.
 
-# src/index.ts#AutoMovieInspectorPlayhead.prototype.advance
+# src/inspector/AutoMovieInspectorPlayhead.ts#AutoMovieInspectorPlayhead.prototype.advance
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -252,7 +252,7 @@ A state change.
 
 Replaces one record.
 
-# src/index.ts#AutoMovieInspectorPlayhead.ISnapshot
+# src/inspector/AutoMovieInspectorPlayhead.ts#AutoMovieInspectorPlayhead.ISnapshot
 
 ## @evidence contracts/development/design.md#principled-representation
 

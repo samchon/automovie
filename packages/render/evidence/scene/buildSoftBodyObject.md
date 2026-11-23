@@ -1,4 +1,4 @@
-# src/index.ts#buildSoftBodyObject
+# src/scene/buildSoftBodyObject.ts#buildSoftBodyObject
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

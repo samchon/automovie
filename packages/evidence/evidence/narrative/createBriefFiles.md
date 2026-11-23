@@ -1,4 +1,4 @@
-# src/internal/index.ts#createBriefFiles
+# src/narrative/createBriefFiles.ts#createBriefFiles
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

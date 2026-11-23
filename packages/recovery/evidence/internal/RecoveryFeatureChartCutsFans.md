@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryFeatureChartCutsFans
+# src/internal/RecoveryFeatureChartCutsFans.ts#RecoveryFeatureChartCutsFans
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

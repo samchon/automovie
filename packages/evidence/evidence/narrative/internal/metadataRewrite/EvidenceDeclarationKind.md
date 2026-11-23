@@ -1,4 +1,4 @@
-# src/internal/index.ts#EvidenceDeclarationKind
+# src/narrative/internal/metadataRewrite/EvidenceDeclarationKind.ts#EvidenceDeclarationKind
 
 ## @evidence contracts/development/design.md#principled-representation
 

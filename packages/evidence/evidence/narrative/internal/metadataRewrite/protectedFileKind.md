@@ -1,4 +1,4 @@
-# src/internal/index.ts#protectedFileKind
+# src/narrative/internal/metadataRewrite/protectedFileKind.ts#protectedFileKind
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

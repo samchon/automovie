@@ -1,4 +1,4 @@
-# src/index.ts#extractRecoveryMeshSections
+# src/internal/extractRecoveryMeshSections.ts#extractRecoveryMeshSections
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#renderAutoMovieWorkspace
+# src/renderAutoMovieWorkspace.ts#renderAutoMovieWorkspace
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

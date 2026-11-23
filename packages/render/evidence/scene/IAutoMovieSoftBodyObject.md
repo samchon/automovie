@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieSoftBodyObject
+# src/scene/IAutoMovieSoftBodyObject.ts#IAutoMovieSoftBodyObject
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Every update requires actual analysis status rather than inheriting an earlier s
 
 Documents status changes over shot time, owned geometry, optional borrowed material and terminal update/refusal semantics.
 
-# src/index.ts#IAutoMovieSoftBodyObject.update
+# src/scene/IAutoMovieSoftBodyObject.ts#IAutoMovieSoftBodyObject.update
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ Only matching component representation/count and index width/count reuse storage
 
 A failed predecessor remains owned with its cause and blocks another update; current geometry still has an independent close attempt and no external resource manager is introduced.
 
-# src/index.ts#IAutoMovieSoftBodyObject.dispose
+# src/scene/IAutoMovieSoftBodyObject.ts#IAutoMovieSoftBodyObject.dispose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

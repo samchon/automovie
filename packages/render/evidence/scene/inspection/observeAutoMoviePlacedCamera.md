@@ -1,4 +1,4 @@
-# src/index.ts#observeAutoMoviePlacedCamera
+# src/scene/inspection/observeAutoMoviePlacedCamera.ts#observeAutoMoviePlacedCamera
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

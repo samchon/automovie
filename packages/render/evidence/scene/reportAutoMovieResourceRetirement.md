@@ -1,4 +1,4 @@
-# src/index.ts#reportAutoMovieResourceRetirement
+# src/scene/reportAutoMovieResourceRetirement.ts#reportAutoMovieResourceRetirement
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#listAutoMovieCameraSubjectMeshes
+# src/scene/inspection/listAutoMovieCameraSubjectMeshes.ts#listAutoMovieCameraSubjectMeshes
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

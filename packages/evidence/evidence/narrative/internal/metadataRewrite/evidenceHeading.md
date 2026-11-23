@@ -1,4 +1,4 @@
-# src/internal/index.ts#evidenceHeading
+# src/narrative/internal/metadataRewrite/evidenceHeading.ts#evidenceHeading
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

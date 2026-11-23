@@ -1,4 +1,4 @@
-# src/index.ts#assessAutoMovieRenderBudget
+# src/renderBudgetPreflight/assessAutoMovieRenderBudget.ts#assessAutoMovieRenderBudget
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

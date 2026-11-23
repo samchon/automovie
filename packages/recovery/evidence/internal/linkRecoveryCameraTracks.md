@@ -1,4 +1,4 @@
-# src/index.ts#linkRecoveryCameraTracks
+# src/internal/linkRecoveryCameraTracks.ts#linkRecoveryCameraTracks
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

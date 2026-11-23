@@ -1,4 +1,4 @@
-# src/internal/index.ts#isDeclaration
+# src/narrative/internal/metadataRewrite/isDeclaration.ts#isDeclaration
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

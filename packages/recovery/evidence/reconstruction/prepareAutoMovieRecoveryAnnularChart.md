@@ -1,4 +1,4 @@
-# src/index.ts#prepareAutoMovieRecoveryAnnularChart
+# src/reconstruction/prepareAutoMovieRecoveryAnnularChart.ts#prepareAutoMovieRecoveryAnnularChart
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

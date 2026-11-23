@@ -1,4 +1,4 @@
-# src/internal/index.ts#productionLayers
+# src/narrative/internal/productionLayers.ts#productionLayers
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

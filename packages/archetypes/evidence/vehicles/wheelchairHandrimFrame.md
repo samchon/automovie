@@ -1,4 +1,4 @@
-# src/index.ts#wheelchairHandrimFrame
+# src/vehicles/wheelchairHandrimFrame.ts#wheelchairHandrimFrame
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

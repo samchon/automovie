@@ -1,4 +1,4 @@
-# src/index.ts#GhoshConicApproximationBalance
+# src/internal/GhoshConicApproximationBalance.ts#GhoshConicApproximationBalance
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/index.ts#applySubsurfaceShading
+# src/scene/subsurfaceShading/applySubsurfaceShading.ts#applySubsurfaceShading
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

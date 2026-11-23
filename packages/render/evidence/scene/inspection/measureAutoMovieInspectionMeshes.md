@@ -1,4 +1,4 @@
-# src/index.ts#measureAutoMovieInspectionMeshes
+# src/scene/inspection/measureAutoMovieInspectionMeshes.ts#measureAutoMovieInspectionMeshes
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

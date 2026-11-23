@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieTextureResolver
+# src/scene/IAutoMovieTextureResolver.ts#IAutoMovieTextureResolver
 
 ## @evidence contracts/development/design.md#principled-representation
 

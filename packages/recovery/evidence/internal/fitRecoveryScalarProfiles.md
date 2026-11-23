@@ -1,4 +1,4 @@
-# src/index.ts#fitRecoveryScalarProfiles
+# src/internal/fitRecoveryScalarProfiles.ts#fitRecoveryScalarProfiles
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

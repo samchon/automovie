@@ -1,4 +1,4 @@
-# src/index.ts#buildHumanCartoonFace
+# src/scene/human-polygon/buildHumanCartoonFace.ts#buildHumanCartoonFace
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

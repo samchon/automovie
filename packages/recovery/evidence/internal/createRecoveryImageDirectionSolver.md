@@ -1,4 +1,4 @@
-# src/index.ts#createRecoveryImageDirectionSolver
+# src/internal/createRecoveryImageDirectionSolver.ts#createRecoveryImageDirectionSolver
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

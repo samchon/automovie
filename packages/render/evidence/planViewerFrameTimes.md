@@ -1,4 +1,4 @@
-# src/index.ts#planViewerFrameTimes
+# src/planViewerFrameTimes.ts#planViewerFrameTimes
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

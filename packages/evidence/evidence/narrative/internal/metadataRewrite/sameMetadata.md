@@ -1,4 +1,4 @@
-# src/internal/index.ts#sameMetadata
+# src/narrative/internal/metadataRewrite/sameMetadata.ts#sameMetadata
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

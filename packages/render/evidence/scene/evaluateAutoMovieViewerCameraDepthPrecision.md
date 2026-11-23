@@ -1,4 +1,4 @@
-# src/index.ts#evaluateAutoMovieViewerCameraDepthPrecision
+# src/scene/evaluateAutoMovieViewerCameraDepthPrecision.ts#evaluateAutoMovieViewerCameraDepthPrecision
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/delivery/index.ts#planAutoMovieVideoEncoding
+# src/delivery/planAutoMovieVideoEncoding.ts#planAutoMovieVideoEncoding
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

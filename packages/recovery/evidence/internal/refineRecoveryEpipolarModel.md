@@ -1,4 +1,4 @@
-# src/index.ts#refineRecoveryEpipolarModel
+# src/internal/refineRecoveryEpipolarModel.ts#refineRecoveryEpipolarModel
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#detailNormalFragment
+# src/scene/detailNormalShading/detailNormalFragment.ts#detailNormalFragment
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#stepRecoveryRelativePose
+# src/internal/stepRecoveryRelativePose.ts#stepRecoveryRelativePose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

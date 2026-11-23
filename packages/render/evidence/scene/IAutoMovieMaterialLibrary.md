@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieMaterialLibrary
+# src/scene/IAutoMovieMaterialLibrary.ts#IAutoMovieMaterialLibrary
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Conflicting or missing declarations refuse in the producer instead of selecting 
 
 States borrowing rules, null default semantics, library material ownership and separate texture-cache retirement order.
 
-# src/index.ts#IAutoMovieMaterialLibrary.resolve
+# src/scene/IAutoMovieMaterialLibrary.ts#IAutoMovieMaterialLibrary.resolve
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ Every request for the same admitted id borrows the same built material for this 
 
 Resolution lends an existing object and transfers no disposal responsibility to the surface.
 
-# src/index.ts#IAutoMovieMaterialLibrary.dispose
+# src/scene/IAutoMovieMaterialLibrary.ts#IAutoMovieMaterialLibrary.dispose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

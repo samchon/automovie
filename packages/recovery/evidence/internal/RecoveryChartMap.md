@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryChartMap
+# src/internal/RecoveryChartMap.ts#RecoveryChartMap
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ The mapper owns numerical parameterization while source-chart topology and fitte
 
 A numerical parameter map does not itself authorize topology repair, source coverage or a generated replacement surface.
 
-# src/index.ts#RecoveryChartMap.parameterize
+# src/internal/RecoveryChartMap.ts#RecoveryChartMap.parameterize
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

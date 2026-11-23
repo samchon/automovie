@@ -1,4 +1,4 @@
-# src/internal/index.ts#createGraphConfig
+# src/narrative/internal/createGraphConfig.ts#createGraphConfig
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

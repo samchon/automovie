@@ -1,4 +1,4 @@
-# src/index.ts#applyAutoMovieViewerSubjectPose
+# src/scene/subjectViewpoint/applyAutoMovieViewerSubjectPose.ts#applyAutoMovieViewerSubjectPose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

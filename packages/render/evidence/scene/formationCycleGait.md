@@ -1,4 +1,4 @@
-# src/index.ts#formationCycleGait
+# src/scene/formationCycleGait.ts#formationCycleGait
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

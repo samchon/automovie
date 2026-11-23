@@ -1,4 +1,4 @@
-# src/index.ts#createRecoveryMapTriangularMetric
+# src/internal/createRecoveryMapTriangularMetric.ts#createRecoveryMapTriangularMetric
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

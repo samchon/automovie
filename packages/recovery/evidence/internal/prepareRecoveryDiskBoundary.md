@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoveryDiskBoundary
+# src/internal/prepareRecoveryDiskBoundary.ts#prepareRecoveryDiskBoundary
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

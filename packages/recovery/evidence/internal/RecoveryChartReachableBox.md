@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryChartReachableBox
+# src/internal/RecoveryChartReachableBox.ts#RecoveryChartReachableBox
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

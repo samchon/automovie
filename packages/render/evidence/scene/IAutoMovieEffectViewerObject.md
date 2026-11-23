@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieEffectViewerObject
+# src/scene/IAutoMovieEffectViewerObject.ts#IAutoMovieEffectViewerObject
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Does not expose a fabricated measured-success field or substitute a fixture stre
 
 States scene attachment, bounded sample summary and camera-facing absolute-time update; producer documentation discloses native geometry/material/instance retirement duties.
 
-# src/index.ts#IAutoMovieEffectViewerObject.update
+# src/scene/IAutoMovieEffectViewerObject.ts#IAutoMovieEffectViewerObject.update
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

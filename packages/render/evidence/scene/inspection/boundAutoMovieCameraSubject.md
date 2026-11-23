@@ -1,4 +1,4 @@
-# src/index.ts#boundAutoMovieCameraSubject
+# src/scene/inspection/boundAutoMovieCameraSubject.ts#boundAutoMovieCameraSubject
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

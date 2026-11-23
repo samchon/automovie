@@ -1,4 +1,4 @@
-# src/index.ts#validateRecoveryMapMetricScales
+# src/internal/validateRecoveryMapMetricScales.ts#validateRecoveryMapMetricScales
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

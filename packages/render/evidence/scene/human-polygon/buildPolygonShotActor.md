@@ -1,4 +1,4 @@
-# src/index.ts#buildPolygonShotActor
+# src/scene/human-polygon/buildPolygonShotActor.ts#buildPolygonShotActor
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

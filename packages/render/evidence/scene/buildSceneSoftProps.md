@@ -1,4 +1,4 @@
-# src/index.ts#buildSceneSoftProps
+# src/scene/buildSceneSoftProps.ts#buildSceneSoftProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

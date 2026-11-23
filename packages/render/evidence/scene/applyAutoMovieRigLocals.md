@@ -1,4 +1,4 @@
-# src/index.ts#applyAutoMovieRigLocals
+# src/scene/applyAutoMovieRigLocals.ts#applyAutoMovieRigLocals
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#measureRecoveryFeasibleArithmetic
+# src/internal/measureRecoveryFeasibleArithmetic.ts#measureRecoveryFeasibleArithmetic
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

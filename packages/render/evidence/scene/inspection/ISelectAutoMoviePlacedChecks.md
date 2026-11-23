@@ -1,4 +1,4 @@
-# src/index.ts#ISelectAutoMoviePlacedChecks
+# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ Only the declarations and the sample clock enter. The observer measures them, an
 
 No declaration is inferred from proximity, receipts or physical control, and no window is extended past its end.
 
-# src/index.ts#ISelectAutoMoviePlacedChecks.IProps
+# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -34,7 +34,7 @@ A production passes the placed sample's scene and time and its own declarations.
 
 No previous visit or cached history is part of the input, so forward and reverse queries are identical.
 
-# src/index.ts#ISelectAutoMoviePlacedChecks.IRule
+# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks.IRule
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -52,7 +52,7 @@ Nothing beyond the envelope is required.
 
 Received evidence is optional and only supplements a measurement.
 
-# src/index.ts#ISelectAutoMoviePlacedChecks.IRule.contact
+# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks.IRule.contact
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -82,7 +82,7 @@ A signature has no body; the producer that supplies it answers.
 
 A signature has no body; the producer that supplies it answers.
 
-# src/index.ts#ISelectAutoMoviePlacedChecks.ISupport
+# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks.ISupport
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -100,7 +100,7 @@ The limits are the observer's support limits.
 
 Outside every phase the support is released and unchecked.
 
-# src/index.ts#ISelectAutoMoviePlacedChecks.ISupportPhase
+# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks.ISupportPhase
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -118,7 +118,7 @@ Matches the observer's native support sample.
 
 The anchor is authored, never the observed point.
 
-# src/index.ts#ISelectAutoMoviePlacedChecks.IGrip
+# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks.IGrip
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -136,7 +136,7 @@ The limits are the observer's grip limits.
 
 Outside every window the prop is not held by this rule.
 
-# src/index.ts#ISelectAutoMoviePlacedChecks.IGripWindow
+# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks.IGripWindow
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -154,7 +154,7 @@ Matches the observer's native grip sample.
 
 The expected frame is authored, never the observed one.
 
-# src/index.ts#ISelectAutoMoviePlacedChecks.ICustody
+# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks.ICustody
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -172,7 +172,7 @@ Feeds the observer's custody check.
 
 Before the first entry no custody is declared, and proximity never names a holder.
 
-# src/index.ts#ISelectAutoMoviePlacedChecks.IContinuity
+# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks.IContinuity
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -190,7 +190,7 @@ The producer supplies the cut and layout it already plays.
 
 No frame index, boundary or break is assumed.
 
-# src/index.ts#ISelectAutoMoviePlacedChecks.ITrack
+# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks.ITrack
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -208,7 +208,7 @@ The track is evaluated by the producer's own pure evaluation, without seeking th
 
 Absence, a missing required record and an unknown answer stay distinct.
 
-# src/index.ts#ISelectAutoMoviePlacedChecks.ITrack.observe
+# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks.ITrack.observe
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

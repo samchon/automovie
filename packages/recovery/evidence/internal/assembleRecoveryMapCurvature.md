@@ -1,4 +1,4 @@
-# src/index.ts#assembleRecoveryMapCurvature
+# src/internal/assembleRecoveryMapCurvature.ts#assembleRecoveryMapCurvature
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#isRecoveryCameraNumericalRefusal
+# src/internal/isRecoveryCameraNumericalRefusal.ts#isRecoveryCameraNumericalRefusal
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

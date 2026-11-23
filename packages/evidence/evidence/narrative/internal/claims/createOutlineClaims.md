@@ -1,4 +1,4 @@
-# src/internal/index.ts#createOutlineClaims
+# src/narrative/internal/claims/createOutlineClaims.ts#createOutlineClaims
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

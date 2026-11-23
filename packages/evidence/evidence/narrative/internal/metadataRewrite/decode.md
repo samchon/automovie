@@ -1,4 +1,4 @@
-# src/internal/index.ts#decode
+# src/narrative/internal/metadataRewrite/decode.ts#decode
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

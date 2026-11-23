@@ -1,4 +1,4 @@
-# src/index.ts#compileAutoMovieRecoveryNativeNamedChart
+# src/reconstruction/compileAutoMovieRecoveryNativeNamedChart.ts#compileAutoMovieRecoveryNativeNamedChart
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#renderAndSee
+# src/renderAndSee.ts#renderAndSee
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#retireAutoMovieCubeShadowDepth
+# src/scene/retireAutoMovieCubeShadowDepth.ts#retireAutoMovieCubeShadowDepth
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

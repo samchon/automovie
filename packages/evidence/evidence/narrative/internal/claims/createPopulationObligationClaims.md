@@ -1,4 +1,4 @@
-# src/internal/index.ts#createPopulationObligationClaims
+# src/narrative/internal/claims/createPopulationObligationClaims.ts#createPopulationObligationClaims
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

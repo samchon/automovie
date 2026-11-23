@@ -1,4 +1,4 @@
-# src/internal/index.ts#NarrativeLayer
+# src/narrative/NarrativeLayer.ts#NarrativeLayer
 
 ## @evidence contracts/development/design.md#principled-representation
 

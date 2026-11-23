@@ -1,4 +1,4 @@
-# src/index.ts#compareAutoMovieRasters
+# src/picture/compareAutoMovieRasters.ts#compareAutoMovieRasters
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

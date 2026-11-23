@@ -1,4 +1,4 @@
-# src/draw/index.ts#selectAutoMovieDrawSubject
+# src/draw/selectAutoMovieDrawSubject.ts#selectAutoMovieDrawSubject
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

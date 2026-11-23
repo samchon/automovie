@@ -1,4 +1,4 @@
-# src/index.ts#fitRecoveryResectionConsensus
+# src/internal/fitRecoveryResectionConsensus.ts#fitRecoveryResectionConsensus
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

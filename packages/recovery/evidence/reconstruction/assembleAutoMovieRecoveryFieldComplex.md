@@ -1,4 +1,4 @@
-# src/index.ts#assembleAutoMovieRecoveryFieldComplex
+# src/reconstruction/assembleAutoMovieRecoveryFieldComplex.ts#assembleAutoMovieRecoveryFieldComplex
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

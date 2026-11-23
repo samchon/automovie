@@ -1,4 +1,4 @@
-# src/internal/index.ts#createTopologyFiles
+# src/narrative/internal/topology/createTopologyFiles.ts#createTopologyFiles
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

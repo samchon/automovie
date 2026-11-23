@@ -1,4 +1,4 @@
-# src/index.ts#resolveAutoMovieFfmpeg
+# src/resolveAutoMovieFfmpeg.ts#resolveAutoMovieFfmpeg
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

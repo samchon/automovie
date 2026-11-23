@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoveryCheckpointReportCapacity
+# src/internal/prepareRecoveryCheckpointReportCapacity.ts#prepareRecoveryCheckpointReportCapacity
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

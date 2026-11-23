@@ -1,4 +1,4 @@
-# src/index.ts#IObserveAutoMoviePlacedScene
+# src/scene/inspection/IObserveAutoMoviePlacedScene.ts#IObserveAutoMoviePlacedScene
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ Only the active camera, scene, available physical frame and selected authored ob
 
 Missing providers never imply zero residual or a clean continuity edge. Native matrix ownership and caller-declared semantics are preserved.
 
-# src/index.ts#IObserveAutoMoviePlacedScene.IProps
+# src/scene/inspection/IObserveAutoMoviePlacedScene.ts#IObserveAutoMoviePlacedScene.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -34,7 +34,7 @@ Uses the same inputs in Viewer, capture and delivery, with no render or visit-hi
 
 The observer does not seek, resolve a motion or infer optional source times.
 
-# src/index.ts#IObserveAutoMoviePlacedScene.INativeSupport
+# src/scene/inspection/IObserveAutoMoviePlacedScene.ts#IObserveAutoMoviePlacedScene.INativeSupport
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -52,7 +52,7 @@ Uses the existing support limits and a real placed socket without resampling mod
 
 The selected socket can change with the rolling phase. A missing native reference cannot imply successful support.
 
-# src/index.ts#IObserveAutoMoviePlacedScene.INativeGrip
+# src/scene/inspection/IObserveAutoMoviePlacedScene.ts#IObserveAutoMoviePlacedScene.INativeGrip
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -70,7 +70,7 @@ Reuses canonical grip limits and existing native references.
 
 The owner supplies the expected grip. Non-rigid frame bases leave this measurement unsupported.
 
-# src/index.ts#IObserveAutoMoviePlacedScene.ICheck
+# src/scene/inspection/IObserveAutoMoviePlacedScene.ts#IObserveAutoMoviePlacedScene.ICheck
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

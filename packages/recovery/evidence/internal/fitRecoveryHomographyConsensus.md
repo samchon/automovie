@@ -1,4 +1,4 @@
-# src/index.ts#fitRecoveryHomographyConsensus
+# src/internal/fitRecoveryHomographyConsensus.ts#fitRecoveryHomographyConsensus
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

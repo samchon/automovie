@@ -1,4 +1,4 @@
-# src/index.ts#materialOverlayFragment
+# src/scene/materialOverlayShading/materialOverlayFragment.ts#materialOverlayFragment
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

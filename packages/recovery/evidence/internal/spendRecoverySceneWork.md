@@ -1,4 +1,4 @@
-# src/index.ts#spendRecoverySceneWork
+# src/internal/spendRecoverySceneWork.ts#spendRecoverySceneWork
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

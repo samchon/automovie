@@ -1,4 +1,4 @@
-# src/environments/index.ts#createTerrain
+# src/environments/terrain/createTerrain.ts#createTerrain
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

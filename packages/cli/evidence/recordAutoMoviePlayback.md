@@ -1,4 +1,4 @@
-# src/index.ts#recordAutoMoviePlayback
+# src/recordAutoMoviePlayback.ts#recordAutoMoviePlayback
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

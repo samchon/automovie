@@ -1,4 +1,4 @@
-# src/internal/index.ts#createDiscoveryClaim
+# src/narrative/internal/claims/createDiscoveryClaim.ts#createDiscoveryClaim
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

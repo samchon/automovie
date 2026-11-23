@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieModelObject
+# src/scene/IAutoMovieModelObject.ts#IAutoMovieModelObject
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Part ids decide articulation rather than optional nonunique display names; missi
 
 Documents root mounting, nonrigged bone absence, part-id lookup rationale, the optional gaze declaration and optional expression/runtime-flush hooks.
 
-# src/index.ts#IAutoMovieModelObject.afterAutoMovieFrame
+# src/scene/IAutoMovieModelObject.ts#IAutoMovieModelObject.afterAutoMovieFrame
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

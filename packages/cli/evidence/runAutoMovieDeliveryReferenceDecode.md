@@ -1,4 +1,4 @@
-# src/index.ts#runAutoMovieDeliveryReferenceDecode
+# src/runAutoMovieDeliveryReferenceDecode.ts#runAutoMovieDeliveryReferenceDecode
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/index.ts#expandAutoMovieInspectionSweep
+# src/scene/inspection/expandAutoMovieInspectionSweep.ts#expandAutoMovieInspectionSweep
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#constructionStage
+# src/narrative/internal/constructionStage.ts#constructionStage
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

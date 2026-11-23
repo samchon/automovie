@@ -1,4 +1,4 @@
-# src/index.ts#realizeAutoMovieRecoveryAnalyticDomains
+# src/reconstruction/realizeAutoMovieRecoveryAnalyticDomains.ts#realizeAutoMovieRecoveryAnalyticDomains
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

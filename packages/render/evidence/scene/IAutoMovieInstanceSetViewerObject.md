@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieInstanceSetViewerObject
+# src/scene/IAutoMovieInstanceSetViewerObject.ts#IAutoMovieInstanceSetViewerObject
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ The runtime represents arbitrary compiled instance sets; authored hidden slots r
 
 Documents scene mounting, current accounting, camera-driven visibility recomputation and independent one-shot disposal with failure preservation.
 
-# src/index.ts#IAutoMovieInstanceSetViewerObject.dispose
+# src/scene/IAutoMovieInstanceSetViewerObject.ts#IAutoMovieInstanceSetViewerObject.dispose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ A closed-state guard memoizes successful completion or its original failure so r
 
 Successful retirement clears root membership and runtime Maps; failed completion retains closing operations with their actual resource references until the host releases this failed owner.
 
-# src/index.ts#IAutoMovieInstanceSetViewerObject.update
+# src/scene/IAutoMovieInstanceSetViewerObject.ts#IAutoMovieInstanceSetViewerObject.update
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

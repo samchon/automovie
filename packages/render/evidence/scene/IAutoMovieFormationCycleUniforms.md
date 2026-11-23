@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieFormationCycleUniforms
+# src/scene/IAutoMovieFormationCycleUniforms.ts#IAutoMovieFormationCycleUniforms
 
 ## @evidence contracts/development/design.md#principled-representation
 

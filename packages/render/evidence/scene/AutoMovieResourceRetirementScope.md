@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieResourceRetirementScope
+# src/scene/AutoMovieResourceRetirementScope.ts#AutoMovieResourceRetirementScope
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Failed attempts are not retried or declared successful; closing the logical scop
 
 Explains pending and failed retention, concurrent registrations during settlement, non-retry behavior and preview allocation admission.
 
-# src/index.ts#AutoMovieResourceRetirementScope.prototype.requireOpen
+# src/scene/AutoMovieResourceRetirementScope.ts#AutoMovieResourceRetirementScope.prototype.requireOpen
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ Admission observes current lifecycle state and coordinates no reusable result.
 
 This guard acquires no handle and adds no retained ownership record.
 
-# src/index.ts#AutoMovieResourceRetirementScope.prototype.ready
+# src/scene/AutoMovieResourceRetirementScope.ts#AutoMovieResourceRetirementScope.prototype.ready
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -76,7 +76,7 @@ Settlement awaits existing tracked promises and never invokes a second closer me
 
 The readiness promise owns only its wait; attempt records remain scope-owned and failures or nonsettling closers keep allocation refused or pending.
 
-# src/index.ts#AutoMovieResourceRetirementScope.prototype.own
+# src/scene/AutoMovieResourceRetirementScope.ts#AutoMovieResourceRetirementScope.prototype.own
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -106,7 +106,7 @@ Resource registration establishes effects and ownership rather than sharing a co
 
 Retains one resource and closer until release or scope close; the number of registered resources has no independent numeric bound.
 
-# src/index.ts#AutoMovieResourceRetirementScope.prototype.release
+# src/scene/AutoMovieResourceRetirementScope.ts#AutoMovieResourceRetirementScope.prototype.release
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -136,7 +136,7 @@ Deleting before track ensures repeated resource release does not invoke its clos
 
 The resource leaves owned immediately, while its closing function remains in entries until successful settlement or indefinitely after failure.
 
-# src/index.ts#AutoMovieResourceRetirementScope.prototype.track
+# src/scene/AutoMovieResourceRetirementScope.ts#AutoMovieResourceRetirementScope.prototype.track
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -166,7 +166,7 @@ The same closing function shares its pending or failed promise; a successful rem
 
 Keeps the closer and outcome until successful settlement; rejection remains strongly retained so later callers cannot lose the original uncertainty.
 
-# src/index.ts#AutoMovieResourceRetirementScope.prototype.settle
+# src/scene/AutoMovieResourceRetirementScope.ts#AutoMovieResourceRetirementScope.prototype.settle
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -196,7 +196,7 @@ Settlement shares promises already created by track and observes effects without
 
 Successful attempts are removed after observation; failed closer/outcome pairs remain scope-owned without a numeric bound, and perpetual registration or nonsettling tasks can delay completion indefinitely.
 
-# src/index.ts#AutoMovieResourceRetirementScope.prototype.close
+# src/scene/AutoMovieResourceRetirementScope.ts#AutoMovieResourceRetirementScope.prototype.close
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

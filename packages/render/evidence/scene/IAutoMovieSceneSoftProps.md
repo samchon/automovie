@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieSceneSoftProps
+# src/scene/IAutoMovieSceneSoftProps.ts#IAutoMovieSceneSoftProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ buildScene and draw subjects call the same update and release operations.
 
 The caller supplies the whole frame and producer status. The handle neither samples time nor owns the scene's other objects.
 
-# src/index.ts#IAutoMovieSceneSoftProps.update
+# src/scene/IAutoMovieSceneSoftProps.ts#IAutoMovieSceneSoftProps.update
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -46,7 +46,7 @@ The signature establishes subject identity; buildSceneSoftProps owns reuse.
 
 The signature acquires no resources; buildSceneSoftProps owns their lifetime.
 
-# src/index.ts#IAutoMovieSceneSoftProps.dispose
+# src/scene/IAutoMovieSceneSoftProps.ts#IAutoMovieSceneSoftProps.dispose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

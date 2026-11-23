@@ -1,4 +1,4 @@
-# src/index.ts#captureAutoMovieViewerSubjectView
+# src/scene/subjectViewpoint/captureAutoMovieViewerSubjectView.ts#captureAutoMovieViewerSubjectView
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

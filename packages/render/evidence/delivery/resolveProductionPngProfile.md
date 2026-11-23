@@ -1,4 +1,4 @@
-# src/delivery/index.ts#resolveProductionPngProfile
+# src/delivery/resolveProductionPngProfile.ts#resolveProductionPngProfile
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

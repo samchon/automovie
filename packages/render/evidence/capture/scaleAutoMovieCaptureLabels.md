@@ -1,4 +1,4 @@
-# src/capture/index.ts#scaleAutoMovieCaptureLabels
+# src/capture/scaleAutoMovieCaptureLabels.ts#scaleAutoMovieCaptureLabels
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/index.ts#applyLightState
+# src/scene/applyLightState.ts#applyLightState
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

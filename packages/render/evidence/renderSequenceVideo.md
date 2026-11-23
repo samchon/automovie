@@ -1,4 +1,4 @@
-# src/index.ts#renderSequenceVideo
+# src/renderSequenceVideo.ts#renderSequenceVideo
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#refineRecoveryFeasibleState
+# src/internal/refineRecoveryFeasibleState.ts#refineRecoveryFeasibleState
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

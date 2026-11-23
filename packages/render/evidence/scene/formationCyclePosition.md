@@ -1,4 +1,4 @@
-# src/index.ts#formationCyclePosition
+# src/scene/formationCyclePosition.ts#formationCyclePosition
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

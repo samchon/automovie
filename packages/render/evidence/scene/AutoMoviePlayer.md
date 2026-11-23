@@ -1,4 +1,4 @@
-# src/index.ts#AutoMoviePlayer
+# src/scene/AutoMoviePlayer.ts#AutoMoviePlayer
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ The maximum spring step bounds integration after stalls and ROM is reapplied aft
 
 States host rendering ownership, elapsed-second sampling, stateful spring timing, expression synchronization, bone gaze, optional clinical rest frames and post-spring ROM clamping.
 
-# src/index.ts#AutoMoviePlayer.prototype.setMotion
+# src/scene/AutoMoviePlayer.ts#AutoMoviePlayer.prototype.setMotion
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ Replacing a motion is an effect rather than a cached calculation; spring-state r
 
 Releases the player's previous clip reference and retains exactly one replacement clip; latest sampled output is refreshed on the next update.
 
-# src/index.ts#AutoMoviePlayer.prototype.update
+# src/scene/AutoMoviePlayer.ts#AutoMoviePlayer.prototype.update
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#filterRecoveryImageGaussian
+# src/internal/filterRecoveryImageGaussian.ts#filterRecoveryImageGaussian
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

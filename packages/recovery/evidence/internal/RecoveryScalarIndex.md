@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryScalarIndex
+# src/internal/RecoveryScalarIndex.ts#RecoveryScalarIndex
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ One prepared runtime closure owns copied intervals and tree bounds for one extra
 
 The index returns original face candidates in ascending order and does not imply geometric intersection, topology qualification or a cross-input cache.
 
-# src/index.ts#RecoveryScalarIndex.create
+# src/internal/RecoveryScalarIndex.ts#RecoveryScalarIndex.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

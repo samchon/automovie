@@ -1,4 +1,4 @@
-# src/index.ts#applyMaterialOverlays
+# src/scene/materialOverlayShading/applyMaterialOverlays.ts#applyMaterialOverlays
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

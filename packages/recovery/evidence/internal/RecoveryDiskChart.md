@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryDiskChart
+# src/internal/RecoveryDiskChart.ts#RecoveryDiskChart
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

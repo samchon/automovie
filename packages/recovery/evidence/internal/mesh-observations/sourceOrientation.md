@@ -1,4 +1,4 @@
-# src/index.ts#sourceOrientation
+# src/internal/mesh-observations/sourceOrientation.ts#sourceOrientation
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

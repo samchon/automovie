@@ -1,4 +1,4 @@
-# src/index.ts#isRecoveryMapIdentityGauge
+# src/internal/isRecoveryMapIdentityGauge.ts#isRecoveryMapIdentityGauge
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

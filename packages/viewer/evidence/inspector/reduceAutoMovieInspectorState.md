@@ -1,4 +1,4 @@
-# src/index.ts#reduceAutoMovieInspectorState
+# src/inspector/reduceAutoMovieInspectorState.ts#reduceAutoMovieInspectorState
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

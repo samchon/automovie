@@ -1,4 +1,4 @@
-# src/index.ts#buildHumanPolygon
+# src/scene/human-polygon/buildHumanPolygon.ts#buildHumanPolygon
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

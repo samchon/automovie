@@ -1,4 +1,4 @@
-# src/index.ts#applyRenderMode
+# src/scene/applyRenderMode.ts#applyRenderMode
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

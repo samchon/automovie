@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieInspectorState
+# src/inspector/IAutoMovieInspectorState.ts#IAutoMovieInspectorState
 
 ## @evidence contracts/development/design.md#principled-representation
 

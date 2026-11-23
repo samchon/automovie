@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieShadowTextureHost
+# src/scene/IAutoMovieShadowTextureHost.ts#IAutoMovieShadowTextureHost
 
 ## @evidence contracts/development/design.md#principled-representation
 

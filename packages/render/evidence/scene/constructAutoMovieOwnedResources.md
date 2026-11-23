@@ -1,4 +1,4 @@
-# src/index.ts#constructAutoMovieOwnedResources
+# src/scene/constructAutoMovieOwnedResources.ts#constructAutoMovieOwnedResources
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#readRecoveryEventCurveParent
+# src/internal/readRecoveryEventCurveParent.ts#readRecoveryEventCurveParent
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

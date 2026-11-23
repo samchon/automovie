@@ -1,4 +1,4 @@
-# src/index.ts#createRailPlatform
+# src/vehicles/createRailPlatform.ts#createRailPlatform
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

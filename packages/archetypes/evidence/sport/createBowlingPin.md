@@ -1,4 +1,4 @@
-# src/index.ts#createBowlingPin
+# src/sport/createBowlingPin.ts#createBowlingPin
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/index.ts#addMaterialShaderPatch
+# src/scene/addMaterialShaderPatch.ts#addMaterialShaderPatch
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoveryChartLeafBoundary
+# src/internal/prepareRecoveryChartLeafBoundary.ts#prepareRecoveryChartLeafBoundary
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

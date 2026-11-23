@@ -1,4 +1,4 @@
-# src/index.ts#writeAutoMovieModulePage
+# src/writeAutoMovieModulePage.ts#writeAutoMovieModulePage
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

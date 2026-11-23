@@ -1,4 +1,4 @@
-# src/internal/index.ts#flatFingerprintStart
+# src/narrative/internal/metadataRewrite/flatFingerprintStart.ts#flatFingerprintStart
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoveryFeasibleReportCapacity
+# src/internal/prepareRecoveryFeasibleReportCapacity.ts#prepareRecoveryFeasibleReportCapacity
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

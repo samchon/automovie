@@ -1,4 +1,4 @@
-# src/internal/index.ts#occurrences
+# src/narrative/internal/metadataRewrite/occurrences.ts#occurrences
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

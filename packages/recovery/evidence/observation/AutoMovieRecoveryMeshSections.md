@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieRecoveryMeshSections
+# src/observation/AutoMovieRecoveryMeshSections.ts#AutoMovieRecoveryMeshSections
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ The namespace delegates to one section-extraction owner; common section reports 
 
 Open paths, isolated contacts and unsupported events remain visible; a station prefix cannot be presented as full source coverage.
 
-# src/index.ts#AutoMovieRecoveryMeshSections.extract
+# src/observation/AutoMovieRecoveryMeshSections.ts#AutoMovieRecoveryMeshSections.extract
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

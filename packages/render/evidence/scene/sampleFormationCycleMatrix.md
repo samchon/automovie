@@ -1,4 +1,4 @@
-# src/index.ts#sampleFormationCycleMatrix
+# src/scene/sampleFormationCycleMatrix.ts#sampleFormationCycleMatrix
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

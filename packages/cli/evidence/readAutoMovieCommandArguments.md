@@ -1,4 +1,4 @@
-# src/index.ts#readAutoMovieCommandArguments
+# src/readAutoMovieCommandArguments.ts#readAutoMovieCommandArguments
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

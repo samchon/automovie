@@ -1,4 +1,4 @@
-# src/index.ts#regenerateFormationSlot
+# src/scene/regenerateFormationSlot.ts#regenerateFormationSlot
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

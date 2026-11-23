@@ -1,4 +1,4 @@
-# src/index.ts#predictRecoveryMapDecrease
+# src/internal/predictRecoveryMapDecrease.ts#predictRecoveryMapDecrease
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

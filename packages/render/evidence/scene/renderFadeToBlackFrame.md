@@ -1,4 +1,4 @@
-# src/index.ts#renderFadeToBlackFrame
+# src/scene/renderFadeToBlackFrame.ts#renderFadeToBlackFrame
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoveryImageSupports
+# src/internal/prepareRecoveryImageSupports.ts#prepareRecoveryImageSupports
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

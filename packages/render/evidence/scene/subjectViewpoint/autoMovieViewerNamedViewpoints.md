@@ -1,4 +1,4 @@
-# src/index.ts#autoMovieViewerNamedViewpoints
+# src/scene/subjectViewpoint/autoMovieViewerNamedViewpoints.ts#autoMovieViewerNamedViewpoints
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

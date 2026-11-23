@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieSemanticMaskHandle
+# src/scene/semanticMask/IAutoMovieSemanticMaskHandle.ts#IAutoMovieSemanticMaskHandle
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Hidden/frustum-culled meshes are still counted in the scene graph and an empty u
 
 Documents mesh-count units, unclaimed background, unresolved root order and synchronous one-attempt restoration plus native attribute-lifetime limits.
 
-# src/index.ts#IAutoMovieSemanticMaskHandle.restore
+# src/scene/semanticMask/IAutoMovieSemanticMaskHandle.ts#IAutoMovieSemanticMaskHandle.restore
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

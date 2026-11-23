@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieSectionRenderer
+# src/scene/IAutoMovieSectionRenderer.ts#IAutoMovieSectionRenderer
 
 ## @evidence contracts/development/design.md#principled-representation
 

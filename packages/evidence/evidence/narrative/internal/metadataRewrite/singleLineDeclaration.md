@@ -1,4 +1,4 @@
-# src/internal/index.ts#singleLineDeclaration
+# src/narrative/internal/metadataRewrite/singleLineDeclaration.ts#singleLineDeclaration
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

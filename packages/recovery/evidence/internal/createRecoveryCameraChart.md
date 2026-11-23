@@ -1,4 +1,4 @@
-# src/index.ts#createRecoveryCameraChart
+# src/internal/createRecoveryCameraChart.ts#createRecoveryCameraChart
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

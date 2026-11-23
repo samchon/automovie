@@ -1,4 +1,4 @@
-# src/index.ts#autoMovieViewerSubjectKey
+# src/scene/subjectViewpoint/autoMovieViewerSubjectKey.ts#autoMovieViewerSubjectKey
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

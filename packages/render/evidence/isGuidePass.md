@@ -1,4 +1,4 @@
-# src/guidePasses.ts#isGuidePass
+# src/isGuidePass.ts#isGuidePass
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

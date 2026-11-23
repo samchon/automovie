@@ -1,4 +1,4 @@
-# src/caption/index.ts#inspectAutoMovieCaptionReadabilityWithRuntime
+# src/caption/inspectAutoMovieCaptionReadabilityWithRuntime.ts#inspectAutoMovieCaptionReadabilityWithRuntime
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

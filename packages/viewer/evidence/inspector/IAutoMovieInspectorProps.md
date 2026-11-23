@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieInspectorProps
+# src/inspector/IAutoMovieInspectorProps.ts#IAutoMovieInspectorProps
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ The text is read once; the inspector owns the request afterwards, so a page cann
 
 States what each member is, the identity each subject must keep, when the text is read and what the listener receives.
 
-# src/index.ts#IAutoMovieInspectorProps.onRequestChange
+# src/inspector/IAutoMovieInspectorProps.ts#IAutoMovieInspectorProps.onRequestChange
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

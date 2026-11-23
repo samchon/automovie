@@ -1,4 +1,4 @@
-# src/internal/index.ts#verifyEvidenceMetadataRewrite
+# src/narrative/verifyEvidenceMetadataRewrite.ts#verifyEvidenceMetadataRewrite
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

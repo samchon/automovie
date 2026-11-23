@@ -1,4 +1,4 @@
-# src/environments/index.ts#createTrackedRide
+# src/environments/rides/createTrackedRide.ts#createTrackedRide
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

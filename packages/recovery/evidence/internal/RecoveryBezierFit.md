@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryBezierFit
+# src/internal/RecoveryBezierFit.ts#RecoveryBezierFit
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ Recovery owns Schneider fitting and interface owns its single input/result ident
 
 Every observation remains represented; budget exhaustion throws, and an unresolved two-point terminal span retains toleranceMet false.
 
-# src/index.ts#RecoveryBezierFit.fit
+# src/internal/RecoveryBezierFit.ts#RecoveryBezierFit.fit
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

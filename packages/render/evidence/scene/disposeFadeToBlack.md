@@ -1,4 +1,4 @@
-# src/index.ts#disposeFadeToBlack
+# src/scene/disposeFadeToBlack.ts#disposeFadeToBlack
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#createRecoveryFeasibleSqpArc
+# src/internal/createRecoveryFeasibleSqpArc.ts#createRecoveryFeasibleSqpArc
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

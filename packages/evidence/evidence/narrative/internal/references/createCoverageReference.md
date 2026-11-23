@@ -1,4 +1,4 @@
-# src/internal/index.ts#createCoverageReference
+# src/narrative/internal/references/createCoverageReference.ts#createCoverageReference
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

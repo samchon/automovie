@@ -1,4 +1,4 @@
-# src/index.ts#IRenderAutoMovieInspectionDiagnosticsProps
+# src/scene/inspection/IRenderAutoMovieInspectionDiagnosticsProps.ts#IRenderAutoMovieInspectionDiagnosticsProps
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Absent diagnostics draw the scene alone.
 
 Names each member.
 
-# src/index.ts#IRenderAutoMovieInspectionDiagnosticsProps.render
+# src/scene/inspection/IRenderAutoMovieInspectionDiagnosticsProps.ts#IRenderAutoMovieInspectionDiagnosticsProps.render
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#selectFiles
+# src/narrative/internal/metadataRewrite/selectFiles.ts#selectFiles
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

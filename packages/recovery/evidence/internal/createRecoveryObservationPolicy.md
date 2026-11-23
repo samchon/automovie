@@ -1,4 +1,4 @@
-# src/index.ts#createRecoveryObservationPolicy
+# src/internal/createRecoveryObservationPolicy.ts#createRecoveryObservationPolicy
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#createReliefWeightShaderPatch
+# src/scene/reliefWeightShading/createReliefWeightShaderPatch.ts#createReliefWeightShaderPatch
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

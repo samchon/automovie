@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryFeasibleCapacityError
+# src/internal/RecoveryFeasibleCapacityError.ts#RecoveryFeasibleCapacityError
 
 ## @evidence contracts/development/design.md#principled-representation
 

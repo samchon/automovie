@@ -1,4 +1,4 @@
-# src/index.ts#triangulateRecoverySceneTrack
+# src/internal/triangulateRecoverySceneTrack.ts#triangulateRecoverySceneTrack
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

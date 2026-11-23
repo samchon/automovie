@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieHumanCartoon
+# src/scene/human-polygon/AutoMovieHumanCartoon.ts#AutoMovieHumanCartoon
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ Owned by the module that declares `AutoMovieHumanCartoon` in packages/render/src
 
 Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
 
-# src/index.ts#AutoMovieHumanCartoon.IExpression
+# src/scene/human-polygon/AutoMovieHumanCartoon.ts#AutoMovieHumanCartoon.IExpression
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -34,7 +34,7 @@ Tongue and viseme values are retained only for unsupported-field reporting, neve
 
 States sided activation, neutral omission, duplicate-unit refusal and unsupported mouth fields.
 
-# src/index.ts#AutoMovieHumanCartoon.IHeadPose
+# src/scene/human-polygon/AutoMovieHumanCartoon.ts#AutoMovieHumanCartoon.IHeadPose
 
 ## @evidence contracts/development/design.md#principled-representation
 

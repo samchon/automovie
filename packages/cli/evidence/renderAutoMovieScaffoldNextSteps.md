@@ -1,4 +1,4 @@
-# src/index.ts#renderAutoMovieScaffoldNextSteps
+# src/renderAutoMovieScaffoldNextSteps.ts#renderAutoMovieScaffoldNextSteps
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

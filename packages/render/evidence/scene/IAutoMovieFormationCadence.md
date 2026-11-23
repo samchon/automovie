@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieFormationCadence
+# src/scene/IAutoMovieFormationCadence.ts#IAutoMovieFormationCadence
 
 ## @evidence contracts/development/design.md#principled-representation
 

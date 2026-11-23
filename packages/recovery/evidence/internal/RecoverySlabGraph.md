@@ -1,4 +1,4 @@
-# src/index.ts#RecoverySlabGraph
+# src/internal/RecoverySlabGraph.ts#RecoverySlabGraph
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ One prepared source closure supplies repeated slab queries and their IAutoMovieR
 
 Open defects, hidden components and ambiguous support remain unsupported; source orientation and generated-surface fidelity are not inferred.
 
-# src/index.ts#RecoverySlabGraph.observe
+# src/internal/RecoverySlabGraph.ts#RecoverySlabGraph.observe
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ Active triangle roots are reused for both boundary cuts and defect supports with
 
 Union-find, edge owners and support-root maps expire on return; only curve indices and reason strings escape.
 
-# src/index.ts#RecoverySlabGraph.prepare
+# src/internal/RecoverySlabGraph.ts#RecoverySlabGraph.prepare
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

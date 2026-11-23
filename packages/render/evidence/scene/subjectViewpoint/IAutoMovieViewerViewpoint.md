@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieViewerViewpoint
+# src/scene/subjectViewpoint/IAutoMovieViewerViewpoint.ts#IAutoMovieViewerViewpoint
 
 ## @evidence contracts/development/design.md#principled-representation
 

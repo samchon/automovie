@@ -1,4 +1,4 @@
-# src/index.ts#instancedModelParts
+# src/scene/instancedModelParts.ts#instancedModelParts
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

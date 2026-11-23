@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryChartFitPrepare
+# src/internal/RecoveryChartFitPrepare.ts#RecoveryChartFitPrepare
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

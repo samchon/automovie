@@ -1,4 +1,4 @@
-# src/index.ts#createRecoveryPoseModel
+# src/internal/createRecoveryPoseModel.ts#createRecoveryPoseModel
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

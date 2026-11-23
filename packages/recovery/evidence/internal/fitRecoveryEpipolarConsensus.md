@@ -1,4 +1,4 @@
-# src/index.ts#fitRecoveryEpipolarConsensus
+# src/internal/fitRecoveryEpipolarConsensus.ts#fitRecoveryEpipolarConsensus
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

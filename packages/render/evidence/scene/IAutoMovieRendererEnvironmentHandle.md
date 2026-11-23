@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieRendererEnvironmentHandle
+# src/scene/IAutoMovieRendererEnvironmentHandle.ts#IAutoMovieRendererEnvironmentHandle
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Structural-pass bypass is a supported pass policy rather than a fixture-specific
 
 States reversibility for beauty/structural renderer configuration and restoration of every touched property.
 
-# src/index.ts#IAutoMovieRendererEnvironmentHandle.restore
+# src/scene/IAutoMovieRendererEnvironmentHandle.ts#IAutoMovieRendererEnvironmentHandle.restore
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

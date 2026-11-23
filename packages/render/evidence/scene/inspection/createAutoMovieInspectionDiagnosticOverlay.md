@@ -1,4 +1,4 @@
-# src/index.ts#createAutoMovieInspectionDiagnosticOverlay
+# src/scene/inspection/createAutoMovieInspectionDiagnosticOverlay.ts#createAutoMovieInspectionDiagnosticOverlay
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

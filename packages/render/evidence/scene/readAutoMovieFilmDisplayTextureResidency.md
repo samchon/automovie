@@ -1,4 +1,4 @@
-# src/index.ts#readAutoMovieFilmDisplayTextureResidency
+# src/scene/readAutoMovieFilmDisplayTextureResidency.ts#readAutoMovieFilmDisplayTextureResidency
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

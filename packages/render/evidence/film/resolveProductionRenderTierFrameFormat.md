@@ -1,4 +1,4 @@
-# src/film/index.ts#resolveProductionRenderTierFrameFormat
+# src/film/resolveProductionRenderTierFrameFormat.ts#resolveProductionRenderTierFrameFormat
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

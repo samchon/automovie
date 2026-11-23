@@ -1,4 +1,4 @@
-# src/caption/index.ts#serializeAutoMovieWebVttSingleLineText
+# src/caption/serializeAutoMovieWebVttSingleLineText.ts#serializeAutoMovieWebVttSingleLineText
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

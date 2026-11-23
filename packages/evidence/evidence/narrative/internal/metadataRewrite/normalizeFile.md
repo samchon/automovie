@@ -1,4 +1,4 @@
-# src/internal/index.ts#normalizeFile
+# src/narrative/internal/metadataRewrite/normalizeFile.ts#normalizeFile
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

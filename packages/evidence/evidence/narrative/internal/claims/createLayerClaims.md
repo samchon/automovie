@@ -1,4 +1,4 @@
-# src/internal/index.ts#createLayerClaims
+# src/narrative/internal/claims/createLayerClaims.ts#createLayerClaims
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

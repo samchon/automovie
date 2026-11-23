@@ -1,4 +1,4 @@
-# src/index.ts#buildAnalysisOverlayObject
+# src/scene/buildAnalysisOverlayObject.ts#buildAnalysisOverlayObject
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

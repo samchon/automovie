@@ -1,4 +1,4 @@
-# src/index.ts#mountAutoMovieInspectorPage
+# src/inspector/mountAutoMovieInspectorPage.tsx#mountAutoMovieInspectorPage
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

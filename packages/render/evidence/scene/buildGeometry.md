@@ -1,4 +1,4 @@
-# src/index.ts#buildGeometry
+# src/scene/buildGeometry.ts#buildGeometry
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

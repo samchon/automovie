@@ -1,4 +1,4 @@
-# src/internal/index.ts#isFirstPartPilot
+# src/narrative/isFirstPartPilot.ts#isFirstPartPilot
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

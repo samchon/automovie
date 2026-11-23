@@ -1,4 +1,4 @@
-# src/index.ts#createAutoMovieClosedSphereGeometry
+# src/scene/createAutoMovieClosedSphereGeometry.ts#createAutoMovieClosedSphereGeometry
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#extractRecoveryImageFeatures
+# src/internal/extractRecoveryImageFeatures.ts#extractRecoveryImageFeatures
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

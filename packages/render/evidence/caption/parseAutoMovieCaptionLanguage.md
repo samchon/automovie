@@ -1,4 +1,4 @@
-# src/caption/index.ts#parseAutoMovieCaptionLanguage
+# src/caption/parseAutoMovieCaptionLanguage.ts#parseAutoMovieCaptionLanguage
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

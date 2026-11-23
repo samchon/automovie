@@ -1,4 +1,4 @@
-# src/index.ts#createRecoveryFeasibleDiagnostics
+# src/internal/createRecoveryFeasibleDiagnostics.ts#createRecoveryFeasibleDiagnostics
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

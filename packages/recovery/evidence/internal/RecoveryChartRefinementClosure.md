@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryChartRefinementClosure
+# src/internal/RecoveryChartRefinementClosure.ts#RecoveryChartRefinementClosure
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

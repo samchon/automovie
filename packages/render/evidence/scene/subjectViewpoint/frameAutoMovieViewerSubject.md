@@ -1,4 +1,4 @@
-# src/index.ts#frameAutoMovieViewerSubject
+# src/scene/subjectViewpoint/frameAutoMovieViewerSubject.ts#frameAutoMovieViewerSubject
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#between
+# src/narrative/internal/metadataRewrite/between.ts#between
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

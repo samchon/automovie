@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryChartControlRelations
+# src/internal/RecoveryChartControlRelations.ts#RecoveryChartControlRelations
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

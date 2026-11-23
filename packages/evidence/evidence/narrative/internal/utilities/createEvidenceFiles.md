@@ -1,4 +1,4 @@
-# src/internal/index.ts#createEvidenceFiles
+# src/narrative/internal/utilities/createEvidenceFiles.ts#createEvidenceFiles
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

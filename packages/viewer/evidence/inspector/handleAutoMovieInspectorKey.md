@@ -1,4 +1,4 @@
-# src/index.ts#handleAutoMovieInspectorKey
+# src/inspector/handleAutoMovieInspectorKey.ts#handleAutoMovieInspectorKey
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

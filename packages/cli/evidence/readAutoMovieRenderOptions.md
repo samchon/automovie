@@ -1,4 +1,4 @@
-# src/index.ts#readAutoMovieRenderOptions
+# src/readAutoMovieRenderOptions.ts#readAutoMovieRenderOptions
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

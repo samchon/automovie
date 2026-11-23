@@ -1,4 +1,4 @@
-# src/index.ts#solveRecoveryMapJointStep
+# src/internal/solveRecoveryMapJointStep.ts#solveRecoveryMapJointStep
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

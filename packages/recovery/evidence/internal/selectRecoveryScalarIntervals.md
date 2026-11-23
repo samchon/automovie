@@ -1,4 +1,4 @@
-# src/index.ts#selectRecoveryScalarIntervals
+# src/internal/selectRecoveryScalarIntervals.ts#selectRecoveryScalarIntervals
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

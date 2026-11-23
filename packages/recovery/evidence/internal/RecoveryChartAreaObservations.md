@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryChartAreaObservations
+# src/internal/RecoveryChartAreaObservations.ts#RecoveryChartAreaObservations
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

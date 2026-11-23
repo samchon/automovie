@@ -1,4 +1,4 @@
-# src/internal/index.ts#createLineageReference
+# src/narrative/internal/references/createLineageReference.ts#createLineageReference
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

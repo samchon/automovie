@@ -1,4 +1,4 @@
-# src/index.ts#IMaterialOverlayShape
+# src/scene/materialOverlayShading/IMaterialOverlayShape.ts#IMaterialOverlayShape
 
 ## @evidence contracts/development/design.md#principled-representation
 

@@ -1,4 +1,4 @@
-# src/index.ts#measureAutoMovieInspectionEdges
+# src/scene/inspection/measureAutoMovieInspectionEdges.ts#measureAutoMovieInspectionEdges
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

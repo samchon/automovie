@@ -1,4 +1,4 @@
-# src/index.ts#cross
+# src/internal/mesh-observations/cross.ts#cross
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

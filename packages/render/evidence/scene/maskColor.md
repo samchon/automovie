@@ -1,4 +1,4 @@
-# src/index.ts#maskColor
+# src/scene/maskColor.ts#maskColor
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

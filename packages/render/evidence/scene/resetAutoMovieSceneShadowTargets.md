@@ -1,4 +1,4 @@
-# src/index.ts#resetAutoMovieSceneShadowTargets
+# src/scene/resetAutoMovieSceneShadowTargets.ts#resetAutoMovieSceneShadowTargets
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

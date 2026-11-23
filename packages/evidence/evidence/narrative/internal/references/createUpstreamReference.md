@@ -1,4 +1,4 @@
-# src/internal/index.ts#createUpstreamReference
+# src/narrative/internal/references/createUpstreamReference.ts#createUpstreamReference
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

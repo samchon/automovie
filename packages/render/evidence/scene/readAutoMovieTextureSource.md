@@ -1,4 +1,4 @@
-# src/index.ts#readAutoMovieTextureSource
+# src/scene/readAutoMovieTextureSource.ts#readAutoMovieTextureSource
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#findClose
+# src/narrative/internal/metadataRewrite/findClose.ts#findClose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

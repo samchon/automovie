@@ -1,4 +1,4 @@
-# src/index.ts#buildLight
+# src/scene/buildLight.ts#buildLight
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

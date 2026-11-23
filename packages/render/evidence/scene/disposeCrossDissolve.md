@@ -1,4 +1,4 @@
-# src/index.ts#disposeCrossDissolve
+# src/scene/disposeCrossDissolve.ts#disposeCrossDissolve
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

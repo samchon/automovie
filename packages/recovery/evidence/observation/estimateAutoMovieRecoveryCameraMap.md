@@ -1,4 +1,4 @@
-# src/index.ts#estimateAutoMovieRecoveryCameraMap
+# src/observation/estimateAutoMovieRecoveryCameraMap.ts#estimateAutoMovieRecoveryCameraMap
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

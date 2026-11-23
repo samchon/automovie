@@ -1,4 +1,4 @@
-# src/index.ts#textureBindingAsset
+# src/scene/textureBindingAsset.ts#textureBindingAsset
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#readAutoMovieCubeShadowDepth
+# src/scene/readAutoMovieCubeShadowDepth.ts#readAutoMovieCubeShadowDepth
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieImportedModelOptions
+# src/scene/IAutoMovieImportedModelOptions.ts#IAutoMovieImportedModelOptions
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Missing or null bone entries are omitted by normalization rather than fabricated
 
 States loaded-root wrapping, optional normalized bone input, expression sink ownership and post-pose/expression flushing order.
 
-# src/index.ts#IAutoMovieImportedModelOptions.afterAutoMovieFrame
+# src/scene/IAutoMovieImportedModelOptions.ts#IAutoMovieImportedModelOptions.afterAutoMovieFrame
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

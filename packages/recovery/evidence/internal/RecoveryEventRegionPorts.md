@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryEventRegionPorts
+# src/internal/RecoveryEventRegionPorts.ts#RecoveryEventRegionPorts
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

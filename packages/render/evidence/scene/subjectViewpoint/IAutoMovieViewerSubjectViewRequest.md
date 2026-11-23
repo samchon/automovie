@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieViewerSubjectViewRequest
+# src/scene/subjectViewpoint/IAutoMovieViewerSubjectViewRequest.ts#IAutoMovieViewerSubjectViewRequest
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ A mandatory callback cannot prove that its implementation resolves every populat
 
 Documents borrowed resources, camera mutation, pre-draw callback and optional encoding/plan metadata.
 
-# src/index.ts#IAutoMovieViewerSubjectViewRequest.resolveForCamera
+# src/scene/subjectViewpoint/IAutoMovieViewerSubjectViewRequest.ts#IAutoMovieViewerSubjectViewRequest.resolveForCamera
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

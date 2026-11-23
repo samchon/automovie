@@ -1,4 +1,4 @@
-# src/index.ts#focusAutoMovieInspection
+# src/scene/inspection/focusAutoMovieInspection.ts#focusAutoMovieInspection
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

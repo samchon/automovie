@@ -1,4 +1,4 @@
-# src/index.ts#planPoseKeypointSidecar
+# src/planPoseKeypointSidecar.ts#planPoseKeypointSidecar
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#validateRenderedSample
+# src/narrative/internal/metadataRewrite/validateRenderedSample.ts#validateRenderedSample
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

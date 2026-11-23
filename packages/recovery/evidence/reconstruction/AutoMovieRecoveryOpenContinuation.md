@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieRecoveryOpenContinuation
+# src/reconstruction/AutoMovieRecoveryOpenContinuation.ts#AutoMovieRecoveryOpenContinuation
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ Recovery reuses the scalar/cut/open-slab owners and returns the common source-fr
 
 The caller verifies source and artifact bytes; orientation warnings and unsupported topology remain explicit instead of changing geometry.
 
-# src/index.ts#AutoMovieRecoveryOpenContinuation.observe
+# src/reconstruction/AutoMovieRecoveryOpenContinuation.ts#AutoMovieRecoveryOpenContinuation.observe
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

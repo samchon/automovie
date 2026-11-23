@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieInstanceSetViewerStats
+# src/scene/IAutoMovieInstanceSetViewerStats.ts#IAutoMovieInstanceSetViewerStats
 
 ## @evidence contracts/development/design.md#principled-representation
 

@@ -1,4 +1,4 @@
-# src/index.ts#createViolinBow
+# src/music/createViolinBow.ts#createViolinBow
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

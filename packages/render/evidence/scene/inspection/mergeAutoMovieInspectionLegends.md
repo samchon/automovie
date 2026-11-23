@@ -1,4 +1,4 @@
-# src/index.ts#mergeAutoMovieInspectionLegends
+# src/scene/inspection/mergeAutoMovieInspectionLegends.ts#mergeAutoMovieInspectionLegends
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

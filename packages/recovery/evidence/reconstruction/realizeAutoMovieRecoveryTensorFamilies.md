@@ -1,4 +1,4 @@
-# src/index.ts#realizeAutoMovieRecoveryTensorFamilies
+# src/reconstruction/realizeAutoMovieRecoveryTensorFamilies.ts#realizeAutoMovieRecoveryTensorFamilies
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieInspectionHandle
+# src/scene/inspection/IAutoMovieInspectionHandle.ts#IAutoMovieInspectionHandle
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ The legend reports what was drawn, so a kind that was asked for and not found is
 
 States what the handle stands for, that its two lists follow the current marks, and when each call is made.
 
-# src/index.ts#IAutoMovieInspectionHandle.update
+# src/scene/inspection/IAutoMovieInspectionHandle.ts#IAutoMovieInspectionHandle.update
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -46,7 +46,7 @@ Measured marks, built buffers and the shade's shells, segments and materials are
 
 Replacing the marks releases the previous ones' geometries and materials; otherwise nothing outlives the call.
 
-# src/index.ts#IAutoMovieInspectionHandle.resize
+# src/scene/inspection/IAutoMovieInspectionHandle.ts#IAutoMovieInspectionHandle.resize
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -76,7 +76,7 @@ An assignment computes nothing to reuse.
 
 Allocates nothing.
 
-# src/index.ts#IAutoMovieInspectionHandle.labels
+# src/scene/inspection/IAutoMovieInspectionHandle.ts#IAutoMovieInspectionHandle.labels
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -106,7 +106,7 @@ The pose and camera change between calls, so nothing is reused.
 
 Returns plain records and keeps nothing.
 
-# src/index.ts#IAutoMovieInspectionHandle.bounds
+# src/scene/inspection/IAutoMovieInspectionHandle.ts#IAutoMovieInspectionHandle.bounds
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -136,7 +136,7 @@ The pose changes between calls, so no earlier box is valid to reuse.
 
 Returns plain numbers and keeps nothing.
 
-# src/index.ts#IAutoMovieInspectionHandle.restore
+# src/scene/inspection/IAutoMovieInspectionHandle.ts#IAutoMovieInspectionHandle.restore
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

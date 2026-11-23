@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieInspectionDiagnosticOverlay
+# src/scene/inspection/IAutoMovieInspectionDiagnosticOverlay.ts#IAutoMovieInspectionDiagnosticOverlay
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ The overlay is attached only while the picture renders, so no observation or oth
 
 States what it holds and when it is attached.
 
-# src/index.ts#IAutoMovieInspectionDiagnosticOverlay.render
+# src/scene/inspection/IAutoMovieInspectionDiagnosticOverlay.ts#IAutoMovieInspectionDiagnosticOverlay.render
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -46,7 +46,7 @@ A signature has no body; the overlay that implements it answers.
 
 A signature has no body; the overlay that implements it answers.
 
-# src/index.ts#IAutoMovieInspectionDiagnosticOverlay.dispose
+# src/scene/inspection/IAutoMovieInspectionDiagnosticOverlay.ts#IAutoMovieInspectionDiagnosticOverlay.dispose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

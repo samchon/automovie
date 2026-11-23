@@ -1,4 +1,4 @@
-# src/index.ts#fitRecoveryEpipolarMatrix
+# src/internal/fitRecoveryEpipolarMatrix.ts#fitRecoveryEpipolarMatrix
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

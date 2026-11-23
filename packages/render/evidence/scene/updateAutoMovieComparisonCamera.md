@@ -1,4 +1,4 @@
-# src/index.ts#updateAutoMovieComparisonCamera
+# src/scene/updateAutoMovieComparisonCamera.ts#updateAutoMovieComparisonCamera
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

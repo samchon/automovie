@@ -1,4 +1,4 @@
-# src/index.ts#defaultMaterial
+# src/scene/defaultMaterial.ts#defaultMaterial
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

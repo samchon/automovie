@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryMultiBoundaryChart
+# src/internal/RecoveryMultiBoundaryChart.ts#RecoveryMultiBoundaryChart
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

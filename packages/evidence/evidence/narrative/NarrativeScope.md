@@ -1,4 +1,4 @@
-# src/index.ts#NarrativeScope
+# src/narrative/NarrativeScope.ts#NarrativeScope
 
 ## @evidence contracts/development/design.md#principled-representation
 

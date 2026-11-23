@@ -1,4 +1,4 @@
-# src/draw/index.ts#planAutoMovieDrawCall
+# src/draw/planAutoMovieDrawCall.ts#planAutoMovieDrawCall
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

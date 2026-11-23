@@ -1,4 +1,4 @@
-# src/index.ts#buildPlantingObject
+# src/scene/buildPlantingObject.ts#buildPlantingObject
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

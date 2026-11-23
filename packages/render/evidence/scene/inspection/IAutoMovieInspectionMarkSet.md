@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieInspectionMarkSet
+# src/scene/inspection/IAutoMovieInspectionMarkSet.ts#IAutoMovieInspectionMarkSet
 
 ## @evidence contracts/development/design.md#principled-representation
 

@@ -1,4 +1,4 @@
-# src/internal/index.ts#continuation
+# src/narrative/internal/metadataRewrite/continuation.ts#continuation
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

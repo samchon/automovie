@@ -1,4 +1,4 @@
-# src/index.ts#autoMovieViewerTurntableViewpoints
+# src/scene/subjectViewpoint/autoMovieViewerTurntableViewpoints.ts#autoMovieViewerTurntableViewpoints
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#applyAutoMovieRecoveryAnalyticPublication
+# src/reconstruction/applyAutoMovieRecoveryAnalyticPublication.ts#applyAutoMovieRecoveryAnalyticPublication
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

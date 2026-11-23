@@ -1,4 +1,4 @@
-# src/index.ts#createCymbal
+# src/music/createCymbal.ts#createCymbal
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

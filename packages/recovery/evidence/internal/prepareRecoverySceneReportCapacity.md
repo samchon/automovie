@@ -1,4 +1,4 @@
-# src/index.ts#prepareRecoverySceneReportCapacity
+# src/internal/prepareRecoverySceneReportCapacity.ts#prepareRecoverySceneReportCapacity
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

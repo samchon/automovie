@@ -1,4 +1,4 @@
-# src/index.ts#analyzeRecoveryMultiBoundarySurface
+# src/internal/analyzeRecoveryMultiBoundarySurface.ts#analyzeRecoveryMultiBoundarySurface
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

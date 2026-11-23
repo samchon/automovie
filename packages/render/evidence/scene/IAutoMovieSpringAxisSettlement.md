@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieSpringAxisSettlement
+# src/scene/IAutoMovieSpringAxisSettlement.ts#IAutoMovieSpringAxisSettlement
 
 ## @evidence contracts/development/design.md#principled-representation
 

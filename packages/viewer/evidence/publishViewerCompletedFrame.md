@@ -1,4 +1,4 @@
-# src/index.ts#publishViewerCompletedFrame
+# src/publishViewerCompletedFrame.ts#publishViewerCompletedFrame
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

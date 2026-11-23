@@ -1,4 +1,4 @@
-# src/index.ts#selectRecoveryFeasibleTrial
+# src/internal/selectRecoveryFeasibleTrial.ts#selectRecoveryFeasibleTrial
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#hashAutoMovieRasterImage
+# src/picture/hashAutoMovieRasterImage.ts#hashAutoMovieRasterImage
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

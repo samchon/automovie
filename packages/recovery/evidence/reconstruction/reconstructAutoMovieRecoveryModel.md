@@ -1,4 +1,4 @@
-# src/index.ts#reconstructAutoMovieRecoveryModel
+# src/reconstruction/reconstructAutoMovieRecoveryModel.ts#reconstructAutoMovieRecoveryModel
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

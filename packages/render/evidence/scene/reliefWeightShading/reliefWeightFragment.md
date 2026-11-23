@@ -1,4 +1,4 @@
-# src/index.ts#reliefWeightFragment
+# src/scene/reliefWeightShading/reliefWeightFragment.ts#reliefWeightFragment
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#readAutoMovieShadowLightSource
+# src/scene/readAutoMovieShadowLightSource.ts#readAutoMovieShadowLightSource
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

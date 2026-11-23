@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieInspectorAction
+# src/inspector/IAutoMovieInspectorAction.ts#IAutoMovieInspectorAction
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ No member names a request field: every edit is of a grammar key's text, so the t
 
 Tabulates every action with the key it edits and the request member it changes.
 
-# src/index.ts#IAutoMovieInspectorAction.IToggle
+# src/inspector/IAutoMovieInspectorAction.ts#IAutoMovieInspectorAction.IToggle
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -32,7 +32,7 @@ The discriminant, the pattern and the direction.
 
 States what each member means.
 
-# src/index.ts#IAutoMovieInspectorAction.IColor
+# src/inspector/IAutoMovieInspectorAction.ts#IAutoMovieInspectorAction.IColor
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -50,7 +50,7 @@ Removal is null rather than a reserved colour, so every integer is a colour.
 
 States the encoding and the null case.
 
-# src/index.ts#IAutoMovieInspectorAction.IShade
+# src/inspector/IAutoMovieInspectorAction.ts#IAutoMovieInspectorAction.IShade
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -68,7 +68,7 @@ The shade type is the request's own, so an unknown shade cannot be dispatched.
 
 States that several passes become one.
 
-# src/index.ts#IAutoMovieInspectorAction.ISwitch
+# src/inspector/IAutoMovieInspectorAction.ts#IAutoMovieInspectorAction.ISwitch
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -86,7 +86,7 @@ Only the switches a panel offers are listed, so no key outside the grammar can b
 
 States what each key does.
 
-# src/index.ts#IAutoMovieInspectorAction.IView
+# src/inspector/IAutoMovieInspectorAction.ts#IAutoMovieInspectorAction.IView
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -104,7 +104,7 @@ The text replaces every view, because the page draws through one.
 
 States the grammar and the replacement.
 
-# src/index.ts#IAutoMovieInspectorAction.ITime
+# src/inspector/IAutoMovieInspectorAction.ts#IAutoMovieInspectorAction.ITime
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -122,7 +122,7 @@ Playback does not dispatch it per frame; a pause or a seek does, so the request 
 
 States the unit, the key and when it is dispatched.
 
-# src/index.ts#IAutoMovieInspectorAction.ILocate
+# src/inspector/IAutoMovieInspectorAction.ts#IAutoMovieInspectorAction.ILocate
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -140,7 +140,7 @@ The caller passes only paths the scene draws, because a label pattern that match
 
 States the unit, the replacement and the empty case.
 
-# src/index.ts#IAutoMovieInspectorAction.ISubject
+# src/inspector/IAutoMovieInspectorAction.ts#IAutoMovieInspectorAction.ISubject
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -158,7 +158,7 @@ Null keeps the grammar's own meaning instead of an empty name.
 
 States the null case.
 
-# src/index.ts#IAutoMovieInspectorAction.IText
+# src/inspector/IAutoMovieInspectorAction.ts#IAutoMovieInspectorAction.IText
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -176,7 +176,7 @@ A refused text keeps the previous request, so a typing mistake never blanks the 
 
 States the text's form and the refusal.
 
-# src/index.ts#IAutoMovieInspectorAction.IRestore
+# src/inspector/IAutoMovieInspectorAction.ts#IAutoMovieInspectorAction.IRestore
 
 ## @evidence contracts/development/design.md#principled-representation
 

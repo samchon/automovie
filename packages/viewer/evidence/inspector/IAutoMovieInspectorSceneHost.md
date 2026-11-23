@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieInspectorSceneHost
+# src/inspector/IAutoMovieInspectorSceneHost.ts#IAutoMovieInspectorSceneHost
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Structural rather than `THREE.WebGLRenderer`, because demanding the whole render
 
 States who supplies it in a page and in a test, and what each member is.
 
-# src/index.ts#IAutoMovieInspectorSceneHost.createRenderer
+# src/inspector/IAutoMovieInspectorSceneHost.ts#IAutoMovieInspectorSceneHost.createRenderer
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -46,7 +46,7 @@ A signature has no body; the host that implements it answers.
 
 The mount owns the renderer and calls its `dispose` once.
 
-# src/index.ts#IAutoMovieInspectorSceneHost.requestFrame
+# src/inspector/IAutoMovieInspectorSceneHost.ts#IAutoMovieInspectorSceneHost.requestFrame
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -76,7 +76,7 @@ A signature has no body; the host that implements it answers.
 
 The mount holds at most one pending handle and cancels it when it ends.
 
-# src/index.ts#IAutoMovieInspectorSceneHost.cancelFrame
+# src/inspector/IAutoMovieInspectorSceneHost.ts#IAutoMovieInspectorSceneHost.cancelFrame
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -106,7 +106,7 @@ A signature has no body; the host that implements it answers.
 
 A signature has no body; the host that implements it answers.
 
-# src/index.ts#IAutoMovieInspectorSceneHost.size
+# src/inspector/IAutoMovieInspectorSceneHost.ts#IAutoMovieInspectorSceneHost.size
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -136,7 +136,7 @@ A signature has no body; the host that implements it answers.
 
 A signature has no body; the host that implements it answers.
 
-# src/index.ts#IAutoMovieInspectorSceneHost.IRenderer
+# src/inspector/IAutoMovieInspectorSceneHost.ts#IAutoMovieInspectorSceneHost.IRenderer
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -154,7 +154,7 @@ No context or capability member, so a recording double needs no WebGL.
 
 States what each member is for.
 
-# src/index.ts#IAutoMovieInspectorSceneHost.IRenderer.render
+# src/inspector/IAutoMovieInspectorSceneHost.ts#IAutoMovieInspectorSceneHost.IRenderer.render
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -184,7 +184,7 @@ three.js's own method.
 
 three.js's own method.
 
-# src/index.ts#IAutoMovieInspectorSceneHost.IRenderer.setPixelRatio
+# src/inspector/IAutoMovieInspectorSceneHost.ts#IAutoMovieInspectorSceneHost.IRenderer.setPixelRatio
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -214,7 +214,7 @@ three.js's own method.
 
 three.js's own method.
 
-# src/index.ts#IAutoMovieInspectorSceneHost.IRenderer.setSize
+# src/inspector/IAutoMovieInspectorSceneHost.ts#IAutoMovieInspectorSceneHost.IRenderer.setSize
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -244,7 +244,7 @@ three.js's own method.
 
 three.js's own method.
 
-# src/index.ts#IAutoMovieInspectorSceneHost.IRenderer.dispose
+# src/inspector/IAutoMovieInspectorSceneHost.ts#IAutoMovieInspectorSceneHost.IRenderer.dispose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -274,7 +274,7 @@ three.js's own method.
 
 three.js's own method.
 
-# src/index.ts#IAutoMovieInspectorSceneHost.ISize
+# src/inspector/IAutoMovieInspectorSceneHost.ts#IAutoMovieInspectorSceneHost.ISize
 
 ## @evidence contracts/development/design.md#principled-representation
 

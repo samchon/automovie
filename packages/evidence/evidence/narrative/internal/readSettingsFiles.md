@@ -1,4 +1,4 @@
-# src/internal/index.ts#readSettingsFiles
+# src/narrative/internal/readSettingsFiles.ts#readSettingsFiles
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

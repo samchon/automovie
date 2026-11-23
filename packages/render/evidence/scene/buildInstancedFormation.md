@@ -1,4 +1,4 @@
-# src/index.ts#buildInstancedFormation
+# src/scene/buildInstancedFormation.ts#buildInstancedFormation
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

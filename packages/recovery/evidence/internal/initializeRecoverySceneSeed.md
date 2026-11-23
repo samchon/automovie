@@ -1,4 +1,4 @@
-# src/index.ts#initializeRecoverySceneSeed
+# src/internal/initializeRecoverySceneSeed.ts#initializeRecoverySceneSeed
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

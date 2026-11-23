@@ -1,4 +1,4 @@
-# src/internal/index.ts#createPrincipleReferences
+# src/narrative/internal/references/createPrincipleReferences.ts#createPrincipleReferences
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

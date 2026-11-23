@@ -1,4 +1,4 @@
-# src/index.ts#factorRecoveryMapCurvature
+# src/internal/factorRecoveryMapCurvature.ts#factorRecoveryMapCurvature
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

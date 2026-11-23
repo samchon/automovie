@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieRecoveryEventCurve
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ Occurrence arithmetic uses the common event-curve records and existing engine po
 
 Endpoint authority and coefficient equality do not imply source topology, material correspondence or transverse surface continuity.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.controls
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.controls
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ The existing stateless reader owns coefficient derivation; this entry retains no
 
 The returned controls transfer to the caller; no caller data is retained.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.fullparentControls
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.fullparentControls
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -76,7 +76,7 @@ The shared reader returns the existing native coefficient tuple without copying.
 
 The returned controls transfer to the caller; no caller data is retained.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.same
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.same
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -106,7 +106,7 @@ No comparison result is cached.
 
 No storage is allocated.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.fromCurve
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.fromCurve
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -136,7 +136,7 @@ Each source retains the original parent coefficient reference.
 
 Caller-owned records reference immutable caller inputs and retain no global state.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.knots
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.knots
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -166,7 +166,7 @@ Retained knots are copied rather than recomputed from spatial positions.
 
 Only the returned array survives the call.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.endpointAuthority
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.endpointAuthority
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -196,7 +196,7 @@ The original parent endpoint is checked directly without restriction reevaluatio
 
 The function allocates and retains no arrays.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.portion
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.portion
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -226,7 +226,7 @@ Every occurrence retains its original curve owner; restriction composes only ori
 
 Returned pieces reference original native curves; no derived controls are stored.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.reverse
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.reverse
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -256,7 +256,7 @@ Native parents and endpoint-name pairs are reused unchanged.
 
 The caller owns the returned arc and no global reversal cache survives.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.piece
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.piece
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -286,7 +286,7 @@ Returned provenance uses the original parent rather than a separately fitted bou
 
 Only the returned piece survives; a refused temporary portion is released normally.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.evaluate
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.evaluate
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -316,7 +316,7 @@ Original occurrence controls feed evaluation without reconstruction or refitting
 
 Temporary controls and partition expire on return; the caller receives one fresh position.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.concatenate
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.concatenate
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -346,7 +346,7 @@ Original piece and parent records are referenced without duplicating coefficient
 
 Only one new piece-list array is retained by the returned composite.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.line
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.line
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -376,7 +376,7 @@ Endpoints remain the supplied exact coefficient values; handles are constructed 
 
 The returned one-piece arc owns its handles and retains no global state.
 
-# src/index.ts#AutoMovieRecoveryEventCurve.rotateAtKnot
+# src/observation/AutoMovieRecoveryEventCurve.ts#AutoMovieRecoveryEventCurve.rotateAtKnot
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

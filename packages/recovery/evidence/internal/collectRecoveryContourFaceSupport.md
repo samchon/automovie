@@ -1,4 +1,4 @@
-# src/index.ts#collectRecoveryContourFaceSupport
+# src/internal/collectRecoveryContourFaceSupport.ts#collectRecoveryContourFaceSupport
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#subsurfaceTable
+# src/scene/subsurfaceShading/subsurfaceTable.ts#subsurfaceTable
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

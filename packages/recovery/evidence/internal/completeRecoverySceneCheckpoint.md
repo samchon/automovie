@@ -1,4 +1,4 @@
-# src/index.ts#completeRecoverySceneCheckpoint
+# src/internal/completeRecoverySceneCheckpoint.ts#completeRecoverySceneCheckpoint
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

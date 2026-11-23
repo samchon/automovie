@@ -1,4 +1,4 @@
-# src/index.ts#spliceTangentNormal
+# src/scene/detailNormalShading/spliceTangentNormal.ts#spliceTangentNormal
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

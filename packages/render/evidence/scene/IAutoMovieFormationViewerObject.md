@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieFormationViewerObject
+# src/scene/IAutoMovieFormationViewerObject.ts#IAutoMovieFormationViewerObject
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Texture observations describe actual retained tables including future take uploa
 
 Documents root mounting, LOD statistics, conservative texture preflight, disposal ownership and source hero transforms captured before runtime writes.
 
-# src/index.ts#IAutoMovieFormationViewerObject.describeTextureSources
+# src/scene/IAutoMovieFormationViewerObject.ts#IAutoMovieFormationViewerObject.describeTextureSources
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ Current texture fields and cleared ownership maps are reobserved because mutatio
 
 Fact observation acquires no GPU texture and retains no additional table ownership after return.
 
-# src/index.ts#IAutoMovieFormationViewerObject.dispose
+# src/scene/IAutoMovieFormationViewerObject.ts#IAutoMovieFormationViewerObject.dispose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -76,7 +76,7 @@ Repeated successful disposal is a no-op; repeated failed disposal throws the sam
 
 The producer attempts all chunk and tier releases before clearing runtime maps; a failed teardown retains its closing-operation list and actual resource references with the stored failure, while successful teardown drops that list.
 
-# src/index.ts#IAutoMovieFormationViewerObject.update
+# src/scene/IAutoMovieFormationViewerObject.ts#IAutoMovieFormationViewerObject.update
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

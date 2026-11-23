@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryChartCollar
+# src/internal/RecoveryChartCollar.ts#RecoveryChartCollar
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

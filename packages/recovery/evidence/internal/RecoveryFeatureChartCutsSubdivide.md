@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryFeatureChartCutsSubdivide
+# src/internal/RecoveryFeatureChartCutsSubdivide.ts#RecoveryFeatureChartCutsSubdivide
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

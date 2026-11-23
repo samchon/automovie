@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieExpressionTarget
+# src/scene/IAutoMovieExpressionTarget.ts#IAutoMovieExpressionTarget
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ The sink receives authored preset/channel names and weights directly rather than
 
 States imported-runtime ownership and the setter's normalized unit-interval weight contract.
 
-# src/index.ts#IAutoMovieExpressionTarget.setExpressionValue
+# src/scene/IAutoMovieExpressionTarget.ts#IAutoMovieExpressionTarget.setExpressionValue
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryAtlasObservationNormals
+# src/internal/RecoveryAtlasObservationNormals.ts#RecoveryAtlasObservationNormals
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#captureViewerSnapshot
+# src/scene/captureViewerSnapshot.ts#captureViewerSnapshot
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

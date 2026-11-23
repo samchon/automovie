@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieCollisionSource
+# src/scene/inspection/AutoMovieCollisionSource.ts#AutoMovieCollisionSource
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Names and scene nesting never imply a slot, a group or a cord. An object without
 
 States the writer, the reader, the units and the index correspondence.
 
-# src/index.ts#AutoMovieCollisionSource.IInstances
+# src/scene/inspection/AutoMovieCollisionSource.ts#AutoMovieCollisionSource.IInstances
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -34,7 +34,7 @@ The group is the generator's explicit formation owner.
 
 Describes each field's origin.
 
-# src/index.ts#AutoMovieCollisionSource.ICord
+# src/scene/inspection/AutoMovieCollisionSource.ts#AutoMovieCollisionSource.ICord
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -52,7 +52,7 @@ Fewer than two distinct particles draw no tube and record nothing.
 
 States the coordinate frame and units.
 
-# src/index.ts#AutoMovieCollisionSource.bindInstances
+# src/scene/inspection/AutoMovieCollisionSource.ts#AutoMovieCollisionSource.bindInstances
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -82,7 +82,7 @@ Each generator update writes its current record once.
 
 The record lives on the mesh and is released with it.
 
-# src/index.ts#AutoMovieCollisionSource.bindCord
+# src/scene/inspection/AutoMovieCollisionSource.ts#AutoMovieCollisionSource.bindCord
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -112,7 +112,7 @@ Each soft-prop update writes its current record once.
 
 The record lives on the object and is released or deleted with it.
 
-# src/index.ts#AutoMovieCollisionSource.bindAssembly
+# src/scene/inspection/AutoMovieCollisionSource.ts#AutoMovieCollisionSource.bindAssembly
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -142,7 +142,7 @@ A model is recorded once when it is built.
 
 The placements are kept in a WeakMap keyed by the root, so they are released with the model.
 
-# src/index.ts#AutoMovieCollisionSource.assembly
+# src/scene/inspection/AutoMovieCollisionSource.ts#AutoMovieCollisionSource.assembly
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -172,7 +172,7 @@ Placement can change every frame, so each observation compares afresh.
 
 Returns a fresh set and keeps nothing.
 
-# src/index.ts#AutoMovieCollisionSource.instances
+# src/scene/inspection/AutoMovieCollisionSource.ts#AutoMovieCollisionSource.instances
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -202,7 +202,7 @@ The stored record itself is returned.
 
 Borrows the mesh's record and keeps nothing.
 
-# src/index.ts#AutoMovieCollisionSource.cord
+# src/scene/inspection/AutoMovieCollisionSource.ts#AutoMovieCollisionSource.cord
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

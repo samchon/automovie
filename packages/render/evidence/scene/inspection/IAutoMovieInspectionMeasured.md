@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieInspectionMeasured
+# src/scene/inspection/IAutoMovieInspectionMeasured.ts#IAutoMovieInspectionMeasured
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ The anchor is the measured object itself rather than its path, so two meshes tha
 
 States what the record holds and when its call is made.
 
-# src/index.ts#IAutoMovieInspectionMeasured.refresh
+# src/scene/inspection/IAutoMovieInspectionMeasured.ts#IAutoMovieInspectionMeasured.refresh
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

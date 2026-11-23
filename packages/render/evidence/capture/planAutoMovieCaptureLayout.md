@@ -1,4 +1,4 @@
-# src/capture/index.ts#planAutoMovieCaptureLayout
+# src/capture/planAutoMovieCaptureLayout.ts#planAutoMovieCaptureLayout
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

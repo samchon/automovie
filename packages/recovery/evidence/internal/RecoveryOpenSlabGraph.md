@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryOpenSlabGraph
+# src/internal/RecoveryOpenSlabGraph.ts#RecoveryOpenSlabGraph
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ The prepared runtime owner reuses source-link and boundary incidence; interface 
 
 Source topology and material orientation remain independent; hidden components, critical-event defects and ambiguous endpoint transport cannot authorize a bridge.
 
-# src/index.ts#RecoveryOpenSlabGraph.prepare
+# src/internal/RecoveryOpenSlabGraph.ts#RecoveryOpenSlabGraph.prepare
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

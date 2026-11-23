@@ -1,4 +1,4 @@
-# src/internal/index.ts#createLanguageDiscoveryReferences
+# src/narrative/internal/references/createLanguageDiscoveryReferences.ts#createLanguageDiscoveryReferences
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

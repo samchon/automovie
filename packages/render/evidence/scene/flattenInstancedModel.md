@@ -1,4 +1,4 @@
-# src/index.ts#flattenInstancedModel
+# src/scene/flattenInstancedModel.ts#flattenInstancedModel
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/index.ts#captureAutoMovieFramebufferRestore
+# src/scene/captureAutoMovieFramebufferRestore.ts#captureAutoMovieFramebufferRestore
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

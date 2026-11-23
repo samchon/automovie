@@ -1,4 +1,4 @@
-# src/capture/index.ts#planAutoMovieVideoFrames
+# src/capture/planAutoMovieVideoFrames.ts#planAutoMovieVideoFrames
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

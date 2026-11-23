@@ -1,4 +1,4 @@
-# src/captionSidecar.ts#renderCaptionSidecar
+# src/renderCaptionSidecar.ts#renderCaptionSidecar
 
 ## @evidence contracts/development/implementation.md#principled-implementation `JSON.stringify` emits object keys in insertion order, and the planner and slicer build every object with a fixed key order, so the same sidecar always yields the same bytes.
 

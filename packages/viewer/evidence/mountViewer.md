@@ -1,4 +1,4 @@
-# src/index.ts#mountViewer
+# src/mountViewer.ts#mountViewer
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

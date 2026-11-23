@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieTextureCache
+# src/scene/AutoMovieTextureCache.ts#AutoMovieTextureCache
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -16,7 +16,7 @@ Unprimed assets, closed caches and foreign or already-issued decoder originals r
 
 Explains decoded-source sharing versus binding-private sampler state, renderer-specific native allocation, loader teardown constraints and single-attempt failure-preserving disposal.
 
-# src/index.ts#AutoMovieTextureCache.prototype.prime
+# src/scene/AutoMovieTextureCache.ts#AutoMovieTextureCache.prototype.prime
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -46,7 +46,7 @@ decodeOnce shares the same promise for an asset across overlapping prime calls, 
 
 Pending and completed decoded textures enter shot-owned Maps before loader execution; dispose waits for those promises and retires their successful textures even during interrupted preparation.
 
-# src/index.ts#AutoMovieTextureCache.prototype.resolve
+# src/scene/AutoMovieTextureCache.ts#AutoMovieTextureCache.prototype.resolve
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -76,7 +76,7 @@ Reuses decoded Source data but deliberately issues a distinct wrapper for each b
 
 Every issued wrapper enters the shot-owned clone list for disposal; repeated resolves grow that list without a numeric cap until the shot owner closes the cache.
 
-# src/index.ts#AutoMovieTextureCache.prototype.resolveShared
+# src/scene/AutoMovieTextureCache.ts#AutoMovieTextureCache.prototype.resolveShared
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -106,7 +106,7 @@ Equal bindings, whose wrapper writes are identical, reuse one issued wrapper and
 
 Wrappers issued here stay in the shot-owned list that dispose retires; their population is bounded by the distinct object bindings resolved in the shot plus one per string-binding resolution, not by the number of resolutions.
 
-# src/index.ts#AutoMovieTextureCache.prototype.describeSources
+# src/scene/AutoMovieTextureCache.ts#AutoMovieTextureCache.prototype.describeSources
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -136,7 +136,7 @@ Texture fields and wrapper history are mutable, so source facts are reobserved i
 
 Returns fact records without acquiring textures or native storage; existing Maps remain owned by the cache's shot lifetime.
 
-# src/index.ts#AutoMovieTextureCache.prototype.dispose
+# src/scene/AutoMovieTextureCache.ts#AutoMovieTextureCache.prototype.dispose
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

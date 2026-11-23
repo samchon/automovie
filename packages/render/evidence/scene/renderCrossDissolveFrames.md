@@ -1,4 +1,4 @@
-# src/index.ts#renderCrossDissolveFrames
+# src/scene/renderCrossDissolveFrames.ts#renderCrossDissolveFrames
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

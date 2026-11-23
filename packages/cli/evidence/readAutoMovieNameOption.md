@@ -1,4 +1,4 @@
-# src/index.ts#readAutoMovieNameOption
+# src/readAutoMovieNameOption.ts#readAutoMovieNameOption
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

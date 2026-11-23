@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieRasterSheet
+# src/picture/AutoMovieRasterSheet.ts#AutoMovieRasterSheet
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ A constructor, `add` and `finish`, and the statics `lines` and `caption` that a 
 
 Nothing names a film or capture command; captions are caller text.
 
-# src/index.ts#AutoMovieRasterSheet.caption
+# src/picture/AutoMovieRasterSheet.ts#AutoMovieRasterSheet.caption
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -46,7 +46,7 @@ A pure expression.
 
 Returns a number.
 
-# src/index.ts#AutoMovieRasterSheet.wrap
+# src/picture/AutoMovieRasterSheet.ts#AutoMovieRasterSheet.wrap
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -76,7 +76,7 @@ A pure function of its text and size.
 
 Returns fresh strings.
 
-# src/index.ts#AutoMovieRasterSheet.lines
+# src/picture/AutoMovieRasterSheet.ts#AutoMovieRasterSheet.lines
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -106,7 +106,7 @@ A pure function of its arguments.
 
 Returns a number.
 
-# src/index.ts#AutoMovieRasterSheet.prototype.add
+# src/picture/AutoMovieRasterSheet.ts#AutoMovieRasterSheet.prototype.add
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -136,7 +136,7 @@ The caption reuses the frame label stamp on a strip the width of the cell.
 
 The frame is not retained.
 
-# src/index.ts#AutoMovieRasterSheet.prototype.finish
+# src/picture/AutoMovieRasterSheet.ts#AutoMovieRasterSheet.prototype.finish
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

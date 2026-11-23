@@ -1,4 +1,4 @@
-# src/chunkSequenceRender.ts#planChunkedSequenceRender
+# src/planChunkedSequenceRender.ts#planChunkedSequenceRender
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

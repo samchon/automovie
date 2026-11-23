@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryEventRegionCells
+# src/internal/RecoveryEventRegionCells.ts#RecoveryEventRegionCells
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

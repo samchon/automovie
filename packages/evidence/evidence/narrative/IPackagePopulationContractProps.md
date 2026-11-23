@@ -1,4 +1,4 @@
-# src/internal/index.ts#IPackagePopulationContractProps
+# src/narrative/IPackagePopulationContractProps.ts#IPackagePopulationContractProps
 
 ## @evidence contracts/development/design.md#principled-representation
 

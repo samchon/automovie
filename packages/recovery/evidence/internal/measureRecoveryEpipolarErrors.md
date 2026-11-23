@@ -1,4 +1,4 @@
-# src/index.ts#measureRecoveryEpipolarErrors
+# src/internal/measureRecoveryEpipolarErrors.ts#measureRecoveryEpipolarErrors
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

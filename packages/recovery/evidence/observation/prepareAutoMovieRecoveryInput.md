@@ -1,4 +1,4 @@
-# src/index.ts#prepareAutoMovieRecoveryInput
+# src/observation/prepareAutoMovieRecoveryInput.ts#prepareAutoMovieRecoveryInput
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

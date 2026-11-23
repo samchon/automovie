@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryFeatureChartCutsTopology
+# src/internal/RecoveryFeatureChartCutsTopology.ts#RecoveryFeatureChartCutsTopology
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

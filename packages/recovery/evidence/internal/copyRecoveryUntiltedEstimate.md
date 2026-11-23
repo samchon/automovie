@@ -1,4 +1,4 @@
-# src/index.ts#copyRecoveryUntiltedEstimate
+# src/internal/copyRecoveryUntiltedEstimate.ts#copyRecoveryUntiltedEstimate
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

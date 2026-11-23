@@ -1,4 +1,4 @@
-# src/index.ts#applyFormationCycleMaterial
+# src/scene/applyFormationCycleMaterial.ts#applyFormationCycleMaterial
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

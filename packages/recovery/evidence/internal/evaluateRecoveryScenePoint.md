@@ -1,4 +1,4 @@
-# src/index.ts#evaluateRecoveryScenePoint
+# src/internal/evaluateRecoveryScenePoint.ts#evaluateRecoveryScenePoint
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

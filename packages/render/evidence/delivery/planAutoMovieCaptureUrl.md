@@ -1,4 +1,4 @@
-# src/delivery/index.ts#planAutoMovieCaptureUrl
+# src/delivery/planAutoMovieCaptureUrl.ts#planAutoMovieCaptureUrl
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

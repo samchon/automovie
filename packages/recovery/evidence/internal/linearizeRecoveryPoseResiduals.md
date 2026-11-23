@@ -1,4 +1,4 @@
-# src/index.ts#linearizeRecoveryPoseResiduals
+# src/internal/linearizeRecoveryPoseResiduals.ts#linearizeRecoveryPoseResiduals
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

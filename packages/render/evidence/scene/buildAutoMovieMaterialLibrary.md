@@ -1,4 +1,4 @@
-# src/index.ts#buildAutoMovieMaterialLibrary
+# src/scene/buildAutoMovieMaterialLibrary.ts#buildAutoMovieMaterialLibrary
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

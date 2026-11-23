@@ -1,4 +1,4 @@
-# src/index.ts#calibrateRecoveryEpipolarMatrix
+# src/internal/calibrateRecoveryEpipolarMatrix.ts#calibrateRecoveryEpipolarMatrix
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

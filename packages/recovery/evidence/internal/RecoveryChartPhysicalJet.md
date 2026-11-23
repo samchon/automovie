@@ -1,4 +1,4 @@
-# src/index.ts#RecoveryChartPhysicalJet
+# src/internal/RecoveryChartPhysicalJet.ts#RecoveryChartPhysicalJet
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

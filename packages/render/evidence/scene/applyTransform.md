@@ -1,4 +1,4 @@
-# src/index.ts#applyTransform
+# src/scene/applyTransform.ts#applyTransform
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

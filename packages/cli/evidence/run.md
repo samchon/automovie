@@ -1,4 +1,4 @@
-# src/index.ts#run
+# src/run.ts#run
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -1,4 +1,4 @@
-# src/animals/index.ts#rideHorse
+# src/animals/rideHorse.ts#rideHorse
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

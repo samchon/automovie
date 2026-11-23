@@ -1,4 +1,4 @@
-# src/index.ts#measureRecoveryHomographyErrors
+# src/internal/measureRecoveryHomographyErrors.ts#measureRecoveryHomographyErrors
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

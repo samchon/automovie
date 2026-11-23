@@ -1,4 +1,4 @@
-# src/index.ts#applyAutoMovieSectionPlanes
+# src/scene/applyAutoMovieSectionPlanes.ts#applyAutoMovieSectionPlanes
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

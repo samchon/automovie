@@ -1,4 +1,4 @@
-# src/index.ts#IAutoMovieFormationViewerStats
+# src/scene/IAutoMovieFormationViewerStats.ts#IAutoMovieFormationViewerStats
 
 ## @evidence contracts/development/design.md#principled-representation
 

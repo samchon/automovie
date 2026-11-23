@@ -1,4 +1,4 @@
-# src/index.ts#solveRecoveryFeasibleDirection
+# src/internal/solveRecoveryFeasibleDirection.ts#solveRecoveryFeasibleDirection
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
