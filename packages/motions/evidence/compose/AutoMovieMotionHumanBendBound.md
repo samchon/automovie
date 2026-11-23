@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanBendBound.ts#AutoMovieMotionHumanBendBound
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the bound, the derivation for both charts, the gimbal and rounding cases and the fallback.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One preparation per fixed joint and neutral, returning the engine's bound reader over a branch's rotation by swivel.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record and one preparation, read by `AutoMovieMotionHumanBendSweep`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No sampled bound: every value is a closed-form enclosure or 0.
-
 # src/compose/AutoMovieMotionHumanBendBound.ts#AutoMovieMotionHumanBendBound.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

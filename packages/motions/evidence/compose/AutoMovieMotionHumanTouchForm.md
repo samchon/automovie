@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanTouchForm.ts#AutoMovieMotionHumanTouchForm
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a kind is, its source, the sourced speed and which values are provisional.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A kind is a lift, a travel, a period and a curl, the four quantities that tell the taxonomy's gestures apart in a surface frame.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The kind union, its table, the period rule and the region's tangent; read by the touch stroke and its laws.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Periods are timing spans, amplitudes shares of the hand, so no metre is typed for one body.
-
 # src/compose/AutoMovieMotionHumanTouchForm.ts#AutoMovieMotionHumanTouchForm.curled
 
 ## @evidence contracts/development/common.md#meaningful-documentation

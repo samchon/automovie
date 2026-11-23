@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanHead.ts#AutoMovieMotionHumanHead
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the phrases move, how an angle is shared and which movement belongs to the gaze primitive instead.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A head movement with no target is a clinical angle of the cervical chain, so the phrases are joint deltas on the head's channel that add to where the posture holds the head.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One share, its constant and three phrases; the oscillation they share is private. The stretching law reads `tilt`; the reactions state their head angles as their own curves.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The axis is an index into the clinical triple the joints are written in, not a second name for it; aiming at a target is left to the gaze primitive instead of an optional target here.
-
 # src/compose/AutoMovieMotionHumanHead.ts#AutoMovieMotionHumanHead.share
 
 ## @evidence contracts/development/common.md#meaningful-documentation

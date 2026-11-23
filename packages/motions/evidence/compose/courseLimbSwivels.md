@@ -1,21 +1,3 @@
-# src/compose/courseLimbSwivels.ts#courseLimbSwivels
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the course and its reader.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A limb on its goal has one free coordinate, its swivel, and a branch; the course holds those over the plan's seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The reader, its knot records and the limb chains it judges.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The goals stay the plan's and the display's own.
-
 # src/compose/courseLimbSwivels.ts#courseLimbSwivels.IPrepare
 
 ## @evidence contracts/development/common.md#meaningful-documentation

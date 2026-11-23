@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanGoal.ts#AutoMovieMotionHumanGoal
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what moves how between two goals, why a limb between them is not planted, what it keeps of the asked goal and the frame rule.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A limb goal is a point, a bend hint and a rotation, so a goal between two is their interpolation by one weight.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The mix, the goal of a driven limb, one primitive (`drive`) and one named time course (`pulse`); the only owner of goal interpolation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Works on the posture's own goal type for any of the four limbs; mismatched frames throw.
-
 # src/compose/AutoMovieMotionHumanGoal.ts#AutoMovieMotionHumanGoal.mix
 
 ## @evidence contracts/development/common.md#meaningful-documentation

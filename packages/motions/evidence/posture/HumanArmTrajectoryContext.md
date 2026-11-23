@@ -1,21 +1,3 @@
-# src/posture/HumanArmTrajectoryContext.ts#HumanArmTrajectoryContext
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines fixed arm setup, per-waypoint frames, original allowances, ordinary fresh setup and explicit unchanged-operation setup preparation with borrowed metadata lifetime.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Actual frames and ordered arm coordinates retain the existing trajectory problem; one same-base FK reader shares only identical completed math across its arm frames.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One problem record and one numerical builder serve ordinary contexts and a prepared static-setup reader used by actual following/refinement work; no caller-supplied setup verdict is exposed.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No candidate, range, rest, external reference or contact allowance is changed by sharing the synchronous frame-construction reader.
-
 # src/posture/HumanArmTrajectoryContext.ts#HumanArmTrajectoryContext.IProblem
 
 ## @evidence contracts/development/common.md#meaningful-documentation

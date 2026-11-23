@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmRide.ts#AutoMovieMotionHumanArmRide
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a riding site is and the two frames it is read in.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A site on a moving segment is held in that segment's own frame, so the plan carries it as the segment is solved.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two readings, both read by `AutoMovieMotionHumanArmPlanned.planned`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The riding frame is the segment's or the lead site's, never the hand as posed when it is read.
-
 # src/compose/AutoMovieMotionHumanArmRide.ts#AutoMovieMotionHumanArmRide.gripped
 
 ## @evidence contracts/development/common.md#meaningful-documentation

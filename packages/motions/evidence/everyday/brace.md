@@ -1,21 +1,3 @@
-# src/everyday/brace.ts#brace
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the goal, the method, the timing, the events and the provisional values.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes the name, the cancel table, the parameters and the plan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the posture, hand, trunk and contact types.
-
 # src/everyday/brace.ts#brace.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

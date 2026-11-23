@@ -1,21 +1,3 @@
-# src/everyday/seatedHands.ts#seatedHands
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the target surfaces and the lifetime of shared resolved bones; members give world-metre and degree inputs.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Existing posture goals, body surfaces and resolved bones describe both resting targets.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The seated facade delegates its four hand operations here: thigh goals, thigh rests, mixed rests and the armrest goal.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Uses the canonical arm goal and posture resolver without a parallel fit or stored target pose.
-
 # src/everyday/seatedHands.ts#seatedHands.hands
 
 ## @evidence contracts/development/common.md#meaningful-documentation

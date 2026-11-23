@@ -1,21 +1,3 @@
-# src/posture/HumanShapeFraming.ts#HumanShapeFraming
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is framed, for which readers and how long it is kept.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A shape's bound is its sphere and, for a hull, its face planes in its own frame, the two tests a point is screened by before an exact query.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The framed record, the framing, the screen test and the sphere, read by the forearm's clearance and the trajectory's shapes.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No shape kind is special-cased beyond the four the engine's colliders have.
-
 # src/posture/HumanShapeFraming.ts#HumanShapeFraming.IFramed
 
 ## @evidence contracts/development/common.md#meaningful-documentation

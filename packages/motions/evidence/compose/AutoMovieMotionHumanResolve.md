@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanResolve.ts#AutoMovieMotionHumanResolve
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is resolved, why an author needs both units, and the frame of every metre value.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each result pairs the record the layer uses with its metric reading on one body, so neither is derived by hand.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Six functions over the place, bend and range owners; it resolves and owns no table of its own.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every value comes from the owner a law reads it from, so the table cannot disagree with a performance.
-
 # src/compose/AutoMovieMotionHumanResolve.ts#AutoMovieMotionHumanResolve.place
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/lexicon/HumanCarriedCouplingRigid.ts#HumanCarriedCouplingRigid
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the registration fixes, what it fits and who calls it with which postures.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A rigid registration with one fixed point, leaving only its rotation to fit.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function and its result record, read by the stance fit; the placement record is the interface's `IFit`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the engine's rigid registration and the carry's posture and region owners.
-
 # src/lexicon/HumanCarriedCouplingRigid.ts#HumanCarriedCouplingRigid.IRead
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmObservation.ts#AutoMovieMotionHumanArmObservation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents reach arcs, target displacement and goal-to-site frame conversion at action-local seconds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each reading uses canonical body poses and world-metre goal frames; speed and contact geometry keep their existing physical owners.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The planner and feedback reader share the same site/perception conversion; duration reads the same solved arm probes without owning trajectory optimization.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The arc's chord count derived from the arm and the model's tolerance, the reach's movement-time source, goal ownership and contact offsets are preserved; no action or body receives a special path.
-
 # src/compose/AutoMovieMotionHumanArmObservation.ts#AutoMovieMotionHumanArmObservation.reaching
 
 ## @evidence contracts/development/common.md#meaningful-documentation

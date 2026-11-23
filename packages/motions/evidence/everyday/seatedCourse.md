@@ -1,21 +1,3 @@
-# src/everyday/seatedCourse.ts#seatedCourse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is timed, the ratio it reads and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Two pure functions of a dimensionless ratio, returning seconds and degrees.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two quantities the sit and the rise share, and nothing else.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No body or seat is special-cased; the ratio carries the seat.
-
 # src/everyday/seatedCourse.ts#seatedCourse.descent
 
 ## @evidence contracts/development/common.md#meaningful-documentation

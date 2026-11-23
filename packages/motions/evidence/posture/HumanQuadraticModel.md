@@ -1,21 +1,3 @@
-# src/posture/HumanQuadraticModel.ts#HumanQuadraticModel
-
-## @evidence contracts/development/design.md#principled-representation
-
-Separates fixed admitted P/q/A from variable row bounds and mutable iteration scratch; scaled matrices preserve their original units through D/E/c.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes only model creation and the bound-changing solve consumed by quadratic-program trust-region callers; public state remains HumanQuadraticProgram.IState.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Uses immutable copied numeric dependencies rather than mutable source identity or an answer cache; a new convexification creates a new model.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States fixed versus changing inputs, one-model ownership and independent OSQP execution.
-
 # src/posture/HumanQuadraticModel.ts#HumanQuadraticModel.IModel
 
 ## @evidence contracts/development/design.md#principled-representation

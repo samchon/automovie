@@ -1,21 +1,3 @@
-# src/perform/HumanPerformanceAhead.ts#HumanPerformanceAhead
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States which action is asked, from which posture and at which second.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The composition's own order of a performer's actions and the parameters their laws resolve, read as data.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One reader, the context's `demands`, built by `HumanPerformancePlace`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No action or prop is named: the action asked is found by the prop's id among its parameters.
-
 # src/perform/HumanPerformanceAhead.ts#HumanPerformanceAhead.reader
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/posture/HumanFitGoals.ts#HumanFitGoals
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two measurements and the consumer requiring them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An angle between three bone-carried landmarks and a world centre-of-mass point, in degrees and metres, become scalar rows of the existing whole-body fit.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns these goals' reading and analytic slopes; HumanBodyFitRows and HumanBodyFitMerit share them, and HumanFitBalance owns the mass model.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No changed joint ranges, proxy bone or action-specific result.
-
 # src/posture/HumanFitGoals.ts#HumanFitGoals.IReading
 
 ## @evidence contracts/development/common.md#meaningful-documentation

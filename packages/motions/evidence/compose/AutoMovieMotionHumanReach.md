@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanReach.ts#AutoMovieMotionHumanReach
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what reach is measured between, the reachable set, the three policies and when a law takes each.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The reachable set of a two-segment limb is the ball about its root joint with the radius of both segments, the workspace of two-bone inverse kinematics; a policy is the answer outside it.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One measurement, three policies and their combination; the only owner of reach checks, so no law compares a distance with an arm length itself.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Policies are a closed union; the lean limit is a named provisional constant; an unreachable contact throws with its numbers and is never bent to fit silently.
-
 # src/compose/AutoMovieMotionHumanReach.ts#AutoMovieMotionHumanReach.measure
 
 ## @evidence contracts/development/common.md#meaningful-documentation

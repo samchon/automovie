@@ -1,21 +1,3 @@
-# src/perform/HumanPerformanceHits.ts#HumanPerformanceHits
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three producers, how each fills velocity, mass and outcome, with the provisional mass and its source, and the order.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One record for every contact, the interface's own; no second hit type.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The hits of a performance and of one subject.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Each producer's numbers come from its own computed contact.
-
 # src/perform/HumanPerformanceHits.ts#HumanPerformanceHits.hits
 
 ## @evidence contracts/development/common.md#meaningful-documentation

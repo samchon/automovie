@@ -31,14 +31,6 @@ import { walkReach } from "./walkReach";
  * @param steps The take's fixed step clock and phase readers.
  * @param solve The take's same-second pelvis/foot solve, sharing the phase and amount this reader already evaluated at that exact second.
  * @returns A clamped action-second reader; omitted leg/channel demand writes the complete posture.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States fixed body preparation, arm units, action time and the optional leg demand.
- * @evidence contracts/development/implementation.md#principled-implementation The gait's sinusoidal pelvic turn with the chest's counter-rotation (`CHEST`), its arm angles held out by the standing clearance plus the pelvis's tilt (`PELVIS`), an upright-relative lumbopelvic inclination and footprint-heading knee hints, then the trunk pivoted about the hips.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Lower-leg rest points precede one posture reader; standing alignment and relaxed arm preparation start only on their first demand, while foot reach stays with the supplied solve owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every angle comes from the gait record or a named constant; unread leg goals are omitted only under explicit channel demand.
- * @evidence contracts/development/implementation.md#efficient-algorithms The supplied solve computes only requested swinging feet, with at most two leg goals; root/trunk/leg-only reads skip relaxed-arm clearance preparation and arm tuples, while hand-only reads take HumanHand's relaxed shape directly.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes body, gait, arm modifiers and step plan. Each lazily prepared alignment, relaxed record, abduction and hand shape depends on those alone and is reused for the take, with no queried posture cache.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns fixed body/step references and standing terms until its plan releases it, without a sample history or external handle.
  */
 export function walkPosture(
   body: IAutoMovieMotionHumanBody,
@@ -135,11 +127,6 @@ export function walkPosture(
 /**
  * The record a stepping take's solve hands the posture, and the chest's
  * counter-rotation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and the constant's unit and status.
- * @evidence contracts/development/design.md#principled-representation The scheduled feet, the pelvis's clinical angles, the settled ground and the reached feet at one second, one record shared by the take's solve and its posture.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `ISettled`, which `walk.locomote`'s solve returns and `walkPosture` reads, `PELVIS`, which `walk.locomote`'s pelvis reads, and `CHEST`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One declaration of the record, not one per side of the call.
  */
 export namespace walkPosture {
   /** The settled feet and pelvis the gait's posture reads at one second. */

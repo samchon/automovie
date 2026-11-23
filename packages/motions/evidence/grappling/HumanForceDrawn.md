@@ -1,21 +1,3 @@
-# src/grappling/HumanForceDrawn.ts#HumanForceDrawn
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States constant horizontal pull, mass/frequency/time units, nonnegative clock policy, scalar/full observations and unchanged nonfinite propagation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Existing scalar mass, eigenfrequency and force describe the fixed law; fresh offset/speed/extrapolated fields describe one actual time observation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-prepare serves the actual response's repeated offset and paired break-state reads, while sample preserves HumanForceExchange.drawn's complete one-shot owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No pose, fitted result, success flag, alternate time law, repaired input or force bound enters this scalar owner; every requested observation runs its original analytic expression.
-
 # src/grappling/HumanForceDrawn.ts#HumanForceDrawn.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

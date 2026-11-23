@@ -1,21 +1,3 @@
-# src/posture/HumanArmFrame.ts#HumanArmFrame
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes the per-base shoulder context, actual colliders and canonical probe provenance.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One resolved body and collider placement supply both obstacle selection and segment-local probe frames.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One frame builder serves trajectory contexts and the public arm Jacobian reader.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-External part ordering and the audit's original probes, ownership and reach screens remain unchanged.
-
 # src/posture/HumanArmFrame.ts#HumanArmFrame.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

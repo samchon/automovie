@@ -1,21 +1,3 @@
-# src/sport/cartwheel.ts#cartwheel
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the law shows, its kinematic model, the one axis, the events and what the first pass leaves out.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A table of the wheel's root by angle, built once per plan from the body's own joints, so a tall and a small body roll different distances by their own spokes.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The name, the cancel table, the shape, the parameters and the plan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No length in metres: the travel follows from the spokes.
-
 # src/sport/cartwheel.ts#cartwheel.wheel
 
 ## @evidence contracts/development/common.md#meaningful-documentation

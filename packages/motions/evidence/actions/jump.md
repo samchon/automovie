@@ -1,21 +1,3 @@
-# src/actions/jump.ts#jump
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States entry continuation, the actual heel rule, ballistic COM, landing phases, units and provisional quantities; achieved endpoint preparation is delegated to its owner.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One action law separates authored landing/apex/turn requests from body-dependent physical endpoints and the engine's flight rotation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes the action name, interrupts, parameters, phase durations and planner; shared endpoint and posture assembly have one helper owner each.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Original targets, body ROM, contact windows and flight budgets remain intact; no body-specific case, timing epsilon or alternate accepted pose is introduced.
-
 # src/actions/jump.ts#jump.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

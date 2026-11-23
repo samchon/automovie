@@ -1,21 +1,3 @@
-# src/sport/poleVault.ts#poleVault
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the figure, the pole, the three phases with their physics, the refusal, the first pass and the events.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The jump's push-off, a pendulum table from the take-off's own centre and velocity, and a parabola; the hand on the pole is its held frame.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The name, the cancel and accept tables, the angles, the parameters and the plan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The pole's length is the prop's; speeds follow from the run.
-
 # src/sport/poleVault.ts#poleVault.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/compose/HumanBendRead.ts#HumanBendRead
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines native contextual callback purpose and scope.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Uses weak identities of actual producers paired with synchronous explicit loan callbacks.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Only composer, original writer and raw placement register or select counterparts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Foreign segments and changed descriptors keep the ordinary dispatch.
-
 # src/compose/HumanBendRead.ts#HumanBendRead.Write
 
 ## @evidence contracts/development/common.md#meaningful-documentation

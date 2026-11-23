@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanDrinkingLean.ts#AutoMovieMotionHumanDrinkingLean
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the namespace holds and who admits a lean.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A lean is a number of degrees on a grid of one step, bounded by the vessel's own geometry.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The step, the bound and the walk, read by the two drinking searches; split from them so each file holds one responsibility.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The walk knows no arm: it reads an attempt's answer and the miss the attempt measured.
-
 # src/compose/AutoMovieMotionHumanDrinkingLean.ts#AutoMovieMotionHumanDrinkingLean.IMisses
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/reaction/staggerLimit.ts#staggerLimit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is read and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One speed search invoking the actual recovery law for every ordered speed observation under the current body, entry and push.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function, read by `stagger`'s refusal.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The limit is the whole model's, read by the recovery itself.
-
 # src/reaction/staggerLimit.ts#staggerLimit.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

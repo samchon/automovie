@@ -1,21 +1,3 @@
-# src/posture/HumanPosturePreparation.ts#HumanPosturePreparation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States source provenance, free-leg scope, public cold versus owned continuous construction, actual rigid covariance, explicit transport and ordinary fallback.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An actual solve of an owned raw snapshot plus complete constructed-graph/current-rig checks proves free-leg translation, a native numeric whole-body turn or joint-only rigid placement. Raw demands remain distinct from achieved output; JSON observes input but never establishes numerical equality.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-prepare/continued construct actual source solves, bones/seeds expose independent observations, placed/translated/turned/rigid construct owned raw consumers and read lends a proven solve to the resolver. No partial-leg or general result/time cache is added.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Only actual owned constructors mint complete graph and leg capabilities. Forged/copied wrappers, arbitrary same-string raw objects, changed shape/body/metadata, base/near or unknown FK suppliers cannot certify cached numerical output.
-
 # src/posture/HumanPosturePreparation.ts#HumanPosturePreparation.IPrepared
 
 ## @evidence contracts/development/common.md#meaningful-documentation

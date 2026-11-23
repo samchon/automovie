@@ -1,21 +1,3 @@
-# src/perform/HumanPropOutcome.ts#HumanPropOutcome
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each outcome, the datum that grants it, the bounce's settling rule and what a roll does not meet.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A leg is an engine continuation segment timed from the launch with the contact that ends it.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The leg, the body's drag, the decision, the chain of legs and a leg's frame; read by `HumanPropFlight`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every coefficient is the model body's; an absent datum withholds its outcome, never stands in as zero.
-
 # src/perform/HumanPropOutcome.ts#HumanPropOutcome.drag
 
 ## @evidence contracts/development/common.md#meaningful-documentation

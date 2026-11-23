@@ -1,21 +1,3 @@
-# src/compose/courseLimbSwivelKnots.ts#courseLimbSwivelKnots
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the records and the one reader of an interval.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A limb on its goal has one free coordinate, its swivel, and a branch; a knot holds those at a second and an interval two knots.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The knot, placement and interval records and the interpolation between two knots, read only by `courseLimbSwivels`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The resolver's own seeds; no pose is kept.
-
 # src/compose/courseLimbSwivelKnots.ts#courseLimbSwivelKnots.ISwivelKnot
 
 ## @evidence contracts/development/common.md#meaningful-documentation

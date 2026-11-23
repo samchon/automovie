@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanRoot.ts#AutoMovieMotionHumanRoot
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the root moves, the frame it moves in, why it is written first and what happens to planted legs.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A displacement in the performer's own floor frame, so "left" and "forward" mean the same at every heading; the legs follow from their unchanged world goals.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The displacement and its scaling, one primitive (`travel`) and one named time course (`excursion`).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The offset is added to the posture so far, never set, so a root row composes with a moving base.
-
 # src/compose/AutoMovieMotionHumanRoot.ts#AutoMovieMotionHumanRoot.place
 
 ## @evidence contracts/development/common.md#meaningful-documentation

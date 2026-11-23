@@ -1,21 +1,3 @@
-# src/handling/HumanClaspClearance.ts#HumanClaspClearance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is placed per candidate, what is queried per pair and the unit of the gap.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The body's capsule chains give world-metre segment endpoints and a radius; HumanColliders owns the posed forearm's exact shape reader.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-prepareDigits, bones, forearm and between serve `HumanClasp.choose` and `HumanClaspCandidateFrames`; no second distance owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No candidate pose, collider, radius or contact bound is guessed or substituted.
-
 # src/handling/HumanClaspClearance.ts#HumanClaspClearance.IPhalanx
 
 ## @evidence contracts/development/common.md#meaningful-documentation

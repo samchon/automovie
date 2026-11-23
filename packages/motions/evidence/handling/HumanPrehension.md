@@ -1,21 +1,3 @@
-# src/handling/HumanPrehension.ts#HumanPrehension
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each law, its source and units, which constants are provisional, and the path and turn construction.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Metre distances and widths determine second-based timing; transports expose world-metre wrist points and world hand rotations, and clinical-degree digit shapes vary on a unitless peak and share schedule.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Handling laws share the timing, aperture, transport and shape owners; ITransport exposes only duration, wrist and turn, and prepareShape serves the pick-up, release and exchange plans.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Body and prop geometry stay caller data, timing delegates its owner, and each constant is cited or named provisional.
-
 # src/handling/HumanPrehension.ts#HumanPrehension.duration
 
 ## @evidence contracts/development/common.md#meaningful-documentation

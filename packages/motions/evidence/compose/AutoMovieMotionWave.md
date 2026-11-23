@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionWave.ts#AutoMovieMotionWave
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Owns exact count admission, clock callback semantics, normalized wave shape and prepared fixed constants.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A whole-cycle sine rises/falls over half-cycle minimum-jerk windows; actual progress remains supplied by the caller's clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Cold sampling and fixed-count preparation share one signal and validator; the existing Clock facade and Head consumer keep their vocabulary.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No clock callback, time sample, motion value or alternative easing is cached or substituted.
-
 # src/compose/AutoMovieMotionWave.ts#AutoMovieMotionWave.sample
 
 ## @evidence contracts/development/common.md#meaningful-documentation

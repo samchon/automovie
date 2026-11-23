@@ -1,21 +1,3 @@
-# src/posture/HumanFitVariables.ts#HumanFitVariables
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the variables are, their units and weights, and what each read gives.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A posture as the vector of its own root, heading and joint angles, the representation joint-space inverse kinematics works in.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The whole body's set, the vector, its writing back, its bounds and its scales, read by the whole-body fit.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The ranges are the shared table's.
-
 # src/posture/HumanFitVariables.ts#HumanFitVariables.vector
 
 ## @evidence contracts/development/implementation.md#principled-implementation

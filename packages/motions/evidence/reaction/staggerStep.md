@@ -1,21 +1,3 @@
-# src/reaction/staggerStep.ts#staggerStep
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the step's phases, its region, its crossing, its landing point, its source and the admission's separation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One step over a shared pendulum, so the orders of the feet search reuses the steps they share.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function and its result, read by `staggerRecover`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every bound is a measured one from `staggerBounds`; the region scales with the body's stature and the crossing with its soles.
-
 # src/reaction/staggerStep.ts#staggerStep.IResult
 
 ## @evidence contracts/development/common.md#meaningful-documentation

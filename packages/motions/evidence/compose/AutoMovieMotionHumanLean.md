@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanLean.ts#AutoMovieMotionHumanLean
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a lean tips, about what, why the hips move back and what the legs do.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A lean is a pitch about the hip joint with a horizontal hip shift that keeps the centre of mass over the base of support, the counter-movement of standing balance.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The tipped posture (`tip`), the balanced lean (`bow`), the small tilt about the root that needs no balance (`tilt`), the tilt about the hips (`pivot`) with the sway over planted feet built on it (`sway`), and the tilt about any world point (`about`), which the ankle tips of a broken base and a resisted pull read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The hip shift is solved by the balance owner on the body and never stated as a constant.
-
 # src/compose/AutoMovieMotionHumanLean.ts#AutoMovieMotionHumanLean.tilt
 
 ## @evidence contracts/development/common.md#meaningful-documentation

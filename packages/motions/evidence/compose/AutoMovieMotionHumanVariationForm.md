@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanVariationForm.ts#AutoMovieMotionHumanVariationForm
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States which slots these are, where the shared terms are defined and what the functions leave alone.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The freedoms a hand's goal does not depend on vary with little regard to skill (Scholz and Schoner 1999; Todorov and Jordan 2002), and an amount varies in proportion to its size (Harris and Wolpert 1998).
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function per slot type; `AutoMovieMotionHumanBend` and `AutoMovieMotionHumanRange` keep the elbow's strain and the levels.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Each result has the type and the unit of its input, so a law passes it on with no conversion.
-
 # src/compose/AutoMovieMotionHumanVariationForm.ts#AutoMovieMotionHumanVariationForm.amount
 
 ## @evidence contracts/development/common.md#meaningful-documentation

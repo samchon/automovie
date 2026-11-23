@@ -1,21 +1,3 @@
-# src/posture/HumanFitTargets.ts#HumanFitTargets
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the frames, point balls, rotation and normal rows shared by model and merit.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A rigid effector's coordinates and twists in its goal frame, in metres and radians.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The whole-body row builder, merit and result share one target owner; its legacy rotation helpers remain available through HumanBodyFitRows.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Uses the actual resolved anchor and the existing geometric Jacobian, without freezing a relative goal to one iterate.
-
 # src/posture/HumanFitTargets.ts#HumanFitTargets.rows
 
 ## @evidence contracts/development/common.md#meaningful-documentation

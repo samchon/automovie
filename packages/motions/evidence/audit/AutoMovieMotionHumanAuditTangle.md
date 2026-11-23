@@ -1,21 +1,3 @@
-# src/audit/AutoMovieMotionHumanAuditTangle.ts#AutoMovieMotionHumanAuditTangle
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines canonical surface/axis probes, structural and reference-depth removals, sampled contacts and their skin allowances.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The displayed body's posed profile parts and two directed probe depths yield segment-pair penetration in metres; ROM-built overlaps and declared contact windows remain distinct allowances.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns sampled self and directed external collision readings, arm clearing's degree score and unordered bone keys; probe geometry and reference depths stay with AutoMovieMotionHumanAuditTangleModel.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Retains the original per-pair/per-axis references, joint exclusions and declared contacts for every body, with no new clearance, fixture or fallback geometry.
-
 # src/audit/AutoMovieMotionHumanAuditTangle.ts#AutoMovieMotionHumanAuditTangle.measure
 
 ## @evidence contracts/development/common.md#meaningful-documentation

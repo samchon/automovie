@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanTouchPath.ts#AutoMovieMotionHumanTouchPath
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two questions the namespace answers and its reader.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A projection on the region's frame (`lay`), or the plain line (`reach`), from the performer's elbow hanging under the shoulder or held level with it; no region or body is named.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two functions, `lay` and `reach`, sharing one private elbow place (`elbowOf`); read by the touch stroke.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reads the body's measures and the posture's floor frame; nothing is solved or stored.
-
 # src/compose/AutoMovieMotionHumanTouchPath.ts#AutoMovieMotionHumanTouchPath.lay
 
 ## @evidence contracts/development/common.md#meaningful-documentation

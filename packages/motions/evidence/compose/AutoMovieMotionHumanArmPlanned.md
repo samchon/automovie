@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmPlanned.ts#AutoMovieMotionHumanArmPlanned
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the planned trajectory and fixed span; reaching/moved alias the physical observations documented at AutoMovieMotionHumanArmObservation while this namespace owns trajectory construction.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The action's four instants, the group of arms solved together, each arm's task and the reach's duration, the inputs of one trajectory problem.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The span, the group and its constructor, the planned arm, the planner and the reach's duration, read by the carry, the touch law and the gesture law.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The trajectory's problem is the planner's own (`HumanArmTrajectory`); this file only reads it off the action.
-
 # src/compose/AutoMovieMotionHumanArmPlanned.ts#AutoMovieMotionHumanArmPlanned.IWarm
 
 ## @evidence contracts/development/common.md#meaningful-documentation

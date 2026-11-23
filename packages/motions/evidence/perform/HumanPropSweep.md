@@ -1,21 +1,3 @@
-# src/perform/HumanPropSweep.ts#HumanPropSweep
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a flight meets, the reject, the step and its blind spot, and what a pass leaves out.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A meeting is the engine's hit with what it struck.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The sweep alone, read by `HumanPropFlight`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The sweep is the engine's one resolver; colliders are the displayed bones and the props' own shapes.
-
 # src/perform/HumanPropSweep.ts#HumanPropSweep.sweep
 
 ## @evidence contracts/development/common.md#meaningful-documentation

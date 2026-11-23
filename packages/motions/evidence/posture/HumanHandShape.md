@@ -1,21 +1,3 @@
-# src/posture/HumanHandShape.ts#HumanHandShape
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the module gives and where the angles are sourced.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One function from a closed shape name to clinical flexion per finger segment.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The tables, and the direction a digit takes under them (`digit`); and the least turn that aims a digit (`aim`); `HumanHand` owns the shape names and calls the table as its `shape`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No hand is special: the side only prefixes the bone names.
-
 # src/posture/HumanHandShape.ts#HumanHandShape.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

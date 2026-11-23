@@ -1,21 +1,3 @@
-# src/reaction/give.ts#give
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what gives way, the direction rule, the time course, the base it rides and that the sizes are provisional.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A law record composed of one joint pulse or one sway on a phrase clock over the inherited base; the part and the way are closed unions.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The name, the cancel tables, the parameters, the constants and the plan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the target union, the head's neck share and the lean primitive; no striker is named.
-
 # src/reaction/give.ts#give.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

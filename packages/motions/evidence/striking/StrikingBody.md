@@ -1,21 +1,3 @@
-# src/striking/StrikingBody.ts#StrikingBody
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what each fact is for and the identity-rest premise the socket convention rests on.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace of pure functions over the body, its resolved bones and world rotations, in world metres and clinical degrees.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The actual trunk and fixed-demand trunk producer, region/socket/hand/foot geometry and collider readings serve striking, reactions and captures; canonical pose/FK preparation remains with its existing owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the engine's surface resolver and the interface's region and socket unions; the collider list overlaps the posture package's HumanColliders, which owns the signed distances, and is kept only as the shape list the floor rest reads.
-
 # src/striking/StrikingBody.ts#StrikingBody.trunk
 
 ## @evidence contracts/development/common.md#meaningful-documentation

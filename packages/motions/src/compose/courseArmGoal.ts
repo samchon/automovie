@@ -57,14 +57,6 @@ import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHuman
  * @returns The plan with the arm written by its planned course.
  * @throws {HumanRefusal} When no arm course meets the trajectory's constraints (`AutoMovieMotionHumanArm.carried`), as the plan is composed.
  * @throws {Error} When the plan writes no goal for the arm at an instant the course reads.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the defect it removes, how the goal is read, what is planned and what is kept.
- * @evidence contracts/development/implementation.md#principled-implementation A moving effector goal is a trajectory problem solved once with branch continuity and clearance (the planner's), never a fresh inverse kinematics solve per sample.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan less its arm goal is the composer's base; the planned carry is its one primitive; the composed posture replaces the plan's.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is the plan's own at each instant; no goal, bound or timing is invented, and the planner's refusal stands.
- * @evidence contracts/development/implementation.md#efficient-algorithms One course per plan, solved when composed; at each second the plan's posture is evaluated once and shared by the base and the goal. Once laid, a second where every arm in its window is on its course asks the law for every channel but those arms, whose goals no reader takes there, so a law that honours the demand skips them.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The last evaluated posture is reused while the second, the borrowed readers and the demanded channels are the same; each set of skipped arms keeps one channel list, so the reads of a second share it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the plan, the course, one posture and the arm's ending angles, released with the plan.
  */
 export function courseArmGoal(
   props: courseArmGoal.IProps,
@@ -341,11 +333,6 @@ export function courseArmGoal(
 
 /**
  * Companion types, records and readers of `courseArmGoal`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit: the law plan a coursed plan's goal is read from, the arm and course records, the last read posture, the written bones and the borrowed readers.
- * @evidence contracts/development/design.md#principled-representation An arm's task and the course in the carry's own terms, by `Pick`; the goal stays the law plan's, held weakly by its coursed plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only what the course and its readers use; `IRead` is written and read only by `courseArmGoal`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional members are the carry's own, not restated; a posture read with other readers is never reused, and a copied coursed plan reads as itself.
  */
 export namespace courseArmGoal {
   /** Each coursed plan's law plan, whose posture still writes the arm's goal (`goals`). */

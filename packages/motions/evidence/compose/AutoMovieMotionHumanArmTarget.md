@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmTarget.ts#AutoMovieMotionHumanArmTarget
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the records are and why they have a file of their own.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A target is a surface's place, facing and bend; an origin is a wrist's place and rotation; the goal is the posture's own goal type.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The records and the three readers every arm primitive shares; `AutoMovieMotionHumanArm` re-exports each by name.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No primitive is defined here, so no file of the arm depends on another's phrases.
-
 # src/compose/AutoMovieMotionHumanArmTarget.ts#AutoMovieMotionHumanArmTarget.origin
 
 ## @evidence contracts/development/common.md#meaningful-documentation

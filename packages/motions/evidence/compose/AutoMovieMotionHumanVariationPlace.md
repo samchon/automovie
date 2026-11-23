@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanVariationPlace.ts#AutoMovieMotionHumanVariationPlace
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what varies, where the shared terms are defined and what sets a place apart from the other slots.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An end point ellipse lying along the arrival (Gordon et al. 1994; van Beers et al. 2004), stated in the share record a place already is.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function and the record of an arrival it reads.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The offset is added to the place's own share record, so no second place type or frame enters.
-
 # src/compose/AutoMovieMotionHumanVariationPlace.ts#AutoMovieMotionHumanVariationPlace.vary
 
 ## @evidence contracts/development/common.md#meaningful-documentation

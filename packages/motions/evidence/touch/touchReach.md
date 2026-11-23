@@ -1,21 +1,3 @@
-# src/touch/touchReach.ts#touchReach
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the original longest physically fitted arm travel duration and synchronous fixed-body metadata preparation across its actual hands.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Uses canonical body/posture/pose, hand-target pairs, laid goals and existing duration calculation rather than a separate travel score.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One duration query serves the touch law's actual reach clock; physical goals, fits and travel bounds remain with their existing owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every requested hand retains its actual target, full native fit and original travel-bound calculation; only fixed ROM/FK preparation is shared.
-
 # src/touch/touchReach.ts#touchReach.duration
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanTouchContacts.ts#AutoMovieMotionHumanTouchContacts
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a rest is, the two forms it takes and the window it becomes.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A segment on a segment: the arm's segment and the bone it lies along, which a region's point and frame would not locate.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The row's declaration, an arm's rest, the reading of one into the other and the windows; the touch law and the touch stroke read them.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The window is the contact window's own `lie` on a person's segment (`HumanContactWindow.Support`).
-
 # src/compose/AutoMovieMotionHumanTouchContacts.ts#AutoMovieMotionHumanTouchContacts.sided
 
 ## @evidence contracts/development/common.md#meaningful-documentation

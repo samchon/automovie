@@ -1,21 +1,3 @@
-# src/posture/HumanPostureRaw.ts#HumanPostureRaw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines raw finite/free-goal scope, signed-zero JSON observations, graph-preserving authoritative translation and the separation from numerical proof.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Finite raw authoring, ordinary JSON observation and source-plus-displacement construction are distinct operations; actual owned source/graph/rig evidence remains with HumanPosturePreparation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The preparation owner consumes eligible/signature/translated; eligibility shares the finite-vector and goal-field predicates. No new source, fit, cache key, resolved flag or body state is represented.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A JSON string is only an observed prefilter, never proof of physical equality. World-attached demands keep their frames and aliasing cannot apply a displacement twice to the same goal object.
-
 # src/posture/HumanPostureRaw.ts#HumanPostureRaw.eligible
 
 ## @evidence contracts/development/common.md#meaningful-documentation

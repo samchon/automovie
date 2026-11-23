@@ -1,21 +1,3 @@
-# src/posture/HumanColliders.ts#HumanColliders
-
-## @evidence contracts/development/design.md#principled-representation
-
-Couples current placed profile geometry with signed point/segment queries, nearest surface witnesses and sphere-traced ray hits in world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Keeps the existing distance, nearest, ray, bounds and placement facades; HumanColliderPlacement owns neutral metadata and current placement while engine query owners retain their numerical geometry.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Preserves the original broad-sphere screen, strict first-winner comparisons, scalar/full two-pass nearest policy and ray constants; only unchanged placement and fixed shape-frame metadata may be shared within one synchronous operation.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines query signs, frames, shape ownership, broad-phase policy and separation of neutral versus current placement.
-
 # src/posture/HumanColliders.ts#HumanColliders.nearest
 
 ## @evidence contracts/development/implementation.md#principled-implementation

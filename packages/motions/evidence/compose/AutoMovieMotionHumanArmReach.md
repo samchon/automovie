@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmReach.ts#AutoMovieMotionHumanArmReach
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the defect it removes, the freedom, the method and its source, and the refusal.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World quaternions, a world axis of freedom and the arm's own fitted pose.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One reading and its request and result records, read by the laws that hold a hand to an attitude.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The ranges are the rig's own (`resolveHumanPosture`); no angle is tuned and no tolerance is widened.
-
 # src/compose/AutoMovieMotionHumanArmReach.ts#AutoMovieMotionHumanArmReach.IRequest
 
 ## @evidence contracts/development/common.md#meaningful-documentation

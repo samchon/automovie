@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanPartnerClear.ts#AutoMovieMotionHumanPartnerClear
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the partner's segments become on the goal and which planner reads them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The partner is its own posed collider segments at each second, the representation the arm planner already reads for another person's body.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two functions: read the partner's segments, and lay segments on one limb goal.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No second collider model: placement stays with HumanColliders and clearance with the arm planner.
-
 # src/compose/AutoMovieMotionHumanPartnerClear.ts#AutoMovieMotionHumanPartnerClear.at
 
 ## @evidence contracts/development/common.md#meaningful-documentation

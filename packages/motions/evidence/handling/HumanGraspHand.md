@@ -1,21 +1,3 @@
-# src/handling/HumanGraspHand.ts#HumanGraspHand
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the alignment, the tilt and the palm placement, and the two scopes the geometry is prepared for.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World-metre grasp frames, degree angles and the canonical wrist type; prepared data is the hand's rigid geometry only.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-prepare serves `HumanGrasp.hand` and the second hand of `HumanHeldUse`; turns serves the handover's grid of turns about one offered handle.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No prop, body size, solved pose or contact verdict is embedded.
-
 # src/handling/HumanGraspHand.ts#HumanGraspHand.prepare
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanTarget.ts#AutoMovieMotionHumanTarget
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a place is, which targets are solid, what an action without a target does and what a law may read.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A target of any kind reduces to a point, a facing and whether it is solid, the three facts a movement toward it needs; a default is stated in body proportions so one record fits every stature.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One place type, one default record with three named defaults and their names, the resolver, the default's place, the way away and two goal builders; the only caller of the context's aim outside the gaze. The named places of the air and their resolution to a default record are `AutoMovieMotionHumanTargetGrid`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the interface's target union and the hand and foot owners; a self region the trunk does not carry throws instead of reading a limb that is not solved yet.
-
 # src/compose/AutoMovieMotionHumanTarget.ts#AutoMovieMotionHumanTarget.fallback
 
 ## @evidence contracts/development/common.md#meaningful-documentation

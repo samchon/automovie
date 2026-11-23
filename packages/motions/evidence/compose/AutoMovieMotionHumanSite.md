@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanSite.ts#AutoMovieMotionHumanSite
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States both choices, the sources, the comfortable height's derivation and the slope's status.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A weighted allowed place and a band along a handle, the inputs of the two choices.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two records and three functions, the first draft of the site axis.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No place is typed per action: the allowed places and the band are the caller's.
-
 # src/compose/AutoMovieMotionHumanSite.ts#AutoMovieMotionHumanSite.draw
 
 ## @evidence contracts/development/common.md#meaningful-documentation

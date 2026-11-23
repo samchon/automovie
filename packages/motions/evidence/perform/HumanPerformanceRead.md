@@ -1,21 +1,3 @@
-# src/perform/HumanPerformanceRead.ts#HumanPerformanceRead
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the functions return.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The resolved-state records supply placed poses, raw postures, rigid frames and refusal fields; film seconds and world metres keep their existing owners.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The readers HumanPerformance, placement, holding, soft props and flights use; selection and grip-list assembly have separate owners, while resolved-person adapters remain private here.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Does not add a pose/FK cache or bypass availability refusals. Existing grip-cache publication stays with HumanPerformanceGrips and prop-frame seating with HumanPerformanceHold.
-
 # src/perform/HumanPerformanceRead.ts#HumanPerformanceRead.pose
 
 ## @evidence contracts/development/common.md#meaningful-documentation

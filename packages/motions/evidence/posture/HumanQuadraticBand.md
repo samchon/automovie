@@ -1,21 +1,3 @@
-# src/posture/HumanQuadraticBand.ts#HumanQuadraticBand
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the banded OSQP algebra, scaled input contract, residuals, infeasibility certificate and active-set polish.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups scaled quadratic data and residual diagnostics for the reduced OSQP systems; finite admitted data and convex curvature are supplied by the solver and its callers.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes only algebra consumed by HumanQuadraticProgram and its numeric preparation; no action vocabulary or external solver interface is added.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Keeps generic band and sparse-row data, including duplicates and empty rows; the existing Cholesky diagonal floor is a stated numerical guard rather than a convexity validator.
-
 # src/posture/HumanQuadraticBand.ts#HumanQuadraticBand.IScaled
 
 ## @evidence contracts/development/design.md#principled-representation

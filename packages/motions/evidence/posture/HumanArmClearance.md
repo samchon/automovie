@@ -1,21 +1,3 @@
-# src/posture/HumanArmClearance.ts#HumanArmClearance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is judged, against which colliders, the taper and which caller judges the thighs.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A capsule of linearly tapering radius against the body's own profile colliders, the shapes every contact verdict measures.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The trunk/thigh colliders, forearm overshoot, posed arm, scalar room, paired endpoint baselines and shoulder/elbow correction serve bend solving, native arm fitting and joint-space carry through one clearance owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The radius is the body's measured forearm radius and the colliders are the profile's; no margin is added and no law is named.
-
 # src/posture/HumanArmClearance.ts#HumanArmClearance.trunk
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/striking/KickCarriage.ts#KickCarriage
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States support pivots, root/hip geometry, distinct local clocks, planted contacts and synchronous FK/ROM metadata lifetime.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Canonical body/feet/posture and existing carriage inputs describe physical kinematics without a parallel rig or solved-state flag.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The actual kick planner needs carriage posture and measured hip; native trunk/foot/lowering owners retain the numerical responsibilities.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No target, pose, clamp result, success label or sampled time is retained; optional loans share only existing same-body operations.
-
 # src/striking/KickCarriage.ts#KickCarriage.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

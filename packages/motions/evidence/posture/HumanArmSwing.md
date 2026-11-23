@@ -1,21 +1,3 @@
-# src/posture/HumanArmSwing.ts#HumanArmSwing
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is cleared, by which freedom and against what.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One function over a posture and the arms to clear, with the stance baseline kept per body.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The swing's clearance and its three bounds; `HumanArmClearance` owns the room readings and calls it as `swung`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-An arm with a hand goal is the fit's to clear and is left alone.
-
 # src/posture/HumanArmSwing.ts#HumanArmSwing.precision
 
 ## @evidence contracts/development/common.md#meaningful-documentation

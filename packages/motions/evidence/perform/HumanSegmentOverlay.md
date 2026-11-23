@@ -1,21 +1,3 @@
-# src/perform/HumanSegmentOverlay.ts#HumanSegmentOverlay
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the file owns and what it reads from its siblings.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One responsibility of a placed action's evaluation, over the records `HumanSegment` declares.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Split from `HumanSegment` unchanged, so each file holds one responsibility.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the sibling owners; nothing is duplicated between them.
-
 # src/perform/HumanSegmentOverlay.ts#HumanSegmentOverlay.IOverlaid
 
 ## @evidence contracts/development/common.md#meaningful-documentation

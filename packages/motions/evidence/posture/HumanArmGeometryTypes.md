@@ -1,21 +1,3 @@
-# src/posture/HumanArmGeometryTypes.ts#HumanArmGeometryTypes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the base's pose and world-placed external colliders and their borrowed ownership.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A canonical pose and world-placed collider segments, types imported from their existing owners.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-This base record is the frame builder's and trajectory contexts' shared input; HumanArmGeometry.IBase inherits it and preserves its established declaration-merging surface.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No new motion or collider representation is introduced.
-
 # src/posture/HumanArmGeometryTypes.ts#HumanArmGeometryTypes.IBase
 
 ## @evidence contracts/development/common.md#meaningful-documentation

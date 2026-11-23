@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanBendUnmadeBound.ts#AutoMovieMotionHumanBendUnmadeBound
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the sum bounded, the derivation of each term, the forms it covers and the fallbacks.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One record of the fixed hand terms and one preparation returning a branch's bound reader.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record and one preparation, read by `AutoMovieMotionHumanBendBound`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Closed-form enclosures only; an uncertified term is 0.
-
 # src/compose/AutoMovieMotionHumanBendUnmadeBound.ts#AutoMovieMotionHumanBendUnmadeBound.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanDrinkingArm.ts#AutoMovieMotionHumanDrinkingArm
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is read, the admission and its source, and who reads them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A drinking arm is five readings of one fit: the vessel's tilt, the shoulder's flexion and abduction as the source measures them, the forearm's twist and its room.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two bounds, the reading, the fit, the admission, the nearest arm and its refusal, and the attitude on the way; split from the search so each file holds one responsibility.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every reading is of the resolver's own fit on its displayed bones; no arm is assumed.
-
 # src/compose/AutoMovieMotionHumanDrinkingArm.ts#AutoMovieMotionHumanDrinkingArm.read
 
 ## @evidence contracts/development/common.md#meaningful-documentation

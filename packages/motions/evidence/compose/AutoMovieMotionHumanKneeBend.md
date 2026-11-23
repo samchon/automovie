@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanKneeBend.ts#AutoMovieMotionHumanKneeBend
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Places the body's rest knee under current root/yaw then one metre along foot heading opened by signed splay; outputs remain fresh world-metre hints.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Existing body, side, raw root/yaw and degree headings retain the original two horizontal frames; preparation stores fixed products rather than a current point or solved leg.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-at owns the cold Bend.knee formula, while prepare serves actual fixed-heading Leg.prepareGoal through Bend.prepareKnee.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-One-metre direction, side sign, current root/yaw and original nested arithmetic remain without target fitting, quantization or inferred pose equivalence.
-
 # src/compose/AutoMovieMotionHumanKneeBend.ts#AutoMovieMotionHumanKneeBend.at
 
 ## @evidence contracts/development/common.md#meaningful-documentation

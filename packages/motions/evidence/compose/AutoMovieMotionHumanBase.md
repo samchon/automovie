@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanBase.ts#AutoMovieMotionHumanBase
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a base is and what most actions take as theirs.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A base is an action plan like any other, so a moving base (a walk) and a held one compose the same way.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Three functions: the held base, the base of an action that may ride a carrier, and the supports of a body standing on both feet.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the plan and contact-window types; no base type of its own.
-
 # src/compose/AutoMovieMotionHumanBase.ts#AutoMovieMotionHumanBase.still
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/reaction/staggerRecover.ts#staggerRecover
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is planned, from what and by which owners.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The recovery as data: its steps and the courses of the centre of mass, the centre of pressure and the extrapolated centre of mass as functions of the seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The step and recovery records and the search, read by `stagger`, `staggerLimit`, `StaggerFeet`, `staggerAdmission` and the specs.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the foot's placement and the pendulum's own state.
-
 # src/reaction/staggerRecover.ts#staggerRecover.IStep
 
 ## @evidence contracts/development/common.md#meaningful-documentation

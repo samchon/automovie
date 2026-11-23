@@ -1,21 +1,3 @@
-# src/perform/HumanSegmentSelection.ts#HumanSegmentSelection
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Owns the last matching placed action used by displayed poses, posture reads and layer action contexts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Reads existing segment entry seconds and returns a borrowed segment, without a new timing or cache representation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One last-match selector serves three existing readers and does not own their pose, layer or cache policies.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Uses placement order without assuming chronological sorting or constructing a time index.
-
 # src/perform/HumanSegmentSelection.ts#HumanSegmentSelection.last
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanRange.ts#AutoMovieMotionHumanRange
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a level is a share of, which limit each motion reads, the sign of the result and the three rungs.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A share of the joint's own range, the normalisation joint-discomfort posture prediction uses, so a level means the same effort at every joint.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One table of five levels and five functions; the only owner of amounts by level.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Levels and motions are closed unions; the ranges are the engine's and are not copied here.
-
 # src/compose/AutoMovieMotionHumanRange.ts#AutoMovieMotionHumanRange.share
 
 ## @evidence contracts/development/common.md#meaningful-documentation

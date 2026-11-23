@@ -33,14 +33,6 @@ import { HumanHand } from "../posture/HumanHand";
  * @param depth The key's travel, metres.
  * @param rotation The hand's world rotation from its rest for the act.
  * @returns The wrist's world point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the placement and swing geometry; prepare fixes an unchanged body/hand/rotation and takes each actual digit, world site/normal and metre key depth, returning the wrist's world-metre point.
- * @evidence contracts/development/implementation.md#principled-implementation The chord of a swing about the digit's first joint: a straight digit of length r dropped by d reaches sqrt(r^2 - d^2) ahead.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The cold facade invokes the same prepared owner used by manipulation/fingering; one lazy digit record precedes depth-dependent drawback and actual world translation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No offset is chosen: the drawback is the swing's own, from the body's digit and the key's travel.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each of at most five supported digits reads skeletal span and rotated tip/direction once per preparation; N subsequent placements perform constant chord/translation work without repeated hand geometry. The cold facade prepares for its one query; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Only explicitly unchanged body, side and rotation share digit geometry through a sequence/fingering operation; actual site, normal and depth remain query inputs, with no computed wrist answer reused.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold placement retains nothing. The synchronous sequence/fingering owner retains at most five local digit records until its builder is released before the motion plan returns, without global, pose/time history or external handles.
  */
 export function manipulateReach(
   body: IAutoMovieMotionHumanBody,
@@ -56,11 +48,6 @@ export function manipulateReach(
 
 /**
  * Fixed-body preparation for the plan and fingering's repeated press placements.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the fixed body/hand/rotation scope and both current consumers.
- * @evidence contracts/development/design.md#principled-representation The closure preserves world-metre sites and normals, metre key travel and the original straight-digit chord geometry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One preparation function serves the existing cold reach facade, manipulation plan and fingering; no second hand geometry representation is exposed.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The body owns every digit length and tip offset, and the original supported digit names remain unchanged.
  */
 export namespace manipulateReach {
   /**

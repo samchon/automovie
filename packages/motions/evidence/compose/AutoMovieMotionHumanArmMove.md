@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmMove.ts#AutoMovieMotionHumanArmMove
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the file holds and who names it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One movement by a weight in [0, 1]; a reach, a hold and a retract are that movement with a rising, a full and a falling weight.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The move, its three windows and the bowed path they share; `AutoMovieMotionHumanArm` re-exports each by name.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The target and origin records are `AutoMovieMotionHumanArmTarget`'s, read and not restated.
-
 # src/compose/AutoMovieMotionHumanArmMove.ts#AutoMovieMotionHumanArmMove.move
 
 ## @evidence contracts/development/common.md#meaningful-documentation

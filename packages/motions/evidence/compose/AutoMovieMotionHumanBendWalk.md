@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanBendWalk.ts#AutoMovieMotionHumanBendWalk
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is continued, from what, and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A solve and the seed it continues; a solved candidate with its own seed.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two steps, `walk` and `next`, read by the track.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No candidate is kept: each step solves its own request.
-
 # src/compose/AutoMovieMotionHumanBendWalk.ts#AutoMovieMotionHumanBendWalk.ISolved
 
 ## @evidence contracts/development/common.md#meaningful-documentation

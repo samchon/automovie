@@ -1,21 +1,3 @@
-# src/striking/KickGeometry.ts#KickGeometry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines actual fitted kick contact, folded chamber, causal corrections, complete-versus-observed posture and local/film clock meanings.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Existing body/posture/reach/contact/record types expose physical geometry and authored goals; metadata loans carry no pose or success answer.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-build supplies the actual kick/redirect planner and compose joins its existing parts under the original clocks.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No clip, target proxy, alternate skeleton, unproved resolved flag or cached pose observation replaces the original physical plan.
-
 # src/striking/KickGeometry.ts#KickGeometry.build
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/posture/HumanBodyFitMerit.ts#HumanBodyFitMerit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the merit reads, prices and decides, with its sources.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An iterate's reading and its misses row by row, the l1 merit's terms.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The fit and support seed selection consume the tolerance, actual misses, evaluation and merit builder; selected support indices also feed the fit's next model.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The floor, the balance and the pairs are read by their owners; the band and the unit are the rows'.
-
 # src/posture/HumanBodyFitMerit.ts#HumanBodyFitMerit.IMisses
 
 ## @evidence contracts/development/common.md#meaningful-documentation

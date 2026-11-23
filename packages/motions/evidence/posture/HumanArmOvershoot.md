@@ -1,21 +1,3 @@
-# src/posture/HumanArmOvershoot.ts#HumanArmOvershoot
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is read and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A capsule of linearly tapering radius against the body's own profile colliders, with the median plane for the elbow's side.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The reading and its prepared form; `HumanArmClearance` owns the colliders it is read against and the arm readings built on it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The radius is the body's measured forearm radius; no margin is added and no law is named.
-
 # src/posture/HumanArmOvershoot.ts#HumanArmOvershoot.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

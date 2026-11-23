@@ -1,21 +1,3 @@
-# src/posture/HumanFrame.ts#HumanFrame
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines canonical left/up/forward coordinates, world-metre origin and degree heading, including a prepared immutable frame for repeated conversions.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents one horizontal rigid transform using the existing vector/quaternion types and explicit degree heading.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Existing point/local/direction-heading helpers serve motion laws. prepare binds repeated fixed-frame conversions, preparePoint binds recovery knee offsets, and prepareLerp serves the jump's four actual local point/bend paths without an intermediate vector.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Introduces no second coordinate convention, body dimensions, pose result, contact tolerance or scene-specific branch.
-
 # src/posture/HumanFrame.ts#HumanFrame.point
 
 ## @evidence contracts/development/common.md#meaningful-documentation

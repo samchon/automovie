@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanBendMemo.ts#AutoMovieMotionHumanBendMemo
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is kept, by which inputs, why they decide the solve and what a read returns.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One bounded table per body of exact input words to the world-metre elbow.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One capacity and one reader, read by `AutoMovieMotionHumanBend.solve`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No tolerance: every input number is a word of its own, and a body the factory no longer owns is never memoised.
-
 # src/compose/AutoMovieMotionHumanBendMemo.ts#AutoMovieMotionHumanBendMemo.solve
 
 ## @evidence contracts/development/common.md#meaningful-documentation

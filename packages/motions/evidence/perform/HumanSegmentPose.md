@@ -1,21 +1,3 @@
-# src/perform/HumanSegmentPose.ts#HumanSegmentPose
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States displayed composition order and observational limits; nearby aliases the exact-name seed lookup documented at HumanSegmentPoseSeeds, without another continuation implementation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One responsibility of a placed action's evaluation, over the records `HumanSegment` declares.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Split from `HumanSegment` unchanged, so each file holds one responsibility.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the sibling owners; nothing is duplicated between them.
-
 # src/perform/HumanSegmentPose.ts#HumanSegmentPose.displayed
 
 ## @evidence contracts/development/common.md#meaningful-documentation

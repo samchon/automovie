@@ -31,14 +31,6 @@ import { prepareJumpFlight } from "./prepareJumpFlight";
  * @param ground Original push and landing writers and their native bare-display fit producers.
  * @param touchdownRequirement The optional geometry requirement for a planted rotating jump.
  * @returns The public posture dispatcher, the turning declarations and the event-prepared display source.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines actual owned open-flight phase, original clock/ballistic units, outside-phase callbacks and the known refusal wrapper.
- * @evidence contracts/development/implementation.md#principled-implementation Preserves the original clamp, push/free/absorb dispatch and c0+v*t-g*t^2/2 COM expressions. prepareJumpFlight owns the achieved-goal construction and actual canonical solve; jumpAirborne owns handed-back rigid turning.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Public and native flight read the same ballistic writer. Its start belongs to push and its end belongs to flight. Ground fit transfers survive only where landing turn leaves their inputs unchanged. located owns only the original four-argument refusal wrapper.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No arbitrary callback is registered, sampled or inferred pure. Before/after callbacks remain ordinary. Forwards the native touchdown requirement unchanged. No law-name selection, pose answer cache, changed callback receiver or scripted turn is introduced.
- * @evidence contracts/development/implementation.md#efficient-algorithms Native placement prepares the same constant-size flight anchor and touchdown offset those stages need. A ground phase can lend its actual same-sample leg fit, avoiding the duplicate fit after arm clearance.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The copied clock and ballistic coefficients are fixed for the plan. Canonical flight anchors and the touchdown offset are invariant for their native curve and handback. Every read evaluates its own current shape; a ground sample independently proves its fit can be transferred.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its existing flight/turning and before/after writers plus fixed clock/COM data. located retains its original source/location, and no query history, raw result, FK loan or handle is kept. Member facts: IPhase states local normalized-clock conversion; IConstruction retains only the original plan surface.
  */
 export function prepareJumpPosture(
   body: IAutoMovieMotionHumanBody,
@@ -141,11 +133,6 @@ export function prepareJumpPosture(
 
 /**
  * Numeric facts of the actual owned dispatch and its unchanged plan surface.
- *
- * @evidence contracts/development/common.md#meaningful-documentation IPhase states local second boundaries, normalized-share divisor and total duration; IConstruction states the existing posture and airborne/flight declarations; located is the refusal-location wrapper.
- * @evidence contracts/development/design.md#principled-representation Copied clock scalars describe the open native branch, without representing a pose, global C1 certificate or caller-supplied readiness flag. The plan construction preserves the existing law types.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The jump consumes IConstruction and gives IPhase's clock; placement consumes located to place a refusal.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts There is no public registration method, arbitrary wrapper claim, derivative sampler or law-name dispatch.
  */
 export namespace prepareJumpPosture {
   /** Original local clock coefficients of the actual native middle branch. */

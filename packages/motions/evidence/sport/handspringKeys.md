@@ -1,21 +1,3 @@
-# src/sport/handspringKeys.ts#handspringKeys
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two shapes, their provisional status and the source of unspecified angles.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Two pure constructors of the existing exercise key.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The lunge and arch read by the handspring law.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Keeps the existing provisional shapes and derives their relaxed defaults from the body.
-
 # src/sport/handspringKeys.ts#handspringKeys.lunged
 
 ## @evidence contracts/development/common.md#meaningful-documentation

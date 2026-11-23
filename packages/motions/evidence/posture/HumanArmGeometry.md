@@ -1,21 +1,3 @@
-# src/posture/HumanArmGeometry.ts#HumanArmGeometry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the nine-coordinate clinical/chart convention, actual FK/probe purpose and separate obstruction owner; the members document rig lifetime and units.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Fixed setup metadata and per-instant frames feed actual FK in world metres and clinical degrees; one shoulder swing-twist chart avoids a three-angle shoulder discontinuity, with chart dimensions and array sizes remaining caller premises.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The existing setup, conversions and placement serve arm planning, differential feedback and collision checks; shared record shapes live once in HumanArmGeometryTypes and established interfaces inherit them here.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No body, pose or target is named as a special case; the existing probe fractions are coarse geometry conventions, while the parent helper still requires a nonroot rig bone and coordinate arrays require nine entries.
-
 # src/posture/HumanArmGeometry.ts#HumanArmGeometry.IBase
 
 ## @evidence contracts/development/common.md#meaningful-documentation

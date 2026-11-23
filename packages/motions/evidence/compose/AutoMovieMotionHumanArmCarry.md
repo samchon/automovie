@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmCarry.ts#AutoMovieMotionHumanArmCarry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two things the file holds, what the primitive delegates to and who names them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A free arm movement is described by its joint angles (Soechting and Lacquaniti 1981), so the carry reads and writes triples and solves a goal only to read its angles.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The carry, its record and its primitive; `AutoMovieMotionHumanArm` re-exports each by name.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The blend and the clearing are their owners' (`blendHumanJoint`, `HumanArmClearing`), not restated.
-
 # src/compose/AutoMovieMotionHumanArmCarry.ts#AutoMovieMotionHumanArmCarry.carry
 
 ## @evidence contracts/development/common.md#meaningful-documentation

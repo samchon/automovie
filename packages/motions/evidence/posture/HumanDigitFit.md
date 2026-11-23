@@ -1,21 +1,3 @@
-# src/posture/HumanDigitFit.ts#HumanDigitFit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the order, why it is not circular, the frames, the facing, the coupling and the out-of-reach behaviour.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Functions of a body, a pose and the posture's digit goals, over the interface's poses.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The fit `resolveHumanPosture` calls and the digit's joints it and the laws read; the solver is the engine's.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No digit is special but the thumb's joint names and its lack of coupling, both the rig's anatomy.
-
 # src/posture/HumanDigitFit.ts#HumanDigitFit.fitted
 
 ## @evidence contracts/development/common.md#meaningful-documentation

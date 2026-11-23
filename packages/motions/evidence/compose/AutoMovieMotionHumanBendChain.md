@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanBendChain.ts#AutoMovieMotionHumanBendChain
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is prepared and for whom.
-
-## @evidence contracts/development/design.md#principled-representation
-
-IChain owns the actual side-specific engine geometry and world-metre obstacle frames; a bilateral source shares only the trunk pose, its workspace and its placement.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Search consumes IChain/of; handling's bilateral preparation uses prepare/IPrepared for actual crawl/load pairs.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The engine owns chain geometry/admission and the profile owns obstacles; a shared source never replaces side-specific preparation or hand-goal sweeps.
-
 # src/compose/AutoMovieMotionHumanBendChain.ts#AutoMovieMotionHumanBendChain.IPrepared
 
 ## @evidence contracts/development/common.md#meaningful-documentation

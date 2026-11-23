@@ -1,21 +1,3 @@
-# src/striking/KickChamber.ts#KickChamber
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the fitted contact source, one changed knee flexion and the coached chamber/extension relation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The chamber is the original fitted leg with one authored knee-angle replacement and its actual FK endpoints.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One fold operation and knee/ankle/foot-rotation record serve the kick planner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Uses canonical pose, bone, vector and quaternion types without a second leg solver or precomputed outcome.
-
 # src/striking/KickChamber.ts#KickChamber.IKey
 
 ## @evidence contracts/development/common.md#meaningful-documentation

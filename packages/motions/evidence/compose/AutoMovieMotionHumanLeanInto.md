@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanLeanInto.ts#AutoMovieMotionHumanLeanInto
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the movement, what bounds it, the refusal and why a person moves so.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A pitch as a function of the posture and the stroke's progress, found from the wrist's place; the hips' shift is the balance shift of that pitch.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The props, the solved lean and its primitive; read by the operate and wipe laws.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The wrist is the caller's own goal, so the lean is measured to what the arm must place, never to the hand's surface.
-
 # src/compose/AutoMovieMotionHumanLeanInto.ts#AutoMovieMotionHumanLeanInto.solve
 
 ## @evidence contracts/development/common.md#meaningful-documentation

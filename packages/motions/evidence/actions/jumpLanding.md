@@ -1,21 +1,3 @@
-# src/actions/jumpLanding.ts#jumpLanding
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the footprints and the three roots with their offsets.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The landing's places, apart from the paths between them.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record and its builder, read by the jump.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every offset is a share of the hip height or the body's own lean.
-
 # src/actions/jumpLanding.ts#jumpLanding.ILanding
 
 ## @evidence contracts/development/common.md#meaningful-documentation

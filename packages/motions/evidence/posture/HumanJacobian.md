@@ -1,21 +1,3 @@
-# src/posture/HumanJacobian.ts#HumanJacobian
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the variables, the twist with its source, the two read-outs, how each axis is found and what a range limit gives.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A variable as a twist (an angular velocity through a point, or a linear velocity) with the bones it moves, the representation the geometric Jacobian is built from; segment twists and point columns both follow from it.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Variable, motion and twist records serve floor fitting and arm planning. of preserves the motion array, read also exposes that candidate's actual projections, twist/velocity read segment or point motion, and velocityY materializes only height for floor rows.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The axes, rest frames, ranges and composition orders are the engine's own, the ones forward kinematics reads.
-
 # src/posture/HumanJacobian.ts#HumanJacobian.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

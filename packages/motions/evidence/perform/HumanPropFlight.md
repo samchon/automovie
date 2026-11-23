@@ -1,21 +1,3 @@
-# src/perform/HumanPropFlight.ts#HumanPropFlight
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States where a flight starts, its drag, what it can meet, and how each contact ends or goes on with the outcome's source.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A flight is its launch, its engine projectile, its first contact and the legs that follow. A tagged grip limits collision search by launch identity and records its takeover separately from collision.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The flights of a prop and its frame by flight; the hits they make are `HumanPerformanceHits`'.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The flight is the engine's, never a second closed form; the sweep is the engine's one resolver.
-
 # src/perform/HumanPropFlight.ts#HumanPropFlight.flights
 
 ## @evidence contracts/development/common.md#meaningful-documentation

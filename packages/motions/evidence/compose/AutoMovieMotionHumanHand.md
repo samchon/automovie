@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanHand.ts#AutoMovieMotionHumanHand
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the primitives write, on which channel, and what the weight's two ends and its middle are.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A hand shape is a set of segment flexions, so a hand on its way to a shape is their weighted mean with the resting hand.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The interpolation and its fixed-shape preparation, one primitive (`shape`) and one named time course (`form`); arm and hand primitives share one finger interpolation owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the hand owner's shape vocabulary and angles; no shape is defined here.
-
 # src/compose/AutoMovieMotionHumanHand.ts#AutoMovieMotionHumanHand.fingers
 
 ## @evidence contracts/development/common.md#meaningful-documentation

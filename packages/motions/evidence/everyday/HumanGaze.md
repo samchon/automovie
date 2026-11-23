@@ -1,21 +1,3 @@
-# src/everyday/HumanGaze.ts#HumanGaze
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the law, its sources, its units and frames, and which values are provisional.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Authored targets/times and clinical-degree shares remain separate from world-target evaluation, using the existing body/posture records and engine FK.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The split, timing, direction, aim and layer operations serve look, bend and gaze composition; existing public interfaces inherit their shared field owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses existing body, posture, target and bone types without another rig or pose representation; operation-local FK sharing changes no gaze recruitment or timing policy.
-
 # src/everyday/HumanGaze.ts#HumanGaze.split
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/compose/HumanTouchArmReference.ts#HumanTouchArmReference
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the measured joint values, their source and the forearm margin.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An unreferred fit supplies upper/lower joint angles and the source body's forearm limits determine its bounded reference.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-TouchLaid retains the existing public entry and the drinking search consumes the bounded reference of its already fitted candidate.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every reference comes from the actual fitted arm and uses the same forearm margin.
-
 # src/compose/HumanTouchArmReference.ts#HumanTouchArmReference.reference
 
 ## @evidence contracts/development/common.md#meaningful-documentation

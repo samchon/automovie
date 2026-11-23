@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanTargetGrid.ts#AutoMovieMotionHumanTargetGrid
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the names, the rungs, what they resolve to and the inverse.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Names of the body's own measure on the three axes of the performer's floor frame, so a law states intent and the body supplies the numbers.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The three axes' names and shares, the rungs, the resolution and its inverse; split from `AutoMovieMotionHumanTarget`, which owns the place record, the defaults and the resolution of a target, so each file holds one responsibility.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No name carries a number of its own beyond the tables and `OVERHEAD`; the record is the target's own `IDefault`.
-
 # src/compose/AutoMovieMotionHumanTargetGrid.ts#AutoMovieMotionHumanTargetGrid.height
 
 ## @evidence contracts/development/common.md#meaningful-documentation

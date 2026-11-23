@@ -1,21 +1,3 @@
-# src/dressing/dress.ts#dress
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the item places, the stroke, the timing, the range bound's source and what is missing, with provisional values marked.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A law record of two arm strokes over a standing base, one carrying the held wearable to its place on the head, which then wears it.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes the name, the cancel table, the parameters, the item places and the plan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every place is a head region of the performer's own body and the item's own socket.
-
 # src/dressing/dress.ts#dress.place
 
 ## @evidence contracts/development/common.md#meaningful-documentation

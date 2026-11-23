@@ -1,21 +1,3 @@
-# src/actions/jumpAirborne.ts#jumpAirborne
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three parts of the flight it owns and who turns it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The flight's shape, its knee hint and its turns, apart from the push-off and the landing.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The requested turns, the shape's inputs and three builders, read by the jump.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The turning is the flight pass's; this module only declares it and carries what comes back.
-
 # src/actions/jumpAirborne.ts#jumpAirborne.IShape
 
 ## @evidence contracts/development/common.md#meaningful-documentation

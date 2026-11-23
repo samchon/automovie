@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmFollow.ts#AutoMovieMotionHumanArmFollow
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is followed, what drives the correction, how it maps onto the arm and its bound.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A correction in the arm's coordinates added to the plan, the form of feed-forward plus error-driven feedback.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function, read by `AutoMovieMotionHumanArmCarry.carried` for an arm that follows a person.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The plan is the one model of the arm; the correction only maps the target's motion onto it.
-
 # src/compose/AutoMovieMotionHumanArmFollow.ts#AutoMovieMotionHumanArmFollow.follower
 
 ## @evidence contracts/development/common.md#meaningful-documentation

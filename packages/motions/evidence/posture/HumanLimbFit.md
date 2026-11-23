@@ -1,21 +1,3 @@
-# src/posture/HumanLimbFit.ts#HumanLimbFit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three parts of a limb's fit, who runs it and that no fit is remembered.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The fit of one limb is one responsibility, apart from the assembly of a whole pose.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The chain, the world goal, the world-frame and kernel fits and the closed-form swivel readings, read by the resolver, its direct solve and the arm course.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The solver is the engine's; nothing here sets an angle past the rig's range.
-
 # src/posture/HumanLimbFit.ts#HumanLimbFit.IChain
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/affordance/operateInsert.ts#operateInsert
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is moved, along what, the depth over the stroke and the reversal.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The mechanism is the held prop, its working point, the socket target, the depth and whether it is drawn out.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The mechanism, its depth by progress and the arm's goal, read by `operate`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The socket's axis and mouth are the target's own; no place is typed by the law.
-
 # src/affordance/operateInsert.ts#operateInsert.depth
 
 ## @evidence contracts/development/common.md#meaningful-documentation

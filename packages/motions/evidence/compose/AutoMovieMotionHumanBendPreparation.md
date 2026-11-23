@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanBendPreparation.ts#AutoMovieMotionHumanBendPreparation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Fixes the body/posture/side while world wrist points, rotations, fallback and requested elbow side remain per query.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Uses the existing bend request's goal fields and original candidate/score types, with world metres and rest-relative quaternions unchanged.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-solve/strain serve saw/catch/grasp selection; both supplies actual crawl/load paired-arm consumers with lazy side preparations sharing their genuine fixed trunk source.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Only chain/collider/neutral preparation is shared; no target, ranking, chosen elbow or strain answer is cached.
-
 # src/compose/AutoMovieMotionHumanBendPreparation.ts#AutoMovieMotionHumanBendPreparation.IGoal
 
 ## @evidence contracts/development/common.md#meaningful-documentation

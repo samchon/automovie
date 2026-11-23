@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanJoints.ts#AutoMovieMotionHumanJoints
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is written, in which angles, and for which parts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The parts with no end effector are posed by joint angles, added to what the posture holds so two sources of one joint's angle sum.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The channel lookup, one primitive (`add`) and one named time course (`pulse`); add owns its checked addition directly.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Angles are keyed by the rig's bone union in the posture's own clinical triple.
-
 # src/compose/AutoMovieMotionHumanJoints.ts#AutoMovieMotionHumanJoints.channels
 
 ## @evidence contracts/development/common.md#meaningful-documentation

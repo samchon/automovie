@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanPlaced.ts#AutoMovieMotionHumanPlaced
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is moved, by what and who uses it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A place function of the posture and the second, a weight and a hand surface: the least an arm laid at a place of the air needs.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record, one primitive pair and one grid lookup.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the arm carry, the hand form and the target resolver; places are named grid places, never metres.
-
 # src/compose/AutoMovieMotionHumanPlaced.ts#AutoMovieMotionHumanPlaced.arm
 
 ## @evidence contracts/development/common.md#meaningful-documentation

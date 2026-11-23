@@ -1,21 +1,3 @@
-# src/posture/HumanArmTrajectoryPairs.ts#HumanArmTrajectoryPairs
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names waypoint collision pairs, moving sites and the shared geometric readings used by the merit and convex model.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Pair indices identify actual frame geometry; shortfalls are millimetres, while site points and shape inputs stay in world metres and angular residuals in degrees.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns fixed-body pairs, site placement and rotation readings; moving-arm and reverse pairs alias HumanArmTrajectoryOverlap rather than repeat its definitions.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Keeps collider identity, reference depths, declared rests, grasp contacts and the original query cut; no scene-specific target or new tolerance is represented.
-
 # src/posture/HumanArmTrajectoryPairs.ts#HumanArmTrajectoryPairs.IPair
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/posture/HumanFitBalance.ts#HumanFitBalance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the balance kept, its base with its source, the rows and the centre's Jacobian.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The base of support as a convex polygon's half-planes, the linear form a quadratic program bounds a point by.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One reading and its rows' slopes, read by the whole-body fit.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The base is the feet's own bearing outline and the mass model the engine's.
-
 # src/posture/HumanFitBalance.ts#HumanFitBalance.IReading
 
 ## @evidence contracts/development/design.md#principled-representation

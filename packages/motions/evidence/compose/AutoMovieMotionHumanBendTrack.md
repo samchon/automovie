@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanBendTrack.ts#AutoMovieMotionHumanBendTrack
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is tracked, the premise restored, the knots, how they are solved and what a read is.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Plan data of one primitive: knots of a swivel in degrees and a branch on an action-local grid, with the goal a function of the posture so far and the second.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record of inputs, one of the two readers a primitive needs, and the factory; read by the laws whose arm primitive solves its elbow.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No law, body or side is named; the grid and the continuation's width are their owners'.
-
 # src/compose/AutoMovieMotionHumanBendTrack.ts#AutoMovieMotionHumanBendTrack.IGoal
 
 ## @evidence contracts/development/common.md#meaningful-documentation

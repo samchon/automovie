@@ -1,21 +1,3 @@
-# src/striking/KickChain.ts#KickChain
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines anatomical weapon geometry, full physical refits, measured misses and fixed-chain preparation versus changing candidate observations.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Uses canonical body/posture/reach/pose types and exposes the original full fitted pose plus physical support/contact measurements.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The sole frame, analytic reach, one-shot fit and fixed-chain fit producer are the actual kick contact planner's required operations; rig FK and physical fitting keep their existing owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every candidate remains a real complete posture fit under the original limits and best-residual decision; no resolved flag, proxy target, pose sample or changed success condition is introduced.
-
 # src/striking/KickChain.ts#KickChain.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

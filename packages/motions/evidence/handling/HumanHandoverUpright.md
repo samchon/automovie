@@ -1,21 +1,3 @@
-# src/handling/HumanHandoverUpright.ts#HumanHandoverUpright
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the chooser, the request assembly and the tip measure, and who owns the grid and the step.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World-metre postures and goals, world quaternion attitudes, degree yaws and second-based instants; the yaw grid and step are HumanHandover's.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-ordinary serves `HumanHandover.upright`, which the giver's and the receiver's carries read; posed assembles the request at a yaw for both the choice and the display; angle is the tip both read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every yaw of every instant is fitted on its own posture; no solved pose is stored.
-
 # src/handling/HumanHandoverUpright.ts#HumanHandoverUpright.IFrame
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/handling/HumanGrasp.ts#HumanGrasp
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the frame convention, the socket alignment, the width rule and who owns the pre-shape.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World-metre grip points/widths and unit approach/wrapped axes describe a grasp; body-local hand offsets and rest-relative rotations place the wrist, and key/reach records report constrained fits.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The facade owns the target, placement, reach and span entry points; HumanGraspTarget owns affordance geometry, HumanGraspHand the wrist goal, HumanGraspSearch the reach search and HumanGraspReach the standing prediction and the wrapped-axis turn.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Complete targets carry the collider and grip data while IFrame narrows to what a hand goal reads; no body, prop, fixture, guessed width or alternate solver is encoded in the shared surface.
-
 # src/handling/HumanGrasp.ts#HumanGrasp.IFrame
 
 ## @evidence contracts/development/common.md#meaningful-documentation

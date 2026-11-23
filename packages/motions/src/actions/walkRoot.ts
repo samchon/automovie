@@ -68,14 +68,6 @@ interface IProps {
  *
  * @param props The take's fixed measured body, entry root, path and clock.
  * @returns The unconstrained root and the start/stop amount at each second.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the preparation boundary, units and the two readers used by walkSteps; the namespace states each excursion's size, source or provisional status.
- * @evidence contracts/development/implementation.md#principled-implementation Walking progression integrates a positive speed modulation over each step. Its contrast accounts for the raised leg's momentum using the neutral leg-mass first moment about the hip. The root also uses stance-relative sway and bob, minimum-jerk start and stop, and the two-link length at the standing knee angle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed rest geometry and phase origins precede amount, planned-root and entry-preserving root readers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every coefficient is a named constant of the namespace, sourced or marked provisional; no path or query time is sampled or rounded.
- * @evidence contracts/development/implementation.md#efficient-algorithms Walking preparation traverses the physical profile once and rotates the centre of each leg segment. Each root query uses constant arithmetic plus the supplied path and heading reads.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A take fixes the body, timing and path readers; this closure shares only those fixed prerequisites and not a result keyed by a later query.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned readers retain the fixed input record, rest centre and entry offset until the step plan releases them, with no growing query history.
  */
 export function walkRoot(props: IProps): Pick<IAutoMovieMotionHumanWalkSteps.IPlan, "root" | "amount"> {
   const a: IAutoMovieVector3 = props.body.rest.get("leftFoot")!;
@@ -184,11 +176,6 @@ export function walkRoot(props: IProps): Pick<IAutoMovieMotionHumanWalkSteps.IPl
 
 /**
  * The excursions and spans of a stepping take's unconstrained root.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each constant gives its unit and origin. distalShare documents the dimensionless per-leg fraction, body-frame first moment and bilateral mean.
- * @evidence contracts/development/design.md#principled-representation Lengths in metres at the reference hip, scaled by the body's hip height where read, and spans in seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface walkRoot reads the excursion constants. walkRoot and walkSupportHeight use the same segmental mass fraction for horizontal momentum and vertical height respectively.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Named and marked, not numbers inside the function.
  */
 export namespace walkRoot {
   /**

@@ -1,21 +1,3 @@
-# src/sport/handspring.ts#handspring
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the phases, flight physics/rate, landing, bound, vault, first pass and events. The unchanged lunged alias names handspringKeys.lunged's left-leading provisional shape; arched names handspringKeys.arched's provisional line used by the wheel and flight.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A wheel table and a parabola, both from the body's own joints and mass model; the rate is solved, not stated.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The name, the cancel table, the keyed shapes and angles, the parameters, the plan and the plan over a prop's top.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No length in metres and no speed stated: they follow from the spokes and the flight.
-
 # src/sport/handspring.ts#handspring.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

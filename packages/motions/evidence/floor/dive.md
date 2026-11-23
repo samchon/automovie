@@ -1,21 +1,3 @@
-# src/floor/dive.ts#dive
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two kinds, the root's path, the one airborne axis, the landing and the contacts, and what the first pass leaves out.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A shape of the joints, a turn about one body axis and a root path, with the landed body read off its own lowest point.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The name, the cancel table, the shapes, four constants, the parameters and the plan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The flight turns about one axis only, as stated; no tumble is faked.
-
 # src/floor/dive.ts#dive.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

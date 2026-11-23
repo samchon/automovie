@@ -1,21 +1,3 @@
-# src/perform/HumanPerformanceContacts.ts#HumanPerformanceContacts
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States hold and contact resolution; STEP is 1/120 second, so limbs moving a few metres per second travel a few centimetres between the original scan samples.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Contacts are resolved on the whole placed performance by the engine's contact events, and applied as stops on the plans.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The contact resolution and the hold bookkeeping (#3399).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A hand that holds a prop and is driven elsewhere is refused.
-
 # src/perform/HumanPerformanceContacts.ts#HumanPerformanceContacts.hold
 
 ## @evidence contracts/development/common.md#meaningful-documentation

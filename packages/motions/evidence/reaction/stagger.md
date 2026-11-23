@@ -1,21 +1,3 @@
-# src/reaction/stagger.ts#stagger
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the pendulum, the centre of pressure, the step rule and its measured bounds, the further steps and their bound, the closing step, the settling, the feet, the trunk, the arms and the push's read, each with its source.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A law record of the action-law core: a name, a closed cancel table, parameters and a plan composed of part primitives on one clock, with plant windows.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes the name, the cancel table, the parameters, the landing time `perturb` reads and the plan; the bounds are `staggerBounds`', the recovery `staggerRecover`'s, its limit `staggerLimit`'s and its feet `StaggerFeet`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the posture, plan, contact-window, foot, gait, target, clock, balance and primitive owners; the steps scale with each body's pendulum, feet and stature.
-
 # src/reaction/stagger.ts#stagger.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

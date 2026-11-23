@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanFootRelax.ts#AutoMovieMotionHumanFootRelax
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two limits, the weight's share, the rocker, the fixed forefoot and the shedding before a lift.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A pure correction of a foot placement against the load's dorsal range.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The lead, the load share and one correction.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The limits are the engine's range constants; the rocker and the hips are the walk's and the body's own.
-
 # src/compose/AutoMovieMotionHumanFootRelax.ts#AutoMovieMotionHumanFootRelax.load
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanVariationDraw.ts#AutoMovieMotionHumanVariationDraw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a draw and a bound rule are and where the slot's terms are defined.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One low-discrepancy sequence per slot read through a quantile function, so a repeat's index alone places it among the others and no value is rejected or clamped.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two truncation constants, the sequence's steps, three draws and the four rules the slot functions of three files call; the quantile function stays private.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No function here knows a slot type: each takes the spread and the bound its caller derived.
-
 # src/compose/AutoMovieMotionHumanVariationDraw.ts#AutoMovieMotionHumanVariationDraw.uniforms
 
 ## @evidence contracts/development/common.md#meaningful-documentation

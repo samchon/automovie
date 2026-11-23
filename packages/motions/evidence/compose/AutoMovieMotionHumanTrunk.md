@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanTrunk.ts#AutoMovieMotionHumanTrunk
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three phrases and how the hip shifts are found.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A trunk movement is a twist shared along the spine, or a root and pitch change that keeps the centre of mass over the feet; the balance is solved on the body, so the same phrase holds for every body shape.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Three phrases, one record, the sunk posture the crouch is built on (also read by a law that solves its own inclination) and the chest's share. No law reads them yet: the reactions state their trunk angles as their own curves, and the strikes and the everyday laws rebuilt for #3286 are the consumers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The crouch takes one record because it has seven inputs; the turn and the counterbalance take positional arguments because each has few and no optional one.
-
 # src/compose/AutoMovieMotionHumanTrunk.ts#AutoMovieMotionHumanTrunk.turn
 
 ## @evidence contracts/development/common.md#meaningful-documentation

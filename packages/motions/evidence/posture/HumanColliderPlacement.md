@@ -1,21 +1,3 @@
-# src/posture/HumanColliderPlacement.ts#HumanColliderPlacement
-
-## @evidence contracts/development/design.md#principled-representation
-
-Applies each bone's world transform to the profile segment's neutral offset from the canonical rest joint, preserving the existing median-plane left/right reflection.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-HumanColliders delegates full placement, explicit geometry preparation, canonical names, fixed-demand preparePlaced and scalar floor minima to this owner. Distance consumers retain posed records; floor consumers request only actual Y/rotation and ordered scalar bounds.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Moves the existing neutral SIDED weak cache without adding a posed-body or distance-result cache; current bones are read on every placement and the body definition must remain unchanged for its identity.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes fixed names/offsets, first-observed reflected shapes and current posed frames, with their transform convention and unchanged-body cache ownership.
-
 # src/posture/HumanColliderPlacement.ts#HumanColliderPlacement.IPlaced
 
 ## @evidence contracts/development/common.md#meaningful-documentation

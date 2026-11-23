@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanArmCourse.ts#AutoMovieMotionHumanArmCourse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the instants, the hold's fits, who lays the transports, the admission and the fallback.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The course is the arms' clinical triples at the hold's instants, read through the same playback as a solved trajectory.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One input record and one function, read by `AutoMovieMotionHumanArmPlanned.planned`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No bound is the course's own: the admission is the trajectory model's reading.
-
 # src/compose/AutoMovieMotionHumanArmCourse.ts#AutoMovieMotionHumanArmCourse.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/compose/AutoMovieMotionHumanTouchStance.ts#AutoMovieMotionHumanTouchStance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two movements, their order, why the rise comes first, what bounds each and who refuses.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A girdle angle, a heel angle and a lean solved once from the wrist's place on the posture, the body's three ways of closing a reach without a step.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two limits, the props, the solved stance and its solver; read by the touch law.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The wrist is the caller's own goal and the rise and the lean are their owners', so no region, effector or body is named here.
-
 # src/compose/AutoMovieMotionHumanTouchStance.ts#AutoMovieMotionHumanTouchStance.solve
 
 ## @evidence contracts/development/common.md#meaningful-documentation

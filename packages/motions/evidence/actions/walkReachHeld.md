@@ -1,21 +1,3 @@
-# src/actions/walkReachHeld.ts#walkReachHeld
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is read and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The pelvis's tilt apart from the walk's own settling.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One tilt, read by `StaggerFeet`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The pivot is the body's own hips bone.
-
 # src/actions/walkReachHeld.ts#walkReachHeld.tilt
 
 ## @evidence contracts/development/common.md#meaningful-documentation

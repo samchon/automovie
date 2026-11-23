@@ -1,21 +1,3 @@
-# src/grappling/HumanForceThrow.ts#HumanForceThrow
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the phases, who uses it and what the first pass leaves out.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A rigid pendulum about a fixed fulcrum, then torque-free flight with conserved angular momentum, read by time.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The throw's input record, its plan and the force site reader the response shares.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No angle or landing is scripted: the swing and the flight are integrated.
-
 # src/grappling/HumanForceThrow.ts#HumanForceThrow.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

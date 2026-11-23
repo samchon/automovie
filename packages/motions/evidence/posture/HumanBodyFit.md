@@ -1,21 +1,3 @@
-# src/posture/HumanBodyFit.ts#HumanBodyFit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the problem with its sources, the variables, the objective, the rows, the merit and the loop.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Goals and contacts are the priced rows of one quadratic program over the posture's own variables, the static multi-contact posture problem's representation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The target, the props, the result, the price and one fit, read by every law that fits a whole body to its contacts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The floor is read on the body's colliders, the ranges on the shared table, the slopes on the shared Jacobian, the loop and the convex step are the shared ones.
-
 # src/posture/HumanBodyFit.ts#HumanBodyFit.fit
 
 ## @evidence contracts/development/common.md#meaningful-documentation
