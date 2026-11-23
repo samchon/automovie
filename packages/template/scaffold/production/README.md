@@ -55,6 +55,8 @@ Declare contact and continuity expectations by returning `selectAutoMoviePlacedC
 
 Nothing reads proximity, contact receipts or physics to choose a support, grip or holder.
 
+A film that performs Humans through `@automovie/motions` also returns `{ performance, paths }` from `IFilmProduction.humanPerformance`, where `paths` maps each performer's subject to its entity path. The capture and the render then add the `HumanVerdicts` report of the whole performance to every sample: one `human-<bound>` finding per performer, or per pair for `partner`, with its worst reading, limit, unit and `seconds`, and one coverage row per bound, `excluded` for the nine floor and support bounds of a performer who swims or climbs a ladder. The report costs seconds to minutes, so it is read once per run and the interactive viewer never asks for it. A confirmed bound violation is an error, so it blocks delivery: repair the motion until `HumanVerdicts.describe(report)` reads `clean` rather than leaving the member out.
+
 The inspector checks each picture under a work budget sized to fit the checks into a 60 Hz frame, and marks a check that would exceed it as `deferred`. Large formations or dense touching surfaces can exceed it. Capture and delivery both complete the checks the interactive preview deferred.
 
 A finding has a stable check, key, code and entity paths, a confidence, and a witness with its film seconds and, on the delivery grid, its output frame. Each check also reports its coverage: `checked`, `excluded` with a reason, or `deferred` or `unsupported` with a reason.
@@ -124,7 +126,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 
 ## Tests
 
-`test/index.ts` discovers pure logic unit tests in `test/features/<source path>/test_<name>.ts` through `tsconfig.test.json`. Export a named `test_<name>(): void` or `Promise<void>` function and assert behavior with `node:assert/strict` or `TestValidator` from `@nestia/e2e`. Select test filenames with `pnpm test --include <substring> --exclude <substring>`; repeated options accumulate. Tests call portable logic directly; the inspector page and media inspection run separately.
+`test/index.ts` discovers pure logic unit tests in `test/features/<source path>/test_<name>.ts` through `test/tsconfig.json`. Export a named `test_<name>(): void` or `Promise<void>` function and assert behavior with `node:assert/strict` or `TestValidator` from `@nestia/e2e`. Select test filenames with `pnpm test --include <substring> --exclude <substring>`; repeated options accumulate. Tests call portable logic directly; the inspector page and media inspection run separately.
 
 ## Project files
 
@@ -136,7 +138,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 | `evidence.config.ts` | The duties selected through installed `@automovie/evidence`, which `pnpm run evidence` evaluates as the selected native graph |
 | `lint.config.ts` | Generic source lint |
 | `tsconfig.json` | Compiler settings |
-| `tsconfig.test.json` | The scope of pure TypeScript unit tests |
+| `test/tsconfig.json` | The scope of pure TypeScript unit tests |
 | `package.json` | Dependencies and commands |
 
 [Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media records]({{skills}}/production/media-records.md) own every other location, such as `docs`, `references`, `src`, `test`, `public`, `.env` and `media`, and source layout also owns the dependency direction between source folders.
