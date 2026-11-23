@@ -16,11 +16,6 @@ import { HumanFrame } from "../posture/HumanFrame";
  * Each reads the ankle's bend off the two-link leg bent in the plane of its
  * pole, the plane the limb fit bends the knee in, so the ankle the verdicts
  * read stays within what it holds.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the legs are shaped for, how the ankle is read and which action reads them.
- * @evidence contracts/development/design.md#principled-representation World metres, degrees and limb goals, the units the limb fit takes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanMountOn` asks of its legs, and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No object and no body is named.
  */
 export namespace HumanMountPush {
   /**
@@ -620,6 +615,32 @@ export namespace HumanMountPush {
 
     /** The shank's unit direction, from the ankle to the knee. */
     shank: IAutoMovieVector3;
+  }
+
+  /**
+   * The pole-vector knee of the two-link leg from a hip to an ankle, the knee
+   * `bend` reads the ankle by and the limb fit places.
+   *
+   * @param body The body, whose thigh and shank lengths are read.
+   * @param hip The hip joint, world metres.
+   * @param ankle The ankle, world metres.
+   * @param pole The knee's pole, world metres.
+   * @returns The knee, world metres; null for a degenerate leg.
+   * @evidence contracts/development/common.md#meaningful-documentation States the knee, its inputs and the degenerate case.
+   * @evidence contracts/development/implementation.md#principled-implementation The pole-vector two-link solution, the plane the limb fit bends the knee in.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One closed form.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the body's own measures.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The knee `bend`, `twist` and `pitch` read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function knee(
+    body: IAutoMovieMotionHumanBody,
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    pole: IAutoMovieVector3,
+  ): IAutoMovieVector3 | null {
+    return kneeOf(body, hip, ankle, pole);
   }
 
   /**

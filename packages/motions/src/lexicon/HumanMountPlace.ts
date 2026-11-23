@@ -1,24 +1,25 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointConstraint,
   IAutoMovieMotionHumanBody,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { readHumanBone } from "../body/readHumanBone";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
+import { HumanMountPush } from "./HumanMountPush";
 
 /**
- * Where each foot ends on a high seat (`HumanMountOn`): on its rest when
- * the seated leg reaches it, on the floor when the hanging leg would pass
- * it, hanging under a thigh in the direction `HumanMount.HANG` gives
- * otherwise.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three ends and which action reads them.
- * @evidence contracts/development/design.md#principled-representation A foot placement, whether it bears and the height of what bears it, in world metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanMountOn` asks of a foot's end, and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No object and no body is named.
+ * Where each foot ends on a high seat (`HumanMountOn`): on its rest when the
+ * seated leg reaches it, on the floor when the hanging leg would pass it,
+ * hanging under a thigh in the direction `HumanMount.HANG` gives otherwise.
  */
 export namespace HumanMountPlace {
   /**
@@ -47,13 +48,16 @@ export namespace HumanMountPlace {
    * @param side The foot.
    * @param hip The seated hip joint, world metres.
    * @param yaw The seated heading, degrees.
+   * @param pitch The seated pelvis's pitch, degrees, forward positive.
    * @param astride Whether the seat is sat astride.
-   * @param tread The rest's tread the ball goes on, world metres, if the seat names one for this side.
+   * @param tread The rest's tread the ball goes on, world metres, if the seat
+   *   names one for this side.
    * @param under The floor's height, world metres.
    * @returns The end.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The ball goes on the tread when the seated leg's span reaches it (`HumanMount.span`); a hanging foot stops on the floor at its ankle's height.
+   * @throws {HumanRefusal} When the rest the leg spans asks the hip to flex
+   *   past its range from the seated pelvis, with that range.
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the inputs, the result and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The ball goes on the tread when the seated leg's span reaches it (`HumanMount.span`) and the hip's range holds the thigh the two-link knee gives (authoring.md "Out of reach": the reachable range is reported, never clamped); a hanging foot stops on the floor at its ankle's height.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Two cases.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The knee's aims are provisional directions, stated with `HumanMount.HANG`.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -65,6 +69,7 @@ export namespace HumanMountPlace {
     side: "left" | "right",
     hip: IAutoMovieVector3,
     yaw: number,
+    pitch: number,
     astride: boolean,
     tread: IAutoMovieVector3 | undefined,
     under: number,
@@ -82,19 +87,36 @@ export namespace HumanMountPlace {
       );
       const span: readonly [number, number] = HumanMount.span(body);
       const d: number = Vector3.length(Vector3.subtract(ankle, hip));
-      if (d >= span[0] && d <= span[1])
+      const bend: IAutoMovieVector3 = HumanFrame.point(
+        { origin: hip, yaw },
+        { x: sign * (astride ? 0.5 : 0.05), y: 0, z: 1 },
+      );
+      if (d >= span[0] && d <= span[1]) {
+        // The rest is the leg's only where the hip bends to it: the thigh's
+        // flexion off the seated pelvis, read off the two-link knee the fit
+        // places (`HumanMountPush.knee`), within the hip's range.
+        const flexion: number = hipFlexion(body, hip, ankle, bend, yaw, pitch);
+        const most: number = hipRange(body, side);
+        if (flexion > most)
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "footrests",
+            value: flexion,
+            feasible: {
+              kind: "range",
+              minimum: null,
+              maximum: most,
+              unit: "deg",
+            },
+            reason: `the ${side} foot's rest asks the hip ${flexion.toFixed(1)} degrees of flexion from the seated pelvis, past its ${most.toFixed(1)}`,
+            fix: 'sit back against the seat\'s backrest (`back: "lean"`), which opens the hip, or use a seat whose rest the leg reaches',
+          });
         return {
-          foot: {
-            ankle,
-            bend: HumanFrame.point(
-              { origin: hip, yaw },
-              { x: sign * (astride ? 0.5 : 0.05), y: 0, z: 1 },
-            ),
-            yaw: heading,
-          },
+          foot: { ankle, bend, yaw: heading },
           rests: true,
           height: tread.y,
         };
+      }
     }
     const thigh: readonly [number, number, number] =
       HumanMount.HANG[astride ? "astride" : "ahead"];
@@ -118,5 +140,61 @@ export namespace HumanMountPlace {
       rests: knee.y - m.shank <= under + m.ankleHeight,
       height: under,
     };
+  }
+
+  /**
+   * A seated thigh's flexion off its pelvis, degrees: the two-link knee
+   * (`HumanMountPush.knee`) read in the pelvis's sagittal plane, forward of its
+   * downward axis.
+   */
+  function hipFlexion(
+    body: IAutoMovieMotionHumanBody,
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    pole: IAutoMovieVector3,
+    yaw: number,
+    pitch: number,
+  ): number {
+    const knee: IAutoMovieVector3 | null = HumanMountPush.knee(
+      body,
+      hip,
+      ankle,
+      pole,
+    );
+    if (knee === null) return 0;
+    const pelvis: IAutoMovieQuaternion = resolveHumanPosture.heading({
+      yaw,
+      pitch,
+      roll: 0,
+    });
+    const thigh: IAutoMovieVector3 = Vector3.subtract(knee, hip);
+    return (
+      Math.atan2(
+        Vector3.dot(
+          thigh,
+          Quaternion.rotateVector(pelvis, { x: 0, y: 0, z: 1 }),
+        ),
+        -Vector3.dot(
+          thigh,
+          Quaternion.rotateVector(pelvis, { x: 0, y: 1, z: 0 }),
+        ),
+      ) / Quaternion.DEG2RAD
+    );
+  }
+
+  /**
+   * The hip's flexion range's upper bound, degrees: the range table's for the
+   * body's thigh.
+   */
+  function hipRange(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+  ): number {
+    const bone: AutoMovieHumanoidBone = `${side}UpperLeg`;
+    const constraint: IAutoMovieJointConstraint | null = getConstraint(
+      bone,
+      readHumanBone(body, bone)?.constraint ?? null,
+    );
+    return constraint?.flexion?.max ?? Infinity;
   }
 }

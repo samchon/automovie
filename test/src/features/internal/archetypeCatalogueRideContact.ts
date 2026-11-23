@@ -329,7 +329,9 @@ function rideFilm(
   );
   const actor: IAutoMovieMotionHumanChain = HumanChain.subject("a");
   const entry: IAutoMovieMotionHumanChain = seated
-    ? actor.sit({ seat, hold: 0.5 })
+    ? // A driver sits back against the seat's backrest: upright, the hip would
+      // have to flex past its range to reach the pedal (`HumanMountPlace`).
+      actor.sit({ seat, hold: 0.5, back: "lean" })
     : actor.stand({ hold: 0.5 });
   return new HumanPerformance({
     seed: "catalogue/sedan/ride",
