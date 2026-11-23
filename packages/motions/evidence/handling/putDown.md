@@ -6,7 +6,7 @@ States the input, the plan and the refusals; the law's doc gives the phases.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The hand-to-prop offset is read from the displayed frames at the start and inverted at the resting frame; a free heading is chosen by the grasp search over turns of the prop's own rest rotation, and a socket placement holds the source socket as the arm's contact. A placement that stays put is one admitted arm course (courseArmGoal): joint-space carry and return between arms the body takes, the hold on the placing frame, so no world-attitude path switches the forearm's twist between its range's ends.
+The hand-to-prop offset is read from the displayed frames at the start and inverted at the resting frame; a free heading is chosen by the grasp search over turns of the prop's own rest rotation the whole way round (`HEADINGS`), since a prop laid with no authored heading rests alike at any, and a socket placement holds the source socket as the arm's contact. A placement that stays put is one admitted arm course (courseArmGoal): joint-space carry and return between arms the body takes, the hold on the placing frame, so no world-attitude path switches the forearm's twist between its range's ends.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -32,7 +32,7 @@ The plan closes over the transports, the shapes, the reference and the wrist.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States which placements constrain a prior grasp and whose pose and tolerance are used.
+States which placements constrain a prior grasp (a socket placement, and a free one at an authored resting attitude through `putDownRestingDemand`) and whose pose and tolerance are used.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -44,7 +44,7 @@ Filter the grip and tracked destinations, read the fixed destination, undo its r
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No object kind is named, and a free world placement keeps its existing freedom.
+No object kind is named; a free world placement with no authored attitude keeps its existing freedom.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
