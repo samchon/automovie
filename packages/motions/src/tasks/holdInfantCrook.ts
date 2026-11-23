@@ -23,11 +23,6 @@ const ACROSS: number = 25;
  * `ACROSS` forward, rising from the wrist to the elbow by the hold's
  * `RISE`. The elbow and the wrist lie the arm's own segment lengths from
  * the shoulder, so a hold laid on them lies within the arm's reach.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the arm's lay, its angles and why it stays in reach.
- * @evidence contracts/development/design.md#principled-representation The elbow and the wrist, world metres, from the body's own segment lengths.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `holdInfant`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The angles are named and provisional; the lengths are the body's.
  */
 export namespace holdInfantCrook {
   /** A hold that lays the infant along the forearm. */

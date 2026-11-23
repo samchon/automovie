@@ -24,20 +24,10 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * configuration on a blended path is how a planner lays a path round an
  * obstacle without optimising it (the approach and retreat of a reach);
  * its place and its size here are the reading's own.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is corrected, by which linearisation, how the change is laid over the transport and what stays.
- * @evidence contracts/development/design.md#principled-representation A detour is the share of the path it is centred on and each arm's change of coordinates there.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The record, its producer and the bump the course lays it by, read by the laid course alone.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The pairs, their bounds and their normals are the model's; no clearance of the detour's own is defined.
  */
 export namespace HumanArmTrajectoryClear {
   /**
    * A change of a transport's path laid as a bump.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both members and their units.
-   * @evidence contracts/development/design.md#principled-representation The path's share the bump is whole at, and each arm's coordinate change there.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Made by `detour`, read by the laid course through `bump`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Coordinates in the model's own units, one entry per arm of the problem.
    */
   export interface IDetour {
     /** The share of the transport's path the change is whole at, in (0, 1). */
@@ -71,14 +61,6 @@ export namespace HumanArmTrajectoryClear {
    * @param shares The share of its path each waypoint of the transport stands at, by waypoint.
    * @param region The largest change of any coordinate the detour may make, coordinate units.
    * @returns Each arm's detour, at its own deepest waypoint; none for an arm whose every pair and sweep inside the transport lies within what the admission allows.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read, what is returned and when nothing is.
-   * @evidence contracts/development/implementation.md#principled-implementation The waypoint with the deepest pair past the admission's slack (`T.SKIN`), or the inner end of the interval whose swept sphere lies deepest past its bound (its row the shape's normal at that end, as the convex subproblem's sweep row reads it); at it every pair within the tolerance of its bound linearised along its normal on the arm's point Jacobian (a probe's own, a body corner carried by the arm's segment the other way), and the least-norm change meeting each at its bound by an active set on the normal equations.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The deepest waypoint, its rows, the least-norm change.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the model's pairs and normals are read; a change that cannot be found (no row moves) is no detour.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One scan of the reading's pairs over the transport, one Jacobian reading, and a normal-equation solve of at most the waypoint's pairs in the arm's free coordinates.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The reading is the caller's, read here once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
    */
   export function detour(
     c: M.IContext,
@@ -216,14 +198,6 @@ export namespace HumanArmTrajectoryClear {
    * @param share The path's share.
    * @param at The detour's share.
    * @returns The weight in [0, 1].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the weight's values at the ends and the peak and its shape.
-   * @evidence contracts/development/implementation.md#principled-implementation The cubic ease of each side's share has zero slope at both of its ends.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One side's share, one cubic.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A share outside [0, 1] weighs nothing.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bump(share: number, at: number): number {
     if (!(share > 0 && share < 1)) return 0;

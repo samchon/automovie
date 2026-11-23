@@ -43,11 +43,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * (`SEATED_LEAN`). A grip no lowering or lean reaches, or one beyond the arm
  * from a body that neither stands nor sits, is refused: the person stands
  * and steps closer first.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States when the body is lowered, how, the sources and the refusals.
- * @evidence contracts/development/design.md#principled-representation The reach as a predicate over wrist goals and the lowered body as a function of the share of the way down, so the law's grasp search and its postures read one body.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The stance record, its builder and the reach predicate and refusal the pick up and the put down read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No height or body is special-cased: the strategy and the inclination are the bend law's own solve.
  */
 export namespace pickUpPosture {
   /** The furthest a seated trunk leans forward from the seat to reach, degrees: a search bound (provisional: no source gives the trunk's angle from vertical at a seated reach's limit; a seated pick up from the floor flexes the lumbar spine about 50 degrees, Shum, Crosbie and Lee 2007, Eur Spine J 16:749, Table 2), the reach itself bounded by `SEATED_REACH`. */
@@ -58,11 +53,6 @@ export namespace pickUpPosture {
 
   /**
    * The original lowering, borrowing observations only for the current person call.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation posture is the bottom body; at/lower return the original lowering and optional step preserves its adjustment-foot timing. Optional FK/ROM loans are current-call inputs, never stored.
-   * @evidence contracts/development/design.md#principled-representation Existing raw postures and dimensionless shares use IHumanActionPlan's genuine optional FK/ROM types, preserving source admission and coordinate ownership.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Pick-up and travel leaf consumers read at/lower; the bottom and optional step retain their existing roles without another lowering or solver representation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No solved posture or time key proves equivalence; absent loans preserve raw paths, standing hip lowering keeps native policy and only seated solved observations borrow ROM.
    */
   export interface IStance {
     /** The posture at the bottom: the entry's, or the entry lowered. */
@@ -70,27 +60,11 @@ export namespace pickUpPosture {
 
     /**
      * The body at a share down, entry at zero and bottom at one.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Takes lowering share and optional current-person FK/ROM loans, returning the original actually lowered or leaned raw body.
-     * @evidence contracts/development/implementation.md#principled-implementation The entry adapter uses its original lower implementation, forwarding FK to actual hip/trunk reads and ROM only to seated hand observations.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One entry-posture adapter calls the shared original lower owner without another lowering equation.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original root/foot/seat/hand goals, share and native admission remain; no requested observation or solve is skipped.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Original lowering/rest work remains while explicit loans may share same-operation prerequisites; speedup is unmeasured.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Genuine current-person suppliers are borrowed only at existing reads; every share evaluates its own actual posture.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The stance keeps original entry/solved-lowering geometry; each call releases optional loans without storing a reader, query pose or time history.
      */
     at: (share: number, resolution?: IFK, projection?: IROM) => IAutoMovieMotionHumanPosture;
 
     /**
      * Carry the lowering onto a current posture of the same base.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Takes current raw body and lowering share with optional same-person FK/ROM loans and returns the original standing or seated composition.
-     * @evidence contracts/development/implementation.md#principled-implementation Keeps solved strategy/pitch/back or seat-pivot inclination, original hip lowering, hand resting and shoulder-slide equations while forwarding actual observations.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Standing delegates to bendLower; seated separates leanBody, seated.rested and original shoulder-slide placement with current loans following actual reads.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No goal, coupling, foot/seat support or slide cap changes; standing hip FK remains raw without a new ROM policy.
-     * @evidence contracts/development/implementation.md#efficient-algorithms All original lower/rest/read work remains; supplied exact dependencies may be shared with the parent person evaluation, without a measured speedup claim.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Optional loans are explicit current-call inputs, never inferred from pose identity/time; absent values use original native paths.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Current raw body and optional suppliers are used synchronously and never stored; only original solved strategy/seat geometry stays with the stance.
      */
     lower: (posture: IAutoMovieMotionHumanPosture, share: number, resolution?: IFK, projection?: IROM) => IAutoMovieMotionHumanPosture;
 
@@ -107,14 +81,6 @@ export namespace pickUpPosture {
    * @param reach How near the shoulder must come to the grip, metres; a palm laid on it when absent (`bendLower.pitch`).
    * @returns The lowered stance.
    * @throws {HumanRefusal} When the entry neither stands nor sits, or no lowering or lean brings the shoulder within reach: the person stands and steps closer first.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is lowered, toward what and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The bend law's choice and solve (`bend.lowering`) and its lowered posture (`bendLower.lower`), the trunk's inclination and the hips' shift both taken a share of the way at each instant, as the bend lowers.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One check of the base, one solve and one closure; a seated body goes to its lean.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body that is not standing is not lowered from a standing rule (a seated one leans from its seat); a refusal of the solve is passed on with the step named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The strategy and its body measurements prepare once. Each instant evaluates the actual lowering against current joint frames and planted goals.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reach and recovery read one strategy geometry through the bend law's prepared lowering. Foreign bodies retain live geometry.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure holds the entry posture and the solved lowering.
    */
   export function lowered(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -398,14 +364,6 @@ export namespace pickUpPosture {
    * @param side The arm.
    * @param posture The posture the arm reaches from; the entry's when absent.
    * @returns Whether a wrist goal is within reach.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the reach, the posture it is read in and who reads it.
-   * @evidence contracts/development/implementation.md#principled-implementation The upper arm and the forearm together, from the shoulder the posture places.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shoulder read and one distance per goal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance is a micrometre, the one `reachable` refuses by.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The shoulder is resolved once per call, not per goal.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `reachable` and by the pick-up's and the put-down's grasp searches.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The predicate closes over the shoulder and the reach.
    */
   export function reaches(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -428,14 +386,6 @@ export namespace pickUpPosture {
    * @param wrist The wrist goal, world metres.
    * @param posture The posture the arm reaches from; the entry's when absent.
    * @throws {HumanRefusal} When the goal is farther than the upper arm and forearm together: the person bends or steps closer first.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the reach, the posture and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The upper arm and the forearm together, from the shoulder the posture places.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One distance and one refusal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance is a micrometre; nothing is clamped.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the shoulder as `reaches` does.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reachable(
     context: IAutoMovieMotionHumanActionContext<object>,

@@ -23,14 +23,6 @@ import { HumanObstacle } from "../perform/HumanObstacle";
  *
  * @param context The walk's context: the walker, where it stands, the places it passes and its end.
  * @throws {HumanRefusal} A `reach` refusal on `path` when a stretch is blocked.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is refused, what a walker takes, how the way is asked and what the refusal carries.
- * @evidence contracts/development/implementation.md#principled-implementation The blocking test is its owner's, `HumanObstacle.blocking`; this only walks the stretches and words the refusal from the block it returns.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the stretches, one refusal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A blocked way is refused, never bent round the obstacle: going round is the composition's choice of places to pass. A walker who could pass an opening sideways or ducking is refused as one who walks facing the way and upright.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the stretches and the obstacles.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function walkClear(
   context: IAutoMovieMotionHumanActionContext<{
@@ -94,11 +86,6 @@ export function walkClear(
 
 /**
  * Companion check of {@link walkClear}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the check refuses and what its refusal carries.
- * @evidence contracts/development/design.md#principled-representation The same blocking test on one more stretch, the one between two people rather than a walked one.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by the approach that ends beside or before a person.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No obstacle is named; an opening the two could see each other through still counts as a wall between people who are to stand together.
  */
 export namespace walkClear {
   /**

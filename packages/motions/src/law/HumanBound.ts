@@ -15,14 +15,6 @@ import { HumanRefusal } from "./HumanRefusal";
  *
  * A bound passes a value that satisfies it and throws otherwise; `NaN`
  * satisfies none.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the checks share, why they have one owner and what passes.
- * @evidence contracts/development/implementation.md#principled-implementation Each check is one comparison and one refusal composed from the bound itself.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Four checks over one refusing helper.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The feasible range reported is the range tested, built from the same arguments.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache: each call checks its own value.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pure functions that retain nothing.
  */
 export namespace HumanBound {
   /**

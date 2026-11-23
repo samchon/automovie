@@ -37,17 +37,6 @@ import { HumanTrunk } from "./HumanTrunk";
  * segments on the shoulder, the wrist and the elbow's bend hint; the wrist
  * follows from the fingers, so the two are settled by a few rounds of
  * substitution.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States which surface lies on which, where the place and the hand's turn come from, and which values are provisional.
- * @evidence contracts/development/design.md#principled-representation Two functions that return both hands' goals, since either place holds both hands and the right hand's goal depends on the left one's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two places and the one constant the front place reads; the rest law's goal table is the only caller.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Returns the rest law's own goal type; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation A point and normal of the true colliders, a comfortable elbow flexion for the height, and a neutral wrist from the arm's triangle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One surface point per place, one laid hand, one hand stacked on it.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height is bounded by the regions the trunk names, not moved until a verdict passes; a ray that misses the trunk throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms One demanded trunk/shoulder FK supplies all anatomical points and the 12-step front-height ray-cast bisection; fixed ray direction, arm lengths, hand-local point and rest alignment are prepared once per side. Every ray, world alignment and three actual wrist substitutions per hand remain.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A synchronous HumanTrunk.prepare reading shares the fixed posture's FK/collider frames across regions, shoulders and rays. Each side's lazy hand reader shares its unchanged rest basis through HumanHand.prepareAlignment and its existing point-placement owner; each current normal, forward, wrist and ray hit is recomputed.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation-local trunk and two hand readers end with goal preparation or throw; lazy hand preparation remains after the first actual surface query, and only the returned fresh goals survive, without time/history or body-result caches.
  */
 export namespace restClasped {
   /**
@@ -74,14 +63,6 @@ export namespace restClasped {
    * @param elbows Each elbow's bend hint, world metres.
    * @returns Both goals.
    * @throws {Error} When the trunk has no front surface at the height.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States where each palm lies, how the height is found and its bounds.
-   * @evidence contracts/development/implementation.md#principled-implementation A bisection of the height between the groin and abdomen regions on the farther wrist's excess over its arm's reach at `FLEXION`, the excess falling as the place rises toward the shoulders.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One surface ray per trial height, one laid hand and one stacked on it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height stays inside the regions the trunk names; a ray that misses the trunk throws.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twelve bisection trials, each one ray and two closed-form hand placements.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One trunk reading serves every ray, region and shoulder; each side's hand preparation serves every trial.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function front(
     body: IAutoMovieMotionHumanBody,
@@ -179,14 +160,6 @@ export namespace restClasped {
    * @param elbows Each elbow's bend hint, world metres.
    * @returns Both goals.
    * @throws {Error} When the trunk has no back surface at the height.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States where each hand lies, the drill-manual source and the height below the lower back.
-   * @evidence contracts/development/implementation.md#principled-implementation One ray onto the back midline below the lower-back region, the left hand laid there and the right stacked in its palm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One surface ray, one laid hand and one stacked on it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A ray that misses the trunk throws.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work: one ray and two hand placements.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One trunk reading serves the region, the shoulders and the ray.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function behind(
     body: IAutoMovieMotionHumanBody,

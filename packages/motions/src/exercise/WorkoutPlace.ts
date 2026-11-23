@@ -38,11 +38,6 @@ import { ExerciseKey } from "./ExerciseKey";
  *   names and is refused without one;
  *   hands that grip a bar are pinned by their grip sockets, so the bar lies
  *   in the fists.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is decided, when, and each anchor's rule.
- * @evidence contracts/development/design.md#principled-representation One world point per plan, from which every posture's root follows by the pin, so the support cannot drift between postures.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one function the workout law calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Heights are the entry's own joints', the prop's, the body's shapes' or the body's own for a support exercise's bars; no bar is imagined to hang from.
  */
 export namespace WorkoutPlace {
   /** The hip joints, by which a body on a raised support is placed. */
@@ -58,14 +53,6 @@ export namespace WorkoutPlace {
    * @param keepFloorPins Whether the exercise is carrying forward its bearing pins from a held floor stance.
    * @returns World metres.
    * @throws {HumanRefusal} When a hanging kind names no bar to hang from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each anchor's rule as stated on the namespace, each read from forward kinematics of the first key or from the entry's displayed bones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry's bones, the floor rule, then one choice by anchor.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A raised body is never rested by its hanging legs; the measured faults each rule answers are noted where the rule is written.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Standing anchors return from the entry's requested pin bones; other anchors measure soles only when they choose a floor datum, and compute lying-shape clearance only for a raised floor placement.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise keys' pose and mean and the knockdown's floor rest; branch-local measurements are made once only when that branch consumes them.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
     props: IAutoMovieMotionHumanWorkoutPlace.IOfProps,

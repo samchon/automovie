@@ -13,11 +13,6 @@ import { WorkoutKind } from "./WorkoutKind";
  * standing body, the record of a kind whose pinned bones stay where they
  * stand, and the stances whose angles are solved on the body so both feet
  * reach the floor.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds and why the stances are solved.
- * @evidence contracts/development/design.md#principled-representation Supports as data, a kind as one record and a stance as a key, so the tables of standing kinds hold only what differs between exercises.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `WorkoutStanding` and `WorkoutPoses` both read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres: a stance's angles follow from the thigh and the shank.
  */
 export namespace WorkoutStance {
   /** Both feet bear. */
@@ -48,14 +43,6 @@ export namespace WorkoutStance {
    * @param alternate Whether every other repetition is mirrored; `false` when absent.
    * @param strides Whether the feet move into a stance of the kind's own; `false` when absent, and the bearing feet are then held where they stand.
    * @returns The kind.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input and the default.
-   * @evidence contracts/development/implementation.md#principled-implementation Fixes the two members every standing kind shares, the base and the `stance` anchor, so a table row states only what differs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
     pin: readonly AutoMovieHumanoidBone[],
@@ -85,14 +72,6 @@ export namespace WorkoutStance {
    * @param body The body.
    * @param seconds Seconds taken to return to it.
    * @returns The step.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the event names.
-   * @evidence contracts/development/implementation.md#principled-implementation The body's relaxed standing key (`ExerciseKey.standing`); a stance kind stays on its feet, so the step needs no identity with the workout's own standing key.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function rest(
     body: IAutoMovieMotionHumanBody,
@@ -114,14 +93,6 @@ export namespace WorkoutStance {
    * @param body The body.
    * @param back The back leg's lean from the vertical, degrees.
    * @returns Degrees; the front hip's and knee's flexion under an upright trunk.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and what the result is used as.
-   * @evidence contracts/development/implementation.md#principled-implementation The pelvis's height over the back foot is the leg's length times the lean's cosine; over the front foot it is the shank plus the thigh times its angle's cosine; the two are equal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One arccosine.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A lean past what the thigh can make up clamps at a level thigh.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function split(body: IAutoMovieMotionHumanBody, back: number): number {
     const thigh: number = body.measure.thigh;
@@ -140,14 +111,6 @@ export namespace WorkoutStance {
    * @param body The body.
    * @param bent The bent thigh's angle from the vertical, degrees.
    * @returns Degrees from the vertical.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The same equality of the pelvis's height over the two feet, solved for the straight leg.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One arccosine.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function straight(
     body: IAutoMovieMotionHumanBody,
@@ -173,14 +136,6 @@ export namespace WorkoutStance {
    * @param trunk The whole body's part of the key.
    * @param arms The arms' angles.
    * @returns The key.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input and which leg is which.
-   * @evidence contracts/development/implementation.md#principled-implementation Each hip takes the trunk's pitch plus its thigh's angle, and the back ankle its leg's lean, so both feet stay level on the floor.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One solved angle and one key.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `split`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function stride(
     body: IAutoMovieMotionHumanBody,

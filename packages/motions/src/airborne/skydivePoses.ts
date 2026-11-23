@@ -14,11 +14,6 @@ import { HumanHand } from "../posture/HumanHand";
  * hands a riser's width apart; the flare with both toggles pulled down and the feet and knees together;
  * and the parachute landing fall's keys from the feet to the side of the
  * back, as US Army FM 3-21.220 orders its five points of contact.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each pose, its source and the angle convention.
- * @evidence contracts/development/design.md#principled-representation Named poses and the landing fall's keys with their hips heights.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The poses planSkydive blends.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every angle is marked provisional.
  */
 export namespace skydivePoses {
   /** The belly-to-earth arch. */
@@ -59,11 +54,6 @@ export namespace skydivePoses {
 
   /**
    * One key of the parachute landing fall.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The key's share of the fall and its pose, which rests its lowest point on the ground.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the landing blends.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Provisional and stated as such.
    */
   export interface IKey {
     /** Share of the landing fall. */
@@ -124,14 +114,6 @@ export namespace skydivePoses {
    * @param yaw The heading, degrees.
    * @param mirror Whether to roll to the right instead of the left.
    * @returns The posture, its root at the origin.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the mirror.
-   * @evidence contracts/development/implementation.md#principled-implementation The pose's tilt and joints with the roll negated for the right side.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The joints are the pose's, not mirrored side for side.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
     position: IAutoMovieMotionHumanLieDown.IPose,

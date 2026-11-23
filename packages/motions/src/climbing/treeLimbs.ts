@@ -15,20 +15,10 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * A branch's load limit falls off with the distance from its root as a
  * cantilever's does: the published load at the bar's frame, half the
  * branch out, scaled by that half length over the distance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the representation and the load rule.
- * @evidence contracts/development/design.md#principled-representation The bole's axis and radius, and each branch's root, direction, length, radius, frame load and seat.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The reader, the points the climb stages and the load limit.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Read from the placed prop; a moving tree or one without branches is refused.
  */
 export namespace treeLimbs {
   /**
    * The bole.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The axis's foot, its height and the radius.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the climb reads of the trunk.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by read.
    */
   export interface IBole {
     /** The axis at the ground, world metres. */
@@ -40,11 +30,6 @@ export namespace treeLimbs {
 
   /**
    * One lower branch.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The root on the trunk face, a unit direction, the length, the radius, the frame load and the seat.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the climb reads of a branch.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by read.
    */
   export interface IBranch {
     /** Its index from the lowest. */
@@ -71,11 +56,6 @@ export namespace treeLimbs {
 
   /**
    * A tree.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the members.
-   * @evidence contracts/development/design.md#principled-representation The bole and the branches from the lowest.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The whole reading.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by read.
    */
   export interface ITree {
     /** The prop's subject. */
@@ -95,14 +75,6 @@ export namespace treeLimbs {
    * @param subject The tree prop.
    * @returns The tree.
    * @throws {HumanRefusal} If the prop moves or has no bole and branches.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Transforms each bar's frame to the world and takes its root half a length in.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, then one pass over the affordances.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a tree it cannot read.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the affordances.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext,
@@ -183,14 +155,6 @@ export namespace treeLimbs {
    * @param out Metres from the trunk face.
    * @param lift Radii above the axis: 0 for a grip, 1 for a foot on top.
    * @returns The point, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and result.
-   * @evidence contracts/development/implementation.md#principled-implementation The root plus the direction times the distance plus up times the lift.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One sum.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A distance past the tip is clamped to it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function on(
     branch: IBranch,
@@ -214,14 +178,6 @@ export namespace treeLimbs {
    * @param toward Unit horizontal direction from the axis to the face.
    * @param aside Metres along the face, to the right of `toward`.
    * @returns The point, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and result.
-   * @evidence contracts/development/implementation.md#principled-implementation The axis point turned out by the radius and the slide's angle on the round face.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One turn and one sum.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The point lies on the round face, not a tangent plane.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function face(
     tree: ITree,
@@ -247,14 +203,6 @@ export namespace treeLimbs {
    * @param branch The branch.
    * @param out Metres from the trunk face.
    * @returns Newtons.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the cantilever scaling.
-   * @evidence contracts/development/implementation.md#principled-implementation A cantilever's root moment is load times distance, so the bearable load scales inversely with the distance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ratio.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A load at the root is bounded by the nearest finite distance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function limit(branch: IBranch, out: number): number {
     return (branch.load * (branch.length / 2)) / Math.max(0.05, out);
@@ -267,14 +215,6 @@ export namespace treeLimbs {
    * @param value The refused value.
    * @param reason Why it is refused.
    * @returns The refusal to throw.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and result.
-   * @evidence contracts/development/implementation.md#principled-implementation One refusal for a tree that cannot carry the climb.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds one record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Names the actual parameter and value.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one record.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function refusal(
     axis: string,

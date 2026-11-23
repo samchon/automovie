@@ -38,11 +38,6 @@ import { touch } from "../touch/touch";
  * provisional, and the composed cycle is to fit the rates read: 3 to 4 rounds a
  * minute for a well-drilled crew (NPS), about 2 round shot or 3 canister under
  * battle (History of War).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each row's law and duty, how the crew is composed, the source's caveat and the rates the cycle is held to.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).
- * @evidence contracts/development/design.md#minimal-and-owned-surface #3489's rows; a battery is the crowds campaign's.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own, and no role's motion is written for a body.
  */
 export namespace HumanGunDrill {
   /** Cover the vent with the fingertips. */

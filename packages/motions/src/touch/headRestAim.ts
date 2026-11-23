@@ -36,11 +36,6 @@ type Triple = readonly [number, number, number];
  * to inverse kinematics with Jacobian transpose, pseudoinverse and damped least
  * squares methods"), the correction a held contact needs as the partner
  * breathes or turns.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the angles, the solve, the per-second correction and its source.
- * @evidence contracts/development/design.md#principled-representation One posture model scored by one region, the search once and the Jacobian step per second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The solved angles, the solve and the follower.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every angle is clamped to its working range; the miss is measured on the posture the display writes.
  */
 export namespace headRestAim {
   /**
@@ -95,13 +90,6 @@ export namespace headRestAim {
    * @param seated Whether a seat bears the body.
    * @param own The head's region aimed.
    * @returns The posture model, the solve and the follower.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The kiss's own body model plus a side bend; a coordinate search over the forward lean and neck grid, the side lean line and the side bend line; a damped least-squares step on a finite-difference Jacobian.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One model, one search, one step.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges are the kiss's lean ranges and the side bend's.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The search runs once at plan time; each second costs one region read and one 3 by 3 solve, the Jacobian four region reads once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the kiss's pose model and the trunk's region reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The aim closes over the prepared readers.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,

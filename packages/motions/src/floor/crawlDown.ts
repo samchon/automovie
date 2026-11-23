@@ -49,20 +49,10 @@ import { prepareCrawlDownResolution } from "./prepareCrawlDownResolution";
  * minimum-jerk progress, so each support lands at rest. The sit takes the
  * time it is given and the other stretches go at its pace, each in proportion
  * to how far the limbs' joints travel over it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the order the supports take the body, why, the balance condition at each state, the joint-space carry between them and how the time is shared.
- * @evidence contracts/development/design.md#principled-representation The way down as the states at which a support lands, each solved on the body against the support that bears before it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One builder and its record, read by the crawl.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No share of the time or the way is typed; every state follows from the supports, the balance owner and the knee's sitting flexion, and every stretch's time from the sit's pace.
  */
 export namespace crawlDown {
   /**
    * What the way down is built from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The standing start, the crawl's posture as a function of how far back its hips sit and how far its trunk leans, and the supports' places.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by `of`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The crawl's own posture is passed, not rebuilt here.
    */
   export interface IProps {
     /** The body. */
@@ -106,11 +96,6 @@ export namespace crawlDown {
 
   /**
    * The way down built.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The posture at a second, the instants the knees and the hands land, which the crawl's knee and hand windows start at, and the way down's length, which its clock starts the crawl at.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by the crawl.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The landing is solved with the posture, so the two agree.
    */
   export interface IDown {
     /** The posture over a base at a second before the way down ends. */
@@ -131,14 +116,6 @@ export namespace crawlDown {
    *
    * @param props What it is built from.
    * @returns The way down.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result; the namespace gives the law.
-   * @evidence contracts/development/implementation.md#principled-implementation The sitting state is the balance owner's shift over the feet, bounded by the knee's sitting flexion and by the knees landing on their places; the leaning state is the lean that puts the shoulders an arm from the wrists, at the back that keeps the centre of mass behind the knees found by the engine's bracketed root; joint-space carries join them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The states solved once, then one carry per stretch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each foot rolls about its standing contact, never lerped; a state no back balances keeps the nearest one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The states are solved once, when the way down is built: one balance shift and a bracketed root of lean bisections; each second then costs one posture build and the arm's palm goals.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the crawl's posture, `HumanBalance`, `bracketedRoot`, `crawlFeet.rolled` and `crawlFrame`'s arm blend and root.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the solved states for the plan's life.
    */
   export function of(props: IProps): IDown {
     const body: IAutoMovieMotionHumanBody = props.body;

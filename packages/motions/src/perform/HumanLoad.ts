@@ -33,14 +33,6 @@ import { HumanForce } from "./HumanForce";
  * First pass: the lean is the whole body's about its base, not split between
  * the trunk and the ankles; the required friction ignores the swing leg's own
  * dynamics, as the definition does.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three laws, their units and frames, their sources and the first pass's limits.
- * @evidence contracts/development/implementation.md#principled-implementation Static moment balance of an inverted pendulum for the lean, d'Alembert's inertial force for an accelerating support with the centre-of-pressure shift `h a / g`, and Coulomb's law with the required coefficient of friction for the slip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed form per law, plus the sum of sustained forces at a second.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A load whose moment the body's own cannot balance is reported, never clamped to a lean.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per law; the sum is linear in the forces.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanLoad {
   /**

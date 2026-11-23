@@ -16,11 +16,6 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * (`dance.BPM`), unless `bpm` or a cue track sets it; `beats` counts the beats
  * of a street groove and of ballet's position. No tempo by style (a waltz, a
  * hip-hop groove) is defined: choose `bpm` (provisional, missing).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is and what it leaves open.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (`HumanActionRow`).
- * @evidence contracts/development/design.md#minimal-and-owned-surface One row per style.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own.
  */
 export namespace HumanDanceStyles {
   /** Tap steps whose strikes sound on the beat's subdivisions. */

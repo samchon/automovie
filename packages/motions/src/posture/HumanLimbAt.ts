@@ -34,11 +34,6 @@ import { poseBones } from "./poseBones";
  * world by the pose first (`HumanLimbFit.world`). The request is the fit's
  * own: the performer's skeleton, topology and the humanoid axis and rest
  * tables, the goal's point, bend and rotation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two readings, the mirror and attachment conventions and the request.
- * @evidence contracts/development/design.md#principled-representation World-metre goals, degree swivels and branch indices in the fit's seed frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two readings, read through HumanLimbFit.at and HumanLimbFit.seed by the arm course.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's fitHingedChainAt and readHingedChainSeed and the fit's mirror and attachment owners.
  */
 export namespace HumanLimbAt {
   /**
@@ -51,14 +46,6 @@ export namespace HumanLimbAt {
    * @param swivel The swivel, degrees, in the fit's seed frame (a left limb's in its mirror image).
    * @param branch The bend branch, 0 or 1.
    * @returns The pose with the limb placed, its seed and the shortfall on the legal shell, metres; null for a chain that is not hinged or is degenerate.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the frame and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Mirrors a left limb, carries an attached goal into the world and evaluates fitHingedChainAt on the fit's own request.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reduce to the records read (`HumanLimbView.of`), mirror, carry, one engine call, merge the posed records back.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No search; the given swivel is kept. The whole pose is still admitted in order.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One chain preparation and one pose on the reduced records, plus the whole pose's admission and two walks of its joints.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call evaluates its own request.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
     body: IAutoMovieMotionHumanBody,
@@ -93,14 +80,6 @@ export namespace HumanLimbAt {
    * @param pose The posed body.
    * @param limb The limb.
    * @returns Its seed in the fit's frame (a left limb's in its mirror image); null for a chain that is not hinged or is degenerate, or an end joint the rig lacks.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame and the null cases.
-   * @evidence contracts/development/implementation.md#principled-implementation Mirrors a left limb and reads readHingedChainSeed on the fit's request, its target the end joint's place in the pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the pose, reduce to the chain's records and their ancestors', mirror, one end-joint FK, one engine reading.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unlisted joint reads as clinical zero, the rest pose's own value.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One requested FK and one engine reading.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads its own pose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function seed(
     body: IAutoMovieMotionHumanBody,

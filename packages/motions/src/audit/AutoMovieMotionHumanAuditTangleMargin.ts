@@ -40,14 +40,6 @@ import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotion
  * bounds how far any of its points moved between them, by the triangle
  * inequality. The poses are the motion's own on its grid, read anyway by the
  * audit, so the bound is measured, never estimated.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the margin and the travel bound, why each holds and where the poses come from.
- * @evidence contracts/development/implementation.md#principled-implementation Conservative advancement (Mirtich 1996) on signed distances: a depth below a surface and a distance difference are each 1-Lipschitz in the relative motion of the probe and the surface, and a rigid motion's point displacement is bounded by its translation and the chord of its rotation times the point's distance from the origin.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The pose readings of one body and of two that a certifying audit gates (`within`, `entering`), one reading of a pair in one body with its margin (`own`), one of a directed pair across bodies (`across`), and one travel table; the audits own the walk over the grid.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every depth a margin is read from is the audit's own reading, and every travel is measured from the displayed poses; no tolerance widens either.
- * @evidence contracts/development/implementation.md#efficient-algorithms The margin costs one comparison per probe on the reading the audit makes anyway; the travel one translation and one rotation per segment per grid step.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the model's references and the depth reader the audit already prepared for the pose.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pure readings returning fresh values.
  */
 export namespace AutoMovieMotionHumanAuditTangleMargin {
   /**
@@ -81,14 +73,6 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
    * @param key The unordered pair key (`AutoMovieMotionHumanAuditTangle.unordered`).
    * @param read The certifying caller's gate and listener; every pair within reach is read when absent.
    * @returns The pairs, `a` the segment whose probe lies deeper, with `seconds` zero.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the pose, the skips and allowances, the pair index, the gate and listener and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The model's structural and reference rules and both probe directions give the excess depth, with conservative spheres rejecting distant pairs; the base is `own`'s reading of the same depths.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Form sphere centres, scan the unordered part pairs, gate, read both directions, then keep the deeper past the allowance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps related-pair skips, the sphere comparison, direction order, reference depths and the nanometre threshold; a pair is left unread only where its caller's gate says it is certified.
-   * @evidence contracts/development/implementation.md#efficient-algorithms S parts require O(S*S) broad comparisons and two depth readings per pair within reach that is due; each segment read in is prepared once for the pose, and a pair's key is built only where some pair is skipped or pressed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the body's model and its references without reusing pose-dependent answers.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh pair records; the centres and prepared readers end with the call.
    */
   export function within(
     m: M.IModel,
@@ -183,14 +167,6 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
    * @param theirs That body's placed segments.
    * @param read The certifying caller's gate and listener; every pair within reach is read when absent.
    * @returns The pairs, `a` of the first body in `b` of the other, with `seconds` zero.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both placements, the pair index, the gate and listener and the directed result.
-   * @evidence contracts/development/implementation.md#principled-implementation Two bodies share no joint and no rest pose, so the directed probe depths are read in full; the base is `across`'s reading of the same depths.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan of the ordered part pairs with the sphere screen, then the gate, one reading and the record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps full external depth, part order, the sphere screen and the nanometre threshold; a pair is left unread only where its caller's gate says it is certified.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For S and T parts, O(S*T) broad comparisons and one depth reading per pair within reach that is due, each of the other body's segments prepared once for the pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the caller's placements and each body's canonical model.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prepared readers live for this call; only the returned pairs survive.
    */
   export function entering(
     m: M.IModel,
@@ -263,14 +239,6 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
    * @param j The segment they are read in.
    * @param targets The caller's list of prepared segments for this reading of `placed` (`AutoMovieMotionHumanAuditTangleModel.beyond`).
    * @returns `excess`, the model's `excess` of the pair, metres, zero when no probe lies deeper than its reference; `base`, metres, such that while the two segments travel less than `base + K` the excess stays at or below any `K` of zero or more.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, both results with their units and how the base is read.
-   * @evidence contracts/development/implementation.md#principled-implementation A probe's excess an instant later is at most the lesser of its depth and its room plus the travel, less its reference; the base is the least over the probes of the reference less that lesser value.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One depth reading with the room, then one pass over the probes.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The excess is the model's `excess`, the greatest positive `beyond`, in the same order of operations; a set-aside corner, whose reference is infinite, never lowers the base.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One depth reading of the pair, as `excess` makes, and one pass over its probes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the model's references and the caller's prepared segments.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns two numbers; the room array is local.
    */
   export function own(
     m: M.IModel,
@@ -303,14 +271,6 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
    * @param mine Segment `i` as placed.
    * @param read The other segment's prepared depth reader for this pose.
    * @returns `depth`, metres, the deepest probe, zero outside; `base`, metres, such that while the two segments travel less than `base + K` the depth stays at or below any `K` of zero or more.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, both results with their units and how the base is read.
-   * @evidence contracts/development/implementation.md#principled-implementation A probe's depth an instant later is at most the lesser of its depth and its room plus the travel; the base is the least over the probes of minus that lesser value.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One depth reading with the room, then one pass over the probes.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The depth is the greatest probe depth in the order `AutoMovieMotionHumanAuditTangle.across` takes it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One depth reading and one pass over the probes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the caller's prepared reader.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns two numbers; the room array is local.
    */
   export function across(
     probes: readonly IAutoMovieVector3[],
@@ -335,14 +295,6 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
    * @param m The body's model.
    * @param frames The body's placed segments at each grid instant, in grid order.
    * @returns Per instant, per segment, metres: the sum over the grid steps before it of the segment's travel over that step; zero at the first instant. Between instants `a < b` a segment's points moved no more than its value at `b` less its value at `a`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit, what each entry sums and how a span's bound is read.
-   * @evidence contracts/development/implementation.md#principled-implementation A step's travel is the origin's move plus the extent times the rotation's chord, `2 |vec(q2 q1^-1)|`, which is `2 sin(angle / 2)` read off the quaternion's vector part without the cancellation of `1 - w^2`; sums of steps bound a span by the triangle inequality.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One running sum per segment.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every step of every segment is read from its placements; nothing is sampled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in instants times segments.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads the placements the caller made.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one array per instant of one number per segment, the caller's.
    */
   export function travel(
     m: M.IModel,

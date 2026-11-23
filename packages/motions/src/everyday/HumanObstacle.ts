@@ -19,11 +19,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * (`createHurdle`): a ledge along its `+X` with `+Y` up, its height the
  * edge's above the prop's base. Its depth is the `top` face's depth behind a
  * kerb's edge, or a hurdle's `bar` thickness, that bar's aperture.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read, from which contacts of which archetypes, and the refusals.
- * @evidence contracts/development/design.md#principled-representation The near side's floor point, the height and the depth, the facts a crossing is planned from.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The record and one reader, used by `stepOver`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The edge, the height and the depth are the prop's own contacts; no obstacle is typed.
  */
 export namespace HumanObstacle {
   /** An obstacle where it stands. */
@@ -46,14 +41,6 @@ export namespace HumanObstacle {
    * @param from Where the performer stands, world metres; from behind the edge's face the near side is the top's far edge.
    * @returns The near side, the height and the depth.
    * @throws {HumanRefusal} When the prop declares no edge or top, no depth, or a non-positive height or depth.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The edge carried into the world by the prop's frame at the action's start; the height its rise over the prop's base.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The edge, then the depth, then the checks.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An obstacle without its contacts is refused with the ones it has, never crossed at a guessed size.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the prop's few contacts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,

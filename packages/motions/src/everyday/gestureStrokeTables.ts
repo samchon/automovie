@@ -7,11 +7,6 @@ import type {
  * The tables every gesture is read from by its kind: its timing and which
  * hands it moves, total records over `gestureStroke.Kind`, split from the
  * stroke so each file holds one responsibility.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the tables hold and over what they are total.
- * @evidence contracts/development/design.md#principled-representation Records keyed by the closed kind union, so a new kind without a timing or a hand count fails to compile.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two tables, read by the gesture law, the capture cases and the breath and gaze test.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Variation enters as rows keyed by the kind, not as members per gesture.
  */
 export namespace gestureStrokeTables {
   /**

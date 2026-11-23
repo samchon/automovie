@@ -30,11 +30,6 @@ import { HumanColliders } from "../posture/HumanColliders";
  * contact plane defined by their approach. For a fixed hand attitude the
  * wrist is a translation of the meeting point, so its reach sphere can be
  * written in meeting-point coordinates before the two spheres intersect.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the shared plane, the orientation and the change of coordinates.
- * @evidence contracts/development/design.md#principled-representation One shared surface normal and the body's existing contact frame determine the virtual reach sphere for each hand.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the hand form, the opposed normal and the translated reach serve the high-five law.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the real contact offset and limb lengths; no wider reach or contact allowance is introduced.
  */
 export namespace highFiveContact {
   /** Place a shared hand contact inside both performers' reachable spheres. */

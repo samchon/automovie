@@ -28,11 +28,6 @@ import { HUMAN_SUPPORT_SLIDE_OFF } from "../next/presets/HUMAN_SUPPORT_SLIDE_OFF
  * time, and the insets are provisional. The standing posture is the floor
  * laws' own key (`getUp.POSES`), the seated one the seated reference
  * posture.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each row's stances, the surface it reads, where each contact lies on it, and what is provisional.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of the support planner, its stances data over that law.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion or a place of its own; the postures are the floor laws' keys and a cited standard's, and the places the composition's surface with insets in the body's own lengths.
  */
 export namespace HumanSupportRows {
   /** Scramble up onto a ledge: the palms on its top, a knee up onto its edge, the other foot up, standing on it. Each of its 4 stances takes `support.SECONDS`, 1 s, so about 4 s (provisional: no timing study); getting onto a ledge, a wall, a table. */

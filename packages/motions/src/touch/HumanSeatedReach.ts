@@ -34,11 +34,6 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
  *
  * A standing body leans none here: its reach stays its arm's, as the
  * standing laws already plan it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the priority, the joints that lean and their bound, the shared form with its source and what a standing body does.
- * @evidence contracts/development/design.md#principled-representation The lean is one share of each trunk joint's flexion room per seated role; the shared share is the weighted least-norm answer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The joints' rooms, the leaned point, the leaned posture, the shared meeting and one role's own share.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A pair the full lean cannot bring together is refused by the meeting's own resolution, never stretched.
  */
 export namespace HumanSeatedReach {
   /** The trunk's joints above the hips that flex a seated lean, from the lowest; a rig without one leans by the others. */
@@ -56,14 +51,6 @@ export namespace HumanSeatedReach {
    *
    * @param role The role, its body, its posture, its bones and whether a seat bears it.
    * @returns The joints from the lowest, each with its room.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each joint's room and the standing case.
-   * @evidence contracts/development/implementation.md#principled-implementation The hip flexion held is the angle between the thigh's line and the trunk's downward line; a spine joint's is the signed turn about the body's left from the segment below it to the one above; each room is the range table's flexion end less it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One angle per joint, one difference.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A joint past its range has no room, never a negative one.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The ranges are the engine's `getConstraint` on the body's rig.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function rooms(
     role: Pick<
@@ -141,14 +128,6 @@ export namespace HumanSeatedReach {
    * @param point The point, world metres.
    * @param share The share of each room, in [0, 1].
    * @returns The leaned point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the turns, their order and sense.
-   * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics of the trunk's flexion chain: each joint's turn about the body's left on the floor, from its heading, through the joint as the joints below have moved it, which turns the trunk's up toward its front.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One turn per joint.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the share is the caller's, in [0, 1].
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lean(
     role: Pick<IAutoMovieMotionMeetingRole, "bones" | "posture">,
@@ -225,14 +204,6 @@ export namespace HumanSeatedReach {
    * @param joints The joints and their rooms (`rooms`).
    * @param share The share of each room, in [0, 1].
    * @returns The leaned posture; the posture itself when no joint leans.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each joint does to the posture.
-   * @evidence contracts/development/implementation.md#principled-implementation The same turns `lean` reads, written as the posture's pitch about the hips and its spine joints' clinical flexion.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pivot, one flexion per spine joint.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The rooms bound each joint, so no flexion passes its range.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `AutoMovieMotionHumanLean.pivot`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function posed(
     body: IAutoMovieMotionHumanBody,
@@ -272,14 +243,6 @@ export namespace HumanSeatedReach {
    * @param shoulder The acting joint when the authored body's exact shoulder path is needed.
    * @returns The resolution's answer for the leaned arms.
    * @throws {Error} The resolution's own error when even the full lean cannot bring the arms together.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the shared share and the error.
-   * @evidence contracts/development/implementation.md#principled-implementation The arms alone first; failing that, the least share in [0, 1] of every seated joint's room by bisection on whether the arms leaned by it meet, the equal-share weighted least-norm resolution (Chan and Dubey 1995).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Try, test the full lean, bisect, resolve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pair the full lean cannot bring together rethrows the resolution's error; standing pairs never lean.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One resolution per bisection step, to a share whose lean moves a shoulder by less than the square root of machine epsilon of its distance to the hips.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The resolution and bisection remain their owners'; each role's fixed left axis and original joint pivots are prepared once for this synchronous search, while every share performs all actual ordered rotations.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Prepared axes/pivots and rooms live only until goal returns or throws; only the caller's actual resolution result escapes, without a reader or pose history.
    */
   export function goal<
     Side extends { shoulder: IAutoMovieVector3 },
@@ -342,14 +305,6 @@ export namespace HumanSeatedReach {
    * @param limit The arm's full reach, metres.
    * @param joint The acting joint when the authored body's exact shoulder path is needed.
    * @returns The share and the joints it is a share of.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result's three cases.
-   * @evidence contracts/development/implementation.md#principled-implementation The least share in [0, 1] at which the leaned shoulder's distance to the point is within the limit, by bisection on the approach, with a golden-section closest-approach search when the fully flexed shoulder has passed the target.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The standing reach, the flexed reach and the first entry into the reachable interval.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Closest approach is measured on the posed shoulder arc with the actual segment lengths, and the arm's own fit reports any remaining miss.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One distance per bisection step.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed role/chain axes and pivots are shared only within this synchronous bisection; every changed share retains the original actual turn sequence and distance measurement.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fixed geometry reader ends with return or failure; returned room records and scalar share retain no frame reader or candidate history.
    */
   export function need(
     role: IAutoMovieMotionMeetingRole,

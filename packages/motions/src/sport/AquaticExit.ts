@@ -36,11 +36,6 @@ const DEPTH: number = 0.75;
  * over them to a standing posture on the ground (`upright`). The bottom is
  * the world ground; the water surface is the authored plane. The ground
  * plant holds from `footDown` to the end, so a run can leave from it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the support handoff, the frames and the refusal.
- * @evidence contracts/development/design.md#principled-representation Clinical keys blended in time with ground plants fitted from the standing key.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the water-to-ground handoff only; strokes and running stay with their laws.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The feet stand on the world ground, never on the water plane.
  */
 export namespace AquaticExit {
   /** A foot's plant on the bottom and where it settles from. */

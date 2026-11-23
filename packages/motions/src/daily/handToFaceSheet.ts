@@ -16,11 +16,6 @@ import { HumanFrame } from "../posture/HumanFrame";
  * Where a hand-to-face task holds a sheet to be read: the one task whose
  * place is not a region of the face but a point before the eyes, split from
  * `handToFace` so each file holds one responsibility.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the place is and why it stands apart.
- * @evidence contracts/development/design.md#principled-representation The standing text distance, the measured walking gaze and distance, the head flexion and the eyes' range determine a held text's place.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The reading measurements, the place and the head flexion; read by `handToFace` and `handToFaceRegion`, and the distance cited by the lexicon's watch look.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sheet or body is named: the place is the body's own arm meeting its own reading distance.
  */
 export namespace handToFaceSheet {
   /** The reading distance from the eyes to a held text, metres (Bababekova et al. 2011, mean for text). */
@@ -68,14 +63,6 @@ export namespace handToFaceSheet {
    * @param posture The posture so far, whose trunk carries the eyes and the shoulder.
    * @param side The hand.
    * @returns The place.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two constraints the place meets, the side it lies on and its facing.
-   * @evidence contracts/development/implementation.md#principled-implementation For the walking carrier the bilateral eye centre, current head rotation and measured gaze give the preferred target. For a head directed outside the forward arm reach, or without the walking carrier, in the vertical plane through the hand's elbow along the heading, the place is the forward intersection of the circle of the reading distance about the eyes (cut by that plane) with the circle the hand sweeps about the hanging elbow (the forearm and half the hand); when the two do not meet, the hand's circle's point nearest the eyes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolve, one change of frame and one circle intersection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the body's own or the measured reading distance; no direction is typed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanTrunk.resolve` and `HumanFrame`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass over the eyes', the head's and the holding shoulder's ancestry only, and constant work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "carrier">,
@@ -161,14 +148,6 @@ export namespace handToFaceSheet {
    * @param posture The entry posture, whose eyes and shoulder place the sheet.
    * @param side The reading hand.
    * @returns Degrees of flexion, positive down.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the measured flexion, the eye's range and when the head takes more.
-   * @evidence contracts/development/implementation.md#principled-implementation The line of sight's depression below the horizontal is the head's flexion plus the eye's depression in the head; the eye takes what the head's measured flexion leaves, up to its measured range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One place, one angle and one maximum.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both terms are measured; the sheet's place is the body's own.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the place from `of`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One place read, one forward-kinematics pass over the eyes' ancestry and constant work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function head(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "carrier">,

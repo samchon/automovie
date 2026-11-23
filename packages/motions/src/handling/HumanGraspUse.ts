@@ -38,11 +38,6 @@ import { HumanGraspWorn } from "./HumanGraspWorn";
  * it. So a grasp taken for a use must also hold in one more key pose of the
  * grasp's choice (`HumanGrasp.reachable`): the tool presented ahead of the
  * shoulder on the line of its use.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a use names, why the reach alone is not enough and how the use enters the grasp's choice.
- * @evidence contracts/development/design.md#principled-representation A use is the tool's working point by its affordance id and one of six lines: three to the forearm, the hammer, oblique and in-line grips of the grasp taxonomies (Feix et al. 2016), one across the body, the long axis of a thing held in both hands, one along a surface of the body, the working face laid on it, and one worn there, the worn frame whole with its turn free for a round thing; the search ranges are data beside it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The use, its six lines, the bounds of the search and the presented key; read by `pickUp`, `touch` and `handToFace`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind is named: a sword and a pistol differ only in the id of their working point and the line asked.
  */
 export namespace HumanGraspUse {
   /** The tool line's rise above the level line when presented, degrees, by use. */
@@ -88,14 +83,6 @@ export namespace HumanGraspUse {
    * @param side The hand.
    * @param yaw The body's heading, degrees.
    * @returns The grip socket's place, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the place, its shares, who reads it and why once.
-   * @evidence contracts/development/implementation.md#principled-implementation The arm's length read off the bones, shoulder to elbow and elbow to wrist, and the place laid ahead along the heading.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three joints, one length, one point.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shares are provisional and named here, the one place both readers take.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function place(
     bones: ReadonlyMap<
@@ -132,14 +119,6 @@ export namespace HumanGraspUse {
    * @param closure The prop's world frame at grasp closure, or the entry frame when omitted.
    * @returns The key pose.
    * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop declares no such working point, listing its contacts; a `parameter` refusal on `use` for an `along` line ahead of the body, listing the other lines.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the pose, each input and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The tool is rigid in the hand from the grasp on, so the hand's rotation there is the candidate grasp's rotation turned by the shortest turn that takes the tool's line, as it lies now, onto the asked line, or, laid along a surface, the working point's own face onto the surface; worn, the thing's own worn frame, the one `dress` puts it at (`HumanWorn.frame`), so the grasp is judged at the very pose it is put on in (`HumanGraspWorn`). Every key is judged in the unit of what it places, metres, read off the fitted hand (`HumanGrasp.IKey.judge`): a tool on a line by the measure the law presenting it judges a held tool by (`StrikingHeld.strayed`, its working point and its line a tool's length behind, so a grip that keeps the point and turns the line is counted), the tool read from the candidate grip as a held tool is read (`StrikingHeld.read`); a tool laid along a surface by its working point. The roll about that line, or the turn about the surface's normal, is free in a use that names only that much: the shared chooser takes it (`HumanFreedomChoice`, a wrapped freedom), the roll whose key the arm, fitted within its ranges, leaves the working point nearest, as a law presenting the tool takes it (`StrikingRoll`), so the grasp is judged at the roll the law will use.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The two contacts, the two lines, the turn between them, the place, the roll.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lines that oppose each other turn about the body's left instead of an undefined axis. Given the closed hand's clearance, its depth inside the body adds to a roll's miss. The place's shares of the arm (0.6 ahead, 0.1 below) are provisional and named at the code.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The chooser's fits, each roll fitted once and kept in a map however often the search returns to it, its elbow placed by the fit's own sweep (`HumanPosture.IGoal.elbow`) and only the hand bone placed for the judge.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the entry pose's needed bones once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The roll-score map lives for the call and is cleared before return; the key's judge holds its tool or contact geometry only.
    */
   export function presented(
     props: IAutoMovieMotionHumanGraspUse.IPresentedProps,

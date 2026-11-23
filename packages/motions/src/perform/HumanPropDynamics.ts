@@ -44,14 +44,6 @@ import type {
  * study has been read for it. `slideProp` offers the trajectory as the frame of
  * a prop in a performance. `hingeProp` supplies an articulation track. The film
  * authors each drive independently of the poses that follow the prop.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three laws, their premises, where the coefficients come from and the first pass's limits.
- * @evidence contracts/development/implementation.md#principled-implementation Newton's second law under Coulomb friction with its static threshold and its stop located as the switching point of a discontinuous right-hand side, the hinge's rotational form of it, and static moment balance for the lean; the slide and the hinge are integrated by the engine's fixed-step integrator.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One right-hand side per law and one closed form for the lean.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push the body's weight cannot balance is reported, never clamped to a lean.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand sides per integrator step, and per stop one bisection of single steps down to a double's resolution, about fifty, and one restarted integration of what is left.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each returned trajectory holds its knots for as long as its caller keeps it.
  */
 export namespace HumanPropDynamics {
   /**
@@ -64,13 +56,6 @@ export namespace HumanPropDynamics {
    * @returns A shallow copy of the prop with the appended articulation track.
    * @throws {Error} An inadmissible hinge, drive value, integration knot or
    *   requested sample.
-   * @evidence contracts/development/common.md#meaningful-documentation States the starting and held states, authored input, track result and failures.
-   * @evidence contracts/development/implementation.md#principled-implementation Integrate angular acceleration equal to torque divided by inertia on the track clock, from zero angle and speed in radians. Convert travel to degrees for the prop's named articulation and use engine admission at each knot and requested sample.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the drive, integrate once, and attach a reader using the established prop track scheduler.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the provided torque and inertia, and rejects travel outside articulation admission. It preserves other tracks and uses no performer pose to drive the hinge.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Builds one affordance index and integrates for the duration at the fixed hinge step. Admission runs once per knot and requested sample and traverses only the selected articulation's coupling chain and its inverse tables.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work All reads of the returned track share the one integrated trajectory and the prop's indexed affordances. Torque is sampled during planning.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The track retains the path knots and affordance index for its lifetime. It acquires no external resources.
    */
   export function hingeProp(
     prop: IAutoMovieMotionHumanProp,
@@ -154,13 +139,6 @@ export namespace HumanPropDynamics {
    * @throws {Error} When the prop already has an incompatible placement source
    *   or lacks admissible body contact data, or when the drive has an invalid
    *   direction, interval or sampled force.
-   * @evidence contracts/development/common.md#meaningful-documentation States the source of mass and contact coefficients, film-clock boundaries, preserved orientation and how the returned prop plugs into normal performance placement.
-   * @evidence contracts/development/implementation.md#principled-implementation The Coulomb trajectory gives displacement along a horizontal unit vector from the prop's original world translation. The engine's body admission validates the contact coefficients before planning.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the prop and direction, plan the slide once, and read its distance as a world offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown friction is refused. The supplied force is independent of the displayed performer, so reading the prop does not solve a pose or call its force provider.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning has the slide's integration cost. Each frame read selects one trajectory sample and translates three coordinates.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the numerical slide and the normal moving-prop placement path; all readers of the returned prop share the planned trajectory.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prop reader retains the trajectory, starting frame and direction for the prop's lifetime. It opens no handles or processes.
    */
   export function slideProp(
     prop: IAutoMovieMotionHumanProp,

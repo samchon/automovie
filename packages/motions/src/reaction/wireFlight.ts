@@ -42,11 +42,6 @@ import { wireFlightTouches } from "./wireFlightTouches";
  * weight and the feet have left the floor, by the end of the first quarter:
  * planted feet hold the heading, which the hips cannot turn far. No gravity is checked: the
  * flight is staged on wires.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the path, the profile, the shape blend and the heading.
- * @evidence contracts/development/design.md#principled-representation A registered law whose root is a closed-form function of time along the authored polyline.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law and its shape table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The path is the author's; the law adds no gravity or fitted curve.
  */
 export namespace wireFlight {
   /** The action's name. */
@@ -61,14 +56,6 @@ export namespace wireFlight {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} On `seconds` when not positive and finite, and on `to` when the path has no length.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The arc length s(t) = L * minimumJerk(t / T) placed on the polyline's segments; the planted feet are held over `LIFT`, a heel rising about its ball once its leg is straight (`ReactionFeet.hold`); the shape blends from the quiet stance's joints by a minimum-jerk weight at each end.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, build the polyline, then evaluate each posture in closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A flight with no length or time is refused, never stretched.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the waypoints at plan time; a scan of the segments per sample.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each plan owns its own polyline.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the polyline and its cumulative lengths.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,

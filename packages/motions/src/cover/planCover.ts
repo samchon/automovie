@@ -15,14 +15,6 @@ import { coverTravel } from "./coverTravel";
  * @param context The action's context.
  * @returns The move's plan.
  * @throws {HumanRefusal} From the selected move when its geometry does not fit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the dispatch and the refusal owner.
- * @evidence contracts/development/implementation.md#principled-implementation Each variant is planned by its own module over the named prop.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One dispatch on the discriminant.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No variant is special-cased beyond its kind.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant dispatch.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Plans once.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the selected plan.
  */
 export function planCover(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCover.IParams>,

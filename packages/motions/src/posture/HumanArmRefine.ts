@@ -19,11 +19,6 @@ import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
  * What the arms themselves must meet between waypoints, their clearance,
  * their speed and their contact, is read on the played trajectory by
  * `HumanArmTrajectoryAdmission`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the interpolant, the one condition read here, how it is read, the cap and the owner of the arms' own reading.
- * @evidence contracts/development/design.md#principled-representation The waypoints' spacing on the hold is derived from the site's own path, read against the act's site at the grid's instants, not from a declared period.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The interpolant, the site reading and the split, read by `HumanArmTrajectory.solve` and `HumanArmTrajectoryAdmission`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One rule for every hold, still or stroked.
  */
 export namespace HumanArmRefine {
   /**
@@ -34,14 +29,6 @@ export namespace HumanArmRefine {
    * @param c The waypoints' context.
    * @param fine The context at the frame grid's instants over the same span, the first and the last the waypoints'.
    * @returns The intervals to split, ascending.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what an interval must bound and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The site's interpolant is read against the site itself at every grid instant inside the interval, the check-and-refine loop of a continuous check on the one quantity the waypoints sample from the act.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over intervals; per interval the site reading. A lazy arm-local workspace reuses only the held-site arrays, refreshing their original scalar inputs before each interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every arm and every instant of the frame grid inside an interval is read; an interval below two frames is left as it is, never forced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One Hermite read of three numbers per arm and inner grid instant; no arm is placed. Held-site index, time and point arrays are reused across intervals.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only private array storage is shared across held intervals; every site's presence, time and current point components are read again in their original order, so no target or interpolation result is replayed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Lazily holds one workspace per actually read arm, each bounded by that call's largest hold, and releases all workspaces on return or throw. Only interval indices escape.
    */
   export function unbounded(c: M.IContext, fine: M.IContext): number[] {
     const out: number[] = [];
@@ -70,14 +57,6 @@ export namespace HumanArmRefine {
    * @param knots The waypoints' indices in the frame grid, ascending.
    * @param split The intervals, by their first waypoint; an interval that holds no grid instant is left as it is.
    * @returns The indices, ascending.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the indices, which intervals are split, where, and what is left.
-   * @evidence contracts/development/implementation.md#principled-implementation The dyadic refinement of a continuous check on the grid the check itself reads, so the refinement ends exactly on that grid.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered traversal appends each waypoint and its interval's optional middle.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No instant off the grid is made and no interval is forced below one grid cell.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(N S) for N waypoints and S intervals by the membership lookup; output O(N + S).
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of two lists.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh array and retains nothing.
    */
   export function split(
     knots: readonly number[],
@@ -100,14 +79,6 @@ export namespace HumanArmRefine {
    * @param x Coordinates at every waypoint, with a consistent dimension.
    * @param seconds The instant to read, seconds.
    * @returns Fresh interpolated coordinates, clamped to the endpoint rows.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the ordered time/coordinate pairing, endpoint behavior, central-difference tangents and fresh numeric result.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing cubic Hermite basis, zero endpoint tangents and central differences divided by their actual neighboring time spans.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Endpoint copies precede an interval search, two tangents and the original componentwise four-term polynomial.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps interval ties, exponent and addition grouping, endpoint copies and each actual coordinate calculation; no resampling, angle rounding or interpolation cache is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Bisects N knot seconds and computes two D-component tangents and D results, costing O(log N + D) work and O(D) temporary/output space.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the selected interval's time span and four scalar basis values across coordinates; all callers use this same interpolant.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh coordinates, with call-local tangent arrays and no retained input or result history.
    */
   export function hermite(
     times: readonly number[],
@@ -136,14 +107,6 @@ export namespace HumanArmRefine {
    * which also identifies the shoulder chart used by playback. Endpoint rows
    * stay held outside the span. Read-only inputs remain unchanged until the
    * prepared reader is released.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States time units, fixed inputs, held endpoints and fresh coordinate/index ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Retains the exact central differences and spans of the existing Hermite polynomial. The polynomial and interval search are shared with the one-shot interpolant.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One index lookup reports the interval and the shoulder chart's preceding knot. The two immutable coefficient arrays serve both actual admission and display reads.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every queried second is evaluated with the same arithmetic and ties. No samples, poses, physical checks or precision are substituted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(ND) preparation for N knots and D coordinates, followed by O(log N + D) sampling without tangent arrays or span divisions per coordinate.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only times, spans and coordinate differences of the unchanged authored knots are shared. Every sample still evaluates its actual time polynomial.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader borrows the fixed knot arrays and owns O(ND) coefficients for its lifetime. No query history, pose, workspace or handle is retained.
    */
   export function prepareHermite(
     times: readonly number[],

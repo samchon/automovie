@@ -35,11 +35,6 @@ import { turnHumanPosture } from "../posture/turnHumanPosture";
  * per-second blend by no more than the knot posture departs from the
  * second's own fit: the millimetre the split admits at the judged middles.
  * The knots are fitted on first demand and kept by the course.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is kept, how it is interpolated, the split rule with its tolerance and grid, the blend's error bound and when knots are made.
- * @evidence contracts/development/design.md#principled-representation A phase's span with its knots in a binary refinement; a reading is the frozen posture and the root and rotation the set-down's stand reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `course`, `read` and their three records, read only by `HumanCarriedLift`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The fit stays the caller's (`GymnasticsFlight.frozen` of the carry's own posture); the tolerance and grid are the solver's and the frame grid's.
  */
 export namespace HumanCarriedLiftKnots {
   /** The farthest an interpolated posture may put a joint centre from the middle's own fit, metres: the solver's millimetre. */
@@ -50,11 +45,6 @@ export namespace HumanCarriedLiftKnots {
 
   /**
    * One kept fit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The second, the frozen posture and its turned root.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read only by this namespace.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The fit's own records.
    */
   export interface IKnot {
     /** The plan second. */
@@ -66,11 +56,6 @@ export namespace HumanCarriedLiftKnots {
 
   /**
    * The frozen posture at a second, with what the set-down's stand reads of it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and its frame.
-   * @evidence contracts/development/design.md#principled-representation A posture and two world quantities of its root.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanCarriedLift` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture and vector records.
    */
   export interface IReading {
     /** The frozen posture: joint angles, heading and root, no limb goals. */
@@ -85,11 +70,6 @@ export namespace HumanCarriedLiftKnots {
 
   /**
    * An interval between two knots, split where interpolation leaves the middle's fit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the members.
-   * @evidence contracts/development/design.md#principled-representation A binary refinement over knot pairs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read only by this namespace.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The split is decided once from the interval's own ends.
    */
   export interface IInterval {
     /** The knot at its start. */
@@ -104,11 +84,6 @@ export namespace HumanCarriedLiftKnots {
 
   /**
    * A phase's knots.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the members.
-   * @evidence contracts/development/design.md#principled-representation The phase's span and its refinement, made on first read.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Made by `course`, read by `read`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No fit is made before a second of the phase is read.
    */
   export interface ICourse {
     /** The phase's first plan second. */
@@ -123,11 +98,6 @@ export namespace HumanCarriedLiftKnots {
 
   /**
    * The carry's frozen posture at a plan second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it returns and at which second.
-   * @evidence contracts/development/design.md#principled-representation A plan second in, the posture written by its solved angles out.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The one callback `read` fits knots with.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The fit is the caller's.
    */
   export type Frozen = (seconds: number) => IAutoMovieMotionHumanPosture;
 
@@ -137,14 +107,6 @@ export namespace HumanCarriedLiftKnots {
    * @param from The phase's first plan second.
    * @param to Its last.
    * @returns The course, fitted on first read.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the span and that nothing is fitted yet.
-   * @evidence contracts/development/implementation.md#principled-implementation A phase's knots depend on its span and the carry's posture alone.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No input is judged.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share yet.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record holds its knots once read, for its plan's life.
    */
   export function course(from: number, to: number): ICourse {
     return { from, to };
@@ -160,14 +122,6 @@ export namespace HumanCarriedLiftKnots {
    * @param seconds The plan second, clamped into the phase.
    * @param frozen The carry's frozen posture at a plan second, fitted for a knot.
    * @returns The reading.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read where.
-   * @evidence contracts/development/implementation.md#principled-implementation A binary refinement judged at middles against the solver's millimetre on every joint centre, down to the frame grid, read by descent and per-field interpolation; a knot reads its own fit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fit the ends, descend judging each interval once, interpolate at the leaf.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every knot is the caller's full fit; an interval is kept whole only where its middle's fit is within the tolerance of the interpolation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fit and two joint-only assemblies with their forward kinematics a judged interval, at most the phase over the frame grid's halvings deep; a read past the judged intervals costs a descent and one interpolation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Knots and judgements are kept by the course and shared by every read of the phase.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course keeps its knots, at most two a frame-grid interval of the phase.
    */
   export function read(
     course: ICourse,

@@ -28,11 +28,6 @@ import { ExerciseKey } from "./ExerciseKey";
  * circle and the neighbours' bodies rather than from either one's steps, so
  * both hands name the same point on every frame. A circle too wide for the arms
  * to meet across is refused with the widest radius they reach.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the stepping, the rotation, the joined hands' point and the refusal.
- * @evidence contracts/development/design.md#principled-representation Foot keys on the circle and hand targets from its shared geometry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sizes and the course.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Lengths are the bodies' and the circle's.
  */
 export namespace groupDanceCircle {
   /** A side step, a share of the feet's spacing (provisional). */
@@ -59,13 +54,6 @@ export namespace groupDanceCircle {
    * @returns The course.
    * @throws {HumanRefusal} When the centre or the count is missing, or the
    *   neighbours' hands cannot meet.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the course and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Footprints on the circle at each station's angle; hand targets at the chord's midpoint on the shared clock.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Circle, refusal, keys, hands.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hands' point is the neighbours' shared one; nothing is fitted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in beats; constant work per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared foot reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course retains its keys.
    */
   export function course(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGroupDance.IParams>,

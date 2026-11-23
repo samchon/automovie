@@ -7,11 +7,6 @@ import { StrikingVerdicts } from "./StrikingVerdicts";
  * The striking capture's verdicts read off a plan's events rather than off a
  * strike's displayed limb: whether a defence's events class as its declared
  * outcome, and whether a late kick redirect is refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read and which two verdicts are given.
- * @evidence contracts/development/design.md#principled-representation Each verdict is the capture's own record, built from a segment's events or from an attempt's error.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two verdicts, read by the striking cases and the variation strikes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The events are read by `StrikingVerdicts.at`, the one reader of a segment's instants.
  */
 export namespace StrikingEventVerdicts {
   /**

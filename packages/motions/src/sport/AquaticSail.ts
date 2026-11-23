@@ -79,11 +79,6 @@ interface IControl {
  * rudder and boom; on a craft with a standing area for the role the forefoot
  * bears on it and the sailor stays crouched below the boom. The crew's foot
  * transfers lead the helm's.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names both outcomes and their supporting references.
- * @evidence contracts/development/design.md#principled-representation Stages body transfers in the hull frame while the helm drives the boat's authored rig.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the dinghy gait and helm articular timing.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The entered body and craft determine the deck contact locations.
  */
 export namespace AquaticSail {
   /** Two discrete foot transfers, or a near-side recovery when the helm aborts. */

@@ -38,11 +38,6 @@ import { HumanScheduleRefusal } from "./HumanScheduleRefusal";
  * The composition resolved on the film clock: the engine's schedule
  * resolver given this performance's laws, the alignment of an action synced
  * to an instant, and the cut of an action at a proximity.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three things the functions do.
- * @evidence contracts/development/design.md#principled-representation The engine resolves the composition; this supplies what it asks for and turns its errors into located refusals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The resolve, the alignment and the proximity search (#3399).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The engine stays vocabulary-free: every law is read here.
  */
 export namespace HumanPerformanceSchedule {
   /**

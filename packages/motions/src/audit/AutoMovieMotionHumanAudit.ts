@@ -32,14 +32,6 @@ import { AutoMovieMotionHumanAuditTangle } from "./AutoMovieMotionHumanAuditTang
  * fall is meant to lose its balance). What an action intends (which hand
  * reaches where, at which beat) is not the audit's: that is pinned by the
  * action's own tests.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every check with what it means and states what the audit leaves to an action's own tests.
- * @evidence contracts/development/implementation.md#principled-implementation Each check is owned by its namespace; this one applies limits and gathers findings.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A table of checks walked once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A check is skipped only by an explicit `null` limit from the caller.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each check walks the grid once; a skipped check costs nothing.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The checks share one grid, so an instant's displayed bones are resolved once per audit and read by every check.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The resolved bones are held by one run's own closure and released when it returns.
  */
 export namespace AutoMovieMotionHumanAudit {
   /** The default limits (`AutoMovieMotionHumanAuditLimits`). */

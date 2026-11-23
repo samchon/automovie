@@ -25,11 +25,6 @@ import { WorkoutStance } from "./WorkoutStance";
  * First pass: no ball is moved; a straddled foot's sideways tilt is not
  * flattened; a turn is one full turn on the left foot's ball without a rise
  * onto it; the partner of a closed hold or an underarm turn is not met.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, what is solved, what is provisional with its sources and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per pose: data over the one planner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres.
  */
 export namespace WorkoutPoses {
   /** A full turn on the left foot's ball with the arms as given at its half. */

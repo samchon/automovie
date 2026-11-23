@@ -28,11 +28,6 @@ import { prepareDanceBeats } from "./prepareDanceBeats";
  * `CROUCH` of the stature low.
  *
  * Events: `beat{k}` on the member's own beats, `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three dances, the shared beat, the seeded offset, the joined hands' clock and the events.
- * @evidence contracts/development/design.md#principled-representation A law dispatching each dance to its course over the shared beat clock and footwork.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the crouch and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The offset is the member's seed's; nothing is cloned or hand-tuned per member.
  */
 export namespace groupDance {
   /** The action's name. */
@@ -57,13 +52,6 @@ export namespace groupDance {
    * @returns The plan.
    * @throws {HumanRefusal} When the tempo, the repeats or the variation is not
    *   admitted, or the dance's own geometry refuses.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared clock offset by the member's draw, the dance's course, its hips over its feet.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, offset, course, hips, composition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offset stays within the authored band.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work beyond the course's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared beat clock and footwork.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the course.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGroupDance.IParams>,

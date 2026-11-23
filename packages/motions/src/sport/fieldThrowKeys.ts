@@ -14,20 +14,10 @@ import { ExerciseKey } from "../exercise/ExerciseKey";
  * turns in, the release and standing. Angles are provisional, read from the
  * events' descriptions (the shot held at the neck, the discus and the
  * hammer swung at the arms' length, the javelin drawn back).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three keys and that their angles are provisional.
- * @evidence contracts/development/design.md#principled-representation Exercise keys in clinical degrees, built on the body.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The key record, its builder and a blend, read only by `fieldThrow.plan`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length is stated; the keys carry only angles.
  */
 export namespace fieldThrowKeys {
   /**
    * A throw's three keys.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation Three exercise keys.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The keys the throw's clock goes through.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IKeys {
     /** The posture the body turns in, the implement wound back. */
@@ -47,14 +37,6 @@ export namespace fieldThrowKeys {
    * @param event The throw.
    * @param side The throwing hand.
    * @returns The keys.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the keys.
-   * @evidence contracts/development/implementation.md#principled-implementation Exercise keys over the body's relaxed standing (`ExerciseKey.from`), the throwing side's arm keyed apart from the other.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key per phase.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angles are named provisional on the namespace.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh keys.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
@@ -123,14 +105,6 @@ export namespace fieldThrowKeys {
    * @param b The key at progress 1.
    * @param u The progress, in [0, 1].
    * @returns The blended key: each angle and the tilt and lift linearly, a joint one key leaves out taken as zero.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the absent joints.
-   * @evidence contracts/development/implementation.md#principled-implementation Linear interpolation of clinical angles between two keys a progress curve already eases.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One union of joints, one lerp each.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the keys' joints.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each sample blends once.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh key.
    */
   export function blend(
     a: IAutoMovieMotionHumanExerciseKey.IKey,

@@ -18,11 +18,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * moves, as FIDE's laws forbid it (article 3.1).
  *
  * Duration: each prop takes a pick up and a put down, so a reach-to-grasp time per transport (about 0.5 s for a 0.4 m reach, `IAutoMovieMotionHumanPickUp`), a 0.15 s load, a 0.2 s release and the return; the moves add no timing of their own (provisional: no study of tabletop speeds). A chess move is one pick and one place, a deal one pair per seat.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names each composition, the identity rule and the refusals.
- * @evidence contracts/development/design.md#principled-representation Compositions over the shipped pickup and placement laws; the composer owns only the board-state refusals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The tabletop scenes the issue names: cards, chips, dice, notes and chess.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No new motion law; every step is a pickup or a placement.
  */
 export namespace HumanTabletop {
   /**
@@ -32,14 +27,6 @@ export namespace HumanTabletop {
    * @param params The board, piece, target, board state and capture.
    * @returns The chain after the move.
    * @throws {HumanRefusal} When the piece is not on the board, the target is occupied without its capture, the capture is not on the target, or a capture has no place aside.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the steps and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The board state decides legality before any step; the piece is put on the target square's socket by its base, so it lands at the square's centre.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Check the board, set the capture aside, then pick up and place the piece.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refusals name the square and the piece found there.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most four chained steps.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shipped pickup and placement laws.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function chessMove(
     chain: IAutoMovieMotionHumanChain,
@@ -121,14 +108,6 @@ export namespace HumanTabletop {
    * @param params The cards in dealing order, the seats and the hand.
    * @returns The chain after the deal.
    * @throws {HumanRefusal} When no seat is named; the placement refuses a seat beyond the arm with its distance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order, the seats and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Each card goes from the deck's top to the next seat in turn, at its declared face-down attitude.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pickup and one placement per card.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The placement owns the reach refusal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two steps per card.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shipped pickup and placement laws.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function deal(
     chain: IAutoMovieMotionHumanChain,
@@ -167,14 +146,6 @@ export namespace HumanTabletop {
    * @param params The cards and each one's place.
    * @returns The chain after the cards are laid.
    * @throws {HumanRefusal} When cards and places differ in number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the pairing and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each card is put down at its declared whole attitude through the placement's `rotation`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pickup and one placement per card.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The placement refuses an attitude the wrist cannot reach.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two steps per card.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shipped pickup and placement laws.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay(
     chain: IAutoMovieMotionHumanChain,
@@ -218,14 +189,6 @@ export namespace HumanTabletop {
    * @param chain The chain the shuffle continues.
    * @param params The two packets' carrying cards, the left packet's top and the deck's place.
    * @returns The chain after the packets are joined.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the holds and the join.
-   * @evidence contracts/development/implementation.md#principled-implementation Each packet rides its bottom card, so a hand holds the whole packet; the right packet is set on the left packet's top card by its base.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two pickups, then two placements.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The packets keep their cards; none is copied or moved by hand alone.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four chained steps.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shipped pickup and placement laws.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function shuffle(
     chain: IAutoMovieMotionHumanChain,
@@ -248,14 +211,6 @@ export namespace HumanTabletop {
    * @param chain The chain the push continues.
    * @param params The stack's bottom prop and its destination.
    * @returns The chain after the stack is set down.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what carries the stack and where it goes.
-   * @evidence contracts/development/implementation.md#principled-implementation The stack's props ride its bottom prop, so moving it moves them all.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pickup and one placement.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two steps.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shipped pickup and placement laws.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function push(
     chain: IAutoMovieMotionHumanChain,
@@ -274,14 +229,6 @@ export namespace HumanTabletop {
    * @param chain The chain the roll continues.
    * @param params The die and its resting place.
    * @returns The chain after the die rests.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the pickup and the release onto the table.
-   * @evidence contracts/development/implementation.md#principled-implementation The die is placed on the table's surface by its base, a quarter turn from how it lay.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pickup and one placement.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tumble between hand and table is not modelled; the die comes to rest at its place.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two steps.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shipped pickup and placement laws.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function roll(
     chain: IAutoMovieMotionHumanChain,

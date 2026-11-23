@@ -20,11 +20,6 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
  * on the body as it stands, and passes when they are the names the law
  * wrote. A table share that drifts from what its name means on some body of
  * the sweep fails here, on that body.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is checked, from what, and what a failure means.
- * @evidence contracts/development/design.md#principled-representation One verdict per captured point, in the capture's own verdict record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function; the only owner of place verdicts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reads names back through `nearest`, a path that does not run the resolver forward.
  */
 export namespace MotionPlaceVerdicts {
   /**
@@ -37,14 +32,6 @@ export namespace MotionPlaceVerdicts {
    * @param point The captured point, world metres.
    * @param expected The names the law wrote.
    * @returns The verdict; its detail gives the names found and the point's offset from the named place (out, up, forward) in arm lengths.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the pass rule and what the detail reports.
-   * @evidence contracts/development/implementation.md#principled-implementation Passes when the nearest height, lateral and distance names equal the expected ones; the offset is measured from the expected place in the performer's floor frame.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One nearest-name read, one resolved place and one difference.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance is typed: the names' own midpoints are the bounds.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `nearest`, `place`, `fallback` and `HumanFrame.local`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function at(
     name: string,

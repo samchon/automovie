@@ -25,11 +25,6 @@ import type {
  * handle between the waist and the shoulder takes the angle between theirs
  * in proportion; below the waist or above the shoulder keeps the nearer
  * one's, as the study measured no other height.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source, its conditions, how the values were read, the signs and how a handle between or beyond the two heights is read.
- * @evidence contracts/development/design.md#principled-representation A table by way and load at the two measured heights, the heights the body's own waist and shoulder as the study placed them at each participant's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The load levels, the table and its reader, read by `pushPull`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every angle is read from the study; none is tuned.
  */
 export namespace pushPullLean {
   /** The peak torso angle, degrees, by way, load and handle height (Lett and McGill 2006, figure 9, the two groups' size-weighted mean). */
@@ -62,14 +57,6 @@ export namespace pushPullLean {
    * @param load The declared load level.
    * @param height The handles' height above the floor, metres.
    * @returns Degrees, positive leaning forward toward the way the body faces, negative leaning back.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the signed result.
-   * @evidence contracts/development/implementation.md#principled-implementation A piecewise-linear reading between the body's own waist and shoulder heights, held at the nearer end beyond them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One share and one interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No height outside the study's is extrapolated.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,

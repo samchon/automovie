@@ -36,14 +36,6 @@ import { prepareSupportContactForm } from "./prepareSupportContactForm";
  * @param project The body's posture projector.
  * @param socket The sole socket each floor foot holds through its window; the lower of its heel and ball at the key before when absent.
  * @returns World key frames and the rotation pivot in the end-bone frame.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the fixed keys, donor contacts, frame owners and output units.
- * @evidence contracts/development/implementation.md#principled-implementation Read wrists or ankles and their bending joints at both keys. Above-floor contacts reuse the key fitter's toe, palm or grip datum. Floor feet retain the heel or ball socket their window holds (else the lower at the key before), and floor hands retain the wrist.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the anatomical point and needed frames. Observe both keys and re-express each pivot in its end bone's local frame.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The world pivot uses achieved bone frames, including the point offset of a raised grip. No authored target replaces an achieved key.
- * @evidence contracts/development/implementation.md#efficient-algorithms One fixed bone demand for the two key poses. Each limb contributes one frame pair and at most one bearing pivot.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads all retained limbs from the same two resolved bone maps and uses the existing support-contact form rules.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The current key maps and local lookup terminate synchronously and only the small endpoint records return.
  */
 export function prepareSupportHeldFrames(
   body: IAutoMovieMotionHumanBody,
@@ -218,11 +210,6 @@ function angles(
 
 /**
  * The retained contact selection and the solved frames used by support playback.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the two records shared by key observation and interval playback.
- * @evidence contracts/development/design.md#principled-representation The records use canonical contact names, rigid bone frames and limb reference angles.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Holds only the input record and frame result passed between the two support owners.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Geometry and contact selection come from the fitted keys and canonical support forms.
  */
 export namespace prepareSupportHeldFrames {
   /** The sole socket a floor foot holds through its window, by its contact; none for a contact that holds none. */

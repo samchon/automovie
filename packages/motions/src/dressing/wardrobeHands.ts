@@ -31,11 +31,6 @@ const STILL: IAutoMovieRigidTransform = {
 
 /**
  * World hand placements shared by wearable prop actions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Uses displayed bone and grip frames to place, recover and validate wearable props.
- * @evidence contracts/development/design.md#principled-representation Rigid ownership transfers are solved from the actual grip transform and the desired model pose.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The helpers keep grip frames, named model contacts and shared limb goals in their owners.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No anatomy, FK rule or limit is duplicated.
  */
 export namespace wardrobeHands {
   /** What every wardrobe mode names: the staged wearable prop. */

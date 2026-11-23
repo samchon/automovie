@@ -28,11 +28,6 @@ const FINGERS: readonly string[] = ["Index", "Middle", "Ring", "Little"];
  * A palm laid flat on the floor whose wrist would have to extend past its
  * range to hold it rises about the knuckles (`of`), as a foot's heel rises
  * about the toes' joint.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the namespace owns.
- * @evidence contracts/development/design.md#principled-representation A turned arm goal and the fingers' joints.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rise, its result and the knuckle reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The limits are the range table's.
  */
 export namespace GymnasticsPalmRise {
   /** A palm laid flat whose heel has risen about the knuckles. */
@@ -61,14 +56,6 @@ export namespace GymnasticsPalmRise {
    * @param knuckle The knuckles' offset from the wrist in the hand's frame, metres.
    * @param fingers The fingers' direction along the floor, a unit vector.
    * @returns The goal and the finger joints, unchanged and empty while the wrist is within range.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when the palm rises, about what, by how much, the fingers' share and the forearm's reading.
-   * @evidence contracts/development/implementation.md#principled-implementation The wrist's extension as the forearm's angle up from the floor behind the fingers; the excess over the limit turned about the knuckle line, capped by the knuckles' range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Extension, excess, turn.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limits are the range table's.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work None needed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
     side: AutoMovieHumanSide,
@@ -135,14 +122,6 @@ export namespace GymnasticsPalmRise {
    * @param hand The posed hand bone.
    * @param middle The posed middle finger's proximal bone, whose origin is the middle knuckle.
    * @returns Metres in the hand's frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The middle knuckle's world offset turned back by the hand's rotation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One subtraction, one turn.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read from the posed rig, never typed in.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work None needed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function knuckle(
     hand: IAutoMovieResolvedBone,

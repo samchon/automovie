@@ -30,11 +30,6 @@ import { planReducedOpening } from "./planReducedOpening";
  * A `duck`, `squeeze` or `crawl` mode hands the same opening to
  * `planReducedOpening`, which fits that posture through the solid's whole
  * depth and refuses with the width or headroom the posed body needs.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the law is, how the way is laid, where a misfit is refused and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation A law record over the walk: the opening is named by its obstacle and its id, as the obstacle declares it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law and its parameters; the squaring distance is the walker's own step.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The ordinary walk retains its original admission; reduced passage delegates posed clearance to the opening fitter.
  */
 export namespace HumanTravelDoor {
   /** Travel through a named opening. */

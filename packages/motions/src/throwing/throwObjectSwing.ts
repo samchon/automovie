@@ -35,11 +35,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * behind the arm in that plane: behind it as the arm hangs, below it as it
  * swings ahead, the arm's direction crossed with the performer's right.
  * Other styles keep the elbow their own track found.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the windup's detour and when it applies, and the bowl's placed elbow.
- * @evidence contracts/development/design.md#principled-representation A curve through a clearance point; the goal's placed elbow with the swing plane's olecranon as its pole.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The swing's two writers and their maker.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The chest and its breadth are the body's own; the pole follows the arm and the heading.
  */
 export namespace throwObjectSwing {
   /** The swing's writers. */
@@ -80,14 +75,6 @@ export namespace throwObjectSwing {
    * @param side The ball arm.
    * @param style The throw's style.
    * @returns The windup and elbow writers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the writers.
-   * @evidence contracts/development/implementation.md#principled-implementation The line's nearest approach across the floor to the column of the trunk and head decides the detour; the curve passes the clearance point at its middle, around the front, its side continuous in the line. The olecranon is the arm's direction crossed with the heading's right.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two writers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A line clear of the trunk and head's column is kept straight; only the bowl's elbow is placed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One chest FK a windup sample, one shoulder FK a bowl sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared elbow placement and the pose reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the body, side and style.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,

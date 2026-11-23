@@ -48,11 +48,6 @@ import { WorkoutKind } from "./WorkoutKind";
  * solved is provisional (NSCA's Essentials
  * of Strength Training and Conditioning, 4th ed., for the exercises'
  * positions).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, what is solved from the support, the default and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise whose route reads the support's height, so one row serves any box or bench.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table and its default height.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No furniture size is fixed: the height is the prop's, or a share of the stature.
  */
 export namespace WorkoutEquipment {
   /** The imagined support's height when the author names none, a share of the stature (provisional). */

@@ -60,11 +60,6 @@ import { throwInRelease } from "./throwInRelease";
  * The original implied skills share a ready position, stroke and return. The
  * court and volleyball families define their own phase durations and use the
  * same action clock and composing primitives.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each skill's geometry, timing and sources, the provisional values and what is not drafted.
- * @evidence contracts/development/design.md#principled-representation A law record of crouch, lean and placed-arm rows over one phrase.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the kinds, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Places are named grid places and shares of the body.
  */
 export namespace ballSport {
   /** The action's name. */
@@ -140,13 +135,6 @@ export namespace ballSport {
    * @returns The plan.
    * @throws {HumanRefusal} When the count is invalid or a modeled release lacks
    *   its required reachable aim or prop.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation One phrase; each skill's crouch, lean and arm places on its envelope and its stroke.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per skill.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measures and named places; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Original crouch/balance/arm/launch work remains; dig alone prepares its fixed pad and each actual dig callback borrows current-person FK for demanded shoulders. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing crouch/placed-arm/pad owners retain formulas; dig passes only explicit current-person FK to its original raw shoulder observation, with every current point and fit actual.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns original clock/skill geometry; optional current-person FK inputs stay synchronous and never enter output goals, the plan or query history.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallSport.IParams>,

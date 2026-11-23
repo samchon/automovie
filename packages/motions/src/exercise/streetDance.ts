@@ -45,11 +45,6 @@ import { prepareDanceBeats } from "./prepareDanceBeats";
  * (Burger et al. 2013 measured such individual timing in groove).
  *
  * Events: `beat{k}`, the rock's `hit{n}`, the moonwalk's `slide{k}`, `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each groove's motion, the hits' timing, the backslide's roles, the variation and the events.
- * @evidence contracts/development/design.md#principled-representation A law over the shared beat clock and footwork.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the constants and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Lengths are the body's; times are the beat's plus the member's seeded offset.
  */
 export namespace streetDance {
   /** The action's name. */
@@ -98,13 +93,6 @@ export namespace streetDance {
    * @returns The plan.
    * @throws {HumanRefusal} When the tempo, the beat count or the variation is
    *   not admitted.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The rock's bounce, isolations and hits as functions of the beat clock; the moonwalk as foot keys whose slides have no clearance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, offset, then one branch per groove.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A hit peaks on its subdivision exactly, offset only by the member's draw.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in beats; constant work per sample beyond a hit scan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared beat clock, footwork and foot pivots.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the keys and the hit list.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStreetDance.IParams>,

@@ -16,20 +16,10 @@ import type { HumanFrame } from "../posture/HumanFrame";
  * The footprints of a stair climb: each foot's settled flat sole on its
  * tread at the standing lateral place, its leg placement and its sole
  * points about the ankle. `climbStairs` owns the flight and the timing.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is prepared, its frames and its owner.
- * @evidence contracts/development/design.md#principled-representation A footprint is a foot placement in world metres with its tread level.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The footprint record, the prepared set and the one builder climbStairs.plan calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every footprint comes from the flight and the settled stance.
  */
 export namespace climbStairsPrints {
   /**
    * A footprint: the foot's placement and the tread it is on, 0 for the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both members and their units.
-   * @evidence contracts/development/design.md#principled-representation An ankle placement in world metres and a tread index.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two fields the climb's schedule reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by prepare.
    */
   export interface IPrint {
     /** The ankle and foot rotation, world metres. */
@@ -41,11 +31,6 @@ export namespace climbStairsPrints {
 
   /**
    * The prepared footprints and the sole geometry they share.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation Per-foot leg placements, sole points about the ankle in the flight frame, and a memoized footprint reader.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three members climbStairs.plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Read-only after preparation.
    */
   export interface IPrints {
     /** Each foot's prepared leg placement. */
@@ -72,11 +57,6 @@ export namespace climbStairsPrints {
 
   /**
    * One step of the schedule: the foot and the tread it goes to.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both members.
-   * @evidence contracts/development/design.md#principled-representation A foot and a tread index, 1 the first.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two fields the climb's clock and prints read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by schedule.
    */
   export interface IStep {
     /** The stepping foot. */
@@ -94,14 +74,6 @@ export namespace climbStairsPrints {
    * @param count The treads.
    * @param lead The foot that steps first.
    * @returns The steps in order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both patterns and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Step-over-step alternates feet tread by tread; step-by-step brings both feet to each tread.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop per pattern.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every tread is stepped in order.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the treads.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function schedule(
     pattern: NonNullable<IAutoMovieMotionHumanClimbStairs.IParams["pattern"]>,
@@ -131,14 +103,6 @@ export namespace climbStairsPrints {
    * @param sign 1 up the flight, -1 down it.
    * @param margin The least distance of a sole from a nosing, metres.
    * @returns The footprints.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, units and result.
-   * @evidence contracts/development/implementation.md#principled-implementation A sole shorter than the tread less two edges is centred on it; a longer one keeps its heel or toe the edge from the nosing it would overhang, the landing having no far edge.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Leg placements, sole points, then one memoized footprint reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every footprint follows from the flight's treads and the settled feet.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each footprint is computed once per foot and tread.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Footprints are memoized by foot and tread.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo grows with the treads stepped and is released with the plan.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,

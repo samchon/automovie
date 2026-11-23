@@ -76,17 +76,6 @@ import { armPhraseFacing } from "./armPhraseFacing";
  * of its path's length; an oscillation takes `cycles` beats. The manner's tempo
  * scales every phase and its extent and curvature reach the phrase
  * (`AutoMovieMotionManner.of`). Events: the phrase's instants.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three phrases, what is moved and kept, the target's frame and offset, the facing, every phase's timing and its owner, and the events.
- * @evidence contracts/development/design.md#principled-representation A law record whose parameters name a phrase, a target and a hand, with a pure plan composed from the vocabulary's phrase primitives.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the overlay flag, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the arm phrases, the clock, the timing, the base and the manner; it writes no movement of its own.
- * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases on the phrase clock, each phase a minimum-jerk movement through the arm phrases, timed by the vocabulary's transport rule.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Each arm's geometry, one clock shared by the arms, one primitive per arm, one composition.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offset's shares are the caller's and scale with the body; the phases are the timing owner's transport and pauses. Three defaults are set here and named provisional: an oscillation's swing (`SWING`, a tenth of the arm's length), its two cycles and the elbow hint's widening (`HANG_OUT`).
- * @evidence contracts/development/implementation.md#efficient-algorithms Planning resolves the entry's hand bones once and fixes each arm's place, stroke start, swing, hand turn and elbow hint; a visit's target is built once, and a stroke or an oscillation builds one target per posture from those fixed vectors. Each posture then pays its base and one arm move per arm.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The target is read where it is at the phrase's start, so its place, offsets, turn and the elbow hint read on the entry posture are plan constants shared by every posture; `prepareTarget` issues the hand-surface rows from them. The move reads only the current root and its own arm and hand channels, which it declares.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its fixed per-arm vectors, rotation and row producer until it is released; no posture or sampled time is retained.
  */
 export namespace armPhrase {
   /** The law's name, as productions register it. */

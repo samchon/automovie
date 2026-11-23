@@ -68,11 +68,6 @@ import { HumanHand } from "../posture/HumanHand";
  * Not drafted: the swing, the bunt and the check swing (the implement strike
  * owner's, whose file does not exist yet), the pitch (a row of the throw law),
  * the windmill pitch, the catcher's throw and base running slides.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each position's geometry, timing, sources and provisional values, and the gaps with their owners.
- * @evidence contracts/development/design.md#principled-representation A law record of crouch, leg and placed-arm rows over one phrase.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the kinds, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the squat's depth rule; places are named grid places.
  */
 export namespace baseball {
   /** The action's name. */
@@ -122,13 +117,6 @@ export namespace baseball {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation One phrase; each position's crouch, step and arm places on its envelope.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per position.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measures and named places; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The ground-ball bracket reads only the posed shoulder frames to bound reach. The covering hand and glove share the same two-arm planning group. Catcher/glove observations request actual chest/shoulder frames and borrow current-person FK for runtime reads.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing squat/crouch/leg/placed-arm owners retain their formulas; current place callbacks explicitly forward same-person FK to original raw chest/shoulder observations rather than infer a result from pose identity.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns original clock/stance/geometry; optional current-person FK inputs are used synchronously and never stored in goals, the plan or query history.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBaseball.IParams>,

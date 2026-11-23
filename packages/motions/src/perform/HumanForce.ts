@@ -21,11 +21,6 @@ import type {
  * is the engine's (`resolveAutoMovieBalanceOutcome`). A hit becomes an impulse
  * here and only here (`ofHit`), so a melee stop, a projectile and a blast reach
  * the body the same way.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two kinds of force, their units and frames, who reads them and the one conversion of a hit.
- * @evidence contracts/development/design.md#principled-representation Impulses in newton seconds at an instant and forces in newtons over a span, world frame, discriminated by kind, each on a region or a bone's point.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The force records, the hit conversion and the span reader the performance and the laws use; a soft prop's tension arrives as a sustained force (#3451).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The impulse of a hit is the engine's `resolveImpact` or the record's own momentum change, not a law's own formula.
  */
 export namespace HumanForce {
   /**

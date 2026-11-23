@@ -15,14 +15,6 @@ import { HumanFoot } from "../../posture/HumanFoot";
  * capture cases (stretching, dance, sport): how far the body's extrapolated
  * centre of mass stands outside one standing foot, a joint's clinical angle,
  * and the angle between two bones.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each measure reads and on which poses.
- * @evidence contracts/development/implementation.md#principled-implementation Balance is Hof's margin of stability (Hof, Gazendam and Sinke 2005): the body's own mass model on the displayed bones, its centre extrapolated by its velocity over the inverted pendulum's eigenfrequency, against the standing foot's bearing outline (`HumanFoot.base`), as the balance audit reads it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Three small measures.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No measure reads a law's goal or a collider's shape.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three displayed poses per balance reading, for the centre and its central difference.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per capture.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace StanceVerdicts {
   /**

@@ -15,14 +15,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @param input The hip, the front foot and the optional knee point.
  * @returns The kneeling hip joint, world metres.
  * @throws {HumanRefusal} When the front foot would be out of the front leg's reach from a hip over the named point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both placements, the frame and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The reverse lunge keeps the front shank upright; a named knee point puts the thigh upright over it and needs only the front leg's reach.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The reverse lunge, else the named point and its one reach check.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A front foot out of reach refuses with its distance instead of overstretching the leg.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs, read once per kneel.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
   const {
@@ -63,11 +55,6 @@ export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
 
 /**
  * Inputs of {@link kneelPlace}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each input's frame and unit.
- * @evidence contracts/development/design.md#principled-representation World points and directions in metres, read from the standing keys.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The inputs the two placements read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is the body's or the key solver's.
  */
 export namespace kneelPlace {
   /** What the placement reads. */

@@ -78,11 +78,6 @@ import { HumanWeaponTrack } from "./HumanWeaponTrack";
  * prop where the scene stands it and does not ride the body, and no reload is
  * planned. The recoil's size and times are provisional: no recoil-recovery
  * study was read (listed as research to do).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the effector, how the firearm is given, how a shot is composed, the two-hand rules with their refusals and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation Two law records over the held-tool stroke planner and two rows of the shipped pick up and put down; the carriage is a closed union.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The laws, their parameters, the rows and the constants the lexicon rows and a production read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No firearm kind is named: a long gun is a prop with a fore-end, and lengths are shares of the arm and the weapon's own length.
  */
 export namespace HumanWeaponPresent {
   /**
@@ -118,11 +113,6 @@ export namespace HumanWeaponPresent {
 
   /**
    * A seated presentation's ready station before the chest.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states the body measure it is a share of and the point it is read from.
-   * @evidence contracts/development/design.md#principled-representation Two shares of the shooter's own measures, so every body presents through the same place on itself.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `present`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IReady {
     /**

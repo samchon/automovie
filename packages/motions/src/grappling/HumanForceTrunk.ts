@@ -27,11 +27,6 @@ import { readHumanBone } from "../body/readHumanBone";
  *
  * First pass: the stiffness is the passive trunk's, so the bend is the most a
  * relaxed trunk would give, not one braced by its muscles.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the law, both sources with their tables and scopes, the provisional scope and the first pass's limit.
- * @evidence contracts/development/design.md#principled-representation Stiffness by quarter of the range, the meta-analysis's own form, and a strength per body mass, the study's own normalization.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two sourced tables, the range of a body and the share that holds a torque.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A torque past the range is the range's end, stated, never a scaled bend.
  */
 export namespace HumanForceTrunk {
   /**
@@ -54,13 +49,6 @@ export namespace HumanForceTrunk {
    * @param body The body.
    * @param side The side bent toward.
    * @returns Degrees.
-   * @evidence contracts/development/common.md#meaningful-documentation States what is summed and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The two trunk joints `HumanTrunkTurn` bends, each read from the body's own range table; a left bend is the negative abduction (`HUMANOID_JOINT_AXES`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One sum over two joints.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A joint without a range adds none.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The range is the engine's `getConstraint` on the body's rig.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function range(
     body: IAutoMovieMotionHumanBody,
@@ -88,13 +76,6 @@ export namespace HumanForceTrunk {
    * @param torque Newton metres.
    * @param range The side-bending range, degrees.
    * @returns The share, in [0, 1].
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the units and the bounds of the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The moment is the stiffness integrated over the bend; each quarter adds its stiffness times its angle, and the share is where the sum meets the torque.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the four quarters.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A torque past the whole range's moment returns the range's end, as `HumanTrunkTurn` takes it; no torque returns none.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function share(torque: number, range: number): number {
     if (!(torque > 0) || !(range > 0)) return 0;

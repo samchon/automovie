@@ -27,11 +27,6 @@ import { StrikingRoll } from "../striking/StrikingRoll";
  * and 10 degrees. All are provisional search resolutions. The row fixes no
  * duration: a cut's duration is the sword timing model's, the edge at 6 to
  * 10 m/s by skill (`IAutoMovieMotionHumanSword`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is placed, which freedoms are left and how the arm chooses among them.
- * @evidence contracts/development/design.md#principled-representation A cut's contact is the landing point, the travel and the two freedoms as tables of tried values.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two tables and the frame, read by the cut.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No blade kind is named; lengths are the tool's.
  */
 export namespace HumanSwordLanding {
   /** The leans of a cut's blade at contact that are tried, back toward where the cut came from as a share of the line to the target (provisional). */
@@ -82,14 +77,6 @@ export namespace HumanSwordLanding {
    * @param context The action's context.
    * @param props The blade, the landing part, the target, the line, the travel and the body.
    * @returns The chosen hand frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result; the namespace states the order.
-   * @evidence contracts/development/implementation.md#principled-implementation Every candidate keeps the landing part on the target and the edge along the travel (`StrikingHeld.hand`); the arm's fit chooses among them and refines the lean and the turn between them (`StrikingRoll.chosen`), so the ranges of the shoulder, the forearm and the wrist decide.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Candidates on the line first, then the turned ones by strain, then one choice.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turns and leans are a stated search resolution; the cut's refusal still judges the chosen pose.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The candidates are a fixed grid (`TURNS` by `LEANS` on the line; the leans by the cone's tilts, eight directions and the rolls off it), each ranked by its closed-form strain; `StrikingRoll.chosen` fits the arm only to the ranked ones it tries, at most `StrikingRoll.TRIED` off the line.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each candidate frame is built from the props as given and ranked once; the arm's fits are `StrikingRoll.chosen`'s.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The candidate arrays end with the call; only the chosen hand frame is returned.
    */
   export function frame(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,

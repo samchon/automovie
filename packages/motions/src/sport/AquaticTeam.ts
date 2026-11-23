@@ -39,11 +39,6 @@ const BASE_REACH: number = 0.5;
  * depths here are authored for this film figure.
  *
  * @see https://resources.fina.org/fina/document/2026/02/26/e04faca7-a6bd-4b2b-ba86-0354ee34dd82/AQUA-AS_MANUAL_February-2026.pdf
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the researched support shapes and the ensemble variation.
- * @evidence contracts/development/design.md#principled-representation One figure clock governs joint shape and the support blend.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the assisted and unassisted artistic swimming figure.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each foot borrows its own named base's displayed palm over the actual contact interval.
  */
 export namespace AquaticTeam {
   /**
@@ -54,14 +49,6 @@ export namespace AquaticTeam {
    * @returns The plan with named support and release events for assisted roles.
    * @throws {HumanRefusal} For absent or repeated bases, or when a named
    * support is not an upward submerged palm during the bearing interval.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the shared water, performer roles, lifted stage and refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation A base prepares a palm-up target on the same clock as the rising figure. The flyer transfers each actual forefoot surface to a named base's current palm, then returns to the sculling posture.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare nominal figure keys, the optional supporter and the borrowed palm readers once. Sample the nominal figure and apply its timed contact phase.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Contact is an offset anatomical surface on both performers. The law refuses missing or repeated bases and downward or emerged contact offers during declared support.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed participant lookup and anatomy preparation. The support interval requests only each partner hand bone and the required current own bones.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each role shares its prepared posture blends and contact timing across queries. Hand and sole datums reuse the canonical frame owners.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its fixed posture blends and partner frame readers. Current FK and kinematic target records are released after each query.
    */
   export function artistic(
     context: AquaticPosture.Context,

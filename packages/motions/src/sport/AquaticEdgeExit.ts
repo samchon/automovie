@@ -49,11 +49,6 @@ const STAND_BACK: number = 0.45;
  * on the deck behind the edge (`standing`). The palms bear from `hands`
  * until the knee is down, so the hands load before the body rises. A deck
  * higher above the water than `FREEBOARD` is refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the hand loading, the frames and the refusal.
- * @evidence contracts/development/design.md#principled-representation Clinical keys placed by the hips relative to the prop's own edge frame, with palm and sole goals on the deck.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the unaided exit; an assisted lift is the rescue's.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The deck height and edge come from the named prop's contacts, never from parameters.
  */
 export namespace AquaticEdgeExit {
   /** Plan the exit at the named pool edge. */

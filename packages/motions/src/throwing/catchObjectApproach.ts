@@ -19,11 +19,6 @@ import { throwObject } from "./throwObject";
  * its path first comes within `REACH` arm lengths ahead of the
  * catcher, or the catcher's own toss met as it falls to the chest
  * (`TOSS`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two interceptions.
- * @evidence contracts/development/design.md#principled-representation The path is the throw's own launch.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two constants and one reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is typed in; the path comes from the throw's plan.
  */
 export namespace catchObjectApproach {
   /** How far ahead of the root another's throw is met, arm lengths (provisional). */
@@ -40,14 +35,6 @@ export namespace catchObjectApproach {
    * @param arm The catcher's arm length, metres.
    * @returns The interception.
    * @throws {HumanRefusal} When the anchor is not a throw, a self-toss never rises to the chest, or another's throw starts within reach or never comes within it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two interceptions and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Another's throw is met where its drag-free path, linear on the floor plan, crosses the reach line; a self-toss where its parabola falls to the chest.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Launch, self-toss, reach line.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A path that does not come within reach is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The throw's own launch and path.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned path retains the launch.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,

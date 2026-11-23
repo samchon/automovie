@@ -12,11 +12,6 @@ import type {
  * separation, blended by the squared cosine and sine of the angle between
  * the way and the facing at the walk's start. The cadence is the gait's
  * own either way.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each direction's share, its source or its provisional status, the blend and what is kept.
- * @evidence contracts/development/design.md#principled-representation One share of the forward gait, applied to its speed and its longest step alike, so the cadence stays.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The facing's type, the backward ratio and the share the walk reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length is typed: the side step is the body's own foot separation.
  */
 export namespace walkFacing {
   /** The share of the forward walking speed a backward walk keeps: the ratio of the backward to the forward walk-to-run transition speeds of the same young adults, 1.58 +/- 0.16 against 1.99 +/- 0.20 m/s (Hreljac et al. 2005, J Sports Sci Med 4:446, 12 adults on a treadmill); cadence is the same either way (Laufer 2005, J Gerontol A 60:627, 30 young adults on a walkway), so the stride carries the ratio. */
@@ -32,14 +27,6 @@ export namespace walkFacing {
    * @param facing Which way the body faces.
    * @param longest The forward gait's longest step, metres.
    * @returns The share, in (0, 1].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, where they are read and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Backward walking keeps its cadence and shortens its stride by the cited speed ratio (Hreljac et al. 2005; Laufer 2005); a side step is bounded by the feet it must not cross, the body's rest separation (no measure of a sustained side-walk was found; provisional, the cadence is kept).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two headings, one angle and one blend.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The side share is the body's own foot separation, never a typed length; a walk with no way keeps its gait.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function share(
     body: IAutoMovieMotionHumanBody,

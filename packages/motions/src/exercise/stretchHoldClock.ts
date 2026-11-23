@@ -22,11 +22,6 @@ type Context =
  * A standing stretch holds one material pose between the two movement phases.
  * Preserve the original grid cells straddling arrival and release. Only complete
  * grid intervals inside the hold collapse onto a single contact event.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the physical hold, its two boundaries and the native grid.
- * @evidence contracts/development/design.md#principled-representation The exposed plan owns film time, contact windows and interruptions. A second clock evaluates only the native bare stretch's internal writers.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law issues its private reader, placement binds its refusal location, and the isolated display may read it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Native playback verifies this plan's original reader and exact location wrapper. No global result history or user-set validity flag is used.
  */
 export namespace stretchHoldClock {
   /** Issue an ordinary plan and its bounded internal phase clock for a bare standing stretch. */

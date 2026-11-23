@@ -35,11 +35,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * The body then sinks onto bent knees as far as brings each wrist within the
  * arm's reach from its shoulder at the highest the walk raises it (`rise`),
  * so the hands keep their handles through the gait's rise and fall.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is solved, from which measurement and how a handle between or beyond them is read.
- * @evidence contracts/development/design.md#principled-representation The stance is an incline in degrees from the vertical and a sink in metres, the two values `AutoMovieMotionHumanTrunk.sunk` takes; the handle heights are the body's own hip and shoulder heights, as the study placed them at each subject's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The measured table, its bound, the reading rate, the stance and its solver, read by `pushSled`, and the floor, read by it and by `pushPull`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sled is named; the handles are the frames the law reads.
  */
 export namespace pushSledStance {
   /** The torso's flexion from upright standing at the subject's hip, midway and shoulder handle heights, degrees, at the highest push force (Lim, Case and D'Souza 2016, motion capture means). The study gives the midway handle no height; it is read as halfway between the hip and the shoulder. */
@@ -73,14 +68,6 @@ export namespace pushSledStance {
    * @param lean The least incline, degrees from the vertical.
    * @param incline The incline asked outright, degrees from the vertical, negative leaning back, which replaces the measured one and `lean` (a haul at a declared load, `pushPullLean`); the measured one when absent.
    * @returns The stance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The incline is the study's, read at the handles' mean height above the floor as a piecewise-linear function of the body's own hip and shoulder heights; each wrist is placed by its grasp (`HumanHand.reach`) and the shoulders are read off the resolved leaned body, the sink the drop that brings the risen shoulder within the arm's reach for the floor distance it keeps, by Pythagoras.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The incline, then one sink pass.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The incline stops at `RANGE` and the sink only lowers the shoulders; a handle still beyond reach is the law's refusal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains every original display-rate rise sample, requesting only its consumed root channel; the initial standing posture remains complete and the actual sink solve demands both shoulder frames. No sample or fit is omitted, and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan's existing channel-demand contract guarantees the requested root equals its full observation. Each actual sample still runs in original time/order and no posture/root answer is stored or substituted.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no sampler or result history; local standing/shoulder data release on return or throw and the returned incline/sink are independent scalars.
    */
   export function solved(
     body: IAutoMovieMotionHumanBody,
@@ -160,14 +147,6 @@ export namespace pushSledStance {
    * @param body The body.
    * @param feet Each foot at the entry.
    * @returns The floor's height, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and its unit.
-   * @evidence contracts/development/implementation.md#principled-implementation Each sole is its foot's own offset carried by the ankle's frame; the lower one is the floor.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One minimum over the two feet.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No floor height is assumed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one floor the stance and a haul's handle height read (`pushPull`).
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function floor(
     body: IAutoMovieMotionHumanBody,

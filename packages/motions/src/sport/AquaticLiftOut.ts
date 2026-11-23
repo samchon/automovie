@@ -60,11 +60,6 @@ type Wrists = Readonly<Record<AutoMovieHumanSide, AutoMovieHumanoidBone>>;
  * victim's path is its own, and the rescuer's hands read only the victim's
  * displayed wrists. A deck higher above the water than `FREEBOARD` is
  * refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source, the shared clock, the phases, who reads whom and the refusal.
- * @evidence contracts/development/design.md#principled-representation Clinical keys placed by the hips relative to the prop's own edge, the rescuer's feet planted on the deck and its hands coursed onto the displayed wrists.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the assisted removal; the unaided exit is `AquaticEdgeExit`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The deck and edge come from the named prop; the rescuer's grip reads the victim's displayed hands, never a planned stand-in.
  */
 export namespace AquaticLiftOut {
   /** The victim: faces the wall, is raised by its wrists and lies over the edge. */

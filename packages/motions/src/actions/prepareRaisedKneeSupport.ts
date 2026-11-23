@@ -19,9 +19,6 @@ type Candidate = IAutoMovieMotionHumanPosture | undefined;
 /** Construct a diagonal support tripod before closing the remaining hand. The
  * intermediate poses only initialize the static solver. The original posed
  * body's complete floor, contact and collision rows admit the returned key.
- *
- * @evidence contracts/development/implementation.md#principled-implementation A raised knee and contralateral foot determine the pelvic placement before the unsupported upper body reaches. The hand opposite the knee completes the diagonal support chain (Escande et al., 2013, doi:10.1016/j.robot.2013.01.008). The contralateral order is a candidate construction, never an admission criterion.
- * @evidence contracts/development/implementation.md#efficient-algorithms The lower-chain solve excludes all upper joints. The tripod adds the trunk and one arm; only the final closure opens the whole body's variables.
  */
 export function prepareRaisedKneeSupport(
   body: IAutoMovieMotionHumanBody,

@@ -18,11 +18,6 @@ import { release } from "../throwing/release";
  * are `operate`'s paces, provisional: the bolt handle's hinge moves at 0.6 m/s
  * along its arc, the bolt slide and the inserted magazine at 0.4 m/s and the
  * release button press takes 0.25 s (`operate.PACE`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row operates, the order of a cycle and what is provisional.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).
- * @evidence contracts/development/design.md#minimal-and-owned-surface #3488's bolt and magazine rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own.
  */
 export namespace HumanBoltAction {
   /** Lift the bolt handle. */

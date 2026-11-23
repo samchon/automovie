@@ -18,11 +18,6 @@ import { walk } from "../actions/walk";
  * Each is a walk under a name of its own, so it keeps the walk's cuts and
  * yields and the walk's seeded tempo, so a crowd of them falls out of step.
  * Every factor is a provisional stage reading.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each gait's signature, its source and what it keeps of the walk.
- * @evidence contracts/development/design.md#principled-representation Each row is a walk law with its own gait record; the gait's fields carry the signature.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three registered rows and their factor table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; the walk's stepping plan moves the body.
  */
 export namespace HumanHorrorGait {
   /**
@@ -30,11 +25,6 @@ export namespace HumanHorrorGait {
    * gait's Froude number, its step as a share of the walking step, its
    * trunk lean in degrees, its pelvis drop in hip heights and its arms'
    * swing as a share of a walk's.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each factor and its unit.
-   * @evidence contracts/development/design.md#principled-representation One record per gait.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the three rows.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every value is named provisional.
    */
   export interface IFactors {
     /** The gait's Froude number. */

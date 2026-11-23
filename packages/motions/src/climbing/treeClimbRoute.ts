@@ -95,20 +95,10 @@ const ASTRIDE: IAutoMovieMotionHumanLieDown.IPose = {
  * steps the feet up; the descent replays it reversed. Every stance is
  * checked against the branches' loads with the body's weight shared evenly
  * by its bearing contacts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the route, the single-move rule and the load check.
- * @evidence contracts/development/design.md#principled-representation Staged holds keyed by name, with their world point and normal, and stances of holds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The route builders and the staged-point lookup planTreeClimb needs.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every hold lies on a branch or the bole; a stance a branch cannot bear refuses.
  */
 export namespace treeClimbRoute {
   /**
    * A staged hold.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The body part, how it touches, the point's name, world point and outward normal, and the branch and distance it loads.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a stance and the load check read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by the route.
    */
   export interface IHold {
     /** The body part. */
@@ -132,11 +122,6 @@ export namespace treeClimbRoute {
 
   /**
    * Where a hold loads a branch.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The branch index and the distance from its root.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the load check reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by the route.
    */
   export interface ILoad {
     /** The branch, from 0. */
@@ -148,11 +133,6 @@ export namespace treeClimbRoute {
 
   /**
    * The expanded route.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The support stances and the staged holds by name.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What planTreeClimb hands the support law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by expand.
    */
   export interface IRoute {
     /** The support stances. */
@@ -164,11 +144,6 @@ export namespace treeClimbRoute {
 
   /**
    * A stance of holds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The holds, the event and the preferred pose.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the support plan is built from.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by the route.
    */
   export interface IStance {
     /** The holds. */
@@ -191,14 +166,6 @@ export namespace treeClimbRoute {
    * @param top The branch stood on at the end.
    * @returns The stances.
    * @throws {HumanRefusal} If the lowest branch is beyond the standing reach or the branch does not exist.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the route and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Hand and foot points on the branches and the bole, sided so the right hand takes the hold on the climber's right.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The ground phase, then one block per branch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A branch out of reach refuses with its height; the distances are provisional and stated as such.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the branches climbed.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function up(
     body: IAutoMovieMotionHumanBody,
@@ -499,14 +466,6 @@ export namespace treeClimbRoute {
    * @param standing The stance stood in on the branch.
    * @param index The branch.
    * @returns The hang and the astride stance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two stances and their holds.
-   * @evidence contracts/development/implementation.md#principled-implementation The standing hands' holds carry the body while the feet leave; the seat then bears on the published seat point, the legs hung by the astride pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two stances from the standing one.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The legs hang by the preferred pose, with no hold.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function sit(
     tree: treeLimbs.ITree,
@@ -548,14 +507,6 @@ export namespace treeClimbRoute {
    * @param stances The stances in order.
    * @returns The support stances, with every staged point by name.
    * @throws {HumanRefusal} If a stance loads a branch past its limit, naming the branch and the load.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the expansion, the load share and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Additions first, then the feet's moves, then the hands', then removals, each group one stance, so the contact count stays at its highest between stances; each contact bears the weight over the count.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the stances, one over each change.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An overloaded branch refuses; no hold is dropped to pass.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the stances times the parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the staged points for the plan.
    */
   export function expand(
     body: IAutoMovieMotionHumanBody,

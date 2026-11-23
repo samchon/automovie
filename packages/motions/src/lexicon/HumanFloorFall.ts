@@ -11,11 +11,6 @@ import { HUMAN_FALL_GOALKEEPER_DIVE_RIGHT } from "../next/presets/HUMAN_FALL_GOA
 /**
  * Falls onto the floor on purpose, each a row of the dive law. Register the
  * rows a film uses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is, the law it is a row of and what its parameters fix.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a law (`HumanActionRow`), so it is data over a law that already fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the law.
  */
 export namespace HumanFloorFall {
   /** A goalkeeper's dive to the left: off the feet to the side, landing on the side with the hip and the lower hand on the floor. Crouches 0.3 s, flies 0.45 s and rests 0.6 s (1.35 s in all), the hips moving 0.8 statures to the side (`dive.PHASES`, `dive.REACH`, provisional). */

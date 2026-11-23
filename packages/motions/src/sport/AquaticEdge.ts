@@ -14,11 +14,6 @@ import { AquaticPosture } from "./AquaticPosture";
  * face, and the edge's own directions, out over the water and along the wall.
  * The named support must declare an `edge` contact; the edge prop's frame
  * puts the water toward its `+Z` (`createPoolEdge`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read, the frame convention and the refusals.
- * @evidence contracts/development/design.md#principled-representation The lip and two unit directions in the world, from the prop's own frame and contact.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by the unaided and the assisted exit.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The deck height and edge come from the named prop's contact, never from parameters.
  */
 export namespace AquaticEdge {
   /** A pool edge in the world. */

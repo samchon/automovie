@@ -36,11 +36,6 @@ import { manoeuvreWheel } from "./manoeuvreWheel";
  * a station, so the ways are checked, and walked, as those places move. A
  * member's step-off is the drill order's delay here plus its own response
  * latency, drawn when the sync places it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a plan decides, the file-order rule, the crossing check and how latency joins.
- * @evidence contracts/development/design.md#principled-representation A plan is a list of parts over the vocabulary's travel.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `plan`, `append`, the drill interval `INTERVAL`, and the steered re-form's `STEERED` and `SPAN`; the wheel is `manoeuvreWheel`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No manoeuvre is an action law.
  */
 export namespace HumanManoeuvre {
   /**

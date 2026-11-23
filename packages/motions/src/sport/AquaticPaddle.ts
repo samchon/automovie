@@ -25,11 +25,6 @@ import { AquaticPosture } from "./AquaticPosture";
  * Double-scull landmarks follow Cuijpers et al. at 26 strokes/min
  * (doi:10.1111/sms.12800, corrected by doi:10.1111/sms.13507). Paddle support
  * roles follow the ICF Canoe Sprint Coaching Manual and PMCID PMC8539159.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the stroke phases and their references.
- * @evidence contracts/development/design.md#principled-representation The seated or kneeling body drives and recovers relative to a moving hull.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns paddle timing and rowing rail travel.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Hull placement comes from the performance and measured leg reach limits the slide.
  */
 export namespace AquaticPaddle {
   /** Types of seated or kneeling paddle performance. */

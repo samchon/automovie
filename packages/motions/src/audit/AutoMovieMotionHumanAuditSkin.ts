@@ -2,11 +2,6 @@
  * The tangle audit's skin, apart from the audit's model so that a module
  * the model itself depends on (the posture resolver, the arm planner) can
  * read it at load without a cycle.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the constant is and why it stands alone.
- * @evidence contracts/development/design.md#principled-representation One constant with one owner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The skin, read by `AutoMovieMotionHumanAuditTangleModel` and the arm planner's terms.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The value is the audit's; it is not restated.
  */
 export namespace AutoMovieMotionHumanAuditSkin {
   /**

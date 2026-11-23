@@ -3,11 +3,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * The closed-form path of a rider leaving a saddle (`HumanUnseat`): from the release the root keeps the saddle's velocity and gains the fall's push over `TAKE` seconds at a constant rate, so the velocity has no jump; it flies under standard gravity to the height it lies or stands at, then slides on the floor under Coulomb friction until it stops.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three phases and their laws; the push time and friction are provisional.
- * @evidence contracts/development/design.md#principled-representation A flight as its release state, push and landing, evaluated in closed form at any second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The flight record, its solver and its reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The release velocity is the caller's measured one; nothing is simulated.
  */
 export namespace HumanUnseatFlight {
   /** Seconds the fall's push builds over (provisional). */
@@ -18,11 +13,6 @@ export namespace HumanUnseatFlight {
 
   /**
    * One flight.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation origin: The root at the release. velocity: Its velocity then. push: The velocity the fall adds over `TAKE`. land: Seconds from the release to the landing. landed: The root at the landing. slide: Its level velocity on landing. stop: Seconds from the landing until it stops.
-   * @evidence contracts/development/design.md#principled-representation Vectors in world metres and metres per second, times in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `at`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IFlight {
     /** The root at the release. */
@@ -55,14 +45,6 @@ export namespace HumanUnseatFlight {
    * @param push The velocity the fall adds.
    * @param floor The root's height when it lands.
    * @returns The flight.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The landing is the first root of the height's quadratic in the push phase, else in the free phase; the slide's stopping time is the level speed over the friction's deceleration.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Two quadratics and a quotient.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A release already at or below the height lands at once.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Solved once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record.
    */
   export function of(
     origin: IAutoMovieVector3,
@@ -110,14 +92,6 @@ export namespace HumanUnseatFlight {
    * @param flight The flight.
    * @param t Seconds from the release.
    * @returns World metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the phases.
-   * @evidence contracts/development/implementation.md#principled-implementation The projectile with a linearly built push, then a uniformly decelerating slide along the landing's level velocity.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One branch per phase.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new point.
    */
   export function at(flight: IFlight, t: number): IAutoMovieVector3 {
     if (t <= flight.land)

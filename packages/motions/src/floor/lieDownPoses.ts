@@ -27,11 +27,6 @@ type Key = "sit" | "kneel" | "quadruped" | IAutoMovieMotionHumanLieDown.Position
 
 /**
  * The standing-to-floor law's authored posture keys, in clinical degrees.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The keys specify provisional joint angles and body tilts for the route from standing or kneeling to a floor posture.
- * @evidence contracts/development/design.md#principled-representation Each key has trunk pitch, roll and the joint map interpolated by the floor law.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The floor law publishes the table and side-lying hip angle and selects the keys along its declared route.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Relaxed digits come from HumanHand and each side uses its own canonical arm and leg names.
  */
 export namespace lieDownPoses {
   /** Relative hip adduction of parallel legs in side lying, degrees. */

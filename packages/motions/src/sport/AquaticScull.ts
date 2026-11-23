@@ -42,11 +42,6 @@ type Station = IAutoMovieMotionHumanAquatic.Station;
  * A rower at a named racing-shell station. The rower's cycle drives its
  * actual oar swivels, dips and seat carriage. Crew phase is an authored film
  * offset. The hull's rigid course stays with the placed scene prop.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States which modeled contacts, articulations and clock each rower owns.
- * @evidence contracts/development/design.md#principled-representation Five independent station coordinates have the same stroke source as the displayed hands and seated body.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Each rower writes only its own station. The legacy generic craft uses its existing law.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the resolved blade, rail and stretcher affordances and refuses a missing station or physically unreachable brace.
  */
 export namespace AquaticScull {
   /**
@@ -54,14 +49,6 @@ export namespace AquaticScull {
    * anatomically bound handles and footplates. The sequence landmarks
    * use Cuijpers et al. at 26 strokes a minute (doi:10.1111/sms.12800,
    * corrected by doi:10.1111/sms.13507). Oar angles are authored for the shot.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the clock, contacts and which numbers are authored.
-   * @evidence contracts/development/implementation.md#principled-implementation One continuous drive profile controls both posed parts and the body that follows them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the carrier and stretchers, build its drives, compose one displayed pose per sample.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the actual carrier frame and seats, and retains the hand and foot surface offsets under IK.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Bounded constant work per sample across five coordinates and five supports.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stroke and live model placement for both hands and the seated frame.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan retains only its admitted prop, station and body anchors; there is no pose history.
    */
   export function plan(
     context: AquaticPosture.Context,

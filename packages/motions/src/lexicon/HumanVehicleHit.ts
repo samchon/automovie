@@ -11,11 +11,6 @@ import { planVehicleHit } from "../reaction/planVehicleHit";
  * frontal impact trajectories (`planVehicleHit`), or diving clear of it at
  * the last moment (`planVehicleDive`). Register `HumanVehicleHit.vehicleHit`
  * and `HumanVehicleHit.vehicleDive` to use them.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both laws and the registration.
- * @evidence contracts/development/design.md#principled-representation Law records whose parameters name the car; the planners read its front and course.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two registered laws.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No car model is special-cased; each is read from its prop.
  */
 export namespace HumanVehicleHit {
   /** Be struck by a moving car and thrown. It cancels no other action and leaves no channel to overlays. */

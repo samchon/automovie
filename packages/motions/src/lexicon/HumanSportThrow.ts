@@ -39,11 +39,6 @@ import { throwObject } from "../throwing/throwObject";
  * a jump shot's leap before the release, a hurdle's trail leg) is not planned,
  * and the row says so; a high jump's arch over the bar is
  * `HumanGymnastics.fosburyFlop`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what the composition gives, whose physics a row inherits and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (`HumanActionRow`), so it is data over a law that already fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One row per sport act that is a throw, a catch, a kick, a jump or a run; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own or fixes a length in metres.
  */
 export namespace HumanSportThrow {
   /**

@@ -10,11 +10,6 @@ import type {
 
 /**
  * The vocabulary's mutual actions, for `HumanChain.mutual`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds and who reads it.
- * @evidence contracts/development/design.md#principled-representation Each mutual action as its roles and each role's action, over the shipped laws.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The mutual actions the vocabulary ships; a production writes its own record the same way.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No law is duplicated: a role's action is a shipped law with the partner named from the cast.
  */
 export namespace HumanMutual {
   /** Two people shake hands; both perform `handshake`. */

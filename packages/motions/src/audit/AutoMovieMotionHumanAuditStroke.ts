@@ -14,14 +14,6 @@ import { AutoMovieMotionHumanAuditMotion } from "./AutoMovieMotionHumanAuditMoti
  * come back from it by at least `prominence`, so the ripple of a blend or of
  * a held hand's sway is not a repetition, and an end of the span is not a
  * turning point: the scalar must move away from an extreme on both sides.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a repetition is on a displayed motion, what counts as a turning point and what does not.
- * @evidence contracts/development/implementation.md#principled-implementation Extremum detection with hysteresis: an extreme is confirmed by a retreat of the stated prominence, the standard reading of peaks in a sampled signal.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass that tracks the running extreme of the current direction.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Counts what the scalar does, never what a plan says it repeats; no smoothing hides a missing or an extra swing.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in samples, constant memory beside the result.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the scalar handed in; the grid is `AutoMovieMotionHumanAuditMotion.grid`.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditStroke {
   /**
@@ -34,14 +26,6 @@ export namespace AutoMovieMotionHumanAuditStroke {
    * @param rate Samples per second.
    * @returns The peaks and the troughs.
    * @throws {Error} When the prominence or the rate is not positive, or the span is reversed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input with its unit and the failures.
-   * @evidence contracts/development/implementation.md#principled-implementation While rising the running maximum is kept and confirmed by a fall of the prominence; while falling the running minimum, by a rise of it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop with the two symmetric confirmations.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The span's first sample is never an extreme, and a plateau counts once, at its first sample.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One evaluation of the scalar per sample.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading; the grid is the audit's own.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function measure(
     signal: (seconds: number) => number,

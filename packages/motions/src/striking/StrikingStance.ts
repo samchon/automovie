@@ -45,11 +45,6 @@ import { StrikingReach } from "./StrikingReach";
  *   raised shin and the elbow brought down to the knee.
  *
  * Orthodox leads left and southpaw right; distances read the body's measure.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each stance relation with its coaching source and which numbers are readings or provisional.
- * @evidence contracts/development/design.md#principled-representation The stance as a lead side and a line heading in degrees; feet, root sink and limb goals in world metres measured on the body.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The named constants, the stance type and the queries the guard, footwork, strikes and reactions read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the foot placement, frame and posture-goal types; no stature is special-cased.
  */
 export namespace StrikingStance {
   /** Stance length along the line in shoulder widths (coaching 1.0 to 1.3). */
@@ -75,13 +70,6 @@ export namespace StrikingStance {
    *
    * @param stance The stance.
    * @returns The rear side.
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The side opposite the lead.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rear(
     stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
@@ -95,13 +83,6 @@ export namespace StrikingStance {
    *
    * @param stance The stance.
    * @returns Degrees about +Y.
-   * @evidence contracts/development/common.md#meaningful-documentation States the turn's direction for each lead and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The line turned by the stance turn toward the rear side.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function heading(
     stance: IAutoMovieMotionHumanStrikingStance.IStance,
@@ -114,13 +95,6 @@ export namespace StrikingStance {
    *
    * @param body The body.
    * @returns Metres.
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit; the constant states the share and its range.
-   * @evidence contracts/development/implementation.md#principled-implementation The coached share of the body's shoulder width.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One product.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function length(body: IAutoMovieMotionHumanBody): number {
     return LENGTH_SHARE * 2 * body.measure.shoulderHalfWidth;
@@ -133,13 +107,6 @@ export namespace StrikingStance {
    * @param stance The stance.
    * @param centre The stance centre on the floor, world metres.
    * @returns Each foot's placement, flat on the floor.
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame and that the feet are flat.
-   * @evidence contracts/development/implementation.md#principled-implementation Each ankle on its hip's track, half a stance length ahead or behind along the line, at ankle height, the toes turned by the coached lead and rear angles.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One stance frame and one placement per foot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; the toe angles are named provisional readings.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function feet(
     body: IAutoMovieMotionHumanBody,
@@ -188,13 +155,6 @@ export namespace StrikingStance {
    * @param ankles The ankle points, world metres.
    * @param flexion The knee flexion, degrees.
    * @returns The root's height offset, metres (negative: sunk).
-   * @evidence contracts/development/common.md#meaningful-documentation States the derivation, the ignored root height and the sign.
-   * @evidence contracts/development/implementation.md#principled-implementation Each leg's hip-to-ankle span at the flexion by the law of cosines, its vertical part over the horizontal offset from the rest hip, and the lower of the two legs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One span and one pass over the legs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot farther than the span gives a zero vertical part rather than a complex root; the offset never raises the root above zero.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function sink(
     body: IAutoMovieMotionHumanBody,
@@ -240,13 +200,6 @@ export namespace StrikingStance {
    * @param resolution Optional exact FK reader borrowed from the same
    *   synchronous person evaluation.
    * @returns The two arm goals.
-   * @evidence contracts/development/common.md#meaningful-documentation States each glove's place, the fists' orientation, the elbows and that the guard follows the posture's head.
-   * @evidence contracts/development/implementation.md#principled-implementation The gloves placed from the posture's own chin, jaw and face regions in forearm lengths and radii, the elbows bent toward a point below and ahead of each shoulder, each turned into a knuckle goal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolution, then one goal per side.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offsets are measured on the body; the comment states why the gloves sit where the elbow stays in range.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution when not supplied by the caller, then constant rigid-frame work for two goals.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied trunk map is borrowed only for the exact same body/posture in one synchronous evaluation; no result or map is retained.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function guard(
     body: IAutoMovieMotionHumanBody,
@@ -271,13 +224,6 @@ export namespace StrikingStance {
    *   guard.
    * @returns The guard at an actual posture and optional operation-local FK
    *   source.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines body-owned fixed FK demand, captured guard inputs, actual changing posture and optional synchronous source.
-   * @evidence contracts/development/implementation.md#principled-implementation The canonical guard metadata supplies every actual chin/face/jaw/shoulder output to prepareTrunk once; each query retains the original seeded admission/digit path and StrikingGuard's coached geometry.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed-demand trunk producer feeds the same guard owner used by the one-shot guard entry; no second glove formula or physical fit exists.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both glove goals, shoulder withdrawal, canonical wrist offsets, authored joint admission and digit solves remain. Each query uses its actual posture; no pose, goal, time or contact outcome is retained.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Head/shoulder name sorting and reachable-demand preparation run once per action. Each actual guard still pays original admission/digit work, required FK ancestry and two side computations; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged body's canonical guard-name metadata is prepared. Captured stance/drop feed each actual glove calculation, while optional same-body FK/ROM suppliers share only exact dependencies and current unchanged-table metadata inside that synchronous evaluation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns fixed body/demand and guard inputs until release. Each query owns fresh frames/goals and optional exact FK/genuine unchanged-table ROM loans only until return or throw; the fixed-demand producer retains no reader, projector, posture or time history.
    */
   export function prepareGuard(
     body: IAutoMovieMotionHumanBody,
@@ -319,13 +265,6 @@ export namespace StrikingStance {
    * @param fist Where the knuckles go, world metres.
    * @param elbow Where the elbow bends toward, world metres.
    * @returns The arm goal.
-   * @evidence contracts/development/common.md#meaningful-documentation States why no wrist rotation is set and where the wrist lies.
-   * @evidence contracts/development/implementation.md#principled-implementation The wrist one fist-socket distance back from the knuckles along the hint-to-fist line, the hint passed through as the bend.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One direction and one offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function glove(
     body: IAutoMovieMotionHumanBody,
@@ -359,13 +298,6 @@ export namespace StrikingStance {
    * @param feet The feet.
    * @param planted Which feet bear on the floor.
    * @returns The leg goals.
-   * @evidence contracts/development/common.md#meaningful-documentation States the hint's construction and why, and that the foot's rotation passes through.
-   * @evidence contracts/development/implementation.md#principled-implementation The ankle goal at each foot with a knee hint one shank up and half a shank along the foot's forward, which picks the hinged knee's side in the engine's fit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal per side.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function legs(
     body: IAutoMovieMotionHumanBody,
@@ -384,13 +316,6 @@ export namespace StrikingStance {
    * @param planted The unchanged planted selection, both feet by default.
    * @returns A lazy reader issuing fresh safe authored goal records and
    *   vectors.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed inputs, world placements and separate prepared-output ownership; legs preserves its original borrowed cold references.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the same original toe-axis/knee-hint and conditional MTP goal owner as legs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure StrikingLegGoals owns fixed-foot preparation and fresh field assembly once for both actual entry points.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal, field order, planted condition and MTP point remains; no pose, native fit, ROM projection or physical acceptance is skipped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometric hints and contacts prepare once instead of per repeated callback; every read still allocates fresh authored data and actual downstream fits remain unchanged.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual damped-balance and defence consumers keep body, entry feet and support selection unchanged throughout their plan/geometry; varying-foot callers retain the original legs entry point.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner retains two private immutable geometric snapshots until plan release; each output is independent and captures no reader, pose, time or fit history.
    */
   export function prepareLegs(
     body: IAutoMovieMotionHumanBody,
@@ -410,13 +335,6 @@ export namespace StrikingStance {
    * @param entry The clinical angles the action is entered with; a neck with no
    *   turn when absent.
    * @returns Clinical angles by bone.
-   * @evidence contracts/development/common.md#meaningful-documentation States the chin tuck, its range basis, what of the entry's neck is kept and the closed fists.
-   * @evidence contracts/development/implementation.md#principled-implementation The neck's flexion set inside its range with the entry's own side bend and turn, and the fist curl of both hands.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One object.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A constant table built per call.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function joints(
     entry?: IAutoMovieMotionHumanPosture["joints"],
@@ -445,13 +363,6 @@ export namespace StrikingStance {
    * @param turned How far the trunk has turned about the vertical since the
    *   entry, degrees, in the sign of the posture's yaw.
    * @returns The angles with the neck's and the head's twist turned back.
-   * @evidence contracts/development/common.md#meaningful-documentation States the relation, its coaching basis, the unit and the sign.
-   * @evidence contracts/development/implementation.md#principled-implementation Twists about the same axis add along the neck and the head, so two equal shares cancel the trunk's turn inside each joint's range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One share applied to two joints.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each share is held inside the named bound; flexion and abduction are kept.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function facing(
     joints: IAutoMovieMotionHumanPosture["joints"],

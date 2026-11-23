@@ -72,11 +72,6 @@ import { HUMAN_GESTURE_PHRASE_WIPE_MOUTH_ACROSS } from "../next/presets/HUMAN_GE
  * oscillation (a wave, a rub, a scratch, a stir) lasts 2 beats, 0.8 s, unless
  * `cycles` says more. `manner.pace` and the Effort `time` factor scale every
  * phase. All of these are provisional.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row fixes, what it leaves open, the offsets' unit and their provisional status.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of `armPhrase` (`HumanActionRow`): data over one phrase law built from the vocabulary's arm phrases.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One row per re-expressed act and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; every place is body-relative.
  */
 export namespace HumanUpperRows {
   /**

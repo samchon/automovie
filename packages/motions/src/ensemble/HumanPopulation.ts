@@ -34,11 +34,6 @@ import { HumanFormation } from "./HumanFormation";
  * placement with the facing turned about is the formation's
  * (`HumanFormation`), so a population member stands on the slot it would
  * have had as a performer; the performed members are its hero overrides.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is handed over, who declares it, what may become a population and why the slots agree.
- * @evidence contracts/development/design.md#principled-representation The interface's formation design and a cycle of canonical poses with its period and stride.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `design` places members, and `cycle` and `standing` produce the same pose take the population layer bakes (`IAutoMovieFormationPoseTake`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No generic gait stands in for the template's poses.
  */
 export namespace HumanPopulation {
   /**
@@ -241,14 +236,6 @@ export namespace HumanPopulation {
    * @param samples Positive integral phase count below 2^32, matching other takes baked with this one.
    * @returns A held `stand` take.
    * @throws {HumanRefusal} When the selected action has no settled stand on ground within its placed span or the sample count is invalid.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the held event, the slot frame and floor datum, phase count, period and refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Holds the one displayed sample at the law's settled event. Removing the root's heading and horizontal position relocates it to the slot frame without changing local articulation or height over the stand's bearing floor.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects one segment and settled marker, checks the bearing frame, then builds one pose take for the existing population consumer.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the stand's event, contact frames and displayed articulation. No separate standing law or tempo is supplied.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Scans the template's segments for one containing interval, reads one displayed pose and produces the requested phase references. A second linear pass checks whether a successor owns the displayed sample. The bearing-floor reader evaluates the entry sole sockets once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A held pose is identical at every phase by definition, so the pose take borrows the same pose at each phase.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the pose take to the caller and retains no state.
    */
   export function standing(
     performance: IAutoMovieMotionHumanPerformance,

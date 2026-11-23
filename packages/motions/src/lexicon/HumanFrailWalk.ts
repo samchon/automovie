@@ -39,11 +39,6 @@ import { HumanBound } from "../law/HumanBound";
  *   steps (provisional: the shortened step carried to the turn).
  *
  * The values are provisional where marked.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the grade scales, each end and its source.
- * @evidence contracts/development/design.md#principled-representation A row over the walk: the same stepping plan in a gait record graded by one number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One law and its named ends.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every end is a named constant with its source or its provisional mark.
  */
 export namespace HumanFrailWalk {
   /**

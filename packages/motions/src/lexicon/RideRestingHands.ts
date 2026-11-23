@@ -26,20 +26,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * articulation both ride the pelvis instead: the wrist, its turn and the
  * elbow keep the places they had in the seated posture's root frame,
  * carried by the posture's root and heading at each second.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States which hands rest, why the chest cannot carry them under an articulation and what carries them instead.
- * @evidence contracts/development/design.md#principled-representation Each resting wrist as a place and a turn in the seated posture's root frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record type, one reader and one placement, read by the ride.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The place is the entry's own displayed wrist; nothing is authored.
  */
 export namespace RideRestingHands {
   /**
    * A resting hand's wrist in the seated posture's root frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and unit.
-   * @evidence contracts/development/design.md#principled-representation A place and a turn in one frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Both members are read by `place`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IRest {
     /** The wrist from the seated root, in the seated heading's frame, metres. */
@@ -63,14 +53,6 @@ export namespace RideRestingHands {
    * @param entry The pose displayed at the entry.
    * @param sides The hands that take no grip of the ride.
    * @returns Each such hand's wrist and elbow in the seated root frame; none for no side.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The entry's displayed wrist and elbow, moved into the seated posture's root and heading frame.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forward-kinematics read, then one transform per hand.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the sides given are read; no side returns nothing.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics read of the wrists and elbows per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `poseBones` and `resolveHumanPosture.heading`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns numbers only.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
@@ -117,14 +99,6 @@ export namespace RideRestingHands {
    * @param rest The hand's wrist and elbow in the seated root frame.
    * @param posture The ride's posture at the second, articulated.
    * @returns The arm's goal, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input frames and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A rigid carry by the posture's root and heading, the frame the pelvis rides in; the elbow is carried with the wrist, so the arm keeps the branch the entry displayed.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One heading, two carried points and one carried turn.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is the carried wrist; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveHumanPosture.heading`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
    */
   export function place(
     rest: IRest,

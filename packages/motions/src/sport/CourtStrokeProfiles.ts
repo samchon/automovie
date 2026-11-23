@@ -7,11 +7,6 @@ import type {
  * Film-scale preparation, support and stroke variants for the court skills. The
  * phase ordering follows the observations linked below. All dimensions and
  * timings here are provisional staging values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the use, sources and status of the profile values.
- * @evidence contracts/development/design.md#principled-representation A closed table in the entry foot frame, with timing in seconds and geometry scaled by the performer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Holds only the shape data the court-stroke planner consumes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Distinguishes the support, chamber, strike and recovery of each sport.
  */
 export namespace CourtStrokeProfiles {
   /** Volleyball cases owned by the court-stroke planner. */

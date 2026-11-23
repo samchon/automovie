@@ -17,11 +17,6 @@ import { throwObject } from "../throwing/throwObject";
 /**
  * Work with the hands and with loads, each a row of a shipped action; the
  * composition gives where to and on what. Register the ones a film uses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is, the action it is a row of and what its parameters fix.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (HumanActionRow), so it is data over a law that already fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the row.
  */
 export namespace HumanLabour {
   /** Carry a box in both hands, at the normal walk's speed (about 1.5 m/s, {@link IAutoMovieMotionHumanWalkParams.pace}) with a load of 0.1 of the body mass when `load` is absent; moving boxes, shopping. */

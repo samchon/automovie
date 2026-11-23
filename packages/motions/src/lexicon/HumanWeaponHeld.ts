@@ -29,11 +29,6 @@ import { StrikingHeld } from "../striking/StrikingHeld";
  * wrist, as the present of a long arm holds it with the left arm extended under
  * the piece ("the left hand at the swell", the 1764 Manual Exercise); the arm's
  * fit then holds it within its own range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read, the long-gun rule, the support hand's places and its reach with the drill's posture.
- * @evidence contracts/development/design.md#principled-representation The held tool, the support hand's offset in the tool's frame and the arm's length.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The setup, the support hand's hold for a pose, and a presenting plan carried over a carrier, read by `HumanWeaponPresent`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No firearm kind is named: a long gun is a prop with a fore-end; the reach is the body's own, never a share of it.
  */
 export namespace HumanWeaponHeld {
   /**

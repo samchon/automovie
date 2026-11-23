@@ -43,11 +43,6 @@ import { StrikingTarget } from "./StrikingTarget";
  * 2011), so the two halves clear them together. The step is the least at
  * which they clear, bisected (`bracketedBisection`) from a bracket doubled
  * until it clears.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the clearance read, when each fighter reads the other, how the other's guard is anticipated, the reciprocal share with its source and the search.
- * @evidence contracts/development/design.md#principled-representation A step back as a world vector on the floor, from a context, the fighter's own held guard and the faced person.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `back`, which the guard law reads, and `held`, the guard held at `set` it anticipates the other by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The anticipated guard is the stance's own geometry for the other's body; no distance is typed.
  */
 export namespace StrikingGuardYield {
   /**
@@ -58,14 +53,6 @@ export namespace StrikingGuardYield {
    * @param context The guard's context.
    * @param own The fighter's own guard held at `set`, as its stance lays it.
    * @returns The step, world metres on the floor, or null.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result, its frame and when it is null.
-   * @evidence contracts/development/implementation.md#principled-implementation The other's guard anticipated from its body as read a look back, both held guards measured joint to collider, the least separating step along the line between the roots bisected, and half of it taken.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the other, anticipate its guard, measure, bisect, halve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No margin or typed distance: the step is the least that clears, to `TOLERANCE`; a guard facing no person or standing over the other steps nowhere.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two resolves and two bone maps once, then each probe of the bisection one joint-to-collider distance per joint of either body: about log2 of the bracket over `TOLERANCE` probes.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per built guard; nothing repeats within it.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function back(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
@@ -201,14 +188,6 @@ export namespace StrikingGuardYield {
    * @param centre The stance centre, world metres on the floor.
    * @param entry The clinical angles the body enters the guard with; none, the rest pose, when absent.
    * @returns The posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the posture holds and what it leaves at rest.
-   * @evidence contracts/development/implementation.md#principled-implementation The stance's own feet, sink, heading, face turn, chin tuck, legs and gloves (`StrikingStance`), the root lowered over the planted legs as the guard law lowers it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Feet, root, joints, legs, lowering, gloves.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every placement is the stance's; the joints no stance relation sets are left at rest.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One lowering and one guard placement.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function held(
     body: IAutoMovieMotionHumanBody,

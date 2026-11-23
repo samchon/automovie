@@ -59,11 +59,6 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * top, so on each side one forearm is over the other. The arms blend in
  * from the entry's goals over `BLEND` seconds and end the roll on its own
  * goals, open-handed; the feet stay planted.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contacts, the layering, the roll and the blends.
- * @evidence contracts/development/design.md#principled-representation One law record over the shared clock and base with two arm primitives on one shared roll.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan registration reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The contacts come from the two marks; the circle and cycle are named provisional values.
  */
 export namespace chiSau {
   /** Action key. */
@@ -93,14 +88,6 @@ export namespace chiSau {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the partner is the performer.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Both partners compute the same contacts and roll from the two marks; each places its wrists on its side of them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing, then the roll read lazily from the settled marks, then the two arm primitives.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A self-partner is refused; the partner's placed root is read only after placement settles.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The roll is built once per settle; each posture costs two closed-form points.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared clock, base and composition.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its roll until settle drops it.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanChiSau.IParams>,

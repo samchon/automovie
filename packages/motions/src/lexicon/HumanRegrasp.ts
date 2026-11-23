@@ -10,11 +10,6 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * A held object moved within or with the hand, without being put down: each
  * a row of `regrasp`. Register the ones a film uses
  * (`HumanPerformance.IInput.laws`, `HumanChain.extend`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row fixes.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of `regrasp` (`HumanActionRow`), data over a law that already moves the object and refuses.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own.
  */
 export namespace HumanRegrasp {
   /** A key or a cap turned about its own axis by the wrist, the grip held. A quarter turn takes 0.6 s, longer or shorter in proportion to the angle (provisional: no measured time); a key, a cap, a doorknob. */

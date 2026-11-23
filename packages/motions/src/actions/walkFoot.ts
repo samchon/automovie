@@ -78,14 +78,6 @@ export namespace walkFoot {
    * @param raised How far the heel is held off the floor through the stance, degrees about the toes' joint; 0 when absent, a flat foot that lands heel first. A raised foot lands on its ball with no heel rocker; the opening stance rises to it and the closing stance settles from it over `RISE` seconds.
    * @param backward Whether the stance is a backward step's: the forward stance played backward, the foot landing on its ball pitched toes-down and settling flat over the forefoot rocker's share, and leaving rolled toes-up about its heel over the heel rocker's share (provisional: the time reversal backward walking is described as, not read from a measurement of its rockers). False when absent.
    * @returns The planted foot at each second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed footprint/time inputs, angular conventions, defaults and the random-access stance reader.
-   * @evidence contracts/development/implementation.md#principled-implementation The forward, backward and raised-heel rockers on minimum-jerk profiles, the heel rocker over `HEEL_SHARE` of the stance and the forefoot rocker over its last `PUSH_SHARE`, a stance with one end taking those shares of the gait's typical stance, an opening stance's rocker beginning no sooner than the take; the heel and toe-joint pivots are prepared outside the time reader.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed temporal terms and lazy rigid pivots precede one selected forward, backward or raised-heel reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every share and angle is a named constant, sourced or provisional; the toes extend at the ball by the foot's pitch so they stay flat on the floor.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and evaluation; gait-kind selection and the interval endpoints and denominators leave the time reader. A flat stance copies its fixed rotation, while each rocker contact and yaw/roll prefix is prepared at most once per footprint.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, footprint, heading, strike/toe-off, push, typical stance and raised/backward gait values fix this stance; queried seconds are never cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader holds one flat rotation and at most two rigid-pivot readers until its step plan releases it, with no time history.
    */
   export function prepareStance(
     body: IAutoMovieMotionHumanBody,
@@ -229,14 +221,6 @@ export namespace walkFoot {
    * @param side The swinging foot.
    * @param props The swing's fixed inputs.
    * @returns The swinging foot at each share of the swing.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fixed inputs, random-access share reader and lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk travel with the carried departure rates, a raised-cosine lift, a sole-clearance correction that keeps the sole at least as high as the lift up to the least clearance, and the lowest departing socket held horizontally until the lift interval passes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed swing geometry precedes one reader of its varying share.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored lift, stiffness, rates, duration and landing rule enter as given; `CLEARANCE` is the cited minimum toe clearance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and work per share; endpoint quaternion decompositions, coordinate deltas, lift height, fixed time prefixes and terminal-settle inverse trigonometry run once per prepared swing. Read the departure socket's horizontal components only while the release correction is active.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The reader shares preparation only for the fixed body, side and endpoint inputs it closes over.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each reader holds one swing's fixed inputs and scalar terms until its owning plan releases it, with no query-dependent growth.
    */
   export function prepareSwing(
     body: IAutoMovieMotionHumanBody,

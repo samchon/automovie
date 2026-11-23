@@ -12,11 +12,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * owns what they mean to an author: a missing anchor is an action composed
  * too late or never anchored, a missing event is a misspelt instant, a
  * duplicate anchor is two actions under one id.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is converted, why the performance owns the conversion and what each error means to an author.
- * @evidence contracts/development/design.md#principled-representation One function from the engine's closed error codes to the refusal classes of `HumanRefusal.Kind`.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by `HumanPerformance` where it resolves the schedule.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The fields are read, never the message; an error that reports a defective law instead of a composition is returned as it is.
  */
 export namespace HumanScheduleRefusal {
   /**
@@ -25,14 +20,6 @@ export namespace HumanScheduleRefusal {
    * @param error The resolver's error.
    * @param instance Which occurrence of an action in its performer's chain is being placed, from 1.
    * @returns The located refusal, or the error itself when it reports laws that gave an invalid timing or lack a function, which no change to the composition repairs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and which errors pass through.
-   * @evidence contracts/development/implementation.md#principled-implementation Each code maps to the refusal class repaired at the same place: a missing anchor is a missing participant, a wrong event, index or duplicate id is a parameter, a cut outside the span is a cut.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One switch over the code, each arm one refusal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A duplicate anchor lists no alternatives, because the ids in use are exactly what the new one must differ from; they are named in the reason instead.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
     error: AutoMovieScheduleError,

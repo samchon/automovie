@@ -38,11 +38,6 @@ import { ReactionSource } from "./ReactionSource";
  * until it reaches the height it lies at, `land`, turning over onto its
  * back meanwhile into the knockdown's supine lie (`KnockdownFloor`). The
  * body faces against its travel, so it lands on its back.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the ballistic path, the landing pose and the heading.
- * @evidence contracts/development/design.md#principled-representation A registered reaction law whose flight is the closed-form projectile of the authored throw.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its wind-up time and the rig shapes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The landing lie is the knockdown's fitted one, never a second copy.
  */
 export namespace thrown {
   /** The action's name. */
@@ -65,14 +60,6 @@ export namespace thrown {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} On `distance` or `height` when not positive and finite, and on `seconds` when negative.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The projectile p(t) = p0 + v t + g t^2 / 2 with the vertical speed sqrt(2 g h) that rises h and the horizontal speed that covers the distance in the time it takes to fall to the lying height; the shape blends linearly from the rig's to the lie over the flight.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, read the direction, solve the flight time, then evaluate each posture in closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flight comes from the authored distance and height; the lying height is measured on the body.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fit and one measure at plan time; constant work per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the knockdown's lie fit and floor measure.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the flight constants and the two shapes.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrown.IParams>,

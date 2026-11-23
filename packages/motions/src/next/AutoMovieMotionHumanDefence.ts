@@ -54,11 +54,6 @@ import { HUMAN_DEFENCE_SWAY_BACK } from "./presets/HUMAN_DEFENCE_SWAY_BACK";
  * those its own comment states. The family's shared model and each law's
  * parameters are declared by {@link IAutoMovieMotionHumanDefence} in
  * `@automovie/interface`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the family covers, how its members relate and where its model is declared.
- * @evidence contracts/development/design.md#principled-representation Each member is the shipped law, preset or row itself, so the units, frames and invariants are those its owner states.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the family groups; each stays owned by its module.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is wrapped, widened or redefined, so no behaviour is added here.
  */
 export namespace AutoMovieMotionHumanDefence {
   /**

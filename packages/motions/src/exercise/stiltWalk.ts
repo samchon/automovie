@@ -37,11 +37,6 @@ import { ExerciseKey } from "./ExerciseKey";
  *
  * Refused: a stilt with no `foot` or `tip`, and an entry foot not standing on
  * its stilt's platform.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contacts, the gait, the stepping in place and the refusals.
- * @evidence contracts/development/design.md#principled-representation Foot keys over the shared footwork, the stilts carried on the feet.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the gait constants and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The platform's height is the prop's; the step is the body's.
  */
 export namespace stiltWalk {
   /** The action's name. */
@@ -78,13 +73,6 @@ export namespace stiltWalk {
    * @returns The plan.
    * @throws {HumanRefusal} When a stilt lacks its foot or tip, an entry foot is
    *   off its platform, or the step count is not a positive whole number.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Footprints a step apart along the way at the platforms' height, each foot keyed through them, the stilts held on the feet throughout.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Stilts, way, keys, composition, the worn stilts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An entry off the platforms is refused, never snapped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in steps.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared footwork.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the keys.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStiltWalk.IParams>,

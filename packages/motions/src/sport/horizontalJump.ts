@@ -39,11 +39,6 @@ import { AthleticsRunUp } from "./AthleticsRunUp";
  * the jump's posture (no hang or hitch-kick).
  *
  * Events: the jump's, `takeoff` and `touchdown` among them.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the physics, the two refusals, the first pass and the events.
- * @evidence contracts/development/design.md#principled-representation A law record over the jump's plan with a landing place and apex derived from the pit, the distance and the run.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the physical flag, the cancel and accept tables, the angle and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The board and the sand are the pit's affordances; the speed is the run's.
  */
 export namespace horizontalJump {
   /** The action's name. */
@@ -84,13 +79,6 @@ export namespace horizontalJump {
    *   lacks its `board` or `sand`, the take-off foot passes the take-off line,
    *   the distance is not positive or asks for more horizontal speed than the
    *   run brings, or the jump refuses its push-off.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The landing place is the heel mark at the distance along the runway plus the body's heel-to-ankle offset; the apex and the needed speed are the equal-height projectile's at `ANGLE`; the jump plans the rest.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The run-up, the board and the foul, the landing place, the speed bound, then the jump.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foul or an unreachable distance is refused with its measure, never moved.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two affordance reads and one jump plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the jump law whole, and the run-up reader every field event shares.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned plan is the jump's and retains what it retains.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHorizontalJump.IParams>,

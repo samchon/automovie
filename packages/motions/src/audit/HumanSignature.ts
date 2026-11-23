@@ -40,14 +40,6 @@ import { HumanFoot } from "../posture/HumanFoot";
  * floor's height and is nearly still over it (`SLIDE`). The trunk reading of
  * a quiet stance is not exactly zero on every body, so a lean is read
  * against the same body's standing value.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read, who reads it, the sign of each reading and the contact rule.
- * @evidence contracts/development/implementation.md#principled-implementation Every reading is geometry of displayed joint centres and the engine's whole-body centre of mass, the quantities motion-capture studies report.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader and one small function per reading.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No reading is calibrated on an action; a missing bone throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each reading resolves the instants it names; a motion that remembers its frames is read once per instant.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the bones the performance already displays and the engine's centre of mass.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pure functions over the reader they are given; nothing is retained.
  */
 export namespace HumanSignature {
   /** How near the floor a sole socket bears, metres (the 10 mm skin tolerance plus 10 mm). */

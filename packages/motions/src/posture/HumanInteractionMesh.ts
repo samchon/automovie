@@ -51,11 +51,6 @@ import { HumanInteractionMeshStep as Step } from "./HumanInteractionMeshStep";
  * orientation as a hard domain, with the physical contact accuracy of the
  * whole-body fit (`HumanBodyFitMerit.TOLERANCE`), stricter than 10 mm bone and
  * contact acceptance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the method with its sources, each stage, the solve and its globalisation, and what is not taken from the paper.
- * @evidence contracts/development/design.md#principled-representation Points by index, bones and contacts as index pairs and the mesh as its tetrahedra, the data of an interaction mesh; nothing names a body, so any skeleton serves.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The input, the result and the adaptation; the mesh is the engine's.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The constraints are met by the merit's own steps, never projected after the solve.
  */
 export namespace HumanInteractionMesh {
   /**
@@ -67,13 +62,6 @@ export namespace HumanInteractionMesh {
    * @throws {Error} When fewer than four points are given, an index is out of
    *   range, a bone's length is not positive, or the solve cannot meet the
    *   bones and contacts while preserving the recorded sides.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the errors.
-   * @evidence contracts/development/implementation.md#principled-implementation Preserves Ho et al. 2010's inverse-distance Laplacian and the actual bone and contact constraints. Li et al. 2020's locally supported barrier acts on signed altitudes; positive curvature of the scalar barrier composed with the altitude gradient gives its projected Gauss–Newton term, and the cubic line filter keeps determinant signs positive. The original geometric tolerance and identity return still govern admission.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, mesh, coordinates, then a fixed-offset solution or a sparse local minimization.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Malformed input throws; no point is clamped after the solve.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Resolve constrained offsets by one graph walk where they determine every point. Other cases build one sparse model per iterate with barrier curvature only at compressed elements. Bernstein coefficients skip safe elements without a root isolation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The Laplacian, contact offsets and mesh topology are fixed for one adaptation. Line search trials reuse these even though their coordinates change.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the current sparse terms and a fixed number of coordinate arrays, with no iterated trajectory or cached deformation.
    */
   export function adapt(
     props: IAutoMovieMotionHumanInteractionMesh.IProps,

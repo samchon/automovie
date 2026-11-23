@@ -79,11 +79,6 @@ import { sitPlace } from "./sitPlace";
  * A seat above 1.2 of the popliteal height, or one sat astride, is got onto
  * instead ({@link HumanMountOn}): the feet leave the floor for the seat's
  * rests or hang, under the same parameters, events and cancel table.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
  */
 export namespace sit {
   /** The action's name. */
@@ -152,14 +147,6 @@ export namespace sit {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the seat is too low for the body, the performer does not face away from it, the feet are out of reach of a seat inside the band, the body stands more than a leg's length from a high seat, or `lean` has no backrest.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States context/plan ownership and seat, facing, leg-reach and backrest refusals; the namespace gives world-metre socket goals, timing and contact conventions.
-   * @evidence contracts/development/implementation.md#principled-implementation The seat socket follows its original descent/balanced travel while planted-leg and achieved hand goals retain canonical fitting; high seats delegate to the existing mount law; a seat on a prop that may move carries the whole plan in that prop's frame (`sitCarried`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed descent geometry and the original balance table feed one body base and two carried hand rows.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original seat/facing/reach refusals, all balance samples/bracket trials, contact times and authored interpolation remain; no fit or tolerance is relaxed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning retains the original SHARES balance brackets and actual complete mass-centre fits, with no unused support geometry. Moving queries retain actual root lowering and hand trajectory/fits; the native settled hold reuses its delivered lower-body key; fixed intervals, joint entries and frame coefficients prepare once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed descent/socket/joint metadata share across queries; balance construction lends one synchronous FK/ROM source and returns only scalar travel. Current base lowering and carried thigh goals borrow composition loans without sharing a posed answer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns finite clock/geometry/travel and arm plans until release. Construction/current-query FK/ROM sources end on synchronous return or throw and never enter those records.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSit.IParams>,

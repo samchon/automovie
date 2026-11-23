@@ -14,20 +14,10 @@ import type {
  * trunk over them. A protective body raises its arms toward the floor ahead
  * of its trunk, a limp one keeps them at its sides with the head following
  * the trunk.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the convention, each direction's fold and each tone's arms.
- * @evidence contracts/development/design.md#principled-representation A closed-form map from three shares in [0, 1] to angles in degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The fold type, the hand share and the evaluator `collapse` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The angles are named provisional readings; the floor height is solved by the caller, never written here.
  */
 export namespace CollapseFold {
   /**
    * One evaluated fold.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each member and its unit.
-   * @evidence contracts/development/design.md#principled-representation Degrees in the knockdown's convention.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `collapse`'s lean, joints and floor primitives.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is always present.
    */
   export interface IFold {
     /** Trunk pitch, degrees; positive forward. */
@@ -53,14 +43,6 @@ export namespace CollapseFold {
    * @param drop The drop onto the knees' share.
    * @param lay The lay onto the floor's share.
    * @returns The fold.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Linear blends of each direction's knee, trunk and lying angles by the shares, the profiles' minimum-jerk shape coming from the caller's clock.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per direction, then the tone's arms.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angles are named provisional readings, not fitted to a check.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant arithmetic.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure evaluator with nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
     direction: Exclude<IAutoMovieMotionHumanCollapse.Direction, "backward">,

@@ -29,11 +29,6 @@ import { instance } from "./instance";
  * the ensemble, the member's index and the quantity, so adding a member
  * leaves the others' bodies, attributes and roles bit-identical; discipline
  * replaces the drawn proficiency on the axes `HUMAN_ATTRIBUTE_EFFECTS` names.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the namespace does, what it never does, the draw keys and how discipline reaches the laws.
- * @evidence contracts/development/design.md#principled-representation A resolved ensemble is its input and its members; a member is a performer's data plus its role, attributes, slot and detail.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `of`, `performers`, `members`, `chains` with instanced members (#3463), `pick`, `seed`, `groups` (#3457), `station` with its dress (#3458), and the two provisional constants `LAG` and `DRESS`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No member has a law of its own.
  */
 export namespace HumanEnsemble {
   /**

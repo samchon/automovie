@@ -40,11 +40,6 @@ import { strikingStepSupport } from "./strikingStepSupport";
  * An interrupted step hands its bearing foot and airborne placements to the
  * next one. The inherited swing lands before the bearing foot lifts, using
  * the next step's own clock.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the foot order with its coaching source, the paths, the defaults and which are provisional.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters with a closed direction union, and a pure plan of postures in world metres and seconds with plant windows.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants and the plan the law table dispatches through.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the stance, posture and plan types; the step scales with each body's stance.
  */
 export namespace step {
   /** The action's name. */
@@ -95,14 +90,6 @@ export namespace step {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When count, travel or turn exceeds its documented range.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
-   * @evidence contracts/development/implementation.md#principled-implementation The coached foot order and lifted minimum-jerk paths use the stance's line frame. On a cut the first swing closes the inherited transfer before the bearing foot leaves. The root keeps its own profile, with both feet and the guard solved by the shared fit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validation, the line frame and the feet's schedule once, then each posture in closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid counts and lengths throw; the period is a named provisional value.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the limb fits.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The plan reads nothing that can change; each posture is computed from its inputs.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Its closures hold only the instance's own inputs and are released with the plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStep.IParams>,

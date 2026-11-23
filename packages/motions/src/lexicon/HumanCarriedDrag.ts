@@ -24,11 +24,6 @@ import type {
  * midline by half the hips; the dragged body is rigid, and its lowest region
  * bears on the floor as a contact (`HumanCarriedCoupling`) without being laid
  * on it by a contact solve.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three drags, the source of their descriptions and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation Rows of the carry table, so a drag is data over the two carry laws.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The drags' names and their rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres; offsets are in arm lengths.
  */
 export namespace HumanCarriedDrag {
   /** The drags. */

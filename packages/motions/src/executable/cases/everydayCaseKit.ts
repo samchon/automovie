@@ -18,11 +18,6 @@ import type { humanPolygonMan } from "../humanPolygonMan";
  * The shared readers of the everyday capture cases (`everydayCases`): a
  * performance of polygon men, a performer's figure, a segment's event, the
  * angle between two directions and a body's rest frame.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the readers and their reader.
- * @evidence contracts/development/design.md#principled-representation Plain functions over the performance and the polygon man.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The five readers the everyday case files share.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every value is read from the performance or the body.
  */
 export namespace everydayCaseKit {
   /** One body's case context: its id, its polygon man, its body and the case names' suffix. */

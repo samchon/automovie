@@ -38,7 +38,6 @@ const SUPPORT_SHARE: number = 0.65;
 const CLEARANCE: number = 0.025;
 
 /** Prepare the support intervals and knee loading for ready and split-step racket phrases.
- *
  * @param context Entry posture and feet of the performer.
  * @param clock The existing phrase clock, with its existing public events.
  * @param lead The first foot out, on the racket side.
@@ -46,14 +45,6 @@ const CLEARANCE: number = 0.025;
  * @param split Whether to add a simultaneous hop between outward and recovery steps.
  * @param extent The authored movement extent multiplier for the jump.
  * @returns Pelvis and leg primitives, with their ground contacts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the entry state, phase clock, direction, and support output.
- * @evidence contracts/development/implementation.md#principled-implementation Successive ankle arcs widen the stance. The pelvis moves toward the loaded foot before each departure. A split phase alone raises both feet and the pelvis together.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the two stance transfers, publish the pelvis row, then publish a placement and matching plant windows per foot.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stance transfer, clearance and shift proportions are authored defaults. Feet return to their own entry anchors.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each foot has at most three departures and two prepared swing curves. No sampled history is consulted.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared leg arc and sampling law for curved steps. Each prepared departure serves both the plant windows and the leg's bearing predicate.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds fixed preparation for the two legs and pelvis for the lifetime of the action.
  */
 export function racketStance(
   context: IAutoMovieMotionHumanActionContext,

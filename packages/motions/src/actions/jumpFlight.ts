@@ -19,20 +19,10 @@ const APEX_PER_LENGTH: number = 0.1;
  * the horizontal speed covers its distance in that time, the closed form of
  * a drag-free projectile (`v = d / T - g T / 2`, as the engine's ballistic
  * solvers).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the flight's rule, its default apex and its source form.
- * @evidence contracts/development/design.md#principled-representation The flight as its apex, time and two velocities, apart from the postures flown.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record and its solver, read by the jump; gravity is the engine's (`AutoMovieGravity`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The flight follows from the centre's two places and the apex; nothing is typed in seconds.
  */
 export namespace jumpFlight {
   /**
    * The flight solved.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The apex, the flight time and the centre's velocities at both ends.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, all read by the jump.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The landing velocity is the take-off's under gravity, not set apart.
    */
   export interface IFlight {
     /** The apex above take-off, metres. */
@@ -61,14 +51,6 @@ export namespace jumpFlight {
    * @param rise The landing surface's height, metres, for the refusal's words.
    * @returns The flight.
    * @throws {HumanRefusal} When the apex is not positive, or does not rise past the landing's climb.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input, its unit, the result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The closed form of a drag-free projectile between two heights.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The apex, the refusal, then three closed forms.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A flight that cannot clear a raised landing is refused, never flown through it.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanBound` for the sign check.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function solve(
     comT: IAutoMovieVector3,

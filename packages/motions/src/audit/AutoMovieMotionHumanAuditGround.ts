@@ -40,14 +40,6 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * moving deck or tread is carried with it and only its travel on the support
  * counts; lift is the contact's distance from its declared
  * stationary surface, such as the world floor or a stair tread.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the floor, the contact rule with its source and what each reading measures.
- * @evidence contracts/development/implementation.md#principled-implementation Exact collider bounds from the engine's shape owner, and the sole sockets from `HumanFoot.sockets`, the one place that puts them on displayed bones; a declared rest-frame contact is placed by the displayed foot bone's own frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Three readings over one grid, the two foot readings sharing one window walk.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones, never a law's goals; no foot or window is exempt.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames times shapes; a plant window adds at most its two ends to the poses of the motion's grid.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditGround {
   /**
@@ -191,11 +183,6 @@ export namespace AutoMovieMotionHumanAuditGround {
 
   /**
    * A planted foot's contact point at an instant, keyed by which point it is.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation A key naming the point and its world place.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the slip, lift, loose and afloat readings.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's vector.
    */
   export interface IHeld {
     /** The socket's name, or `contact` for a declared rest-frame point. */

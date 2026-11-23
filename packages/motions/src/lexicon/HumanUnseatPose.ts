@@ -21,11 +21,6 @@ import { heelMountedFoot } from "./heelMountedFoot";
 
 /**
  * The shapes of a rider leaving a saddle (`HumanUnseat`): the slump over the neck, the flight's blend from the carried seat into the lie or the stand, a hand reaching the floor or the mane, the flank clearance a sideways fall must keep, and the drag behind a stirrup. Every angle and time is a provisional stage reading.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each shape and that the values are provisional.
- * @evidence contracts/development/design.md#principled-representation Postures blended by shares, and one drag plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The shapes `HumanUnseat` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The lie is the caller's fitted knockdown lie; the stirrup is the carrier's own contact.
  */
 export namespace HumanUnseatPose {
   /** Seconds a rider takes to slump over the neck (provisional). */
@@ -53,14 +48,6 @@ export namespace HumanUnseatPose {
    * @param posture The carried seat.
    * @param share 0 upright to 1 slumped.
    * @returns The posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the slump.
-   * @evidence contracts/development/implementation.md#principled-implementation The spine, chest and neck flex forward by `FLEX` times the share.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture.
    */
   export function slumped(
     posture: IAutoMovieMotionHumanPosture,
@@ -90,14 +77,6 @@ export namespace HumanUnseatPose {
    * @param root The root now.
    * @param share 0 at the release to 1 at the landing.
    * @returns The posture, its limb goals carried with the root's motion since the release and unplanted: the saddle's holds are let go without a jump.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the blend and the dropped holds.
-   * @evidence contracts/development/implementation.md#principled-implementation Joint angles and the pitch interpolated, the heading by its shortest turn, the roll back to level.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One pass over the joints.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the joints.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture.
    */
   export function flying(
     body: IAutoMovieMotionHumanBody,
@@ -197,14 +176,6 @@ export namespace HumanUnseatPose {
    * @param posture The posture.
    * @param side The hand.
    * @returns The hand's place, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the place and its frame.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand's rest offset from the hips turned by the posture's heading, the place `reach` starts a free hand from.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One offset.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new point.
    */
   export function hang(
     posture: IAutoMovieMotionHumanPosture,
@@ -228,14 +199,6 @@ export namespace HumanUnseatPose {
    * @param point The point, world metres.
    * @param share 0 hanging to 1 at the point.
    * @returns The posture with the arm's goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the reach.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand's rest offset from the hips turned by the posture's heading, blended to the point; the elbow bends toward a point back and out from where it hangs.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One goal.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture.
    */
   export function reach(
     posture: IAutoMovieMotionHumanPosture,
@@ -274,14 +237,6 @@ export namespace HumanUnseatPose {
    * @param side The falling side.
    * @param body The body.
    * @returns World metres, on the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the point.
-   * @evidence contracts/development/implementation.md#principled-implementation The body's own measures turned by the posture's heading, dropped to the floor.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One offset.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new point.
    */
   export function beside(
     posture: IAutoMovieMotionHumanPosture,
@@ -305,14 +260,6 @@ export namespace HumanUnseatPose {
    *
    * @param body The body.
    * @returns Metres above the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the height.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation The body's hip height.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One read.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function standingHeight(body: IAutoMovieMotionHumanBody): number {
     return body.measure.hipHeight;
@@ -328,14 +275,6 @@ export namespace HumanUnseatPose {
    * @param release The release, film seconds.
    * @param flight The flight.
    * @throws {HumanRefusal} When the flight passes through the flank.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the test and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Eight samples of the flight, each read in the carrier contact's frame at its own second, against the straddle's half width taken from the entry's feet.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flank is the straddle's, a lower bound of the carrier's width.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Eight frame readings.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function clearsFlank(
     body: IAutoMovieMotionHumanBody,
@@ -386,14 +325,6 @@ export namespace HumanUnseatPose {
    * @param posture The posture.
    * @param side The side.
    * @returns World metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the point.
-   * @evidence contracts/development/implementation.md#principled-implementation The posture resolved for the upper arm alone; its joint is the shoulder the trunk places.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One offset.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One resolve restricted to the upper arm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new point.
    */
   export function shoulder(
     body: IAutoMovieMotionHumanBody,
@@ -429,14 +360,6 @@ export namespace HumanUnseatPose {
    * @param posture The posture at a local second.
    * @param target The hand's target at a local second, world metres.
    * @returns The first reachable second, or undefined when none is.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the search and its result.
-   * @evidence contracts/development/implementation.md#principled-implementation Sixteen even samples of the span; reachable within the upper arm, forearm and half the hand.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target never in reach yields none; nothing is stretched.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen posture reads, each with one shoulder resolve restricted to the upper arm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reachable(
     body: IAutoMovieMotionHumanBody,

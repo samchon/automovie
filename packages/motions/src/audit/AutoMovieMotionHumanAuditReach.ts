@@ -23,14 +23,6 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * over the span: `worst` is what a contract that says "throughout" is judged
  * by (a hand that leaves the shoulder mid-hold), `best` what one that says
  * "reaches" is judged by (a hand that never arrives).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two statements, the reading of each and which end judges which wording.
- * @evidence contracts/development/implementation.md#principled-implementation Euclidean distance between two points and the angle between two directions, each read at every instant of the span.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Two readings over one shared span walk.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both ends of the span are read, and a missing bone or a direction of no length is an error, not a skip.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the span's instants.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `AutoMovieMotionHumanAuditMotion.grid`, the axis is turned by the engine's `Quaternion.rotateVector`.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditReach {
   /**
@@ -44,14 +36,6 @@ export namespace AutoMovieMotionHumanAuditReach {
    * @param where What the reading is named in a finding.
    * @returns The largest and the smallest distance, metres.
    * @throws {Error} When the span is reversed or the rate is not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input with its frame and unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The distance at each instant of the span.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the walk to the shared span reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance; the caller's limit judges.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pose per instant.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the span walk with `tilt`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function gap(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -81,14 +65,6 @@ export namespace AutoMovieMotionHumanAuditReach {
    * @param span The span and its grid.
    * @returns The largest and the smallest angle, degrees in [0, 180], named `<bone> axis`.
    * @throws {Error} When the bone is not displayed, a direction has no length, the span is reversed or the rate is not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input with its frame and the result's range.
-   * @evidence contracts/development/implementation.md#principled-implementation The axis is turned into the world by the bone's displayed orientation; the angle is `atan2` of the cross and the dot, accurate at both ends of its range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the walk to the shared span reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A direction of no length throws instead of reading as aligned.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pose per instant.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the engine's `Quaternion.rotateVector`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function tilt(
     motion: IAutoMovieMotionHumanAuditMotion,

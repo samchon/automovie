@@ -106,11 +106,6 @@ import { handshakeStance } from "./handshakeStance";
  * starts; the mutual goal refuses a gap neither arm can close. The partner's shoulder is
  * read at the start, so the partner's earlier actions must be placed first,
  * which `HumanChain.pair` arranges.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the shared meeting, the offering arm and its provisional angles, the clasp, the phases with their sources, the events, the declined cut and the refusal.
- * @evidence contracts/development/design.md#principled-representation A mutual law: both partners read one meeting record and solve their own arm onto its point with an effector socket.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the pump's two constants, the plan, the stance offsets, the standing gap and the offering arm the meeting, the high five and the handover read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither partner derives the other's hand: both read the meeting, computed once from both shoulders.
  */
 export namespace handshake {
   /** The action's name. */
@@ -154,14 +149,6 @@ export namespace handshake {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the partners stand beyond reach of each other, or the pump count is not a positive integer.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The law states actual partner/hand, shared meeting, peak/pump timing and refusal; this method returns the original grasp/pump/release contacts and pose course.
-   * @evidence contracts/development/implementation.md#principled-implementation Both hands use the same meeting and actual constrained clasp choice; original minimum-jerk transports and cited sinusoidal pump carry the hand, fingers and grasp reference.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry observations and meeting precede original shared timing, clasp selection, transports and the complete posture request.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original pumps, amplitudes, grip windows, actual paired candidate fits/clearance, references, seated/standing behavior and all refusals remain.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each entry observation requests only hips/feet/acting shoulder/hand; the same unchanged partner/start observation serves shoulder and standing prediction. Every original meeting/clasp solve remains, while runtime shape schedules reuse fixed phase geometry.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed partner/start entry observations and shared meeting-role computation retain their original owners. Runtime current-person FK/ROM loans reach only its own original full base/leaned wrapper; partner planning never borrows that source and no pose/time result history is added.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Entry maps/clasp workspaces release with planning; the plan owns original base/transports/shapes/wrist/reference/timing. Runtime loans stay inside the current full-base call and no returned goal, partner reader or history retains them.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandshake.IParams>,
@@ -389,14 +376,6 @@ export namespace handshake {
    * @param body The body.
    * @param side The acting arm; `right` when absent.
    * @returns The offsets.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and on which posture.
-   * @evidence contracts/development/implementation.md#principled-implementation The stand law's own posture, read by forward kinematics (`handshakeStance`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No offset is estimated from the body's measures.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One demanded trunk reading.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `handshakeStance` owns the reading.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function stance(
     body: IAutoMovieMotionHumanBody,
@@ -425,14 +404,6 @@ export namespace handshake {
    * @param b The other.
    * @param side The shaking hand of both; `right` when absent.
    * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the geometry summed and how it matches the meeting's rule.
-   * @evidence contracts/development/implementation.md#principled-implementation Each offering arm's forward reach in the plane through the shoulders, shaped by `handshakeOffer.shape` for a height difference, summed and laid against the shoulders' lateral offsets by Pythagoras, less both sternum leads.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two stances, one shape, two reaches, one distance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the bodies' own; the shape is the meeting's.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work but for the shape's bisections.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `stance` and `handshakeOffer`'s shape and forearm.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function gap(
     a: IAutoMovieMotionHumanBody,
@@ -491,14 +462,6 @@ export namespace handshake {
    * @param side The arm.
    * @param shoulder The shoulder joint, world metres.
    * @returns The side.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two reaches and the units.
-   * @evidence contracts/development/implementation.md#principled-implementation The law of cosines on the upper arm and the forearm to the palm socket at the offering elbow's flexion; the limit is the straight arm less the pump.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the body's own.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The forearm is `handshakeOffer.forearm`'s.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,

@@ -15,11 +15,6 @@ import { hoseTeam as hoseTeamLaw } from "../tasks/hoseTeam";
  * - `hoseTeam`: Advance a two-member hose team and work the line: the operator carries the line by its nozzle grip, the backup grips without carrying it, each walks the advance, then works the line in their role (`hoseLine`).
  *
  * A member here is the shipped law, preset or row itself, bound to its owner by `typeof` and never wrapped, so its parameters, units, frames and refusals are those its own comment states. The family's shared model and each law's parameters are declared by {@link IAutoMovieMotionHumanFirefighting} in `@automovie/interface`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the family covers, how its members relate and where its model is declared.
- * @evidence contracts/development/design.md#principled-representation Each member is the shipped law, preset or row itself, so the units, frames and invariants are those its owner states.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the family groups; each stays owned by its module.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is wrapped, widened or redefined, so no behaviour is added here.
  */
 export namespace AutoMovieMotionHumanFirefighting {
   /**

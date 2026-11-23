@@ -56,11 +56,6 @@ import { tapDanceSteps } from "./tapDanceSteps";
  * starting where the last left the feet.
  *
  * Events: `beat{k}`, each sounding strike's `strike{n}{Side}{Part}`, `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the strike table, each step, the travel, the hips and the events.
- * @evidence contracts/development/design.md#principled-representation A law record whose steps are strike tables over the shared beat clock and footwork.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the constants and the plan; the step table is tapDanceSteps'.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Lengths are the body's; times are the beat's.
  */
 export namespace tapDance {
   /** The action's name. */
@@ -103,13 +98,6 @@ export namespace tapDance {
    * @returns The plan.
    * @throws {HumanRefusal} When the tempo is not positive, the repeat count is
    *   not a positive whole number, or the locked track has too few beats.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Strikes placed on the beat's quarter subdivisions; each foot keyed through them; the hips over the feet with a ballistic flight where none bears.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, keys per foot, flights, carriage, contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A strike's time is its subdivision; nothing nudges it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in strikes; per sample, a key search per foot and a scan of the flights.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared beat clock, footwork and foot pivots.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the keys, the flights and the clock.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTapDance.IParams>,

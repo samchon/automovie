@@ -34,11 +34,6 @@ type Rooms = Record<AutoMovieHumanSide, number>;
  * ends' room blended by the same weight takes the least turn at the shoulder
  * and the elbow that brings it back within it (`HumanArmClearance.cleared`);
  * an arm no deeper than its ends is left as blended.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the defect of a blend, where it occurs, the rule and when an arm is left alone.
- * @evidence contracts/development/design.md#principled-representation An arm's room is the clearance owner's degree reading; the allowance is the two ends' readings blended like the angles, as a floor law raises a blended body only past its ends' floor depth.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One preparation: a reader of one law's blends by key index.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The room and the turn are `HumanArmClearance`'s; no obstacle, margin or body is named here.
  */
 export namespace floorArmRoom {
   /**
@@ -54,10 +49,6 @@ export namespace floorArmRoom {
    *
    * @param body The body.
    * @returns The blend at a weight with its arms kept within the keys' blended room.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The keys' rooms and the scan are read once per blend; a flagged blend reads each queried posture's rooms and turns an arm only past its allowance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A blend that never leaves its room costs its scan's resolves once (at least `SCAN + 1`) and nothing per query; a flagged one costs one resolve and two room readings per query plus the clearance search where an arm is past its allowance.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains, per blend index, two room records and a flag for the law plan's lifetime.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,

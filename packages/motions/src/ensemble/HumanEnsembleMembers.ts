@@ -21,11 +21,6 @@ import { HumanFormation } from "./HumanFormation";
  * its formation slot at second 0 or the place given, then the roles filled
  * in the order given from the members each pick names, and each member's
  * detail read once its role is known.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the order of the resolution and what each step draws or reads.
- * @evidence contracts/development/design.md#principled-representation One function over the ensemble's input returning its members.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `resolve`, split from `HumanEnsemble` by responsibility; `HumanEnsemble.of` is its one caller.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No draw consumes a shared counter: every draw is keyed by the member's index.
  */
 export namespace HumanEnsembleMembers {
   /**

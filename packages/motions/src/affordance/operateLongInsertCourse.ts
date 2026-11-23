@@ -58,14 +58,6 @@ function clampToward(
  * @param props The bore, the shoulders, the staff and the depth.
  * @returns The stance before the first stroke, the presentation and the segments in order.
  * @throws {HumanRefusal} When the staff is too short for the depth, or no stance holds the presentation or the next grip.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the axis frame, the chords, the hand order, the cycle, the steps, the withdrawal and the closing regrip.
- * @evidence contracts/development/implementation.md#principled-implementation Each hand's reach on the axis is the exact line-sphere chord; each step is the exact interval of stances keeping the held places within reach.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Present, drive in by cycles, draw out by cycles, regrip home.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A depth the staff cannot reach, or a cycle that gains nothing at any stance, is refused, never clamped.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per segment, at most `MOST` segments.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each insertion has its own bore and body.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain records and retains nothing.
  */
 export function operateLongInsertCourse(
   props: operateLongInsertCourse.IProps,
@@ -335,11 +327,6 @@ export function operateLongInsertCourse(
 
 /**
  * The inputs and records of {@link operateLongInsertCourse}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the bore, the body, the staff and the course's records.
- * @evidence contracts/development/design.md#principled-representation World metres for places, metres along the axis and the step line for the course.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `operateLongInsert` passes and reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
  */
 export namespace operateLongInsertCourse {
   /** The carrying hand (`A`) or the steadying one (`B`). */

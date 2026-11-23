@@ -22,11 +22,6 @@ import { walk } from "../actions/walk";
  * Not yet: the pelvis's transverse rotation that lengthens the elite step, and
  * a stance knee locked straight by its own rule rather than by the walk's
  * contact flexion.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the gait's signature, its speed and what is missing.
- * @evidence contracts/development/design.md#principled-representation A walk law with its own gait record; the gait's fields carry the signature.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One registered row and its factors.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The walk's stepping plan moves the body; no motion of its own.
  */
 export namespace HumanRaceGait {
   /** The race walk's Froude number (provisional, a club walker's speed). */

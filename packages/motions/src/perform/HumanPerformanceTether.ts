@@ -43,11 +43,6 @@ const INDEX: WeakMap<
  * it keeps its height and slides along the surface it rests on toward the near
  * end, as a lure drawn back across the water. A slack line hangs as the
  * catenary of its length between its ends (Irvine 1981, Cable Structures).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the length, the pull and when it applies, and the hang with its source.
- * @evidence contracts/development/design.md#principled-representation The line is read from the declaring prop's record; the pull is a constraint on the far prop's rest frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The span reader, the pull and the stretch measure.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The far prop is never posed while a hand or a wear carries it.
  */
 export namespace HumanPerformanceTether {
   /**
@@ -61,13 +56,6 @@ export namespace HumanPerformanceTether {
    * @returns The ends, the length, whether taut and the drawn points.
    * @throws {HumanRefusal} For an unknown prop, line or point, or a length of
    *   no line.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The ends are the props' displayed points; a slack line is the catenary of its length, its parameter by Newton's method.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Ends, length, then the hang.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing point or a nonpositive length refuses.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two frame reads, one articulation read and at most a few Newton steps.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each read is independent.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function span(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -116,13 +104,6 @@ export namespace HumanPerformanceTether {
    * @param rested Its frame as its carriers leave it.
    * @param frame Reads a prop's displayed frame.
    * @returns The frame, pulled to each line's length while the prop rests.
-   * @evidence contracts/development/common.md#meaningful-documentation States when the pull applies and what it keeps.
-   * @evidence contracts/development/implementation.md#principled-implementation The far point is moved horizontally toward the near end until the line's length reaches it, its height kept.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Lines found by index, the rest test, one translation per line.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A prop a hand or a wear carries is returned as given.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A prop with no line costs one index lookup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The index is built once per resolved performance.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The index lives as long as the resolved performance.
    */
   export function pull(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -185,13 +166,6 @@ export namespace HumanPerformanceTether {
    *
    * @param span The line as it lies.
    * @returns Metres.
-   * @evidence contracts/development/common.md#meaningful-documentation States the reading and its unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The ends' distance less the line out, clamped at zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One difference.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function stretch(span: IAutoMovieMotionHumanTether.ISpan): number {
     return Math.max(0, Vector3.distance(span.from, span.to) - span.length);

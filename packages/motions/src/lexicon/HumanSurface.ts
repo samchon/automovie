@@ -37,11 +37,6 @@ const AT_END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
  * Surface travel under the performer. The ice and snow laws own their
  * paths. A board ride reads an animated prop and keeps the entered stance
  * on it. Upper-body overlays can work during any of the three actions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the two support relationships and how to layer actions on them.
- * @evidence contracts/development/design.md#principled-representation Shares one bilateral trajectory law across level ice and graded snow and reuses the deck carrier to transport fixed roots and goals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Registers skate, curlDelivery, snowGlide, boardRide, the two board sport phrases, the four playground laws, the step between supports and the medium walk.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Distinguishes surface bearing from fixed prop-local plants and leaves every law's constraints with its own planner.
  */
 export namespace HumanSurface {
   /** Read a pair of displayed equipment samples against the authored surface. */

@@ -28,11 +28,6 @@ import { HumanSword } from "./HumanSword";
  * `seconds`, 1 s by default
  * (`IAutoMovieMotionHumanSwordGuard.IParams.seconds`). The action ends in the
  * guard: what follows is entered from it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a guard is, how it is named, what a row holds and how the action ends.
- * @evidence contracts/development/design.md#principled-representation One law record over the held-tool stroke planner and a table of poses in the performer's own measures.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its parameters, the closed union of guards and their table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No blade kind is named, and no pose is in metres.
  */
 export namespace HumanSwordGuard {
   /**

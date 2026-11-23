@@ -84,7 +84,7 @@ States the fit, the re-aim with its sources and bounds, the attachment and the c
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The engine's two-bone fit, a fixed-point re-aim with Anderson mixing, and the clearance as the fit's obstruction.
+The engine's two-bone fit, a fixed-point re-aim with Anderson mixing, and the clearance as the fit's obstruction. A continued arm whose admitted arc vanished is refused, since keeping the hand's turn would jump the elbow to another arc and leaving it would misstate the goal.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -21,14 +21,6 @@ import { FootSlip } from "./FootSlip";
  * measured on the displayed poses the sheets draw: foot slip and the foot's
  * height off the floor in the plant windows, a joint's travel per frame,
  * range-of-motion overshoot, and a bounded distance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each check measures and on which poses.
- * @evidence contracts/development/implementation.md#principled-implementation Slip is the sole centre's drift inside each declared plant window on the 24 Hz grid; overshoot is the engine's per-joint measure against the default humanoid range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Five small measures over one list of plant windows, and one verdict builder.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Measures read displayed poses, never the laws' goals, except where a check names its goal.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames times joints.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per capture.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace everydayVerdicts {
   /**

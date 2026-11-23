@@ -33,11 +33,6 @@ import { vault } from "../sport/vault";
  * take-off speed, and a turn in the air is its kept rate times the flight time.
  * The multi-axis case (a twisting salto, a round-off's overlapping twist) is
  * not planned.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what the composition gives, whose physics a row inherits and the follow-up.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`), so it is data over a law that fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One row per named figure; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own or fixes a length in metres.
  */
 export namespace HumanGymnastics {
   /**

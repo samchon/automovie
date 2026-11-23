@@ -51,11 +51,6 @@ type Posture = IAutoMovieMotionHumanPosture;
  * https://doi.org/10.1080/14763141.2018.1441898). Curling delivery uses a
  * loaded flat leading shoe and a trailing forefoot as described by Hua et
  * al. (2025, Figure 2, https://doi.org/10.3389/fnhum.2025.1587118).
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the two activities, shared path, independent contacts and measured reference stance.
- * @evidence contracts/development/design.md#principled-representation A rotated effector keeps its real contact pivot. A step separates the released foot's flight from the other foot's continuing load. The trailing curling shoe hinges on its ball.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the existing glide sampler and changes only the authored ankle and pelvis goals of ice actions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional pivots come from equipment geometry. Released skates lose their support windows and return at the moved endpoint.
  */
 export namespace HumanIceGlide {
   /**

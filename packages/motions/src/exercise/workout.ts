@@ -83,11 +83,6 @@ import { workoutSpans } from "./workoutSpans";
  * feet slide while it lasts and no hand helps; equipment (bars, benches,
  * machines, ropes) is not shown and nothing is held; a kind's own table states
  * which of its supports are kept by angles alone.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the law plans, its physics, the events and the first pass limits.
- * @evidence contracts/development/design.md#principled-representation A law record over a table of kinds, each a route of keyed postures and a pin, so fifty exercises share one planner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the kinds, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length follows from the body; the one share stated here is the bar's height above the reach.
  */
 export namespace workout {
   /** The action's name. */
@@ -123,13 +118,6 @@ export namespace workout {
    * @returns The plan.
    * @throws {HumanRefusal} When the count is not a positive whole number, the
    *   hold is negative, or a hanging kind names no bar.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation One clock of spans, each between two keys; the posture at a second is the two keys' blend placed by the kind's pin, and on the way from and to standing the root is carried between the standing root and the pinned one; on the way off a bar the body is raised by whatever its colliders would sink beyond the share of the supported posture's own sink the way has reached, the reading the floor audit makes, so the floor is a constraint and the way meets the supported posture continuously.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock and spans, the pin's place, the posture function, the laid hands, the supports.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lengths follow from the body; the floor rule reads the body's own shapes; the first pass limits are stated on the namespace.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each time query finds its span in O(log spans), blends prepared joints and requests only observed pin/collider ancestry. Actual neutral collider names, including mirrored entries, prepare floor selection once; changing floor readings and laid-hand fits remain where needed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed key pairs share joint preparation, repeated endpoint keys share one supported floor reading, and the first laid-hand targets share one exact hand-bone map. The time-only primitive reads no earlier channel; its synchronous parent FK/ROM loans serve actual pin, floor and load observations without retaining a current pose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns O(spans) clocks/blend closures and at most one floor scalar per fixed endpoint key; no pose reader or time-query history is retained.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWorkout.IParams>,

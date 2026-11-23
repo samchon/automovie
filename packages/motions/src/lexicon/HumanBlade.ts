@@ -44,11 +44,6 @@ import { HumanSwordThrust } from "./HumanSwordThrust";
  * taking 0.47 s at elite for a thrust. A bind holds the parry for a second
  * (provisional); the footwork rows (`advance`, `retreat`, `traverse`) take
  * one stance step, 0.35 s at the reference hip (`step.PERIOD`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what the composition gives, the guard names' source and how an exchange is written.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a registered law (`HumanActionRow`), so it is data over a law that fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own.
  */
 export namespace HumanBlade {
   /** The guard a fencer waits in: the hilt low in front, the point at the opponent. */

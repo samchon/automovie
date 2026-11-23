@@ -20,7 +20,6 @@ import * as THREE from "three";
  * world; three.js reverses winding for that mirrored matrix,
  * so faces keep their orientation. The drawing is the bare polygon body.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame handling, why it is exact and that no face or detail is added.
  * @evidence contracts/development/implementation.md#principled-implementation Uses Human's own canonical adapter for placements and the renderer's own polygon builder for geometry.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Build once, then `place` applies each pose.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No display correction or added geometry.

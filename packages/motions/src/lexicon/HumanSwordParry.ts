@@ -68,11 +68,6 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * attack's own stay. A taken blade is carried aside by one minimum-jerk unit
  * from the end of the attack's follow-through to the parry's relax, and the
  * parry keeps it there until it turns back.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a parry answers, where and when the blades meet, the drill, the refusal and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One law record over the held-tool stroke planner; the attack is read through its anchor, the outcome having been declared on the attack.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its parameters and the closed union of the lines a drill closes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The attacker's blade is read from the performance's displayed prop, never restated in the parry's parameters.
  */
 export namespace HumanSwordParry {
   /** Where a parry meets the attacking blade, a share of that blade's length back from its point: the middle of its foible (`HumanSword.THIRDS`). */

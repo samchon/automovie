@@ -33,11 +33,6 @@ import { placeRideReinPalm } from "./placeRideReinPalm";
  * What a seated rider's own body gives to stay on a mount's parts: the
  * ankle that points a foot down to a pedal the leg would not reach, and
  * the trunk that leans forward to a bar the arms would not reach.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two adjustments and when each acts.
- * @evidence contracts/development/design.md#principled-representation Each is a pure function of the body, a posture or a goal and world points, returning the same kind of record it was given.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two functions `HumanRide.ride` calls, the one that applies a lean, and their bounds.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every bound is named and marked provisional or cited; no mount is named.
  */
 export namespace HumanMountRider {
   /** A mounted hand's exact wrist goal and the axis the fingers follow. */
@@ -74,14 +69,6 @@ export namespace HumanMountRider {
    * @param hip The hip joint, world metres.
    * @param level The rotation a foot whose goal leaves its turn free stands with: level, facing as the body does.
    * @returns The goal, turned about the ball of the foot where the leg would run short; the goal itself where it reaches.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what turns, about what, how far and when nothing changes.
-   * @evidence contracts/development/implementation.md#principled-implementation The ball stays where the goal puts it and the ankle moves on its circle about the ball's lateral axis; the least turn that reaches is found by bisection, the distance being monotonic in the turn up to `ANKLING`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The rider's bounds handed to the search, which `ankleRidePedalFoot` owns so this file stays within its size.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pedal beyond even `ANKLING` leaves the foot short of it, which the contact audit reports; a refusal with the saddle height that fits is owed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four distance trials (none, the two signs and `ANKLING`) and twenty-four bisections, which narrow the `ANKLING` span to about two millionths of a degree; each trial is one rotation about the ball's prepared axis.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The ball, the axis and the contact are read once per call and shared by every trial; the returned goal is placed by the same function the trials measure.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; it returns the goal given or a new one.
    */
   export function ankled(
     body: IAutoMovieMotionHumanBody,
@@ -164,14 +151,6 @@ export namespace HumanMountRider {
    * @param resolution Optional exact FK reader or lazy supplier borrowed only for this synchronous partial hold.
    * @param projection Optional genuine same-body ROM metadata projector borrowed from this same operation.
    * @returns The arm's goal and the hand's finger joints.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States where the wrist goes, how the hand turns, how the fingers close and what the first pass leaves out.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture shows, and the elbow's pole blends from the elbow the posture shows, so the hand leaves the place it held and the arm the pose it held.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The target, the turn, the blend from the joints' hand, the fingers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip out of the arm's reach is not checked here: the limb fit leaves the hand short of it, which the contact audit reports. The closure is the caller's, curled on the real colliders.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Holding fully needs no resolution; a partial hold observes the free wrist and its ancestors. A native read omits unrelated simple leg fits through the canonical goal selector; an incoming custom reader keeps the full fit. The fingers blend linearly over the closed joints given.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller's forward-kinematics reader and range-of-motion projector serve the resolution; the relaxed hand is `HumanHand.shape`'s table.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and the projector are used only during the call; the returned goal and joints hold numbers alone.
    */
   export function hold(
     body: IAutoMovieMotionHumanBody,
@@ -199,14 +178,6 @@ export namespace HumanMountRider {
 
   /**
    * Start both acquiring hands from the same unoccupied posture for one query.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the shared pre-grip pose and the query lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Both approaching hands start from the seated posture as shown, before either arm is guided by a grip.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read both origins together at first demand and use the ordinary grip interpolator for each hand.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The current seat, legs and other direct channels still enter forward resolution. Each actual grip supplies its own current position and turn.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most one seated fit for both approaching wrists, and none after acquisition.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Sharing is local to one authored posture and never uses a free wrist from another second.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller holds the acquiring reader only while building its current two goals.
    */
   export function taking(
     body: IAutoMovieMotionHumanBody,
@@ -394,14 +365,6 @@ export namespace HumanMountRider {
    * @param shapes The support's colliders in its own frame.
    * @param frame The support's world frame.
    * @returns The closed finger joints, clinical degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is closed on what, when it is solved and what the first pass leaves out.
-   * @evidence contracts/development/implementation.md#principled-implementation The grasp laws' own closure on the prop's own colliders, placed by the prop's frame as `HumanGrasp` places them, with the hand's frame taken from `hold`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The hand's frame, the placed colliders, one call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No named hand shape stands in for the closure.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One ordered O(S) distance scan selects the nearest of S support shapes, then one closure solve per hand per plan; each shape's distance is evaluated once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Solved once and blended to at every instant, since the hand and the grip do not move against each other.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function closed(
     body: IAutoMovieMotionHumanBody,
@@ -453,14 +416,6 @@ export namespace HumanMountRider {
    * @param posture The posture.
    * @param degrees The flexion added, degrees.
    * @returns The posture leant.
-   *
-   * @evidenceExclude contracts/development/common.md#meaningful-documentation One joint's flexion added.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation One sum.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leant(
     posture: IAutoMovieMotionHumanPosture,
@@ -487,14 +442,6 @@ export namespace HumanMountRider {
    * @param seated The seated posture.
    * @param points What each hand holds, world metres.
    * @returns Degrees of spine flexion to add; 0 when the arms reach as seated, `LEAN` when they do not even then.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is solved and both ends of the result.
-   * @evidence contracts/development/implementation.md#principled-implementation `reach` for the hands that hold.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts As `reach`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms As `reach`, once.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lean(
     body: IAutoMovieMotionHumanBody,

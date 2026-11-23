@@ -32,11 +32,6 @@ import { StrikingHeld } from "../striking/StrikingHeld";
  * action's goal pose is a constraint on the grasp, as task-oriented grasp
  * and pick-and-place planners take it, and a transition between two modes
  * of contact must be feasible in both (Hauser and Ng-Thow-Hing 2011).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is judged, by whom and the sources of the order.
- * @evidence contracts/development/design.md#principled-representation The candidate grip as the asked action reads a held prop, and a demand as one more key of the grasp's choice.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip and the key, read by `pickUpSearch`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No action is named: the demands are the next action's own.
  */
 export namespace HumanGraspDemand {
   /**
@@ -52,14 +47,6 @@ export namespace HumanGraspDemand {
    * @param posture The posture the grasping action leaves the body in with that grasp.
    * @param closure The prop's world frame at closure, or the entry frame when omitted.
    * @returns The grip.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the grip and how it is read.
-   * @evidence contracts/development/implementation.md#principled-implementation The fingers close on the prop where the hand is shown, so the prop's place in the hand is read from the shown hand and the prop's frame at the action's start, as a held prop's is (`AutoMovieMotionHumanHeld.grasped`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One grasp record, read per asked working point.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One prop frame read and one grasp record per call; the tool reading runs per asked working point.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The held owner's grasp and the held tool's reading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grip closes over its grasp record.
    */
   export function grip(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "prop" | "start">,
@@ -102,14 +89,6 @@ export namespace HumanGraspDemand {
    * @param body The body.
    * @param demand The demanded pose.
    * @returns The key.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the key, its elbow, its posture, its measure and its bound.
-   * @evidence contracts/development/implementation.md#principled-implementation The key passes exactly when the demanding action would not refuse the pose: the same goal, elbow and arm solution its refusal fits (`StrikingRoll.miss`), the posture's other limbs kept so the coupled fit the pose is shown by is the one judged, the same stray against the same bound; a key fitted on the grasp's solution failed grips that action accepts.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The wrist, the goal, the judge.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The measure and the bound are both metres.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant rigid work; the judge reads the fitted hand bone alone.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The held tool's goal and measure.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The judge closes over the demand and the hand's grip-point reader.
    */
   export function key(
     body: IAutoMovieMotionHumanBody,

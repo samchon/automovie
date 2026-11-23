@@ -41,11 +41,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  *
  * Its contact windows are none: a planted goal it carries is the template's,
  * moved, and the slip of an instance is the template's own.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read, how it is moved, the refusals, what is kept and the declared price.
- * @evidence contracts/development/design.md#principled-representation A law record over the template's placed posture: the template, a span and a whole-frame shift.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cuts, parameters and plan, and its constants `TURN` and `RATE`; a production registers it with the performance.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose is copied by value: every instant reads the template's own placed posture.
  */
 export namespace instance {
   /** The law's name. */

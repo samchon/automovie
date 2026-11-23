@@ -12,11 +12,6 @@ import { HumanArmSwing } from "../posture/HumanArmSwing";
  * phases each. A turning walk's strides differ from one another (its pelvis
  * turns and its thighs swing across), so no one stride holds every place
  * the swinging hands pass the thighs.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the spans read and why every stride is.
- * @evidence contracts/development/design.md#principled-representation The take's postures before the carriage and its named events, read by the swing's owner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by the walk's plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The strides are the take's own, read off its heel strikes; no stride time is typed.
  */
 export namespace walkCarriage {
   /**
@@ -29,14 +24,6 @@ export namespace walkCarriage {
    * @param resolution Optional same-person FK loan for the actual synchronous phase observations.
    * @param projection Optional genuine same-body ROM loan, never retained in the numeric carriage.
    * @returns Degrees of abduction per arm.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Every stride is read, since a turn makes strides unlike one another; the carriage holds the hands clear wherever any stride passes them by the thighs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The spans between heel strikes, one carriage over all their phases.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No stride stands in for another; a take with no left heel strike is read over its whole length as one span.
-   * @evidence contracts/development/implementation.md#efficient-algorithms `HumanArmSwing.PHASES` postures per stride, once per take: linear in its strides.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanArmSwing.carriage`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,

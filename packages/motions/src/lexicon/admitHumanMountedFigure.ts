@@ -21,14 +21,6 @@ import { HumanMountedSeats } from "./HumanMountedSeats";
  * @param planted Whether each entry foot stands on something.
  * @param stride The performance's stride, seconds, when given.
  * @throws {HumanRefusal} For a transfer of no time, a negative hold, a support the seat kind lacks or does not read, a contact the carrier lacks, a hand that changes contact, a transfer that holds no support through it, an entered figure naming a stirrup the entry's foot is not in, or a hand ride without a stride and both reins.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is admitted and every refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The seat kind's required and optional parts (`HumanMountedSeats.parts`) against the figure's named supports, the carrier's declared contacts, and the shared-support rule for a transfer (motion skill, contacts: transfer weight to the next support before releasing the current one).
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The seconds, each part's support, then the transfer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is inferred: a missing or extra support is refused, never filled or ignored.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts times the carrier's contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Runs once per figure.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes only the caller's hand record, at most two entries.
  */
 export function admitHumanMountedFigure(
   on: string,

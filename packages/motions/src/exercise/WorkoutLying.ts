@@ -24,11 +24,6 @@ import { WorkoutKind } from "./WorkoutKind";
  * shoulders and a side plank's forearm are kept by the angles alone and may
  * slide by the difference between the keys. The side plank's roll is solved on
  * the body so its forearm rests on the floor level with its feet.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, what is provisional with its sources and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres; heights follow from the body's measure.
  */
 export namespace WorkoutLying {
   /** Hook lying: on the back, the knees bent and the feet flat. */

@@ -1,0 +1,29 @@
+# src/posture/HumanArmOptimiser.ts#HumanArmOptimiser.optimise
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States unchanged waypoint endpoints, penalty continuation and actual final evaluation.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Uses the TrajOpt merit/trust loop and actual nonlinear evaluation; each convexification fixes P/q/A and only its trust intervals vary across retries, and each subproblem, its domain rows elastic as TrajOpt's, is solved by the interior method, by the operator splitting where that leaves it unsolved.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+TrajectoryConvex owns rows, TrajectorySmooth the exact curvature, the quadratic program its interior solve, and the shared sequential-convex loop acceptance; one model shell holds a linearisation and gives its repriced and objective-free variants.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Keeps every model row, penalty, trust schedule and actual trial evaluation; no previous answer or relaxed feasibility supplies a result, and a subproblem the interior method leaves unsolved is solved by the operator splitting, never read as a zero step.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One linearisation per round serves the round's model, its repriced variants and the steering's objective-free model; the exact curvature is built once per solve; a subproblem costs a bounded number of banded factorisations. On a grid the rounds read the clearance pairs, the costliest readings, at the knots alone, TrajOpt's discrete collision terms at its timesteps with swept volumes between them (Schulman et al. 2014, section IV-C), and the converged path once in full; a pair that the full reading finds between knots is the caller's to refine (`HumanArmTrajectory.solve`). Measured on a tai chi push's row on f-small, two 87-knot reaches on a 361-instant grid: 52 s to 36-42 s.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+The context's exact curvature and each model's trust rows are values built once by their owner and handed on; the solve's subproblems are one interior-point session (`HumanQuadraticInteriorSession`): the first one's variable and cost scales at a penalty serve every subproblem at that penalty, a subproblem at another penalty being equilibrated again and started cold since every soft row weighs the penalty, the solver's scratch serves them all, and the models of one linearisation at one penalty, which share its rows, start from the last one solved, a start that decides no answer; the violation-alone model, whose objective is not the model's, starts cold.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Each convexification owns one numeric snapshot and bounded solver scratch until replacement or return; returned coordinates/evaluation remain independent and no trajectory/fit result history is cached.

@@ -21,16 +21,9 @@ const KNEES: readonly AutoMovieHumanoidBone[] = ["leftLowerLeg", "rightLowerLeg"
  * thighs can swing while the bearer walks without pulling a carried knee
  * through a hip. The sternum and the hands still use their own contacts.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the two gaps and their frame.
  * @evidence contracts/development/design.md#principled-representation The side envelope uses the two measured hip centres and the girths of the contacting legs.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The straddling key fit consumes the two signed gaps and the exact geometric check together.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The collision verdict uses the real fitted shapes and the existing skin limit when the envelope cannot establish clearance.
- * @evidence contracts/development/implementation.md#principled-implementation The projection onto the bearer's pelvis lateral axis provides two geometric half-space gaps.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pelvis frame and one projected knee on each side.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The side envelope scales with the measured bodies; it supplies neither the wrist reach nor the exact fallback verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms Computes one inverse frame reused by both signed gaps.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses both sides of the current rigid registration's FK.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function HumanCarriedStraddle(
   bearer: IAutoMovieMotionHumanBody,
@@ -50,11 +43,6 @@ export function HumanCarriedStraddle(
 
 /**
  * The exact collision check for the straddling key pose.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the exact observation served by this namespace.
- * @evidence contracts/development/design.md#principled-representation Real segment placement and two knee queries verify the approximate lateral envelope.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One fallback predicate, paired with the approximate gap.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The exact check uses the independent partner verdict's skin limit.
  */
 export namespace HumanCarriedStraddle {
   /**

@@ -24,11 +24,6 @@ import type {
  * the performance against `HumanColliders`; these point queries and the
  * scan serve a stroke that scans for itself, the floor rest's shape list and
  * the capture verdicts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the point-against-shape model, its source, the scan's determinism and who still uses it.
- * @evidence contracts/development/design.md#principled-representation A collider is a profile shape with its segment's posed frame, world metres, read by the engine's one shape query.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The collider type and the closest, distance, nearest and first queries its current users call.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface shape and transform and the engine's shape query; no shape distance is restated here.
  */
 export namespace StrikingContact {
   /**
@@ -38,14 +33,6 @@ export namespace StrikingContact {
    * @param a The segment's start.
    * @param b The segment's end.
    * @returns The closest point of the segment.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result; a degenerate segment returns its start.
-   * @evidence contracts/development/implementation.md#principled-implementation The projection parameter clamped to [0, 1] (Ericson 2005, §5.1.2); a segment shorter than 1e-9 m is its start.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One projection and one clamp.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function closest(
     p: IAutoMovieVector3,
@@ -69,14 +56,6 @@ export namespace StrikingContact {
    * @param p The point, world metres.
    * @param shape The shape.
    * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the sign convention.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's single shape query, `physicalShapeNearest`, on a segment of no length; this function states no shape mathematics of its own.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The owner's cost for the shape's kind.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function distance(
     p: IAutoMovieVector3,
@@ -91,14 +70,6 @@ export namespace StrikingContact {
    * @param p The point.
    * @param shapes The shapes.
    * @returns The nearest shape's name and distance, or undefined without shapes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result and the meaning of undefined.
-   * @evidence contracts/development/implementation.md#principled-implementation The minimum signed distance over the shapes, the distance to their union; ties keep the first.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in shapes, each in constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function nearest(
     p: IAutoMovieVector3,
@@ -123,14 +94,6 @@ export namespace StrikingContact {
    * @param step Scan step, seconds; positive.
    * @returns The first contact second, or undefined when the gap stays positive.
    * @throws {Error} When the step is not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the scan, the bisection count, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A fixed-step scan for the first non-positive gap and 24 bisections of the bracketing step; a crossing shorter than one step is the scan's stated blind spot.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan loop and the engine's bracketed bisection of the bracketing step.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive step throws.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The span over the step plus 24 gap evaluations.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; callers memoise.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function first(
     gap: (seconds: number) => number,

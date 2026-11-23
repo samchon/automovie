@@ -55,11 +55,6 @@ import { HumanSegmentShown } from "./HumanSegmentShown";
  * One intent placed in the performance: its law found, its entry state
  * read, its context built, its plan made, its cut checked against the
  * interrupt tables, and its action added to its performer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steps of placing an intent.
- * @evidence contracts/development/design.md#principled-representation An intent becomes a placed action through its law's plan, made from the state the performer is in when it starts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one function the schedule resolver calls per intent (#3399).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A cut outside a declared window, an unknown action or an overlay of a whole-body action is refused.
  */
 export namespace HumanPerformancePlace {
   /**

@@ -21,11 +21,6 @@ import { readHumanBone } from "../body/readHumanBone";
  * from each joint's present angle to the end of its range toward the side; a
  * negative share turns the trunk the other way by that fraction of the way
  * to the other ends. A joint the rig leaves without a freedom keeps it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what turns, by how much, the axes, the sign of the side and of the share, and what a missing freedom does.
- * @evidence contracts/development/design.md#principled-representation One share of each joint's own range, so no angle is named and every body turns within its own limits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function; a law that needs its trunk to follow a limb solves the share.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No law and no body is named.
  */
 export namespace HumanTrunkTurn {
   /**
@@ -36,14 +31,6 @@ export namespace HumanTrunkTurn {
    * @param share The share of the way to the range's ends, from -1 to 1; positive toward `side`.
    * @param side The side the trunk turns toward at a positive share.
    * @returns The posture with the spine, the chest, the neck and the head set; every other part unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, their units and what is set.
-   * @evidence contracts/development/implementation.md#principled-implementation Each freedom moves the share of the way to its own range's end toward the side, so the turn never leaves the range; the head's take-back is clamped to the neck's and the head's ranges.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two loops: the trunk turns, the head rights.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A joint without a range in a freedom is left as it is in it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: four joints.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture and retains nothing.
    */
   export function turned(
     body: IAutoMovieMotionHumanBody,

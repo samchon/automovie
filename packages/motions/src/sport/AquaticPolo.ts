@@ -24,11 +24,6 @@ import { AquaticPosture } from "./AquaticPosture";
 /**
  * Water polo support, throwing and defending. The eggbeater follows the
  * opposed kick and hip and foot variables in Oliveira et al. (PMID 25599265).
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the sporting reference and motion families.
- * @evidence contracts/development/design.md#principled-representation Cyclic leg support combines with authored upper-body actions and the prop release.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the staged attack and both defensive roles.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The ordinary carry and release owners keep the identity of the ball through the shot.
  */
 export namespace AquaticPolo {
   /** Polo player using opposed eggbeater kicks and a staged attack, block or save. */

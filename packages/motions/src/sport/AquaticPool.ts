@@ -21,11 +21,6 @@ import { swim } from "./swim";
  * Pool racing starts, stroke and wall reversal. World Aquatics distinguishes
  * crawl wall contact from the two-hand breaststroke touch. Puel et al. (PMID
  * 22176710) motivate separating rotation, plant and push.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the event phases and their sources.
- * @evidence contracts/development/design.md#principled-representation Reuses the ballistic departure and regular stroke law with a calibrated wall contact.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the complete pool race and its wall placement.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The named wall must be an actual finite edge across the swimmer's lane.
  */
 export namespace AquaticPool {
   /** Calibrated wall crossing and horizontal clearance for the swimmer's lane. */

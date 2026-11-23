@@ -49,11 +49,6 @@ import { HumanSwordGuard } from "./HumanSwordGuard";
  * Bleetman et al. 2003). The setting and the return are slower by 1.4 at
  * novice to 1.0 at elite, and `manner.pace` stretches the whole clock
  * ({@link IAutoMovieMotionHumanSword}).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what the composition gives, each row's speed with its source and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a registered law (`HumanActionRow`), so it is data over a law that fits the body, refuses and is checked; a measured speed is row data passed to the cut's factory, never a parameter of the composition.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One row per swing a screenplay names and one speed band per measured implement; a production registers the rows it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; a row fixes the line a swing comes from, and where its name means it the hands, the checked share, the guard or the measured speed.
  */
 export namespace HumanSportSwing {
   /** A tennis forehand's racket head speed at impact, metres a second: 31.1 for high-performance youth and 33.1 for elite players (Landlinger, Lindinger, Stoggl, Wagner and Muller 2010, J Sports Sci Med 9(4):643-651). */

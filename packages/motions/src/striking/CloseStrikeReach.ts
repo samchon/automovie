@@ -51,14 +51,6 @@ import { StrikingStance } from "./StrikingStance";
  * @param room How far the hips may shift toward the person struck before they meet theirs, metres; unbounded when absent.
  * @returns The landing.
  * @throws {HumanRefusal} When no shift within its band brings the elbow or the head onto the target, naming that band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each effector's landing, the elbow's circle, the shift's band with its provenance and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Closed-form circle-line intersection for the elbow's shift, the shoulder and the forehead read on the displayed lower-body posture, a bisected lean for the head's height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The shoulder or the head, the shift, then the arm's or the head's goal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target outside the band is refused, never reached by stretching; provisional angles and shares are named.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two shoulder reads for an elbow; twenty bisected lean reads and two shift reads for a headbutt.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function CloseStrikeReach(
   body: IAutoMovieMotionHumanBody,
@@ -317,11 +309,6 @@ function refuse(
 
 /**
  * Companion types and constants of {@link CloseStrikeReach}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each constant's meaning and provenance and the landing's members.
- * @evidence contracts/development/design.md#principled-representation Degrees, shares and world goals in metres; a headbutt's landing carries no arm.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the close strike law reads of its landing.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector and quaternion.
  */
 export namespace CloseStrikeReach {
   /** The trunk's forward lean that brings an elbow's shoulder toward its target, degrees (provisional). */

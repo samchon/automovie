@@ -3,11 +3,6 @@ import type { IAutoMovieMotionHumanTapDance } from "@automovie/interface";
 /**
  * The strike tables of the tap steps: each strike's foot, quarter beat,
  * setting, landing place, bearing and sound.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a strike and a step hold.
- * @evidence contracts/development/design.md#principled-representation Steps as data over the tap law.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The strike and step records and the table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Times are quarter beats; places are relative to where the foot stood.
  */
 export namespace tapDanceSteps {
   /** Where a strike lands relative to where the foot stood. */

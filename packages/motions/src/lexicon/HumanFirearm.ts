@@ -20,11 +20,6 @@ import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
  * 0.42 s, provisional (`IAutoMovieMotionHumanWeaponPresent`). A shot from the holster is `HumanWeaponFirearm.draw`, then `takeAim`, then
  * `recoil`; `lowReady` lowers the weapon and `HumanWeaponFirearm.holster`
  * returns it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what the composition gives and how a shot is composed.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped or registered law (`HumanActionRow`), so it is data over a law that fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the law.
  */
 export namespace HumanFirearm {
   /** Reach for a holster at the right hip. */

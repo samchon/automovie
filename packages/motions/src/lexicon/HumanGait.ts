@@ -55,11 +55,6 @@ import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
  * - `sneak` goes slower than the slow walk on shorter steps, with the
  *   pelvis lowered and the arms held close (provisional values; no study of
  *   stealthy gait has been read).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each entry is, which are rows and which run a gait of their own, with the march's source and what is provisional.
- * @evidence contracts/development/design.md#principled-representation A row is data over a law that already fits the body; a styled gait is a law record over the walk's own stepping planner, with the gait as a Froude number and steps in hip heights, so each fits any body; the drill's step is the regulation's absolute pace, one for the whole formation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's entries and the two styled gaits' constants; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No entry writes steps of its own: every one is planned by `walk.locomote`.
  */
 export namespace HumanGait {
   /** The stroll: the walk with the stroll preset's pace, step and arm swing fixed (`HUMAN_GAIT_STROLL`, `AutoMovieMotionHumanGait.STROLL`). */

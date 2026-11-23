@@ -33,11 +33,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * slider's or a button's travel. The hand's goal at a progress is the
  * contact of the prop posed at that travel, so the hand cannot drift from
  * the part; the drive writes the same travel at the same progress.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States which contact names the articulation, the unit and sign of the amount, and why hand and part share one function.
- * @evidence contracts/development/design.md#principled-representation One record of the operated part: its prop, contact, articulation, start travel, amount and posed place by progress.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The mechanisms' articulation kinds, the part, the drive and a hinged leaf's line with its radius and foot, read by `operate`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The part's place is the prop's own pose, never a guessed arc; a rigid prop has no part and keeps `operate.state`'s geometry.
  */
 export namespace operateDrive {
   /**

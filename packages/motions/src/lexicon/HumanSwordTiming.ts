@@ -29,11 +29,6 @@ import { StrikingSkill } from "../striking/StrikingSkill";
  * absorb a novice's longer strike), and the clock is stretched by the manner's
  * tempo, the law's own at the neutral manner. The blade turns back at once; a
  * held pose is a guard's or the author's.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each phase is timed from, which skill factor slows which and how the manner stretches it.
- * @evidence contracts/development/design.md#principled-representation One function of the hand's three paths (the setting, the attack and the return), the peak speed and the follow-through.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one clock the sword's attacks read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The tempo is the manner's one mechanism, not a second scale.
  */
 export namespace HumanSwordTiming {
   /**

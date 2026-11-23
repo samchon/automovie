@@ -71,14 +71,6 @@ const EXTENDED: number = 15;
  * @param context The seated entry, the hanging seat and the lean.
  * @returns The seated ride with the pumping posture.
  * @throws {HumanRefusal} For a lean out of range or beyond the arms' reach on the chains, a rider wider across the seated thighs than the seat, or a ride the seat refuses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the ride it wraps, the two postures, their timing and the sources.
- * @evidence contracts/development/implementation.md#principled-implementation The posture follows the sign of the seat's displayed velocity along the facing, read from the scene's seat, so it turns at the actual turning points.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan the seated ride, locate the turning points once, then blend the two postures per sample.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The swing's angle is never authored here. The change time and knee angles are named provisional staging values.
- * @evidence contracts/development/implementation.md#efficient-algorithms One pass at `STEP` over the duration to find turning points; each sample does a binary search over them.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the seated ride's seat and grip fit.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the turning points and the ride plan for the action.
  */
 export function HumanSwingPump(
   context: IAutoMovieMotionHumanActionContext<Params>,
@@ -214,11 +206,6 @@ export function HumanSwingPump(
 /**
  * The swing angle a seated rider's change of posture adds at a turning
  * point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the model, its segments and sources.
- * @evidence contracts/development/design.md#principled-representation Degrees from metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The playground test reads `increment` to drive the scene's swing.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The increment is derived from the body's own measures.
  */
 export namespace HumanSwingPump {
   /**

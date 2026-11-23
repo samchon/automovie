@@ -19,20 +19,10 @@ import { HumanFrame } from "../posture/HumanFrame";
  * (`kneelKeys.tucked`), the crawl placed so the tucked feet are where the
  * standing feet roll onto their toes, and the roll that takes a standing
  * foot there without its toes sliding.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three pieces and what each gives.
- * @evidence contracts/development/design.md#principled-representation Pure functions of the body and the standing feet, read by the crawl and its way down.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The tuck's record, the roll and the placement.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is solved on the body and the range table; nothing is a length typed in metres.
  */
 export namespace crawlFeet {
   /**
    * A foot tucked behind its knee, carried with the knee.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and frame.
-   * @evidence contracts/development/design.md#principled-representation The foot solved once and its place from the knee.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by the crawl.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The foot is `kneelKeys.tucked`'s.
    */
   export interface ITuck {
     /** The foot, solved at the knee's nominal place. */
@@ -56,14 +46,6 @@ export namespace crawlFeet {
    * @param lift The heel's lift at the end of the roll, degrees.
    * @param share How far through the roll, in [0, 1].
    * @returns The foot's placement, its toes' extension in degrees and its toes' joint, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two pivots, why and each input.
-   * @evidence contracts/development/implementation.md#principled-implementation A foot rolling onto its toes pitches about the metatarsophalangeal joints while the toes lie flat, then about the toes' tips once the toes are at their range (the forefoot rocker, Perry and Burnfield); its heading turns about the tip that bears, the contact held by `HumanFoot`'s offsets.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per pivot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The range is read from the range table; the heading turns about the contact that bears.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rolled(
     body: IAutoMovieMotionHumanBody,
@@ -79,14 +61,6 @@ export namespace crawlFeet {
   /**
    * Prepare a fixed standing foot's roll for independent progress queries.
    * The heading, toe range and standing toes' tip are invariant.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed inputs and independent progress; rolled documents units and the two contact phases.
-   * @evidence contracts/development/implementation.md#principled-implementation The toes' tip bears throughout: with the toes flat the heel's pitch about their joint leaves the tip in place, so one placement about the standing tip serves both phases, the toes' extension capped at their range; the heading turns about that tip toward the tucked heading along the shortest arc, as angle blends must, whatever turn of the circle the yaw is written in.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed geometry precedes one evaluator about one point.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not change the toe-extension range, heading interpolation or endpoint progress.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The heading, range, tip and the native toe offset and MTP point readers are prepared once; each share is one rotation and one offset.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body and standing placement, heading and lift establish the invariant geometry. Native HumanFoot readers share only fixed socket/rest prerequisites; current progress, rotation, articulation and placement are independently evaluated.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One owning plan retains its tip, scalar limits, one MTP point reader and one offset reader until release; no pose, solver reader or history is cached.
    */
   export function prepareRoll(
     body: IAutoMovieMotionHumanBody,
@@ -165,14 +139,6 @@ export namespace crawlFeet {
    * @param knees Each knee joint's nominal place, metres in that frame.
    * @param ahead How far before its nominal place each knee lands, metres along the heading.
    * @returns The frame and the tucked feet.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, what is moved, why, and each input.
-   * @evidence contracts/development/implementation.md#principled-implementation The tucked foot is the kneel's; the frame's move is the feet's mean difference along the heading, and each foot's own difference across it stays with that foot.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One tuck and one roll per side, then one move.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each foot is rolled from its own standing foot.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two tucked feet, once per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function planted(
     body: IAutoMovieMotionHumanBody,

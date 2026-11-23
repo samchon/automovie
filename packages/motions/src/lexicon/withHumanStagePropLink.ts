@@ -17,14 +17,6 @@ import type {
  * @param keys At least two ordered keys, starting at zero seconds.
  * @returns The prop with the new track appended.
  * @throws {Error} For a missing hinge or inadmissible time or hinge travel.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the hinge, units, cue, interpolation, retention, input bounds and refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Engine articulation admission checks every key. Minimum-jerk interpolation on each interval remains between its admitted endpoints.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the hinge and keys, then append a pure track for the performance to place and sample.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scene authors all travel and time. The function derives no impact, load or live-use parameters.
- * @evidence contracts/development/implementation.md#efficient-algorithms Validate the keys once and binary search the enclosing interval on each read.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses articulation admission, the performance track and the engine's minimum-jerk curve.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The appended track retains a private copy of its keys, with no per-frame cache or external resource.
  */
 export function withHumanStagePropLink(
   prop: IAutoMovieMotionHumanProp,
@@ -95,11 +87,6 @@ export function withHumanStagePropLink(
 
 /**
  * One key on a scene-authored link track.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines relative seconds and admitted hinge travel degrees.
- * @evidence contracts/development/design.md#principled-representation A scalar travel on the existing one-axis hinge at one authored key time.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes only time and travel. The track core owns admission and interpolation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Travel is the model's hinge coordinate and never an independent prop transform.
  */
 export namespace withHumanStagePropLink {
   /** Hinge travel at a track-local instant. */

@@ -11,20 +11,10 @@ import { HumanShapeFraming } from "./HumanShapeFraming";
  * the chest and its outward side, whether the other arm's colliders are
  * among the trunk's, and every shape with its frame and its role, built
  * once per list and side.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the room holds, who reads it and how often it is built.
- * @evidence contracts/development/design.md#principled-representation The readings' fixed geometry apart from the candidate's elbow and wrist.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two records and one builder, read by `HumanArmOvershoot` alone.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The frames are `HumanShapeFraming`'s; nothing is restated.
  */
 export namespace HumanArmOvershootRoom {
   /**
    * One shape with the posed frame of its segment.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning.
-   * @evidence contracts/development/design.md#principled-representation A collider shape, its segment's frame and its two roles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members the reading reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the collider and framing records.
    */
   export interface IShape {
     /** The segment's posed frame. */
@@ -45,11 +35,6 @@ export namespace HumanArmOvershootRoom {
 
   /**
    * What a reading reads of its colliders besides the elbow and the wrist.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and frame.
-   * @evidence contracts/development/design.md#principled-representation The chest's plane, the other arm's presence and the framed shapes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members the reading reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the collider record and `IShape`.
    */
   export interface IRoom {
     /** The chest's collider, whose median plane the elbow keeps its side of; none for a rig without one. */
@@ -76,14 +61,6 @@ export namespace HumanArmOvershootRoom {
    * @param rests Another body's colliders the goal lays the hand on.
    * @param side The arm.
    * @returns The room.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, per what, and who reads it.
-   * @evidence contracts/development/implementation.md#principled-implementation The chest's own frame gives the median plane's outward axis; every shape is framed once by its owner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup by the three lists and the side, then one build.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every shape of every list is kept with its role.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Built once per lists and side; every candidate of a sweep reads it.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The lists are the same records across a sweep's candidates, so the room is theirs.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weakly keyed by the lists, released with them.
    */
   export function of(
     shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],

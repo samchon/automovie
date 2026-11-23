@@ -18,14 +18,6 @@ import type { operateLongInsertCourse } from "./operateLongInsertCourse";
  * @param mechanism The insertion.
  * @returns The run and its width.
  * @throws {HumanRefusal} When the staff declares no working point or no handle or bar with a length.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read and in which frame.
- * @evidence contracts/development/implementation.md#principled-implementation The run is the declared grip's middle's distance from the working point, less and plus half its length.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the working point and the longest grip, then measure.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A staff without a declared grip run is refused, never guessed.
- * @evidence contracts/development/implementation.md#efficient-algorithms One scan of the declared contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per insertion.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a plain record.
  */
 export function operateLongInsertStaff(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -67,11 +59,6 @@ export function operateLongInsertStaff(
 
 /**
  * The record of {@link operateLongInsertStaff}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the run and its width.
- * @evidence contracts/development/design.md#principled-representation Metres behind the working point and across.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the insertion reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the course's range.
  */
 export namespace operateLongInsertStaff {
   /** The staff's grippable run behind its working point, with its width across. */

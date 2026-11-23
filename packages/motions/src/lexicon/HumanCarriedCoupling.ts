@@ -62,11 +62,6 @@ import { HumanCarriedCouplingCouple } from "./HumanCarriedCouplingCouple";
  * tips by the pair's balance forward and sideways
  * (`HumanCarriedCouplingLoad.lean`); the capacity reads the moment along the
  * facing alone (`HumanLoad.lean`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the key pose, the contacts, the load shares with their law, the per-instant solve with its source, the capacity bound with its derivation and search record, and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation A meeting kind with a coupling of plain data in the frame of the bearer's bone the borne body rides, the shared record of a coupled pair; the borne body's place is a rigid registration of its key pose on the bearer's contacts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The roles, the second side's table, the hold table and its nearer grips, the kind and the coupling; the shares, the load and the capacity are `HumanCarriedCouplingLoad`'s, the borne posture and the holds `HumanCarriedCouplingPose`'s, the carries' rows stay `HumanCarried`'s and the lean `HumanLoad`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The borne body is placed on every bearing contact at once, never on one bone, and a mass no lean balances is refused, never clamped.
  */
 export namespace HumanCarriedCoupling {
   /** The bearing role's name. */
@@ -151,13 +146,6 @@ export namespace HumanCarriedCoupling {
    * @param paired Whether a second helper takes the carry's other side
    *   (`PAIRED`), as the role `second`.
    * @returns The kind.
-   * @evidence contracts/development/common.md#meaningful-documentation States the roles, the timing and what the coupling is computed from.
-   * @evidence contracts/development/implementation.md#principled-implementation A carry's contact exists from the moment it is taken, so every instant is the start; `couple` reads the two roles' bodies by name, so the meeting's own ordering decides nothing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record with two functions.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A role list without both roles never reaches `couple`, as the meeting calls it only when solid.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work to build; `couple` costs `couple`'s.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The coupling is `couple`, the one owner.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the carry, the rows and the extra mass.
    */
   export function kind(
     carry: IAutoMovieMotionHumanCarried.Carry,
@@ -222,13 +210,6 @@ export namespace HumanCarriedCoupling {
    * @returns The coupling, its key, holds and centre in the frame of the
    *   bearer's bone the resting region rides on.
    * @throws {HumanRefusal} As `HumanCarriedCouplingCouple.couple` refuses.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and where the solve lives.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates to `HumanCarriedCouplingCouple.couple`, which states the method.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every argument is passed on unchanged.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One call; the cost is the solve's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanCarriedCouplingCouple.couple`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure delegation.
    */
   export function couple(
     bearer: IAutoMovieMotionHumanBody,

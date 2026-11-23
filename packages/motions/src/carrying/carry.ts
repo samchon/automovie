@@ -78,11 +78,6 @@ import { loadedWalkPace } from "./loadedWalkPace";
  * tray, the child in the arms, on the shoulders or in a carrier, pulling a
  * trolley or a suitcase, the cart as a moving support (A2), changing hands
  * (`shiftLoad`) and the frozen hand offset of a held prop.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the base, each way of carrying with its source, the lean law, the mass band, the events and what is missing, with provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A law record composed over the walk's plan: arm rows and a trunk row on the walk's clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the balance lean with its segment data, the hanging arm, the hold places and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is a share of the body's measure in its moving floor frame.
  */
 export namespace carry {
   /** The action's name. */

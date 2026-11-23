@@ -41,9 +41,6 @@ interface IInputs {
  * Resolve the fixed heading's initial centre and the middle of the planted
  * soles. Each moving phase follows its original target from its original
  * start through the last observable cubic interval.
- *
- * @evidence contracts/development/implementation.md#principled-implementation The course follows Hof's extrapolated centre toward the measured sole midpoint. Its inverse kinematics uses each actual trial hip translation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Initial support geometry is shared between requested phases. The phase integrator retains all causal predecessor knots and omits the unobserved tail.
  */
 export function prepareKneelBalance(props: IInputs): Solver {
   const { body, standing, forward, feet, yaw, at, write }: IInputs = props;

@@ -17,11 +17,6 @@ type Tilt = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;
  * `Ry(yaw) Rx(-90) Ry(turn)`. At 0 it lies on its back, at 90 on its left
  * side (the chest toward where its left side faced), at 180 or -180 face
  * down and at -90 on its right side; a log roll keeps adding turns.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the parametrisation, the turn's sign and what each value is.
- * @evidence contracts/development/design.md#principled-representation One rotation about the body's own long axis, composed in quaternions and read back through the posture's heading inverse.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The turn read from a posture, the tilt of a turn and the turn of a named position.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No Euler chart is interpolated: every tilt is a composed rotation.
  */
 export namespace lyingTurn {
   /** A lying heading and turn. */
@@ -46,14 +41,6 @@ export namespace lyingTurn {
    *
    * @param posture The lying posture's tilt.
    * @returns Its supine heading and its turn in (-180, 180].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result's range.
-   * @evidence contracts/development/implementation.md#principled-implementation The long axis gives the heading; the chest's normal against up and the supine left gives the turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two axes read, two atan2.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(posture: Tilt): ITurn {
     const rotation: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
@@ -76,14 +63,6 @@ export namespace lyingTurn {
    *
    * @param turn The heading and the turn.
    * @returns The posture's yaw, pitch and roll.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation `Ry(yaw) Rx(-90) Ry(turn)` composed, then read through the heading inverse.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three rotations and one inverse.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function tilt(turn: ITurn): Tilt {
     return resolveHumanPosture.angles(

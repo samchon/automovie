@@ -39,14 +39,6 @@ import type { PrecisionStrokeForms } from "./PrecisionStrokeForms";
  * @param entry The pose the stroke starts from, whose hand frame a bare palm is read in.
  * @returns The tool, its face in the hand's frame and the second hand's place.
  * @throws {HumanRefusal} When the implement lacks the row's working point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read, for whom, the bare and held faces, the squared axis and the second hand.
- * @evidence contracts/development/implementation.md#principled-implementation The tool is the held frame's own reading (`StrikingHeld.read`); a two-handed grip spans two adjacent fists on the handle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The face, the squared tool, then the support.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing working point is refused by the held reader, never defaulted.
- * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics of the entry's hand for a bare palm; none for an implement.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The one reading the stroke and its address share.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function precisionStrokeTool(
   body: IAutoMovieMotionHumanBody,

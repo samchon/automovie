@@ -23,20 +23,10 @@ const ON: number = 0.7;
  * The crutch stair climb's flight and clock, shared by the law's plan and
  * the track the scene's crutch props read, so both derive every crutch frame
  * and tread from the same flight.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the flight and clock are and who reads them.
- * @evidence contracts/development/design.md#principled-representation A resolved flight (riser, tread, direction, clock) with one move per step.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The resolver, the level reader, the crutch frame reader and the tread count the law and its track share.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place follows from the authored flight.
  */
 export namespace crutchStairsFlight {
   /**
    * One crutch move: when it lifts and plants, and the level it leaves.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and its timebase.
-   * @evidence contracts/development/design.md#principled-representation A timed move from one level to the next.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The fields the frame reader and the hand carry read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Times follow from the step's own seconds.
    */
   export interface IMove {
     /** Lift, seconds since the climb's start. */
@@ -51,11 +41,6 @@ export namespace crutchStairsFlight {
 
   /**
    * The climb's resolved shape and clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member with its unit.
-   * @evidence contracts/development/design.md#principled-representation The flight's direction, riser, tread and first nosing with the step clock and crutch moves.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the plan and the track read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Defaults are the stair climb's own.
    */
   export interface IClimb {
     /** +1 going up, -1 going down. */
@@ -92,14 +77,6 @@ export namespace crutchStairsFlight {
    * @param footLength The body's foot length, metres, or none for a track.
    * @returns The resolved climb.
    * @throws {HumanRefusal} On a bound the climb refuses.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bounds, the defaults, the orders and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The single-leg step-up bounds of the stair climb and a step clock split in halves.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bounds, then the moves.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A track without a body skips only the body's bounds.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the step count.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The plan and each track resolve from the same inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh climb and retains nothing.
    */
   export function resolve(
     params: IAutoMovieMotionHumanCrutchStairs,
@@ -144,14 +121,6 @@ export namespace crutchStairsFlight {
    * @param climb The climb.
    * @param k The level, 0 for the entry floor.
    * @returns The offset, metres, z ahead and y up.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the offset's axes and the tread share.
-   * @evidence contracts/development/implementation.md#principled-implementation The k-th tread's height and the point `ON` of its going back from its nosing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the flight's.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function level(climb: IClimb, k: number): IAutoMovieVector3 {
     return k === 0
@@ -172,14 +141,6 @@ export namespace crutchStairsFlight {
    * @param start The crutch's staged frame.
    * @param seconds Seconds since the climb's start.
    * @returns The frame, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the planted and moving cases and the path's order.
-   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk rises and travels in sequence so the tip clears the nosing before it travels over it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan for the current move.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The path's phase shares are provisional staging, stated in the course.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the moves up to the current one.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each read is its own second's.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh frame and retains nothing.
    */
   export function frameAt(
     climb: IClimb,
@@ -230,14 +191,6 @@ export namespace crutchStairsFlight {
    * @param climb The climb.
    * @param seconds The window's opening, seconds since the climb's start.
    * @returns The tread count, 0 for the entry floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is counted and when a tread counts.
-   * @evidence contracts/development/implementation.md#principled-implementation A window opens at its foot's set-down key, which lies after its foot stance's start and before the next one.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One count over the steps.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read at the window's opening, never its middle, so the last window counts its own tread.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the steps.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function arrived(climb: IClimb, seconds: number): number {
     let k: number = 0;

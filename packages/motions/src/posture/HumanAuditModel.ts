@@ -20,11 +20,6 @@ import { HumanColliders } from "./HumanColliders";
  * shapes they are read against and states the one depth a probe may lie past
  * its reference, so no consumer judges a narrower body or a different bound
  * than the take is judged by.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is provided, who reads it and which owner the probes stay with.
- * @evidence contracts/development/design.md#principled-representation The tangle model's own parts, placed on posed bones, beside another body's segments and external shapes, in world metres; one allowance in metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The allowance and one placement, the two things every clearance consumer needs from the audit's model.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No probe, reference or pair rule is restated: each is the tangle model's.
  */
 export namespace HumanAuditModel {
   /**
@@ -37,11 +32,6 @@ export namespace HumanAuditModel {
 
   /**
    * A body placed as the audit reads it, beside what else it is read against.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The tangle model, its parts placed in profile order, each part's probes in world metres, and the other segments.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a clearance consumer reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The parts and probes are the model's own, in its order.
    */
   export interface IFrame {
     /** The body's tangle model. */
@@ -79,13 +69,6 @@ export namespace HumanAuditModel {
    * @param externals Segments no human body carries it is read against, a
    *   carrier's included.
    * @returns The frame.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The single collider placement owner (`HumanColliders.placed`) and the tangle model's probes carried by each placed segment's pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement, one probe transform per part.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every part and probe is placed; none is screened here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the body's probes, once per posed frame its caller reads.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of its arguments; the model is the tangle model's per-body memo.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh placements and points; borrows the others and externals.
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,

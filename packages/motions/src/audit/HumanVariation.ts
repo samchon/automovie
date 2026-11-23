@@ -5,11 +5,6 @@ import type { IAutoMovieMotionHumanVariation } from "@automovie/interface";
  * each seed, read one number from each, and report its spread. A film's
  * crowd must not move as clones, and no draw may leave its bounds; this is
  * the reading both are asserted on.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is measured, over what and why.
- * @evidence contracts/development/design.md#principled-representation A summary of one scalar over a list of seeds, independent of what the scalar is.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function and its report.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The reading is the caller's function of a seed, so nothing about a law is assumed.
  */
 export namespace HumanVariation {
   /**
@@ -19,14 +14,6 @@ export namespace HumanVariation {
    * @param read The quantity under a seed, usually from a performance built with it.
    * @returns The report.
    * @throws {Error} When no seed is given.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the generated seed names and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The population mean and standard deviation over the readings; distinctness counted on values rounded to a millionth of the range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass to read, one to summarise.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every seed is read; none is sampled away.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the seeds, each costing what the caller's reading costs.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the readings until it returns.
    */
   export function over(
     seeds: readonly string[] | number,

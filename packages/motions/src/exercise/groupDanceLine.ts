@@ -26,11 +26,6 @@ import { ExerciseKey } from "./ExerciseKey";
  * Steps are `STEP` of the feet's spacing wide; the crossing foot lands `CROSS`
  * foot lengths behind. A foot travels over `TRAVEL` of a beat, lifted `LIFT` of
  * the stature.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the counts, the turn, why spacing holds, and the sizes.
- * @evidence contracts/development/design.md#principled-representation Foot keys in the member's own floor frame, turned a quarter each repeat.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sizes and the course.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Lengths are the body's and the entry stance's.
  */
 export namespace groupDanceLine {
   /** A side step, a share of twice the feet's half spacing (provisional). */
@@ -56,13 +51,6 @@ export namespace groupDanceLine {
    * @param beats The member's beat clock, its offset already in.
    * @param repeats How many eight-count patterns.
    * @returns The course.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the course.
-   * @evidence contracts/development/implementation.md#principled-implementation Each count's footprint in the repeat's frame; the turn pivots the left foot about its ball and the next frame is set where that foot stands.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Frames, counts, turn, hips.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The quarter turn is exact each repeat.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in counts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared foot pivots and frame reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course retains its keys.
    */
   export function course(
     body: IAutoMovieMotionHumanBody,

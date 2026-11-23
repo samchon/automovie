@@ -35,11 +35,6 @@ import { touch } from "../touch/touch";
  * Emblems: gestures with a fixed meaning, each a row of a shipped action.
  * Register the ones a film uses (`HumanPerformance.IInput.laws`,
  * `HumanChain.extend`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is, the action it is a row of and what its parameters fix.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (`HumanActionRow`), so it is data over a law that already fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the row.
  */
 export namespace HumanEmblem {
   /** The military hand salute (US Army TC 3-21.5): the forefinger's end at the right brow, the hand in line with the forearm, the upper arm level. */

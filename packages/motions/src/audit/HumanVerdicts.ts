@@ -79,14 +79,6 @@ import { solvedHumanAuditSpans } from "./solvedHumanAuditSpans";
  * plants, its owned feet take no unloaded bound and a body whose root it owns
  * takes no balance judgement (`solvedHumanAuditSpans`); every check of the
  * displayed bones still reads it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every bound with its limit, who reads the report and what it leaves unread.
- * @evidence contracts/development/implementation.md#principled-implementation Each bound is read by its audit owner; this owner applies the limits, places each finding on its action and gathers them.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the performers, one over their pairs, and a describer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bound is left unread only for the two actions the floor does not carry, named in one table.
- * @evidence contracts/development/implementation.md#efficient-algorithms Every bound reads one film that remembers each instant's bones.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The film is resolved once per instant and shared by every bound of every performer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The remembered frames live for one report and are released with it.
  */
 export namespace HumanVerdicts {
   /**

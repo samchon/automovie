@@ -31,20 +31,10 @@ import type { HumanMountedSeats } from "./HumanMountedSeats";
  * Science 325:289); standing in the stirrups straightens the knees. No
  * source read gives the clearances, the trunk inclinations or the knee
  * flexion, so each is provisional and named in `profile`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three seats, their sources and which values are provisional.
- * @evidence contracts/development/design.md#principled-representation Each seat is a posture in the carrier contact's frame, its profile a named record of three quantities.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The solver, the profile and the out-of-saddle test `HumanMounted` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No carrier is named; the stirrups are the figure's supports.
  */
 export namespace HumanMountedStirrups {
   /**
    * How an out-of-saddle seat stands over its stirrups.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation clear: The seat socket above the saddle, thigh lengths, or none where the knee flexion sets the height. knee: The knee flexion that sets the height, degrees. pitch: The pelvis's forward inclination, degrees. back: How far the hips stand behind the stirrups, thigh lengths.
-   * @evidence contracts/development/design.md#principled-representation Shares of the thigh and degrees, so one profile fits every body.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `solve`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Exactly one of `clear` and `knee` sets the height.
    */
   export interface IProfile {
     /** The seat socket above the saddle, thigh lengths; absent where `knee` sets the height. */
@@ -74,14 +64,6 @@ export namespace HumanMountedStirrups {
    *
    * @param seat The seat kind.
    * @returns True for the two-point seat, the racing crouch, standing and the bank's ascent.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which kinds.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A membership test.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function free(seat: IAutoMovieMotionHumanMounted.Seat): boolean {
     return (
@@ -100,14 +82,6 @@ export namespace HumanMountedStirrups {
    * @param share How far its transfer has gone.
    * @param pick The quantity read from a profile.
    * @returns The blended quantity.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the blend and its seated value.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A linear blend.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function blend(
     figures: readonly IAutoMovieMotionHumanMounted.IFigure[],
@@ -125,14 +99,6 @@ export namespace HumanMountedStirrups {
    *
    * @param seat An out-of-saddle seat kind.
    * @returns Its profile.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each profile and that it is provisional.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A table read.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One choice per kind.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The values are provisional and named, not fitted to a case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function profile(seat: IAutoMovieMotionHumanMounted.Seat): IProfile {
     if (seat === "crouch")
@@ -152,14 +118,6 @@ export namespace HumanMountedStirrups {
    * @param seat The out-of-saddle seat kind.
    * @returns The posture.
    * @throws {HumanRefusal} When a stirrup lies outside its leg's band from the hip the seat needs, narrowed at both ends by the carrier's slack so the leg can follow the stirrup's rise and fall under a level pelvis, as when the stirrups are too long to stand clear of the saddle, or when the seat socket would not clear the saddle by `CLEAR`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the posture and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Each ball is placed on its tread (`HumanFoot.pivot`); the hip height follows from the socket's clearance through `seated.root`, or, standing, from the hip-to-ankle distance of the knee's flexion by the law of cosines on the thigh and the shank, and is capped where a leg would stretch past the sitting band (`HumanMount.span`) less the carrier's slack; each leg is then checked against that band and the socket against `CLEAR`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The feet, the root, the checks, the legs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A stirrup out of reach is refused with the band, never clamped to.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Solved once per figure.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function solve(
     context: HumanMountedSeats.IContext,

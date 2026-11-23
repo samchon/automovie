@@ -18,11 +18,6 @@ import { StrikingRoll } from "../striking/StrikingRoll";
  * its bore, and the hand's place ahead of and above the chest. The nominal
  * pose is tried first, then its rolls, and the arm's
  * fit chooses and refines inside the bounds (`StrikingRoll.chosen`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a ready position is, its freedoms and how the pose is chosen.
- * @evidence contracts/development/design.md#principled-representation A ready position as a region of bounded freedoms, read by the shared chooser.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The region's record, the two regions and the pose the presentation reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No body is named: places are shares of the arm from the chest, and the high ready's height is the body's own shoulder.
  */
 export namespace HumanFirearmReady {
   /** A ready position's region: the muzzle's elevation, the weapon's roll about its bore and the hand's place by the chest, each bounded. */
@@ -105,14 +100,6 @@ export namespace HumanFirearmReady {
    * @param context The action's context.
    * @param props The weapon, the arm, the chest, the shoulder, the line and the carriage.
    * @returns The chosen hand frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The bore runs at its elevation along the line, the sights face back up high and ahead down low turned by the roll, and the hand sits ahead of and above the chest; the arm's fit chooses inside the region (`StrikingRoll.chosen`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The frame of the freedoms, the tried values, one choice.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The nominal values are tried first, so a pose the arm holds at them is kept; the presentation still judges the result (`StrikingRoll.reachable`).
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The chooser's fits, at most its budget.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pose(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,

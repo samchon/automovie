@@ -79,11 +79,6 @@ import { touchStance } from "./touchStance";
  * `strokeEnd` the repetitions, `relax` leaving). A touch may be cut before it
  * arrives or from `relax` on, into standing, a walk, a gesture or another
  * touch, the declined handshake's rule.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the families it serves, the timing, the source of the kinds, what stays still and the events and cuts.
- * @evidence contracts/development/design.md#principled-representation A law record composed of the touch primitive per hand over a held base.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One law for every touch row; no row is a law of its own.
  */
 export namespace touch {
   /** The action's name. */
@@ -133,13 +128,6 @@ export namespace touch {
    *   not hold or a point it lacks, `grasp` comes without a prop, its point or
    *   a region of the performer's own, or a rest names the other hand's arm on
    *   a touch of one hand.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the timing and the sources.
-   * @evidence contracts/development/implementation.md#principled-implementation A phrase clock from the free-space transport of the farther hand, the kind's repetitions and the hold, with one touch stroke per hand over the base it was entered on or its carrier; a region the arm does not reach as it stands is closed by the girdle, the heels and the lean of `AutoMovieMotionHumanTouchStance`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Defaults, the stance, the clock, one stroke per hand, the composition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Defaults are named per kind; a negative hold throws; no region or body is special-cased.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry resolve, one stance solve and one elbow solve per hand at plan time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates physical planning to its existing owners; exact declared hand/target entry-layout decisions and each hand's fixed reached-region frame share completed work only within this synchronous plan construction, without retaining sampled poses.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the entry bones and the clock.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
@@ -172,13 +160,6 @@ export namespace touch {
    *   scale.
    * @returns The law, the touch's name, cancel table and refusals with the
    *   repetition fixed.
-   * @evidence contracts/development/common.md#meaningful-documentation States what is fixed, its unit and that no parameter is added.
-   * @evidence contracts/development/implementation.md#principled-implementation The touch's own plan with the repetition's period given instead of read off its form; the reach, the hold and the manner apply unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One law record over the shared plan.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the repetition's period changes; every refusal and fit is the touch's.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over the touch's plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds a law record once per row.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the period only.
    */
   export function stroked(
     seconds: number,

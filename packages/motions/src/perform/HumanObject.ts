@@ -26,11 +26,6 @@ import { HumanObjectCord } from "./HumanObjectCord";
  * declares, at the height and depth the chair has, and a grasp, a touch or
  * a look goes to the contact the object names instead of to coordinates
  * written by hand.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what an object declares, what this gives the actions and what it does not depend on.
- * @evidence contracts/development/design.md#principled-representation An object is read through the interface's affordance record alone, and placed by a rigid world frame; each result is the type an action already takes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The object's shape, its placement, and one function per thing an action reads: a prop and a seat.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No object kind is special-cased; a wrong or missing affordance is refused with the ids that fit.
  */
 export namespace HumanObject {
   /**
@@ -38,14 +33,6 @@ export namespace HumanObject {
    *
    * @param placement The placement.
    * @returns The frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A heading is a rotation about the world's up by that angle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on which form was given.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A frame given as one is returned as its position and rotation.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function frame(
     placement: IAutoMovieMotionHumanObject.Placement,
@@ -76,14 +63,6 @@ export namespace HumanObject {
    * @param contact The world frame of one of its contacts at a film second, for an object whose parts move within it, such as a pedal on its crank (an archetype ride's `frame`); each contact moves rigidly with the object when absent.
    * @param tracks The object's own movements after a trigger, each an articulation's travel from its start (`IHumanProp.tracks`); none when absent.
    * @returns The prop with any declared articulation capability, and with its pose reader for drives and tracks when the model supplies one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the prop offers the actions and how a contact becomes a target.
-   * @evidence contracts/development/implementation.md#principled-implementation A contact frame's translation is its point and its rotated `+Y` its outward normal, the affordance record's own convention.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the affordances.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The colliders are the object's own when it gives them, and absent otherwise.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the affordances.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work An exact native model and callback pair can pass its existing stationary domains to the prop reader without invoking either callback.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prop owns its affordances, colliders and any issued carrier domain metadata for its lifetime.
    */
   export function prop(
     subject: string,
@@ -182,14 +161,6 @@ export namespace HumanObject {
   /**
    * Create a soft cord on a model span's own endpoints and rest length.
    * The owning prop and returned cord both belong in the performance props.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the model and line identity and how to supply the result.
-   * @evidence contracts/development/implementation.md#principled-implementation HumanObjectCord discretizes the existing model line in world metres and binds both endpoints to the owning prop.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure This is the object authoring entry. The cord's domain construction belongs to HumanObjectCord.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The author supplies no second endpoint declaration. The cord constructor refuses invalid span and domain inputs.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One call to the linear cord discretization and domain validator.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the provider's public span reader and the existing soft solver settings.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a soft prop and its finite domain. Film-state ownership stays with the performance.
    */
   export function cord(
     model: IAutoMovieMotionHumanObject.ISpanModel,
@@ -210,14 +181,6 @@ export namespace HumanObject {
    * @param carrier The subject of the prop the object is, when it may move, so a sit follows the seat in its frame and the seat's own contact within it (`IAutoMovieMotionHumanSeated.ISeat.carrier` and `point`); absent for a seat in the world.
    * @returns The seat.
    * @throws {HumanRefusal} When the object has no such seat, or several and none is named, listing its seats.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read of the seat and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation A seat contact's frame sits on the front edge with `+Z` toward the sitter's front and `+Y` up, so the placed frame's origin is the seat's place and its turned `+Z` the heading.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the seat, place its frame, read the heading.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing or ambiguous seat is refused, never guessed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the affordances.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function seat(
     model: IAutoMovieMotionHumanObject.IModel,

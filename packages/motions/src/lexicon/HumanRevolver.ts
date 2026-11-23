@@ -16,11 +16,6 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * timings are `operate`'s paces, provisional: a press takes 0.25 s, a hinge
  * (the hammer, the gate) moves at 0.6 m/s along its arc and a slider or an
  * inserted cartridge at 0.4 m/s (`operate.PACE`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row operates and what is provisional.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).
- * @evidence contracts/development/design.md#minimal-and-owned-surface #3488's revolver rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own.
  */
 export namespace HumanRevolver {
   /** Cock the hammer with the thumb. */

@@ -33,11 +33,6 @@ import { prepareDanceBeats } from "./prepareDanceBeats";
  *
  * Not yet: the battement tendu, the développé and the attitude, and a jeté
  * prepared by its own run.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steps, the refusals with their limits, the default turnout and what is missing.
- * @evidence contracts/development/design.md#principled-representation A law record dispatching each kind to its course over the shared beat clock and footwork.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the turnout and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Ranges are the body's range-of-motion table's.
  */
 export namespace balletStep {
   /** The action's name. */
@@ -67,13 +62,6 @@ export namespace balletStep {
    *   rotation, the split exceeds the hips' flexion and extension, the position
    *   is not one to five, the turns are not one or two, or the tempo or beat
    *   count is not admitted.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Range checks against the body's table, then the kind's course composed by the shared footwork.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, clock, course, composition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped into range: an excess is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work beyond the course's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared beat clock and footwork.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the course.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallet.IParams>,

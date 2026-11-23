@@ -26,11 +26,6 @@ type NeckBone = "neck" | "head";
  * chest: the neck's side bend and flexion, solved on a coarse grid refined by
  * degrees, a miss over `NEAR` refused, and added over a posture's own at a
  * share.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the solve, its refusal and the share.
- * @evidence contracts/development/design.md#principled-representation The neck's two angles, shared across the neck and head bones by the head's owner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The lift and its share; the lying body stays `lieTogether`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A miss past `NEAR` is refused, never accepted.
  */
 export namespace lieTogetherNeck {
   /** The neck's added flexion and side bend, degrees. */

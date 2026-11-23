@@ -11,20 +11,10 @@
  * elevation at which that distance is the arms' reach is the set. It is read
  * by bisection on that one scalar, so the whole-body fit starts from the
  * measured set instead of searching the trunk's tilt and the arms' lean.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the chain, its one freedom and how the set is read on it.
- * @evidence contracts/development/design.md#principled-representation Plane points are (along the run, up) metres; angles are included angles in degrees, as the set's measures are.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function serves the set's seed and its rear block.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No posture is assumed: every point follows from the body's lengths and the measured angles.
  */
 export namespace sprintStartSetChain {
   /**
    * A point of the run's vertical plane.
-   *
-   * @evidence contracts/development/design.md#principled-representation Metres along the run's heading from the set frame's origin, and up from the floor.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two coordinates the chain reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No lateral coordinate: the chain is the sagittal one.
-   * @evidence contracts/development/common.md#meaningful-documentation States both axes and their unit.
    */
   export interface IPoint {
     /** Along the run, metres. */
@@ -36,11 +26,6 @@ export namespace sprintStartSetChain {
 
   /**
    * The chain's measures.
-   *
-   * @evidence contracts/development/design.md#principled-representation Segment lengths in metres and included angles in degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two ends, four lengths and two angles the chain needs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is the body's own; the angles are the set's measured ones.
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and meaning.
    */
   export interface IProps {
     /** The front ankle on its block. */
@@ -70,11 +55,6 @@ export namespace sprintStartSetChain {
 
   /**
    * The chain's set: its hip joints' and shoulders' midpoints.
-   *
-   * @evidence contracts/development/design.md#principled-representation Two plane points in metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The hip feeds the rear block, the shoulders and both feed the seed's trunk.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both lie on the one chain the measures define.
-   * @evidence contracts/development/common.md#meaningful-documentation States both points.
    */
   export interface ISet {
     /** The hip joints' midpoint. */
@@ -89,14 +69,6 @@ export namespace sprintStartSetChain {
    *
    * @param props The chain's ends, lengths and angles.
    * @returns The set whose shoulders lie the arms' reach from the wrists, the hip above the knee's line and the shoulders ahead of the hip; of several, the one whose shoulders stand nearest over the wrists. None when no elevation of the shank reaches.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics of a planar three-link chain at two held included angles, and a bisection on its one remaining freedom.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement of the chain, one bracketing pass over the shank's elevations and one bisection per bracket.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bracket is a sign change of the reach's miss; no elevation is taken where none reaches.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A fixed count of scalar placements: one pass of a degree's step over a quarter turn and fifty halvings per bracket.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each placement is a handful of products; nothing is retained.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two fresh points.
-   * @evidence contracts/development/common.md#meaningful-documentation States the chosen root and the empty case.
    */
   export function of(props: IProps): ISet | undefined {
     const knee: number = (props.knee * Math.PI) / 180;
@@ -179,14 +151,6 @@ export namespace sprintStartSetChain {
    * @param shank The shank, metres.
    * @param angle The rear knee's included angle, degrees.
    * @returns The ankle's place along the run, metres; none when the hip stands beyond that leg's reach of the ankle's height.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The law of cosines for the leg's hip-to-ankle distance and Pythagoras for its run.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two closed forms.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A height beyond the leg's reach returns none rather than a clamped place.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads only its arguments.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   * @evidence contracts/development/common.md#meaningful-documentation States the construction, units and the empty case.
    */
   export function rear(
     hip: IPoint,

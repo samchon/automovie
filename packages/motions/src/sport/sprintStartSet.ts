@@ -29,11 +29,6 @@ import { sprintStartSetHands } from "./sprintStartSetHands";
  * The sprint start's set geometry: block placement, the front knee's opening
  * and the body's centre of mass, solved on the performer's measured rig.
  * The athletics law owns timing and movements and delegates its set here.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the geometry this module owns and its consumer's separate responsibility.
- * @evidence contracts/development/design.md#principled-representation Body-scaled block distances and measured knee and centre-of-mass constraints, in metres and degrees, return one stance in the entry's world frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the constants and set solve that athletics exposes through its existing names; no second calculation or constant table remains there.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the same body and entry for both feet, both hands and the trunk; no body-specific result is stored.
  */
 export namespace sprintStartSet {
   /** The front knee's included angle in the set, degrees: 90 (SD 8) measured with the anthropometry-driven block setting (Cavedon et al. 2019, PLoS One 14:e0213979, table 2), Harland and Steele's (1997) "about 90". */
@@ -89,14 +84,6 @@ export namespace sprintStartSet {
    * @param sex The measured centre-of-mass stratum.
    * @param placedFeet Both feet on a placed block's plates (`sprintStartBlocks.of`), held in all three axes; the fit then keeps the front knee within its measured spread (FRONT_SD) and the rear knee and hip within theirs, and the centre follows from the plates instead of its measured setting, or refuses. Absent places the body-scaled blocks, the rear one from the rear knee's measured mean.
    * @returns The hips' world point, the trunk's pitch, each palm's frame raised over its bridge and each foot's placement on its block, all as fitted.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the geometry and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation One whole-body multi-contact fit holds the feet on their blocks, each hand's thumb and index bridge at the line (`sprintStartSetHands`), front knee 90, rear knee 117 +/- 11 and front hip 43 +/- 6 degrees (Cavedon et al. 2019, table 2, https://pmc.ncbi.nlm.nih.gov/articles/PMC6436800/), and the sex-matched centre position; these physical intervals do not impose one mean posture on every body.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Body-scaled contacts, one closed-form sagittal seed set twice (`sprintStartSetChain`, the second on the posed trunk), the rear block from its hip, then one shared whole-body fit and a measured refusal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Arm extension is not fixed to the seed and no joint range is narrowed; a joint/contact problem the fit does not meet is refused with its actual residuals.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A closed-form chain with one bisected freedom and two trunk readings seed one shared fit with analytic Jacobians; fit iterations, not a claimed speedup, determine cost.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Geometric trunk, complete limb-seed and final stance reads share one synchronous exact-FK workspace. After the first original successful trunk observation, genuine ROM metadata is shared by subsequent actual complete direct-joint projections. Trunk FK requests only shoulders, hips and hip joints, and final stance FK only hips, hands and feet, without changing canonical admission or the whole-body fit's independent solver.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation-local exact reader, genuine ROM projector and requested bone sets release when the set solve returns or throws; the returned numeric stance retains none of them.
    */
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,

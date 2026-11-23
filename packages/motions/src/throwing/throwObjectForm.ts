@@ -13,11 +13,6 @@ import type {
  * reversal phases in PMID 40719675 (PMCID PMC12317801). The grounded snap
  * is released between the centre's legs toward the quarterback. Sport
  * coefficients are provisional staging values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds and its reader; each member states its unit, source or provisional status.
- * @evidence contracts/development/design.md#principled-representation One closed style union and one table per coefficient keyed by it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The style and the seven tables the throw's plan reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is a share of the body's arm, so no length is stated in metres.
  */
 export namespace throwObjectForm {
   /** Release angle above the horizontal by style, degrees (provisional). */

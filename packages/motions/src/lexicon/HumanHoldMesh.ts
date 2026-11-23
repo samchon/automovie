@@ -27,11 +27,6 @@ import { HumanInteractionMesh } from "../posture/HumanInteractionMesh";
  * First pass: a contact's offset is kept as the key pose has it, not scaled to
  * the target bodies' surfaces; the trunk's joint angles are not refitted to the
  * adapted spine, only shifted with the hips.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is adapted, how the result is used, where the key pose comes from and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation The hold as joints and contacts of two bodies, the interaction mesh's input, and the result as each body's root shift and limb goals, the posture's own inputs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The key body record, the adapted record and one function; the mesh and its solve are `HumanInteractionMesh`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No hold has a table of its own: any key pose of two bodies adapts the same way.
  */
 export namespace HumanHoldMesh {
   /**
@@ -42,13 +37,6 @@ export namespace HumanHoldMesh {
    * @param contacts The hold's contacts.
    * @returns Each target body's adapted pose.
    * @throws {Error} When a contact or a bone names a joint the key pose lacks.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, their order, the result and the error.
-   * @evidence contracts/development/implementation.md#principled-implementation Every key joint of both bodies is a mesh point; every parent-child pair is a bone at the target body's rest length; every contact keeps its key offset; the interaction mesh minimizes its Laplacian deformation under those, and each limb's goal is read off its adapted end and middle joints.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Points, bones, contacts, one adaptation, then the goals per body.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing joint throws, never a dropped constraint.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One mesh and one adaptation per call, run once per key pose and pair, never per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The mesh and its solve are `HumanInteractionMesh`'s.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the maps it returns are the caller's.
    */
   export function adapt(
     key: readonly [

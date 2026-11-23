@@ -41,11 +41,6 @@ import { HumanCarriedLiftKnots } from "./HumanCarriedLiftKnots";
  * they hung to where their hold's goal puts them, as joint angles, and take the
  * goal itself once the lift is done; the body is set down standing, whatever
  * the carry, on the floor under where its root is carried.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the two phases do, what the blend is, when the contact is declared and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation A wrapper of the carried plan: the carry's law is unchanged and the two phases are one blend each over its posture.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two parameters and the wrapper `borne` returns through.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts With neither parameter given the plan is returned as it is, so a carry without the phases is what it was.
  */
 export namespace HumanCarriedLift {
   /**
@@ -56,13 +51,6 @@ export namespace HumanCarriedLift {
    *   carrier.
    * @returns The plan with the two phases; `plan` itself when neither is asked.
    * @throws {HumanRefusal} When a phase is negative.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the carry's own, blended from the entry posture while the lift lasts and toward a stand under the carried root while the set-down lasts; phases longer than the carry are scaled to fill it. Both ends' displayed roots include their whole-body rotations (`turnHumanPosture`); their positions are blended vertically and across the floor on the two minimum-jerk halves (rising first, coming down last) and their rotations by quaternion slerp, represented as a correction after the blended Euler heading, so a rotation carried outside those angles cannot disappear when a phase starts.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two weights, one blend, the contact windows cut to the hold.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heading is blended the short way round; a limb goal is blended as the joint angles its solve gives, so no limb jumps when the blend starts or ends.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The entry is frozen once per plan; a posture inside a phase freezes the carry's posture once (one whole-posture fit) and blends the joints, and one outside the phases costs the carry's own posture alone.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one posture call the carry's plan and the freeze share one forward-kinematics reader and the caller's range-of-motion projector; the bearer's bones the carry reads are its own. Nothing is kept between seconds.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the carry's plan, the two phase lengths and the entry and frozen entry postures; each posture call's reader ends with it.
    */
   export function over(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarriedLift.IParams>,

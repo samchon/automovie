@@ -88,11 +88,6 @@ import { floorEntry } from "./floorEntry";
  * Not yet: the bear crawl's own timing (MacLellan et al. 2012 measured
  * hands-and-feet crawling; the knees' cycle is kept), the belly crawl,
  * turning and rising from the crawl.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the posture law, the gait with its source, the timing, the events and what is missing, with provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A law record of one whole-body row over a limb schedule on one clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the constants and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place follows from the body's measure.
  */
 export namespace crawl {
   /** The action's name. */

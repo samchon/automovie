@@ -26,11 +26,6 @@ import { HUMAN_STANCE_MOUNTAIN_POSE } from "../next/presets/HUMAN_STANCE_MOUNTAI
  * of repetitions, each a few seconds of its steps, or one pose held for the
  * stated seconds. Each row states its own, all provisional. `reps` and `hold`
  * replace them.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what it leaves open and where its limits are stated.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a registered or shipped law (`HumanActionRow`), so it is data over a law that plans and refuses.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One row per exercise a screenplay names; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; a workout row fixes its kind alone, and the rows of other laws fix the value their name means (the mountain pose's provisional ten seconds, the strides' pace).
  */
 export namespace HumanSportWorkout {
   /**

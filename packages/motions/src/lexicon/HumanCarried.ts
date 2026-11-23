@@ -67,11 +67,6 @@ function straddled(
  * First pass: the lift into the carry and the set-down are not planned, the
  * carried body does not sag or cling, and its weight does not lean the
  * carrier.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what being carried is here, what the carrier does and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation A law record whose posture is the entry posture moved by one bone of the carrier, with a contact window that names the carrier as its frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law and its parameters.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The carrier's motion is read from the performance, never restated in the carried person's parameters.
  */
 export namespace HumanCarried {
   /**

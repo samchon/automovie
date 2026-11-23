@@ -7,11 +7,6 @@ import { handToFaceSheet } from "./handToFaceSheet";
  * on the performer's own head, the implied tool's tip as the effector, the
  * movement at the face and the head's share of the approach. Read by
  * `handToFace`, which states the sources.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a row holds and who reads the table.
- * @evidence contracts/development/design.md#principled-representation One record per task over the touch row's data, so a task is data and never a law of its own.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The task union, the row and the table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Regions are the interface's; tool tips are shares of the hand's length.
  */
 export namespace handToFaceRows {
   /**

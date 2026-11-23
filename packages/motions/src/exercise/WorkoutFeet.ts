@@ -18,11 +18,6 @@ import { HumanFoot } from "../posture/HumanFoot";
  * real ones; the solve puts each bearing foot back on its own place, which
  * is what the first run of the workout signature test measured as 42 mm of
  * slip without it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is kept, how, and the measured fault it answers.
- * @evidence contracts/development/design.md#principled-representation One function from a placed posture to the same posture with its bearing legs as planted goals, so the workout law places the body and this keeps its feet.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one function the workout law calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The places are the entry's own feet, never a stance rebuilt from the keys.
  */
 export namespace WorkoutFeet {
   /**
@@ -32,14 +27,6 @@ export namespace WorkoutFeet {
    * @param kind The exercise.
    * @param yaw The heading the exercise is entered on, degrees.
    * @returns What gives a placed posture its bearing legs' goals; the posture itself for a kind that is not anchored on its stance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A `plant` support of a `stance` kind that does not stride is a planted leg goal on the entry's ankle and rotation; a `pivot` support is a planted goal on the foot turned about its ball by the posture's turn from the entry heading.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two lists of sides, read once, and one goal per side per posture.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A striding kind's feet are left to its keys, which solve its stance on the body.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed planted feet prepare their heading/contact once through Leg.prepareGoal; each current root/yaw still computes its original knee hint. Pivot feet retain their current rotation and goal computation, with no measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Entry placements, active sides, fixed pivot points/headings and planted-goal metadata belong to the unchanged body/entry. Each changing posture still gets an independent actual knee/leg goal.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The keeper owns at most two fixed planted-goal readers or pivot records until its plan ends; no evaluated knee, current posture, FK reader or query history is retained.
    */
   export function keep(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,

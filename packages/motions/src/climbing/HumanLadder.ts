@@ -16,11 +16,6 @@ import { HumanFrame } from "../posture/HumanFrame";
  * A ladder as a climb reads it off the scene's prop: a fixture whose rungs
  * are its `rung1` upward, each a bar facing the climber (`createLadder`'s
  * contacts), placed where the scene stands it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read and from where.
- * @evidence contracts/development/design.md#principled-representation The ladder is its prop's own affordances, never numbers typed beside it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The resolved ladder, its reader, raw/prepared rung placement and two constants; the climb prepares its fixed rung grid once.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A ladder a grip would carry, or one that leans, is refused rather than climbed.
  */
 export namespace HumanLadder {
   /** A rung's radius, metres, when the ladder's rung declares no aperture (provisional). */
@@ -36,14 +31,6 @@ export namespace HumanLadder {
    * @param subject The ladder's prop subject.
    * @returns The ladder.
    * @throws {HumanRefusal} When the prop is no fixture, declares fewer than two rungs, leans more than `UPRIGHT` or spaces its rungs outside OSHA's band.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each rung's frame carried into the world by the prop's frame; the spacing the first two rungs' distance, the heading the rung's outward `+Y` turned round, the foot one spacing below the first rung.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read, check, then build the frame.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A ladder a grip would carry is refused, never climbed while it flies off.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the prop's affordances.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
@@ -119,14 +106,6 @@ export namespace HumanLadder {
    * @param index The rung, 1 the lowest; 0 is the floor under the rungs.
    * @param x The lateral place in the ladder's frame, metres, `x` left.
    * @returns World metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the indexing, the frame and the units.
-   * @evidence contracts/development/implementation.md#principled-implementation The index times the spacing up the ladder's frame, at its rung line and the lateral place.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame point.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every rung is the ladder's own spacing above its foot.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work prepareRung reads the same grid for a plan's many rungs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh point and retains nothing.
    */
   export function rung(
     ladder: IAutoMovieMotionHumanLadder.ILadder,
@@ -145,14 +124,6 @@ export namespace HumanLadder {
    *
    * @param ladder The unchanged resolved ladder at the action's start.
    * @returns A fresh world-metre rung centre for a rung index and local lateral x in metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fixed resolved grid, world/local metre coordinates, rung indexing inherited from rung and fresh output ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Keeps rung's same local x, index-times-spacing height and ahead coordinate, transformed by HumanFrame.prepare's exact original point arithmetic.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed frame/spacing/ahead snapshot serves the actual climb's two footprint and two handhold arrays; raw rung continues to read current ladder fields.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rung, spacing, lateral point, admission bound or frame convention changes, and the grid is never sampled or rounded.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation shares yaw trigonometry across the original linear rung-grid construction; each actual rung point retains its index multiplication and rigid transform.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The climb resolves one fixture/grid before building its immutable contacts; any changed ladder requires a new preparation, while every requested index/lateral pair is actually transformed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller-owned reader retains fixed frame scalars, spacing and ahead through grid construction, released on return or throw; completed footprint/handhold arrays retain their actual points rather than this reader or any query history.
    */
   export function prepareRung(ladder: IAutoMovieMotionHumanLadder.ILadder): (index: number, x: number) => IAutoMovieVector3 {
     const frame: HumanFrame.IPrepared = HumanFrame.prepare(ladder.frame);

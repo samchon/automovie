@@ -44,11 +44,6 @@ import { HumanFrame } from "../posture/HumanFrame";
  * that falls between kicks (the hips travel at a constant speed), no start,
  * turn or finish, and the mouth's clearance for the breaststroke's breath is
  * the key's head lift, not solved against the plane.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the model, each stroke's keys with the cited rule, the events and the first pass limits.
- * @evidence contracts/development/design.md#principled-representation A stroke is a cycle of keyed postures pinned by the hip joints on a travelling point, the form the workout's kinds have, so no stroke writes its own limb rows.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The strokes' names, their table and the one planner the swim law calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The plane is the author's and the depth the body's; speeds are named provisional.
  */
 export namespace SwimStroke {
   /** The hip joints, which the plane carries. */
@@ -83,13 +78,6 @@ export namespace SwimStroke {
    *
    * @param body The body.
    * @returns Each stroke.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and that the values are provisional.
-   * @evidence contracts/development/implementation.md#principled-implementation Exercise keys on the body (`ExerciseKey.from`), so what a key leaves unstated is the body's own standing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function strokes(
     body: IAutoMovieMotionHumanBody,
@@ -202,13 +190,6 @@ export namespace SwimStroke {
    * @param props The body, the entry posture, the stroke, the plane's height,
    *   the cycles and the tempo factor.
    * @returns The plan.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The second gives the cycle and the place in it; the two keys around that place are blended in joint space on minimum-jerk progress and pinned by the hip joints on the point the plane carries along.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The cycle's times, the travelling point, the posture, the events.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The staged speed is divided by the tempo that stretches the keys. The stationary option fixes the hip target for an external translation model. A stroke of one key is held.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Every stroke read, including a stationary single key, performs actual canonical admission and pin FK with only the pin hips' ancestry requested. Fixed key-pair union preparation retains the original interpolation and pin mean.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed key pairs and ordered joint unions are shared; every actual query constructs and pins its current key instead of replaying a completed posture.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its selected stroke row and fixed key-pair readers until released, without storing a completed pinned posture or queried-time cache.
    */
   export function plan(
     props: IAutoMovieMotionHumanSwimStroke.IPlanProps,

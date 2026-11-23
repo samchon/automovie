@@ -12,11 +12,6 @@ import { createPrecisionSportStroke } from "./createPrecisionSportStroke";
  * Stuelcken et al. 2005 (PMID 15807374), Walsh et al. 2024 (ISBS 42.265), Robbins et al. 2025
  * (doi:10.3390/bioengineering12010069) and Haar et al. 2020 (doi:10.1038/s41598-020-76805-9).
  * Neutral lengths, angles and timing in this first pass are provisional. Stance and approach are composed separately.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the source of motion choices, the bound interaction, and provisional controls.
- * @evidence contracts/development/design.md#principled-representation Each row supplies a form to the held stroke planner, with dedicated arc and line paths and one witnessed launch.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rows share the same timed contact and give cue its separate bridge target.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses existing grip, limb and prop flight machinery with the input ball's actual size and world frame.
  */
 export namespace HumanPrecisionSport {
   /** A two-handed level bat swing through a pitch. */

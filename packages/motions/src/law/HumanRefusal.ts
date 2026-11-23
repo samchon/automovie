@@ -25,11 +25,6 @@ import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
  * A law that refuses knows the axis but not always its place in the film, so
  * it may raise a refusal with no performer; the performance locates it
  * ({@link HumanRefusal.locate}) before it reaches the author.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States who reads a refusal, what each carries, that it is seed-independent and how it is located.
- * @evidence contracts/development/design.md#principled-representation An `Error` whose message is composed from typed fields, so the text and the fields cannot disagree.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The fields an author repairs from, one constructor and the locating copy.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The feasible set is a closed union of a range and alternatives, not free text.
  */
 export class HumanRefusal extends Error {
   /** The class of refusal. */
@@ -154,11 +149,6 @@ export class HumanRefusal extends Error {
 
 /**
  * Companion types of {@link HumanRefusal}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each class of refusal and each member.
- * @evidence contracts/development/design.md#principled-representation Closed unions for the class and the feasible set; plain records for the facts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What a refusal is built from and located by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No free-form bag of details: every fact has a named member.
  */
 export namespace HumanRefusal {
   /** The classes of refusal as data, from which {@link Kind} is derived: what a page and a test generator list. */

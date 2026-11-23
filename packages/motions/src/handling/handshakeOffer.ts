@@ -33,16 +33,6 @@ import { handshakeReach } from "./handshakeReach";
  * keeps its elbow `EXTENDED` flexed at the bottom of the pump. The rule for
  * unequal partners is provisional, as no measurement of their clasp point was
  * located.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the offering shape, the meeting rule with its source, what is provisional, and each function's units and refusal.
- * @evidence contracts/development/design.md#principled-representation Three named angles, a forearm length, a shared turn, a lowered upper arm and a world point; no pair or body is special-cased.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the handshake's plan and its standing gap read, owned in one place.
- * @evidence contracts/development/implementation.md#principled-implementation The engine's two-sphere mutual goal applied at the elbows, so the accommodation falls on the joints RULA scores lightest.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One elbow placement, one criterion for a straightened arm shared by the plane rule and the world rule, one call of the shared rule.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Partners the arms cannot bring together are refused with the bound that failed, its measured value and the band of gaps that would plan; nothing is clamped onto an arm.
- * @evidence contracts/development/implementation.md#efficient-algorithms Closed form but for bisections to a fixed share of their brackets (2^-50 of the turn and the lowering, 2^-40 of the upper arms' swings).
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveAutoMovieMutualGoal`, the engine's `bracketedBisection` and the hand's palm socket.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pure functions that retain nothing.
  */
 export namespace handshakeOffer {
   /**

@@ -46,11 +46,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * First pass: the layer's lean is a constant of the carry, coming in over the
  * window's fade; it does not follow the carrier's stride.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, why it is a layer and how it is scheduled, the cited direction, which sizes are provisional, who tips a coupled carrier and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One angle per carry as data, one additive layer and one tip about the feet, the form every trunk addition over a running action has.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table, the two layers and the tip the layers and the coupled bearing use.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The lean is added to what the carrier's action holds, never set over it.
  */
 export namespace HumanCarriedLean {
   /**
@@ -85,13 +80,6 @@ export namespace HumanCarriedLean {
    *   balances it.
    * @returns The layer, named `carryLean`; schedule it over the carry, with the
    *   take-up as its fade.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the layer's name and how it is used.
-   * @evidence contracts/development/implementation.md#principled-implementation The angle is added to the posture's pitch and the root moved so the planted feet's midpoint stays, a rigid turn of the body about its ankles, the inverted pendulum `HumanLoad.lean` balances; the planted leg goals stay in the world, so the ankles take the pitch and the joints the action holds are kept.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The pivot, one pitch, one root.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A carry with no lean still returns a layer that adds nothing, so every carry composes the same way.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer closes over one angle.
    */
   export function layer(
     carry: IAutoMovieMotionHumanCarried.Carry,
@@ -120,13 +108,6 @@ export namespace HumanCarriedLean {
    *   forward and toward the right.
    * @returns The layer, named `carryLean`; schedule it over the carry, with the
    *   take-up as its fade.
-   * @evidence contracts/development/common.md#meaningful-documentation States when it is used, the input and the layer's name.
-   * @evidence contracts/development/implementation.md#principled-implementation The same tip about the feet the standalone bearing applies (`tipped`), so a walked carry balances as a standing one.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One tip per posture.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angles are the caller's balance, never a table's.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `tipped`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer closes over two angles.
    */
   export function coupled(
     tip: IAutoMovieMotionHumanCarriedLean.ICoupledTip,
@@ -150,13 +131,6 @@ export namespace HumanCarriedLean {
    * @param pitch Degrees added forward.
    * @param roll Degrees added toward the body's right.
    * @returns The tipped posture; about the root when no leg is planted.
-   * @evidence contracts/development/common.md#meaningful-documentation States the pivot, the angles' senses, what stays and the case with no planted leg.
-   * @evidence contracts/development/implementation.md#principled-implementation The pivot is read in the posture's own root frame and put back where it was after the angles are added, a rigid turn of the body about that point.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The pivot, the angles, one root.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle is clamped; the caller's balance gives it.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveHumanPosture.heading`; the layer and the coupled bearing tip through it.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function tipped(
     posture: IAutoMovieMotionHumanPosture,

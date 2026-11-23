@@ -26,14 +26,6 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * drawn instants, and the measures their verdicts read off the displayed
  * bones (a joint's clinical angle, the lowest collider of some bones, the
  * worst margin of stability over a span, a band check).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each helper builds or measures and on which poses.
- * @evidence contracts/development/implementation.md#principled-implementation Every measure reads displayed poses or bones of the real performance, never a law's goals.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Small helpers over `HumanPerformance` and `everydayVerdicts`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing event throws instead of reading as zero.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the frames sampled.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace FamilyCaseKit {
   /** A population body prepared for a case. */

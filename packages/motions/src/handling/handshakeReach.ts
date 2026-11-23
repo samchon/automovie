@@ -18,16 +18,6 @@ import type { handshakeOffer } from "./handshakeOffer";
  * however the upper arms are brought back. The refusal names that bound with
  * its measured value, and as its feasible range the band of shoulder gaps at
  * which the pair does meet, found by trying the pair along the same line.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the bounds a meeting can miss and how the band is found.
- * @evidence contracts/development/design.md#principled-representation A miss is a closed union of its bounds with their measured values; the band is a range of the refusal contract.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The miss and the refusal, read by `handshakeOffer.point`.
- * @evidence contracts/development/implementation.md#principled-implementation The band is the meeting itself tried at each centimetre of gap along the partners' line and bisected at each end, so it is what the meeting accepts, not an estimate of it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan, two bisections, one refusal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The refusal names the bound that failed and its measured value, never a band the pair already meets.
- * @evidence contracts/development/implementation.md#efficient-algorithms 246 tries and two 20-step bisections, only once a meeting is refused.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The meeting is passed in, so the band and the plan judge by one rule.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pure functions that retain nothing.
  */
 export namespace handshakeReach {
   /**

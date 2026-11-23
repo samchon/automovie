@@ -91,11 +91,6 @@ import { handToFaceVessel } from "./handToFaceVessel";
  * (`HumanHeldUse`), so the task asks the wrist only what the grip was chosen
  * for; with `other` as well, the other hand takes the prop's other handle where
  * the first carries it, as a camera is held in both hands.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the tasks, the phases with their source, how each task is a row, the sourced and the provisional values, the events and what a held prop changes.
- * @evidence contracts/development/design.md#principled-representation A law record whose tasks are rows of one touch generator with an implied tool.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the task table, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No task is a law of its own.
  */
 export namespace handToFace {
   /** The action's name. */
@@ -132,13 +127,6 @@ export namespace handToFace {
    * @param region The right hand's region.
    * @param side The hand.
    * @returns The region.
-   * @evidence contracts/development/common.md#meaningful-documentation States the mirroring rule.
-   * @evidence contracts/development/implementation.md#principled-implementation Paired regions carry their side in the name, so mirroring swaps the suffix; a midline region is its own mirror.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One conditional chain.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the trailing side is swapped.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function mirrored(
     region: AutoMovieHumanoidRegion,
@@ -163,13 +151,6 @@ export namespace handToFace {
    *   taken for drinking (`pickUp` without a `use` at the mouth), `grasp` comes
    *   without a held prop, its point or a region of the face, or `other` comes
    *   without `grasp` or names a handle the prop lacks.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the phases, the rows and the sources.
-   * @evidence contracts/development/implementation.md#principled-implementation The drinking task's phases (Alt Murphy et al. 2006) as a phrase clock, with the task's row run by the touch stroke per hand and the head's flexion pulsed on the same envelope; with `prop`, the acting hand's effector is the held prop's own point, a vessel drunk from with a kept grasp at its named material point, or without one on the rim side its drink admits (`handToFaceVessel`), the fingers are kept and the grip is declared.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Row, the head's place at the face, the effector, transport, clock with the task's event names, head pulse, one stroke per hand, composition, the kept hold.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every value comes from the row or a named constant; tool lengths and head angles are marked provisional on the table.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry resolve and one elbow solve per hand at plan time; a vessel drunk from adds the drink's search per rim side until one admits (its own side's alone when that admits), found once and handed to the arm, which does not search again; another held prop adds the upright search on each of its eight sides.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the touch stroke, the laid arm, the head share, the timing owner, the manner and `HumanHeld`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the entry bones and the clock.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandToFace.IParams>,

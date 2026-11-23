@@ -27,14 +27,6 @@ import { poseBones } from "../posture/poseBones";
  *
  * @param props The strike's context, the partner, the take and the duration.
  * @returns The two arms' primitives and their grip windows.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the reach, the hold and what is followed.
- * @evidence contracts/development/implementation.md#principled-implementation Each palm's goal is the clinch's placement on the partner's displayed neck, reached on a minimum-jerk share by the take.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm movement and one grip window per hand.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The neck is read on the displayed partner at each second.
- * @evidence contracts/development/implementation.md#efficient-algorithms One partner bone read per hand per second.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared arm movement, hand target and the clinch's neck placement.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the partner reader until plan release.
  */
 export function CloseStrikeNeck(
   props: CloseStrikeNeck.IProps,
@@ -120,11 +112,6 @@ export function CloseStrikeNeck(
 
 /**
  * Companion types of {@link CloseStrikeNeck}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
- * @evidence contracts/development/design.md#principled-representation The context, the partner, two seconds and the result's two lists.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the close strike law hands and reads back.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's context, primitive and contact types.
  */
 export namespace CloseStrikeNeck {
   /** The hands' path's bow round the partner's trunk, the grapple's arc to a shoulder (`grapple`'s curvature). */

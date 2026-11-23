@@ -20,11 +20,6 @@ import { touch } from "../touch/touch";
  * Things two people do together or to each other in company, as rows of
  * shipped actions and as mutual records over them (`HumanChain.mutual`).
  * Register the rows a film uses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is, the action it is a row of and what its parameters fix.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (`HumanActionRow`), so it is data over a law that already fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the row.
  */
 export namespace HumanSocial {
   /** A whisper: the lips brought to the partner's ear and held (two seconds, provisional). */

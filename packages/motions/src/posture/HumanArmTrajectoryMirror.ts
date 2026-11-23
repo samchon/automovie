@@ -10,11 +10,6 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * An arms' trajectory problem (`HumanArmTrajectory.IProblem`) read in the
  * mirror image of its world, so that of a problem and its mirror image one
  * is solved and the other is its mirror to the bit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is mirrored and what the mirror reading guarantees.
- * @evidence contracts/development/design.md#principled-representation The mirror across the world's x = 0 plane of every base, site, rest and side of the problem's own record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The test and the mirror, read by `HumanArmTrajectory.solve` and `admitted`, and the refusal told back in the author's names, read by `solve`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One rule for one arm and for two, in either order.
  */
 export namespace HumanArmTrajectoryMirror {
   /**
@@ -27,14 +22,6 @@ export namespace HumanArmTrajectoryMirror {
    *
    * @param problem The problem.
    * @returns Whether its first arm is the left.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule and why exactly one of a mirrored pair is solved.
-   * @evidence contracts/development/implementation.md#principled-implementation A canonical representative of the two-element orbit of the mirror is chosen by the first arm's side.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One comparison.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No side is preferred by a tolerance or a result.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leftFirst(problem: HumanArmTrajectory.IProblem): boolean {
     return problem.arms[0]!.side === "left";
@@ -47,14 +34,6 @@ export namespace HumanArmTrajectoryMirror {
    *
    * @param refusal The refusal the mirrored problem's solve gave.
    * @returns The same refusal with every side its reason and its fix name taken to the other.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States why every side named is swapped.
-   * @evidence contracts/development/implementation.md#principled-implementation The mirror takes each side's name to the other's (`mirrored`), so the inverse of a mirrored reading's names is the same swap.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One swap over the reason and the fix.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every other member is kept; the value, the axis and the feasible set name no side.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the text.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function refusal(refusal: HumanRefusal): HumanRefusal {
     const swap = (text: string): string =>
@@ -81,14 +60,6 @@ export namespace HumanArmTrajectoryMirror {
    *
    * @param problem The problem.
    * @returns Its mirror image; each base and site is mirrored into one record however often it is read.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is mirrored and the identity of the mirrored records.
-   * @evidence contracts/development/implementation.md#principled-implementation The reflection across x = 0 of points and the conjugate reflection of rotations (`HumanArmMirror`), with every bone name taken to its opposite.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bases, then each arm's side, sites and rests.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every member that names a side or a place is mirrored; the clinical triples read the same on either side and stay.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the waypoints; a base or site already mirrored is found by identity.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A base's and a site's mirror is one record per source record, so the frames and waypoints built on it are built once across the solve's readings.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mirrors are kept weakly by their source records and released with them.
    */
   export function mirrored(
     problem: HumanArmTrajectory.IProblem,

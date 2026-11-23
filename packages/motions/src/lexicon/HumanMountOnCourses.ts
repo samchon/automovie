@@ -30,14 +30,6 @@ import { HumanSwungLeg } from "./HumanSwungLeg";
  *
  * @param props The climb's plan, its timing and the swinging legs.
  * @returns The plan with its swung legs and its hands' courses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two courses, why each is laid and the hands' landing region.
- * @evidence contracts/development/implementation.md#principled-implementation Joint-space keys where a world course leaves the leg's range; one planned course per arm (TrajOpt, through `courseArmGoal`), the two laid beside each other on the shared base, on the thigh goals, clear of the turning trunk.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The legs' keys, then the arms' course over them.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The landing disc is a quarter thigh either side of the thigh's mid station; the span is the climb's.
- * @evidence contracts/development/implementation.md#efficient-algorithms One swung-leg wrap and one arm course per plan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanSwungLeg` and `courseArmGoal`, the owners of each course.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan retains what its two owners retain.
  */
 export function HumanMountOnCourses(
   props: HumanMountOnCourses.IProps,
@@ -80,11 +72,6 @@ export function HumanMountOnCourses(
 
 /**
  * What the climb's limb courses read.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each member and its unit.
- * @evidence contracts/development/design.md#principled-representation The climb's own plan, seconds and entry pose.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the two courses read, nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's plan and pose types and `HumanSwungLeg.Swing`.
  */
 export namespace HumanMountOnCourses {
   /** The climb's plan, its timing and the swinging legs. */

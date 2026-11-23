@@ -41,11 +41,6 @@ const LIFT: number = 0.1;
  * swings it toward where the load goes; a rake pulls the tines along the
  * ground toward the performer and lifts them back. Keys between are eased
  * with minimum jerk.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each stroke's keys, the plane, the facing and the slide.
- * @evidence contracts/development/design.md#principled-representation A pure path of the tool in the world from the work point, the tool's length and the body's frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the long-tool law only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every placement is measured from the work point and the body read at the entry; the periods are marked provisional.
  */
 export namespace LongToolStroke {
   /** What a stroke is built from. */

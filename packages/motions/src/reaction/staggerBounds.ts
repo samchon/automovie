@@ -14,11 +14,6 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
  * lengths at the threshold of balance recovery, the most steps, the limit's
  * resolution, the swing's clearance and lift, the arms' reaction and the
  * settling's tolerances.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the record holds; each member states its unit and source or its provisional status.
- * @evidence contracts/development/design.md#principled-representation One owner for every value the recovery's planners read, so each planner imports its bound rather than restating it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The constants the recovery reads and the pendulum's eigenfrequency.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every measured value carries its source; the model's own choices are marked provisional.
  */
 export namespace staggerBounds {
   /** The reaction before the first step's weight shift, at the threshold of balance recovery (Cyr, Moglo and Smeesters 2005, ISB XXth Congress 401: 82 ms, younger adults released from a forward lean). */

@@ -38,11 +38,6 @@ const PLAY_CONE: number = 10;
  * (https://www.yamaha.com/en/musical_instrument_guide/trumpet/play/).
  * Register this law explicitly to use it. Events are lift, atMouth and
  * playEnd. The last two mark the sustained playing pose.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the visible action, source, event interval and registration.
- * @evidence contracts/development/design.md#principled-representation The modeled socket's point and axis specify the held object pose throughout the playing interval.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One opt-in law for a held instrument with a mouthpiece socket.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The action keeps the held frame and starts from the rendered mouthpiece.
  */
 export namespace playWindInstrument {
   /** Registered name. */
@@ -57,14 +52,6 @@ export namespace playWindInstrument {
    * @param context The entry state and authored cue.
    * @returns A plan that keeps carrying the instrument after its return.
    * @throws {HumanRefusal} For invalid timing, an absent hold or socket, or an infeasible arm pose.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, result and refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Fits the mouthpiece point and line together, in the mouth's frame, then carries the holding arm on a phrase clock.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the grip and mouth, validate the timed phases, fit the pose and compose the carry.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The real mouthpiece socket is required and its rigid frame survives lift, hold and return.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the held-tool point and axis fit, arm trajectory and grip persistence.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The roll and lean search runs once, and a sampled goal reads the mouth's trunk frame by forward kinematics of the mouth bone's ancestry only.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the timing, rigid goal and held instrument data.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPlayWindInstrument.IParams>,

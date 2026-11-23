@@ -13,11 +13,6 @@ import type { IAutoMovieMotionHumanBlast } from "@automovie/interface";
  * blast-loading source has been read for it (Kingery and Bulmash's scaled
  * impulse curves are the reference to read), so the falloff is provisional
  * and only its monotone fall is relied on.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a blast reaches, the hit it gives, the falloff and that it is provisional with the source to read.
- * @evidence contracts/development/design.md#principled-representation A point, an instant, a radius and a reference impulse.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The blast record and its falloff, read by the hit record.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No charge is named: the impulse and radius are the author's.
  */
 export namespace HumanBlast {
   /** The reference distance the impulse is stated at, metres. */

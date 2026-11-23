@@ -44,14 +44,6 @@ import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditSta
  * content (`HumanPhysics.judged`: a staged physical outcome, or physics its
  * caller asked for); a posed action on planted feet computes no balance and is
  * not judged by it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the measure with its source, its pendulum length, the support hull and which instants are read.
- * @evidence contracts/development/implementation.md#principled-implementation Hof et al.'s extrapolated centre of mass through the engine's owners of the centre, the extrapolation and the hull margin.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One predicate for the instants read, one measure of an instant, one walk of the grid.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones; an instant is skipped only by the declared contacts, never by its margin.
- * @evidence contracts/development/implementation.md#efficient-algorithms A whole motion reads only its grid's poses, each instant's velocity from its two neighbours; the mass model is the body's own (`body.massModel`), built once with the body.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditBalance {
   /**

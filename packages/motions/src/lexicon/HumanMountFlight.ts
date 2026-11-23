@@ -21,11 +21,6 @@ import { HumanMountPush } from "./HumanMountPush";
  * a pole that turns from where an unturned hip points it to the rest's own
  * (`HumanMountPush.pole`), and a pushing foot turning from its roll back to
  * its rest's own turn. Its toes are not yet turned down (`HumanMountPush.tip`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the ankle's course, the reach bound, the pole and the pushing foot's turn.
- * @evidence contracts/development/design.md#principled-representation One swinging leg's goal at an instant, a pure read of the climb's own courses.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanMountOn` asks of a leg in flight, and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is the body's or `HumanMount`'s; every share is the flight's own.
  */
 export namespace HumanMountFlight {
   /** What a leg's flight reads from the climb. */
@@ -93,14 +88,6 @@ export namespace HumanMountFlight {
    *
    * @param props What the flight reads from the climb.
    * @returns A leg's goal at a second of the climb; each ankle's distance from its hip as it leaves is read once.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the reader returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The ankle's course, the reach bound and the pole are the climb's own closed forms, read at the flight's minimum-jerk share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Course, reach, pole, turn.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the body's or `HumanMount`'s.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work a read; the leaving reach is read once a leg.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The leaving reach is cached per leg for the plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the props and two numbers for the plan's life.
    */
   export function of(
     props: IProps,

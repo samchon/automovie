@@ -88,17 +88,6 @@ import { readHumanHandFrame } from "./readHumanHandFrame";
  * forearm turn away from the hand's own rotation at its place, the nearer limit
  * changes sides and the hand with it, so a law keeps an asked rotation on one
  * side of that across its instants (`test_human_motion_core_hand_rotation`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frames, each surface's forward, the rotation convention, each shape's angles and the forearm limitation.
- * @evidence contracts/development/design.md#principled-representation Surfaces are the body's own resolved frames; a rotation is a world quaternion from rest aligned from two directions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One owner for hand effector goals, shared by gestures, rest places and grasping.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine surfaces, FK and quaternion helpers.
- * @evidence contracts/development/implementation.md#principled-implementation Rigid offset of a socket from the wrist (an effector offset); alignment completes each direction pair to a frame and composes the engine's basis rotations.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Offsets, alignment, placement and read-back as separate small functions over one frame type.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A forward parallel to the normal throws instead of picking an arbitrary twist.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call; a digit surface's FK runs once per body, side, surface, shape and curl.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Digit surface frames retain their body/side/surface/shape/curl keys. Anatomical rotation shares only the two immutable canonical rest-frame inverses through the alignment owner; every actual world basis, admission and quaternion composition still runs.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing digit memo weakly follows each body and grows with its requested sides/surfaces/shapes/curls. Two module-owned fixed canonical direction readers retain at most two successful inverse quaternions and no body, world input, aligned output or query history.
  */
 export namespace HumanHand {
   /** The sides of {@link Side}, as data. */

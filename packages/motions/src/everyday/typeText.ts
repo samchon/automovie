@@ -68,17 +68,6 @@ import { typeTextPresses } from "./typeTextPresses";
  * posture it is entered in: each planted foot stays on its floor and a
  * seated body on its seat. No action cuts a typing. Events `press1` to
  * `pressN`, one per key.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the goal, the layout, the timing, the refusals and the provisional values.
- * @evidence contracts/development/design.md#principled-representation A law record: a keyboard frame, a text and a pure plan of fingertip goals over seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, cancel table, parameters and plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, hand and frame types.
- * @evidence contracts/development/implementation.md#principled-implementation Fingertip goals on key centres solved by the arm's inverse kinematics; timing from typing studies.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Lays out the keys, times the presses, then evaluates each posture.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown keys and unfit desks are refused; provisional values are named.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparing N keys and their per-hand chronology costs O(N); each posture locates the active key in O(log N) per hand, constructs its two fingertip goals and fits them continued from the course's frame instant before it (`AutoMovieMotionHumanArmChain`), whose instants are fitted once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed key ordering, timing, keyboard frame, hand shapes, palm rotations and genuine local fingertip-surface geometry are prepared once per plan. Each posture evaluates actual transport/press/lift and the original Bend.hang on its borrowed current entry posture at each target's bend field; rotations, contacts, hints and written joint triples remain fresh.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its borrowed instance/entry inputs, O(N) key/press records, fixed shape/rotation data and two bounded genuine local-surface readers until release. Every actual output is fresh, and no current posture, elbow answer, target or sampled-time history is retained.
  */
 export namespace typeText {
   /** The action's name. */
@@ -96,14 +85,6 @@ export namespace typeText {
    * @param subject The keyboard's prop subject.
    * @returns The home row's middle and the typist's heading.
    * @throws {HumanRefusal} When the prop declares no `homeRow` or `keys`, or its key field is narrower than the letter rows.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The contact's translation carried into the world by the prop's frame; the heading the prop's `-Z` on the floor.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one transform.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A keyboard without a home row is refused with its contacts, never typed on at a guessed place.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the prop's affordances.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function board(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
@@ -209,14 +190,6 @@ export namespace typeText {
    * @param key A letter or a space.
    * @returns The centre and the hand that presses it.
    * @throws {HumanRefusal} When the layout has no such key.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame, its axes and origin, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The ISO/IEC 9995 pitch and row stagger, columns counted from the home row's middle; the space bar two rows below, under the right hand's home key.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One row lookup and one position.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A key the layout lacks is refused, never mapped to a near one.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over three short rows.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function key(key: string): IAutoMovieMotionHumanTypeText.IKeyResult {
     const k: string = key.toLowerCase();
@@ -248,14 +221,6 @@ export namespace typeText {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} On an unknown key, an empty text, or a keyboard too high, low or far for the body.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the plan and its refusals; the namespace gives the goals, timing and contacts.
-   * @evidence contracts/development/implementation.md#principled-implementation Fingertip goals on key centres fitted along the course by `AutoMovieMotionHumanArmChain`; the fit checks read the entry pose's shoulder joints by FK; the contacts are the entry's own supports.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Board, keys and fit checks, then press times, then the fingertip reader and one posture writer.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unfit desks and unknown keys are refused; every threshold is a named provisional constant.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) planning for N keys and one shoulder FK; each posture costs two O(log N) key lookups and the arm chain's fit.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Key layout, timing, hand rotations and the two fingertip-surface goal builders are prepared once per plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its key and press records and the prepared goal builders until released; no sampled posture is retained.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTypeText.IParams>,

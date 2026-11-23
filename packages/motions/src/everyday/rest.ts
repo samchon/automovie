@@ -86,17 +86,6 @@ import { restGoals } from "./restGoals";
  * arms hold those angles, so the place follows the body the arms hang from:
  * breathing and sway carry the hands with it. A hand at `side` is not
  * moved.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Each place is an effector goal on the body's own surface, solved once by the shared inverse kinematics; the arm is carried to that solution in joint angles on a minimum-jerk course (a free arm movement is smooth in joint space, Soechting and Lacquaniti 1981) and the fingers take the place's shape on the same course. The body under it is the stand law's, or the carrier's when the rest is an overlay.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the places, ordered moving sides, each arm's entry angles and the arms' solved places once; each posture is the base, the held arm angles and, while the arms travel, one carry of both.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve of the places per plan (two arms that meet are one coupled solve there, not one per displayed second); the standalone display phase also prepares one fixed-arrival clearance course. Its samples read the live base and interpolate the original arm and finger curves. Carrier and authoring reads retain the live carry; a rest without hand goals omits frame transforms and arm preparation, and nothing grows with the duration.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed goals, entry observations, side order, finger shapes, solved places and the standalone arrival correction knots prepare once. Each actual posture forwards its local/borrowed FK workspace to the complete base and the carry; an interior carry acquires a genuine ROM projector when none is supplied. Output triples remain fresh.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed instance inputs and two clearance scalars per arm and authored knot until release. Current FK getters and genuine ROM projectors end with synchronous return/throw and enter no returned posture or retained callback.
  */
 export namespace rest {
   /** The action's name. */
@@ -135,14 +124,6 @@ export namespace rest {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When a paired place names one hand only, or the time is not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the plan, context, paired-place/duration refusals, original place units and entry-to-rest transport; the namespace and parameter fields own each place's meaning.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds the original self-surface rest goals, carries them with the base root/heading to the body as it stands at the last arrival, solves the places there once, and carries both arms from their entry angles to their solved places on one minimum-jerk arrival in joint space, the clearing course planned against that arrival; finger shares follow the same course and base contacts remain unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed rest geometry, finger entries, the solved places and the planned arrival prepare once. Each query reads the actual base, writes the held arm angles and current fingers, then carries the arms while they travel.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves paired-place rules, raw duration validation, goal surfaces, current base posture and the farther hand's transport time; the places are solved by the posture resolver itself, and an arrived arm holds that solution rather than an approximation of it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The places fit once per plan. Standalone reach preparation evaluates the fixed clearance keys once; native display samples then evaluate the arm blend without matching or storing displayed times. An arrived arm has no goal to fit.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each held arm uses the action's own solved place. The native display reach uses the fixed arrival course and retains the live finger/base writer. The authoring and carrier branches borrow a synchronous exact FK/ROM operation context.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed local rest/finger/entry metadata and the existing clearance coefficients until release. Query-local FK/ROM loans and temporary postures never enter retained frame state or returned goal fields; seeking grows no history.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRest.IParams>,
@@ -475,14 +456,6 @@ export namespace rest {
    * @param places Each hand's place.
    * @returns The goals of the hands that move.
    * @throws {Error} When the trunk has no surface where a clasp is laid.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input posture, the places and which hands get goals.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates to `restGoals`, the owner of every place's effector goal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call; the law and the executable cases read the goals through it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: `restGoals` states its rules.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms What `restGoals` costs.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A delegating facade.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function goals(
     body: IAutoMovieMotionHumanBody,

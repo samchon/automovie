@@ -38,14 +38,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @param props The leg, its timing and the posture it lifts from.
  * @returns The writer of a posture with the leg held, the base posture's other parts kept.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the clearing rise, the fold, the ankle's share and the goal-less case.
- * @evidence contracts/development/implementation.md#principled-implementation A foot breaks contact vertically before it travels, then a minimum-jerk joint blend (Flash and Hogan 1985) from the angles reached; the ankle's compensation is the shank's sagittal tilt, the knee's flexion less the hip's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Two phases, each a closed form of the second.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fold starts from the resolved angles of the rise's end, so the two phases join.
- * @evidence contracts/development/implementation.md#efficient-algorithms The standing posture and the fold's start are read once per plan; every other read is constant work.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The crutch walk's and the crutch stair climb's injured legs share this writer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the standing posture and the fold's start angles for the plan's life.
  */
 export function crutchHeldLeg(
   props: crutchHeldLeg.IProps,
@@ -221,11 +213,6 @@ export function crutchHeldLeg(
 
 /**
  * Companion types of {@link crutchHeldLeg}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning, unit and timebase.
- * @evidence contracts/development/design.md#principled-representation The leg, its two instants, its held angles and the posture reader it lifts from.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the crutch laws hand the writer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the limb reference's angle triples.
  */
 export namespace crutchHeldLeg {
   /** The leg to hold and when. */

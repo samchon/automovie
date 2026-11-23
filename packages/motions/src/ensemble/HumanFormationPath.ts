@@ -19,11 +19,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * heading is the path's direction, turned at each corner linearly in distance
  * over `turn` metres centred on the corner (at most half of either neighbouring
  * stretch), so it is continuous; a fixed heading is kept as given.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how distance and heading are read and the corner rule.
- * @evidence contracts/development/design.md#principled-representation A laid path: its stretches, a speed profile and a reader.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function, `lay`, and the reader's record; `HumanFormation` is its one caller.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Timing is the engine profile's, not a second integrator.
  */
 export namespace HumanFormationPath {
   /** A laid path frame. */
@@ -57,13 +52,6 @@ export namespace HumanFormationPath {
    * @throws {HumanRefusal} When the path has fewer than two distinct corners, a
    *   speed or mark is not finite and nonnegative, marks overlap a change still
    *   under way, or the path is too short to stop on after the last mark.
-   * @evidence contracts/development/common.md#meaningful-documentation States the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Piecewise-constant acceleration by the engine profile; arc length on the polyline; a linear corner blend of the heading along the shortest arc.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, cut the path, lay the profile, return a reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable stop or overlapping marks refuse with their numbers, never clamp.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in corners and marks once; a read scans the stretches, a handful.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller keeps one laid frame per formation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the stretches and the profile for as long as the reader is held.
    */
   export function lay(
     frame: IAutoMovieMotionHumanFormation.IPath,

@@ -67,11 +67,6 @@ import { lineWalkPole } from "./lineWalkPole";
  * is static, not deflected under each step.
  *
  * Events: `step1` to `stepN` at each footfall, `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the stepping, the sway, the line, the refusals, the first pass and the events.
- * @evidence contracts/development/design.md#principled-representation A law record over one step clock, the prop's line and the body's foot length.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the stepping constants and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is the body's or the prop's.
  */
 export namespace lineWalk {
   /** The action's name. */
@@ -128,13 +123,6 @@ export namespace lineWalk {
    * @throws {HumanRefusal} When the prop lacks the affordance, an entry foot is
    *   off the line's top, the step count is not a positive whole number, or the
    *   stopping point lies beyond the line.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Footprints a foot's length apart on the line, swings as leg arcs, hips between the feet on minimum-jerk progress with a sinusoidal sway, arms keyed out.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Line, footprints, clock, rows, contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses an entry off the line or a stop beyond it; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in steps; constant work per sample after a step lookup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the leg placement and arc primitives and the exercise key.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the footprints and the clock.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLineWalk.IParams>,

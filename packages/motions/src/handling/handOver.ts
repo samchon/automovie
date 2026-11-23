@@ -68,11 +68,6 @@ import { handshake } from "./handshake";
  * the giver lets go or starts to withdraw. The giver grips the prop until
  * `release` in a transfer, to the end otherwise. The finger opening (0.2 s)
  * is the put down's provisional value.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States giver/receiver responsibilities, common handover point, release/withdraw/decline timing, upright goal/reference policy, seated lean, prop ownership and the provisional finger-opening duration.
- * @evidence contracts/development/design.md#principled-representation The registered law combines existing prop/partner/hand identities and transfer outcome with canonical world wrist goals, clinical arm references, second-based transports and contact windows.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Parameters and one plan compose HumanHandover's shared meeting/timing, HumanPrehension's transport/digits, canonical joint blending and the existing upright fitter; no second transfer or posture model is exposed.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The receiver's actual grip gates release and both laws read one meeting. Stored data describes authored inputs, fixed reference geometry and the original scalar turn course, without a successful-contact assertion or substituted endpoint.
  */
 export namespace handOver {
   /** The action's name. */
@@ -95,14 +90,6 @@ export namespace handOver {
    *
    * @param context The action's context.
    * @returns The plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The law documents partner/hand/prop, shared meeting/transfer timing, carried attitude, opening/retraction, contacts and the physical refusal owners; this method returns that complete giver course.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the shared meeting and HumanHandover grasp/transfer plan, original wrist transports, joint-reference blend and actual constrained upright-turn fits before release.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Meeting/shared planning precedes digit schedules and one original current raw body/task assembler, invoked separately for every actual upright yaw callback.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original grip/release timing, endpoint turns, nine-yaw candidates, full coupled solves, reference weights, contacts and all refusal paths remain.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Given the shared meet, entry reads request only giver hand and receiver hips/feet/hand. Every original upright yaw still runs its own body/path/digit callback and full fit. The plan's newly produced upper/lower reference tuples share only canonical endpoint rotation/chart preparation; actual reference shares and numerical readback remain. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrowed entry posture graphs are never treated as fixed direct assembly; every actual yaw re-reads its raw frame. Only the privately produced carried/offered clinical reference tuples share their canonical numerical prerequisites, without a fitted answer cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action retains fixed base/transports/shapes, two bounded lazy reference-pair readers, chosen references and scalar yaw course; sample base/FK/rank workspaces and entry bone maps end with synchronous planning, without a queried-share result history or handle.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandoverAction.IParams>,

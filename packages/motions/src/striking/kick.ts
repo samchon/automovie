@@ -60,11 +60,6 @@ import { StrikingWeaponTable } from "./StrikingWeaponTable";
  *
  * A round kick may be redirected before its chamber key into another round kick
  * ({@link KickRedirect}).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the effector-goal method, where the contact is decided, the body's carriage, the timing with sources and the redirect; `KickForm` states which values are provisional.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table admitting only the redirect, parameters with closed technique and leg unions, and a pure plan of postures in world metres and seconds with capsule weapons.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the plan type, the leg resolution and the plan the law table, the knee and the defence read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target, accuracy, posture, plan and weapon types; every length comes from the kicking body's measure.
  */
 export namespace kick {
   /** The action's name. */
@@ -80,13 +75,6 @@ export namespace kick {
    *
    * @param params The parameters.
    * @returns Lead or rear.
-   * @evidence contracts/development/common.md#meaningful-documentation The parameter's own documentation states the defaults this resolves.
-   * @evidence contracts/development/implementation.md#principled-implementation The declared leg, else the rear for a round kick and the lead for a push kick.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leg(
     params: IAutoMovieMotionHumanKick.IParams,
@@ -103,13 +91,6 @@ export namespace kick {
    *   kick of a redirect is not a round kick, when the plan is read back while
    *   it is being built, or when a feint's share lies outside (0, 1) or past
    *   the chamber's share.
-   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
-   * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units carry the ankle through the chamber to the contact goal decided on the fitted figure; the performance's joint contact resolution stops the leg's capsules, after which the chain retraces its approach.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing first, the geometry built on first use (or continued from the source for a redirect), and every posture, contact window, weapon and record read from it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target beyond the leg's reach is the declared miss at the fitted leg's own reach, not a stretched leg; provisional constants are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One limb fit per lean tried for the contact; per posture, closed-form units plus the display's own fit.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per committed stop and dropped on settle, when the stop or the target may have changed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds original geometry and its source until plan release. Each current full posture/weapon observation may borrow exact FK and genuine unchanged-table ROM metadata; no query workspace or projector is retained by the plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,

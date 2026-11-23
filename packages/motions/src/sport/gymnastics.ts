@@ -55,11 +55,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * (`salto`), the round-off (`roundOff`), the handspring (`handspring`) and the
  * vault (`vault`). Not drafted: bars and rings, which need swings about a bar
  * support.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the placement, the entry's two halves, the inverted pose, the timing, the source of the balance and what is not drafted.
- * @evidence contracts/development/design.md#principled-representation A law record of a root row, leg rows and placed arms over one phrase.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is the body's.
  */
 export namespace gymnastics {
   /** The action's name. */
@@ -98,13 +93,6 @@ export namespace gymnastics {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The hips carry the root while the feet stand and the shoulders pivot it while the hands bear, so neither support slides; the shoulders' height is the arms' reach above the laid hands' wrists; the feet stay planted for the first half and then ride the straight legs of the pitched body.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, root row, arm rows, leg rows.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lengths are the body's; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second remains. Each root primitive reads its fold/swing once and computes only its active hip or shoulder support placement, avoiding an unused heading rotation; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the placed arm, leg placement and posture heading; the root writer shares its same-query clock weights between pitch and the selected support without retaining a temporal result cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and a few points.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGymnastics.IParams>,

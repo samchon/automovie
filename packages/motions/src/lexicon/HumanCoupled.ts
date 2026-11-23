@@ -48,11 +48,6 @@ import { getUp } from "../floor/getUp";
  * Arm wrestling is `HumanSocial.armWrestle` with the author's winner; the
  * loser's trunk turn the winner's torque gives is not planned. A tug of war has
  * no law.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each record's roles and actions, where the force comes from, the fulcrum table's source and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation Each composition is a mutual record over shipped laws, the vocabulary's form for one thing several people do.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Five records, the throws' fulcrum table and the thrown region that lies on it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No law is written per hold: the coupling, the response and the support sequence are their owners'.
  */
 export namespace HumanCoupled {
   /**

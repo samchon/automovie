@@ -55,17 +55,6 @@ import { manipulatePlan } from "./manipulatePlan";
  * each press taking the first 40 % of its interval to reach the key and the
  * rest to lift, as `typeText` does. The body holds the posture it is entered
  * in. Events `press1` to `pressN`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the sites, the fingering and its source status, the two goals of a press, the timing and the events.
- * @evidence contracts/development/design.md#principled-representation A law record over a prop's affordances and a list of contacts, with a pure plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters and the plan; rows fix the layout.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand, the posture's digit goals, typing's layout and timing.
- * @evidence contracts/development/implementation.md#principled-implementation Arm placement by the pressing digit's tip in the pressing hand's shape and the digit's own inverse kinematics for the press; fingering by an exact Viterbi path minimizing wrist travel.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Sites, times, fingering, placements, then each posture.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown site or key is refused with the alternatives; the fingering's cost is a measured distance, no weight.
- * @evidence contracts/development/implementation.md#efficient-algorithms The fingering is linear in contacts times the square of five digits; the plan prepares contact geometry once and selects each hand's active contact in logarithmic time.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Contact placement, hand shapes and activation windows are prepared once per plan (`manipulatePlan`).
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold the instance's inputs only.
  */
 export namespace manipulate {
   /** The law's name, as productions register it. */
@@ -89,14 +78,6 @@ export namespace manipulate {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} On no contacts, an unknown site or key, or times given for some contacts and not others.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the resolved sequence and refusals; the namespace documents finger, site, timing and hand-goal conventions.
-   * @evidence contracts/development/implementation.md#principled-implementation The existing sequence/fingering result is prepared by manipulatePlan with the same minimum-jerk wrist and digit goal equations.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Sequence owns contact admission and timing; manipulatePlan owns invariant preparation and active-contact evaluation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No press, authored order, key depth, time, event or hand goal is discarded or approximated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Sequence keeps its Viterbi cost while fixed contact geometry/windows are prepared once and each displayed posture selects at most two contacts by binary search.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed body, entry posture, sequence and skill interval share prepared geometry; each requested second evaluates its actual active press.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns O(N) prepared contacts and windows until release and stores no evaluated-time pose history.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
@@ -115,14 +96,6 @@ export namespace manipulate {
    *
    * @param context The action's context.
    * @returns The presses, in order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States resolved sites, fingers and action-relative press times; parameter declarations give the site/digit/time/depth meanings.
-   * @evidence contracts/development/implementation.md#principled-implementation Prop affordances are placed at the original action-start frame, skill/random timing remains in original contact order and the same exact fingering owner chooses free digits.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Site resolution, time admission, clock draws and hand-wise fingering precede the returned press records.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing sites, empty sequences and partly supplied times retain their original refusals; no random draw or contact ordering changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each distinct named site is resolved once per sequence, plus the original linear timing and bounded-state fingering work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Repeated site names share only the same prop/start-frame point, normal and default travel; individual depths, hands and times stay contact-specific.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The local distinct-site map ends with this call; returned presses retain only the geometry and values they use.
    */
   export function sequence(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,

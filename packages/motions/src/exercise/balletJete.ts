@@ -37,11 +37,6 @@ import { balletPositions } from "./balletPositions";
  * The flight is closed form from the take-off; the legs' angles are provisional
  * readings of Laws (Physics and the Art of Dance, 2002), whose apparent float
  * comes from raising the legs at the apex.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the ballistic flight, the split's share, the landing and the sources.
- * @evidence contracts/development/design.md#principled-representation A course of foot keys and a piecewise hips path over the beat clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The flight's sizes, the legs' angles, the push and absorb times and the course.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Lengths are the body's; the flight is gravity's.
  */
 export namespace balletJete {
   /** The flight's rise, hip heights (provisional). */
@@ -83,13 +78,6 @@ export namespace balletJete {
    * @param context The action's context.
    * @param beats The beat clock.
    * @returns The course.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the course.
-   * @evidence contracts/development/implementation.md#principled-implementation Hermite segments into and out of a ballistic flight, so the hips' velocity is continuous; the legs set from the hip joints along their angles at the body's leg length.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing, flight, hips, legs, keys.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flight is ballistic from the take-off velocity.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The positions' placements and plié.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course retains its placements.
    */
   export function course(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallet.IParams>,

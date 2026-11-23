@@ -29,11 +29,6 @@ type Shape = IAutoMovieMotionHumanColliders.IPlaced["shapes"][number];
  * What a touch reads of the body it lays its hand on: the long axis of a
  * partner's touched limb, along which a flat hand lies (`limb`), and the
  * other parts of that body the hand must not sink into.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two readings and their frames.
- * @evidence contracts/development/design.md#principled-representation The limb's axis is its own capsule collider's, read where the touch starts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `touchHold.lay`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The axis and the parts are the body's own colliders, never a typed direction.
  */
 export namespace touchLimb {
   /**

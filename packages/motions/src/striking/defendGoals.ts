@@ -37,20 +37,10 @@ import { StrikingStance } from "./StrikingStance";
  *
  * The shares of segment lengths are provisional readings of the coaching
  * descriptions the defence law cites.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each kind's goal and that the segment shares are provisional.
- * @evidence contracts/development/design.md#principled-representation Limb goals as world points in metres and world rotations, read from the trunk's own forward kinematics at the given posture.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sight record, the inputs and the one function the defence's geometry reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture's goal type, the defence's kind union and the body's surface regions.
  */
 export namespace defendGoals {
   /**
    * What the defender saw of the strike at its read second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and frame.
-   * @evidence contracts/development/design.md#principled-representation World unit vectors, a sign and a closed side union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The four values the goals and the evasions read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the vector type.
    */
   export interface ISight {
     /** The unit world direction from the weapon to the struck region. */
@@ -68,11 +58,6 @@ export namespace defendGoals {
 
   /**
    * The inputs of one instant's goals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds.
-   * @evidence contracts/development/design.md#principled-representation The body, its posture at the instant, the defence's kind, the struck region with the strike's own point in it, and the sight.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the goals read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the body, posture, kind, region and plan types.
    */
   export interface IProps {
     /** The defender's body. */
@@ -105,14 +90,6 @@ export namespace defendGoals {
    *
    * @param props The instant's inputs.
    * @returns The goals of the limbs the defence moves; the others keep theirs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result; the namespace states each kind's goal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each goal is placed on the defender's own posed trunk and the seen incoming line, so it follows the body's evasion and the strike's aim.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared points first, then one exhaustive switch over the kinds.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The segment shares are documented provisional values; no body is special-cased.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Evasions return no limb changes without trunk resolution; selected limb defences read at most one actual trunk. Cover/parry request only the struck-region point and omit unused normal/forward rotations/wrappers; elbow/high blocks retain every normal they consume. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied trunk belongs to this exact synchronous body/posture observation. Original frame-property and bone lookup order remain; only the demanded fixed body-region fields are placed through their canonical owner. The two cover gloves share their one original current region observation, and no world point/pose enters another call or time.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record and retains nothing.
    */
   export function at(props: IProps): Partial<IAutoMovieMotionHumanPosture["limbs"]> {
     if (props.kind === "slip" || props.kind === "roll" || props.kind === "sway")

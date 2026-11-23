@@ -28,20 +28,10 @@ import { crutchSitPath } from "./crutchSitPath";
  * staged frames, the hand goal that holds a crutch on a frame, the writing of
  * the arms and the injured leg over the body's posture, and the order's result
  * the law courses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the namespace gathers for the two orders.
- * @evidence contracts/development/design.md#principled-representation One kit read from the context, so both orders read the same crutches, goals and leg.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The kit, the order's result and the kit's reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every frame is the crutches' own or the body's.
  */
 export namespace crutchSitKit {
   /**
    * The crutch sit's shared reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The sides, the crutches and the writers both orders use.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the two orders read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Read from the context once.
    */
   export interface IKit {
     /** The body. */
@@ -94,11 +84,6 @@ export namespace crutchSitKit {
 
   /**
    * One order's plan before the arms are coursed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The plan's parts and the second the hands are on the crutches.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the law courses and returns.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The plan's own members.
    */
   export interface IOrder {
     /** Seconds. */
@@ -132,13 +117,6 @@ export namespace crutchSitKit {
    * @param context The crutch sit's context.
    * @returns The kit.
    * @throws {HumanRefusal} When a crutch declares no grip or no tip.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, result and refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The crutches' own contacts and frames, and the hand goal inverting the rigid held offset.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of closures.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A crutch without its contacts is refused by `crutchSitPath.crutch`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the context only through the closures.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrutchSit>,
@@ -239,13 +217,6 @@ export namespace crutchSitKit {
    * @param posture The standing posture, its root and heading.
    * @param side The crutch's side.
    * @returns The crutch's world frame, upright.
-   * @evidence contracts/development/common.md#meaningful-documentation States the place, its parts and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The tip's floor place from the body's measure in the posture's frame, the crutch upright and turned to the heading (`crutchSitPath.slid`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One place and one frame.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clearances are marked provisional.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function gathered(
     kit: IKit,
@@ -278,13 +249,6 @@ export namespace crutchSitKit {
    * @param from The angles left.
    * @param to The angles reached.
    * @returns The angles.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each angle on one minimum-jerk share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clamp keeps the ends exact.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leg(
     share: number,
@@ -313,13 +277,6 @@ export namespace crutchSitKit {
    * @param b The goal reached.
    * @param share The share, clamped to 0 to 1.
    * @returns The goal.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and result.
-   * @evidence contracts/development/implementation.md#principled-implementation Point and bend lerped and rotation slerped on one share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clamp keeps the ends exact.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function blend(
     a: IAutoMovieHumanLimbGoal,
@@ -345,13 +302,6 @@ export namespace crutchSitKit {
    * @param yaw The heading, degrees about +Y.
    * @param side The side.
    * @returns The unit vector.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and result.
-   * @evidence contracts/development/implementation.md#principled-implementation The heading's left, +X at yaw 0, mirrored for the right.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One vector.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lateral(
     yaw: number,
@@ -367,13 +317,6 @@ export namespace crutchSitKit {
    *
    * @param yaw The heading, degrees about +Y.
    * @returns The unit vector.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and result.
-   * @evidence contracts/development/implementation.md#principled-implementation +Z at yaw 0, turned about +Y.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One vector.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function forward(yaw: number): IAutoMovieVector3 {
     const r: number = (yaw * Math.PI) / 180;

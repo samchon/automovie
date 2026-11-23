@@ -8,11 +8,6 @@ import type {
  * The foot strikes' forms: for each technique, the point of the foot that
  * lands, where its toes and instep face from the line, the kicker's left and
  * the kicking leg's outward side, and the direction it travels at the strike.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each form holds and the directions it is built from.
- * @evidence contracts/development/design.md#principled-representation One record per technique of the closed union, each a contact point and three direction functions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the foot strike law only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The techniques differ by data here, not by branches in the law.
  */
 export namespace FootStrikeForms {
   /** A foot strike's contact point on the foot. */

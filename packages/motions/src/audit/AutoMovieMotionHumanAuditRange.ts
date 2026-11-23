@@ -25,14 +25,6 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * an angle on an axis the joint does not have by its whole magnitude, and a
  * ball joint's combined flexion and abduction by what it exceeds the swing
  * cone. A joint the table does not list is unconstrained.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the defect, the table and the scan it reads by, and how each overshoot is measured.
- * @evidence contracts/development/implementation.md#principled-implementation The pose gate's own fault scan over the motion's instants, so the audit and the gate cannot judge a joint by different rules.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One walk over the grid and each instant's joints.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No joint, axis or instant is exempt and no tolerance is added; a non-finite angle reads as infinitely far.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in grid frames and joints.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's `scanJointRom` and range table rather than restating a limit.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditRange {
   /**
@@ -43,14 +35,6 @@ export namespace AutoMovieMotionHumanAuditRange {
    * @param rate Grid samples per second.
    * @returns The reading.
    * @throws {Error} When the rate is not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input and the failure.
-   * @evidence contracts/development/implementation.md#principled-implementation Every joint of every instant goes through the gate's scan against the table's constraint for its bone.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two nested loops and one callback.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A fault without a distance is a non-finite angle and reads as `Infinity`, never as zero.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One scan per joint per instant, no allocation beyond the grid.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `AutoMovieMotionHumanAuditMotion.grid`, the scan the engine's.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditRange.IPosed,
@@ -116,14 +100,6 @@ export namespace AutoMovieMotionHumanAuditRange {
    * @param rate Grid samples per second.
    * @returns The reading: the farthest an unloaded ankle dorsiflexes past its limit, degrees, and the share of instants it does.
    * @throws {Error} When the rate is not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two limits, where a foot's load is read from and what overshoots.
-   * @evidence contracts/development/implementation.md#principled-implementation The unloaded limit applies exactly where the declared plants say a foot bears nothing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One walk over the grid and two feet.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-finite angle reads as `Infinity`; no foot or instant is exempt.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One window test per foot per instant, and one pose only at an instant where some foot bears nothing: a reading of both planted feet is zero whatever the pose, so it is not resolved.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid and the windows are `IAutoMovieMotionHumanAuditMotion`'s, the limit the engine's.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function unloaded(
     motion: IAutoMovieMotionHumanAuditMotion,

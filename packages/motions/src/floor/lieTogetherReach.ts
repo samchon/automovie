@@ -31,11 +31,6 @@ const STEPS: number = 32;
 /**
  * How far a lying body slides toward a partner across the support before it
  * meets them, and what of the partner lies beneath a point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the slide's stop and the read beneath.
- * @evidence contracts/development/design.md#principled-representation Both bodies' own colliders, the body's placed once and translated rigidly by the slide.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The slide and the read beneath; the lying postures and the neck's lift are their owners'.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The slide stops on the exact shape distance; no overlap is excused beyond the head and neck the lift lays on the partner.
  */
 export namespace lieTogetherReach {
   /**
@@ -54,8 +49,6 @@ export namespace lieTogetherReach {
    * @param bones The partner's bones.
    * @param rest The gap kept, metres.
    * @returns The slide, a share of the offset.
-   * @evidence contracts/development/implementation.md#principled-implementation Conservative advancement over the exact shape distance of the two bodies' colliders.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One resolve and one placement per plan; each step reads the pair distances once.
    */
   export function slide(
     body: IAutoMovieMotionHumanBody,

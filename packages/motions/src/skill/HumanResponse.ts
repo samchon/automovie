@@ -27,11 +27,6 @@ import { HumanSkill } from "./HumanSkill";
  *
  * A latency varies when a person answers, never whether: an outcome such as
  * a man who does not fire is the author's.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both kinds, their laws and sources, the lead, the morale effect, the floors and the outcome rule.
- * @evidence contracts/development/design.md#principled-representation A latency kind is a closed union of a reaction and a stated normal.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One draw, its kind, and two constants.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The reaction's parameters stay the orienting law's: no second copy.
  */
 export namespace HumanResponse {
   /**

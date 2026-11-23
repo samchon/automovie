@@ -53,11 +53,6 @@ import { ExerciseKey } from "./ExerciseKey";
  * deflection published as an articulation for the renderer.
  *
  * Events: `takeoff{k}`, `apex{k}`, `touchdown{k}`, `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the spring, the energy balance with its source and standing, the apex build and refusal, the contact and flight, the shapes, the kill and what is missing.
- * @evidence contracts/development/design.md#principled-representation A law over closed-form contacts and ballistic flights on the bed's own height.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the bed and push constants, the shapes, the deflection and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Gravity and the body's mass set every time; the bed is the prop's.
  */
 export namespace trampolineBounce {
   /** The action's name. */
@@ -110,13 +105,6 @@ export namespace trampolineBounce {
    * @param mass The jumper's mass, kilograms.
    * @param fall The height fallen from above the bed, metres.
    * @returns Metres.
-   * @evidence contracts/development/common.md#meaningful-documentation States the balance solved.
-   * @evidence contracts/development/implementation.md#principled-implementation Newton's method on the monotone quartic from a linear guess.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Converges to 1e-9 m.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A few iterations.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work None needed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function deflection(mass: number, fall: number): number {
     const g: number = AutoMovieGravity.STANDARD;
@@ -140,13 +128,6 @@ export namespace trampolineBounce {
    * @throws {HumanRefusal} When the bed is missing, the jumper is not on it,
    *   the count is not a positive whole number, or the apex exceeds what the
    *   push sustains.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The apex sequence from the energy kept and the push; each contact's deflection from the balance; quarter-sine contacts matching the ballistic speeds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bed, apexes, phases, one writer, contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A higher apex than the push sustains is refused, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bounces; constant work per sample after a phase search.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The leg goal and the exercise key.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its phases.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTrampoline.IParams>,

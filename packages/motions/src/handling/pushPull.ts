@@ -44,11 +44,6 @@ import { pushSledStance } from "./pushSledStance";
  * pivot on the floor is not modelled), the breakaway and per-step events, the
  * step-to-step pauses a seed draws under heavy loads, and the load's friction
  * slowing the walk.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the ways, how each sets the walk and the lean, the source of the lean, the stuck load and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation A law over the sled push's hold: the way, the load level and the handles are the haul's, the hold and the grasp the push's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the way, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The handles are the load's own affordances, the lean the study's.
  */
 export namespace pushPull {
   /** The action's name. */
@@ -71,13 +66,6 @@ export namespace pushPull {
    *   nowhere to go, and on `seconds` when a stuck load has no duration; an
    *   `affordance` refusal when the prop lacks a named handle; and whatever the
    *   sled push refuses.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The lean is read at the handles' mean height above the floor the body stands on, where the load stands at the start.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The checks, the handles' height, the lean, then the push's plan.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing destination or duration refuses; nothing is defaulted in its place.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two handle lookups before the push's own plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the sled push's hold, its handle reader and its floor.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the push's plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPushPull.IParams>,

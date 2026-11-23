@@ -45,11 +45,6 @@ interface IPalmOffer {
 /**
  * An artistic base's support: its palm offered under a flyer's foot, and
  * the turn of a limb onto or off a supporting palm or sole.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is offered, where, and how a limb takes or leaves support.
- * @evidence contracts/development/design.md#principled-representation A world palm point and orientation set from the base's own frame, with its own elbow hint.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by the base and the flyer of \AquaticTeam\.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The flyer reads the base's displayed palm; this only writes the base's goal.
  */
 export namespace AquaticTeamBase {
   /** The shared upward direction of the figure's hand and sole frames. */

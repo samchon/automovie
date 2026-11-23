@@ -41,14 +41,6 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * @param seconds Its film second.
  * @param spanEnds A span's world endpoints for the first and last particles at this step.
  * @returns The step's boundary sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the sample holds for each kind of anchor and capsule.
- * @evidence contracts/development/implementation.md#principled-implementation Each binding's local offset is carried by its displayed bone or prop frame. A placed span supplies both world endpoints. A gripped particle follows the hand that closed last.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the anchors and one over the body capsules.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone or prop throws through its reader, and authored node ids cannot be mistaken for temporary grip anchors.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in anchors and capsules, plus a grip scan for each replay-assigned grip particle. Bones are read once per person and step through the reader.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The bone reader keeps each person's bones per step. The caller supplies both span endpoints from one prop frame and one posed span read at this step.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh sample and retains nothing.
  */
 export function HumanPerformanceSoftBoundary(
   state: IAutoMovieMotionHumanPerformanceState,
@@ -142,11 +134,6 @@ export function HumanPerformanceSoftBoundary(
 /**
  * Companion of {@link HumanPerformanceSoftBoundary}: the grip record, the
  * bone reader and the small helpers the soft pass shares.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member.
- * @evidence contracts/development/design.md#principled-representation A grip as a particle bound to a hand over a window; bones read by person and step.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanPerformanceSoft` and the boundary read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's and interface's types.
  */
 export namespace HumanPerformanceSoftBoundary {
   /** A grip that binds a particle to a hand's socket for a window. */

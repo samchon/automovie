@@ -31,11 +31,6 @@ import { walkTempo } from "./walkTempo";
  * civilian pairs lock step frequency, Nessler and Gilliland 2009; drilled
  * troops all do); one who does not keeps its own tempo. After the track's
  * last beat the steps keep the plan's own times.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the model, its terms and sources, the first strike, the lock and what follows the track.
- * @evidence contracts/development/design.md#principled-representation The beat track is the schedule's own cue list; the cadence is a track's name, the striking foot and a beat index.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `strikes`, returning the strikes' seconds, its parameter type, and the track's `beats` and `period` the march also reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No strike is snapped onto its beat or held back from it: each lands where the model puts it, and a step no forward warp carries is refused.
  */
 export namespace walkCadence {
   /**

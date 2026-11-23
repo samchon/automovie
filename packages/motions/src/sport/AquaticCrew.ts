@@ -15,11 +15,6 @@ import { AquaticPosture } from "./AquaticPosture";
 
 /**
  * Hull frames and shared wrist and ankle support for paddle and sail.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the hull clock, local contact anchors and shared fit.
- * @evidence contracts/development/design.md#principled-representation The actual moving hull places contacts; each sport supplies its own recovery and transfer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Shares only support and hull-local quantities required by both planners.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The scene prop owns the craft trajectory and articulated grips.
  */
 export namespace AquaticCrew {
   /** A hull frame reader from the action's film clock, with poised local contact anchors. */

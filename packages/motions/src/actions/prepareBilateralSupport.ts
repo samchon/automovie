@@ -28,9 +28,6 @@ type Angles = NonNullable<IAutoMovieMotionHumanPosture["joints"]["hips"]>;
  * the better supported side's clinical angles to the other. The translation
  * fits all four material sites in least squares. The whole-body solver
  * independently scores the candidate on the original constraints.
- *
- * @evidence contracts/development/implementation.md#principled-implementation The clinical reflection keeps flexion, abduction and axial rotation on contralateral limb records. Midline joints retain sagittal flexion; a horizontal rigid translation and height fit the material contact points.
- * @evidence contracts/development/implementation.md#efficient-algorithms Only complete bilateral endpoint constraints read the predecessor's fit and the reflected candidate's FK.
  */
 export function prepareBilateralSupport(
   body: IAutoMovieMotionHumanBody,

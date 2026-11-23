@@ -19,11 +19,6 @@ import { HumanFrame } from "../posture/HumanFrame";
  * the palm facing back and the fingers pointing across; the other palm
  * presses the stretched arm a little short of half way from that wrist to
  * its shoulder, near its elbow.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where each hand goes and why the wrist, not the palm, is placed.
- * @evidence contracts/development/design.md#principled-representation Two placed arms over the stretch's weight, as data for the placed-arm primitive.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One builder, read by the stretch law.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The palm's offset from the wrist is the hand owner's (`AutoMovieMotionHumanPlaced.wrist`), never a length typed here.
  */
 export namespace stretchCrossBody {
   /**
@@ -31,14 +26,6 @@ export namespace stretchCrossBody {
    *
    * @param props The body, the stretched side, the stretch's seconds, each arm's resting angles, the weight over time and the heading's forward.
    * @returns The primitives.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result; the namespace gives the places.
-   * @evidence contracts/development/implementation.md#principled-implementation The stretched palm is placed so that its wrist lands on the target: the palm point is moved by the palm's own offset from the wrist at that hand's turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One target and two placed arms.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every place follows from the body's measure and the posture's root and heading.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed reach/pressure geometry and the actual shoulder rest point prepare once. Each actual arm placement shares one current-yaw frame across its reach/shoulder/facing directions, retaining every current rigid transform and native wrist/arm solve instead of repeating yaw trigonometry per vector.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body measures, side and entry-forward pressure establish fixed local geometry only; each posture's actual root/yaw still determines its fresh frame/targets. Native Placed.arm/wrist retain hand offset and actual arm-solving ownership.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The two arm rows retain bounded fixed reach/pressure vectors and the body-owned shoulder rest point until release. Each current frame and temporary target ends with its placement callback; no current pose, FK source, evaluated target or time history is retained.
    */
   export function arms(props: {
     body: IAutoMovieMotionHumanBody;

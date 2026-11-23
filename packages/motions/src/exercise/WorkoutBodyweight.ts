@@ -24,11 +24,6 @@ import { WorkoutKind } from "./WorkoutKind";
  * grammar's `hanging`, the body borne by its hands with its feet off the
  * floor, there being no base of a body supported above its hands; a bird
  * dog's hands are kept by the angles alone.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the sources and that the angles are provisional, and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres.
  */
 export namespace WorkoutBodyweight {
   /** Lying on the back with the arms by the sides. */

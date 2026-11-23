@@ -39,11 +39,6 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * law represents only a bilateral arc and longitudinal deceleration.
  * https://doi.org/10.1080/14763141.2018.1441898
  * https://doi.org/10.1371/journal.pone.0176975
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the support, path, sources and unmodeled loads.
- * @evidence contracts/development/design.md#principled-representation One closed planar arc and its tangents carry the displayed entering geometry and the independent foot fits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the shared two-foot glide plan to the ice and snow laws.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The provided speed and slope shape motion in physical units without importing force constants across sports.
  */
 export namespace HumanSurfaceGlide {
   /** Fraction of the action used to reach nominal speed from the entry (provisional staging, as the speed profile is). */
@@ -60,14 +55,6 @@ export namespace HumanSurfaceGlide {
    * @returns The bearing windows, speed events and pure posture query.
    * @throws {HumanRefusal} For a non-standing entry, missing ground support,
    * a grade with no slope named, infeasible arc radius or parameters outside the authored bounds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the support and timing assumptions and the refusal conditions.
-   * @evidence contracts/development/implementation.md#principled-implementation Integrates the cubic speed ramps in closed form, transports ankle positions along circles about the common arc center, and fits each ankle with its own tangent.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares the entry frame, curvature and two tangent offsets, then samples one transported stance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a turn whose center would put the inside foot on the wrong side of its own path, and retains the entered ankle positions at time zero.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic and two foot goals per pose with no frame-rate dependence.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses entry geometry, closed profile constants, posture carry and standing knee targets.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure keeps two ankles, frame, heading and fixed scalar profile data for the duration of the action plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISnowGlideParams>,

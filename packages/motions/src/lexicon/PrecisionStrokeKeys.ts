@@ -1,11 +1,6 @@
 /**
  * A precision stroke's key poses beyond its contact: how far a two-handed
  * swing's trunk coils back at the top and turns on at the finish.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each key, its unit and its source or its provisional standing.
- * @evidence contracts/development/design.md#principled-representation Two angles of the trunk over the pelvis.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `createPrecisionSportStroke`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The coil is the measured X-factor's lower bound; the finish is marked provisional where no measured value is common to the sources.
  */
 export namespace PrecisionStrokeKeys {
   /**

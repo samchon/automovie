@@ -26,11 +26,6 @@ import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
  * says which hand wins. This is the smart-object coupling of Kallmann and
  * Thalmann (1999, Modeling Objects for Interaction Tasks): the object
  * declares how it moves, the act drives it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what sets a travel, what holds after a drive, what is refused and the pattern's source.
- * @evidence contracts/development/design.md#principled-representation Timed writers name their authored coordinate and its independent degree of freedom; the latest begun writer of each degree supplies one input to the prop's own articulate function.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The state, the posed point, the admission and the writers' list.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A drive never moves the prop's frame; the travel is the act's own function.
  */
 export namespace HumanPerformanceObject {
   /** One timed writer of an articulation's travel, the performance's record (`IAutoMovieMotionHumanPerformanceState.IWriter`). */

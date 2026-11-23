@@ -20,11 +20,6 @@ import { balletStep } from "./balletStep";
  * Angles are provisional, read off the steps' usual descriptions (Vaganova,
  * Basic Principles of Classical Ballet, for the plié, relevé and arabesque; the
  * baby freeze and the rock as breaking and hip-hop teaching describes them).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steps, what stays pinned and the angles' standing.
- * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per step: data over the one planner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table and the turnout.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres; the turnout is a hip rotation the range of motion admits or refuses.
  */
 export namespace WorkoutDance {
   /**

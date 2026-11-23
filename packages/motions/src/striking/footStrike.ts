@@ -52,11 +52,6 @@ import { StrikingTarget } from "./StrikingTarget";
  * aims through the target so it meets it at 0.82 of its unit, after its peak
  * speed. The knee bends toward the line between the hip and the ankle's
  * goal, raised.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the foot's goal, the reach rule, the chamber and the extension's timing source.
- * @evidence contracts/development/design.md#principled-representation One law record over the shared clock, base and lower-body primitive, with a data table of the techniques.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan registration reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The techniques differ by data in `FootStrikeForms.FORMS`; timings are the cited ones or the kick's.
  */
 export namespace footStrike {
   /** Action key. */
@@ -101,14 +96,6 @@ export namespace footStrike {
    *
    * @param context The action's context.
    * @returns The plan, whose decisive instant is `impact`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the plan's events.
-   * @evidence contracts/development/implementation.md#principled-implementation Two minimum-jerk units carry the ankle through the chamber to the contact, a third back to the plant; the lower body turns, spins and hops on the strike's share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing, the target and the form, the contact goal and the chamber, then the lower body and the kicking leg.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target beyond reach is missed at full reach; provisional shares are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The goal is solved once; each posture costs the lowering and leg fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the kick's timing, the close strike's lower body and the shared clock and base.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its fixed geometry until release.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFootStrike.IParams>,

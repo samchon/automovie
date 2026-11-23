@@ -39,20 +39,10 @@ const TOUCH_FORWARD: number = 2;
  * constant speeds along a heading the held toggles turn; the flare eases
  * them to the touchdown speeds from `FLARE` to the ground. An eased speed's
  * distance is the minimum-jerk share's integral, `2.5 u^4 - 3 u^5 + u^6`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each phase's law and the eased-distance integral.
- * @evidence contracts/development/design.md#principled-representation Phase boundaries in seconds and the hips and heading as closed forms of time.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The path planSkydive samples.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every speed is a stated constant; nothing is simulated.
  */
 export namespace skydivePath {
   /**
    * One instant of the path.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The hips, the heading, the phase and its progress.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the posture writer reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by the path.
    */
   export interface IAt {
     /** The hips, world metres. */
@@ -70,21 +60,11 @@ export namespace skydivePath {
 
   /**
    * The flight's phases.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names them.
-   * @evidence contracts/development/design.md#principled-representation A closed choice.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the posture writer switches on.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Declared here directly.
    */
   export type Phase = "freefall" | "opening" | "canopy" | "flare";
 
   /**
    * The path.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation Phase start times, the touchdown and the sampler.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What planSkydive reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by prepare.
    */
   export interface IPath {
     /** The opening's start, the deployment. */
@@ -115,14 +95,6 @@ export namespace skydivePath {
    * @param ground The landing ground's height, world metres.
    * @returns The path.
    * @throws {HumanRefusal} If the exit is not above the deployment, the deployment leaves too little height for the canopy to open and slow the body before the flare, or the toggles overlap.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The freefall time inverts the drag drop (`t = vt / g acosh(exp(d g / vt^2))`); each later phase's length follows from its distance and its speeds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Time the phases, admit them, then the sampler.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A deployment too low refuses with the altitude and the least admitted; the constants are provisional and stated as such.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work at plan time; per sample, linear in the toggles.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the phase times and toggles.
    */
   export function prepare(
     p: IAutoMovieMotionHumanSkydive.IParams,

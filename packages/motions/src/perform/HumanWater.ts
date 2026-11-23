@@ -47,14 +47,6 @@ const PLATE: number = 1.17;
  * shape and for an opt-in breaststroke. The stroke uses each segment's own
  * motion relative to still water and constrains travel to the heading at its
  * initial buoyant trim. Free heave and rotation remain outside this model.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three readings, the laws behind them and the first pass's limits.
- * @evidence contracts/development/implementation.md#principled-implementation Archimedes' principle summed over the segments for the float, solved by bisection on a monotone function; Newton's second law under the summed quadratic drag for the glide, integrated by the engine's fixed-step integrator.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One segment-force sum for each posed evaluation. The stroke samples centre paths and volumes before integration.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body denser than the water is reported as sinking, never floated by a clamp.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments per evaluation. Float bisects to a micrometre or adjacent representable heights, whichever is coarser. The stroke samples one bounded phase grid.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned trajectory.
  */
 export namespace HumanWater {
   /**
@@ -229,13 +221,6 @@ export namespace HumanWater {
    * @param direction World horizontal heading, unit.
    * @param water The horizontal surface and medium density.
    * @returns Longitudinal trajectory with state [distance, phase velocity].
-   * @evidence contracts/development/common.md#meaningful-documentation States the coordinate system, initial conditions, sample inputs, duration scaling and returned state.
-   * @evidence contracts/development/implementation.md#principled-implementation Samples collider-equivalent centres and unit-flow drag through the existing segment model, then integrates the heading projection of the sum of quadratic drag under common translation plus each segment's local velocity.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares uniformly timed centres and local derivatives before running one scalar trajectory.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stroke's keyed poses supply the local movement and the medium supplies the force. Only heading translation is free; no preset thrust or cruise speed is applied.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Uses one skeleton per phase sample and one volume per segment. Integration stages interpolate the cached samples without recalculating poses or volumes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The integration uses the same centre transform, drag primitive and trajectory integrator as the passive operations.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sampled centres and coefficients are local to planning. The returned trajectory retains only its own knots.
    */
   export function stroke(
     body: IAutoMovieMotionHumanBody,

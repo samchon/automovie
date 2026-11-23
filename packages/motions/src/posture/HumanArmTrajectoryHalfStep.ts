@@ -26,21 +26,11 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * read. A signed distance has unit slope, so a segment of length `L` from a
  * point at distance `g` lies no nearer than `g - L`: a segment that bound
  * already clears is not read exactly.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read, the frame, the source and the bound that leaves a segment unread.
- * @evidence contracts/development/design.md#principled-representation A neighbour's carried place and turn, and a swept reading's distance and the two ends' gradient directions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The neighbours, the swept reading and the carrying of a point, read by the pair reading and its convex rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The distance is the engine's segment distance and the gradient the sweep's own (`HumanArmSweepGradient`); nothing is scaled.
  */
 export namespace HumanArmTrajectoryHalfStep {
   /**
    * The arm placed at the waypoints either side of the one read, where they are
    * placed with their collider probes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and when it is absent.
-   * @evidence contracts/development/design.md#principled-representation The arm's placements, borrowed.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `neighbours` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IAround {
     /** The arm at the waypoint before; none at the first or where unplaced. */
@@ -53,11 +43,6 @@ export namespace HumanArmTrajectoryHalfStep {
   /**
    * A probe at a neighbouring waypoint, carried into the shape's frame at the
    * waypoint read.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, its frame and its unit.
-   * @evidence contracts/development/design.md#principled-representation The neighbour's index, the carried place, the turn and the length of the swept segment.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `swept` and the convex rows read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface INeighbour {
     /** The neighbouring waypoint. */
@@ -132,13 +117,6 @@ export namespace HumanArmTrajectoryHalfStep {
    * @param placed The arm placed at `k`.
    * @param around The arm at the neighbouring waypoints.
    * @returns The neighbours, none for a still configuration's ends.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each neighbour's place carried by the same collider's placement at `k` times the inverse of its placement there (`HumanArmShapes.relative`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two neighbours, each carried once.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A shape that is not the same segment at both waypoints is read as still.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two rigid transforms per pair.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of its arguments.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and retains nothing.
    */
   export function neighbours(
     c: M.IContext,
@@ -190,13 +168,6 @@ export namespace HumanArmTrajectoryHalfStep {
    *   the pair may come to, metres: a segment no longer than that is clear.
    * @returns The nearest segment's reading; none where no segment can come
    *   nearer than the waypoint allows.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's segment distance and nearest point, and the envelope theorem's gradient at the nearest point carried to the ends by its share of the segment (`HumanArmSweepGradient`, as the axis spheres' sweeps take it).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A bound, then one exact reading per segment left.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A segment is left unread only where the unit-slope bound proves it clear.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most two segment queries per pair, none for a pair its room already clears.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of its arguments.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
    */
   export function swept(
     shape: IAutoMovieMotionHumanArmGeometry.IShape,
@@ -282,13 +253,6 @@ export namespace HumanArmTrajectoryHalfStep {
    * @param shape The shape's index in the frames at `from` and `from + 1`.
    * @param p The point at `from + 1`, world metres.
    * @returns The point in the frame at `from`, and the turn.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the still case.
-   * @evidence contracts/development/implementation.md#principled-implementation The matching collider's placement at `from` times the inverse of its placement at `from + 1` (`HumanArmShapes.relative`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One identity check and one transform.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A collider that is not the same segment at both is read as still, never matched by place.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of its arguments.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
    */
   export function relative(
     c: M.IContext,

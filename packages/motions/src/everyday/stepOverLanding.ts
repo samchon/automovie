@@ -21,14 +21,6 @@ import { crossingSurface } from "../terrain/crossingSurface";
  * @param stride The stride's own landing, metres along the path.
  * @returns The landing's height and place.
  * @throws {HumanRefusal} When the surface is not fixed, level and square to the path, or a landing foot cannot lie on it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the result, its frame and the refusals.
- * @evidence contracts/development/implementation.md#principled-implementation The surface's own placed extent bounds each landing footprint from heel to toe.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The absent case first, then one extent read, the drawn-back landing and one check per foot.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot off the surface refuses instead of landing in the air.
- * @evidence contracts/development/implementation.md#efficient-algorithms One extent read and two constant checks per step.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function stepOverLanding(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStepOver.IParams>,
@@ -74,11 +66,6 @@ export function stepOverLanding(
 
 /**
  * Companion types of {@link stepOverLanding}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the record's frame and units.
- * @evidence contracts/development/design.md#principled-representation A height and a coordinate in the crossing frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two values `stepOverPath` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Read from the placed surface, never authored.
  */
 export namespace stepOverLanding {
   /** Where the ankles land along the path and the height they land on, metres in the crossing frame. */

@@ -84,11 +84,6 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * The beat windows, vertical load, heel rise and trunk lag are provisional
  * choreography, expressed as beat shares or relative to the body.
  * @see https://www.iba.sport/wp-content/uploads/2018/07/AIBA-Coach-Regulations-Manual_WEB.pdf
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the support geometry, rotation axis, lead order, timing and sources.
- * @evidence contracts/development/design.md#principled-representation Foot placements, support windows and pelvis and trunk paths feed the same posture and leg solvers as the straight step.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Receives only the validated step controls and returns its normal action plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the shared ball pivot and leg swing rather than rotating a locked ankle or teleporting the stance.
  */
 export namespace StrikingStepTransition {
   /**
@@ -97,11 +92,6 @@ export namespace StrikingStepTransition {
    * @param context The step's action context and actual entry placements.
    * @param props The resolved beat count, duration, travel, turn and entry lead.
    * @returns The deterministic full-body plan and its support windows.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Computes turn and lead geometry once per beat, then solves each posture from its time and active supports.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Separates beat geometry, event scheduling and current posture.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Plans linearly in beat count, with one indexed beat per posture read.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its beat geometry and entry only.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStep.IParams>,

@@ -60,11 +60,6 @@ const REST: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  * The teaching sources are FIH 2026 §2, IIHF 2026–27 §§10 and 13, and
  * USA Lacrosse's Learn the Basics. Phase shares, shaft inclination and
  * default speed are provisional film-staging values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Declares the working affordances, custody, scoped body channels and reference rules.
- * @evidence contracts/development/design.md#principled-representation The rigid stick geometry drives both hands and the same timestamp drives the ball effect.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the plan and its action transition contract.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Support and prop state remain with the carrier and the performance.
  */
 export namespace stickBall {
   /** This law's action name. */
@@ -86,14 +81,6 @@ export namespace stickBall {
    * @param context The body, authored props and optional support carrier.
    * @returns A sampled two-hand plan with a prop launch or pocket mount.
    * @throws {HumanRefusal} If a required affordance is absent, a duration or speed is invalid, a grip is out of reach, or the fitted ice blade misses the puck rim.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the data, result and refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation A world cue determines the placed working frame, and each shaft grip remains local to that frame. A hand the entry does not record holding the stick is carried from its entry arm onto its grip over a reach-to-grasp time (McIntosh, Mon-Williams and Tresilian 2018) before the stick moves, so the arms stay continuous at the stroke's start.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the cue and frame path before composing two arm goals and publishing custody.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Named props supply their dimensions. An arm-length bound admits the requested grip positions, and an ice puck launches only after the fitted grips put the finite blade face within the contact allowance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One sizing read per prop, two local observations of the hockey arm fit at grip closure and contact, and no repeated fit admission during playback.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared clock, posture carrier, placed arm and prop trajectory owners.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only prepared frames, clock and the arm goals. Retains no past sampled frames.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStickBall.IParams>,

@@ -25,11 +25,6 @@ import { HumanHand } from "../posture/HumanHand";
  * shoulder's half-width out of the midline, the index outward, as far apart as
  * the bridge hand holds the pads. The wrist's place is the fit's; the seed
  * stands it over the pads' middle.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contact, its source, the placement and the seed.
- * @evidence contracts/development/design.md#principled-representation Pad contacts are hand-frame points of the bridge hand brought to world floor points, metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function gives a hand's two contact targets and its seed wrist.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The pads' spread is the body's own bridge hand's; no spread or height is laid down.
  */
 export namespace sprintStartSetHands {
   /**
@@ -42,13 +37,6 @@ export namespace sprintStartSetHands {
    * @param feet The entry's feet.
    * @param yaw The heading, degrees.
    * @returns The frame.
-   * @evidence contracts/development/implementation.md#principled-implementation Inverts the stand's own placement of its feet from its floor point.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One midpoint less one turned rest offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The frame follows the entry's displayed feet, not its root.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the entry's feet and the body's rest once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh frame.
-   * @evidence contracts/development/common.md#meaningful-documentation States the construction and the line's place.
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,
@@ -77,11 +65,6 @@ export namespace sprintStartSetHands {
 
   /**
    * A hand's bridge.
-   *
-   * @evidence contracts/development/design.md#principled-representation Two fit targets on the hand bone and a world seed wrist.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The targets the fit holds and the wrist the seed reaches.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The palm carries no target: it rises where the fit leaves it.
-   * @evidence contracts/development/common.md#meaningful-documentation States both members.
    */
   export interface IBridge {
     /** The index pad's and the thumb pad's targets on the track. */
@@ -102,13 +85,6 @@ export namespace sprintStartSetHands {
    *   line lies a foot's length ahead.
    * @param side The hand.
    * @returns Its two pad targets and the seed's wrist.
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the bridge hand's own pad offsets and lays them on the floor along the line.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two offsets, two floor points and one seed point.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No palm target and no rotation: the bridge's tilt is the fit's.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the hand's offsets once per hand.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records.
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame, the result and its units.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,

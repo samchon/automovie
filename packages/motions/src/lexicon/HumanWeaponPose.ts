@@ -42,20 +42,10 @@ const PASSES: number = 3;
  * it. The plan strokes to it, and a grip a pick up weighs for the
  * presentation (`present.demands`) is judged at it, so the grip chosen is
  * the one the plan holds.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is computed and who reads it.
- * @evidence contracts/development/design.md#principled-representation The stance and the hand frame as one record, the arguments of the presentation's stroke and of its refusal.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The record and its reading, read by the plan and its demands.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The constants stay the presentation's own; no weapon is named.
  */
 export namespace HumanWeaponPose {
   /**
    * A presentation's stance and pose.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation What the stroke and its refusal read of a presentation: the trunk's turn, the posture, the sight line's ends and the hand frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The stroke and grip admission read the same modeled tool and pivot as the pose choice.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None optional.
    */
   export interface IPosed {
     /** The trunk's whole turn, degrees, positive toward the performer's left: a long gun's blade toward the firing side on foot, with a seated performer's turn toward the target. */
@@ -96,14 +86,6 @@ export namespace HumanWeaponPose {
    * @param seated Whether the performer sits a mount, whose trunk then turns toward the target (`HumanMountedPresentation`).
    * @returns The stance and the pose.
    * @throws {HumanRefusal} On `target` when the target lies more than `TURN` degrees off the heading, or past a seated performer's trunk turn and `TURN`, or an extended arm's line of aim passes beyond its reach.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The bore's line on the line from the anchor to the target, an extended arm's working point where that line meets the arm's own reach, a ready region's pose (`HumanFirearmReady`), or the recover's upright bore above the support side's breast (the 1764 Manual Exercise), on the bladed trunk a long gun is shouldered from, square at the recover.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry, the turn, the anchor, the target and its angle, then the pose by carriage.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target past `TURN`, or past a seated trunk's turn and `TURN`, is refused, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution and the carriage's pose choice.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan and once per weighed grip.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
     context: Pick<

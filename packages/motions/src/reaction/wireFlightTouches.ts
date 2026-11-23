@@ -23,11 +23,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * A wire flight's touches (`IAutoMovieMotionHumanWireFlight.ITouch`): each
  * hand or foot meets its surface around its share of the flight, coming in
  * and going out over `TOUCH` on either side, from the flight's own limb.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the touches, their ramps and the keys the ramps start from.
- * @evidence contracts/development/design.md#principled-representation Each touch a limb goal on its aimed surface, mixed in over a minimum-jerk ramp from the flight's own limb.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The touches over the flight's plan; the flight is `wireFlight`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A touch beyond the limb's reach from the path is refused, never stretched.
  */
 export namespace wireFlightTouches {
   /** How long a touch comes in before its share and goes out after, seconds: authored. */
@@ -52,9 +47,6 @@ export namespace wireFlightTouches {
    * @param touches The touches.
    * @returns The plan with the touches.
    * @throws {HumanRefusal} On a touch's `at` outside the flight, and on its `target` beyond the limb's reach from the path.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation A touch's ramp starts from the flight's own limb, keyed at the ramp's ends in the root's frame and carried by the root between them, as an animation curve's keys are.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four keys per touch, each one resolve on the ramp's first read; every other second interpolates them.
    */
   export function apply(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,

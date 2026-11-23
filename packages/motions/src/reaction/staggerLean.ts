@@ -47,14 +47,6 @@ import { staggerBounds } from "./staggerBounds";
  * @param walk The centre of mass's travel, the extrapolated centre of mass on the floor and the entry's centre of mass, world metres, at seconds since the action's start.
  * @param bend The centre of mass's shift per sine of the trunk's pitch and roll, metres.
  * @returns The trunk's tilt, degrees, the upright root before any lowering, world metres, and the reaction's eased share from the entry (0 until the measured reaction, 1 once the weight shift is done), at a second.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the trunk's law, its provisional status, its direction, bound and onset, and the root's compensation, with sources.
- * @evidence contracts/development/implementation.md#principled-implementation The hip strategy's counter-rotation against the extrapolated centre of mass's lead, read in closed form from Hof's pendulum; the root's compensation is the measured linear mass shift per sine of tilt.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed heading axes, length, onset and roll sign prepared once, then one reader of lead, angle, direction, ease and root.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No coefficient is fitted: the angle is a geometric ratio of the body's own pendulum, bounded by the hip's range, and its provisional status is stated.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per read: two course reads and a few trigonometric terms.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The admission and the displayed feet read the same law, so the legs admitted are the legs shown.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the courses, the shift vectors and its constants for its plan's lifetime.
  */
 export function staggerLean(
   body: IAutoMovieMotionHumanActionContext["body"],

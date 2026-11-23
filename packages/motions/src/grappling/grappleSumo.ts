@@ -27,11 +27,6 @@ import { grappleFront } from "./grappleFront";
  * The belt grip holds the mawashi where it wraps the hips (the partner's
  * hip regions). The crouch, charge and drive shares and depths are
  * provisional staging values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three bouts, the staged geometry and its sources, the belt's regions and what is provisional.
- * @evidence contracts/development/design.md#principled-representation One support schedule per role over shikiri, tachiai, drive and finish keys, the scene kind choosing the grip and finish.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grapple law reads the kinds, durations, regions, grip window and keys.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The floor fit stays the support law's; the push-out is authored, never decided by force.
  */
 export namespace grappleSumo {
   /** The sumo scenes. */
@@ -91,14 +86,6 @@ export namespace grappleSumo {
 
   /**
    * Whether a grapple kind is a sumo bout.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the narrowed kinds.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation One membership test.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work None.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function is(kind: IAutoMovieMotionHumanGrapple.Kind): kind is Kind {
     return kind === "oshiDashi" || kind === "yoriKiri" || kind === "uwateNage";
@@ -106,14 +93,6 @@ export namespace grappleSumo {
 
   /**
    * A scene's default length, seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A lookup.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A lookup.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work None.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function seconds(kind: Kind): number {
     return SECONDS[kind];
@@ -127,14 +106,6 @@ export namespace grappleSumo {
    * hands on the chest's two sides; two palms on the chest regions beside
    * the sternum lay a palm's breadth apart, 74 mm on the small body, and
    * the two hands met.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each grip's regions.
-   * @evidence contracts/development/implementation.md#principled-implementation The partner faces the initiator, so the left hand meets the partner's right side.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One branch.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work None.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function regions(
     kind: Kind,
@@ -147,14 +118,6 @@ export namespace grappleSumo {
   /**
    * The grip window: the hands leave the clay after the shikiri, meet the
    * partner at the tachiai and let go as the drive or throw ends.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each share.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Constant shares.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work None.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function window(): IWindow {
     return {
@@ -184,14 +147,6 @@ export namespace grappleSumo {
    * @param partner The partner's body.
    * @param pitch The trunk's pitch at the tachiai, degrees: the charge pose's own when absent, the pitch the support fit takes at the tachiai on a second reading (`grapple.plan`).
    * @returns The timed support keys.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the keys in order, the contact the charge closes to and the heads' stagger.
-   * @evidence contracts/development/implementation.md#principled-implementation Foot and fist targets in the performer's own frame. The gap at contact is the two bodies' own: each chest's front ahead of its hips at the charge's pitch, from the bodies' chest and hip heights and chest depths; the root stands over the ankles, so a foot's target, its ball, lies the rest foot's ankle-to-ball length ahead of the place the root is to reach. The charge steps both feet, one key each, so the root over them closes the gap; the receiver's drive mirrors the initiator's, both stepping the same distance on the same keys.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shikiri, the charge's two steps, then the drive or the throw, then the finish.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step count follows the drive's length; the floor fit stays the support law's.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A key per drive step, independent of the playback rate.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the floor poses of lieDown and getUp.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh keys.
    */
   export function keys(
     p: grappleSumo.IParams,

@@ -33,11 +33,6 @@ const bindings: WeakMap<Plan, IBinding> = new WeakMap();
  * event boundaries and owns the mathematics and validity of each evaluator.
  * Display resolves any result that contains authoring alone through its usual
  * stages. An already resolved result can be transferred once to the same leaf.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines ownership, local seconds, endpoint order, ordinary fallback and one-read transfer.
- * @evidence contracts/development/design.md#principled-representation A native action binds its body and exact authoring callback to its ordered event windows. The sample carries the current authoring and only the same evaluation's optional fit.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Stretch binds its material-hold writer. Working-seat riding binds its existing same-query transfer. Placement records the installed refusal wrapper and the display consumes either from the same boundary.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Foreign plans and replaced readers have no admitted binding. No claim is inferred from pose equality, no solver threshold changes and no sampled answer enters the registry.
  */
 export namespace HumanPreparedPlayback {
   /** The native source follows the common interface contract. */
@@ -103,14 +98,6 @@ export namespace HumanPreparedPlayback {
 
   /**
    * Evaluate the active native phase at its actual local second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Covers original and placed readers, the restricted fitted route, gaps, and located refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The matching body, exact original/placed callback and native full observation admit the corresponding phase. The first containing interval gives its exact endpoint meaning.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Look up the binding, check the source requirements, select one interval, and locate any native refusal before propagating it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unknown callback is inspected beyond the already-read identity, and no phase outside the requested instant is evaluated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A constant-time weak lookup and one scan over the law's bounded phase list; evaluate at most one writer.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the action's own phase evaluator; the law establishes exactly which work its phase can share.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Phase records and writers release with the plan. A current sample is borrowed only through its leaf.
    */
   export function read(
     plan: Plan,

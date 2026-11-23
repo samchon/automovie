@@ -37,11 +37,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * it dwells (a pirouette's demi-pointe). The hips are carried by the caller's
  * world path and heading; the root follows them. A whole course composes into a
  * plan (compose).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the dwell and travel rule, the contacts and the carriage.
- * @evidence contracts/development/design.md#principled-representation Foot keys as data over one leg-placement row per foot and one carriage row.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The foot reader and the carriage row.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every placement and timing is the caller's; nothing is clamped.
  */
 export namespace DanceFootwork {
   /**
@@ -79,13 +74,6 @@ export namespace DanceFootwork {
    * @param duration The action's seconds.
    * @param support What a bearing foot stands on.
    * @returns The leg row, the contacts and the placement reader.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the three outputs.
-   * @evidence contracts/development/implementation.md#principled-implementation Dwell at a key, travel to the next on a lifted minimum-jerk arc; a bearing dwell is planted.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Lookup, dwell or travel, contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keys out of order are the caller's error and are not sorted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A binary search over the keys per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared leg placement and arc rows.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the keys.
    */
   export function foot(
     body: IAutoMovieMotionHumanBody,
@@ -231,13 +219,6 @@ export namespace DanceFootwork {
    * @param hands The hands' targets at an action second, if the dance places
    *   them.
    * @returns The row.
-   * @evidence contracts/development/common.md#meaningful-documentation States what the row writes.
-   * @evidence contracts/development/implementation.md#principled-implementation The root is the hips less the rest hips turned by the heading, so the hips land where asked.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One write.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No smoothing of the caller's path.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The posture's heading reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the callbacks.
    */
   export function carry(
     body: IAutoMovieMotionHumanBody,
@@ -305,13 +286,6 @@ export namespace DanceFootwork {
    * @param course The course.
    * @param support What a bearing foot stands on.
    * @returns The plan.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and what the plan holds.
-   * @evidence contracts/development/implementation.md#principled-implementation The feet's rows and the carriage over the entry base.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Feet, carriage, clock, plan.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every placement and instant is the course's.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work beyond the rows'.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one composition for every keyed dance law.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the course.
    */
   export function compose(
     body: IAutoMovieMotionHumanBody,
@@ -376,13 +350,6 @@ export namespace DanceFootwork {
    * @param course The course, whose feet are read.
    * @param crouch How far below standing the hips ride, metres.
    * @returns The hips path.
-   * @evidence contracts/development/common.md#meaningful-documentation States the path.
-   * @evidence contracts/development/implementation.md#principled-implementation The feet's placed ankles' midpoint at the entry's hip height over them, capped in closed form where a leg would not reach its ankle (`pelvisReachHeight`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two foot readers and one expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two key searches per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The foot reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the readers.
    */
   export function over(
     body: IAutoMovieMotionHumanBody,

@@ -23,11 +23,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * clear of the wall). The hand holds the spoon from above the rim, so a
  * spoon whose grip to face is shorter than that depth below the rim is
  * refused, as is a stir aimed at anything but a vessel's inside.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two readings, the stir's depth, circle and refusals and the provisional values.
- * @evidence contracts/development/design.md#principled-representation The work's kind, and the work point with the stir's circle as one record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The kind, the record and one reader, used by `useTool`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The vessel's depth and width are its own contacts; no pot is typed.
  */
 export namespace HumanToolWork {
   /** Where a tool works. */
@@ -46,14 +41,6 @@ export namespace HumanToolWork {
    * @param work The kind, the aimed work point, the performer's forward and the tool's reach from its grip to its face, metres.
    * @returns The work point and a stir's circle.
    * @throws {HumanRefusal} When a stir's work point is no vessel's inside, the vessel declares no `rim` or no inside width, or the spoon is too short to reach the stirring depth from above the rim.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The vessel's contacts carried into the world by its frame at the action's start; the circle centred over the inside, its nearest point the contact.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The aimed point for three kinds; the vessel's reading for the stir.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A stir with no vessel, a vessel with no rim and a spoon too short are refused, never stirred at a guessed place.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the vessel's few contacts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
     context: Pick<

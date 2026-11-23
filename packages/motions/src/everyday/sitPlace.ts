@@ -16,11 +16,6 @@ import { seated } from "./seated";
  * Where and how a sit sits: the backs it settles into, the feet the seated
  * legs reach and the turn the performer stands at from the seat's heading,
  * the last two refused with the range that works.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the backs and the two checks the sit's plan reads, and that each check refuses with its working range.
- * @evidence contracts/development/design.md#principled-representation Pure functions over the body, the seat and world metres or degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The backs, the feet's reach and the wrapped turn, read by the sit's plan alone.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The leg's reach is the body's own measure and the knee's limit is read from the range table.
  */
 export namespace sitPlace {
   /** Seated pitch and trunk angles of each back the sit settles into, degrees: `upright`, `lean` (back onto a backrest) and `slump` (provisional). */
@@ -53,14 +48,6 @@ export namespace sitPlace {
    * @param side The leg.
    * @returns The least and the greatest distance.
    * @throws {Error} When the range table gives the knee no flexion limit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both ends, their sources, the unit and who reads the band.
-   * @evidence contracts/development/implementation.md#principled-implementation The hip-to-ankle chord of a two-segment leg at a knee flexion by the law of cosines; the far end keeps the planted leg's least flexion, so no placed foot locks the knee.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One chord at two flexions.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both ends come from the range table and a cited stance flexion, never a share of the leg.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The knee's limit is `AutoMovieMotionHumanRange`'s and the least flexion `resolveHumanPosture.KNEE`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function band(
     body: IAutoMovieMotionHumanBody,
@@ -91,14 +78,6 @@ export namespace sitPlace {
    * @param feet The planted ankles.
    * @param pitch The seated pitch, degrees.
    * @throws {HumanRefusal} When a foot is out of reach, with the reachable distances ahead of the front edge.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the reachable band and the refusal's range.
-   * @evidence contracts/development/implementation.md#principled-implementation The hip joints by FK under the seated root; the band's ends are `band`'s.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One root, two hips and one band test per foot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot outside the band is refused with the distances that work, never moved.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One two-hip FK read and constant work per foot.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the hip joints from `hipJoints` and the knee's limit from `AutoMovieMotionHumanRange`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
@@ -145,14 +124,6 @@ export namespace sitPlace {
    *
    * @param degrees The angle.
    * @returns The same turn within (-180, 180].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the interval and its open end.
-   * @evidence contracts/development/implementation.md#principled-implementation The remainder by a full turn moved into the half-open interval.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One remainder and two corrections.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function turn(degrees: number): number {
     let a: number = degrees % 360;

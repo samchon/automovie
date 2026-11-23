@@ -62,11 +62,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * provisional.
  *
  * Events: the phrase instants.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the actions, where each part goes, the timing and its sources and the provisional values.
- * @evidence contracts/development/design.md#principled-representation A law record composed of arm carries to named places and joint circles over a held base.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the kind union, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Places are named grid places of the body, sizes are range levels; no metre is typed.
  */
 export namespace selfAction {
   /** The action's name. */
@@ -135,13 +130,6 @@ export namespace selfAction {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the count is not a positive whole number.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal; the law's doc gives the places and timing.
-   * @evidence contracts/development/implementation.md#principled-implementation Each arm's whole action planned as one trajectory over the clock's instants (TrajOpt, `AutoMovieMotionHumanArm.carried`) to named places; head and shoulder circles as joint angles on the clock.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, then the rows of the kind.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sizes are range levels and named places; times are named provisional or sourced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per carried arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the arm carry, the target places, the hand shapes and the joint primitives.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the entry.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSelfAction.IParams>,

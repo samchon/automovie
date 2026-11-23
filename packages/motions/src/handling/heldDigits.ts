@@ -40,14 +40,6 @@ import { poseBones } from "../posture/poseBones";
  * @param drives The planned drives, one per authored drive.
  * @returns The digit goals at an action second; empty when no drive names a digit.
  * @throws {HumanRefusal} When a digit's contact does not ride its driven articulation, or that articulation neither turns nor slides.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the rigid-hold premise, the closed-form place and the frame of the goal.
- * @evidence contracts/development/implementation.md#principled-implementation A hinge turns the contact about its axis through the pivot by the travel; a slider moves it along its axis; the held offset carries it into the hand.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit each digit's contact once, then place every digit per second.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact that does not ride the articulation is refused, never guessed.
- * @evidence contracts/development/implementation.md#efficient-algorithms One rotation per digit per second, in closed form.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the planned drives' own travel, so digit and part move on one clock.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader closes over the admitted contacts and drives only.
  */
 export function heldDigits(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -158,11 +150,6 @@ export function heldDigits(
 
 /**
  * The companion reader of {@link heldDigits}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the posed-contact reader.
- * @evidence contracts/development/design.md#principled-representation Prop-local metres from a declared joint, contact and travel.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `heldDigits` and `workHeld` read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Only a hinge or a slider moves the contact.
  */
 export namespace heldDigits {
   /**

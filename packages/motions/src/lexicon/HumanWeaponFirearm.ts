@@ -31,11 +31,6 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * novice to 0.5 s at elite, `fire` 0.42 s (press 0.1, rise 0.07, return 0.25),
  * all provisional. The two-hand rules, the refusal of a target past `TURN` and what the
  * first pass leaves out are `HumanWeaponPresent`'s, whose laws these are.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the effector, how the firearm is given, how a shot is composed, and where the hand rules, refusals and limits are stated.
- * @evidence contracts/development/design.md#principled-representation Two law records of the launcher laws under the firearm's names and two rows of the shipped pick up and put down.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two laws under their firearm names and the draw and holster rows; the constants stay `HumanWeaponPresent`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No law is copied: present and fire are `HumanWeaponPresent`'s plans under the names films already compose.
  */
 export namespace HumanWeaponFirearm {
   /** Present a firearm: `HumanWeaponPresent.present` under its firearm name. */

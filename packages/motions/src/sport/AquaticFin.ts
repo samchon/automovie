@@ -53,11 +53,6 @@ const TURN: number = 1;
  * the fins' thrust, 0.5 ρ C_T A w² for both blades heaving at the kick, with
  * the trimmed body's drag as HumanWater sums it with the fins worn. Kick frequency and coefficients
  * are provisional. A dive deeper than the breath-hold reaches is refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three kinds, the source, the speed balance and its provisional coefficients, and the refusal.
- * @evidence contracts/development/design.md#principled-representation Clinical keys at a trim placed by the hips, with a closed-form steady speed.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns fin swimming; the worn gear stays with its props.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The fin area comes from the worn fin's own blade contact.
  */
 export namespace AquaticFin {
   /** Plan one of the fin kinds. */

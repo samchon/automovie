@@ -26,14 +26,6 @@ import type { humanPolygonMan } from "../humanPolygonMan";
  * cases: where an effector is against the region it touches, how far the acting
  * forearm enters the rest of the body, and how many times the effector comes
  * down on the region.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each measure reads and on which poses.
- * @evidence contracts/development/implementation.md#principled-implementation Every measure reads the performance's displayed bones: the effector through the touch generator's own point, the region through the engine's surface placement and the colliders through `HumanColliders.placed`.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One small measure per question, one verdict builder and the drawing helpers the touch cases share.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No measure reads a law's goal; the colliders are read only through `HumanColliders` queries.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the sampled frames; the forearm entry is one segment query per frame.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per capture.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace TouchVerdicts {
   /** A region read on a displayed pose: whose bones and which region. */

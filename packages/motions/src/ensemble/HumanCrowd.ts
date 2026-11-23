@@ -37,11 +37,6 @@ import { HumanAttribute } from "./HumanAttribute";
  * (`HumanResponse`), and in flight its herding share is morale's. Every
  * draw is keyed by the member; adding a member changes the others' courses
  * (they avoid it) but never their draws.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the pass gives, how each agent is built and from which sources, and the coupling.
- * @evidence contracts/development/design.md#principled-representation A request names goals, a gait, a cue and the obstacles; the result is a course frame per member, the data station keeping reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `steer`, a member's drawn desire `desired` (with `IDesired`), its half breadth `half`, and the desired speeds' spread `SPREAD` and floor `SLOWEST`; the law is the engine's.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is animated by the pass: its courses are frames, walked by the vocabulary.
  */
 export namespace HumanCrowd {
   /** The coefficient of variation of desired walking speeds: 0.26 over 1.34 m/s (Helbing and Molnar 1995). */

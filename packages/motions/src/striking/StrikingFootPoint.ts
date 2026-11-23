@@ -19,14 +19,6 @@ import { HumanFoot } from "../posture/HumanFoot";
  * @param placement The foot's placement on its step.
  * @param bump How far into its pointing the step is, 0 at its ends and 1 at its middle.
  * @returns The pointed placement.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the turn, its size and why the ankle rises.
- * @evidence contracts/development/implementation.md#principled-implementation The foot's pitch lowered about the ankle and the toe tip's drop added to the ankle's height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation, one toe reading each side.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turn is a named provisional value.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the guard's steps and the martial-art stance phrases.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function StrikingFootPoint(
   body: IAutoMovieMotionHumanBody,
@@ -60,11 +52,6 @@ export function StrikingFootPoint(
 
 /**
  * Constants of {@link StrikingFootPoint}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the constant and its unit.
- * @evidence contracts/development/design.md#principled-representation Degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the pointing only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Provisional, named.
  */
 export namespace StrikingFootPoint {
   /** A stepping foot's toes-down pitch at mid-step, degrees (provisional). */

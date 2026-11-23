@@ -39,11 +39,6 @@ import { balletPositions } from "./balletPositions";
  * The supporting foot pivots about its ball throughout, so it does not slide;
  * the retiré foot turns with the body (Laws, Physics and the Art of Dance,
  * 2002, for the support over the ball).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, the turn's direction and timing, and the support with its source.
- * @evidence contracts/development/design.md#principled-representation A course of foot keys and a hips path over the beat clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rise share, the retiré's pitch and the course.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Lengths are the body's; the turn is the authored count.
  */
 export namespace balletPirouette {
   /** The rise to demi-pointe and the landing, a share of a beat (provisional). */
@@ -71,13 +66,6 @@ export namespace balletPirouette {
    * @param beats The beat clock.
    * @param turnout Each foot's turn out, degrees.
    * @returns The course.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the course.
-   * @evidence contracts/development/implementation.md#principled-implementation Fourth's placements, the supporting foot held about its ball through a rise and a turn, the retiré placed at the supporting knee, the hips blended between the plié over the feet and the stance over the ball.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Instants, turn, supporting hold, working keys, hips.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The supporting ball is fixed by construction.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The positions' placements, rise and plié.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course retains its placements.
    */
   export function course(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallet.IParams>,

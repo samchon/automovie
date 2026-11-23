@@ -11,11 +11,6 @@ import type {
  * to audio or guesses a stress. A track is a list of named film seconds, so
  * a production may also write one by hand for anything else that happens at
  * a known time.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a track is, who decides its instants and what is out of scope.
- * @evidence contracts/development/design.md#principled-representation A track is the schedule's own list of named instants, so cues are addressed exactly as an action's events are.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Adds builders for the authored sources of named schedule cues.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No instant is derived from a guessed speech rate; an accent is given or absent.
  */
 export namespace HumanCue {
   /**
@@ -31,14 +26,6 @@ export namespace HumanCue {
    * @param wave The sections' film seconds or their distances, origin second and speed.
    * @returns A cue track ready for `HumanPerformance` or the schedule resolver.
    * @throws {Error} If timing sources conflict, the list is empty, values are outside the documented ranges, or computed seconds are nonfinite or fail to advance at distinct distances.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines cue indexing, time units, application examples and refusal conditions.
-   * @evidence contracts/development/implementation.md#principled-implementation Computes every propagated time independently from the path origin and preserves the input order in the track.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admits one timing source before a single scan of section values and resulting seconds.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the authored speed and distances directly. It rejects malformed timing instead of sorting, clamping or inserting a guessed interval.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear time and output space in the number of sections.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns ordinary schedule cues so alignment and section indexing use the existing scheduler.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the returned list and retains no input or state.
    */
   export function sectionWave(
     wave: IAutoMovieMotionHumanCue.ISectionWave,
@@ -105,14 +92,6 @@ export namespace HumanCue {
    * @param orders The commands, in the order given.
    * @returns The track.
    * @throws {Error} When a second is not finite, a caution is not positive, a preparatory word falls before the film, or one falls at or before an earlier command's word of execution, naming both words.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the event names, the source of the two parts and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Each order contributes its two instants; the track is ordered by time, an earlier order first on a tie.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One validation pass, one loop and one stable sort.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No interval between words is invented: every second is given.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A sort of the instants, which are few.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
    */
   export function orders(
     orders: readonly IAutoMovieMotionHumanCue.IOrder[],
@@ -169,14 +148,6 @@ export namespace HumanCue {
    * @param source What publishes the instants.
    * @param names The labels to keep; every label when absent.
    * @returns The track, in time order, each instant under its label.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and why it is read structurally.
-   * @evidence contracts/development/implementation.md#principled-implementation Each kept instant becomes a cue of its label; the track is ordered by time, the source's order kept on a tie.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter, one map and one stable sort.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is renamed or invented.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A sort of the instants.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
    */
   export function instants(
     source: IAutoMovieMotionHumanCue.IInstants,
@@ -203,14 +174,6 @@ export namespace HumanCue {
    * @param beats The tempo, the first beat, the count and the meter.
    * @returns The track.
    * @throws {Error} When the tempo is not positive, or the count or the meter is not a positive whole number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two event names, how they index and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Beat `i` falls `60 / bpm` seconds after beat `i - 1`, each computed from the first beat so no error accumulates.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the beats.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The inputs are validated; the meter's default is the common time the member documents.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the beat count, which is the output's size.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
    */
   export function beats(
     beats: IAutoMovieMotionHumanCue.IBeats,
@@ -242,14 +205,6 @@ export namespace HumanCue {
    * @param lines The lines, in the order spoken.
    * @returns The track.
    * @throws {Error} When a line ends before it starts, or an accent or a phrase end lies outside its line.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the four event names, how they index and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Each line contributes its own instants, checked to lie inside it; the track is ordered by time, an earlier line first on a tie.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the lines and one stable sort.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No accent is invented for a line that gives none.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A sort of the instants, which are few.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
    */
   export function dialogue(
     lines: readonly IAutoMovieMotionHumanCue.ILine[],

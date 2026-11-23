@@ -29,11 +29,6 @@ import { WorkoutStance } from "./WorkoutStance";
  * bar path (https://doi.org/10.1371/journal.pone.0263224, Fig. 3) motivates
  * preserving the continuous fore-aft path through turnover. The wall sit
  * uses a place. `WorkoutEquipment` owns bench and box support.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the sources and that the angles are provisional, and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres.
  */
 export namespace WorkoutGym {
   /** A key of the body's, built once the body is known. */

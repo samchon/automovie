@@ -39,11 +39,6 @@ type Ankles = Record<"left" | "right", IAutoMovieVector3>;
  * rotation. This provisional staging uses a seated turn and staggered
  * ground placements followed by the existing sit-to-stand law.
  * https://pure.coventry.ac.uk/ws/portalfiles/portal/4013131/shippen2comb.pdf
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the study and distinguishes the provisional motion phases from the measurements.
- * @evidence contracts/development/design.md#principled-representation An opt-in action-law record consuming an entered seat support and world-space bench, aperture and exterior floor.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes getOut only, for explicit registration.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reads placed geometry and performer measures and reuses the shared rise and limb goals.
  */
 export namespace HumanTravelCarExit {
   /**

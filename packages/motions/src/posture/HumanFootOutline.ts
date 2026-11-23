@@ -28,11 +28,6 @@ import type {
  * 22.5 degrees, all on the shape, so the outline never reaches past it. Each
  * bone's points are dropped to the height of the sole sockets and reduced to
  * the corners of their convex hull in the horizontal plane.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the outline is, how it is read off the colliders and who reads it.
- * @evidence contracts/development/design.md#principled-representation The sole's outline as frames on the foot's bones, so it rides the displayed foot.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One reader, its points made once per body.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every corner is a point of the body's own colliders; no foot size is typed.
  */
 export namespace HumanFootOutline {
   /**
@@ -41,14 +36,6 @@ export namespace HumanFootOutline {
    * @param body The body.
    * @param side The foot.
    * @returns The outline's corners as frames on the foot's bones.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result; the namespace gives the reading.
-   * @evidence contracts/development/implementation.md#principled-implementation The colliders' points at rest dropped to the sole's plane and reduced to their convex hull, the outline a foot flat on the floor stands on.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading per side, made once per body.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown collider kind throws instead of being skipped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One hull per bone per body; every later call reads the cache. The heel-floor observation reads the canonical surface point without constructing unused normal/forward directions.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's surface rays, its surface frames and its planar hull.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held per live body in a weak map.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,

@@ -45,11 +45,6 @@ import { defend } from "../striking/defend";
  * Each `defend` row fixes the kind of the preset of the same name in
  * `AutoMovieMotionHumanDefence` (`COVER`, `SLIP` and the rest), so the values
  * are written once.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of and what the composition gives.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).
- * @evidence contracts/development/design.md#minimal-and-owned-surface The named defences of #3362's table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; the outcome stays the defence law's.
  */
 export namespace HumanDefence {
   /** Both forearms brought up to cover the head. */

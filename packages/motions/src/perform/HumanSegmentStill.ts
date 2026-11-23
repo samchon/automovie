@@ -12,11 +12,6 @@ import { HumanSegmentSelection } from "./HumanSegmentSelection";
  * interval and its offset decayed, the pose is the same wherever that
  * clamped second is the same, or wherever the plan declares its posture
  * still (`IAutoMovieMotionHumanActionPlan.still`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is certified, the terms of the shown pose it reads and the two cases of a constant posture input.
- * @evidence contracts/development/design.md#principled-representation An interval certificate and a representative second, both read from the person's current state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `within` serves the contact scan's body bound and `representative` the display's kept poses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is estimated or kept: any term that may change refuses the certificate.
  */
 export namespace HumanSegmentStill {
   /**
@@ -26,14 +21,6 @@ export namespace HumanSegmentStill {
    * @param from The interval's start, film seconds.
    * @param to Its end, film seconds.
    * @returns Whether the pose is constant there.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is certified and over what.
-   * @evidence contracts/development/implementation.md#principled-implementation With no layer, overlay, hold or stop, one action active over the interval (`HumanSegmentSelection.last` is the same at both ends, so at every second between) and its offset decayed at the start, the pose is constant where the clamped local second is, or where the plan declares its posture still.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One gate per term of the shown pose, then the plan's clamped interval.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Any term that may change refuses the certificate; nothing is estimated.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two selections and constant checks.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads the person's current state.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function within(person: IAutoMovieMotionHumanSegment.IPerson, from: number, to: number): boolean {
     if (person.layers.length !== 0 || person.overlays.length !== 0 || person.holds.length !== 0 || person.stops.size !== 0)
@@ -61,14 +48,6 @@ export namespace HumanSegmentStill {
    * @param person The person.
    * @param seconds Film seconds.
    * @returns The earlier second, or undefined where the pose does not hold still back to one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which second is returned and when none is.
-   * @evidence contracts/development/implementation.md#principled-implementation The plan's end is taken as the least film second whose local second reaches the duration, so the clamped input there is the duration itself; the window's start is the plan's own; `within` certifies the stretch between.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One selection, one candidate second, one certificate.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A candidate the certificate refuses is not returned; no tolerance stands for equality of the clamped input.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant checks and two selections.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads the person's current state.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function representative(person: IAutoMovieMotionHumanSegment.IPerson, seconds: number): number | undefined {
     const active: IAutoMovieMotionHumanSegment | undefined = HumanSegmentSelection.last(person.segments, seconds);

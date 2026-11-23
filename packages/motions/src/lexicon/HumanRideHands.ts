@@ -38,11 +38,6 @@ import { sideRideGrips } from "./sideRideGrips";
  * hold, checked against the support, the trunk's lean that brings them in
  * reach, where each point is at a film second, and the fingers closed on
  * the support's own colliders where the ride begins.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read for the hands and what each part gives.
- * @evidence contracts/development/design.md#principled-representation The ride's holding hands as one record built once per plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record and its builder, read by the ride.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every point, radius and axis is the support's own.
  */
 export namespace HumanRideHands {
   /** Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, §4.1), degrees. */
@@ -65,11 +60,6 @@ export namespace HumanRideHands {
   /**
    * Where a law is entered with hands already holding: the pose displayed
    * there, the hands that hold in it and the posture the law before wrote.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The entry's own displayed pose, posture and holding sides.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Every member is read by `of` and `crossRideReinGrip`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IShown {
     /** The pose displayed where the plan begins. */
@@ -84,11 +74,6 @@ export namespace HumanRideHands {
 
   /**
    * A holding hand's affordance and resting geometry, fixed for this ride.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds.
-   * @evidence contracts/development/design.md#principled-representation The contact id, its rest point and declaration, and the palm geometry measured for it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `readRideHandles` and read by `of`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The palm depth is filled once measured, never assumed.
    */
   export interface IHandle {
     /** The holding hand. */
@@ -112,11 +97,6 @@ export namespace HumanRideHands {
 
   /**
    * The ride's holding hands.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it gives.
-   * @evidence contracts/development/design.md#principled-representation The lean, the grip reader and the closed fingers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by the ride.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The grip is read again at each second, so a moving part is followed.
    */
   export interface IHands {
     /** The planted working-seat alternatives when pelvic inclination exceeds the legs' reach. */
@@ -159,14 +139,6 @@ export namespace HumanRideHands {
    * @param shown For a law entered with hands already holding: the pose displayed where the plan begins and the hands that hold there. Each such rein keeps the crossing it is displayed with (`crossRideReinGrip`); none when every hand takes its hold.
    * @returns The hands.
    * @throws {HumanRefusal} When a hand names a point the support lacks, the support declares no colliders to close on, or no crossing of a rein the hand takes lies within its arm's ranges.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The grip is the support's point carried by its frame, a moving part's own reading preferred; the lean and the closure are `HumanMountRider`'s.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The points read (`readRideHandles`), the lean, the reader and the fingers' side (`sideRideGrips`), then one closure per hand (`closeRideHandGrips`).
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A hand on a missing point, or fingers with nothing to close on, is refused rather than left open.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The fingers are closed once, where the ride begins; each second reads each grip once (`gripsAt`), and the lean is computed from those reads.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanMountRider.lean`, `leant` and `closed`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The record holds the support's reader and the closures only.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,

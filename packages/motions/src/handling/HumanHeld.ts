@@ -39,11 +39,6 @@ import { HumanHeldEffector } from "./HumanHeldEffector";
  * - Any other prop turns its point's normal into the region (a screen faces the
  *   ear, a filter end enters the lips) and keeps the act's along direction as
  *   nearly as that normal allows.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what replaces the implied tool, why the hand's frame fixes it, how each kind of prop is laid and the premise on a vessel's origin.
- * @evidence contracts/development/design.md#principled-representation A held prop's point is a point and two directions in the hand's frame, which is what an effector is.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What an act states of its use, the effector, its steadiest side and the kept hold; read by `handToFace` and `highFive`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named: a vessel is the act's `upright`, and the point is any the prop declares.
  */
 export namespace HumanHeld {
   /**
@@ -63,13 +58,6 @@ export namespace HumanHeld {
    * @throws {HumanRefusal} When neither the parameters nor the row name a
    *   point, the prop has no such contact, or that hand does not hold the prop
    *   at the entry.
-   * @evidence contracts/development/common.md#meaningful-documentation States when the prop is read, each input and the three refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The held prop's owner gives the contact's point from the grip socket and its direction in the hand bone's axes, the offset a grip keeps fixed; the socket's own offset from the wrist is added, and the tool's shares are that point's components along the hand's three orthonormal axes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the held contact and the turn to HumanHeldEffector.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Whether the hand holds the prop is the entry state's fact, read by the owner, which refuses otherwise; a direction too near the normal to be laid across it falls back to the hand axis least along it.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work effector, sides and steadiest share HumanHeldEffector's geometry, with no second point or axis formula.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK and contact read and constant vector work per call.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function effector(
     context: Pick<
@@ -128,13 +116,6 @@ export namespace HumanHeld {
    * @returns One effector per side, in `SIDES`' order for the right hand and in
    *   its mirror's for the left.
    * @throws {HumanRefusal} As `effector`.
-   * @evidence contracts/development/common.md#meaningful-documentation States the sides, their order, who reads them and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A round rim meets a region on any side, so the side is a free turn of the vessel about its own axis in the hand, each one the shared effector owner's turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One held reading, one turn per side.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No side is chosen here; the act's search admits one or refuses.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK/contact reading and constant vector work per side, no arm solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed held prop and row share one `HumanHeldEffector` geometry across the sides, as `steadiest` does.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh effector weights and retains nothing.
    */
   export function sides(
     context: Pick<
@@ -182,13 +163,6 @@ export namespace HumanHeld {
    * @throws {HumanRefusal} As `effector`; and, unless the act leans the vessel,
    *   a `reach` refusal on `prop` when the arm leaves the vessel tilted more
    *   than `LEVEL` on every side.
-   * @evidence contracts/development/common.md#meaningful-documentation States the freedom used, the choice, the tie and each input.
-   * @evidence contracts/development/implementation.md#principled-implementation A pick-up takes the grip its reach allows, so which side of the rim then faces a region is not the act's to assume; each side is solved by the upright search and its reached tilt compared.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of effector, search and compare.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No side is preferred for any prop or hand beyond the tie; the tilt is the resolver's reached one, and a vessel no side holds level is refused, never brought tilted, unless the act leans it, whose own search then admits the lean or refuses it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One held-entry FK/contact/hand-geometry and hanging hint serve at most eight rim sides. Each side runs its upright solve and tilt fit; the search stops once a tilt is within the joints' tolerance of zero.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The held geometry and the hanging hint are read once for every side; each side runs its own upright solve and tilt fit.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local geometry producer/hint are released on return or throw; only the best fresh effector weights escape, without body/prop readers, fits, time history or handles.
    */
   export function steadiest(
     context: Pick<
@@ -296,13 +270,6 @@ export namespace HumanHeld {
    * @param side The holding hand.
    * @param subject The prop's subject id.
    * @returns The plan.
-   * @evidence contracts/development/common.md#meaningful-documentation States the two declarations added and what they do in a performance.
-   * @evidence contracts/development/implementation.md#principled-implementation A performance carries a prop by a grip window on its hand and lets a held hand be driven only by an action that declares one; the hold left keeps the entry's closed fingers.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One window and one hold appended.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The window spans the whole act, so the prop never leaves the hand in it.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the held prop owner's grip window and hold.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the plan it wraps and nothing else.
    */
   export function kept(
     context: Pick<

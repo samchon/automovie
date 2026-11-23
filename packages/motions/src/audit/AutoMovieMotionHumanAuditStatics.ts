@@ -33,14 +33,6 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * to check, and when the body is held: its extrapolated centre lies no further
  * from the centre than the bound itself (Hof, Gazendam and Sinke 2005, `x + v /
  * ω0`), so a moving centre's own lead cannot pass for a static error.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the law, the region the resultant may pass through, each contact's patch, which instants are read and why, and what the reading is.
- * @evidence contracts/development/implementation.md#principled-implementation Static equilibrium of a still body with each support force at a centre of pressure inside its contact patch: the resultant's line meets the floor inside the load-weighted Minkowski sum of the patches, a convex set built as the hull of the weighted sums of the patches' hull corners; the held test is Hof's extrapolated centre against the same bound.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One predicate for the instants read, one weighted region, one walk of the grid.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An instant is skipped only by its declared windows and its own motion, never by its reading.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most one centre of mass per grid instant, placed only at held instants and their two neighbours; the mass model is the body's own (`body.massModel`), read only once an instant is held; the Minkowski sum is folded window by window and reduced to its hull after each, so it stays at the size of a hull.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each grid instant's centre is placed once and shared by the held test of its neighbours and its own reading, keyed by the grid index of the motion's unchanged bones.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditStatics {
   /**

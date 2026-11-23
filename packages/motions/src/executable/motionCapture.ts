@@ -47,14 +47,6 @@ const RASTER: { width: number; height: number } = { width: 720, height: 720 };
  * `pnpm --dir packages/motions node:capture -- --case <name>[,<name>…]` builds each named case of `MOTION_CAPTURE_CASES` (`--list` prints them) and captures it with `automovie capture`'s host: the page built from `subjects` draws the case's instants (`at`) through its views into `packages/motions/media/capture/<case>/`, as stills, contact sheets and `record.json`. The record's section holds the case's instants with their labels, its performers, its verdicts and its metrics. The process exits non-zero when any verdict fails or any cell is not drawn.
  *
  * Options of the harness: `--only <regex>` keeps the cases whose name matches, a factory that reads the filter building no other; `--views a,b` picks among `front`, `side`, `top` and `threeQuarter`, or gives view texts of the shared grammar; `--verdicts` prints the verdicts without drawing; `--video` also renders each case's whole clock through the same page into `media/video/<case>/film.mp4` with FFmpeg from `FFMPEG_PATH` or `ffmpeg-static`; `--backend gpu` draws on the GPU instead of SwiftShader. Every other option is a key of the capture request grammar, such as `--marks`, `--label`, `--passes`, `--round` or `--compare`; `subject` and `at` are the case's. Without `--marks`, every mark of the case is drawn.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives every option, the default views, the output, what the record's section holds, and the exit status.
- * @evidence contracts/development/implementation.md#principled-implementation A case is a subject like any other: the harness supplies its data and its verdicts, and the shared host plans, draws, lays out, records and compares, so a motion case takes the request every subject takes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read options, build cases, open one host, capture each case, report.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown cases throw; request options are refused by the shared reader; a failed verdict, an undrawn cell or a case the host could not capture fails the run, the last without stopping the other cases.
- * @evidence contracts/development/implementation.md#efficient-algorithms One page build and one browser for every case of a run; each case draws its instants times views times passes.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The host's built page and browser serve every case.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The host is closed on every outcome; each case's page is closed by the host.
  */
 export async function motionCapture(): Promise<void> {
   const options: Map<string, string> = readAutoMovieCaptureArguments(

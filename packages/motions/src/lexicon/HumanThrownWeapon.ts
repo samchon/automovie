@@ -30,11 +30,6 @@ import { throwObject } from "../throwing/throwObject";
  * - `sling` and `castAtlatl`: overarm from the implement the composition names
  *   (`implement`, a sling's pouch, an atlatl's spur), which lengthens the lever
  *   the launch leaves from (`throwObjectLever`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each row's style, angle and attitude with the source, and what is not modelled.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).
- * @evidence contracts/development/design.md#minimal-and-owned-surface #3490's rows; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; the one fixed angle is the middle of a read band.
  */
 export namespace HumanThrownWeapon {
   /** Throw a javelin overarm, its shaft along its flight. */

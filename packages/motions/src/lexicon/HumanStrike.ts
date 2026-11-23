@@ -76,11 +76,6 @@ import { punch } from "../striking/punch";
  * Each row fixes the values of the preset of the same name in
  * `AutoMovieMotionHumanStrike` (`JAB`, `CROSS`, `TEEP` and the rest), so the
  * values are written once.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what it fixes, what the composition gives and where the weapons, slaps and reactions are.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).
- * @evidence contracts/development/design.md#minimal-and-owned-surface The named techniques of #3362's table; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own.
  */
 export namespace HumanStrike {
   /**

@@ -22,14 +22,6 @@ import type {
  * hips' orientation), so it reads the body's form alone: a walker who ends
  * in the stance they began in, two metres on and facing another way, has a
  * `shape` of zero and a `world` of two metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the property, the two readings and what each tells apart, with an example.
- * @evidence contracts/development/implementation.md#principled-implementation A rigid displacement of the whole body leaves every centre's coordinates in the pelvis frame unchanged, so the pelvis-frame distance is the change of form and nothing else.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bone maps, one walk over the bones.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every displayed bone is read, fingers and toes included, and a bone the later instant lacks is an error, not a skip.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones; two instants are resolved.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The frame change is the engine's `Quaternion.inverse` and `Quaternion.rotateVector`.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditReturn {
   /**
@@ -41,14 +33,6 @@ export namespace AutoMovieMotionHumanAuditReturn {
    * @param to The instant that should show it again, film seconds.
    * @returns The two readings.
    * @throws {Error} When either instant displays no hips, or the later one lacks a bone of the earlier.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input and the failures.
-   * @evidence contracts/development/implementation.md#principled-implementation Each centre is taken relative to its instant's hips and turned by the inverse of the hips' orientation before the two are compared.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop that updates both readings.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance is applied here; the caller's limit judges the reading.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each hips orientation is inverted once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the engine's quaternion functions.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,

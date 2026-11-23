@@ -73,14 +73,6 @@ import { HumanGrip } from "./HumanGrip";
  * on the first's closed digits, since two hands closing on each other at once
  * have no contact to stop on: each phalanx stops on the partner's hand,
  * forearm or digits (`HumanGrip.close`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the open hand, why the turns are chosen together, the clearance test and its source, the ranking, the fallback and how both partners agree.
- * @evidence contracts/development/implementation.md#principled-implementation Collision-free grasp candidates ranked by reachability, the grasp planners' practice, on the body's own phalanx and forearm colliders.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The open shape, the joint choice, the ordered closure and the colliders as four functions; candidate admission and clearance geometry live in `HumanClaspCandidateFrames` and `HumanClaspClearance`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pair is trusted without the clearance test; an unclear clasp is ranked by its clearance, not by a tolerance.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each turn of each person is fitted once; each admitted candidate places its phalanx segments and forearm once before the pair distances are queried.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanClaspClearance places candidate geometry from HumanGrip's capsules and HumanColliders' posed forearm reader; each pair computes its own signed distances.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanClasp {
   /** One partner's hand in the clasp. */
@@ -185,14 +177,6 @@ export namespace HumanClasp {
    * @param mine This person's hand.
    * @param theirs The partner's hand.
    * @returns Both grips and their clearance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both hand inputs, the world meeting point and pump amplitude, and the reciprocal result; the namespace gives the reach, posture-band, clearance and subject-order rules.
-   * @evidence contracts/development/implementation.md#principled-implementation Each turn is fitted over the clasp and both pump ends; admitted candidates are paired, a pair is clear when no phalanx capsule of either open hand enters the other's forearm collider, and clear pairs rank by the worse arm's miss plus its elbow departure's arc on the upper arm, millimetres of the hand, with a hundredth-millimetre-per-degree turn preference.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fit each person's turns, admit them (`HumanClaspCandidateFrames`), place admitted digit and forearm geometry once each, then rank the pairs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pair is accepted without the clearance test; with none clear, the largest clearance wins and is reported.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Thirteen turn fits per person share one body FK workspace; digit and forearm geometry is placed once per admitted candidate (O(A+B)), and each of the A*B pairs runs two fifteen-segment distance reductions.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A candidate's placed digits and forearm serve every pair it enters; each pair computes its own distances.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Candidate geometry ends with the synchronous search; the returned reach records hold no reader.
    */
   export function choose(
     side: AutoMovieHumanSide,

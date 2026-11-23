@@ -70,11 +70,6 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * yet read at a source and are the shipped laws' own, provisional. A draw
  * tradition (the Mediterranean draw, the thumb draw of a horse bow) is the
  * composition's choice of hand and anchor, not a law.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, which affordances it reads, what the composition gives and what is provisional.
- * @evidence contracts/development/design.md#principled-representation Uses rows of shipped laws and one shared authored release cue for both prop families.
- * @evidence contracts/development/design.md#minimal-and-owned-surface #3487's rows; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The continuation uses the shared mount operation and existing prop articulation owners.
  */
 export namespace HumanArchery {
   /** Take an arrow by its shaft. */

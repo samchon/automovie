@@ -88,11 +88,6 @@ import { seatedCourse } from "./seatedCourse";
  * bar stool or a saddle is sat on, is got off instead
  * ({@link HumanMountOff}), ahead of the seat or to the side `to` names, with
  * the same events.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
  */
 export namespace rise {
   /** The action's name. */
@@ -142,14 +137,6 @@ export namespace rise {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the requested balancing part cannot move on the selected support.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the context/plan and reach refusal; the namespace gives world-metre socket/plant goals, phase timing, degree bounds and seat-off conventions.
-   * @evidence contracts/development/implementation.md#principled-implementation The measured release and height-dependent flexion determine the course. The chosen part uses only the bearing patches available at its current second.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Original foot/pitch/seat-off selection precedes one prepared foot course and two current rise branches sharing the native lowering/hand-rest owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The seat socket stays pinned until seat-off. External balance bounds use the placed action clock and never move a contact event.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Seat release is a multiplication. The positive balance window alone admits mass and hull work on the current pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original leg and hand courses share stance geometry. The prepared numeric bounds serve all posture reads.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its fixed course/scalars and original entry geometry until release; current-query FK/ROM loans end on return or throw without entering the retained plan or goals.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRise.IParams>,

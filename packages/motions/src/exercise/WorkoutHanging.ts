@@ -23,11 +23,6 @@ import { WorkoutKind } from "./WorkoutKind";
  * First pass: the body is lifted to the bar from standing without a jump being
  * planned; a swing's rate is keyed, not a pendulum's; a chin-up differs from a
  * pull-up by the elbows kept ahead, the forearm's turn not written.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, what moves the body, the source and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres.
  */
 export namespace WorkoutHanging {
   /** Hanging at the arms' length. */

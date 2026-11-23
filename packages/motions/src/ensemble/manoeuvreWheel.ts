@@ -39,14 +39,6 @@ import { HumanFormation } from "./HumanFormation";
  * @param speeds Each one's travel speed, m/s.
  * @returns Each member's way and station; no stations when nothing turns.
  * @throws {HumanRefusal} When `to` is not `from` turned about the pivot, naming the member whose slot lies elsewhere and how far.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the drill's rule with its source, how the frame turns, its speed bound and what each member keeps.
- * @evidence contracts/development/implementation.md#principled-implementation A rigid turn about the pivot with a trapezoidal angular profile, bounded so the outward man's step is the manual's lengthened one; each member's station is a slot of the same blocks in that frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The pivot, the check of the target, the profile, the samples, then one station and one arc per member.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `LENGTHENED` is the manual's 33 over 30 inches; a target that is not the turned formation is refused, not bent onto it.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the members and in the samples, the frame shared by every station.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The frame is built once and shared.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The stations hold the frame for as long as they are held.
  */
 export function manoeuvreWheel(
   ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -168,11 +160,6 @@ export function manoeuvreWheel(
 
 /**
  * Constants and types of {@link manoeuvreWheel}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each constant states its unit and source.
- * @evidence contracts/development/design.md#principled-representation A ratio of steps, a distance, an angle, and the ways and stations a wheel returns.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanManoeuvre.plan` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Named, not numbers inside the function.
  */
 export namespace manoeuvreWheel {
   /** The outward man's lengthened step over the ordinary one: 33 inches over 30 (Rules and Regulations for the Formations and Movements of the Militia of Lower-Canada, c. 1814, after Dundas 1792). */

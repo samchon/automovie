@@ -79,11 +79,6 @@ import { punchLaunch } from "./punchLaunch";
  * derived and provisional (`StrikingSkill.interval`), and a seeded guard drop
  * may hold the returning glove low before it reaches the guard. A feint shows a
  * share of the delivery without contact and returns in the same time.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the effector-goal method, the reach and step-in rule, the timing with sources, the guard drop and the feint, with provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table chaining punches from contact, parameters with closed technique and hand unions, and a pure plan of postures in world metres and seconds with capsule weapons.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the hand resolution and the plan the law table, the defence and the rules read; the contact, the footwork and the stroke are built by {@link punchGeometry}.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target, accuracy, posture, plan and weapon types; every length comes from the punching body's measure.
  */
 export namespace punch {
   /** The action's name. */
@@ -107,13 +102,6 @@ export namespace punch {
    *
    * @param params The parameters.
    * @returns The lead or the rear hand.
-   * @evidence contracts/development/common.md#meaningful-documentation The parameter's own documentation states the defaults this resolves.
-   * @evidence contracts/development/implementation.md#principled-implementation The declared hand, else the rear for an uppercut and the lead otherwise.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hand(
     params: IAutoMovieMotionHumanPunch.IParams,
@@ -128,13 +116,6 @@ export namespace punch {
    * @returns The plan.
    * @throws {Error} When a feint's share lies outside (0, 1), or the plan is
    *   read back while it is being built.
-   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
-   * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units carry the wrist through the contact point solved by the two-segment reach with the target tracked online; the performance's joint contact resolution stops the arm's capsules, after which the arm and trunk retrace the approach to the guard.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing first, the geometry built on first use, and every posture, contact window, weapon and record read from it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target beyond the step-in and the arm's band is the declared miss at maximum reach, not a stretched arm; provisional constants are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the display's limb fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per committed stop and dropped on settle, when the stop or the target may have changed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry and one stop second until plan release. Optional FK/ROM loans are borrowed only by the current full posture/weapon observation and never retained in the plan or goal.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>,

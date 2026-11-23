@@ -39,11 +39,6 @@ type Point = IAutoMovieMotionHumanProp["points"][string];
  * blade never binds or cuts the throat (Autodesk parent-constraint
  * workflow for the custody handoff,
  * https://help.autodesk.com/cloudhelp/2022/ENU/Maya-CharacterAnimation/files/GUID-F6785389-FAC1-429F-8783-B06B0B8AF1A8.htm).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the derived sockets and guide, the two compositions, the laws to register and the identity kept.
- * @evidence contracts/development/design.md#principled-representation The staged record names subjects, sockets and the slider; the frames are the carrier mouth's own, turned half about its `X` so the blade's `+Y` points into the carrier.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Staging, draw and return, the three things a filmed draw-hold-return composes; the hold between them is the author's own chain.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No blade or carrier kind is special-cased; a missing affordance, a tip off the blade's `+Y` or a carried prop already worn or mounted is refused.
  */
 export namespace HumanSheath {
   /** The derived seat socket's id on the carrier. */
@@ -69,14 +64,6 @@ export namespace HumanSheath {
    * @param params The affordance ids and the drawn clearance.
    * @returns The carrier with the seat, entry, slider and slide, the blade mounted on the seat and the staged record.
    * @throws {HumanRefusal} On `mouth`, `tip` or `handle` when the model lacks it, on `tip` when it is off the blade's `+Y`, on `clearance` when it is not positive and finite, and on `blade` when the blade already rides something.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the derived frames and each refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The seat is the mouth's frame turned 180 degrees about its `X`, so the blade's `+Y` runs into the carrier and its shoulder sits on the mouth, as `createHolster` seats a sheathed blade; the entry is the seat moved out along the mouth's `+Y` by the tip's distance plus the clearance, so a blade there has its tip the clearance above the mouth; the slider's travel runs over that distance and the slide socket sits at its travel, posed again from every pose of the mouth.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the inputs, derive the frames, then return the two props, the posing reader and the record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clearance is the author's; the tip distance is the blade's own geometry.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the two props' affordances.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call stages one independent pair.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned props own copies of the affordance lists; the inputs are not changed.
    */
   export function of(
     carrier: IAutoMovieMotionHumanProp,
@@ -220,14 +207,6 @@ export namespace HumanSheath {
    * @param pull The other hand's pull on a worn carrier for a blade longer than the arm draws alone; the carrier holds still when absent.
    * @param sync The instant the manoeuvre starts at (`IAutoMovieMotionHumanChainCore.sync`), its first grip timed to it and the draw following at grip closure; where the chain puts it when absent.
    * @returns The chain with the grip and the draw appended, after the other hand's grip on the carrier's throat when it pulls; the grip's `gripClosed` marks closure and the draw's `unseated` and `drawn` the start and end of the withdrawal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the entry state, the appended action and its events.
-   * @evidence contracts/development/implementation.md#principled-implementation The carrier pickup grips the handle and is cut at grip closure, so the body does not straighten away from the carrier first; then the draw moves the blade's frame from the seat to the entry on the carrier's line, the hand keeping its grip. Grip and draw are one manoeuvre: a timed draw times its first grip, so the hand never waits on a seated hilt between them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two registered actions; the pickup owns reach and grip refusals and the draw owns the line and reach refusals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The line is the staged seat and entry, not a tuned height.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Appends two intents.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing is shared between calls.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned chain owns the new intent.
    */
   export function draw<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,
@@ -292,14 +271,6 @@ export namespace HumanSheath {
    * @param hand The holding hand; `right` when absent.
    * @param anchor The action's anchor for cues; none when absent.
    * @returns The chain with the return appended; its `aperture`, `placed` and `release` events mark the entry, the seat and the opened hand.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the entry state, the appended action and its events.
-   * @evidence contracts/development/implementation.md#principled-implementation Aperture placement carries the blade's frame to the entry, the carrier's guide carries it straight to the seat at the same attitude with the hand following, and it mounts on the seat as the hand opens.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One registered action; aperture placement owns the frame checks and reach refusals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The sockets are the staged ones, derived from the carrier's mouth and the blade's tip.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Appends one intent.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing is shared between calls.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned chain owns the new intent.
    */
   export function sheathe<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,

@@ -26,11 +26,6 @@ import { stepOver } from "./stepOver";
  * checks, where each foot starts and lands, the swings' windows, and each
  * swing's shortest path over what its sole must clear, the taut string over
  * the obstacle (`AutoMovieMotionHumanClearance`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is planned and who reads it.
- * @evidence contracts/development/design.md#principled-representation The feet's half of one crossing's plan, read once by the plan's pelvis and postures.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One typed footprint/time plan and its factory, read by stepOver.plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The margins and angles are `stepOver`'s named constants.
  */
 export namespace stepOverPath {
   /** The swings' windows as shares of the action: the lead from 8 % to 42 %, the trail from 50 % to 82 % (provisional, as `stepOver` states). */
@@ -111,14 +106,6 @@ export namespace stepOverPath {
    * @param context The action's context.
    * @returns What the plan's pelvis and postures read: the body, the feet's sides, the heading, the start, the footprints, the timing and the feet at a second.
    * @throws {HumanRefusal} When the prop declares no edge or depth, or the obstacle is too far, behind, too high or too deep to cross in one step.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/obstacle geometry, footprint and action-time readers; the namespace supplies all clearance, angle and contact rules.
-   * @evidence contracts/development/implementation.md#principled-implementation The lead trajectory clears its pitched sole. Each lead socket also owns a continuous height requirement at its actual forward position. The trail trajectory clears the obstacle expanded by its ankle-to-sole radius, allowing shank-relative pitch during crossing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Obstacle admission precedes fixed frame/flat/pivot/socket preparation, the same pitch/profile path builder and random-access foot readers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both trajectories use the declared obstacle margin, measured rig sockets, the shared taut-path construction and the scheduled minimum-jerk clock.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed heading axes, sole offsets and yaw/roll prefixes prepare once; one actual sole rotation serves all three original socket probes instead of reconstructing the same rotation three times.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes body, obstacle, frame, footprint headings and zero-toe sole geometry; each actual pitch, query point and second still evaluates its own dependent path/contact arithmetic.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan owns fixed footprint/socket/frame readers and two clearance paths until released; no sampled pose, queried foot placement or arbitrary-second cache is retained.
    */
   export function of(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStepOver.IParams>): IPlan {
     const body: IAutoMovieMotionHumanBody = context.body;

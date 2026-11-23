@@ -28,11 +28,6 @@ const PRESS: number = 1.1;
  * no supportive kick. The mouth bobs within `BAND` of the surface,
  * going under at each press's low, for the authored seconds; then the head
  * goes under (`submerge`, `under`). The root stays where the swimmer entered.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the posture, the source, the band, the timing and the events.
- * @evidence contracts/development/design.md#principled-representation A clinical key whose root height places the mouth at the surface plus a bounded bob.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the distress only; a rescue reads it through the performer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The mouth height comes from the posed head region, not from a fixed root height.
  */
 export namespace AquaticDistress {
   /** Mouth excursion about the surface, metres: provisional, the head bobbing at the surface. */

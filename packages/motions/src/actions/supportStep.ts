@@ -46,14 +46,6 @@ import type { supportPlan } from "./supportPlan";
  *
  * @param props The step's limbs, places, solver and clock.
  * @returns The seconds after the set-down key.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the keys of each kind of step, the clearance and the case that showed it.
- * @evidence contracts/development/implementation.md#principled-implementation A step is break-then-make; a floor step clears the floor over both ends before and after it travels, the new end read from the set-down key's own solve.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The crossings, the lift keys, then the set-down key.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every key is the shared support solve; a contact the fit misses is refused there.
- * @evidence contracts/development/implementation.md#efficient-algorithms One solve per key; a floor step adds one key.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the swing target, the course's writers and the support key solve.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pushes keys and retains nothing.
  */
 export function supportStep(props: supportStep.IProps): number {
   const { body, keys, push, form, oldPlace, place, kept, added } = props;
@@ -312,11 +304,6 @@ export function supportStep(props: supportStep.IProps): number {
 
 /**
  * Companion types of {@link supportStep}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
- * @evidence contracts/development/design.md#principled-representation The step's limbs and stances, the two place lookups, the shared solver's inputs and the clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `support.plan` hands its steps.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the support law's contact, stance, key and course types.
  */
 export namespace supportStep {
   /** How far short of a weightless ankle's dorsiflexion a lifting foot's heel rise keeps it, degrees: the closed-form shank differs from the fitted one by a few degrees (provisional, as `unloadedFoot`'s margin). */

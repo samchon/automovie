@@ -23,11 +23,6 @@ import { WorkoutStance } from "./WorkoutStance";
  * First pass: no bar, bell or rope is held or moved unless the author names a
  * load; a deadlift's and an overhead press's bar then travels over the middle
  * of the feet (`WorkoutLoad`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, what keeps the feet, what is provisional with its sources and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres; a hop is a share of the stature.
  */
 export namespace WorkoutStanding {
   /** The exercises. */

@@ -33,11 +33,6 @@ import { handshakeOffer } from "./handshakeOffer";
  * by the least common share of each one's room that lets them
  * (`HumanSeatedReach.goal`, Chan and Dubey 1995), and a pair even the full
  * lean cannot bring together is refused with the offer's own refusal.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the record owns, how the point is placed, the seated lean with its source and the refusal.
- * @evidence contracts/development/design.md#principled-representation A meeting kind: roles, two named contacts (the point and a point along the first partner's fingers) and the roles' timing, the shared record every mutual action reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The role's name, the kind, one partner's reading of it and the leaned base.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither partner computes the point on its own; both read the one record.
  */
 export namespace handshakeMeeting {
   /** The role both partners take. */
@@ -48,14 +43,6 @@ export namespace handshakeMeeting {
    *
    * @param props The shaking hand, the pump's amplitude, the shake's seconds and the acting arm of a partner for the mutual goal.
    * @returns The kind: contacts `meet` (the palms' point) and `along` (that point plus the first ordered partner's finger direction, a unit vector).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and both contacts.
-   * @evidence contracts/development/implementation.md#principled-implementation The point and the finger line are the offer's from both acting shoulders, leaned only when the arms alone fall short; each role's timing is its own reach-to-grasp time over the comfortable reach, then the shake, so the meeting takes the slower reach.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Name, roles, defaults, the placement and the timing.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pair the full lean cannot bring together throws the offer's refusal, never a stretched arm.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One offer per bisection step of the lean, and none past the first for a standing pair.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `handshakeOffer.point`, `HumanSeatedReach.goal` and `HumanPrehension.nominal`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The kind closes over its props only.
    */
   export function kind(props: {
     side: AutoMovieHumanSide;
@@ -110,11 +97,6 @@ export namespace handshakeMeeting {
   /**
    * What one partner reads of the meeting: the point with its own finger
    * line, and how far its trunk leans to reach the point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The offer's own meeting record and one angle.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by the handshake's plan.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The finger line is this partner's, already turned for its place in the meeting's order.
    */
   export interface IRead {
     /** The point and this partner's finger line, world. */
@@ -132,14 +114,6 @@ export namespace handshakeMeeting {
    * @param phases The pump's amplitude, metres, and the shake's seconds.
    * @param arm The acting arm of a partner for the mutual goal.
    * @returns The point, this partner's finger line and its lean.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the reading.
-   * @evidence contracts/development/implementation.md#principled-implementation The meeting is read through the context, so the first partner planned computes it and the other reads that record; the finger line is the first ordered partner's, turned for the second; the lean is this partner's least lean that brings the point within its arm, the target first (`HumanSeatedReach.need`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the meeting, two points back to the world, one lean.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A standing partner leans none, so its plan is the standing one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One meeting per pair and one original bisection for a seated partner. Entry FK emits only the actual shoulder for standing, adding exactly the original seated spine/hip/chest/neck/left-thigh observations when a seat bears the role; every authored joint is still admitted.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's meeting reader, `HumanFrame.point` and `HumanSeatedReach.need`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure reading.
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext<{ partner: string }>,
@@ -211,14 +185,6 @@ export namespace handshakeMeeting {
    * @param lean The share of the seated joints' rooms at the clasp, and those joints.
    * @param phases The reach's, the shake's and the return's seconds.
    * @returns The base, unchanged when the lean is none.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the course of the lean and the case with none.
-   * @evidence contracts/development/implementation.md#principled-implementation The lean follows the hand's own minimum-jerk course in and out, written on the trunk's joints over the seat (`HumanSeatedReach.posed`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One weight per second, one leaned posture.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No lean returns the very base, so a standing handshake is the standing one.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanSeatedReach.posed and minimumJerk retain their original owners; optional same-person FK/ROM metadata forwards only through the actual original full-base observation, without changing the lean's arithmetic or projection policy.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its original base/joints/phase scalars; current metadata arguments release with each synchronous call and never enter the returned numeric posture, plan state or history.
    */
   export function leaned(
     body: IAutoMovieMotionHumanBody,

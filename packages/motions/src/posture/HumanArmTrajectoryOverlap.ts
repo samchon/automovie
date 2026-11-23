@@ -17,14 +17,6 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * Collision pairs against moving arm colliders: the two solved arms against
  * each other, and the body's and external segments' corners inside an arm.
  * HumanArmTrajectoryPairs exposes these readings alongside the forward pairs.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two directed readings, their shared geometry and their consumer.
- * @evidence contracts/development/implementation.md#principled-implementation Keeps the existing signed-distance readings, broad-phase bounds and contact allowances; external parts have distinct frame indices beyond the own-body relation table, so no own-body joint exclusion applies to them.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop for two moving arms and one for fixed corners against a placed arm's colliders, each keeping the deepest probe of every part and shape.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The exact shape query decides depth; bounding spheres only spare queries that cannot change the result, and declared rests use the context's allowance.
- * @evidence contracts/development/implementation.md#efficient-algorithms Screens each arm segment by its sphere before its probes, and each body part's run of corners by its sphere before its corners, a two-level bounding-volume hierarchy; branch and bound keeps one deepest reading per part and shape.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanArmShapes.colliders and the context's memoized reference depths and contact allowances; a frame's corner clusters and shape owners, fixed with its corner and collider lists, are built once per list.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh pair maps; the corner clusters and shape owners are kept in weak maps keyed by the frame's own lists, released with them.
  */
 export namespace HumanArmTrajectoryOverlap {
   /**

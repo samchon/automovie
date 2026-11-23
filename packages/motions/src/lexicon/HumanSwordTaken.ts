@@ -32,11 +32,6 @@ import { HumanSword } from "./HumanSword";
  * place until the action named by `until` ends, or the parry ends. The body
  * keeps its entry posture, an advance's stance included. The row fixes no
  * number: its duration is the named action's end.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is kept, what carries the hand, until when and what the body does.
- * @evidence contracts/development/design.md#principled-representation One law record over the held-tool stroke planner; the parrying blade is read through the parry's anchor.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law alone.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The parrying blade is the performance's displayed prop, never restated in the parameters.
  */
 export namespace HumanSwordTaken {
   /**

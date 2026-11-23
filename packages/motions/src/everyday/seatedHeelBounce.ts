@@ -44,11 +44,6 @@ import { seated } from "./seated";
  * height, and the knee follows the ankle through the existing leg fit.
  * The seat and opposite foot retain their entry contacts. When they share
  * a prop with the moving foot, the whole posture rides that prop.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the study, rocker geometry, time profile and support conditions.
- * @evidence contracts/development/design.md#principled-representation One seated action over a timed angle and two measured foot sockets.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One named action with an entry fit, contact windows and timed posture.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the canonical seating, foot and joint fit without replacing a body measurement.
  */
 export namespace seatedHeelBounce {
   /** The action's registry name. */
@@ -68,14 +63,6 @@ export namespace seatedHeelBounce {
    * @param context The action's body, entry supports and authored beats.
    * @returns The plan in action seconds.
    * @throws {HumanRefusal} If timing, entry contacts or peak rotation are infeasible.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the time base, input and admission.
-   * @evidence contracts/development/implementation.md#principled-implementation Holds the ball at the entry socket, rotates the airborne heel about it, fits the ankle and checks achieved rotation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admits timing and supports, defines a single rocker curve and reads it at the periodic clock.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses an unsupported seated base or a failed joint fit instead of clamping the motion.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The joint range bounds admission before two fitted rocker witnesses. Playback takes constant work per posture, independent of the beat count.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses shared foot geometry, range lookup, posture fitting, minimum jerk and support carry.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the current plan's entry and curves.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSeatedHeelBounce>,

@@ -46,11 +46,6 @@ import { solveGymnasticsLaidArm } from "./solveGymnasticsLaidArm";
  * the carried pose does not have. A laid arm's elbow keeps the carried one's
  * side, a straight arm's pushed out along its olecranon
  * (`AutoMovieMotionHumanElbowPole`), so the solve has a side to bend to.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States why the limbs are laid, where, how the hands are turned and how the ends blend, with the sources.
- * @evidence contracts/development/design.md#principled-representation Limb goals over a rigid wheel posture, one per bearing window, and joint-space blends at their ends.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The blend share, the finger directions and one writer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The places are where the wheel set each joint down; nothing is typed in.
  */
 export namespace GymnasticsWheelPlants {
   /** The share of the action over which a limb takes its laid place before its contact and leaves it after, provisional. */
@@ -58,11 +53,6 @@ export namespace GymnasticsWheelPlants {
 
   /**
    * The directions the laid fingers point along the floor, unit vectors.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The T-shape's two hands in their order of contact.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts World directions given by the law.
    */
   export interface IFingers {
     /** The first hand down: along the travel. */
@@ -137,14 +127,6 @@ export namespace GymnasticsWheelPlants {
    * @param carried The wheel's rigid posture at an action second.
    * @param fingers The laid fingers' directions on the floor, by the hands' order of contact.
    * @returns A writer of the laid limbs into a carried posture at a second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the writer.
-   * @evidence contracts/development/implementation.md#principled-implementation Each window's laid goal from the carried pose where it came down; at the ends a minimum-jerk weight blends the carried joints toward the laid solve's joints on each joint's rotation (`blendHumanJoint`), the input-pose blend of a skeletal control's weight, so zero weight is the carried pose itself.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Windows, then per limb the heaviest window, then one write.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The laid place is the wheel's own contact point; the fingers are the flat hand's (`HumanHandShape`).
-   * @evidence contracts/development/implementation.md#efficient-algorithms One bone FK per window at its start; per written sample, one FK of the limb and, for an arm, one of its hand under a flexed elbow; a blended sample adds one solve of that limb.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The leg goal, the hand target, the hand shape, the joint blend and the pose reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the windows' places.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,

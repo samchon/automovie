@@ -30,20 +30,10 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * whose arms would present the line further off the trunk's facing than the
  * aim's `arms` at some frame of the act is refused when the act is planned: the
  * performer, or the support, turns first.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is re-taken, which parts take the turn and the rise, and when it is refused.
- * @evidence contracts/development/design.md#principled-representation The aim is a world target, the pivot the line was planned from and the arms' bound; the correction is the yaw and the rise between the carried and the wanted lines.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The aim record, the correction, the corrected posture and the planning check; read by `HumanSupportCarry.plan`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The trunk's bound is the range-of-motion table's and the arms' the aim's, never a typed angle; the frames checked are the film's (`instance.RATE`).
  */
 export namespace HumanSupportAim {
   /**
    * The correction at a second: the wanted line against the carried one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and sign.
-   * @evidence contracts/development/design.md#principled-representation A yaw and a rise.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Degrees.
    */
   export interface ICorrection {
     /**

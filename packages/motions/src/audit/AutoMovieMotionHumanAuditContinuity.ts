@@ -52,14 +52,6 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  *   hips carry the body's bulk motion, so a body carried, falling or riding
  *   as a whole reads only its own limbs' speed; a pop of the whole body is
  *   the `jump`'s to read.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the premise, each reading, its unit and what the resolution reaches.
- * @evidence contracts/development/implementation.md#principled-implementation The definition of continuity applied directly: over equal sub-intervals a smooth path's departure from a constant-jerk path vanishes 256-fold per quartering while a step keeps its size, so a Richardson comparison of a joint's departure with its enclosing interval's tells a step from a fast smooth path; a step in one part leaves at least its size in the third difference and its whole size at its own part against the line through the other three.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the grid for the three readings, one recursive quartering per departing interval.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones only; no bone, action or instant is exempt, and every bone is followed, so a small flip is not hidden by a faster limb; the speed subtracts only the hips' own displacement, which the jump still reads.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in grid frames and bones; a quartering costs three poses a level and is entered only where a displacement departs from its neighbours, and goes deeper only for a joint that may step there, so a fast smooth path costs one quartering's three poses and a step about three a part entered at each level, and a turn on a grid coarser than `REVERSAL` costs the poses of its two intervals at that rate, read once per grid instant and only where the grid's own reading exceeds the worst found.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditContinuity {
   /** How many times a departing interval is quartered at most. */

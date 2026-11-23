@@ -21,11 +21,6 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
  * step; the start of the climb counts as the contact before the first. So
  * the leading foot lands ahead of the hip with its knee part flexed, about
  * the 60 degrees the study reports, rather than under it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the path's height and progress, their timing and its source.
- * @evidence contracts/development/design.md#principled-representation The pelvis path as one function of the stances and the step clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One builder, read by the stair law.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The timing follows the step clock; the stair law still lowers the root wherever a leg falls short.
  */
 export namespace climbStairsPelvis {
   /**
@@ -36,14 +31,6 @@ export namespace climbStairsPelvis {
    * @param steps How many steps.
    * @param duration The climb's seconds.
    * @returns The root at a second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result; the namespace gives the timing.
-   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk progress between stances, its height on the swing and its progress over the floor half a step behind.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares contact and progress intervals once, then selects the height and floor spans separately.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts After the last step the path holds the last stance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation/storage in steps includes fixed height differences, progress denominators and original XYZ interpolation deltas. Two logarithmic selections and constant-size interpolation remain per read; the prepared lerp's fresh output receives the original separate Y without a second vector copy.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The final clock/stances stay fixed, so named seconds, windows and original coordinate differences prepare once through the shared Vector3 owner. Every actual progress/lift still evaluates; only a guaranteed fresh interpolation vector is locally updated, never a retained stance or output from another read.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns one set of interval arrays bounded by the step count and releases them with the plan, without retaining query history.
    */
   export function of(
     stance: readonly IAutoMovieVector3[],

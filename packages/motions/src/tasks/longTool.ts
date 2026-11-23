@@ -62,11 +62,6 @@ const SINK: number = 0.06;
  * Not yet: the foot that drives a shovel's blade, the thrown load as a prop,
  * stepping between rake strokes, kneeling work and the one-hand pull that
  * frees a stuck head.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the held tool, the two hands, the body, the refusal, the events and what is missing.
- * @evidence contracts/development/design.md#principled-representation A law record whose strokes are pure paths of the tool (`LongToolStroke`) on one held prop.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The tool's reach is its own contacts; the work point is the author's.
  */
 export namespace longTool {
   /** The action's key. */

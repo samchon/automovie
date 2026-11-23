@@ -98,11 +98,6 @@ interface IHoldWorld {
  * and lays the near arm across its chest. Both read the same tow from the
  * victim's struggle position and the edge, so neither samples the other's
  * plan: the rescuer reads only the victim's displayed chest.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source, the shared tow, the speeds, the hold and the refusal.
- * @evidence contracts/development/design.md#principled-representation One closed-form tow both performers derive from the victim's position and the edge.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the rescuer's and the towed victim's tow; the struggle and exit are other kinds.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rescuer's hand reaches the victim's displayed chest, not a planned stand-in.
  */
 export namespace AquaticRescue {
   /** The rescuer: approach, hold and tow. */

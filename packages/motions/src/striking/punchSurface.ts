@@ -36,14 +36,6 @@ import { StrikingBody } from "./StrikingBody";
  * @param outward The horizontal unit direction away from the body on the striking hand's side.
  * @param straight The unit direction from the shoulder to the target.
  * @returns The surface at contact.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each technique's surface, travel and hand attitude with its source and the hammerfist's approximation.
- * @evidence contracts/development/implementation.md#principled-implementation The hand's attitude aligns the rest finger axis and palm normal to the technique's directions (`StrikingBody.fist`), and the surface is the body's own socket, region or rest joint carried by that rotation.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per technique, each a direction, a rotation and a surface.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every surface is read from the canonical body; the hammerfist's edge is stated as a joint-centre approximation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function punchSurface(
   body: IAutoMovieMotionHumanBody,
@@ -146,11 +138,6 @@ export function punchSurface(
 
 /**
  * Companion types of {@link punchSurface}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three members and their frames and units.
- * @evidence contracts/development/design.md#principled-representation World unit direction, world rotation and a world offset in metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the punch's contact reads of a technique.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector and quaternion.
  */
 export namespace punchSurface {
   /** How far a palm heel's fingers lean back toward the striker per unit up, the wrist extended (provisional). */

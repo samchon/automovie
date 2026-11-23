@@ -56,11 +56,6 @@ import { prepareHumanEquestrianRide } from "./prepareHumanEquestrianRide";
  * rider can articulate relative to the saddle on the horse's touchdown
  * clock, ride an authored jump, or turn over one shoulder on a film cue.
  * The ride passes its original seat on as its base for dismounting.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the seated entry, yields, ordinary and equestrian composition, and retained base.
- * @evidence contracts/development/design.md#principled-representation Carry the entry's seated posture with the support, then apply optional cue-driven articulation before fitting hand and foot goals. Contact windows name the support as their frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law and its parameters.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The support's motion is read from the performance's prop, never from parameters of the rider's own.
  */
 export namespace HumanRide {
   /** Seconds a hand takes to reach the point it is to hold (provisional). */

@@ -44,11 +44,6 @@ import { touch } from "../touch/touch";
  * syncs to the attacker's contact:
  * `b.registered("slapped", { from }).sync({ of: "slap" })`.
  * Register the ones a film uses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is, the action it is a row of and what its parameters fix.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (`HumanActionRow`), so it is data over a law that already fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the row.
  */
 export namespace HumanStageFight {
   /** A stage palm strike: the rear palm heel driven at the target and stopped short at 0.85 of its delivery (provisional), with no contact declared. It reaches the stop 0.26 s after the launch at elite skill (0.85 of the elite cross's 0.310 s, Cheraghi et al. 2014) and returns in as long ({@link IAutoMovieMotionHumanPunch}). */

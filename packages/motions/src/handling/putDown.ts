@@ -77,11 +77,6 @@ import { putDownTravel } from "./putDownTravel";
  * A rigid receiver with an authored motion track may translate horizontally
  * at constant speed during a direct placement. The hand arrives with the
  * receiver's velocity, opens while tracking it, and eases away afterward.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the goal, destinations, phases, transfer events and refusals.
- * @evidence contracts/development/design.md#principled-representation The prop's resting frame is the goal, with the hand placed through the stored rigid grip offset.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law owns placement and the demands it places on an earlier grasp.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Destinations are authored points, bones or sockets.
  */
 export namespace putDown {
   /** The action's name. */
@@ -124,14 +119,6 @@ export namespace putDown {
    * @param route Optional waypoint offsets in metres from the seating frame.
    * @returns The plan.
    * @throws {HumanRefusal} When no destination is named, the placing wrist lies beyond the arm's reach, or a socket placement's grasp cannot lay its socket on the receiver.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the phases.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand-to-prop offset is read from the displayed frames at the start and inverted at the resting frame; a free heading is chosen by the grasp search over turns of the prop's own rest rotation, and a socket placement holds the source socket as the arm's contact. A placement that stays put is one admitted arm course (courseArmGoal): joint-space carry and return between arms the body takes, the hold on the placing frame, so no world-attitude path switches the forearm's twist between its range's ends.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The offset, the resting frame, the wrist, the reach check, the timing, the posture.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist beyond the arm is refused, never clamped; the tilt the carry gives the prop is discarded for its rest rotation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two demanded hand readings, at most one heading search and one posture solve for the hanging hand at plan time; a placement that stays put adds one arm course solved when composed, then constant work per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanGrasp.reachable`, `putDownTarget`, the held-tool goal, `HumanPrehension` and the pick up's reach and the planner's course (courseArmGoal).
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the transports, the shapes, the reference and the wrist.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
@@ -641,14 +628,6 @@ export namespace putDown {
    *
    * @param ahead The destination, the predicted stance and the candidate grip.
    * @returns The fixed socket pose when a named source socket is supplied.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which placements constrain a prior grasp and whose pose and tolerance are used.
-   * @evidence contracts/development/implementation.md#principled-implementation The destination prop frame P and prop-in-grip offset O require the grip frame P O^-1; the same source-socket contact and held-tool bound as the placing plan judge it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Filter the grip and tracked destinations, read the fixed destination, undo its rigid offset and declare one demand.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No object kind is named, and a free world placement keeps its existing freedom.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One destination lookup and constant rigid-frame work per candidate grasp; the body pose is supplied lazily and this prop-socket branch never acquires its formerly unused full posture solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan and demand share putDownTarget and the held-tool goal and measure owners.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one immutable demand and retains nothing.
    */
   export function demands(
     ahead: IAutoMovieMotionHumanActionLaw.IAhead<IAutoMovieMotionHumanPutDown.IParams>,

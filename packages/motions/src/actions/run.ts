@@ -79,11 +79,6 @@ const CADENCE_PER_FROUDE: number = 0.08;
  * 2012 measured), and the trunk inclines forward of a walk's and more as the
  * pace rises (Thorstensson et al. 1984): 5, 8 and 12 degrees for a jog, a run
  * and a sprint (provisional).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the gait's duty factors, speeds, cadence, foot strike, pelvis, swing, arms and lean with their sources and provisional values.
- * @evidence contracts/development/design.md#principled-representation A law record whose gaits are data the walk's planner reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, cancel table, yields, the forefoot angle, the gait table and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The running gaits are rows of the walk's own gait type; no second planner exists.
  */
 export namespace run {
   /** The action's name. */
@@ -148,13 +143,6 @@ export namespace run {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result; the namespace gives the gait's sources.
-   * @evidence contracts/development/implementation.md#principled-implementation The walk's footprint planner in the pace's running gait, whose flight follows from its duty factor below one half.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table read and one delegation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The run adds no planner of its own; every footprint is the walk's.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The plan's cost is walk.locomote's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses walk.locomote.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned plan owns what walk.locomote prepares.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRun.IParams>,
@@ -171,13 +159,6 @@ export namespace run {
    * @param body The body.
    * @param pace The pace; `run` when absent, as the plan defaults.
    * @returns The speed, m/s.
-   * @evidence contracts/development/common.md#meaningful-documentation States the relation, the leg length and what is left out.
-   * @evidence contracts/development/implementation.md#principled-implementation The Froude number's definition Fr = v² / (g l), solved for v, with the gait table's number and the planner's own leg length.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table read and one closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The number is the gait's, never restated.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function speed(
     body: IAutoMovieMotionHumanBody,

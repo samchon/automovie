@@ -40,11 +40,6 @@ import { StrikingWeapon } from "./StrikingWeapon";
  * than the leg still lands from. A step back that leaves the way no clearer
  * is not taken: the launch stays as it was, and the performance's resolution
  * shows what the leg meets.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the defect answered, what is swept against what, the answer and its bound, and what is left to the resolution.
- * @evidence contracts/development/design.md#principled-representation The launch's own plan read on its free course, its capsules and the partner's colliders in world metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by the kick law once for a launch.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The capsules, the scan's step and the colliders are the performance's own; no margin is added.
  */
 export namespace KickClear {
   /**
@@ -56,14 +51,6 @@ export namespace KickClear {
    * @param t0 Film second of the kick's time zero.
    * @param launch The launch.
    * @returns The launch, its contact solved again on a step further back when the leg met the partner early and the step clears it; the launch itself otherwise.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input and both results; the namespace states the method.
-   * @evidence contracts/development/implementation.md#principled-implementation The plan-time sweep is the contact resolution's own measure (tapered capsule against the partner's colliders, zero distance a contact) on the partner as the kicker perceives it a look before the start; the carriage's step is the law's declared answer to a target too near.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One sweep of a plan, and a bounded loop of step, contact and sweep.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A feint, a redirect (which keeps its source's step), a target that is no person and a launch already clear are returned untouched; a step that does not clear the way is not kept.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One sweep of about thirty leg poses for a launch, made once for the plan; each step back adds one contact on a decided step and one sweep, a thigh's girth at a time up to the backward step's length (`KickForm.STEP_BACK_SHARE`).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The partner's colliders are posed once for the launch's reading and serve every sweep.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The partner's posed colliders and the trial geometries end with the call; only the launch escapes.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,

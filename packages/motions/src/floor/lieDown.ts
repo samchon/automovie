@@ -77,11 +77,6 @@ type Release = ReturnType<typeof floorEntry.between> | undefined;
  * Not yet: lying on a bed or a sofa (A2 support frames, A8 `surface`), the
  * recovery position, sleep with seeded position changes (Skarpsno et al. 2017;
  * De Koninck et al. 1992), rolling over and rising from a bed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the routes with their source, the floor rule, the timing, the events and what is missing.
- * @evidence contracts/development/design.md#principled-representation A law record of one whole-body row over key postures on one clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the postures and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The floor height is read from each body's shapes.
  */
 export namespace lieDown {
   /** The action's name. */
@@ -157,13 +152,6 @@ export namespace lieDown {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the floor route, action seconds, hold refusal and existing position/base/contact behavior; current floor/folded-seat observations borrow synchronous FK/ROM sources without retaining them.
-   * @evidence contracts/development/implementation.md#principled-implementation Follows the existing position's ordered joint-space route, keeps the mean of the feet's bearing sole sockets in place through a standing entry's first phase and the pelvis's horizontal place after it, and rests each actual changing body on its exact collider bounds, then applies the existing folded-leg/side-hand goals when required.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed route keys and joint pairs feed one time-only posture reader; canonical floor and folded-seat owners retain their separate geometric responsibilities.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored routes, phase durations, clinical interpolation, floor minimum, folded targets and endpoint hold remain unchanged; no samples, contact tolerance or joint/goal admission is relaxed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(KJ) preparation removes per-query route joint unions and fixed progress-name lookup; native clock guards retain custom-callback behavior. First actual floor/fold demand prepares native collider selection or folded-seat target/name metadata once. Every changing query retains actual bounds/fold solve and synchronous FK/ROM; the fully arrived hold performs no new observations. A standing entry's first phase adds one demanded feet FK per query, and the first phase's two ends are read once each. Each blend's arm-room scan (`floorArmRoom`) runs once when placement is final, through the prepared-playback setup hook, not on the first displayed second of the blend.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed route pairs and unchanged body/profile/sitting metadata prepare once. The primitive reads no earlier channel and lends one synchronous parent FK/ROM source through actual floor/folded-seat observations; only the original fully arrived posture is held, with no current map or query history.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns finite route/clock/joint readers, at most one body-fixed floor reader, one folded-seat reader and one arrived posture until release. Current FK/ROM and actual maps/placements end on return or throw and never enter those readers, the endpoint or the plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLieDown.IParams>,

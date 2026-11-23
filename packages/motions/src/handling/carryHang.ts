@@ -41,11 +41,6 @@ import { HumanGrip } from "./HumanGrip";
  * `SETTLE` seconds and keep the walk's posture otherwise. The props stay in
  * the hands: the law grips them through its whole length and leaves them
  * held after.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the place of each wrist, what keeps the props and the timing.
- * @evidence contracts/development/design.md#principled-representation An overlay of both arms over a walk, a place of the trunk's own frame carried with it, with the holds kept.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the overlay flag, four constants, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The props are the hands' holds, never placed by hand.
  */
 export namespace carryHang {
   /** The action's name. */
@@ -77,14 +72,6 @@ export namespace carryHang {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the carry's length is not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each wrist is a place below its shoulder on the posture of each second, the hand at the turn it held the prop at the start relative to the heading, the elbow on the hanging preset (`AutoMovieMotionHumanBend.hang`), and the arm carried there from the carrier's own arm by the settle's minimum-jerk envelope.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Sides, duration, the held fingers, the posture.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive length throws; nothing is clamped; the shares are named provisional.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each frame resolves only the carrying shoulders; the carrier's full posture is solved for its arm angles only during the settle.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The entry hand turns and finger angles are read once at planning.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its base plan, the entry turns and fingers; the FK workspace and projection a caller passes are used within the call only.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarryHang.IParams>,

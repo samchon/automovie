@@ -24,11 +24,6 @@ import { HumanSwordThrust } from "./HumanSwordThrust";
  * body does not stop it. The reload brings the support hand's palm to the
  * place the composition names (the pistol's `magazine` contact); no magazine
  * is exchanged.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what the composition gives and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped or registered law (`HumanActionRow`).
- * @evidence contracts/development/design.md#minimal-and-owned-surface One row per act of #3348's melee list and the reload; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own.
  */
 export namespace HumanWeaponMelee {
   /** A club or a bat swung level at a person or a thing. */

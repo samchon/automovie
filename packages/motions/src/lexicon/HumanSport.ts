@@ -28,11 +28,6 @@ import { step } from "../striking/step";
  *
  * `HumanDrill` already names `squats`, `jumpingJacks` and `sway`; they are not
  * repeated here.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is, what it leaves open and which rows another family names.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (`HumanActionRow`), so it is data over a law that already fits the body, refuses and is checked.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One row per shipped kind that has a common name; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; a row fixes its law's kind, and where its name means it a target, a direction or a hold, the holds marked provisional on the row.
  */
 export namespace HumanSport {
   /**

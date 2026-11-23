@@ -24,11 +24,6 @@ import type {
  * target that leaves the arc the arms present to is still followed and the
  * arm's fit then gives way silently; no lead is taken ahead of a moving target,
  * and the tracking has no lag or tremor by skill.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what tracking does, its geometry and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One rotation of the presented pose per second, read from the target's own placed motion, so no second pose is solved and no choice of the fit can change between instants.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one parameter and the path `present` gives its stroke planner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The target is read through `context.aim`, the reader every aimed law uses, at the second shown.
  */
 export namespace HumanWeaponTrack {
   /**
@@ -41,13 +36,6 @@ export namespace HumanWeaponTrack {
    * @param aimed Where the pose is aimed, world metres; null for a carriage
    *   that does not aim, which is never turned.
    * @returns The stroke planner's path.
-   * @evidence contracts/development/common.md#meaningful-documentation States each input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The rotation is the one about the axis square to both sight lines by the angle between them, applied to the hand's point about the eye and to the hand's rotation; below a thousandth of a degree the pose is returned as it is.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One cross product, one angle, one rotated frame.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The target is read at the second shown, never extrapolated; the limits are stated on the namespace.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One target read and constant arithmetic per evaluated second.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The path closes over the pose, the eye and the context.
    */
   export function path(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponTrack.IParams>,

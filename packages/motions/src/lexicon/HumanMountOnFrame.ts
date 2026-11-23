@@ -22,11 +22,6 @@ import { HumanMount } from "./HumanMount";
  * forward `HumanMount.LEAN` degrees at 40 % and settles to the seated
  * pitch from 60 %, the seated joints coming in with it, and the hanging
  * arms open out while the legs climb.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the socket's path, the crossing, the lean and the arms with their shares.
- * @evidence contracts/development/design.md#principled-representation A root, a heading, a pitch, a roll and the set joints at a second of the climb.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanMountOn` asks of its pelvis and trunk, and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every share is a named share of the climb; every length is the body's or `HumanMount`'s.
  */
 export namespace HumanMountOnFrame {
   /** Where the pelvis is at an instant of getting on: the root, the heading, the pelvis pitch and the set joints. */
@@ -37,11 +32,6 @@ export namespace HumanMountOnFrame {
 
   /**
    * The climb the course is read over.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and frame.
-   * @evidence contracts/development/design.md#principled-representation World metres, seconds and degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `HumanMountOn` only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The seated end is the sitting's own.
    */
   export interface IClimb {
     /** The body. */
@@ -74,11 +64,6 @@ export namespace HumanMountOnFrame {
 
   /**
    * The seated end a climb settles into.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation A pitch in degrees and clinical joint angles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Given by the sitting.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The sitting's own seated posture.
    */
   export interface IFinal {
     /** The seated trunk pitch, degrees. */
@@ -111,14 +96,6 @@ export namespace HumanMountOnFrame {
    *
    * @param c The climb.
    * @returns The frame at a second of the climb.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Every path is a minimum-jerk share (Flash and Hogan 1985) of a named stretch of the climb.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The socket, the settle, the lean, the joints, the arms, then the root.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shares are provisional, named in the namespace's account.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per frame beyond the trunk's incline.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The relaxed and seated joints are read once.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The reader holds only the climb.
    */
   export function of(c: IClimb): (t: number) => Frame {
     const { body, seat, start, goal, climb, hop, final }: IClimb = c;

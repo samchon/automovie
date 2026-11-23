@@ -42,14 +42,6 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * declares its contact, so only steps wholly outside all of them are read
  * for `skate`: a step a window's edge falls inside, between two grid
  * instants, is partly declared and is not read.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the gap it closes, how contact is inferred with each threshold's source, and what each reading means.
- * @evidence contracts/development/implementation.md#principled-implementation Kinematic contact inference by a height and a speed threshold on the sole's own sockets, compared with the declared windows.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One walk over the grid's steps, each socket read once per step.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones, never a law's goals; no foot, action or window is exempt.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames: two feet of three sockets per instant.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in; the sockets come from `HumanFoot.sockets`.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditContact {
   /**
@@ -90,14 +82,6 @@ export namespace AutoMovieMotionHumanAuditContact {
    * @param rate Grid samples per second.
    * @returns The readings.
    * @throws {Error} When the rate is not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input and the failure.
-   * @evidence contracts/development/implementation.md#principled-implementation Each step's sockets are classed by the two thresholds and by the declared windows that hold both of its ends.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A loop over steps and feet with one branch per reading.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A step is excused from `skate` only by a declared window on that very foot.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each instant's sockets are placed once and shared by the steps on both of its sides.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading; the grid and the windows come from `IAutoMovieMotionHumanAuditMotion`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one instant's sockets per foot while it walks and nothing after it returns.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,

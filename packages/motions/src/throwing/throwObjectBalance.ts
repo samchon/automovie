@@ -25,11 +25,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * recovers. The hand is placed `REACH` of the arm's length out from its
  * shoulder, `DROP` of it down and `AHEAD` of it forward, palm down and the
  * fingers out; it comes in over the windup and leaves over the recovery.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the role, where the hand goes, its attitude and its timing.
- * @evidence contracts/development/design.md#principled-representation One arm movement on the delivery's clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The three shares and one builder.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The place is a share of the body's own arm, read from the posed shoulder.
  */
 export namespace throwObjectBalance {
   /** How far out the balance hand reaches, a share of the arm's length (provisional). */
@@ -47,14 +42,6 @@ export namespace throwObjectBalance {
    * @param context The delivery's context.
    * @param clock The delivery's clock: `windup`, `cocked`, `recover` and `end`.
    * @returns The primitive for a bowling delivery's free arm; none for another style.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand placed in the posture's heading frame from the posed shoulder, moved in and out on minimum-jerk weights from the entry's own hand.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Origin, target, weight.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shoulder is read from the current posture.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One shoulder FK per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared arm movement and hand attitude.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the origin.
    */
   export function of(
     context: Pick<

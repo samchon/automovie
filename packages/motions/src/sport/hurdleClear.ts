@@ -49,11 +49,6 @@ import { AthleticsSwing } from "./AthleticsSwing";
  * stance placement, not a measured push.
  *
  * Events: `takeoff`, `clear` (the hips over the bar's plane), `touchdown`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases, their physics and sources, the refusals, the first pass and the events.
- * @evidence contracts/development/design.md#principled-representation A law record over one clock of stance, flight and landing, with the bar read from the hurdle prop.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel and accept tables, the measured constants and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every distance is the hurdle's, the run's or a cited measure; the flight follows from the run's speed.
  */
 export namespace hurdleClear {
   /** The action's name. */
@@ -149,13 +144,6 @@ export namespace hurdleClear {
    * @throws {HumanRefusal} When the entry is no run cut at a footfall, the
    *   hurdle declares no bar, the take-off lies outside `TAKEOFF`, or the hips
    *   pass the bar lower than its top plus `CLEAR`.
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A cubic Hermite root over the stance, a drag-free parabola over the flight timed by the run's horizontal speed, Bezier swings with exact bar points, and a forefoot landing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Approach and bar, places, root path, clock, rows, contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Distances and the flight are refused when outside their bounds, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Closed forms; constant work per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the run-up reader, the obstacle reader, the swing path and the leg placement primitive.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the places, the two swing readers and the clock.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHurdleClear.IParams>,

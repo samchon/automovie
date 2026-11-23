@@ -60,11 +60,6 @@ const PAT: number = 0.03;
  *
  * Not yet: carrying while walking (the hold as an overlay on a walk) and a
  * handover, which `handOver` owns.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frames, each hold, the head support, the pats, the rocking and the events.
- * @evidence contracts/development/design.md#principled-representation World poses of the held infant in the body's frame; the holding hand follows rigidly.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The infant's and the bottle's sites are their own contacts.
  */
 export namespace holdInfant {
   /** The action's key. */

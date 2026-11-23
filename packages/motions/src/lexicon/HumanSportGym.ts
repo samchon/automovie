@@ -19,11 +19,6 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * What a row shows and what its first pass leaves out is stated on its
  * kind or its law: without `load` nothing is held, and without `on` no
  * equipment bears.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what it leaves open and where its limits are stated.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a registered law (`HumanActionRow`), so it is data over a law that plans and refuses.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One row per exercise a programme names; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; each fixes its law's kind and nothing else.
  */
 export namespace HumanSportGym {
   /** A bear crawl: on the hands and the feet, the knees held off the floor. Default 3 cycles of 1.2 s at a 0.93 m hip (`crawl.CYCLE`, provisional), 3.6 s of crawling. */

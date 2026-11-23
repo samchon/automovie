@@ -60,11 +60,6 @@ const AMONG: ReadonlySet<AutoMovieHumanoidBone> =
  * the arm keeps clear of, and the arm is planned as one admitted course from
  * its entry angles onto the rest (`courseArmGoal`), never fitted afresh each
  * second.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the defect, the rest's place, facing and colliders, and the course.
- * @evidence contracts/development/design.md#principled-representation A declared hand contact on a partner region, laid by the arm course with the partner's colliders as its rests and obstacles.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rest's goal and its course; the lying body and the carriage stay `lieTogether`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The palm is placed on the partner's displayed colliders; no overlap is excused beyond the segments the palm rests on.
  */
 export namespace lieTogetherDrape {
   /** The free arm's rest on the partner. */

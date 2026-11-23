@@ -57,14 +57,6 @@ import { pickUp } from "./pickUp";
  * @param drive The work's authored drives of the held prop.
  * @returns The free arm and its grip under the work's clock and planned drives, the holding arm that brings the prop before the body, and the larger travel.
  * @throws {HumanRefusal} When the contact rides no driven articulation, or lies beyond the free arm even before the body, or the holding wrist there lies beyond its arm.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States when the holder keeps or presents the prop, the moving goal, the attitude, the contact and the refusals.
- * @evidence contracts/development/implementation.md#principled-implementation The contact's place is the articulation's closed-form pose under the drive's own travel, in the held frame; the presentation is one translation to the neutral working point.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the contact, read the frames once, keep or present the prop, then build the arms under the caller's clock.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact on no driven articulation, or beyond the arm before the body, is refused.
- * @evidence contracts/development/implementation.md#efficient-algorithms One closed-form place per second.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `heldDigits.posed`, the reach owner and the carried arm.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The arms close over the frames and the drive.
  */
 export function workHeldPush(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -389,11 +381,6 @@ function present(
 
 /**
  * The parts {@link workHeldPush} hands its caller.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the travel, the arm, the contact and the hand.
- * @evidence contracts/development/design.md#principled-representation Metres and builders under the caller's clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `workHeld` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
  */
 export namespace workHeldPush {
   /**

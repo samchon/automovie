@@ -28,11 +28,6 @@ import { pickUpPosture } from "./pickUpPosture";
  * pose and any use's pose. Without a use, the grip is taken as the
  * archetype declares it: untilted, and turned only within its declared
  * symmetry (`TURNS`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is chosen and by what.
- * @evidence contracts/development/design.md#principled-representation The search result as one record of the chosen grasp, the elbow hint and the stance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The record and the search the pick up reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop is named: the grip is the prop's declared affordance.
  */
 export namespace pickUpSearch {
   /** The digit tips a grip keeps above the floor. */
@@ -58,11 +53,6 @@ export namespace pickUpSearch {
 
   /**
    * A grasp chosen from its actual stance and hanging elbow hint.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members identify the original chosen reach, world-metre elbow hint and exact body stance that produced them.
-   * @evidence contracts/development/design.md#principled-representation Retains HumanGrasp's reach and pickUpPosture's stance types with their original world coordinates, complete goals, reference and judgement reports.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface pickUpStance chooses among these records and pickUp consumes all three fields to author the original lift; no prepared token or new pose representation escapes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every record comes from its own actual stance search, without reusing another stance's wrist, goal, solution or refusal verdict.
    */
   export interface ISearched {
     /** The grasp the arm reaches best. */
@@ -86,14 +76,6 @@ export namespace pickUpSearch {
    * @param carried World displacement accumulated before lifting a moving prop, metres.
    * @param closure The prop's world frame at moving grasp closure, or omitted for ordinary pickup.
    * @returns The chosen grasp, the elbow hint and the stance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The grip's turns and tilts judged by the arm's fit over the grasp, the lift and any use's pose (`HumanGrasp.reachable`), the use's pose first when one is asked.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The elbow hint, the goals, one search.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grasp beyond the straight arm is tried only when every one is.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Preserves all original candidate goals, coupled fits, lazy stroke keys and required-first wider search. Each candidate that reaches a use or demand reads its current geometry at that original point; arbitrary callbacks prevent sharing direct source assembly across fits or stances.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The public reachable owner shares only exact current FK dependencies. Entry, params, prop reads and demanded postures remain live across external demand callbacks; no object identity or callback absence is treated as proof of a fixed body/posture source.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,

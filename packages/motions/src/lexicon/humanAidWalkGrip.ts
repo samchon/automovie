@@ -32,11 +32,6 @@ const GRIP_GAP: number = 0.01;
 
 /**
  * Fit one grip per hand for a complete staged floor-aid course.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States when the model grip and finger closure remain fixed.
- * @evidence contracts/development/design.md#principled-representation All candidate hand points and approaches belong to the real grip rod, and the displayed palm is measured against its geometry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law supplies the support samples and retains the accepted grip. HumanMountRider owns native hand pose fitting.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A single sampled grip is chosen per hand for the entire course. The fitting never substitutes the wrist target for the actual material contact.
  */
 export namespace humanAidWalkGrip {
   /** One sampled instant of the aided walk: the aid's displayed floor frame and the body's planned posture. */

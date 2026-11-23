@@ -25,11 +25,6 @@ import { formationCourseFrame } from "./formationCourseFrame";
  * second. A member keeps its slot by its own travel: a cadenced march walks
  * the slot's way (`path`) and lets its step give, a free walk follows the
  * slot by speed matching (`walkStation`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how a slot is laid and placed and how members keep it.
- * @evidence contracts/development/design.md#principled-representation Reads of the data type `IHumanFormation`; layout geometry stays the engine's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `of`, `capacity`, `count`, `local`, `frame` (fixed, guide, path and course frames), `end`, `slot`, `place`, `path`, `assign`, and the frame's defaults `ACCELERATION`, `TURN` and `SAMPLE`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No second layout formula: every point comes from `formationSlotPosition`.
  */
 export namespace HumanFormation {
   /**

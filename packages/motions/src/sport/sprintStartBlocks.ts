@@ -21,20 +21,10 @@ import { HumanFrame } from "../posture/HumanFrame";
  * block's two plates, which the athletics law reads in place of the
  * body-scaled setting when the take names a block, and the body-scaled
  * setting's own foot in its block (`scaled`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the module reads, which consumer takes its result and when.
- * @evidence contracts/development/design.md#principled-representation World metres and degrees in the runner's entry frame; a side and two rigid sole placements.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The athletics plan reads the front side and both placements; sprintStartSet reads the body-scaled foot; the plate reading stays private.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No block dimension is assumed: every point and angle comes from the placed prop's own affordances.
  */
 export namespace sprintStartBlocks {
   /**
    * The runner's sides on a placed block.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both members and their frame.
-   * @evidence contracts/development/design.md#principled-representation A side and two world-frame foot placements whose soles lie on the plate faces.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values `athletics.plan` passes on to `sprintStartSet.of`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both feet are always present; a block without both plates is refused before this record exists.
    */
   export interface IPlaced {
     /** The foot on the front plate, decided by which side of the lane the front plate sits. */
@@ -76,14 +66,6 @@ export namespace sprintStartBlocks {
    * @param preferred The authored front foot, when named.
    * @returns The runner's front side and both feet seated on their plates.
    * @throws {HumanRefusal} For a missing plate, a plate that does not face forward and up the lane, plates not staggered across and along the lane, or an authored front foot on the other side.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the scene transform, optional side, returned contacts and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Composes each pedal's placed frame, takes its +Y as the face normal, and seats the ball of the foot at the middle of the face's lower edge, the sole on the face at the normal's heading and pitch, the toes on the track as a crouch start sets them. The front plate's side of the lane decides the front foot.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read both plates, order them in the runner's frame, then place each sole.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing, sideways or reversed plates and a contrary front side are refused before the set fit; the set fit still owns reach and joint ranges.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two affordance lookups, two rigid transforms and two foot placements per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the prop's frame once and delegates each rigid sole placement to HumanFoot.pivot.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the two numeric placements it returns.
    */
   export function of(
     context: Pick<
@@ -216,14 +198,6 @@ export namespace sprintStartBlocks {
    * @param behind Metres behind the start line.
    * @param face The block face's angle from the floor, degrees.
    * @returns The foot's placement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the placement, its frame and units.
-   * @evidence contracts/development/implementation.md#principled-implementation The ball pivot on the floor under the hip's lateral offset, pitched by the face angle (`HumanFoot.pivot`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame point and one pivot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the body's.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each foot is placed once per set solve.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh placement.
    */
   export function scaled(
     body: IAutoMovieMotionHumanBody,

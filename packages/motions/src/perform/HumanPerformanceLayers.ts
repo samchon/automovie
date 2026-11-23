@@ -16,11 +16,6 @@ import { HumanSegment } from "./HumanSegment";
  * The instants of a performance and the windows of its layers: an instant
  * named by film seconds, by an action's event, by a cue or by another
  * layer, and a scheduled layer placed between two of them.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what an instant may name and what a window is.
- * @evidence contracts/development/design.md#principled-representation An instant resolves to film seconds through the schedule's own anchors and cue tracks.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The instant reader `HumanPerformance` exposes, a layer's four instants and its window (#3399).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts An unknown anchor or an instant not yet placed is refused, never read as zero.
  */
 export namespace HumanPerformanceLayers {
   /**

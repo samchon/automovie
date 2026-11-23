@@ -79,11 +79,6 @@ import { prepareToolPlayback } from "./prepareToolPlayback";
  *
  * Not yet: two-handed tools (shovel, broom, mop), kneeling or seated work,
  * fatigue (Cote et al. 2002, 2005).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the held-tool goal, each tool's cycle with its source, the timing, the events and what is missing.
- * @evidence contracts/development/design.md#principled-representation A law record of one arm row over a cycle clock on a held prop; the work is a closed union of four kinds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the cycle table and the plan with its tool.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The work point is a target and the tool's reach is its own contacts; no tool length is typed.
  */
 export namespace useTool {
   /** The action's name. */
@@ -180,14 +175,6 @@ export namespace useTool {
    * @param context The action's context.
    * @returns The plan with its tool.
    * @throws {HumanRefusal} When the cycle count is not a positive integer, the hand does not hold the tool, the tool has no `grip` or `face` or its face lies within the hand that holds it, or a stir's work point is no vessel the spoon reaches into.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace states the tool's frames, the working goals, the cycle timing and the sources; the parameters and the refusals name each admitted input.
-   * @evidence contracts/development/implementation.md#principled-implementation The goal is the held tool's working point on the work: the hand's rotation is the least turn that lays the tool's line on the work's (`HumanHand.prepareAlignment`), the grip follows rigidly from it, each cycle moves that pose by its kind's periodic law, and the face's offset from the wrist is the limb's contact, so a wrist that cannot reach the asked attitude is re-aimed to keep the face on the work.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Hold and work, the working pose, the clock, the cycle law, then the arm stroke with the kept grip.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tool's reach is its own contacts and the work point the author's target; the saw's slope is chosen by the arm's own strain.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One alignment preparation, one strain-ranked elbow solve per saw slope tried (five), one entry hand read; per second one cycle pose and one elbow hint.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The working pose, the turn's axis and the pose at a contact's half cycle are computed once for the plan, since none depends on the second.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the tool's geometry, the clock and the kept fingers for its lifetime; nothing grows with the seconds evaluated.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUseTool.IParams>,

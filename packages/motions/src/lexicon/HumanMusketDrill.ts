@@ -44,11 +44,6 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * to give (secondary sources give about three rounds a minute). Biting and
  * pouring are the hand brought to the place; the fingers' fine work is not yet
  * planned.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the manual's order with each row's law and affordance, what is the crowds campaign's and what is provisional.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).
- * @evidence contracts/development/design.md#minimal-and-owned-surface #3488's musket rows; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; a row needing a hand that holds something else is refused by the shipped hold rules.
  */
 export namespace HumanMusketDrill {
   /**

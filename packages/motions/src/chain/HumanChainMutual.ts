@@ -22,11 +22,6 @@ const PIN: number = 0.04;
  * The chain methods a person performs with a partner or on an object: the
  * handshake, the high five and the kiss, a prop picked up, put down, handed
  * over and received, and an object thrown, caught or kicked.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the family and documents each method.
- * @evidence contracts/development/design.md#principled-representation One method per action of the family, each `act` under the action's name.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The partner and object actions only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every method takes its law's own parameter type.
  */
 export class HumanChainMutual extends HumanChainStriking {
   /**

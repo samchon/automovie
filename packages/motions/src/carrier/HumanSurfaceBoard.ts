@@ -69,14 +69,6 @@ const END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
  * @returns The transferred deck-local plants and carried posture.
  * @throws {HumanRefusal} When either foot is unsupported by the selected board,
  * a hand names a point the support lacks, or the duration is invalid.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the entry, frame, source, return and refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Stores displayed foot locations, reconstructs planted world goals and uses the engine's rigid support carry to keep both on the prop. A grip is fitted at the support point's start pose, which the same carry moves, so it stays on a point rigidly attached to the support.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One support check, one two-foot goal snapshot and one carried plan.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No assumed board speed, water displacement or ground-to-deck acquisition.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two goals are placed once and the common rigid carrier owns each frame evaluation.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses standing knee references and the same support carry as an action on a wagon.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the entered goals and board reader for its own lifetime.
  */
 export function HumanSurfaceBoard(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.IBoardRideParams>,
@@ -263,11 +255,6 @@ export function HumanSurfaceBoard(
  * Author a continuous move on a skateboard or surfboard selected from the
  * stage. The board's animator owns its trajectory. Its actual
  * affordances and authored phase boundaries determine the rider's plants.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States ownership of the board track and material supports.
- * @evidence contracts/development/design.md#principled-representation The two board phrases carry distinct world, deck and free support windows. Named shares synchronize the existing prop clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes two registered laws and the original acquired-stance carrier.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps existing board rides and registered phrases distinct. A skateboard's floor and a surfboard's water elevation belong to the scene.
  */
 export namespace HumanSurfaceBoard {
   /** Establish one ground push, turn feet on the deck, and land from an authored ollie. */
