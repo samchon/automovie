@@ -24,14 +24,6 @@ const SHADES: Record<AutoMovieInspectionShade, true> = {
  * Shade and surface: how surfaces are coloured and whether they are drawn.
  *
  * The page draws the request's first pass, so the shade shown is `passes[0]`; choosing one replaces every pass with it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the panel edits and how several passes become one.
- * @evidence contracts/development/implementation.md#principled-implementation The shade list is a record keyed by the request's shade union, so a shade render adds fails compilation here until it is offered.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One select and one checkbox, each dispatching one edit.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The panel shows the request's values and keeps no copy of them.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant per render.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A view with handlers.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds nothing.
  */
 export function AutoMovieInspectorShadePanel(props: {
   /** The request shown. */

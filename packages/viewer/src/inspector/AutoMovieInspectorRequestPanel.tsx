@@ -17,14 +17,6 @@ import { formatAutoMovieInspectorCommand } from "./formatAutoMovieInspectorComma
  * The request as text: the address query, editable, and the `automovie capture` command that repeats the picture, each with a button named for what it copies.
  *
  * The query field shows the request's address text; an edit is dispatched as a `text` action when the field is left or Enter is pressed, and a text the grammar refuses keeps the previous request with the refusal shown above. The command is read-only, quoted for a POSIX shell. Copying writes the field's text to the clipboard where the page may, and says so under the fields, in a status region that stays mounted so each note is announced; where the page has no clipboard, as outside a secure context, or is refused it, the note says to select the text and copy it instead.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each field shows, when an edit is dispatched, the refusal, the command's quoting, what copying does and what it says when the clipboard is missing or refused.
- * @evidence contracts/development/implementation.md#principled-implementation Both texts are written from the request by the grammar's writers, so the address, the command and the picture name one request; copying goes through the platform's clipboard.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One editable field and one read-only field, each with a copy button.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The typed text is held only until it is dispatched; the request stays the reducer's; a missing or refused clipboard is reported, never swallowed or thrown.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two writes of the request per render, linear in its text.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A view with handlers.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds only the text being typed and the last copy's note.
  */
 export function AutoMovieInspectorRequestPanel(props: {
   /** The request shown. */
