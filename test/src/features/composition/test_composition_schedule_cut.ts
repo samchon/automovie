@@ -16,15 +16,15 @@ import { TestValidator } from "@nestia/e2e";
  * its sequence starts there and is recorded as the interrupter.
  *
  * Scenarios:
- * 1. A 2 s kick cut at share 0.4 ends at 0.8 s; the 1 s step after it starts
- *    at 0.8 s and the kick's entry names it in `interruptedBy`.
- * 2. Cut at its `chamber` event (share 0.3), the kick ends at 0.6 s and the
- *    entry records the event's name.
- * 3. Metamorphic: moving the cut later moves the next start later by the
- *    share times the duration, and the contact (1.0 s) survives only a cut
- *    after it.
- * 4. A cut at an unknown event throws a message listing the action's events;
- *    a share outside [0, 1] throws.
+ *
+ * 1. A 2 s kick cut at share 0.4 ends at 0.8 s; the 1 s step after it starts at
+ *    0.8 s and the kick's entry names it in `interruptedBy`.
+ * 2. Cut at its `chamber` event (share 0.3), the kick ends at 0.6 s and the entry
+ *    records the event's name.
+ * 3. Metamorphic: moving the cut later moves the next start later by the share
+ *    times the duration, and the contact (1.0 s) survives only a cut after it.
+ * 4. A cut at an unknown event throws a message listing the action's events; a
+ *    share outside [0, 1] throws.
  * 5. An uncut sequence and a cut last part record no interrupter.
  * 6. A cut at another subject's event: a 2 s guard of subject b, placed in
  *    parallel with a's kick anchored "k", cut `{ of: "k", event: "impact" }`
@@ -33,12 +33,17 @@ import { TestValidator } from "@nestia/e2e";
  *    `until` law answering undefined (never met) leaves the 2 s guard uncut,
  *    ending at 2 s with no interrupter and the step starting at 2 s; with no
  *    `until` law it throws.
+ * 8. A part synced into its own subject's running action cuts it, so the sequence
+ *    goes on from the synced part's end: b's 2 s guard, then a 1 s step synced
+ *    0.5 s before a's kick contact (1.0 s), plays 0.5 to 1.5 s and the stand
+ *    after it starts at 1.5 s, not at the guard's uncut 2 s; a part of another
+ *    subject synced the same way leaves the cursor at 2 s.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves real compositions through the public resolver and reads entry times, cuts and interrupters; a cut ignored, placed at the wrong share, a contact kept after it or an interrupter on the wrong entry fails.
  * @evidence contracts/development/testing.md#independent-expectations Times follow from the declared durations and shares by arithmetic (start + share x duration); the error must name the declared events.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers share, own-event, other-subject-event and proximity cuts, contacts before and after the cut, invalid events and shares, an uncut sequence and a cut at the end.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers share, own-event, other-subject-event and proximity cuts, contacts before and after the cut, invalid events and shares, an uncut sequence, a cut at the end, and a synced part of the same and of another subject.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 scenarios and what each pins.
  */
 export function test_composition_schedule_cut(): void {
   const laws: IAutoMovieScheduleLaws = {
@@ -199,5 +204,33 @@ export function test_composition_schedule_cut(): void {
         distance: 0,
       },
     }),
+  );
+
+  const synced = (subject: string): IAutoMovieSchedule =>
+    resolveAutoMovieSchedule(
+      AutoMovieComposition.parallel(
+        { ...kick(), anchor: "k" },
+        AutoMovieComposition.sequence(
+          { subject: "b", capability: "guard" },
+          AutoMovieComposition.at("k", { subject, capability: "step" }, -0.5),
+          { subject: "b", capability: "stand" },
+        ),
+      ),
+      laws,
+    );
+  const own: IAutoMovieSchedule = synced("b");
+  const ownSteps: readonly IAutoMovieScheduleEntry[] = own.entries.filter(
+    (e) => e.subject === "b" && e.intent.capability !== "guard",
+  );
+  TestValidator.predicate(
+    "a synced part cuts its own subject's action",
+    close(ownSteps[0]!.start, 0.5) &&
+      close(ownSteps[0]!.end, 1.5) &&
+      close(ownSteps[1]!.start, 1.5),
+  );
+  const other: IAutoMovieSchedule = synced("c");
+  TestValidator.predicate(
+    "another subject's synced part keeps the cursor",
+    close(other.entries.find((e) => e.intent.capability === "stand")!.start, 2),
   );
 }

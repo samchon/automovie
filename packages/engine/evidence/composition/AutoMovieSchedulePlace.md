@@ -36,11 +36,11 @@ States the inputs, the end and the refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The anchor's contact instant (its start when it has none) or its named event, plus the offset, is the target; an aligned part asks `laws.align` for the start that puts its own instant on it and is then timed again there.
+The anchor's contact instant (its start when it has none) or its named event, plus the offset, is the target; an aligned part asks `laws.align` for the start that puts its own instant on it and is then timed again there. A part that starts inside its own subject's action that set the cursor cuts that action, so the sequence goes on from the part's end.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Resolve the target, then place directly or through the alignment.
+Resolve the target, place directly or through the alignment, then resume the sequence (`resume`).
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -48,7 +48,7 @@ A cue track named without an event, an occurrence index named without an event, 
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 
-Constant work besides the part and the anchor's instants.
+Constant work besides the part, the anchor's instants and one pass over the entries placed before the part.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
