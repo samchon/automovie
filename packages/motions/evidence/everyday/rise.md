@@ -6,11 +6,11 @@ States the context/plan and reach refusal; the namespace gives world-metre socke
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The measured release and height-dependent flexion determine the course. The chosen part uses only the bearing patches available at its current second.
+The measured release and height-dependent flexion determine the course. The chosen part uses only the bearing patches available at its current second. The legs are coursed once over the rise on the lowered body the hands rest on (`courseHumanLegs`), so every reader places the thighs the hands lie on alike.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Original foot/pitch/seat-off selection precedes one prepared foot course and two current rise branches sharing the native lowering/hand-rest owner.
+Original foot/pitch/seat-off selection precedes one prepared foot course, one legs' course and two current rise branches sharing the native lowering/hand-rest owner.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

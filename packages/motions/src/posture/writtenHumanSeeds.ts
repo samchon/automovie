@@ -35,10 +35,16 @@ export function writtenHumanSeeds(
   posture: IAutoMovieMotionHumanPosture,
 ): Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> {
   const out: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> = {};
+  // A goal that carries its law's planned seed (`IAutoMovieHumanLimbGoal.seed`)
+  // is placed there in closed form by every reader, whatever seed is handed
+  // (`refitHumanPosture`), so it needs no written one; a posture whose every
+  // goal carries one is not resolved here at all.
   const limbs: AutoMovieHumanLimb[] = (
     Object.keys(posture.limbs) as AutoMovieHumanLimb[]
   ).filter(
-    (limb: AutoMovieHumanLimb): boolean => posture.limbs[limb] !== undefined,
+    (limb: AutoMovieHumanLimb): boolean =>
+      posture.limbs[limb] !== undefined &&
+      posture.limbs[limb]!.seed === undefined,
   );
   if (limbs.length === 0) return out;
   const written: IAutoMoviePose = resolveHumanPosture(body, {

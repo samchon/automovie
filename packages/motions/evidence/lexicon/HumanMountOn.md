@@ -18,7 +18,7 @@ A rest out of the seated leg's reach is not clamped onto: the foot hangs, as the
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Planning scans the climb at 60 Hz three times, each step one forward-kinematics pass of the pelvis, lays one legs' course and one arm course per plan; a posture costs one such pass, the legs placed at their course in closed form, the hands' fits and a read of the courses.
+Planning scans the climb at 60 Hz three times, each step one forward-kinematics pass of the pelvis, lays one legs' course and one arm course per plan; a posture costs one such pass, the legs placed at their course in closed form, the hands' fits with the palms prepared once (`prepareSeatedPalms`) and a read of the courses.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

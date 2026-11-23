@@ -14,6 +14,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import type { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { seatedHands } from "./seatedHands";
 
 /**
@@ -335,6 +336,11 @@ export namespace seated {
    *   placement.
    * @param projection Optional genuine same-query ROM source; actual joints
    *   still project.
+   * @param palms The flat palms and the thigh skin prepared once for the law
+   *   (`prepareSeatedPalms`), which every read places on the thighs as they
+   *   are: the palm's reach is its hand shape's alone and the skin rides its
+   *   thigh, so neither is read again per second. Absent, each read measures
+   *   them.
    * @returns The posture with arm goals, or unchanged at 0.
    */
   export function arms(
@@ -343,8 +349,16 @@ export namespace seated {
     share: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    palms?: ReturnType<typeof prepareSeatedPalms>,
   ): IAutoMovieMotionHumanPosture {
-    return seatedHands.arms(body, posture, share, resolution, projection);
+    return seatedHands.arms(
+      body,
+      posture,
+      share,
+      resolution,
+      projection,
+      palms,
+    );
   }
 
   /**

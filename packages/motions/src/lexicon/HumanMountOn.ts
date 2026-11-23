@@ -15,6 +15,7 @@ import type {
 import { stand } from "../actions/stand";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { courseHumanLegs } from "../compose/courseHumanLegs";
+import { prepareSeatedPalms } from "../everyday/prepareSeatedPalms";
 import { seated } from "../everyday/seated";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -438,6 +439,12 @@ export namespace HumanMountOn {
     };
 
     // The legs planned once over the climb, from the legs it is entered with: every reader of the posture places them at this course (`IAutoMovieHumanLimbGoal.seed`), so the thighs the hands are laid on are the thighs shown.
+    // The flat palms and the thigh skin, read once for the climb: every
+    // second lays them on the thighs as they are (`prepareSeatedPalms`).
+    const palms: ReturnType<typeof prepareSeatedPalms> = prepareSeatedPalms(
+      body,
+      context.entry.posture,
+    );
     const legs: courseHumanLegs.Seeded = courseHumanLegs({
       body,
       posture: lower,
@@ -463,7 +470,14 @@ export namespace HumanMountOn {
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         // The hands' goals are their places on the thighs at every second; the arms' course (HumanMountOnCourses) lays the way there.
-        return seated.arms(body, legs(lower(t), t), 1, resolution, projection);
+        return seated.arms(
+          body,
+          legs(lower(t), t),
+          1,
+          resolution,
+          projection,
+          palms,
+        );
       },
     };
 

@@ -20,7 +20,9 @@ import { walk } from "../actions/walk";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { courseHumanLegs } from "../compose/courseHumanLegs";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { prepareSeatedPalms } from "../everyday/prepareSeatedPalms";
 import { seated } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -311,6 +313,94 @@ export namespace HumanMountOff {
         support: { kind: "ground", height: under.origin.y },
       });
     }
+    // The body getting off with its legs' goals at a second, before the hands.
+    const lower = (t: number): IAutoMovieMotionHumanPosture => {
+      const frame: Frame = frameAt(t);
+      const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(
+        frame.root,
+        landing,
+      );
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
+      const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+        body,
+        frame.root,
+        resolveHumanPosture.heading({ ...frame, roll: 0 }),
+        frame.joints.hips,
+      );
+      for (const side of ["left", "right"] as const) {
+        const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
+        const down: IAutoMovieHumanLimbGoal = standing[limb]!;
+        const [departs, arrives]: readonly [number, number] = flight[side];
+        // A foot that bears nothing turns its toes down about its ball
+        // within the unloaded ankle's range (`HumanMountPush.tip`): a held
+        // foot as it sheds the body before it leaves its rest, a landed one
+        // lowering its heel as it takes the body.
+        if (t >= arrives)
+          limbs[limb] = HumanMountPush.tip(
+            body,
+            side,
+            hips[side],
+            down,
+            1 - AutoMovieMotionHumanFootRelax.load(t, Infinity, arrives),
+          );
+        else if (t <= departs)
+          limbs[limb] = HumanMountPush.tip(
+            body,
+            side,
+            hips[side],
+            HumanMount.leg(body, side, holds[side], entry.feet[side].planted),
+            entry.feet[side].planted
+              ? 1 - AutoMovieMotionHumanFootRelax.load(t, departs)
+              : 1,
+          );
+        else
+          limbs[limb] = HumanMountPush.tip(
+            body,
+            side,
+            hips[side],
+            HumanMount.leg(
+              body,
+              side,
+              HumanMount.between(
+                holds[side],
+                {
+                  ankle: landing[side],
+                  bend: down.bend,
+                  yaw: yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
+                },
+                minimumJerk.share((t - departs) / (arrives - departs)),
+                walk.LIFT * m.hipHeight,
+                sideways && side === leader ? over : undefined,
+              ),
+              false,
+            ),
+            1,
+          );
+      }
+      return { ...frame, roll: 0, limbs };
+    };
+
+    // The legs planned once over the getting off, from the legs it is
+    // entered with (`courseHumanLegs`): every reader of the posture places
+    // them at this course, so the thighs the hands rest on as they leave
+    // are the thighs shown.
+    // The flat palms and the thigh skin, read once for the getting off:
+    // every second lays them on the thighs as they are
+    // (`prepareSeatedPalms`).
+    const palms: ReturnType<typeof prepareSeatedPalms> = prepareSeatedPalms(
+      body,
+      entry.posture,
+    );
+    const legs: courseHumanLegs.Seeded = courseHumanLegs({
+      body,
+      posture: lower,
+      span: { start: 0, end: duration },
+      instants: [seatOff, ...flight.left, ...flight.right].filter(
+        (t: number): boolean => t > 0 && t < duration,
+      ),
+      entry: context.entry.pose,
+    });
+
     // A leg in flight is keyed in joint space where its world course leaves
     // the leg's range (`HumanSwungLeg`): a course back over a saddle asks
     // the ankle past what the hip reaches.
@@ -335,81 +425,13 @@ export namespace HumanMountOff {
           >[3],
         ): IAutoMovieMotionHumanPosture => {
           const t: number = Math.min(duration, Math.max(0, seconds));
-          const frame: Frame = frameAt(t);
-          const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(
-            frame.root,
-            landing,
-          );
-          const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-          const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
-            body,
-            frame.root,
-            resolveHumanPosture.heading({ ...frame, roll: 0 }),
-            frame.joints.hips,
-          );
-          for (const side of ["left", "right"] as const) {
-            const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
-            const down: IAutoMovieHumanLimbGoal = standing[limb]!;
-            const [departs, arrives]: readonly [number, number] = flight[side];
-            // A foot that bears nothing turns its toes down about its ball
-            // within the unloaded ankle's range (`HumanMountPush.tip`): a held
-            // foot as it sheds the body before it leaves its rest, a landed
-            // one lowering its heel as it takes the body.
-            if (t >= arrives)
-              limbs[limb] = HumanMountPush.tip(
-                body,
-                side,
-                hips[side],
-                down,
-                1 - AutoMovieMotionHumanFootRelax.load(t, Infinity, arrives),
-              );
-            else if (t <= departs)
-              limbs[limb] = HumanMountPush.tip(
-                body,
-                side,
-                hips[side],
-                HumanMount.leg(
-                  body,
-                  side,
-                  holds[side],
-                  entry.feet[side].planted,
-                ),
-                entry.feet[side].planted
-                  ? 1 - AutoMovieMotionHumanFootRelax.load(t, departs)
-                  : 1,
-              );
-            else
-              limbs[limb] = HumanMountPush.tip(
-                body,
-                side,
-                hips[side],
-                HumanMount.leg(
-                  body,
-                  side,
-                  HumanMount.between(
-                    holds[side],
-                    {
-                      ankle: landing[side],
-                      bend: down.bend,
-                      yaw:
-                        yaw +
-                        (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
-                    },
-                    minimumJerk.share((t - departs) / (arrives - departs)),
-                    walk.LIFT * m.hipHeight,
-                    sideways && side === leader ? over : undefined,
-                  ),
-                  false,
-                ),
-                1,
-              );
-          }
           return seated.arms(
             body,
-            { ...frame, roll: 0, limbs },
+            legs(lower(t), t),
             1 - minimumJerk.share(t / (0.3 * duration)),
             resolution,
             projection,
+            palms,
           );
         },
       },

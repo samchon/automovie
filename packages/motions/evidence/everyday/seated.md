@@ -306,7 +306,7 @@ States the two endpoints, the path and the share's easing.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Delegates to `seatedHands.arms`, which interpolates each wrist linearly and its turn spherically.
+Delegates to `seatedHands.arms`, which interpolates each wrist linearly and its turn spherically, with the law's palms prepared once where it hands them (`prepareSeatedPalms`).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
