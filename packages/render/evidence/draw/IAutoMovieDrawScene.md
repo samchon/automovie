@@ -1,0 +1,215 @@
+# src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene
+
+## @evidence contracts/development/design.md#principled-representation
+
+Seconds are the subject's own timebase, the raster is whole pixels, and `seek` returns a promise that resolves when the subject is ready, such as once a texture has loaded, so the draw function waits for exactly that and nothing else; a subject that is ready at once resolves at once.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Every member is read by `installAutoMovieDraw`: the scene and camera to draw, the clock, raster and named instants for the capture plan, `views` and `marks` for the inspection, `seek` and `dispose` for its life. View placements and marks use the shapes `resolveAutoMovieInspectionView` and `IAutoMovieMark` already own.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+No member names a film, a figure or a case. A positive clock and raster are checked by the capture planner at runtime.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States who holds it, the order the draw function calls its members in, and each member's unit and absent meaning.
+
+# src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.marks
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what is returned, when it is asked for, and what absence means.
+
+## @evidenceExclude contracts/development/implementation.md#principled-implementation
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A signature has no body; the subject that implements it answers.
+
+# src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.inspectPlaced
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the observation's position relative to placement and inspection, and that participation is optional.
+
+## @evidenceExclude contracts/development/implementation.md#principled-implementation
+
+The producer implements this signature using the supplied placed sample.
+
+## @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure
+
+This signature has no body.
+
+## @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The producer owns its check. The host supplies the unmasked settled sample.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+The producer owns its budget.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+The host supplies the already placed sample.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+The producer borrows inputs for the call.
+
+# src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.seek
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what is placed and what the promise means.
+
+## @evidenceExclude contracts/development/implementation.md#principled-implementation
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A signature has no body; the subject that implements it answers.
+
+# src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.place
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the equivalence with `seek` and who uses it.
+
+## @evidenceExclude contracts/development/implementation.md#principled-implementation
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A signature has no body; the subject that implements it answers.
+
+# src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.dispose
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what is released and when.
+
+## @evidenceExclude contracts/development/implementation.md#principled-implementation
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A signature has no body; the subject that implements it answers.
+
+# src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.IPlacedSample
+
+## @evidence contracts/development/design.md#principled-representation
+
+The clock, world scene, camera and delivery raster describe a single evaluated sample.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Carries the placed inputs and the capture and delivery renderer access that diagnostics use.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+Review views never determine the delivery projection. Full raster inspection is available only where the offscreen capture or delivery host supplies its renderer and sample factor.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Specifies the origin of the projection, the raster dimensions and when the renderer is available.
+
+# src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.IPlacedSample.place
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States where it comes from and the caller's obligation after placing another second.
+
+## @evidenceExclude contracts/development/implementation.md#principled-implementation
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A signature has no body; the subject that implements it answers.

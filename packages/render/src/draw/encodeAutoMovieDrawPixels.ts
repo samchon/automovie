@@ -7,14 +7,6 @@ const CHUNK: number = 0x8000;
  * `bytes` holds `width * height * 4` RGBA bytes of the drawn target, rows from the bottom as `readPixels` writes them. The result holds `(width / factor) * (height / factor) * 4` bytes, rows from the top. Averaging is the area filter: each output pixel is the mean of the target pixels it covers, rounded to the nearest byte.
  *
  * It throws when the byte count is not the size's, or the factor is not a whole number dividing both sides.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the input and output layouts, the reduction and its rounding, and both refusals.
- * @evidence contracts/development/implementation.md#principled-implementation WebGL's `readPixels` returns rows from the bottom of the framebuffer, and a picture file starts at the top, so row `r` of the output reads row `height - 1 - r` of the target; averaging the covered block is the box filter, which is exact area averaging for a whole factor. Base64 is built with `btoa`, available in every page and in Node.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Check, then one pass that flips and averages, then one encoding.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A mismatched size throws instead of being cropped; the factor is the caller's, not guessed from the size.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the target's bytes; the text is built in chunks so no call spreads the whole picture.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure conversion of one picture.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one reduced copy and the text while encoding; nothing is kept.
  */
 export function encodeAutoMovieDrawPixels(
   bytes: Uint8Array,
