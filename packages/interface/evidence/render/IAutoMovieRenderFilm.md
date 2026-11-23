@@ -6,7 +6,7 @@ The film stage allocates by what the optics and shading ask for, not by their va
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Two members reusing the draw scene's own `IAutoMovieFilmOptics` and `IAutoMovieFilmShading`; the engine's `measureAutoMovieRenderFilmTargets` is the only reader and `IAutoMovieRenderSubject.film` the only holder.
+Two members reusing the draw scene's own `IAutoMovieFilmOptics` and `IAutoMovieFilmShading`; the engine's `measureAutoMovieRenderFilmStage` is the only reader and `IAutoMovieRenderSubject.film` the only holder.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

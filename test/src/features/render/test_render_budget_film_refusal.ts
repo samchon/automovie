@@ -32,8 +32,8 @@ import {
  * 1. Assessed without its film, the shot is within the budget: it allocates no
  *    film stage target.
  * 2. Assessed with its film, the shot is over the budget on `textureBytes`, and
- *    the finding's recovery names a `render-pass:film-*` owner among its
- *    largest contributors.
+ *    the finding's omitted cost, where runtime storage is accounted rather than
+ *    ranked as an editable owner, holds at least the two sample sums.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public preflight on one compiled shot with and without the film; a preflight that dropped the film, or an inventory that left its targets out, stays within the budget.
  * @evidence contracts/development/testing.md#independent-expectations The two 32-bit float sum targets alone hold 2 × 3840 × 2160 × 16 bytes, about 253 MiB, and the linear, occlusion and medium targets add several hundred more, so any count of them passes 256 MiB while the room without them holds none.
@@ -130,6 +130,6 @@ export function test_render_budget_film_refusal(): void {
     "the film's targets put the room over its texture-byte budget",
     filmed.status === "over" &&
       finding?.status === "over" &&
-      JSON.stringify(finding).includes("render-pass:film-"),
+      (finding.omittedCost ?? 0) >= 2 * 3840 * 2160 * 16,
   );
 }

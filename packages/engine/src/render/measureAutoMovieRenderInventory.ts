@@ -23,20 +23,20 @@ import type {
  * and simulated drawables in order. Resolve materials/textures
  * (`measureRenderTextures`) and resident geometry
  * (`measureRenderGeometryBytes`) only after both phases have named their
- * resources. Finally add light, shadow, outline, feed and background passes
- * (`measureRenderPasses`) and a directly rendered film's stage targets
- * (`measureAutoMovieRenderFilmTargets`) before sorting attribution rows and
- * emitting the report. Each phase continues the previous counts without
- * reordering floating-point addition. Owned caches and owner rows are mutable;
- * the input subject is not. Null totals preserve declared analysis gaps rather
- * than treating unknowns as zero. Display geometry, resource bytes and
- * whole-frame pass costs differ, so changing one requires checking its consumer
- * in the viewer and budget report.
+ * resources. Measure a directly rendered film's stage targets and the passes it
+ * adds over the opaque frame (`measureAutoMovieRenderFilmStage`), then add
+ * light, shadow, outline, feed and background passes (`measureRenderPasses`)
+ * before sorting attribution rows and emitting the report. Each phase continues
+ * the previous counts without reordering floating-point addition. Owned caches
+ * and owner rows are mutable; the input subject is not. Null totals preserve
+ * declared analysis gaps rather than treating unknowns as zero. Display
+ * geometry, resource bytes and whole-frame pass costs differ, so changing one
+ * requires checking its consumer in the viewer and budget report.
  */
 
 import { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { measureAutoMovieRenderFilmTargets } from "./measureAutoMovieRenderFilmTargets";
+import { measureAutoMovieRenderFilmStage } from "./measureAutoMovieRenderFilmStage";
 import { measureRenderGeometryBytes } from "./measureRenderGeometryBytes";
 import { measureRenderPasses } from "./measureRenderPasses";
 import { measureRenderPopulation } from "./measureRenderPopulation";
@@ -313,6 +313,18 @@ export const measureAutoMovieRenderInventory: (
     add,
   });
 
+  // --- film stage targets and passes, over the opaque frame -----------------
+  const film: measureAutoMovieRenderFilmStage.IResult =
+    measureAutoMovieRenderFilmStage({
+      subject,
+      ...(props.settings === undefined ? {} : { settings: props.settings }),
+      drawCalls,
+      triangles,
+      casters,
+      add,
+      gaps,
+    });
+
   // --- lights, shadow maps, outline, feeds and background -------------------
   const passes: measureRenderPasses.IResult = measureRenderPasses({
     subject,
@@ -325,15 +337,6 @@ export const measureAutoMovieRenderInventory: (
   drawCalls = passes.drawCalls;
   triangles = passes.triangles;
 
-  // --- film stage targets ---------------------------------------------------
-  const film: measureAutoMovieRenderFilmTargets.IResult =
-    measureAutoMovieRenderFilmTargets({
-      subject,
-      ...(props.settings === undefined ? {} : { settings: props.settings }),
-      add,
-      gaps,
-    });
-
   const nodes: number =
     subject.scene.nodes.length + (space === null ? 0 : 1) + simulatedNodes;
   // A cluster whose drawn prototype nobody stated leaves an unknown share of
@@ -341,9 +344,10 @@ export const measureAutoMovieRenderInventory: (
   // that reads complete while missing a fern bed.
   const partial: boolean = unmeasured.length !== 0;
   const totals: IAutoMovieRenderTotals = {
-    triangles: partial ? null : triangles,
+    triangles:
+      partial || film.triangles === null ? null : triangles + film.triangles,
     vertices: partial ? null : vertices,
-    drawCalls,
+    drawCalls: film.drawCalls === null ? null : drawCalls + film.drawCalls,
     materials: materials.size + defaultMaterials,
     textures:
       textureAllocations === null || film.targets === null

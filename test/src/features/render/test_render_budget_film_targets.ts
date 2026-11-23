@@ -21,10 +21,13 @@ import * as THREE from "three";
 
 import { createFilmResponseRendererDouble } from "../draw/createFilmResponseRendererDouble";
 import { createProbeRendererDouble } from "../draw/createProbeRendererDouble";
+import { boxModel } from "../internal/boxModel";
+import { renderFixtureNode } from "../internal/renderFixtureNode";
 
 /**
  * The render inventory counts every GPU target a directly rendered film's stage
- * allocates, at the beauty pass's drawing buffer.
+ * allocates, at the beauty pass's drawing buffer, and every further pass it
+ * draws.
  *
  * The film is delivered at 1920 × 1080, so the draw host's beauty pass draws
  * into a 3840 × 2160 drawing buffer, twice each side. Its optics set a shutter
@@ -40,16 +43,21 @@ import { createProbeRendererDouble } from "../draw/createProbeRendererDouble";
  *    targets and their depth texture, the probe bake target and the baked
  *    grid's texture; and its byte total by their bytes, eight per half-float
  *    texel, sixteen per float texel and four per depth texel.
- * 2. The rows name the five `render-pass:film-*` owners, each with a texture and a
- *    byte row marked `runtime`.
- * 3. Without target settings the raster is unknown, so both texture totals are
+ * 2. The draw and triangle totals grow by the further passes: 15 more beauty scene
+ *    passes for 16 samples, 16 occlusion prepasses, 12 bake passes for each of
+ *    the 75 probes, and 82 full-frame quads (the final pass, 16 accumulation
+ *    quads and the average, two occlusion quads and two medium quads per
+ *    sample), each of two triangles.
+ * 3. The rows name the five `render-pass:film-*` owners, each with texture and
+ *    byte rows marked `runtime` and draw and triangle rows marked `pass`.
+ * 4. Without target settings the raster is unknown, so both texture totals are
  *    null and each has a `not-run` gap.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the public inventory with and without the film and compares the difference with the targets the real render stages create when they draw that film over recording renderers; a missing stage, a wrong pyramid depth, a wrong texel size or a raster read without the pixel ratio changes the difference.
  * @evidence contracts/development/testing.md#independent-expectations The expected targets are the ones `AutoMovieFilmResponseStage`, `AutoMovieFilmIndirectStage` and the probe bake actually render into, read from the recording doubles, and their bytes follow from three's texel formats; the probe texture is nine float texels per probe of the 75-probe grid.
  * @evidence contracts/development/testing.md#distinguishing-cases A subject with a film against one without, with and without settings; the refusal past a budget is owned by `test_render_budget_film_refusal`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_render_budget_film_targets`; the stages run over in-memory doubles and no GPU starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_render_budget_film_targets(): void {
   const width: number = 3840;
@@ -73,7 +81,7 @@ export function test_render_budget_film_targets(): void {
   const scene: IAutoMovieScene = {
     id: "room",
     name: null,
-    nodes: [],
+    nodes: [renderFixtureNode("crate", "crate-model")],
     cameras: [],
     lights: [],
     medium: { scattering: 0.05, absorption: 0, anisotropy: 0.3 },
@@ -87,7 +95,10 @@ export function test_render_budget_film_targets(): void {
     toneMapping: "acesFilmic",
     exposure: 1,
   };
-  const plain: IAutoMovieRenderSubject = { scene, models: [] };
+  const plain: IAutoMovieRenderSubject = {
+    scene,
+    models: [boxModel({ id: "crate-model" })],
+  };
   const filmed: IAutoMovieRenderSubject = {
     ...plain,
     film: { optics, shading },
@@ -193,9 +204,28 @@ export function test_render_budget_film_targets(): void {
     [expectedTargets, expectedBytes],
   );
 
-  // 2. The owners.
+  // 2. The passes. Without a shadow caster a scene pass is the opaque frame,
+  // half the plain frame's draws beside its outline pass.
+  const sceneDraws: number = (before.totals.drawCalls ?? NaN) / 2;
+  const sceneTriangles: number = (before.totals.triangles ?? NaN) / 2;
+  const scenes: number = 15 + 16 + 12 * 75;
+  const quads: number = 1 + 17 + 2 * 16 + 2 * 16;
   TestValidator.equals(
-    "five film owners each with a texture and a byte row",
+    "the film's scene passes and quads join the draw and triangle totals",
+    [
+      (after.totals.drawCalls ?? NaN) - (before.totals.drawCalls ?? NaN),
+      (after.totals.triangles ?? NaN) - (before.totals.triangles ?? NaN),
+    ],
+    [scenes * sceneDraws + quads, scenes * sceneTriangles + 2 * quads],
+  );
+
+  // 3. The owners.
+  const order: (left: string, right: string) => number = (
+    left: string,
+    right: string,
+  ): number => (left < right ? -1 : left > right ? 1 : 0);
+  TestValidator.equals(
+    "five film owners with their texture rows and pass rows",
     after.owners
       .filter((row: IAutoMovieRenderOwnerCost): boolean =>
         row.owner.startsWith("render-pass:film-"),
@@ -204,16 +234,18 @@ export function test_render_budget_film_targets(): void {
         (row: IAutoMovieRenderOwnerCost): string =>
           `${row.owner}:${row.metric}:${row.kind}`,
       )
-      .sort(),
-    ["medium", "occlusion", "probes", "response", "samples"].flatMap(
-      (stage: string): string[] => [
+      .sort(order),
+    ["medium", "occlusion", "probes", "response", "samples"]
+      .flatMap((stage: string): string[] => [
+        `render-pass:film-${stage}:drawCalls:pass`,
         `render-pass:film-${stage}:textureBytes:runtime`,
         `render-pass:film-${stage}:textures:runtime`,
-      ],
-    ),
+        `render-pass:film-${stage}:triangles:pass`,
+      ])
+      .sort(order),
   );
 
-  // 3. No settings.
+  // 4. No settings.
   const unsized: IAutoMovieRenderInventory = measure(filmed, false);
   TestValidator.predicate(
     "without settings both texture totals are gaps",
