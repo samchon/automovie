@@ -273,6 +273,18 @@ async function drawCall(
   const cameraAt: (at: number) => THREE.Camera = (at: number): THREE.Camera =>
     resolveAt(at).camera;
 
+  // The subject's render-target work, such as surface feeds, runs right after
+  // each placement, shot or sample, before any pass's render mode applies, so
+  // every pass shows feeds drawn with the scene's own materials.
+  const fed: (
+    seek: (at: number) => Promise<void>,
+  ) => (at: number) => Promise<void> =
+    (seek: (at: number) => Promise<void>): ((at: number) => Promise<void>) =>
+    async (at: number): Promise<void> => {
+      await seek(at);
+      scene.beforeDraw?.(renderer, at);
+    };
+
   // 3. The film picture: its transition's layers, the outgoing shot drawn and
   // held before the live second is placed.
   const delivery: boolean = call.inspectionDiagnostics === "delivery";
@@ -296,13 +308,14 @@ async function drawCall(
       seconds: call.seconds,
       width,
       height,
-      seek: (at: number): Promise<void> =>
-        scene.seekShot!(outgoing.shot, playbackEntryTime(entry, at), at),
+      seek: fed(
+        (at: number): Promise<void> =>
+          scene.seekShot!(outgoing.shot, playbackEntryTime(entry, at), at),
+      ),
       camera: cameraAt,
       ...(alpha === undefined ? {} : { alpha }),
     });
     prepare();
-    scene.beforeDraw?.(renderer, call.seconds);
     beauty.draw({
       scene,
       camera: cameraAt(call.seconds),
@@ -325,7 +338,7 @@ async function drawCall(
       seconds: call.seconds,
       width,
       height,
-      seek: (at: number): Promise<void> => scene.seek(at),
+      seek: fed((at: number): Promise<void> => scene.seek(at)),
       camera: cameraAt,
       ...(alpha === undefined ? {} : { alpha }),
     });
@@ -343,6 +356,7 @@ async function drawCall(
         delivery ? "delivery" : "capture",
         { renderer, factor: SUPERSAMPLE },
       );
+      scene.beforeDraw?.(renderer, call.seconds);
     },
   );
 
@@ -358,8 +372,6 @@ async function drawCall(
         // Only the beauty shade and the graphics plate have a camera
         // response; the other structural passes never ask for optics.
         if (shade !== "beauty") {
-          // A subject's own render-target work, such as surface feeds, comes first.
-          scene.beforeDraw?.(renderer, call.seconds);
           if (shade === "graphics")
             beauty.plate({
               scene,
@@ -371,8 +383,7 @@ async function drawCall(
           else renderer.render(scene.scene, resolved.camera);
           return;
         }
-        if (drawsLive) {
-          scene.beforeDraw?.(renderer, call.seconds);
+        if (drawsLive)
           beauty.draw({
             scene,
             camera: resolved.camera,
@@ -382,7 +393,6 @@ async function drawCall(
             sampled,
             ...(alpha === undefined ? {} : { alpha }),
           });
-        }
         if (layers === null) return;
 
         // The held layers, mixed by their weights: the outgoing shot in slot

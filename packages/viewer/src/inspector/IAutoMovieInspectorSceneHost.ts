@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieFilmResponseRenderer,
+  IAutoMovieFilmIndirectRenderer,
   IAutoMovieSectionRenderer,
 } from "@automovie/render";
 import type * as THREE from "three";
@@ -32,11 +32,11 @@ export interface IAutoMovieInspectorSceneHost {
 }
 export namespace IAutoMovieInspectorSceneHost {
   /**
-   * The part of `THREE.WebGLRenderer` the inspector's mount calls, including what `AutoMovieFilmResponseStage` drives when a subject supplies optics.
+   * The part of `THREE.WebGLRenderer` the inspector's mount calls, including what `AutoMovieFilmResponseStage` and `AutoMovieFilmIndirectStage` drive when a subject supplies optics and shading.
    */
   export interface IRenderer
     extends IAutoMovieSectionRenderer,
-      IAutoMovieFilmResponseRenderer {
+      IAutoMovieFilmIndirectRenderer {
     /**
      * Draw a scene through a camera into the canvas.
      */

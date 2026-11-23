@@ -7,7 +7,7 @@ import type {
   IAutoMovieRenderTargetSettings,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_FILM_GLARE_KERNELS } from "./filmResponse/AUTOMOVIE_FILM_GLARE_KERNELS";
+import { measureAutoMovieFilmResponseTargets } from "./measureAutoMovieFilmResponseTargets";
 
 /** Bytes of one RGBA half-float texel. */
 const HALF: number = 8;
@@ -40,12 +40,11 @@ const PROBE_RENDERS: number = 12;
  * With `subject.film`, and nothing without it, one row pair per stage under a
  * `render-pass:film-*` owner:
  *
- * - Optics (`response`): the linear half-float target and its depth texture; the
- *   glare pyramid, one half-float level per halving down to the deepest
- *   kernel's level `max(0, ⌊log₂(σ × height / 2)⌋)`, each side rounded up; and
- *   two half-float blur targets per kernel at its level, made whether or not
- *   glare is asked for. Its passes are the final full-frame quad and, with a
- *   glare strength above zero, one quad per pyramid level and two per kernel.
+ * - Optics (`response`): the targets `measureAutoMovieFilmResponseTargets` counts
+ *   at the raster, the linear frame with its depth texture and the glare
+ *   pyramid and kernel pairs, made whether or not glare is asked for. Its
+ *   passes are the final full-frame quad and, with a glare strength above zero,
+ *   one quad into each glare target.
  * - `samples` S: two 32-bit float sum targets. The beauty pass is drawn S times
  *   instead of once, each with its shadow maps, so S − 1 more scene passes, and
  *   one accumulation quad per sample plus the average.
@@ -113,28 +112,17 @@ export function measureAutoMovieRenderFilmStage(
   const samples: number = film.optics.samples ?? 1;
   const rows: measureAutoMovieRenderFilmStage.IRow[] = [];
 
-  // The response stage, at the levels the glare plan blurs each kernel at.
-  const levelSize: (at: number) => number = (at: number): number =>
-    Math.max(1, Math.ceil(width / 2 ** at)) *
-    Math.max(1, Math.ceil(height / 2 ** at));
-  const levels: number[] = AUTOMOVIE_FILM_GLARE_KERNELS.map(
-    (kernel: { sigma: number }): number =>
-      Math.max(0, Math.floor(Math.log2((kernel.sigma * height) / 2))),
-  );
-  const deepest: number = Math.max(...levels);
-  let pyramid: number = 0;
-  for (let at: number = 1; at <= deepest; ++at) pyramid += levelSize(at) * HALF;
-  const kernels: number = levels.reduce(
-    (sum: number, at: number): number => sum + 2 * levelSize(at) * HALF,
-    0,
-  );
+  // The response stage. Glare draws one quad into each target beyond the
+  // linear frame and its depth: a pyramid level or a kernel's blur pass.
+  const response: ReturnType<typeof measureAutoMovieFilmResponseTargets> =
+    measureAutoMovieFilmResponseTargets(width, height);
   const glare: boolean = (film.optics.glare?.strength ?? 0) > 0;
   rows.push({
     owner: "render-pass:film-response",
     source: "film.optics",
-    targets: 2 + deepest + 2 * levels.length,
-    bytes: area * (HALF + DEPTH) + pyramid + kernels,
-    passes: passes(0, 1 + (glare ? deepest + 2 * levels.length : 0)),
+    targets: response.targets,
+    bytes: response.bytes,
+    passes: passes(0, 1 + (glare ? response.targets - 2 : 0)),
   });
   if (film.optics.samples !== undefined)
     rows.push({

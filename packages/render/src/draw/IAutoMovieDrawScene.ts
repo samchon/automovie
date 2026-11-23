@@ -147,10 +147,14 @@ export interface IAutoMovieDrawScene {
   ) => IAutoMovieInspectionDiagnostics;
 
   /**
-   * Optional work on the page's renderer before each picture is drawn, after
-   * `seek` and any inspection, such as drawing surface feeds into their render
-   * targets with `IAutoMovieSurfaceGraphicsObject.renderFeeds`. It must leave
-   * the renderer's render target as it found it.
+   * Optional work on the page's renderer after each placement and before any
+   * pass's render mode applies, such as drawing surface feeds into their render
+   * targets with `IAutoMovieSurfaceGraphicsObject.renderFeeds`: right after the
+   * drawn second's seek, after a transition shot's placement and after each
+   * sub-frame sample's, with that placement's second. It sees the scene's own
+   * materials, so every pass of a second, the graphics plate's holdouts
+   * included, shows the feeds the beauty pass shows. It must leave the
+   * renderer's render target as it found it.
    */
   beforeDraw?: (renderer: THREE.WebGLRenderer, seconds: number) => void;
 
