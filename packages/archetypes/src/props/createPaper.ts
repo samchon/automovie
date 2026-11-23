@@ -144,11 +144,6 @@ export function createPaper(
 
 /**
  * The paper formats and their stable names in authored scenes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The paper formats and their stable names in authored scenes.
- * @evidence contracts/development/design.md#principled-representation The format chooses either the loose sheet or the two-layer map with a crease.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Lists the same closed format set read by the producer and by the gallery.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every value names a real produced geometry.
  */
 export namespace createPaper {
   /** A loose sheet or a map that opens at one crease. */

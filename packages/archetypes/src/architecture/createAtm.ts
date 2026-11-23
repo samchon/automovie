@@ -217,11 +217,6 @@ function fascia(
 
 /**
  * Inputs, dimensions and contacts for {@link createAtm}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the fixed inputs and the contact identifiers returned by the producer.
- * @evidence contracts/development/design.md#principled-representation A closed contact union and the selected profile's numeric inputs. Lengths are metres and mass is kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The parameters admit an identifier and only this producer's authored numeric overrides.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The contacts and override keys correspond to the producer's existing geometry and measured bands.
  */
 export namespace createAtm {
   /** The named contacts built by this producer. */

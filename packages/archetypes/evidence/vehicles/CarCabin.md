@@ -1,21 +1,3 @@
-# src/vehicles/CarCabin.ts#CarCabin
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it builds and what it reads.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Hinged and sliding leaves, sliding glass and reclining backs as articulations on the layout's planes, the controls at offsets from the seating reference point.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The three builders `createCar` calls.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every door, window and back is one helper over its side and station, not a copy per position.
-
 # src/vehicles/CarCabin.ts#CarCabin.doors
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -10,7 +10,7 @@ Each check is a range the surface contract states; the texture conflict follows 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-`validateModel` calls it once per material beside the lobe admission; the piece checks are a local helper.
+Structure: `validateModel` calls it once per material beside the lobe admission; the piece checks are a local helper.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

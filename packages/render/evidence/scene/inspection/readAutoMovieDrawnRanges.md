@@ -27,21 +27,3 @@ Reads the mesh's current draw range and groups, which are not cached.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns plain ranges that borrow the mesh's materials and keeps nothing.
-
-# src/scene/inspection/readAutoMovieDrawnRanges.ts#readAutoMovieDrawnRanges.IRange
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States that start is inclusive, end exclusive, and the material is the one Three binds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A half-open index range and its material are what a triangle walk needs to read positions and judge opacity.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Three members, produced by readAutoMovieDrawnRanges and read by the camera surface checks.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A range carries the drawn material, never a guessed default.

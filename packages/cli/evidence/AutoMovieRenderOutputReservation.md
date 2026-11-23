@@ -10,7 +10,7 @@ A directory installed by one atomic rename with exactly one process ticket names
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`renderAutoMovieVideo` reserves before staging and releases in its `finally`; moved out of it unchanged so the render stays under the file limit.
+Owner and consumers: `renderAutoMovieVideo` reserves before staging and releases in its `finally`; moved out of it unchanged so the render stays under the file limit.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

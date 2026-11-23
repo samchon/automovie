@@ -34,12 +34,6 @@ The plan box is derived from the rotation and bounds at construction, so the sta
 
 States each member's frame and unit.
 
-# src/environments/furnishings/FurnishingRect.ts#FurnishingRect.EPSILON
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the tolerance in metres and that it matches the engine's authored prop relations.
-
 # src/environments/furnishings/FurnishingRect.ts#FurnishingRect.locate
 
 ## @evidence contracts/development/implementation.md#principled-implementation

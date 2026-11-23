@@ -27,21 +27,3 @@ The module captures the parameters; each placement rebuilds its records from the
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The module retains only its parameters.
-
-# src/environments/furnishings/createFurnishedRoom.ts#createFurnishedRoom.IParams
-
-## @evidence contracts/development/design.md#principled-representation
-
-The furnishing layout plus an ordered record of pieces by role.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Productions and the room kits describe rooms with it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The layout's members are not restated.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the ordering of the pieces.

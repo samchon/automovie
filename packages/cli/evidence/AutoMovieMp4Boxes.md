@@ -1,21 +1,3 @@
-# src/AutoMovieMp4Boxes.ts#AutoMovieMp4Boxes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the standard read, the refusal rule shared by every reader and that offsets are within the caller's buffer.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups the ISO/IEC 14496-12 box readers the delivery probes share: boxes are typed by their four-character code and byte ranges, as the standard lays them out.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The CLI's audio track reader and delivery probe are its consumers; it exposes only the readers they call, and keeps the header decoder and size limit private.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-It names no consumer's track or codec; a reader that needs a box simply asks for it by type.
-
 # src/AutoMovieMp4Boxes.ts#AutoMovieMp4Boxes.IBox
 
 ## @evidence contracts/development/common.md#meaningful-documentation

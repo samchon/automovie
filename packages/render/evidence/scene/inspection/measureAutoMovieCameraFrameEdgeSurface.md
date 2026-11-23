@@ -27,21 +27,3 @@ Reads the geometry box Three caches, the skin's pose cache and the drawn ranges 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Uses fixed scratch arrays per call and returns plain values only.
-
-# src/scene/inspection/measureAutoMovieCameraFrameEdgeSurface.ts#measureAutoMovieCameraFrameEdgeSurface.IResult
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names each state, its triangle count or reason, the opacity flag and the fraction's range.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A cut surface, a clear surface, a budget stop and an uncheckable surface are distinct observations with distinct states.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Carries only what the frame-edge finding reports: triangles, opacity and the optional fraction.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A fraction appears only when measured from the drawn surface with a positive projected area.

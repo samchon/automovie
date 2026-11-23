@@ -1,5 +1,9 @@
 # src/geometry/weldAutoMovieMeshCorners.ts#weldAutoMovieMeshCorners
 
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States both identity modes, the degenerate rule and its marking, the result fields and the refusals it passes on.
+
 ## @evidence contracts/development/implementation.md#principled-implementation
 
 Rounds each corner onto the shared `MESH_WELD_GRID` lattice to detect degenerate triangles and, without physical sources, to identify corners; a declared physical correspondence identifies corners instead, so touching sources stay distinct. This is the weld `inspectAutoMovieMeshTopology` has always used.
@@ -11,10 +15,6 @@ The one weld both the whole-mesh topology report and the per-piece census read, 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
 Uses the shared grid constant rather than a local tolerance and lists degenerate triangles instead of dropping them silently.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States both identity modes, the degenerate rule and its marking, the result fields and the refusals it passes on.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

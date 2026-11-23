@@ -27,39 +27,3 @@ The stage reuses the result while the raster is unchanged.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns new targets the stage owns and releases on a raster change or dispose.
-
-# src/scene/filmResponse/allocateAutoMovieFilmTargets.ts#allocateAutoMovieFilmTargets.ITargets
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states its raster and role.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The raster's size with the targets made for it, so a size change is detected by comparing two numbers.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The stage reads every member.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None present.
-
-# src/scene/filmResponse/allocateAutoMovieFilmTargets.ts#allocateAutoMovieFilmTargets.IKernelTargets
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states its pass.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A kernel's plan with its two separable blur targets.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The stage's glare step reads every member.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None present.

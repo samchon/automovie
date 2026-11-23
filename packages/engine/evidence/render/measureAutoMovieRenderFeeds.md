@@ -27,39 +27,3 @@ Runs once per inventory over that subject's tracks; nothing is shared between ca
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns fresh rows and retains nothing.
-
-# src/render/measureAutoMovieRenderFeeds.ts#measureAutoMovieRenderFeeds.ITrack
-
-## @evidence contracts/development/design.md#principled-representation
-
-One track's mask owner, its target count, its bytes and its pass bound, in the units the inventory sums.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exactly what the inventory writes as the track's rows.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Keeps the owner id the mask uses, not a new identity.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each field states what it counts and its unit.
-
-# src/render/measureAutoMovieRenderFeeds.ts#measureAutoMovieRenderFeeds.IResult
-
-## @evidence contracts/development/design.md#principled-representation
-
-The per-track rows and the three sums the inventory adds to its totals.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Only what the inventory reads.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Sums are derived from the rows, not estimated separately.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each field states what it sums.

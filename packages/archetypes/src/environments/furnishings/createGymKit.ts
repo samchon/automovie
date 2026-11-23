@@ -79,11 +79,6 @@ export function createGymKit(
 
 /**
  * Types of the gym kit producer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the room layout it extends and the count of free-weight stations it adds.
- * @evidence contracts/development/design.md#principled-representation The furnishing layout of the interface plus one positive integer count.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the kit's producer takes and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The layout's own members are not restated.
  */
 export namespace createGymKit {
   /** The room layout and the positive integer count of the kit's repeated group. */

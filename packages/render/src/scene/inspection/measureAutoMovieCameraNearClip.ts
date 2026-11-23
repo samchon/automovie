@@ -234,11 +234,6 @@ export function measureAutoMovieCameraNearClip(
 
 /**
  * Outcomes of one near-plane clip measurement.
- *
- * @evidence contracts/development/common.md#meaningful-documentation IResult defines the units, frame and opacity flag of each state.
- * @evidence contracts/development/design.md#principled-representation A cut surface, a checked surface with no cut, a check the budget stopped and a subject that cannot be checked are distinct observations with distinct states.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IResult carries the count of triangles examined, the deepest intrusion and whether an opaque stock surface was cut; findings and coverage stay with the caller.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts An unmeasured subject never reports clear.
  */
 export namespace measureAutoMovieCameraNearClip {
   /** Clear, clipped with its deepest witness, or unmeasured with a reason. */

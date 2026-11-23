@@ -10,7 +10,7 @@ Loudness normalization followed by true-peak limiting. Limiting can only lower l
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-`renderProductionSound` owns placement and dialogue levelling; this function owns the master stage, so mix tests observe placement without a master and the route always masters what it delivers.
+Structure: `renderProductionSound` owns placement and dialogue levelling; this function owns the master stage, so mix tests observe placement without a master and the route always masters what it delivers.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

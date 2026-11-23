@@ -10,7 +10,7 @@ Each check is a range the wear contract states; a record without layers would sh
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-`validateModel` calls it once per material after the procedural admission.
+Structure: `validateModel` calls it once per material after the procedural admission.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

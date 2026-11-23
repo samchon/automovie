@@ -136,11 +136,6 @@ export function createScenicStandard(
 
 /**
  * Author controls for a carried scenic standard.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the two forms, contacts, units and free set dimensions.
- * @evidence contracts/development/design.md#principled-representation One closed silhouette choice shares a shaft and physically located head.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Publishes dimension bands and two sites on the geometry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Bands give full positive dimensions and a rigid silhouette for film staging.
  */
 export namespace createScenicStandard {
   /** A carried textile-shaped panel or a circular emblem. */

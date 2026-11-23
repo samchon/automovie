@@ -16,7 +16,7 @@ It wraps the beauty callback instead of reaching into the response stage, so the
 
 States the steps of a draw, the no-shading path, what is restored, the per-frame independence and the target lifetime.
 
-# src/scene/filmShading/AutoMovieFilmIndirectStage.ts#AutoMovieFilmIndirectStage.draw
+# src/scene/filmShading/AutoMovieFilmIndirectStage.ts#AutoMovieFilmIndirectStage.prototype.draw
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -46,7 +46,7 @@ Targets are kept while the raster is unchanged; their contents are not reused.
 
 The stage holds three render targets and a depth texture for one raster, replaced when the raster changes and released by `dispose`.
 
-# src/scene/filmShading/AutoMovieFilmIndirectStage.ts#AutoMovieFilmIndirectStage.dispose
+# src/scene/filmShading/AutoMovieFilmIndirectStage.ts#AutoMovieFilmIndirectStage.prototype.dispose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -75,33 +75,3 @@ Not applicable beyond the release itself.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 After it the stage holds no GPU resource.
-
-# src/scene/filmShading/AutoMovieFilmIndirectStage.ts#AutoMovieFilmIndirectStage.uniforms
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States that the values hold only during the beauty pass.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Returns the shared uniform record the patch binds.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-A read-only accessor.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-It exposes no mutation path beyond what the record already is.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Constant work.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-The same record for every patched material.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-Holds references the stage owns.

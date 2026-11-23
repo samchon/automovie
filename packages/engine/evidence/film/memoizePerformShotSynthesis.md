@@ -6,7 +6,7 @@ A synthesizer is a function of the action, the actor and the prior beat state; w
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-`performShot` makes one wrapper and hands it to the overlap, launch and performance stages, which then share one clip per action and actor.
+Structure: `performShot` makes one wrapper and hands it to the overlap, launch and performance stages, which then share one clip per action and actor.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

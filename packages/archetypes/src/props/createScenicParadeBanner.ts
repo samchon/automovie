@@ -153,11 +153,6 @@ export function createScenicParadeBanner(
  * Fixed banner dimensions in metres and prop mass in kilograms, plus an
  * optional scene id. The producer validates overrides against bands that leave
  * an exposed grip below the panel on each pole.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Groups the optional metre and kilogram controls with the model producer.
- * @evidence contracts/development/design.md#principled-representation Optional numeric overrides cover only named dimensions and mass. The producer checks their ranges at runtime.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the shared banner inputs without creating a second geometry or grip description.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A single width positions both poles, and the same pole diameter applies to each. Runtime bands preserve the exposed grip.
  */
 export namespace createScenicParadeBanner {
   /** Optional fixed dimensions for a rectangular panel and two matching poles. */

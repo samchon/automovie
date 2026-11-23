@@ -6,7 +6,7 @@ A region mask that drops authored content would silently change the performance,
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-`compilePerformance` reports the drops and `validateMotion` owns the clip rules; this function only turns both into the shot's violations, and `performShot` stops on them.
+Structure: `compilePerformance` reports the drops and `validateMotion` owns the clip rules; this function only turns both into the shot's violations, and `performShot` stops on them.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

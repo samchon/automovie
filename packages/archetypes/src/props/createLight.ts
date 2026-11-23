@@ -52,11 +52,6 @@ export function createLight(
 
 /**
  * Companion types, constants and bands of {@link createLight}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of three flame lights and three lamps, one cited band per dimension per kind; the flame and the beam are frames, never parts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes, the hook a pendant or a lantern hangs by, and the light a production places (#3501, #3468's N1); the electric flashlight is `createTorch`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every light has the same `grip` and `light`, so carrying, aiming and lighting are written once; bands seen only in search results are provisional, and a lantern's unread fount and wire are named estimates.
  */
 export namespace createLight {
   /** Each saved selector's named producer. */

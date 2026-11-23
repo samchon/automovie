@@ -100,11 +100,6 @@ export function createCar(
 
 /**
  * Companion types, constants and bands of {@link createCar}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and layout constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions, one cited band per dimension per class, and the interior laid out from the seating reference point as SAE J1100 does.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The dimensions an entering, driving and loading act reads (#3372, #3498): seat height, the wheel's place, size and turn, the doors' swing, the pedals' travel, the openings and the load floors.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Layout offsets no source gave are exported constants that say so, not numbers buried in the builders.
  */
 export namespace createCar {
   /** The classes of car. */

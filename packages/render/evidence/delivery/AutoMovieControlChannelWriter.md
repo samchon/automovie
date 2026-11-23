@@ -10,13 +10,13 @@ Holds the admitted passes, their folder, the host's writer and per-pass frame li
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`renderAutoMovieDrawnVideo` creates one per render with control passes and calls `add` per frame and `finish` once.
+Owner and consumers: `renderAutoMovieDrawnVideo` creates one per render with control passes and calls `add` per frame and `finish` once.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 Files go through the host's `write`, so the writer launches nothing and runs under a unit test.
 
-# src/delivery/AutoMovieControlChannelWriter.ts#AutoMovieControlChannelWriter.add
+# src/delivery/AutoMovieControlChannelWriter.ts#AutoMovieControlChannelWriter.prototype.add
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -46,7 +46,7 @@ It computes afresh from its arguments; nothing is shared between calls.
 
 One picture's bytes are held at a time; only frame records accumulate, one per pass per frame.
 
-# src/delivery/AutoMovieControlChannelWriter.ts#AutoMovieControlChannelWriter.finish
+# src/delivery/AutoMovieControlChannelWriter.ts#AutoMovieControlChannelWriter.prototype.finish
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

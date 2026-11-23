@@ -85,11 +85,6 @@ export function createWatch(
 
 /**
  * The contacts and dimensions of {@link createWatch}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
- * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createWatch {
   /**

@@ -225,11 +225,6 @@ export function createMotorcycle(
 
 /**
  * Companion types and bands of {@link createMotorcycle}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions, each kind's read machines whole, and a cited band for each dimension no maker states.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rider's three contacts and their places (#3372): the seat's height, the bar's width, the foot rests.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A scooter has a floorboard and a motorcycle has pegs; neither declares the other's.
  */
 export namespace createMotorcycle {
   /** The kinds of machine. */

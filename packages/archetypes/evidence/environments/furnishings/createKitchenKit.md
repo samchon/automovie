@@ -27,21 +27,3 @@ Each role's model is drawn on its own seed stream, `<occurrence seed>/<role>`, s
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The module captures its parameters only; each call's models and planner state live for that call and survive only in the emitted records.
-
-# src/environments/furnishings/createKitchenKit.ts#createKitchenKit.IParams
-
-## @evidence contracts/development/design.md#principled-representation
-
-The furnishing layout plus a closed one-or-two cook count.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Extends the furnishing layout, as the cafe kit does, with only the kit's own input.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The layout's members are not restated.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the cook count and its default.

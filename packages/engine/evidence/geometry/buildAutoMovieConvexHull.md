@@ -22,7 +22,7 @@ Dominated by `physicalHullFaces`: O(V^2) for its extent and expected O(V log V) 
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-`physicalHullFaces` remembers the hull per points array, so an archetype cell that also integrates its mass searches once.
+Reuse: `physicalHullFaces` remembers the hull per points array, so an archetype cell that also integrates its mass searches once.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

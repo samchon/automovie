@@ -57,11 +57,6 @@ export function createStreetFixture(
 
 /**
  * Companion types and bands of {@link createStreetFixture}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions, each kind's read models among them, and one cited band per remaining dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Retains the original recipe shape, measurement tables, and the stable producer for each saved kind.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A contact no source places is left out rather than placed by guess.
  */
 export namespace createStreetFixture {
   /** The kinds of fixture. */

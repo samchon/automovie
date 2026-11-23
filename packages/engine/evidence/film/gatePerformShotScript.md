@@ -6,7 +6,7 @@ A beat id names one beat, so every later declaration of an id is refused at its 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-`performShot` owns the stage order; this function owns only the script's beat ids and the lookup of the performed beat, which the assembly reads for the shot's name.
+Structure: `performShot` owns the stage order; this function owns only the script's beat ids and the lookup of the performed beat, which the assembly reads for the shot's name.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
