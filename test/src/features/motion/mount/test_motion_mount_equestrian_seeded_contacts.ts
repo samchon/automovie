@@ -23,6 +23,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionHumanBody } from "../../internal/motionHumanBody";
+import { mountedHorseScene } from "../../internal/mountedHorseScene";
 
 type Horse = ReturnType<typeof createHorse>;
 type Ride = ReturnType<typeof rideHorse>;
@@ -30,7 +31,10 @@ type Ride = ReturnType<typeof rideHorse>;
 const WAIT: number = 6;
 const CONTACT: number = 0.01;
 
-/** The gaits these takes ride, each with its speed: walk, trot and canter; the gallop is not ridden here. */
+/**
+ * The gaits these takes ride, each with its speed: walk, trot and canter; the
+ * gallop is not ridden here.
+ */
 type Ridden = Exclude<IAutoMovieMotionHumanRide.EquestrianGait, "gallop">;
 
 /**
@@ -38,9 +42,13 @@ type Ridden = Exclude<IAutoMovieMotionHumanRide.EquestrianGait, "gallop">;
  *
  * Scenarios:
  *
- * 1. Two hundred seeded horses, cycling walk, trot and canter, each carry a rider whose seat and both stirrup soles stay within 10 mm of the actual tack at three sampled strides.
- * 2. A rising trot sits on one diagonal's touchdowns, rises on the other diagonal's, and keeps both stirrups.
- * 3. The smallest rider on the tallest horse's longest stirrups refuses a rising trot because a foot rests on nothing.
+ * 1. Two hundred seeded horses, cycling walk, trot and canter, each carry a rider
+ *    whose seat and both stirrup soles stay within 10 mm of the actual tack at
+ *    three sampled strides.
+ * 2. A rising trot sits on one diagonal's touchdowns, rises on the other
+ *    diagonal's, and keeps both stirrups.
+ * 3. The smallest rider on the tallest horse's longest stirrups refuses a rising
+ *    trot because a foot rests on nothing.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the actual seeded tack contact matrix, explicit fitted drop, published diagonal timing and an independently unreachable support.
  * @evidence contracts/development/testing.md#behavioral-verification Produces actual horse models and moving HumanPerformance samples, checking the rider seat and two foot balls against the world tack callbacks. It also verifies positive post displacement in the opposite diagonal interval and a measured support refusal.
@@ -183,12 +191,17 @@ function mounted(
     gait,
   );
   const seconds = (at: number): number => Math.max(0, at - WAIT);
+  // One horse sample per distinct instant read, shared by the placement and every part.
+  const sampled: mountedHorseScene.ISampler = mountedHorseScene.sampler(
+    ride,
+    seconds,
+  );
   const place = (at: number): IAutoMovieRigidTransform => {
-    const frame: IAutoMovieTransform = ride.at(seconds(at)).placement;
+    const frame: IAutoMovieTransform = sampled.placement(at);
     return { position: frame.translation, rotation: frame.rotation };
   };
   const part = (id: string, at: number): IAutoMovieTransform =>
-    ride.frame(id as Parameters<Ride["frame"]>[0], seconds(at));
+    sampled.part(id, at);
   const diagonal: number[] = [];
   if (rising) {
     const hind: Set<number> = new Set(

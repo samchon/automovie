@@ -1,4 +1,8 @@
-import { createHorse, rideHorse } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeFrame,
+  createHorse,
+  rideHorse,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -72,7 +76,10 @@ export namespace mountedHorseScene {
     segments: readonly IAutoMovieMotionHumanSegment[];
   }
 
-  /** A further performer: its subject, body, where it starts in the seat's frame and its acts. */
+  /**
+   * A further performer: its subject, body, where it starts in the seat's frame
+   * and its acts.
+   */
   export interface IPartner {
     /** The subject id. */
     subject: string;
@@ -106,7 +113,10 @@ export namespace mountedHorseScene {
     /** Where the rider stands before sitting, in the seat's frame, metres. */
     from: IAutoMovieVector3;
 
-    /** The horse's own ride, which begins `wait` seconds into the film; a steady straight course at the gait when absent. */
+    /**
+     * The horse's own ride, which begins `wait` seconds into the film; a steady
+     * straight course at the gait when absent.
+     */
     course?: Ride;
 
     /** The performance's cue tracks; none when absent. */
@@ -115,10 +125,17 @@ export namespace mountedHorseScene {
     /** The acts after sitting. */
     acts: (seated: Seated) => Seated;
 
-    /** Acts the rider does on the ground before sitting on, as picking up a sabre; none when absent. */
+    /**
+     * Acts the rider does on the ground before sitting on, as picking up a
+     * sabre; none when absent.
+     */
     before?: Before;
 
-    /** Whether the rider sits on the seat before the acts; false leaves the rider standing where `from` places it, for a performer who boards the seat itself. True when absent. */
+    /**
+     * Whether the rider sits on the seat before the acts; false leaves the
+     * rider standing where `from` places it, for a performer who boards the
+     * seat itself. True when absent.
+     */
     seated?: boolean;
 
     /** Further performers beside the rider. */
@@ -130,12 +147,17 @@ export namespace mountedHorseScene {
     /** Further props, beside the horse. */
     props?: ConstructorParameters<typeof HumanPerformance>[0]["props"];
 
-    /** The grade the horse stands and goes on, degrees, nose up; level when absent: the whole ride turned about the world's lateral axis through the origin. */
+    /**
+     * The grade the horse stands and goes on, degrees, nose up; level when
+     * absent: the whole ride turned about the world's lateral axis through the
+     * origin.
+     */
     grade?: number;
   }
 
   /**
-   * Stage the scene: the horse stands for `wait` seconds and then goes at a steady speed of its gait along a straight course.
+   * Stage the scene: the horse stands for `wait` seconds and then goes at a
+   * steady speed of its gait along a straight course.
    *
    * @param props The inputs.
    * @returns The scene.
@@ -155,12 +177,13 @@ export namespace mountedHorseScene {
       translation: Quaternion.rotateVector(tilt, frame.translation),
       rotation: Quaternion.multiply(tilt, frame.rotation),
     });
+    const sampled: ISampler = sampler(ride, local);
     const place = (at: number): IAutoMovieRigidTransform => {
-      const frame: IAutoMovieTransform = graded(ride.at(local(at)).placement);
+      const frame: IAutoMovieTransform = graded(sampled.placement(at));
       return { position: frame.translation, rotation: frame.rotation };
     };
     const part = (id: string, at: number): IAutoMovieTransform =>
-      graded(ride.frame(id as Parameters<Ride["frame"]>[0], local(at)));
+      graded(sampled.part(id, at));
     // The saddle is the horse's: a sit on it is carried with the horse.
     const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
       ride.at(0).archetype,
@@ -237,7 +260,86 @@ export namespace mountedHorseScene {
   }
 
   /**
-   * Where a prop waits for the rider to pick it up on the ground before sitting on: a little in front of and above where the standing rider's right hand hangs, so the reach is a clear one.
+   * A ride's placement and part frames at film seconds, read from one ride
+   * sample per distinct instant asked.
+   */
+  export interface ISampler {
+    /**
+     * The horse's placement at a film second.
+     *
+     * @param at Film seconds.
+     * @returns The placement, world metres.
+     */
+    placement(at: number): IAutoMovieTransform;
+
+    /**
+     * A part's frame at a film second, as `ride.frame` composes it.
+     *
+     * @param id The part.
+     * @param at Film seconds.
+     * @returns The frame, world metres.
+     */
+    part(id: string, at: number): IAutoMovieTransform;
+  }
+
+  /**
+   * How many of the latest distinct instants a sampler keeps the ride's sample
+   * for: one read of a mounted rider asks the horse at its own second, at the
+   * two neighbours its surge differentiates over and at the stride average's
+   * `HumanMountedStride.SAMPLES` seconds, and the display reads the same second
+   * through several stages. A sample is a pure function of its instant, so this
+   * bounds memory only; a sample dropped is posed again, the same.
+   */
+  export const KEPT: number = 32;
+
+  /**
+   * Read a ride's placement and parts from one sample per distinct instant. A
+   * read of the rider asks the horse for its placement and several of its parts
+   * (the seat, the stirrups, the reins) at each instant it reads, and the
+   * display reads the same instant through several stages, while `ride.frame`
+   * poses the whole horse again for every part. The sampler keeps the ride's
+   * sample of the latest `KEPT` distinct instants and composes each part from
+   * it as `ride.frame` does, so every reading of one instant comes from one
+   * pose. Every instant asked is still read exactly; nothing is interpolated or
+   * skipped.
+   *
+   * @param ride The ride.
+   * @param local The ride's second at a film second.
+   * @returns The sampler.
+   */
+  export function sampler(ride: Ride, local: (at: number) => number): ISampler {
+    const kept: Map<number, ReturnType<Ride["at"]>> = new Map();
+    const at = (film: number): ReturnType<Ride["at"]> => {
+      const s: number = local(film);
+      const found: ReturnType<Ride["at"]> | undefined = kept.get(s);
+      if (found !== undefined) {
+        // The latest instant asked goes to the end, the oldest is dropped first.
+        kept.delete(s);
+        kept.set(s, found);
+        return found;
+      }
+      const sample: ReturnType<Ride["at"]> = ride.at(s);
+      kept.set(s, sample);
+      if (kept.size > KEPT) kept.delete(kept.keys().next().value!);
+      return sample;
+    };
+    return {
+      placement: (film: number): IAutoMovieTransform =>
+        AutoMovieArchetypeFrame.copy(at(film).placement),
+      part: (id: string, film: number): IAutoMovieTransform => {
+        const now: ReturnType<Ride["at"]> = at(film);
+        return AutoMovieArchetypeFrame.compose(
+          now.placement,
+          now.archetype.affordance(id as Parameters<Ride["frame"]>[0]).frame,
+        );
+      },
+    };
+  }
+
+  /**
+   * Where a prop waits for the rider to pick it up on the ground before sitting
+   * on: a little in front of and above where the standing rider's right hand
+   * hangs, so the reach is a clear one.
    *
    * @param horse The horse.
    * @param body The rider's body.
@@ -273,7 +375,9 @@ export namespace mountedHorseScene {
   }
 
   /**
-   * The horse's ride: a straight course of twelve seconds at its gait's steady speed, scaled by the square root of its height at the withers (Froude similarity).
+   * The horse's ride: a straight course of twelve seconds at its gait's steady
+   * speed, scaled by the square root of its height at the withers (Froude
+   * similarity).
    *
    * @param horse The horse.
    * @param gait The gait.
@@ -331,7 +435,8 @@ export namespace mountedHorseScene {
   }
 
   /**
-   * How far the displayed palm centre lies from a held contact's skin: the contact's point raised along its frame's `+Y` by half its aperture.
+   * How far the displayed palm centre lies from a held contact's skin: the
+   * contact's point raised along its frame's `+Y` by half its aperture.
    *
    * @param scene The scene.
    * @param side The hand.
