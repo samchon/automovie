@@ -1,25 +1,25 @@
 import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanSkill";
 
 /**
- * Whether a defence is in time, late or fails against one strike, decided
- * from the two performers' timing before any geometry, and how a forced
- * outcome is realised with plausible human timing.
+ * Whether a defence is in time, late or fails against one strike, decided from
+ * the two performers' timing before any geometry, and how a forced outcome is
+ * realised with plausible human timing.
  *
- * The law (campaign #3201): the defender starts at `t_start = launch + RT -
- * lead x telegraph`, where `RT` is a simple reaction time from the defender's
+ * The law (the campaign): the defender starts at `t_start = launch + RT - lead
+ * x telegraph`, where `RT` is a simple reaction time from the defender's
  * ex-Gaussian, `lead` the anticipation the defender's skill buys and
- * `telegraph` in [0, 1] how much of the attack its preparation shows. With
- * the defence's own movement time `T_def` and the attacker's contact second
+ * `telegraph` in [0, 1] how much of the attack its preparation shows. With the
+ * defence's own movement time `T_def` and the attacker's contact second
  * `t_hit`, the margin is `m = t_hit - (t_start + T_def)`:
  *
  * - `m >= 0`: in time; the defending limb or head is in place at contact.
  * - `-T_def / 2 < m < 0`: late; the strike lands through the half-made guard.
- * - otherwise: fail; the strike lands as if undefended.
+ * - Otherwise: fail; the strike lands as if undefended.
  *
- * A roundhouse reaches its target in about one simple reaction time (280 to
- * 300 ms against a 290 ms elite mean), so a purely reactive defence cannot be
- * in time against a fast kick; anticipation is what makes it possible, which
- * is the evidence this law encodes.
+ * A roundhouse reaches its target in about one simple reaction time (280 to 300
+ * ms against a 290 ms elite mean), so a purely reactive defence cannot be in
+ * time against a fast kick; anticipation is what makes it possible, which is
+ * the evidence this law encodes.
  *
  * Forcing an outcome draws `m` from the forced band intersected with the
  * plausible band (every reaction time and lead inside its 1 to 99 % range),
@@ -30,14 +30,10 @@ import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanS
  * reaches. An implausible reaction time is never used.
  */
 export namespace IAutoMovieMotionHumanDefenceOutcome {
-  /**
-   * The outcome classes.
-   */
+  /** The outcome classes. */
   export type Outcome = "inTime" | "late" | "fail";
 
-  /**
-   * The timing a decision reads, all in film seconds.
-   */
+  /** The timing a decision reads, all in film seconds. */
   export interface IInput {
     /** The strike's launch, film seconds. */
     launch: number;
@@ -54,13 +50,15 @@ export namespace IAutoMovieMotionHumanDefenceOutcome {
     /** The defender's skill. */
     skill: IAutoMovieMotionHumanSkill;
 
-    /** The factors the attacker's launch-to-contact time may be scaled by, `[shortest, longest]`, containing 1; `[1, 1]` when the attack is already fixed. */
+    /**
+     * The factors the attacker's launch-to-contact time may be scaled by,
+     * `[shortest, longest]`, containing 1; `[1, 1]` when the attack is already
+     * fixed.
+     */
     stretch?: readonly [number, number];
   }
 
-  /**
-   * A decided defence.
-   */
+  /** A decided defence. */
   export interface IDecision {
     /** The outcome. */
     outcome: IAutoMovieMotionHumanDefenceOutcome.Outcome;
@@ -77,7 +75,10 @@ export namespace IAutoMovieMotionHumanDefenceOutcome {
     /** The margin `m`, seconds. */
     margin: number;
 
-    /** The factor applied to the attacker's launch-to-contact time; 1 when unchanged. */
+    /**
+     * The factor applied to the attacker's launch-to-contact time; 1 when
+     * unchanged.
+     */
     stretch: number;
 
     /** The contact second after the stretch. */

@@ -13,9 +13,9 @@ import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanChainManual } from "./IAutoMovieMotionHumanChainManual";
 
 /**
- * The chain methods of a fight and of what a force does to a body: the
- * guard and its footwork, the strikes, the clinch, the defences, and the
- * reactions to a threat, a push or a blow.
+ * The chain methods of a fight and of what a force does to a body: the guard
+ * and its footwork, the strikes, the clinch, the defences, and the reactions to
+ * a threat, a push or a blow.
  */
 export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHumanChainManual {
   /**
@@ -75,8 +75,7 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
   clinch(params: IAutoMovieMotionHumanClinch.IParams, anchor?: string): this;
 
   /**
-   * Defend against one placed strike: a cover, parry, block, check or
-   * evasion.
+   * Defend against one placed strike: a cover, parry, block, check or evasion.
    *
    * @param params The attack answered and the defence.
    * @param anchor An optional anchor id.
@@ -124,8 +123,8 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
   ): this;
 
   /**
-   * Respond to the impulses on the body: absorb, step or fall as the
-   * impulse decides, or as the author fixes (#3430).
+   * Respond to the impulses on the body: absorb, step or fall as the impulse
+   * decides, or as the author fixes.
    *
    * @param params The outcome; decided by the impulse when absent.
    * @param anchor An optional anchor id.

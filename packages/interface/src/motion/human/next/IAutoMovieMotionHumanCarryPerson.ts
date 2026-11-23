@@ -2,15 +2,28 @@ import type { IAutoMovieMotionHumanCarried } from "../lexicon/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanCarriedLift } from "../lexicon/IAutoMovieMotionHumanCarriedLift";
 
 /**
- * Carrying a person: the carry and its lift. An infant held is `IAutoMovieMotionHumanCare.holdInfant`.
+ * Carrying a person: the carry and its lift. An infant held is
+ * `IAutoMovieMotionHumanCare.holdInfant`.
  *
- * @template Chain The chain every method returns; the chain implements this interface.
+ * A method here is a method of `HumanChain` when its name is in
+ * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
+ * row: pass it in `laws: [...]` to the performance, taking it from
+ * `AutoMovieMotionHumanCarryPerson` or from the row namespace of the family,
+ * and append it with `chain.registered("<name>", params)`. A member that is a
+ * function, a reader or a layer says so in its own comment.
+ *
+ * @template Chain The chain every method returns; the chain implements this
+ *   interface.
  */
 export interface IAutoMovieMotionHumanCarryPerson<Chain> {
   /**
-   * Being carried by another person: on the back, in the arms or over a shoulder.
+   * Being carried by another person: on the back, in the arms or over a
+   * shoulder.
    *
-   * @param params The `by`, `on` and `seconds` of `IAutoMovieMotionHumanCarried.IParams`.
+   * Registered law: `registered("carryPerson", params)`; not a chain method.
+   *
+   * @param params The `partner`, `on` and `hold` of
+   *   `IAutoMovieMotionHumanCarried.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    */
@@ -20,9 +33,15 @@ export interface IAutoMovieMotionHumanCarryPerson<Chain> {
   ): Chain;
 
   /**
-   * The lift into a carry and the set-down out of it (#3349): the carried body leaves the posture it was entered in for the carry's over the first `lift` seconds, and over the last `setDown` seconds comes down to stand where the carrier has brought it.
+   * The lift into a carry and the set-down out of it: the carried body leaves
+   * the posture it was entered in for the carry's over the first `lift`
+   * seconds, and over the last `setDown` seconds comes down to stand where the
+   * carrier has brought it.
    *
-   * @param params The `lift` and `setDown` of `IAutoMovieMotionHumanCarriedLift.IParams`.
+   * Registered law: `registered("carriedLift", params)`; not a chain method.
+   *
+   * @param params The `lift` and `setDown` of
+   *   `IAutoMovieMotionHumanCarriedLift.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    */

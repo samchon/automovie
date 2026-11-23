@@ -1,13 +1,13 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
- * A line from one of a prop's points to another prop's point (#3998): a
- * fishing line from a rod's tip to its lure, a leash, a tow line. It is
- * declared on the prop it runs from. Its length is free (a fixed length
- * of line out) or driven by an articulation's travel (line paid in by a
- * reel's crank turns). A line shorter than the distance between its ends
- * pulls the far prop toward the near one along the line while no hand
- * holds the far prop; a slack line hangs as a catenary.
+ * A line from one of a prop's points to another prop's point: a fishing line
+ * from a rod's tip to its lure, a leash, a tow line. It is declared on the prop
+ * it runs from. Its length is free (a fixed length of line out) or driven by an
+ * articulation's travel (line paid in by a reel's crank turns). A line shorter
+ * than the distance between its ends pulls the far prop toward the near one
+ * along the line while no hand holds the far prop; a slack line hangs as a
+ * catenary.
  */
 export interface IAutoMovieMotionHumanTether {
   /** The line's id on its prop. */
@@ -23,13 +23,9 @@ export interface IAutoMovieMotionHumanTether {
   length: IAutoMovieMotionHumanTether.Length;
 }
 
-/**
- * Companion types of {@link IAutoMovieMotionHumanTether}.
- */
+/** Companion types of {@link IAutoMovieMotionHumanTether}. */
 export namespace IAutoMovieMotionHumanTether {
-  /**
-   * A prop's named point.
-   */
+  /** A prop's named point. */
   export interface IEnd {
     /** The prop's subject. */
     prop: string;
@@ -38,14 +34,10 @@ export namespace IAutoMovieMotionHumanTether {
     point: string;
   }
 
-  /**
-   * A fixed or a driven length.
-   */
+  /** A fixed or a driven length. */
   export type Length = IFree | IDriven;
 
-  /**
-   * A fixed length of line out.
-   */
+  /** A fixed length of line out. */
   export interface IFree {
     /** The discriminant. */
     kind: "free";
@@ -55,7 +47,8 @@ export namespace IAutoMovieMotionHumanTether {
   }
 
   /**
-   * A length paid in by an articulation's travel: `metres - per × travel`, never below zero.
+   * A length paid in by an articulation's travel: `metres - per × travel`,
+   * never below zero.
    */
   export interface IDriven {
     /** The discriminant. */
@@ -67,13 +60,14 @@ export namespace IAutoMovieMotionHumanTether {
     /** The prop and the articulation id whose travel pays the line in. */
     articulation: IEnd;
 
-    /** The line paid in per unit of the articulation's travel, metres per its unit (per degree for a crank). */
+    /**
+     * The line paid in per unit of the articulation's travel, metres per its
+     * unit (per degree for a crank).
+     */
     per: number;
   }
 
-  /**
-   * The line as it lies at a second.
-   */
+  /** The line as it lies at a second. */
   export interface ISpan {
     /** The near end, world metres. */
     from: IAutoMovieVector3;
@@ -87,7 +81,10 @@ export namespace IAutoMovieMotionHumanTether {
     /** Whether the line runs straight between its ends. */
     taut: boolean;
 
-    /** Points along the line from the near end to the far end, world metres: the two ends when taut, a catenary when slack. */
+    /**
+     * Points along the line from the near end to the far end, world metres: the
+     * two ends when taut, a catenary when slack.
+     */
     points: IAutoMovieVector3[];
   }
 }

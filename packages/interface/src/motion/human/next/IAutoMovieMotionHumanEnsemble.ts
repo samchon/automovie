@@ -9,13 +9,27 @@ import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 /**
  * Groups of people: a formation, a crowd and a manoeuvre.
  *
- * @template Chain The chain every method returns; the chain implements this interface.
+ * A method here is a method of `HumanChain` when its name is in
+ * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
+ * row: pass it in `laws: [...]` to the performance, taking it from
+ * `AutoMovieMotionHumanEnsemble` or from the row namespace of the family, and
+ * append it with `chain.registered("<name>", params)`. A member that is a
+ * function, a reader or a layer says so in its own comment.
+ *
+ * @template Chain The chain every method returns; the chain implements this
+ *   interface.
  */
 export interface IAutoMovieMotionHumanEnsemble<Chain> {
   /**
-   * An instanced member: a performer that displays a template member's placed posture, read whole film frames earlier and moved rigidly by the offset it stands at from the template, so a rear rank marching with its front rank costs no plans and no fits of its own.
+   * An instanced member: a performer that displays a template member's placed
+   * posture, read whole film frames earlier and moved rigidly by the offset it
+   * stands at from the template, so a rear rank marching with its front rank
+   * costs no plans and no fits of its own.
    *
-   * @param params The `of`, `seconds` and `shift` of `IAutoMovieMotionHumanInstance.IParams`.
+   * Registered law: `registered("instance", params)`; not a chain method.
+   *
+   * @param params The `of`, `duration` and `shift` of
+   *   `IAutoMovieMotionHumanInstance.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    */
@@ -27,9 +41,9 @@ export interface IAutoMovieMotionHumanEnsemble<Chain> {
 
 export namespace IAutoMovieMotionHumanEnsemble {
   /**
-   * A group of people written once: its members are performers of the
-   * grammar, `${id}.${index}` with the index from 0, each given a body from the
-   * group's pool, a proficiency and attribute values drawn from the group's
+   * A group of people written once: its members are performers of the grammar,
+   * `${id}.${index}` with the index from 0, each given a body from the group's
+   * pool, a proficiency and attribute values drawn from the group's
    * distributions, an optional role, and a place.
    *
    * The draws are keyed by the chain seed, the id, the member's index and the
@@ -49,10 +63,16 @@ export namespace IAutoMovieMotionHumanEnsemble {
     /** How many members, a positive whole number. */
     count: number;
 
-    /** The body pool, at least one; each member's body is drawn from it by the seed. */
+    /**
+     * The body pool, at least one; each member's body is drawn from it by the
+     * seed.
+     */
     bodies: readonly IAutoMovieMotionHumanBody[];
 
-    /** A named set of distributions; every attribute neutral and proficiency `trained` when absent. */
+    /**
+     * A named set of distributions; every attribute neutral and proficiency
+     * `trained` when absent.
+     */
     preset?: IAutoMovieMotionHumanEnsemblePreset.Name;
 
     /** Distributions overriding the preset's, by attribute. */
@@ -65,7 +85,12 @@ export namespace IAutoMovieMotionHumanEnsemble {
       >
     >;
 
-    /** The distribution of the members' proficiency `p`, overriding the preset's; the preset's when absent (`HUMAN_ENSEMBLE_PRESETS`: mean 0.9 for `elite` to 0.25 for `rabble`). `p` is the skill of every member's actions ({@link IAutoMovieProficiency}). */
+    /**
+     * The distribution of the members' proficiency `p`, overriding the
+     * preset's; the preset's when absent (`HUMAN_ENSEMBLE_PRESETS`: mean 0.9
+     * for `elite` to 0.25 for `rabble`). `p` is the skill of every member's
+     * actions ({@link IAutoMovieProficiency}).
+     */
     proficiency?: IAutoMovieMotionHumanAttribute.IDistribution;
 
     /** Named roles and how many members take each, in the order they are filled. */
@@ -74,7 +99,10 @@ export namespace IAutoMovieMotionHumanEnsemble {
     /** The formation the members stand in, member `i` in slot `i`. */
     formation?: IAutoMovieMotionHumanFormation;
 
-    /** Each member's starting place, by index or as a rule, when there is no formation. */
+    /**
+     * Each member's starting place, by index or as a rule, when there is no
+     * formation.
+     */
     places?:
       | readonly IAutoMovieMotionHumanEnsemble.IPlace[]
       | ((index: number) => IAutoMovieMotionHumanEnsemble.IPlace);
@@ -98,18 +126,22 @@ export namespace IAutoMovieMotionHumanEnsemble {
  * input, handed to a performance as performers and chains, and the seeded
  * choices an author makes over them.
  *
- * Nothing here writes motion: each member performs the vocabulary's actions
- * the author's `build` appends. Attributes shape how and when, never what:
- * an outcome such as five misfires is the author's count, and `pick` only
- * chooses which members it falls on. Every draw is keyed by the chain seed,
- * the ensemble, the member's index and the quantity, so adding a member
- * leaves the others' bodies, attributes and roles bit-identical; discipline
- * replaces the drawn proficiency on the axes `HUMAN_ATTRIBUTE_EFFECTS` names.
- *
+ * Nothing here writes motion: each member performs the vocabulary's actions the
+ * author's `build` appends. Attributes shape how and when, never what: an
+ * outcome such as five misfires is the author's count, and `pick` only chooses
+ * which members it falls on. Every draw is keyed by the chain seed, the
+ * ensemble, the member's index and the quantity, so adding a member leaves the
+ * others' bodies, attributes and roles bit-identical; discipline replaces the
+ * drawn proficiency on the axes `HUMAN_ATTRIBUTE_EFFECTS` names.
  */
 export namespace IAutoMovieMotionHumanEnsemble {
   /**
-   * A member's desired speed and delay as the pass draws them: its gait's speed at its leg length scaled by its keyed normal draw (floored at `SLOWEST`, its spread widened in flight by low morale's fluctuation, `HUMAN_ATTRIBUTE_EFFECTS.morale.fluctuation`), by fatigue and in flight by morale, and its response latency when the request names one. One resolved member.
+   * A member's desired speed and delay as the pass draws them: its gait's speed
+   * at its leg length scaled by its keyed normal draw (floored at `SLOWEST`,
+   * its spread widened in flight by low morale's fluctuation,
+   * `HUMAN_ATTRIBUTE_EFFECTS.morale.fluctuation`), by fatigue and in flight by
+   * morale, and its response latency when the request names one. One resolved
+   * member.
    */
   export interface IMember {
     /** Its index, from 0. */
@@ -127,7 +159,10 @@ export namespace IAutoMovieMotionHumanEnsemble {
     /** Its body's index in the pool. */
     pool: number;
 
-    /** Its attributes, each in [0, 1]; an attribute the group does not state is absent. */
+    /**
+     * Its attributes, each in [0, 1]; an attribute the group does not state is
+     * absent.
+     */
     attributes: Readonly<
       Partial<Record<IAutoMovieMotionHumanAttribute.Name, number>>
     >;
@@ -153,9 +188,7 @@ export namespace IAutoMovieMotionHumanEnsemble {
     prop(name: string): string;
   }
 
-  /**
-   * A slot as a starting place. A starting place.
-   */
+  /** A slot as a starting place. A starting place. */
   export interface IPlace {
     /** The floor point, world metres. */
     at: IAutoMovieVector3;
@@ -164,14 +197,10 @@ export namespace IAutoMovieMotionHumanEnsemble {
     yaw: number;
   }
 
-  /**
-   * How much of a member is performed.
-   */
+  /** How much of a member is performed. */
   export type Detail = "full" | "instanced" | "population";
 
-  /**
-   * A sub-ensemble that walks together.
-   */
+  /** A sub-ensemble that walks together. */
   export interface IGroup {
     /** Its index, from 0. */
     index: number;
@@ -181,7 +210,12 @@ export namespace IAutoMovieMotionHumanEnsemble {
   }
 
   /**
-   * A member's desired speed and delay as the pass draws them: its gait's speed at its leg length scaled by its keyed normal draw (floored at `SLOWEST`, its spread widened in flight by low morale's fluctuation, `HUMAN_ATTRIBUTE_EFFECTS.morale.fluctuation`), by fatigue and in flight by morale, and its response latency when the request names one. A resolved ensemble.
+   * A member's desired speed and delay as the pass draws them: its gait's speed
+   * at its leg length scaled by its keyed normal draw (floored at `SLOWEST`,
+   * its spread widened in flight by low morale's fluctuation,
+   * `HUMAN_ATTRIBUTE_EFFECTS.morale.fluctuation`), by fatigue and in flight by
+   * morale, and its response latency when the request names one. A resolved
+   * ensemble.
    */
   export interface IEnsemble {
     /** The input it was resolved from. */
@@ -191,20 +225,19 @@ export namespace IAutoMovieMotionHumanEnsemble {
     members: readonly IAutoMovieMotionHumanEnsemble.IMember[];
   }
 
-  /**
-   * A role: how many members take it and which.
-   */
+  /** A role: how many members take it and which. */
   export interface IRole {
     /** How many members, a whole number. */
     count: number;
 
-    /** Which: the front rank's, the rear rank's, a flank's (file 0 then the last file), or the given indices; the lowest free indices when absent. */
+    /**
+     * Which: the front rank's, the rear rank's, a flank's (file 0 then the last
+     * file), or the given indices; the lowest free indices when absent.
+     */
     pick?: "front" | "rear" | "flank" | readonly number[];
   }
 
-  /**
-   * What a detail rule reads of a member.
-   */
+  /** What a detail rule reads of a member. */
   export interface IMemberRef {
     /** The member's index. */
     index: number;
@@ -220,12 +253,25 @@ export namespace IAutoMovieMotionHumanEnsemble {
   }
 
   /**
-   * Sub-ensembles that walk together, as many pedestrians do in twos and threes (Moussaïd et al. 2010): members are taken in index order, and an ungrouped member starts a group with probability `q` whose size is drawn from `sizes`, taking the next members. With `s` the mean size, a start share `q = share / (s - share (s - 1))` puts `share` of the members in groups on average, since `q s / (q s + 1 - q)` of them are grouped. Input spec of HumanEnsemble.groups. The grouped share in [0, 1] and the group sizes allowed, each at least 2.
+   * Sub-ensembles that walk together, as many pedestrians do in twos and threes
+   * (Moussaïd et al. 2010): members are taken in index order, and an ungrouped
+   * member starts a group with probability `q` whose size is drawn from
+   * `sizes`, taking the next members. With `s` the mean size, a start share `q
+   * = share / (s - share (s - 1))` puts `share` of the members in groups on
+   * average, since `q s / (q s + 1 - q)` of them are grouped. Input spec of
+   * HumanEnsemble.groups. The grouped share in [0, 1] and the group sizes
+   * allowed, each at least 2.
    */
   export type IGroupsSpec = {
-    /** Expected share of ensemble members assigned to groups, in [0, 1]; a random grouping need not realise the exact fraction. */
+    /**
+     * Expected share of ensemble members assigned to groups, in [0, 1]; a
+     * random grouping need not realise the exact fraction.
+     */
     share: number;
-    /** Allowed group member counts, each at least 2; the grouping procedure draws among these sizes. */
+    /**
+     * Allowed group member counts, each at least 2; the grouping procedure
+     * draws among these sizes.
+     */
     sizes: readonly number[];
   };
 }

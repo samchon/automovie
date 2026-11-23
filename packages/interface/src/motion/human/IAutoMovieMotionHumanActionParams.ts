@@ -72,11 +72,12 @@ import type { IAutoMovieMotionHumanSelfAction } from "./touch/IAutoMovieMotionHu
  * action and the type checker supplies and checks its parameters.
  *
  * Each member is the law's own `IParams`; nothing is restated here. Its keys
- * are exactly `HumanActionName`: `HumanChain.act` indexes it by the name, so
- * a name without a member, or a member without a name, fails to compile.
+ * are exactly `AutoMovieMotionHumanActionName`: `HumanChain.act` indexes it by
+ * the name, so a name without a member, or a member without a name, fails to
+ * compile.
  *
- * What only planning finds, such as an unreachable target, the law refuses
- * as its own type states.
+ * What only planning finds, such as an unreachable target, the law refuses as
+ * its own type states.
  */
 export interface IAutoMovieMotionHumanActionParams {
   /** Quiet standing. */
@@ -127,7 +128,7 @@ export interface IAutoMovieMotionHumanActionParams {
   /** Going down to lie supine. */
   knockdown: IAutoMovieMotionHumanKnockdown.IParams;
 
-  /** Respond to the impulses on the body by their outcome (#3430). */
+  /** Respond to the impulses on the body by their outcome. */
   perturb: IAutoMovieMotionHumanPerturb.IParams;
 
   /** A knee strike. */

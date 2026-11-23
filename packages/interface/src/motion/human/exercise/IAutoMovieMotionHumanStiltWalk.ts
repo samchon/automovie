@@ -1,13 +1,11 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
- * A walk on stilts (#3997): each foot strapped on a stilt's platform, the
- * stilts' tips the only floor contacts, short steps on a wide base.
+ * A walk on stilts: each foot strapped on a stilt's platform, the stilts' tips
+ * the only floor contacts, short steps on a wide base.
  */
 export namespace IAutoMovieMotionHumanStiltWalk {
-  /**
-   * The stilts worn.
-   */
+  /** The stilts worn. */
   export interface IStilts {
     /** The stilt under the left foot. */
     left: string;
@@ -16,9 +14,7 @@ export namespace IAutoMovieMotionHumanStiltWalk {
     right: string;
   }
 
-  /**
-   * Parameters.
-   */
+  /** Parameters. */
   export interface IParams {
     /** The stilts, each standing under its foot as the walk starts. */
     stilts: IStilts;
@@ -26,7 +22,10 @@ export namespace IAutoMovieMotionHumanStiltWalk {
     /** The floor point to stop at, world metres. */
     to: IAutoMovieVector3;
 
-    /** How many steps, a whole number of at least 1; the fewest short steps that reach `to` when absent. */
+    /**
+     * How many steps, a whole number of at least 1; the fewest short steps that
+     * reach `to` when absent.
+     */
     steps?: number;
   }
 }

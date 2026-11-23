@@ -21,25 +21,41 @@ import type { IAutoMovieMotionHumanFirefight } from "../tasks/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanSideDrumStrike } from "../tasks/IAutoMovieMotionHumanSideDrumStrike";
 
 /**
- * Open parameters of the manipulate lexicon family, keyed by each runtime export name.
+ * Open parameters of the manipulate lexicon family, keyed by each runtime
+ * export name.
  */
 export interface IAutoMovieMotionHumanLexiconManipulateParams {
-  /** The keyed contact sequence itself, for a production that names its own contacts. */
+  /**
+   * The keyed contact sequence itself, for a production that names its own
+   * contacts.
+   */
   sequence: IAutoMovieMotionHumanManipulate.IParams;
 
-  /** Touch typing: a text on a keyboard, both hands, each letter by the digit the home-row chart assigns. */
+  /**
+   * Touch typing: a text on a keyboard, both hands, each letter by the digit
+   * the home-row chart assigns.
+   */
   type: Omit<IAutoMovieMotionHumanManipulate.IParams, "hand">;
 
-  /** Two-finger typing: a text on a keyboard, each key pressed by the forefinger of the hand on its side, `typeText`'s act as a row of the keyed sequence (#3361). */
+  /**
+   * Two-finger typing: a text on a keyboard, each key pressed by the forefinger
+   * of the hand on its side, `typeText`'s act as a row of the keyed sequence.
+   */
   typeTwoFinger: Omit<
     IAutoMovieMotionHumanManipulate.IParams,
     "hand" | "digit"
   >;
 
-  /** Playing a keyboard instrument: both hands, each note's digit by the fingering that keeps the hands still unless the score names it. */
+  /**
+   * Playing a keyboard instrument: both hands, each note's digit by the
+   * fingering that keeps the hands still unless the score names it.
+   */
   play: Omit<IAutoMovieMotionHumanManipulate.IParams, "hand">;
 
-  /** Fretting a guitar: the left hand's digits on the fret sites, the fingering keeping the hand still (Handrix's outcome, ElKoura and Singh 2003). */
+  /**
+   * Fretting a guitar: the left hand's digits on the fret sites, the fingering
+   * keeping the hand still (Handrix's outcome, ElKoura and Singh 2003).
+   */
   fret: Omit<IAutoMovieMotionHumanManipulate.IParams, "hand">;
 
   /** Strumming or plucking: the right hand's digits across the string sites. */
@@ -48,12 +64,18 @@ export interface IAutoMovieMotionHumanLexiconManipulateParams {
   /** Dialling: the right forefinger on each key in turn. */
   dial: Omit<IAutoMovieMotionHumanManipulate.IParams, "hand" | "digit">;
 
-  /** Texting with a thumb: the right thumb on each key of the held phone's screen. */
+  /**
+   * Texting with a thumb: the right thumb on each key of the held phone's
+   * screen.
+   */
   thumbText: Omit<IAutoMovieMotionHumanManipulate.IParams, "hand" | "digit">;
 
   /** Write on a staged surface with a held tool. */
   write: IAutoMovieMotionHumanWrite;
-  /** Work a held prop: drive its articulations, carry it to a place, take a prop onto it. */
+  /**
+   * Work a held prop: drive its articulations, carry it to a place, take a prop
+   * onto it.
+   */
   workHeld: IAutoMovieMotionHumanHeldWork.IParams;
 
   /** Swipe a finger across a touchscreen. */
@@ -68,7 +90,10 @@ export interface IAutoMovieMotionHumanLexiconManipulateParams {
   /** Place a held prop through an aperture. */
   putDownAperture: IAutoMovieMotionHumanPutDownAperture;
 
-  /** Grip a prop seated in a carrier, keeping the grip through an early stand or a draw. */
+  /**
+   * Grip a prop seated in a carrier, keeping the grip through an early stand or
+   * a draw.
+   */
   takeFromCarrier: IAutoMovieMotionHumanPickUp.IParams;
 
   /** Draw a gripped prop out of its carrier along the carrier's guide. */

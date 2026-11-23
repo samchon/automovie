@@ -2,14 +2,17 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 
 /**
- * Turn over while lying (#3987): between the back, either side and the
- * front about the body's long axis, on the floor or on a bed's surface.
+ * Turn over while lying: between the back, either side and the front about the
+ * body's long axis, on the floor or on a bed's surface.
  */
 export interface IAutoMovieMotionHumanTurnOver {
   /** The lying position reached. */
   to: IAutoMovieMotionHumanTurnOver.Position;
 
-  /** The side a turn between the back and the front passes over; the left when absent. */
+  /**
+   * The side a turn between the back and the front passes over; the left when
+   * absent.
+   */
   via?: AutoMovieHumanSide;
 
   /** The prop whose lying surface bears the body; the floor when absent. */
@@ -22,18 +25,12 @@ export interface IAutoMovieMotionHumanTurnOver {
   manner?: IAutoMovieMotionManner;
 }
 
-/**
- * Companion types of {@link IAutoMovieMotionHumanTurnOver}.
- */
+/** Companion types of {@link IAutoMovieMotionHumanTurnOver}. */
 export namespace IAutoMovieMotionHumanTurnOver {
-  /**
-   * The lying positions.
-   */
+  /** The lying positions. */
   export type Position = "supine" | "lateralLeft" | "prone" | "lateralRight";
 
-  /**
-   * A lying surface on a prop.
-   */
+  /** A lying surface on a prop. */
   export interface IOn {
     /** The bed or sofa prop. */
     prop: string;
