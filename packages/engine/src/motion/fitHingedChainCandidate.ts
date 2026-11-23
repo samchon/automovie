@@ -1167,11 +1167,18 @@ export function fitHingedChainCandidate(
           feasible === "all" ? null : swivelArcs.holding(feasible, swivel);
         if (rotation === undefined || lowerBasis.twistPlacement !== "distal")
           return;
+        // The answer is refined to the swivel's resolution, so it keeps the
+        // admitted arc it lies within that of (`distalEndSwivelAdmitted`).
         const arcs: ReturnType<typeof distalEndSwivelArcs> = arcsOf(posed);
         admittedArc =
           arcs === null
             ? null
-            : distalEndSwivelAdmitted(arcs, twisting(posed), swivel);
+            : distalEndSwivelAdmitted(
+                arcs,
+                twisting(posed),
+                swivel,
+                hingedArmSwivel.RESOLUTION,
+              );
       },
       excluded: (
         upper: (swivel: number) => IAutoMovieQuaternion,
