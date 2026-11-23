@@ -16,7 +16,7 @@ It runs render's own stages rather than a viewer copy of them, so a paused frame
 
 States the stages, what a shaded subject's picture matches, the plain path, the sampled-optics limit and the lifetime.
 
-# src/inspector/AutoMovieInspectorBeauty.ts#AutoMovieInspectorBeauty.draw
+# src/inspector/AutoMovieInspectorBeauty.ts#AutoMovieInspectorBeauty.prototype.draw
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -46,7 +46,7 @@ The stages keep their targets across pictures and the indirect stage reuses a pr
 
 The stages hold their targets until `dispose`.
 
-# src/inspector/AutoMovieInspectorBeauty.ts#AutoMovieInspectorBeauty.dispose
+# src/inspector/AutoMovieInspectorBeauty.ts#AutoMovieInspectorBeauty.prototype.dispose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
