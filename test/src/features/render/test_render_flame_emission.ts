@@ -159,8 +159,10 @@ export function test_render_flame_emission(): void {
   TestValidator.predicate(
     "15.92 cd/m² white matches the Lambertian card within 1 %",
     Math.abs(
-      ((object.object.getObjectByName("flame:candle-1/wick") as THREE.Mesh)
-        .material as THREE.MeshBasicMaterial.color.r) - card,
+      (
+        (object.object.getObjectByName("flame:candle-1/wick") as THREE.Mesh)
+          .material as THREE.MeshBasicMaterial
+      ).color.r - card,
     ) /
       card <=
       0.01,
