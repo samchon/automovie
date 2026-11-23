@@ -13,6 +13,7 @@ export * from "./autoMovieRoomVisibility";
 export * from "./autoMovieSemanticMaskNodeIndex";
 export * from "./autoMovieSemanticMaskVerificationFailure";
 export * from "./autoMovieSoftBodyNodeName";
+export * from "./autoMovieSurfaceFeedWidth";
 export * from "./autoMovieTextureBindingStateKey";
 export * from "./autoMovieTextureFormatBytes";
 export * from "./canonicalAutoMovieSemanticMaskPayload";

@@ -28,13 +28,16 @@ import { renderFixtureNode } from "../internal/renderFixtureNode";
  * 2. Under the pass, the phone's graphic meshes keep their beauty materials, and
  *    every other mesh, the phone's case included, takes a material that writes
  *    depth but no colour, so an occluder still hides the screen.
- * 3. The scene's backdrop is removed and its fog kept.
- * 4. Restoring the pass puts back every material, the backdrop and the fog.
+ * 3. A mesh `buildModel` bound with a dual-quaternion skin holds out on a holdout
+ *    of its own that carries the skinning patch, so it occludes where beauty
+ *    draws it; a plain mesh's holdout carries no such patch.
+ * 4. The scene's backdrop is removed and its fog kept.
+ * 5. Restoring the pass puts back every material, the backdrop and the fog.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the pass membership, material, backdrop and restore facts the test pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the pass membership, material, skinning, backdrop and restore facts the test pins.
  * @evidence contracts/development/testing.md#behavioral-verification Applies the pass through applyRenderMode to a mounted phone with a prepared graphic and reads materials, background and fog.
- * @evidence contracts/development/testing.md#independent-expectations The pass rules come from issue #4100: graphics as in beauty, everything else depth-only, transparent background.
- * @evidence contracts/development/testing.md#distinguishing-cases A case drawn in colour, a graphic replaced, a black backdrop or a lost fog fails. Alpha readback and the occluder's half-screen matte need a WebGL host and belong to the visual check.
+ * @evidence contracts/development/testing.md#independent-expectations The pass rules come from issue #4100: graphics as in beauty, everything else depth-only, transparent background; the skinning rule is applyRenderMode's, that every pass which swaps a material carries a mesh's deformation onto the replacement.
+ * @evidence contracts/development/testing.md#distinguishing-cases A case drawn in colour, a graphic replaced, a skin held out without its skinning patch or sharing one holdout, a black backdrop or a lost fog fails. Alpha readback and the occluder's half-screen matte need a WebGL host and belong to the visual check.
  * @evidence contracts/development/testing.md#execution-ownership In-memory Three scene graph; no renderer.
  */
 export async function test_render_graphics_plate(): Promise<void> {
@@ -93,9 +96,35 @@ export async function test_render_graphics_plate(): Promise<void> {
       before.set(entry as THREE.Mesh, (entry as THREE.Mesh).material);
   });
 
+  // A dual-quaternion skin as buildModel marks one, and a second plain mesh.
+  const skinned: THREE.Mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(0.1, 0.1, 0.1),
+    new THREE.MeshStandardMaterial(),
+  );
+  skinned.userData.automovieDualQuaternionSkinning = true;
+  const plain: THREE.Mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(0.1, 0.1, 0.1),
+    new THREE.MeshStandardMaterial(),
+  );
+  mounted.scene.add(skinned, plain);
+  before.set(skinned, skinned.material);
+  before.set(plain, plain.material);
+
   const handle: IAutoMovieRenderModeHandle = applyRenderMode(
     mounted.scene,
     "graphics",
+  );
+  const skinnedHoldout: THREE.Material = skinned.material as THREE.Material;
+  const plainHoldout: THREE.Material = plain.material as THREE.Material;
+  TestValidator.predicate(
+    "a dual-quaternion skin holds out with its skinning patch, on a holdout of its own",
+    skinnedHoldout !== plainHoldout &&
+      skinnedHoldout
+        .customProgramCacheKey()
+        .includes("automovie-dual-quaternion-skinning") &&
+      !plainHoldout
+        .customProgramCacheKey()
+        .includes("automovie-dual-quaternion-skinning"),
   );
   let graphicsKept: boolean = true;
   let othersHeldOut: boolean = true;

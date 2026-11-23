@@ -7,6 +7,8 @@ import type {
   IAutoMovieSurfaceGraphicTrack,
 } from "@automovie/interface";
 
+import { autoMovieSurfaceFeedWidth } from "./autoMovieSurfaceFeedWidth";
+
 /**
  * Bytes one feed render-target pixel holds: four for its RGBA8 colour texture
  * and four for the 24-bit depth renderbuffer three.js gives a
@@ -19,12 +21,12 @@ const FEED_BYTES_PER_PIXEL: number = 8;
  * commit the renderer to, as `prepareAutoMovieSurfaceGraphics` builds them.
  *
  * Every feed layer of every key owns one render target for the whole shot,
- * `pixels` high and as wide as its box's aspect on the face, `max(1,
- * round(pixels × width × faceWidth / (height × faceDepth)))`, so each is one
- * texture allocation of {@link FEED_BYTES_PER_PIXEL} bytes per pixel. A shown
- * feed redraws the scene once into its target, so a frame can add as many scene
- * passes as the feed layers shown at once: one key per track is in force, so
- * the bound is the largest feed count of any key, summed over the tracks.
+ * `pixels` high and {@link autoMovieSurfaceFeedWidth} wide, the rule `render`
+ * allocates by, so each is one texture allocation of
+ * {@link FEED_BYTES_PER_PIXEL} bytes per pixel. A shown feed redraws the scene
+ * once into its target, so a frame can add as many scene passes as the feed
+ * layers shown at once: one key per track is in force, so the bound is the
+ * largest feed count of any key, summed over the tracks.
  *
  * The face size is the `surface` affordance the track names on the model its
  * node stages; it throws, naming the track, when that cannot be resolved.
@@ -84,15 +86,11 @@ export function measureAutoMovieRenderFeeds(
         `render inventory cannot measure ${owner}: its node's model has no sized "${track.surface}" surface`,
       );
     let bytes: number = 0;
-    for (const layer of feeds.flat()) {
-      const width: number = Math.max(
-        1,
-        Math.round(
-          (layer.pixels * layer.width * faceWidth) / (layer.height * faceDepth),
-        ),
-      );
-      bytes += width * layer.pixels * FEED_BYTES_PER_PIXEL;
-    }
+    for (const layer of feeds.flat())
+      bytes +=
+        autoMovieSurfaceFeedWidth(layer, faceWidth, faceDepth) *
+        layer.pixels *
+        FEED_BYTES_PER_PIXEL;
     tracks.push({
       owner,
       targets: feeds.flat().length,

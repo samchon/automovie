@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Counts what `prepareAutoMovieSurfaceGraphics` builds: one render target per feed layer of every key, sized by the same aspect rule, at an RGBA8 colour texture plus a 32-bit depth word per pixel; and one scene pass per feed a frame can show, bounded by the largest key of each track because one key per track is in force at a time.
+Counts what `prepareAutoMovieSurfaceGraphics` builds: one render target per feed layer of every key, sized by `autoMovieSurfaceFeedWidth`, the rule render allocates by, at an RGBA8 colour texture plus a 32-bit depth word per pixel; and one scene pass per feed a frame can show, bounded by the largest key of each track because one key per track is in force at a time.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The inventory owns totals and rows; this function owns only the feed layers' targets and passes, so the feed sizing rule is read in one place.
+The inventory owns totals and rows; this function owns only the feed layers' targets and passes, and the width rule is the one `autoMovieSurfaceFeedWidth` holds for render too.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

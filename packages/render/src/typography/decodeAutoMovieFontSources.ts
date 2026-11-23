@@ -78,7 +78,14 @@ export async function decodeAutoMovieFontSources(props: {
         throw new Error(
           `Font source "${source.id}" names asset "${source.asset}" but no asset reader was supplied`,
         );
-      bytes = await props.readAsset(source.asset);
+      try {
+        bytes = await props.readAsset(source.asset);
+      } catch (error) {
+        throw new Error(
+          `Font source "${source.id}" cannot read asset "${source.asset}": ${(error as Error).message}`,
+          { cause: error },
+        );
+      }
     }
 
     try {

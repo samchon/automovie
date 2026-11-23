@@ -1,4 +1,5 @@
 import {
+  autoMovieSurfaceFeedWidth,
   autoMovieSurfaceGraphicNodeName,
   sampleSurfaceGraphicKey,
 } from "@automovie/engine";
@@ -148,17 +149,17 @@ export async function prepareAutoMovieSurfaceGraphics(
             feed: (
               layer: IAutoMovieSurfaceGraphicLayer.IFeed,
             ): THREE.Texture => {
-              // As wide as the box's aspect on the face, `pixels` high.
-              const height: number = layer.pixels;
-              const width: number = Math.max(
-                1,
-                Math.round(
-                  (height * layer.width * surface.width!) /
-                    (layer.height * surface.depth!),
-                ),
-              );
+              // As wide as the box's aspect on the face, `pixels` high, by the
+              // rule the render inventory counts the target with.
               const target: THREE.WebGLRenderTarget =
-                new THREE.WebGLRenderTarget(width, height);
+                new THREE.WebGLRenderTarget(
+                  autoMovieSurfaceFeedWidth(
+                    layer,
+                    surface.width!,
+                    surface.depth!,
+                  ),
+                  layer.pixels,
+                );
               const standIn: THREE.Material =
                 key.graphic.background === null
                   ? new THREE.MeshBasicMaterial({

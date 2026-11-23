@@ -6,6 +6,7 @@ import {
   puffingFrequency,
   sampleAutoMovieFlame,
   stageScene,
+  validateShotArtifact,
 } from "@automovie/engine";
 import type {
   IAutoMovieClip,
@@ -17,6 +18,7 @@ import type {
   IAutoMovieScript,
   IAutoMovieStagedSet,
   IAutoMovieTrack,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -49,11 +51,14 @@ import { nclose } from "../internal/nclose";
  *    light, and neither light nor emission.
  * 5. A blackbody colour at 1900 K is warm: red is the largest channel and blue the
  *    smallest.
+ * 6. At the compiled shot's artifact boundary, the admitted flames pass, and a
+ *    bound flame naming no light clip, a 0.03 m open fire, an unknown size kind
+ *    and a missing seed are each refused at their own path.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario's input and the closed form, track or diagnostic it pins.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public shape sampler and performShot and reads the compiled light clip's track, keys and values.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public shape sampler, performShot and validateShotArtifact and reads the compiled light clip's track, keys and values and the artifact findings.
  * @evidence contracts/development/testing.md#independent-expectations The Heskestad and Cetegen–Ahmed numbers are the issue's worked examples from the published correlations; the light values are recomputed from the sampler's area at each key and the authored intensity, and the mean identity follows from Ā's definition.
- * @evidence contracts/development/testing.md#distinguishing-cases Inside, boundary and outside keys of `on`; `on` present and absent; each refusal changes one field of a valid cue; the 0.03 m fire sits just past the 0.04 m limit.
+ * @evidence contracts/development/testing.md#distinguishing-cases Inside, boundary and outside keys of `on`; `on` present and absent; each refusal changes one field of a valid cue; the 0.03 m fire sits just past the 0.04 m limit; the artifact boundary sees the admitted shot pass beside one changed field per refusal.
  * @evidence contracts/development/testing.md#execution-ownership Synchronous in-memory engine work; drawing is owned by the render flame tests.
  */
 export function test_film_flame_cues(): void {
@@ -273,4 +278,49 @@ export function test_film_flame_cues(): void {
     "1900 K is red-dominant",
     warm.r === 1 && warm.r > warm.g && warm.g > warm.b,
   );
+
+  // 6. The compiled shot's artifact boundary checks its flames too.
+  const performed: IAutoMoviePerformedShot = performShot(
+    props([0.5, 2], [cue([0.5, 2])]),
+  );
+  if (!performed.success) throw new Error(JSON.stringify(performed.violations));
+  const artifact = (flames: unknown[]): IAutoMovieConstraintViolation[] => {
+    const checked: IAutoMovieValidation = validateShotArtifact(
+      { ...performed.shot, flames: flames as IAutoMovieFlameCue[] },
+      staged.scene,
+      null,
+    );
+    return checked.success ? [] : checked.violations;
+  };
+  const admitted: IAutoMovieFlameCue = performed.shot.flames![0]!;
+  TestValidator.equals("the compiled flames pass", artifact([admitted]), []);
+  for (const [title, flame, path] of [
+    [
+      "a light naming no light clip",
+      { ...admitted, light: "nothing" },
+      "$input.flames[0].light",
+    ],
+    [
+      "too narrow an open fire",
+      { ...admitted, size: { kind: "open", heatRelease: 5, diameter: 0.03 } },
+      "$input.flames[0].size.diameter",
+    ],
+    [
+      "an unknown size kind",
+      { ...admitted, size: { kind: "torch" } },
+      "$input.flames[0].size.kind",
+    ],
+    [
+      "a missing seed",
+      { ...admitted, seed: undefined },
+      "$input.flames[0].seed",
+    ],
+  ] as const)
+    TestValidator.predicate(
+      `the artifact refuses ${title} at ${path}`,
+      artifact([flame]).some(
+        (violation: IAutoMovieConstraintViolation): boolean =>
+          violation.path === path,
+      ),
+    );
 }

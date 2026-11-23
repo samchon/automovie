@@ -23,11 +23,13 @@ import { syntheticTrueTypeFont } from "../internal/syntheticTrueTypeFont";
  * 3. An embedded source with a correct digest over bytes the decoder refuses (a
  *    CFF `OTTO` font) is refused with the decoder's diagnostic and the source
  *    id.
- * 4. An asset source without an asset reader, and a duplicate id, are refused.
+ * 4. An asset source without an asset reader, an asset whose read fails (refused
+ *    naming the source, the asset and the reader's error) and a duplicate id
+ *    are refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public render function with embedded and asset sources and asserts the returned map or the rejection's words; it catches a skipped digest check, a swallowed decoder refusal or a record that differs from the decoder's.
  * @evidence contracts/development/testing.md#independent-expectations The digest is computed by Node's own SHA-256, independent of the engine's implementation, and the expected record is the ingest decoder's output for the same bytes, which the decoder's own test pins.
- * @evidence contracts/development/testing.md#distinguishing-cases A valid source of each kind, a wrong digest beside a right one, a refused font with a right digest, a missing reader and a duplicate id. Decoder refusals themselves are owned by test_ingest_truetype_font_refusals; engine admission by test_engine_font_source_admission.
+ * @evidence contracts/development/testing.md#distinguishing-cases A valid source of each kind, a wrong digest beside a right one, a refused font with a right digest, a missing reader, a failed read and a duplicate id. Decoder refusals themselves are owned by test_ingest_truetype_font_refusals; engine admission by test_engine_font_source_admission.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test with in-memory bytes and an in-memory asset reader; no browser, file or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the sources and the expected result.
  */
@@ -111,6 +113,22 @@ export async function test_render_font_sources(): Promise<void> {
           ],
         }),
       "no asset reader",
+    ),
+  );
+  TestValidator.predicate(
+    "a failed asset read refuses naming the source and the asset",
+    await rejectsError(
+      (): Promise<unknown> =>
+        decodeAutoMovieFontSources({
+          sources: [
+            { kind: "asset", id: "missing", asset: "assets/fonts/gone.ttf" },
+          ],
+          readAsset,
+        }),
+      [
+        'Font source "missing" cannot read asset "assets/fonts/gone.ttf"',
+        "no asset assets/fonts/gone.ttf",
+      ],
     ),
   );
   TestValidator.predicate(

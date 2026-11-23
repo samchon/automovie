@@ -6,11 +6,10 @@ import type { IAutoMovieColor } from "../color/IAutoMovieColor";
  * The box is in face fractions: `x` and `y` measure from the face's top-left
  * corner, `x` toward the reader's right and `y` toward the face's bottom, and
  * `width` and `height` extend the box the same ways. Each is finite, `x` and
- * `y` are at least 0, `width` and `height` are positive, and `x + width` and
- * `y
- *
- * - Height` are at most 1. The face's right and top come from the surface's
- *   reading frame, so a layout is never mirrored or flipped.
+ * `y` are at least 0, `width` and `height` are positive, and neither the sum of
+ * `x` and `width` nor the sum of `y` and `height` exceeds 1. The face's right
+ * and top come from the surface's reading frame, so a layout is never mirrored
+ * or flipped.
  */
 export type IAutoMovieSurfaceGraphicLayer =
   | IAutoMovieSurfaceGraphicLayer.IRect

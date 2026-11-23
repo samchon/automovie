@@ -21,11 +21,12 @@ import { appendSurfaceGraphicsArtifact } from "../validation/appendSurfaceGraphi
  * props supply, so a target must resolve on the prop's registered model, and a
  * text layer must name a font source the props list; the font sources are
  * admitted from what their records state. With `cameras`, a feed layer must
- * name one of the staged cameras; the live camera is chosen later, so the
- * shot's own camera is refused by the assembled artifact's check. Findings join
- * `out`; when any finding exists, including one an earlier gate recorded, both
- * lists come back absent so no partially admitted track reaches the artifact.
- * Absent inputs stay absent.
+ * name one of the staged cameras `ids` other than `shot`, the live camera the
+ * camera gate chose, so a feed of the shot's own camera is an authoring finding
+ * rather than a defect of the assembled artifact. Findings join `out`; when any
+ * finding exists, including one an earlier gate recorded, both lists come back
+ * absent so no partially admitted track reaches the artifact. Absent inputs
+ * stay absent.
  */
 export function admitPerformShotSurfaces(
   props: Pick<
@@ -35,7 +36,13 @@ export function admitPerformShotSurfaces(
   nodes: readonly IAutoMovieSceneNode[],
   duration: number,
   out: IAutoMovieViolationCollector,
-  cameras?: ReadonlySet<string>,
+  cameras?: {
+    /** Ids of the staged cameras. */
+    ids: ReadonlySet<string>;
+
+    /** The live camera, when the camera gate chose one. */
+    shot?: string;
+  },
 ): Pick<IAutoMovieShot, "practicalSurfaces" | "surfaceGraphics" | "fonts"> {
   validateAutoMovieFontSources(props.fonts, "$input.fonts", out);
   appendPracticalSurfacesArtifact(
@@ -56,7 +63,7 @@ export function admitPerformShotSurfaces(
         (source: IAutoMovieFontSource): string => source.id,
       ),
     ),
-    cameras === undefined ? undefined : { ids: cameras },
+    cameras,
   );
   if (out.items.length > 0) return {};
 

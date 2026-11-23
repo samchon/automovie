@@ -36,14 +36,16 @@ import {
  *    staged, a surface id that is not a `surface` affordance, two tracks for
  *    one node and surface, keys out of order and a first key after zero, a
  *    negative layer corner, a nonpositive layer size, a layer past the face's
- *    right edge, a negative luminance, an infinite luminance and a text layer
- *    naming a font the shot does not list.
+ *    right edge, a negative luminance, an infinite luminance, a text layer
+ *    naming a font the shot does not list, a feed of the shot's own camera,
+ *    reported as an authoring finding rather than thrown as an engine defect,
+ *    and a feed of a camera the scene does not stage.
  * 3. A track on the book's `face`, which rides the `hinge` articulation, is
  *    refused with the articulated-surface diagnostic.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the phone and book fixtures, the sampled times and each refusal the test expects.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public performShot gate and the public key sampler and asserts admitted output, sampled indices and the diagnostic paths and texts.
- * @evidence contracts/development/testing.md#independent-expectations The expected keys follow from the authored key times and the inclusive key rule in the track contract; refusals follow the admission list in issue #4096.
+ * @evidence contracts/development/testing.md#independent-expectations The expected keys follow from the authored key times and the inclusive key rule in the track contract; refusals follow the admission lists in issues #4096 and #4099.
  * @evidence contracts/development/testing.md#distinguishing-cases Samples just before, at and after a key and seeks backwards; each malformed input changes one field of an otherwise valid track; the book case isolates the articulated surface.
  * @evidence contracts/development/testing.md#execution-ownership Synchronous in-memory shot compilation; no host, renderer or pixels. Drawing belongs to test_render_surface_graphics.
  */
@@ -212,6 +214,18 @@ export function test_film_surface_graphics(): void {
         "$input.surfaceGraphics[0].keys[0].graphic.layers[0].font",
         "font source the shot lists",
       ],
+      [
+        "a feed of the shot's own camera",
+        [feedTrack(track, performed.shot.camera)],
+        "$input.surfaceGraphics[0].keys[0].graphic.layers[0].camera",
+        "must not be the shot's own camera",
+      ],
+      [
+        "a feed of a camera the scene does not stage",
+        [feedTrack(track, "nowhere")],
+        "$input.surfaceGraphics[0].keys[0].graphic.layers[0].camera",
+        "camera the scene stages",
+      ],
       // 3. The book's face rides its hinge.
       [
         "articulated surface",
@@ -258,6 +272,36 @@ function layerTrack(
               height: 0.5,
               ...box,
               color: { r: 1, g: 0, b: 0, a: null, hex: null },
+            },
+          ],
+        },
+      },
+    ],
+  };
+}
+
+/** The track with one whole-face feed layer of `camera`. */
+function feedTrack(
+  track: IAutoMovieSurfaceGraphicTrack,
+  camera: string,
+): IAutoMovieSurfaceGraphicTrack {
+  return {
+    ...track,
+    keys: [
+      {
+        time: 0,
+        graphic: {
+          emission: { kind: "emissive", luminance: 200 },
+          background: { r: 0, g: 0, b: 0, a: null, hex: null },
+          layers: [
+            {
+              kind: "feed",
+              x: 0,
+              y: 0,
+              width: 1,
+              height: 1,
+              camera,
+              pixels: 64,
             },
           ],
         },

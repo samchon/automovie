@@ -2,15 +2,15 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States every check, the open-fire limits and their derivation, the binding rules and the absent result on any finding.
+States every check, the open-fire limits, the binding rules and the absent result on any finding.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Resolves each cue's node and emitter on the registered model as practical light bindings do, bounds an open fire by a positive Heskestad height and by the 0.04 m diameter at which puffing reaches the grid's 7.5 Hz, and requires a bound flame to share its binding's node, emitter and interval so the drawn flame and the light burn together.
+Runs the shared flame validator with the props' registered models and practical light bindings, so each cue resolves on the model and binding it will draw and flicker with, and copies the cues only when no gate found anything.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Flame admission lives beside the surface admission helpers, out of performShot.
+Flame admission lives beside the surface admission helpers, out of performShot; the checks themselves belong to appendFlamesArtifact, which the shot artifact boundary shares.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -18,7 +18,7 @@ No cue is repaired; any finding returns no flames.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in cues with one map of nodes, models and bindings.
+Linear in cues with one map of nodes, models and bindings, plus one structured clone per admitted cue.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

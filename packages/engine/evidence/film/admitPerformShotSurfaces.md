@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States both surface lists, the model-backed checks, the all-or-nothing copy on any finding and that absent inputs stay absent.
+States both surface lists, the model-backed checks, the feed camera rule against the live camera, the all-or-nothing copy on any finding and that absent inputs stay absent.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Both gates run against the staged nodes and the supplied registry before any copy, so the artifact holds only admitted tracks; a structured clone detaches nested graphic data from the caller.
+Both gates run against the staged nodes and the supplied registry before any copy, so the artifact holds only admitted tracks; a structured clone detaches nested graphic data from the caller. performShot calls it after the camera gate with the live camera, so a feed of that camera is reported as an authoring finding at its layer instead of reaching the assembled artifact's defect check.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

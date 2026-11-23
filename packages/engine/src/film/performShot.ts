@@ -82,15 +82,16 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
  * reports a violation returns every violation of that group and stops:
  *
  * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged
- *    lights and its polygon body cues against staged rigs and practical surface
- *    and surface graphic tracks against the staged nodes and registered models
- *    by {@link admitPerformShotSurfaces}, flame cues by
+ *    lights and its polygon body cues against staged rigs, flame cues by
  *    {@link admitPerformShotFlames}, a planned beat, a positive duration,
  *    authored editorial markers, every action by {@link gatePerformShotActions},
  *    the live camera's moves by {@link gatePerformShotFrameOverlaps}, same-actor
  *    content overlaps by {@link gatePerformShotRegionOverlaps}, the blocking by
- *    {@link gatePerformShotBlocking}, and the cameras by
- *    {@link gatePerformShotCamera}.
+ *    {@link gatePerformShotBlocking}, the cameras by
+ *    {@link gatePerformShotCamera}, and then practical surface and surface
+ *    graphic tracks against the staged nodes, the registered models and the
+ *    live camera that gate chose by {@link admitPerformShotSurfaces}, so a feed
+ *    of the shot's own camera is an authoring finding.
  * 2. Launches: each flight is solved and its recoil scheduled by
  *    {@link compilePerformShotLaunches}.
  * 3. Performance: the stage list compiles, stance feet are planted by
@@ -236,16 +237,6 @@ export function performShot(
     out.items.length === 0
       ? props.polygonBodyCues?.map(copyPolygonBodyCue)
       : undefined;
-  const surfaces: Pick<
-    IAutoMovieShot,
-    "practicalSurfaces" | "surfaceGraphics" | "fonts"
-  > = admitPerformShotSurfaces(
-    props,
-    staged.scene.nodes,
-    performance.duration,
-    out,
-    context.cameraIds,
-  );
   const flames: IAutoMovieShot["flames"] = admitPerformShotFlames(
     props,
     staged.scene.nodes,
@@ -275,6 +266,21 @@ export function performShot(
     frames: plan.frames,
     coverage: props.blocking?.coverage ?? [],
   });
+  // Surfaces come after the camera gate, so a feed of the live camera it chose
+  // is refused here as an authoring finding.
+  const surfaces: Pick<
+    IAutoMovieShot,
+    "practicalSurfaces" | "surfaceGraphics" | "fonts"
+  > = admitPerformShotSurfaces(
+    props,
+    staged.scene.nodes,
+    performance.duration,
+    out,
+    {
+      ids: context.cameraIds,
+      ...(cameras.liveCamera === null ? {} : { shot: cameras.liveCamera }),
+    },
+  );
   if (out.items.length > 0) return failure();
 
   // 2. Launches.
