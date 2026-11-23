@@ -46,6 +46,36 @@ A signature has no body; the subject that implements it answers.
 
 A signature has no body; the subject that implements it answers.
 
+# src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.optics
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States when it is asked for, what it changes about the beauty draw, what absence draws, the refusal and that structural passes never ask.
+
+## @evidenceExclude contracts/development/implementation.md#principled-implementation
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A signature has no body; the subject that implements it answers.
+
 # src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.inspectPlaced
 
 ## @evidence contracts/development/common.md#meaningful-documentation

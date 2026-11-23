@@ -14,6 +14,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { filmResponseRendererFields } from "../internal/filmResponseRendererFields";
 import { nclose } from "../internal/nclose";
 
 /**
@@ -148,6 +149,7 @@ export async function test_inspector_scene_diagnostics(): Promise<void> {
       frame = undefined;
     },
     createRenderer: (): IAutoMovieInspectorSceneHost.IRenderer => ({
+      ...filmResponseRendererFields(),
       localClippingEnabled: false,
       setPixelRatio: (): void => {},
       setSize: (): void => {},

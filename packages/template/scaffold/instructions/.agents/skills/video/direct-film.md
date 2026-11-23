@@ -22,7 +22,9 @@ Use record and canon materials in the installed format. Get textures and environ
 
 [Staging](../motion/staging.md#the-view) places each light at its motivated source. A detailed film keys from that source, then adds a fill that sets the look's contrast and an edge or back light where a figure would merge with its background.
 
-Set one exposure and tone curve for the film among those the renderer offers, tag each color texture as color and each normal or roughness map as data, and keep the grade in the film module, as [source layout](../development/source-layout.md#source) places it.
+State light in physical units: lux for the sun and other directional lights, candela for lamps and nits for panels. Return the camera response from the film's `optics`, in the film module as [source layout](../development/source-layout.md#source) places it. It holds the exposure in EV100, the white balance as the kelvin of the key light, the tone curve, any lens glare around practical lamps and bright windows, and the adopted grade as ASC CDL slope, offset, power and saturation. Without `optics`, physical light renders white.
+
+Tag each color texture as color and each normal or roughness map as data.
 
 ### Faces and speech
 

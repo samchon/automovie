@@ -14,6 +14,7 @@ import type {
 import * as THREE from "three";
 
 import { resolveAutoMovieCapturePatterns } from "../capture/resolveAutoMovieCapturePatterns.js";
+import { AutoMovieFilmResponseStage } from "../scene/filmResponse/AutoMovieFilmResponseStage.js";
 import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
 import type { IAutoMovieInspectionPath } from "../scene/inspection/IAutoMovieInspectionPath.js";
 import { listAutoMovieInspectionPaths } from "../scene/inspection/listAutoMovieInspectionPaths.js";
@@ -49,10 +50,10 @@ const SUPERSAMPLE = 2 as const;
  * 1. restores the previous inspection before placement, so a subject may replace its objects during a seek;
  * 2. for a fitted view, places and inspects each framing second and frames the union of what the current inspection leaves drawn, or its focus, measured once per view and selection;
  * 3. for each `trail` pattern of the request, samples the matched objects over `planAutoMovieInspectionTrailTimes` with `sampleAutoMovieInspectionTrails`, then seeks the call's second and awaits readiness. When the subject supplies diagnostics, the draw observes the settled delivery scene before applying a fresh inspection to the resulting objects with their current marks and sampled trails; no seek occurs between this application and drawing;
- * 4. draws through the camera `resolveAutoMovieInspectionView` gives, at the call's raster, or for the `beauty` shade at twice each side with mark lines twice as wide;
+ * 4. draws through the camera `resolveAutoMovieInspectionView` gives, at the call's raster, or for the `beauty` shade at twice each side with mark lines twice as wide; a `beauty` draw of a subject with `optics` draws through `AutoMovieFilmResponseStage`, which renders the scene's linear light into a half-float target and gives it the film's camera response on the way to the canvas;
  * 5. reads the drawn pixels back, flips them to rows from the top and averages a supersampled picture down, places the request's labels at the label scale, copies the inspection's legend of the marks drawn, and resolves every pattern of the request and view by `resolveAutoMovieCapturePatterns` against the scene's object paths and the selected mark paths, so the record names what each matched.
  *
- * It draws to the renderer's own canvas and reads it back in the same task, so colour conversion and tone mapping are the ones the interactive page applies to its canvas; a render target would skip both. The film camera's aspect is set to the picture's, as the page sets it to its canvas.
+ * It reads the renderer's own canvas back in the same task. Without optics the scene is drawn straight to the canvas, so colour conversion and tone mapping are the ones the interactive page applies to its canvas; with optics the stage's final pass writes the canvas, so the response is the film's whatever the renderer's own curve and exposure. The film camera's aspect is set to the picture's, as the page sets it to its canvas.
  *
  * ```ts
  * import { installAutoMovieDraw } from "@automovie/render";
@@ -89,7 +90,12 @@ export function installAutoMovieDraw(
         preserveDrawingBuffer: false,
       });
       renderer.setPixelRatio(1);
-      return { name, scene, renderer };
+      return {
+        name,
+        scene,
+        renderer,
+        response: new AutoMovieFilmResponseStage(),
+      };
     })());
 
   // The subject placed at a second, with its own marks and the trails the request asks for there.
@@ -277,7 +283,22 @@ export function installAutoMovieDraw(
             delivery || call.request.shade !== "beauty"
               ? undefined
               : diagnostics,
-          render: (): void => renderer.render(scene.scene, resolved.camera),
+          render: (): void => {
+            // Only the beauty shade has a camera response; structural passes never ask for optics.
+            if (call.request.shade !== "beauty") {
+              renderer.render(scene.scene, resolved.camera);
+              return;
+            }
+            loaded.response.draw({
+              renderer,
+              scene: scene.scene,
+              camera: resolved.camera,
+              optics: scene.optics?.(call.seconds),
+              seconds: call.seconds,
+              width,
+              height,
+            });
+          },
           width,
           height,
           stroke: call.request.stroke * factor,
@@ -350,6 +371,7 @@ export function installAutoMovieDraw(
         applied?.handle.restore();
         void loading?.then((loaded: ILoaded): void => {
           loaded.scene.dispose();
+          loaded.response.dispose();
           loaded.renderer.dispose();
         });
       },
@@ -367,6 +389,9 @@ interface ILoaded {
 
   /** The renderer, on a canvas never attached to the document. */
   renderer: THREE.WebGLRenderer;
+
+  /** The beauty stage that gives a subject's optics their response; it allocates nothing for a subject without optics. */
+  response: AutoMovieFilmResponseStage;
 }
 
 /** The smallest box holding two boxes, either of which may be absent. */

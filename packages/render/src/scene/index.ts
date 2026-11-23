@@ -21,6 +21,7 @@ export * from "./AutoMovieGeometryPhysicalVertices.js";
 export * from "./subsurfaceShading/index.js";
 export * from "./detailNormalShading/index.js";
 export * from "./dualQuaternionSkinning/index.js";
+export * from "./filmResponse/index.js";
 export * from "./materialOverlayShading/index.js";
 export * from "./reliefWeightShading/index.js";
 export * from "./addMaterialShaderPatch.js";

@@ -13,6 +13,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { filmResponseRendererFields } from "../internal/filmResponseRendererFields";
+
 /**
  * An opted-in subject keeps an inspection that leaves the observed scene unchanged, and restores one that changes it before each observation.
  *
@@ -69,6 +71,7 @@ export async function test_inspector_scene_reapplication(): Promise<void> {
       frame = undefined;
     },
     createRenderer: (): IAutoMovieInspectorSceneHost.IRenderer => ({
+      ...filmResponseRendererFields(),
       localClippingEnabled: false,
       setPixelRatio: (): void => {},
       setSize: (): void => {},

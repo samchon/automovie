@@ -1,5 +1,6 @@
 import { preparePhysicalGeometry } from "@automovie/engine";
 import type {
+  IAutoMovieFilmOptics,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieMark,
   IAutoMovieRenderSoftPropFrame,
@@ -21,7 +22,7 @@ import { markFilmProduction } from "./markFilmProduction";
 /**
  * The production's films as subjects, one per registered film under the film's name: what the draw-only page `automovie capture --module src/subjects.ts` and `automovie render --module src/subjects.ts` build over this module offers, and what `automovie inspect` shows.
  *
- * Each film is created as the Viewer creates it, at its delivery raster (1280 × 720 when it states none), seeked through its own `seek` at a second clamped to its running time, and marked by `markFilmProduction`, so a capture, a delivered frame and the Viewer show the same state.
+ * Each film is created as the Viewer creates it, at its delivery raster (1280 × 720 when it states none), seeked through its own `seek` at a second clamped to its running time, given its own `optics` at the same clamped second, and marked by `markFilmProduction`, so a capture, a delivered frame and the Viewer show the same state through the same camera response.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each subject is, who draws it, and how its raster, seek and marks are taken.
  * @evidence contracts/development/implementation.md#principled-implementation Maps the film registry, placement and shared marks onto the draw contract, and binds optional soft surfaces after placement at the same clamped second.
@@ -69,6 +70,14 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
               ...(production.views === undefined
                 ? {}
                 : { views: production.views }),
+              ...(production.optics === undefined
+                ? {}
+                : {
+                    optics: (seconds: number): IAutoMovieFilmOptics =>
+                      production.optics!(
+                        clampProductionSeconds(seconds, film.durationSeconds),
+                      ),
+                  }),
               inspectPlaced: (
                 sample: IAutoMovieDrawScene.IPlacedSample,
               ): IAutoMovieInspectionDiagnostics =>

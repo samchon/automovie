@@ -4,6 +4,7 @@ import type {
   IAutoMovieInspectionView,
 } from "@automovie/interface";
 import {
+  AutoMovieFilmResponseStage,
   type IApplyAutoMovieInspectionProps,
   type IAutoMovieDrawScene,
   type IAutoMovieDrawSubject,
@@ -32,6 +33,7 @@ import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.j
 interface ILive {
   instance: IAutoMovieDrawScene;
   renderer: IAutoMovieInspectorSceneHost.IRenderer;
+  response: AutoMovieFilmResponseStage;
   inspection: IAutoMovieInspectionHandle;
   applied: IAutoMovieCapturePlanRequest;
   frame: number | undefined;
@@ -156,6 +158,9 @@ export function mountAutoMovieInspectorScene(props: {
       const renderer: IAutoMovieInspectorSceneHost.IRenderer =
         host.createRenderer();
       held.push((): void => renderer.dispose());
+      const response: AutoMovieFilmResponseStage =
+        new AutoMovieFilmResponseStage();
+      held.push((): void => response.dispose());
       const inspect: (
         request: IAutoMovieCapturePlanRequest,
       ) => IAutoMovieInspectionHandle = (
@@ -188,6 +193,7 @@ export function mountAutoMovieInspectorScene(props: {
       live = {
         instance,
         renderer,
+        response,
         inspection,
         applied,
         frame: undefined,
@@ -324,7 +330,22 @@ export function mountAutoMovieInspectorScene(props: {
             witnesses && now.applied.inspection.shade === "beauty"
               ? diagnostics
               : undefined,
-          render: (): void => now.renderer.render(instance.scene, camera),
+          render: (): void => {
+            // The beauty shade shows the delivered picture: the subject's optics, through the stage delivery draws with.
+            if (now.applied.inspection.shade !== "beauty") {
+              now.renderer.render(instance.scene, camera);
+              return;
+            }
+            now.response.draw({
+              renderer: now.renderer,
+              scene: instance.scene,
+              camera,
+              optics: instance.optics?.(snapshot.seconds),
+              seconds: snapshot.seconds,
+              width: Math.floor(now.size!.width * now.size!.pixelRatio),
+              height: Math.floor(now.size!.height * now.size!.pixelRatio),
+            });
+          },
           width: now.size!.width,
           height: now.size!.height,
           stroke: now.applied.inspection.stroke,
@@ -454,6 +475,7 @@ export function mountAutoMovieInspectorScene(props: {
           now.frame = undefined;
         },
         (): void => now.inspection.restore(),
+        (): void => now.response.dispose(),
         (): void => now.renderer.dispose(),
         (): void => now.instance.dispose(),
         (): void => diagnosticLog.dispose(),

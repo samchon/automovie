@@ -1,6 +1,7 @@
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieDeliveryContentAudit,
+  IAutoMovieFilmOptics,
   IAutoMovieMark,
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalOwnershipEvent,
@@ -96,6 +97,18 @@ export interface IFilmProduction {
     sample: IAutoMovieDrawScene.IPlacedSample,
   ) => Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"];
 
+  /**
+   * The film's camera response at an exact second: exposure in EV100, white balance, tone curve, glare and the adopted grade as ASC CDL values. Read after the film's own seek, before each beauty picture of the Viewer, a capture or the delivered video. Absent draws the scene light straight to the display under the renderer's default curve, which suits only light values already scaled to the display.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the response holds, when it is read and for which pictures, and what absence draws.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the response producer; this signature has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The film owns the response producer; this signature has no body.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature returns producer-owned optics without providing a fallback.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The film owns any reuse of its optics.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the draw host owns the response stage.
+   */
+  optics?: (seconds: number) => IAutoMovieFilmOptics;
   /** Optional source intent for the delivered media, including any soundtrack. */
   delivery?: IAutoMovieDeliveryContentAudit.IIntent;
 

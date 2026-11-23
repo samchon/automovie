@@ -1,5 +1,6 @@
 import type {
   IAutoMovieDeliveryContentAudit,
+  IAutoMovieFilmOptics,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieMark,
 } from "@automovie/interface";
@@ -56,6 +57,13 @@ export interface IAutoMovieDrawScene {
    * The marks the subject's owners supply at a second, asked for after `seek`; absent when it supplies none.
    */
   marks?: (seconds: number) => readonly IAutoMovieMark[];
+
+  /**
+   * The film's camera response at a second, asked for after `seek` before each beauty draw; absent draws the beauty pass straight to the canvas under the renderer's own curve, as before optics existed.
+   *
+   * When present, the draw host and the inspector render the beauty pass into a linear target with the renderer's curve at none and exposure at one, and `AutoMovieFilmResponseStage` gives it this response. An out-of-range value throws, naming the second and the field. Structural passes never ask for it.
+   */
+  optics?: (seconds: number) => IAutoMovieFilmOptics;
 
   /**
    * Optional production diagnostics, read synchronously after the outer seek is ready and before any inspection changes the scene.

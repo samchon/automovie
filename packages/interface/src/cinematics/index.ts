@@ -18,6 +18,7 @@ export type { IAutoMovieCompilePerformShotCameras } from "./IAutoMovieCompilePer
 export type { IAutoMovieDeliveryCrop } from "./IAutoMovieDeliveryCrop";
 export type { IAutoMovieDeliveryCropNdc } from "./IAutoMovieDeliveryCropNdc";
 export type { IAutoMovieEvaluateCameraDepthPrecision } from "./IAutoMovieEvaluateCameraDepthPrecision";
+export type { IAutoMovieFilmOptics } from "./IAutoMovieFilmOptics";
 export type { IAutoMovieFramedBox } from "./IAutoMovieFramedBox";
 export type { IAutoMovieFramedSubject } from "./IAutoMovieFramedSubject";
 export type { IAutoMovieGatePerformShotCamera } from "./IAutoMovieGatePerformShotCamera";

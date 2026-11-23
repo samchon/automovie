@@ -306,6 +306,19 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
 /** A renderer that counts what it is asked to do. */
 class RecordingRenderer implements IAutoMovieInspectorSceneHost.IRenderer {
   public localClippingEnabled: boolean = false;
+  public toneMapping: THREE.ToneMapping = THREE.NoToneMapping;
+  public toneMappingExposure: number = 1;
+  public autoClear: boolean = true;
+  public shadowMap: { autoUpdate: boolean } = { autoUpdate: true };
+  private target_: THREE.WebGLRenderTarget | null = null;
+
+  public getRenderTarget(): THREE.WebGLRenderTarget | null {
+    return this.target_;
+  }
+
+  public setRenderTarget(target: THREE.WebGLRenderTarget | null): void {
+    this.target_ = target;
+  }
   public renders: number = 0;
   public disposed: number = 0;
   public readonly sizes: [number, number][] = [];
