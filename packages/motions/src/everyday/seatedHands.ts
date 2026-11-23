@@ -535,7 +535,7 @@ export namespace seatedHands {
 
   /**
    * Resolve this call's observed frames under the canonical demand guards, each
-   * goal limb continued from the swivel its written joints give it
+   * goal limb placed at the swivel its written joints give it
    * (`writtenHumanSeeds`), never swept cold at every read.
    */
   function resolved(

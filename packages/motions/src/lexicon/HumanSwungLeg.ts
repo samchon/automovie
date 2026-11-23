@@ -177,7 +177,7 @@ export namespace HumanSwungLeg {
     const lows: number[] = [];
     const fitted = (seconds: number): Joints => {
       // Every limb continues the frame before's fit of it; on the first frame
-      // the other limbs continue the swivels their written joints give them
+      // the other limbs are placed at the swivels their written joints give
       // (`writtenHumanSeeds`) and the swung leg is fitted cold, so no frame
       // sweeps another limb's goal afresh.
       const posture: IAutoMovieMotionHumanPosture = asked(seconds);

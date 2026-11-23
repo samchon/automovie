@@ -100,7 +100,7 @@ One scan, one test, three keys.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One continued fit of every goal limb and one forward-kinematics pass a frame of the swing, made once per leg and plan: the other limbs continue the frame before's fits (on the first frame the swivels their written joints give, `writtenHumanSeeds`), so only the swung leg's first, middle and landing fits are cold.
+One continued fit of every goal limb and one forward-kinematics pass a frame of the swing, made once per leg and plan: the other limbs continue the frame before's fits (on the first frame placed at the swivels their written joints give, `writtenHumanSeeds`), so only the swung leg's first, middle and landing fits are cold.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
