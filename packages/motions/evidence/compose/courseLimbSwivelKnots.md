@@ -16,6 +16,42 @@ Written and read only by `courseLimbSwivels.swivels`.
 
 No pose is kept.
 
+# src/compose/courseLimbSwivelKnots.ts#courseLimbSwivelKnots.IPlacement
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the members.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The bones where the swivels show and the seeds the resolver reported for the placement.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Written and read only by `courseLimbSwivels.swivels`.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The resolver's own records; no pose is kept.
+
+# src/compose/courseLimbSwivelKnots.ts#courseLimbSwivelKnots.ISwivelInterval
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the members.
+
+## @evidence contracts/development/design.md#principled-representation
+
+A binary refinement over knot pairs.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Written and read only by `courseLimbSwivels.swivels`.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The split is decided once from the interval's own ends.
+
 # src/compose/courseLimbSwivelKnots.ts#courseLimbSwivelKnots.between
 
 ## @evidence contracts/development/common.md#meaningful-documentation
