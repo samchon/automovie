@@ -29,8 +29,9 @@ import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
  * Each cell is drawn in plan order, one at a time. A drawn still gets its
  * labels stamped at their anchors, at a scale that keeps a label's font pixel
  * at least one sheet pixel after the still is reduced into its cell, and is
- * written as `<cell name>.png` with its content hash. A cell whose draw throws,
- * or returns a picture that is not the subject's raster, is recorded with the
+ * written as `<cell name>.png` with its content hash, RGB except a `graphics`
+ * still, which keeps its straight alpha as RGBA. A cell whose draw throws, or
+ * returns a picture that is not the subject's raster, is recorded with the
  * cause and stands on the sheet as a marked cell, and the run continues. Sheets
  * are written as `sheet-001.png` onwards as each fills. Diagnostics supplied by
  * the drawn cells are reduced in film time for the record. With a `compare`
@@ -166,7 +167,13 @@ export async function runAutoMovieCapture(
     for (const label of drawing.labels)
       stampAutoMovieRasterLabel(picture, label.text, labelScale, label);
     const file: string = `${cell.name}.png`;
-    await folder.write(file, await encodeAutoMovieRasterPng(picture));
+    // The graphics plate keeps its straight alpha as the compositing matte.
+    await folder.write(
+      file,
+      await encodeAutoMovieRasterPng(picture, {
+        alpha: cell.pass === "graphics",
+      }),
+    );
     rows.push({
       ...fixed,
       ...place,
