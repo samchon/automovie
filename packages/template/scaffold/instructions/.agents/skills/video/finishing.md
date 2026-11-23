@@ -19,6 +19,8 @@ Compare untouched frames at matched times and step through the repair boundaries
 
 Composite legible text, signs and logos in post from their own clean render, because models garble lettering. Make that render with `pnpm run render --subject <film> --background transparent`, which writes a straight-alpha `film.mov` with no audio into `media/automovie/<film>/transparent/`. Use it only under the [render report check](../production/media-records.md#render-reports) of that folder.
 
+Composite screens and lettering from the `graphics` pass, which `pnpm run render --subject <film> --passes graphics` writes as RGBA frames into `videos/controls/`. Its straight alpha is the surface graphics' coverage, with everything in front of them held out. Raised lettering is ordinary geometry and stays out of that pass; lift it from the beauty pass through its node's mask region.
+
 ### Upscaling
 
 Upscale only the selected, repaired take. Verify identity on stills after generative upscaling and check the [delivery profile](../production/project-context.md#the-delivery-profile).

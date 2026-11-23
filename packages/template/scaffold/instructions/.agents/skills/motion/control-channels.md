@@ -12,7 +12,7 @@ The installed material channel is the `albedo` pass: each surface's base colour,
 
 Read the installed packages' documentation for what each channel outputs, because a mode name or a plausible image does not establish the representation another tool expects. When no installed path produces an essential channel, tell the user.
 
-Light coarse forms to show volume. Use [entity colors](../development/entities.md#coarse-first) and omit overlays, textures and lettering.
+Light coarse forms to show volume. Use [entity colors](../development/entities.md#coarse-first) and omit overlays, textures and lettering: surface graphics, flat lettering included, draw only in the beauty, mask and `graphics` passes. The mask carries flame, screen and lettering regions under their own ids, and the depth pass carries open flames. A lantern's globe covers its flame in every pass but beauty.
 
 Render from the scene any control mask a video request asks for, never estimate it from pictures.
 

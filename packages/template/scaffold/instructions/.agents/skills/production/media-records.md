@@ -56,8 +56,15 @@ Record the following in `media/manifest.json` or the generation request:
 - its license, attribution and usage terms;
 - its content digest.
 
+
 For control channels, record the SHA-256 of `videos/controls/record.json`. That digest seals every frame digest the record lists, so a request conditioned on hundreds of frames lists one file.
 
 Record the license terms for code, weights, body models, data, territory and service plan. Record provider, model, version, settings, prompt, input digests, job ID and seed if exposed.
 
 Preserve the original bytes. Use their record to identify them. Add fields the generating skill requires and keep secrets out.
+
+### Fonts and stills
+
+<!-- @source `IAutoMovieFontSource` and `IAutoMovieSurfaceGraphicLayer.IImage` in `@automovie/interface`, with the asset ledger's `IAutoMovieAssetProvenance`. -->
+
+Record a font the production synthesizes in its own code as an `"embedded"` font source with its `origin`, the source file and function that build it, and its `digest`, the SHA-256 of its bytes. Record a licensed font file, and every still image a surface graphic shows, as a project asset whose provenance carries its `license`. Never commit a font file that has no licence record, because font admission refuses it.

@@ -20,7 +20,7 @@ Use the look adopted in [project context](../production/project-context.md#overv
 
 Use record and canon materials in the installed format. Get textures and environment maps from [sources](../3d-modeling/sources.md). Use clay for form and beauty for materials under [form inspection](../3d-modeling/inspection.md#light-and-material).
 
-[Staging](../motion/staging.md#the-view) places each light at its motivated source. A detailed film keys from that source, then adds a fill that sets the look's contrast and an edge or back light where a figure would merge with its background.
+[Staging](../motion/staging.md#the-view) places each light at its motivated source. A motivated practical shows its source, a flame or a lit screen, as [entity work](../development/entities.md#flames-screens-and-lettering) authors it. An emissive surface lights nothing, so a screen that should light its surroundings needs a staged area light. A detailed film keys from that source, then adds a fill that sets the look's contrast and an edge or back light where a figure would merge with its background.
 
 State light in physical units: lux for the sun and other directional lights, candela for lamps and nits for panels. Return the camera response from the film's `optics`, in the film module as [source layout](../development/source-layout.md#source) places it. It holds the exposure in EV100, the white balance as the kelvin of the key light, the tone curve, any lens glare around practical lamps and bright windows, and the adopted grade as ASC CDL slope, offset, power and saturation. Without `optics`, physical light renders white.
 
