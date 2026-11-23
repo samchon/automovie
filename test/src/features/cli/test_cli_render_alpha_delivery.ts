@@ -112,6 +112,8 @@ export async function test_cli_render_alpha_delivery(): Promise<void> {
             }),
           );
         },
+        // No sound list, so the dialogue mouths are never handed.
+        speak: async (): Promise<void> => {},
         close: async (): Promise<void> => {},
       }),
     },

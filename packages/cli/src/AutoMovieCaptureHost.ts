@@ -18,12 +18,30 @@ import { readAutoMovieRevision } from "./readAutoMovieRevision";
 import { serveAutoMovieDrawPage } from "./serveAutoMovieDrawPage";
 
 /**
- * The Node host that draws a production's subjects in headless Chromium: one built draw page, one browser, and any number of sessions, captures and renders through them.
+ * The Node host that draws a production's subjects in headless Chromium: one
+ * built draw page, one browser, and any number of sessions, captures and
+ * renders through them.
  *
- * `open` loads `@automovie/render`, `vite` and `playwright-core` from the production, builds and serves the draw page for a subject module, and launches Chromium with the asked backend. Each `capture` opens a fresh page with the subject and props injected before it loads, describes the subject, plans the request against it, and runs the capture core with `node:fs/promises` as storage and the page's draw function as the draw, so every saved picture comes from the draw function. `close` ends the browser and the server and deletes the built page. `session` opens one subject for any other host that draws through the page, such as `renderAutoMovieVideo`. The `automovie capture` and `automovie render` commands use one host for one subject; a package with many subjects, such as the motion cases, uses one host for all of them.
+ * `open` loads `@automovie/render`, `vite` and `playwright-core` from the
+ * production, builds and serves the draw page for a subject module, and
+ * launches Chromium with the asked backend. Each `capture` opens a fresh page
+ * with the subject and props injected before it loads, describes the subject,
+ * plans the request against it, and runs the capture core with
+ * `node:fs/promises` as storage and the page's draw function as the draw, so
+ * every saved picture comes from the draw function. `close` ends the browser
+ * and the server and deletes the built page. `session` opens one subject for
+ * any other host that draws through the page, such as `renderAutoMovieVideo`.
+ * The `automovie capture` and `automovie render` commands use one host for one
+ * subject; a package with many subjects, such as the motion cases, uses one
+ * host for all of them.
  *
  * ```ts
- * const host = await AutoMovieCaptureHost.open({ root, module: "src/subjects.ts", backend: "software", env: process.env });
+ * const host = await AutoMovieCaptureHost.open({
+ *   root,
+ *   module: "src/subjects.ts",
+ *   backend: "software",
+ *   env: process.env,
+ * });
  * try {
  *   const record = await host.capture({ request, props: null });
  * } finally {
@@ -32,16 +50,25 @@ import { serveAutoMovieDrawPage } from "./serveAutoMovieDrawPage";
  * ```
  */
 export class AutoMovieCaptureHost {
-  /** The production's `@automovie/render`, which drew the page; a host that draws through `session` uses it for the rules it applies. */
+  /**
+   * The production's `@automovie/render`, which drew the page; a host that
+   * draws through `session` uses it for the rules it applies.
+   */
   public readonly render: typeof Render;
 
-  /** The backend and Chromium version, such as `swiftshader; Chromium 131.0.6778.33`. */
+  /**
+   * The backend and Chromium version, such as `swiftshader; Chromium
+   * 131.0.6778.33`.
+   */
   public readonly backend: string;
 
   /** The production's root folder. */
   private readonly root: string;
 
-  /** Per-call milliseconds for draw-function readiness, subject description/creation and drawing, not a total build or render deadline. */
+  /**
+   * Per-call milliseconds for draw-function readiness, subject
+   * description/creation and drawing, not a total build or render deadline.
+   */
   private readonly timeout: number;
 
   /** The launched browser. */
@@ -68,9 +95,13 @@ export class AutoMovieCaptureHost {
   }
 
   /**
-   * Load the production's packages, build and serve the draw page for the subject module, and launch Chromium.
+   * Load the production's packages, build and serve the draw page for the
+   * subject module, and launch Chromium.
    *
-   * It validates the optional draw-session budget before acquiring resources. It rejects naming a package the production lacks, a missing module, a failed build, and a missing Chromium with the command that installs it; whatever was started before the failure is stopped.
+   * It validates the optional draw-session budget before acquiring resources.
+   * It rejects naming a package the production lacks, a missing module, a
+   * failed build, and a missing Chromium with the command that installs it;
+   * whatever was started before the failure is stopped.
    */
   public static async open(props: {
     /** The production's root folder. */
@@ -85,7 +116,12 @@ export class AutoMovieCaptureHost {
     /** The environment, read for `CHROME_PATH`. */
     env: Readonly<Record<string, string | undefined>>;
 
-    /** Per-call milliseconds for draw-function readiness, subject description/creation and drawing; absent, 120000. This is not a total build or render deadline. Invalid timer delays fail before resources are acquired. */
+    /**
+     * Per-call milliseconds for draw-function readiness, subject
+     * description/creation and drawing; absent, 120000. This is not a total
+     * build or render deadline. Invalid timer delays fail before resources are
+     * acquired.
+     */
     timeout?: number;
   }): Promise<AutoMovieCaptureHost> {
     const timeout: number = readAutoMoviePageTimeout(props.timeout);
@@ -130,9 +166,14 @@ export class AutoMovieCaptureHost {
   }
 
   /**
-   * Open a fresh page of the served draw page with a subject and its props injected before it loads, and describe the subject through it.
+   * Open a fresh page of the served draw page with a subject and its props
+   * injected before it loads, and describe the subject through it.
    *
-   * The returned session owns the page; the caller closes it. An uncaught browser error during initialization rejects immediately with the original cause and logs its stack; console errors are forwarded too. A page that installs no draw function or cannot describe its subject rejects, and the page is closed first.
+   * The returned session owns the page; the caller closes it. An uncaught
+   * browser error during initialization rejects immediately with the original
+   * cause and logs its stack; console errors are forwarded too. A page that
+   * installs no draw function or cannot describe its subject rejects, and the
+   * page is closed first.
    */
   public async session(props: {
     /** Name of the subject, or null for the page's only subject. */
@@ -182,9 +223,19 @@ export class AutoMovieCaptureHost {
   }
 
   /**
-   * Capture one subject: open a page with the subject and props injected, plan the request against what it describes, and draw every cell into the folder at `out`.
+   * Capture one subject: open a page with the subject and props injected, plan
+   * the request against what it describes, and draw every cell into the folder
+   * at `out`.
    *
-   * The revision recorded is the production's git commit. It rejects what the planner or the folder refuses before anything is drawn, and a page that installs no draw function; the page is closed on every outcome.
+   * A subject with a sound list is first handed its dialogue mouths: its lines
+   * are read from the production root, admitted on the clock
+   * `autoMovieVideoFrameRate` gives its frame rate, and planned by
+   * `planAutoMovieDialogueMouths`, as the delivery render plans them, so a
+   * still shows the mouth the delivered frame at the same second shows. A line
+   * the admission refuses fails the capture. The revision recorded is the
+   * production's git commit. It rejects what the planner or the folder refuses
+   * before anything is drawn, and a page that installs no draw function; the
+   * page is closed on every outcome.
    */
   public async capture(props: {
     /** The request, as `parseAutoMovieCapturePlanRequest` read it. */
@@ -193,7 +244,10 @@ export class AutoMovieCaptureHost {
     /** Data the subject module reads, as JSON, or null. */
     props: unknown;
 
-    /** The capture's root folder, relative to the production or absolute; absent, `media/capture/<subject>` of the production. */
+    /**
+     * The capture's root folder, relative to the production or absolute;
+     * absent, `media/capture/<subject>` of the production.
+     */
     out?: string;
 
     /** The subject owner's own section of the record, or absent. */
@@ -205,6 +259,30 @@ export class AutoMovieCaptureHost {
       props: props.props,
     });
     try {
+      // A film with a sound list speaks in its stills as in its delivered
+      // frames: the same lines on the same clock give the same mouths.
+      const { sound, fps, durationSeconds } = session.subject;
+      if (sound !== undefined) {
+        const [numerator, denominator]: readonly [number, number] =
+          render.autoMovieVideoFrameRate(fps);
+        const frameRate: { numerator: number; denominator: number } = {
+          numerator,
+          denominator,
+        };
+        await session.speak(
+          render.planAutoMovieDialogueMouths({
+            lines: await render.admitAutoMovieFilmDialogue({
+              sound,
+              frameRate,
+              totalFrames: Math.round(durationSeconds * fps),
+              read: (file: string): Promise<Uint8Array> =>
+                fs.readFile(path.resolve(this.root, file)),
+            }),
+            speakers: sound.speakers,
+            frameRate,
+          }),
+        );
+      }
       const plan: IAutoMovieCapturePlan = render.planAutoMovieCapture({
         request: props.request,
         subject: session.subject,
@@ -235,9 +313,7 @@ export class AutoMovieCaptureHost {
     }
   }
 
-  /**
-   * End the browser, stop the server and delete the built page.
-   */
+  /** End the browser, stop the server and delete the built page. */
   public async close(): Promise<void> {
     try {
       await this.browser.close();

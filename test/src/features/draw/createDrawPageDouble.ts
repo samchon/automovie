@@ -7,9 +7,14 @@ import type {
 import type { IAutoMovieDrawPage } from "@automovie/render";
 
 /**
- * A browser page that records every call a draw session makes and answers as a draw page would, without a browser: `describe` returns the given subject and renderer, and `draw` returns what `answer` makes of the call, or never settles when `answer` is null.
+ * A browser page that records every call a draw session makes and answers as a
+ * draw page would, without a browser: `describe` returns the given subject and
+ * renderer, `speak` settles at once, and `draw` returns what `answer` makes of
+ * the call, or never settles when `answer` is null.
  *
- * Page functions are not run; the double reads their argument, which is the whole of what a session sends, so a test observes the session through its seam.
+ * Page functions are not run; the double reads their argument, which is the
+ * whole of what a session sends, so a test observes the session through its
+ * seam.
  */
 export function createDrawPageDouble(props: {
   /** The subject the page describes. */
@@ -18,7 +23,10 @@ export function createDrawPageDouble(props: {
   /** The renderer string the page reports. */
   renderer: string;
 
-  /** The picture for a call, or null for a page whose subject never reports ready. */
+  /**
+   * The picture for a call, or null for a page whose subject never reports
+   * ready.
+   */
   answer: ((call: IAutoMovieDrawCall) => IAutoMovieDrawResult) | null;
 }): createDrawPageDouble.IDouble {
   const calls: createDrawPageDouble.ICall[] = [];
@@ -48,6 +56,10 @@ export function createDrawPageDouble(props: {
           subject: props.subject,
           renderer: props.renderer,
         } satisfies IAutoMovieDrawDescription as R;
+
+      // Handing the dialogue mouths draws nothing; the track stays in `calls`.
+      if (typeof arg === "object" && arg !== null && "track" in arg)
+        return undefined as R;
       const call: IAutoMovieDrawCall = (arg as { call: IAutoMovieDrawCall })
         .call;
       if (props.answer === null) return new Promise<R>((): void => {});
@@ -76,7 +88,10 @@ export namespace createDrawPageDouble {
     /** The page method called. */
     method: string;
 
-    /** The argument sent: the address, the init script's text, a global's name, or the draw function's call. */
+    /**
+     * The argument sent: the address, the init script's text, a global's name,
+     * the mouth track, or the draw function's call.
+     */
     arg: unknown;
   }
 }

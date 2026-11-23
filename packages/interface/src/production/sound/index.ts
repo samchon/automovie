@@ -4,7 +4,10 @@ export type { IAutoMovieDeriveInteriorAcousticResponse } from "./IAutoMovieDeriv
 export type { IAutoMovieDeriveProductionSoundPlan } from "./IAutoMovieDeriveProductionSoundPlan";
 export type { IAutoMovieDeriveSoundPropagation } from "./IAutoMovieDeriveSoundPropagation";
 export type { IAutoMovieDialogueExpressionLayers } from "./IAutoMovieDialogueExpressionLayers";
+export type { IAutoMovieDialogueMouth } from "./IAutoMovieDialogueMouth";
 export type { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
+export type { IAutoMovieDialogueMouths } from "./IAutoMovieDialogueMouths";
+export type { IAutoMovieDialogueMouthTrack } from "./IAutoMovieDialogueMouthTrack";
 export type { IAutoMovieDialogueSpeakerBinding } from "./IAutoMovieDialogueSpeakerBinding";
 export type { IAutoMovieDialogueVisemeCompilation } from "./IAutoMovieDialogueVisemeCompilation";
 export type { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTimeline";
@@ -19,3 +22,4 @@ export type { IAutoMovieProductionSoundRaster } from "./IAutoMovieProductionSoun
 export type { IAutoMovieRenderedProductionSound } from "./IAutoMovieRenderedProductionSound";
 export type { IAutoMovieRenderProductionSound } from "./IAutoMovieRenderProductionSound";
 export type { IAutoMovieSampleDialogueExpression } from "./IAutoMovieSampleDialogueExpression";
+export type { IAutoMovieSampleDialogueMouth } from "./IAutoMovieSampleDialogueMouth";

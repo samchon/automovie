@@ -93,6 +93,8 @@ export async function test_cli_render_video_delivery(): Promise<void> {
             ...(sceneError ? { diagnostics: diagnostics(seconds) } : {}),
           },
         ],
+        // No sound list, so the dialogue mouths are never handed.
+        speak: async () => {},
         close: async () => {
           sessionsClosed++;
         },
@@ -443,13 +445,12 @@ export async function test_cli_render_video_delivery(): Promise<void> {
       correlation: verdict === "inconclusive" ? 0.1 : 0.9,
       verdict,
     });
-    const lateMessage = await renderAutoMovieVideo(
-      lipSyncFixture([measured("fail", 1)]),
-      run,
-    ).then(
-      () => "published",
-      (error: Error) => error.message,
-    );
+    let lateMessage: string = "published";
+    try {
+      await renderAutoMovieVideo(lipSyncFixture([measured("fail", 1)]), run);
+    } catch (error) {
+      lateMessage = error instanceof Error ? error.message : String(error);
+    }
     const late = await readReport();
     const unmeasured: IAutoMovieDialogueLipSync = {
       line: "hum",

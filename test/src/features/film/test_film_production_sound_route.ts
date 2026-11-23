@@ -171,6 +171,7 @@ export async function test_film_production_sound_route(): Promise<void> {
           ++draws;
           return session.frame(...call);
         },
+        speak: (track) => session.speak(track),
       },
       spec,
       frameDir: "frames",

@@ -19,4 +19,5 @@ export * from "./productionSoundWaveform";
 export * from "./productionSpeechEndFrame";
 export * from "./renderProductionSound";
 export * from "./sampleAutoMovieDialogueExpression";
+export * from "./sampleAutoMovieDialogueMouth";
 export * from "./sampleAutoMovieDialogueVisemeWeights";

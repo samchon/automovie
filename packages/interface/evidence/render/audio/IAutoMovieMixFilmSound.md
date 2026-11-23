@@ -38,7 +38,7 @@ No file system type appears; the host callback keeps render free of `node:` impo
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the WAVE format, the digest form, that the plan, analysis and loudness record describe the master, the order of the lines and their lip-sync entries.
+States the WAVE format, the digest form, that the plan, analysis and loudness record describe the master, and the order of the lines.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -46,7 +46,7 @@ The WAVE bytes and their digest identify the soundtrack exactly; the plan and an
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The drawn-video route writes `wav`, reports `sha256`, the analysis and each line's receipt digest; the plan and samples serve the mouth and lip-sync consumers on the same route.
+The drawn-video route writes `wav`, reports `sha256`, the analysis and each line's receipt digest; the plan and lines serve the mouth plan and the lip-sync measure on the same route.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -56,7 +56,7 @@ Imports the plan, analysis and receipt from their owners.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States that the line is the plan's line over its speech span, the receipt is admitted and the samples are at 48 kHz.
+States who admits and places it, its consumers, that the line is the plan's line over its speech span, the receipt is admitted and the samples are at 48 kHz.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -64,7 +64,7 @@ Pairs the placed line with the bytes and receipt it was placed from, so a consum
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The route reports each receipt's digest from it.
+Returned by `admitAutoMovieFilmDialogue`; the route reports each receipt's digest from it, and the mouth plan and lip-sync measure read its span, receipt chunks and samples.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

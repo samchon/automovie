@@ -2,6 +2,7 @@ import type { IAutoMovieSemanticMask } from "../IAutoMovieSemanticMask.js";
 import type { AutoMovieInspectionShade } from "../inspection/AutoMovieInspectionShade";
 import type { IAutoMovieInspectionDiagnostics } from "../inspection/IAutoMovieInspectionDiagnostics.js";
 import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
+import type { IAutoMovieDrawnMouth } from "./IAutoMovieDrawnMouth.js";
 
 /**
  * One decoded pass of a sampled subject frame. AutoMovieDrawSession.frame emits
@@ -22,4 +23,10 @@ export interface IAutoMovieDrawnPass {
    * null when it painted the positional ramp; absent for every other pass.
    */
   semanticMask?: IAutoMovieSemanticMask | null;
+
+  /**
+   * The dialogue mouths the subject read for this picture's second, one per
+   * actor; absent when the subject took no dialogue mouths.
+   */
+  mouths?: IAutoMovieDrawnMouth[];
 }

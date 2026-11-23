@@ -93,6 +93,8 @@ export async function test_cli_render_video_cut(): Promise<void> {
             },
           },
         ],
+        // No sound list, so the dialogue mouths are never handed.
+        speak: async (): Promise<void> => {},
         close: async (): Promise<void> => {},
       }),
     },

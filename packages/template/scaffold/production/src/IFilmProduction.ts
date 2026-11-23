@@ -1,6 +1,7 @@
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieDeliveryContentAudit,
+  IAutoMovieDialogueMouths,
   IAutoMovieFilmOptics,
   IAutoMovieFilmShading,
   IAutoMovieFilmSound,
@@ -25,8 +26,8 @@ import type * as THREE from "three";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
  * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hosts read the film scene and placement, optional soft surfaces, the delivery intent and sound list, and the review sources: physical marks, named views, and film marks.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The hosts read the film scene and placement, optional soft surfaces, the delivery intent and sound list, and the review sources: physical marks, named views, and film marks; they hand the film its dialogue mouths.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged. `speak` comes from every host that reads the sound files, the capture and the render alike, so stills and delivered frames show the same mouths; the Viewer reads no sound file and shows the authored mouth.
  */
 export interface IFilmProduction {
   /** Scene the Viewer renders, owned by this mount. */
@@ -129,6 +130,19 @@ export interface IFilmProduction {
 
   /** Optional adopted sound: lines with their receipts, cues, speaker bindings and score ducking, which `npm run render` mixes into the delivered soundtrack; a film with a sound list leaves `delivery.audio.path` unset. */
   sound?: IAutoMovieFilmSound;
+
+  /**
+   * Takes the dialogue mouths of `sound`'s lines, handed once before the first frame by the capture and the render. Keep them, and in `seek` read each speaking actor's mouth for the second placed: `jaw(actor, seconds)` as the jaw opening of a Human or polygon man, or `visemes(actor, seconds)` for `applyExpression` on a VRM or imported model, layered over the authored expression. The render measures each phoneme-driven line's lip sync on the mouths read here. Absent, no mouth follows the sound. The Viewer hands none and shows the authored mouth.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when the mouths arrive, how and where the film reads each form, what the render measures, and what absence and the Viewer show.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns its figures; this signature has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The film owns its figures; this signature has no body.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature hands over host-owned mouths without providing a fallback.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The film keeps the one handed sampler for every seek.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The film holds the sampler until `dispose`; the draw page owns its record.
+   */
+  speak?: (mouths: IAutoMovieDialogueMouths) => void;
 
   /** The film's cut, layout and declared breaks, so motion is never examined across a cut or break. Absent treats the whole film as one continuous shot. */
   playback?: Pick<

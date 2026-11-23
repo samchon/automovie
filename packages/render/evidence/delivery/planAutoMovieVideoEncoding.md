@@ -10,7 +10,7 @@ A whole frame count admits the exact schedule `frameTimes` draws; mapping stream
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Admit, then one argument vector around the shared `ffmpegArgs`.
+Admit, take the rate from the shared `autoMovieVideoFrameRate`, then one argument vector around the shared `ffmpegArgs`.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

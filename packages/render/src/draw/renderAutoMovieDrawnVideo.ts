@@ -1,6 +1,8 @@
 import type {
   AutoMovieGuidePass,
   IAutoMovieDeliveredCutEntry,
+  IAutoMovieDialogueMouthTrack,
+  IAutoMovieDrawnMouth,
   IAutoMovieDrawnPass,
   IAutoMovieDrawnVideoResult,
   IAutoMovieInspectionDiagnostics,
@@ -8,7 +10,10 @@ import type {
   IAutoMovieRenderSpec,
 } from "@automovie/interface";
 
+import { admitAutoMovieFilmDialogue } from "../audio/admitAutoMovieFilmDialogue.js";
+import { measureAutoMovieDialogueLipSync } from "../audio/measureAutoMovieDialogueLipSync.js";
 import { mixAutoMovieFilmSound } from "../audio/mixAutoMovieFilmSound.js";
+import { planAutoMovieDialogueMouths } from "../audio/planAutoMovieDialogueMouths.js";
 import { AutoMovieControlChannelWriter } from "../delivery/AutoMovieControlChannelWriter.js";
 import { admitAutoMovieControlPasses } from "../delivery/admitAutoMovieControlPasses.js";
 import { planAutoMovieAlphaWrap } from "../delivery/planAutoMovieAlphaWrap.js";
@@ -20,6 +25,15 @@ import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js
 import { hashAutoMovieRasterImage } from "../picture/hashAutoMovieRasterImage.js";
 import { reduceAutoMovieInspectionEpisodes } from "../scene/inspection/reduceAutoMovieInspectionEpisodes.js";
 import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
+
+/** The admitted lines and the mouth track handed to the subject. */
+interface ISpeech {
+  /** The adopted lines, admitted on the film clock. */
+  lines: IAutoMovieMixFilmSound.ILine[];
+
+  /** The mouth track handed to the subject. */
+  track: IAutoMovieDialogueMouthTrack;
+}
 
 /**
  * Render a drawn subject into one video: draw every frame of its clock through
@@ -44,6 +58,15 @@ import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
  * digest, each line's PCM digest, the master's analysis and the loudness
  * record. A subject that declares a sound list and a soundtrack `audio` is
  * refused.
+ *
+ * The same lines then give the subject its dialogue mouths: before the first
+ * frame, `planAutoMovieDialogueMouths` plans the track and the session's
+ * `speak` hands it to the page, also for a transparent layer, whose lines are
+ * admitted by `admitAutoMovieFilmDialogue` without a mix. Each frame's beauty
+ * pass carries the mouths the subject read for that frame, and the sound
+ * record's `lipSync` measures each line against them
+ * (`measureAutoMovieDialogueLipSync`), so the lag is the lag of the mouth
+ * actually handed to the drawing.
  *
  * A subject that supplies a `cut` gets the result's `cut`: one row per entry
  * with the output frames it is live in, from `planAutoMovieDeliveredCut` over
@@ -72,7 +95,7 @@ import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
  */
 export async function renderAutoMovieDrawnVideo(props: {
   /** The opened draw session of the subject. */
-  session: Pick<AutoMovieDrawSession, "subject" | "frame">;
+  session: Pick<AutoMovieDrawSession, "subject" | "frame" | "speak">;
 
   /** Encoding controls; the frame format is the subject's clock and raster. */
   spec: Omit<IAutoMovieRenderSpec, "frameFormat">;
@@ -166,37 +189,42 @@ export async function renderAutoMovieDrawnVideo(props: {
     });
 
   // The sound list is mixed before any frame is drawn, so a refused receipt
-  // or a missing file costs no drawing.
-  let sound: IAutoMovieDrawnVideoResult["sound"];
-  if (subject.sound !== undefined && soundtrack !== null) {
-    const mixed: IAutoMovieMixFilmSound.IResult = await mixAutoMovieFilmSound({
-      sound: subject.sound,
-      frameRate: {
-        numerator: plan.frameRate[0],
-        denominator: plan.frameRate[1],
-      },
-      totalFrames: plan.frameCount,
-      read: props.read,
-      ...(subject.delivery?.loudness === undefined
-        ? {}
-        : { loudness: subject.delivery.loudness }),
+  // or a missing file costs no drawing. A transparent layer writes no
+  // soundtrack, but its figures still speak, so its lines are admitted alone.
+  const frameRate: IAutoMovieMixFilmSound.IProps["frameRate"] = {
+    numerator: plan.frameRate[0],
+    denominator: plan.frameRate[1],
+  };
+  let mixed: IAutoMovieMixFilmSound.IResult | undefined;
+  let speech: ISpeech | undefined;
+  if (subject.sound !== undefined) {
+    if (soundtrack !== null) {
+      mixed = await mixAutoMovieFilmSound({
+        sound: subject.sound,
+        frameRate,
+        totalFrames: plan.frameCount,
+        read: props.read,
+        ...(subject.delivery?.loudness === undefined
+          ? {}
+          : { loudness: subject.delivery.loudness }),
+      });
+      await props.write(soundtrack, mixed.wav);
+    }
+    const lines: IAutoMovieMixFilmSound.ILine[] =
+      mixed?.lines ??
+      (await admitAutoMovieFilmDialogue({
+        sound: subject.sound,
+        frameRate,
+        totalFrames: plan.frameCount,
+        read: props.read,
+      }));
+    const track: IAutoMovieDialogueMouthTrack = planAutoMovieDialogueMouths({
+      lines,
+      speakers: subject.sound.speakers,
+      frameRate,
     });
-    await props.write(soundtrack, mixed.wav);
-    sound = {
-      file: soundtrack,
-      sha256: mixed.sha256,
-      receipts: mixed.lines.map(
-        (
-          line: IAutoMovieMixFilmSound.ILine,
-        ): { line: string; pcmDigest: string } => ({
-          line: line.line.id,
-          pcmDigest: line.receipt.pcmDigest,
-        }),
-      ),
-      analysis: mixed.analysis,
-      loudness: mixed.loudness,
-      lipSync: mixed.lipSync,
-    };
+    await props.session.speak(track);
+    speech = { lines, track };
   }
 
   // The cut is mapped onto the very instants the frames are drawn at, before
@@ -227,6 +255,7 @@ export async function renderAutoMovieDrawnVideo(props: {
     hash: string;
   }[] = [];
   const packets: IAutoMovieInspectionDiagnostics[] = [];
+  const mouths: (IAutoMovieDrawnMouth[] | undefined)[] = [];
   for (const [index, seconds] of times.entries()) {
     // The film and its control channels in one call, so every pass shares
     // the frame's seek and camera.
@@ -237,6 +266,7 @@ export async function renderAutoMovieDrawnVideo(props: {
       transparent ? "transparent" : undefined,
     );
     const { picture, diagnostics }: IAutoMovieDrawnPass = pictures[0]!;
+    mouths.push(pictures[0]!.mouths);
     await channels?.add(index, seconds, pictures.slice(1));
     if (diagnostics !== undefined) {
       const { time } = diagnostics;
@@ -266,6 +296,32 @@ export async function renderAutoMovieDrawnVideo(props: {
     packets.length === 0
       ? undefined
       : reduceAutoMovieInspectionEpisodes(packets, times.length);
+
+  // The soundtrack's record, with each line's lip sync measured against the
+  // mouths the subject read on the drawn frames.
+  const sound: IAutoMovieDrawnVideoResult["sound"] =
+    mixed === undefined || speech === undefined || soundtrack === null
+      ? undefined
+      : {
+          file: soundtrack,
+          sha256: mixed.sha256,
+          receipts: mixed.lines.map(
+            (
+              line: IAutoMovieMixFilmSound.ILine,
+            ): { line: string; pcmDigest: string } => ({
+              line: line.line.id,
+              pcmDigest: line.receipt.pcmDigest,
+            }),
+          ),
+          analysis: mixed.analysis,
+          loudness: mixed.loudness,
+          lipSync: measureAutoMovieDialogueLipSync({
+            lines: speech.lines,
+            track: speech.track,
+            plan: mixed.plan,
+            drawn: mouths,
+          }),
+        };
   const drawn: Pick<
     IAutoMovieDrawnVideoResult,
     "frames" | "diagnostics" | "sound" | "cut" | "controls"

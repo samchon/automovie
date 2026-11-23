@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieDialogueMouthTrack,
   IAutoMovieDrawCall,
   IAutoMovieDrawDescription,
   IAutoMovieDrawResult,
@@ -28,6 +29,7 @@ import { sampleAutoMovieInspectionTrails } from "../scene/inspection/sampleAutoM
 import { autoMovieSemanticMaskOf } from "../scene/semanticMask/index.js";
 import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
+import { AutoMovieDialogueMouthRecorder } from "./AutoMovieDialogueMouthRecorder.js";
 import type { AutoMovieDrawSubjects } from "./AutoMovieDrawSubjects.js";
 import type { IAutoMovieDrawFunction } from "./IAutoMovieDrawFunction.js";
 import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
@@ -94,6 +96,11 @@ const SUPERSAMPLE = 2 as const;
  * the renderer's own curve and exposure. The film camera's aspect is set to the
  * picture's, as the page sets it to its canvas.
  *
+ * `speak` hands a subject with `speak` the film's dialogue mouths through an
+ * `AutoMovieDialogueMouthRecorder`. Its record is cleared right before the
+ * drawn second is placed, so each result's `mouths` are what the subject read
+ * for that second.
+ *
  * ```ts
  * import { installAutoMovieDraw } from "@automovie/render";
  *
@@ -143,6 +150,9 @@ export function installAutoMovieDraw(
       };
     })());
 
+  // The dialogue mouths handed to the subject, which record what it reads.
+  let spoken: AutoMovieDialogueMouthRecorder | null = null;
+
   // The subject placed at a second, with its own marks and the trails the request asks for there.
   const place: (
     loaded: ILoaded,
@@ -173,6 +183,9 @@ export function installAutoMovieDraw(
           })),
         );
     }
+
+    // The mouths read from here on are the ones placed at the drawn second.
+    spoken?.clear();
     await scene.seek(seconds);
     onPlaced?.();
     return [
@@ -262,6 +275,12 @@ export function installAutoMovieDraw(
           ),
         ),
       };
+    },
+    speak: async (track: IAutoMovieDialogueMouthTrack): Promise<void> => {
+      const loaded: ILoaded = await load();
+      if (loaded.scene.speak === undefined) return;
+      spoken = new AutoMovieDialogueMouthRecorder(track);
+      loaded.scene.speak(spoken.mouths);
     },
     draw: async (call: IAutoMovieDrawCall): Promise<IAutoMovieDrawResult> => {
       const loaded: ILoaded = await load();
@@ -489,6 +508,7 @@ export function installAutoMovieDraw(
         ...(call.request.shade === "mask"
           ? { semanticMask: autoMovieSemanticMaskOf(scene.scene)?.mask ?? null }
           : {}),
+        ...(spoken === null ? {} : { mouths: spoken.drawn() }),
         camera: resolved.record,
         resolved: resolveAutoMovieCapturePatterns({
           paths: [

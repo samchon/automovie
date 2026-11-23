@@ -39,7 +39,10 @@ interface IDeliveryHost {
   session(
     props: Parameters<AutoMovieCaptureHost["session"]>[0],
   ): Promise<
-    Pick<Render.AutoMovieDrawSession, "backend" | "close" | "frame" | "subject">
+    Pick<
+      Render.AutoMovieDrawSession,
+      "backend" | "close" | "frame" | "speak" | "subject"
+    >
   >;
 }
 
@@ -122,7 +125,8 @@ const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
  * bytes. The decoded audio's integrated loudness and true peak, measured by the
  * production render's BS.1770-5 meter, must meet the targets the sound-list mix
  * applied or, for a supplied soundtrack, the declared loudness intent, and a
- * phoneme-driven line whose lip-sync lag fails the report's verdict blocks. The
+ * phoneme-driven line whose lip-sync lag, measured against the mouth the
+ * subject read on each drawn frame, fails the report's verdict blocks. The
  * encoded file must also carry its declared picture profile and, with a
  * soundtrack, the AAC profile, or no audio track without one
  * (`auditAutoMovieDeliveryProfile`); a mismatch blocks like a blocking audit

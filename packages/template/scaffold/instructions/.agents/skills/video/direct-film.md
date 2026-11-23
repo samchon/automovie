@@ -38,9 +38,16 @@ Tag each color texture as color and each normal or roughness map as data.
 
 Use the representation's supported face, expressions and mouth shapes for scripted expression and speech. Check package APIs and report missing controls.
 
-Take accepted speech from [audio acquisition](../audio/acquisition.md). Record the speech model's IPA phoneme chunks in each line's receipt as `phonemeChunks`; the render times each phoneme as an equal share of its chunk and moves the bound speaker's mouth with coarticulated visemes. For finer timing, record a forced aligner's one-phoneme chunks instead and name the aligner in the receipt's `aligner`. A line without chunks opens its speaker's jaw from its own loudness.
+Take accepted speech from [audio acquisition](../audio/acquisition.md). Record the speech model's IPA phoneme chunks in each line's receipt as `phonemeChunks`; the render times each phoneme as an equal share of its chunk and blends the bound speaker's visemes by coarticulation. For finer timing, record a forced aligner's one-phoneme chunks instead and name the aligner in the receipt's `aligner`. A line without chunks opens its speaker's jaw from its own loudness.
 
-On stills, check that each shape the installed face performs lands on the frames of its sound, with the mouth closed where the line closes the lips. `render-report.json` lists each phoneme-driven line's lip-sync lag and verdict; a line whose sound leads the mouth by more than 45 ms or trails it by more than 125 ms blocks the render, so correct its phoneme chunks or start frame. Ask the user to watch and listen to the sync as a whole, because neither stills nor the lag measure show whether a line is bound to the right actor.
+Give the film a `speak` member that keeps the mouths it is handed. In `seek`, read each speaking actor's mouth for the placed second and layer it over the authored expression:
+
+- for the polygon man or the Human, `jaw(actor, seconds)` as the jaw opening of its head pose, in millimetres;
+- for a VRM or imported model, `visemes(actor, seconds)` as the viseme weights `applyExpression` takes.
+
+The capture and the render hand these mouths, so stills and the delivered video show them. The Viewer reads no sound and shows the authored mouth.
+
+On stills, check that each shape the installed face performs lands on the frames of its sound, with the mouth closed where the line closes the lips. `render-report.json` lists each phoneme-driven line's lip-sync lag and verdict, measured on the mouths the film read; a line whose sound leads the mouth by more than 45 ms or trails it by more than 125 ms blocks the render, so correct its phoneme chunks or start frame. A line listed as `mouth-not-drawn` moved no mouth, because `seek` never read its actor's mouth. Ask the user to watch and listen to the sync as a whole, because neither stills nor the lag measure show whether a line is bound to the right actor.
 
 ## Renderer
 

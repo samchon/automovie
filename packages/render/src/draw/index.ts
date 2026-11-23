@@ -1,4 +1,5 @@
 export * from "./AUTO_MOVIE_DRAW_GLOBALS.js";
+export * from "./AutoMovieDialogueMouthRecorder.js";
 export * from "./AutoMovieDrawSession.js";
 export * from "./AutoMovieDrawSubjects.js";
 export * from "./accumulateAutoMovieFilmSamples.js";

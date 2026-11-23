@@ -4,6 +4,7 @@ import type { IAutoMovieInspectionCamera } from "../inspection/IAutoMovieInspect
 import type { IAutoMovieInspectionDiagnostics } from "../inspection/IAutoMovieInspectionDiagnostics.js";
 import type { IAutoMovieInspectionLegendEntry } from "../inspection/IAutoMovieInspectionLegendEntry.js";
 import type { IAutoMovieRasterLabel } from "../picture/IAutoMovieRasterLabel";
+import type { IAutoMovieDrawnMouth } from "./IAutoMovieDrawnMouth.js";
 
 /**
  * What a draw page returns for one `IAutoMovieDrawCall`: the picture as base64
@@ -61,4 +62,11 @@ export interface IAutoMovieDrawResult {
    * that records the mask's convention.
    */
   semanticMask?: IAutoMovieSemanticMask | null;
+
+  /**
+   * The dialogue mouths the subject read while it was placed at the call's
+   * second, one per actor in the order first read; absent when the subject took
+   * no dialogue mouths.
+   */
+  mouths?: IAutoMovieDrawnMouth[];
 }

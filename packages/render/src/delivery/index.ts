@@ -12,6 +12,7 @@ export * from "./assertAutoMovieCaptureClock.js";
 export * from "./auditAutoMovieDecodedFrames.js";
 export * from "./auditAutoMovieDeliveryContent.js";
 export * from "./auditAutoMovieEncodedPresentation.js";
+export * from "./autoMovieVideoFrameRate.js";
 export * from "./planAutoMovieCaptureUrl.js";
 export * from "./planAutoMovieAlphaWrap.js";
 export * from "./planAutoMovieVideoEncoding.js";

@@ -78,15 +78,15 @@ The page passes to the returned session, or is closed here when opening fails.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the steps, the revision and the page's lifetime, and which refusals precede drawing.
+States the steps, how a subject with a sound list is handed its dialogue mouths and on which clock, the revision and the page's lifetime, and which refusals precede drawing.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The capture core plans, writes, records and compares; this host only supplies the subject, the draw and the storage, as law 6 of the campaign asks.
+The capture core plans, writes, records and compares; this host only supplies the subject, the draw and the storage, as law 6 of the campaign asks. A film's mouths are planned by render's own admission and plan on the rate `autoMovieVideoFrameRate` gives, the rate the delivery render places the lines on, so a still and the delivered frame at one second show the same mouth.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Open the session, plan, open the folder, run, close the page.
+Open the session, hand a film with a sound list its mouths, plan, open the folder, run, close the page.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -94,7 +94,7 @@ Storage is `node:fs/promises` itself, with no adapter.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One page per capture; drawing is the capture core's loop.
+One page per capture; drawing is the capture core's loop. A film's lines are read and decoded once, linear in their bytes.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
@@ -102,7 +102,7 @@ Each capture draws afresh, because the subject or the request differs.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The page opened here is closed here; the capture core holds one still at a time.
+The page opened here is closed here; the capture core holds one still at a time. The admitted lines live until their mouth track is planned, and the page holds the track.
 
 # src/AutoMovieCaptureHost.ts#AutoMovieCaptureHost.prototype.close
 

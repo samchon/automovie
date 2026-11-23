@@ -1,5 +1,6 @@
 import type {
   IAutoMovieDeliveryContentAudit,
+  IAutoMovieDialogueMouths,
   IAutoMovieFilmOptics,
   IAutoMovieFilmShading,
   IAutoMovieFilmSound,
@@ -111,9 +112,10 @@ export interface IAutoMovieDrawScene {
    * beauty draw; absent leaves indirect light as the scene's image lighting
    * gives it.
    *
-   * `AutoMovieFilmIndirectStage` measures what it asks for and the lit materials
-   * read it while the beauty pass draws. A member without `optics` at the same
-   * second throws, naming `optics`. Structural passes never ask for it.
+   * `AutoMovieFilmIndirectStage` measures what it asks for and the lit
+   * materials read it while the beauty pass draws. A member without `optics` at
+   * the same second throws, naming `optics`. Structural passes never ask for
+   * it.
    */
   shading?: (seconds: number) => IAutoMovieFilmShading;
 
@@ -132,6 +134,19 @@ export interface IAutoMovieDrawScene {
    * the renderer's render target as it found it.
    */
   beforeDraw?: (renderer: THREE.WebGLRenderer, seconds: number) => void;
+
+  /**
+   * Take the film's dialogue mouths, handed once before the first picture by a
+   * host that admitted the subject's sound list: the capture and the delivery
+   * render. The subject reads each speaking actor's mouth in `seek` and `place`
+   * for the second it places, in the form the actor's figure takes, and layers
+   * it over the authored expression. Absent, no mouth follows the sound and the
+   * delivery render lists each bound phoneme-driven line as `mouth-not-drawn`.
+   *
+   * The interactive inspector hands no mouths, because it reads no sound file;
+   * it shows the authored mouth until the viewer gains a file host.
+   */
+  speak?(mouths: IAutoMovieDialogueMouths): void;
 
   /**
    * Put every object and the delivery camera at a second; objects may be
