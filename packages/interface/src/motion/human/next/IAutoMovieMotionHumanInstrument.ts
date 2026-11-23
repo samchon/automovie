@@ -59,6 +59,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    *
    * Registered law: `registered("bowViolin", params)`; not a chain method.
    *
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * moves the right arm and holds the same grip throughout, and its cancel
+   * table names no action, so nothing cuts it.
+   *
    * @param params The `bow`, `violin`, `string`, `direction` and `duration` of
    *   `IAutoMovieMotionHumanBowViolinParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
