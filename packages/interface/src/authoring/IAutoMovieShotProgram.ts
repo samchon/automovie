@@ -1,5 +1,6 @@
 import type { IAutoMoviePolygonBodyCue } from "../cinematics/IAutoMoviePolygonBodyCue";
 import type { IAutoMoviePracticalSurfaceTrack } from "../cinematics/IAutoMoviePracticalSurfaceTrack";
+import type { IAutoMovieSurfaceGraphicTrack } from "../cinematics/IAutoMovieSurfaceGraphicTrack";
 import type { IAutoMovieScript } from "../harness/IAutoMovieScript";
 import type { IAutoMovieBlocking } from "./IAutoMovieBlocking";
 import type { IAutoMoviePerformance } from "./IAutoMoviePerformance";
@@ -34,7 +35,13 @@ export interface IAutoMovieShotProgram {
   /** Shot-local material changes on staged prop parts, admitted by performShot. */
   practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
 
-  /** Polygon body changes at source-shot times, admitted by performShot against the staged subjects. */
+  /** Pictures on `surface` affordances of staged props, admitted by performShot. */
+  surfaceGraphics?: readonly IAutoMovieSurfaceGraphicTrack[];
+
+  /**
+   * Polygon body changes at source-shot times, admitted by performShot against
+   * the staged subjects.
+   */
   polygonBodyCues?: readonly IAutoMoviePolygonBodyCue[];
 
   /**

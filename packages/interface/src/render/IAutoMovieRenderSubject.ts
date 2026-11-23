@@ -1,4 +1,6 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
+import type { IAutoMovieSurfaceGraphicTrack } from "../cinematics/IAutoMovieSurfaceGraphicTrack";
+import type { IAutoMovieFontSource } from "../typography/IAutoMovieFontSource";
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieCompiledEffect } from "../production/IAutoMovieCompiledEffect";
 import type { IAutoMovieCompiledFormation } from "../production/IAutoMovieCompiledFormation";
@@ -74,6 +76,19 @@ export interface IAutoMovieRenderSubject {
    * {@link IAutoMovieRenderPlanting.branch prototype cost} the caller supplies.
    */
   plantings?: readonly IAutoMovieRenderPlanting[];
+
+  /**
+   * Pictures the shot shows on `surface` affordances of placed props.
+   *
+   * Each track paints its whole face rectangle in the mask under
+   * `surface-graphic:<node>/<surface>`, owned by `node:<node>`, whatever its
+   * layers hold. Shot admission keeps one track per node and surface, so the id
+   * is unique within the subject.
+   */
+  surfaceGraphics?: readonly IAutoMovieSurfaceGraphicTrack[];
+
+  /** Font sources the surface graphics' text layers name; omitted means none. */
+  fonts?: readonly IAutoMovieFontSource[];
 
   /**
    * Decoded dimensions of texture assets, when the caller knows them.

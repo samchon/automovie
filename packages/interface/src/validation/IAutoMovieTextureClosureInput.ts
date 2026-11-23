@@ -1,6 +1,7 @@
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieAssetProvenance } from "../production/IAutoMovieAssetProvenance";
 import type { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironmentUse";
+import type { IAutoMovieSurfaceGraphicImageUse } from "./IAutoMovieSurfaceGraphicImageUse";
 import type { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 
 /**
@@ -14,6 +15,9 @@ export interface IAutoMovieTextureClosureInput {
   models: readonly IAutoMovieModel[];
 
   /** Compiled shots whose scenes bind image lighting. */
+  /** Images compiled shots show through surface graphics; omitted means none. */
+  surfaceImages?: readonly IAutoMovieSurfaceGraphicImageUse[];
+
   scenes: readonly IAutoMovieSceneEnvironmentUse[];
 
   /** The project asset ledger, exactly as the manifest holds it. */

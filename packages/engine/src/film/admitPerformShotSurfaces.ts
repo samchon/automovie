@@ -1,0 +1,95 @@
+import type {
+  IAutoMovieFontSource,
+  IAutoMoviePerformShotProps,
+  IAutoMoviePracticalSurfaceTrack,
+  IAutoMovieSceneNode,
+  IAutoMovieShot,
+  IAutoMovieSurfaceGraphicTrack,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
+
+import { appendPracticalSurfacesArtifact } from "../validation/appendPracticalSurfacesArtifact";
+import { validateAutoMovieFontSources } from "../typography/validateAutoMovieFontSources";
+import { appendSurfaceGraphicsArtifact } from "../validation/appendSurfaceGraphicsArtifact";
+
+/**
+ * Admit a shot's authored prop surfaces against the staged nodes and the
+ * registered models, and return detached copies for the shot artifact.
+ *
+ * Practical surface tracks switch a part's material; surface graphic tracks
+ * show pictures on a `surface` affordance. Both are checked with the models the
+ * props supply, so a target must resolve on the prop's registered model, and
+ * a text layer must name a font source the props list; the font sources are
+ * admitted from what their records state.
+ * Findings join `out`; when any finding exists, including one an earlier gate
+ * recorded, both lists come back absent so no partially admitted track reaches
+ * the artifact. Absent inputs stay absent.
+ */
+export function admitPerformShotSurfaces(
+  props: Pick<
+    IAutoMoviePerformShotProps,
+    "practicalSurfaces" | "surfaceGraphics" | "models" | "fonts"
+  >,
+  nodes: readonly IAutoMovieSceneNode[],
+  duration: number,
+  out: IAutoMovieViolationCollector,
+): Pick<IAutoMovieShot, "practicalSurfaces" | "surfaceGraphics" | "fonts"> {
+  validateAutoMovieFontSources(props.fonts, "$input.fonts", out);
+  appendPracticalSurfacesArtifact(
+    props.practicalSurfaces,
+    nodes,
+    duration,
+    out.items,
+    props.models ?? [],
+  );
+  appendSurfaceGraphicsArtifact(
+    props.surfaceGraphics,
+    nodes,
+    duration,
+    out,
+    props.models ?? [],
+    new Set(
+      (props.fonts ?? []).map((source: IAutoMovieFontSource): string => source.id),
+    ),
+  );
+  if (out.items.length > 0) return {};
+
+  const practicalSurfaces: IAutoMoviePracticalSurfaceTrack[] | undefined =
+    props.practicalSurfaces?.map(
+      (
+        track: IAutoMoviePracticalSurfaceTrack,
+      ): IAutoMoviePracticalSurfaceTrack => ({
+        node: track.node,
+        part: track.part,
+        keys: track.keys.map(
+          ({
+            time,
+            material,
+          }: IAutoMoviePracticalSurfaceTrack["keys"][number]): IAutoMoviePracticalSurfaceTrack["keys"][number] => ({
+            time,
+            material,
+          }),
+        ),
+      }),
+    );
+
+  // A graphic is plain data, so a structured clone detaches every nested layer.
+  const surfaceGraphics: IAutoMovieSurfaceGraphicTrack[] | undefined =
+    props.surfaceGraphics?.map(
+      (track: IAutoMovieSurfaceGraphicTrack): IAutoMovieSurfaceGraphicTrack =>
+        structuredClone(track),
+    );
+  return {
+    ...(practicalSurfaces === undefined ? {} : { practicalSurfaces }),
+    ...(surfaceGraphics === undefined ? {} : { surfaceGraphics }),
+    ...(props.fonts === undefined
+      ? {}
+      : {
+          fonts: props.fonts.map(
+            (source: IAutoMovieFontSource): IAutoMovieFontSource => ({
+              ...source,
+            }),
+          ),
+        }),
+  };
+}

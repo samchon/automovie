@@ -18,6 +18,7 @@ import { autoMovieFluidSurfaceNodeName } from "./autoMovieFluidSurfaceNodeName";
 import { autoMoviePlantingNodeName } from "./autoMoviePlantingNodeName";
 import { autoMovieRenderHash32 } from "./autoMovieRenderHash32";
 import { autoMovieSoftBodyNodeName } from "./autoMovieSoftBodyNodeName";
+import { autoMovieSurfaceGraphicNodeName } from "./autoMovieSurfaceGraphicNodeName";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_SEMANTIC_MASK_COLORS } from "./constants/AUTOMOVIE_SEMANTIC_MASK_COLORS";
 import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "./constants/AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES";
@@ -56,6 +57,10 @@ const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
  * different world than the one drawn.
  */
 export const deriveAutoMovieSemanticMask: (
+ * A surface graphic is joined by its viewer object's name, which is also its
+ * id, `surface-graphic:<node>/<surface>`, and is owned by its prop's node, so a
+ * screen's or a sign's face resolves to the face first and then the prop.
+ *
   subject: IAutoMovieRenderSubject,
 ) => IAutoMovieSemanticMask = (
   subject: IAutoMovieRenderSubject,
@@ -234,6 +239,22 @@ const collectClaims: (subject: IAutoMovieRenderSubject) => IClaim[] = (
   return claims;
 };
 
+  // A surface graphic paints its whole face under its own id, whatever its
+  // layers hold, so a regional prompt can target the screen or the sign.
+  for (const track of subject.surfaceGraphics ?? []) {
+    const name: string = autoMovieSurfaceGraphicNodeName(
+      track.node,
+      track.surface,
+    );
+    claims.push({
+      id: name,
+      kind: "surface-graphic",
+      label: null,
+      owner: `node:${track.node}`,
+      nodes: [name],
+      slot: null,
+    });
+  }
 /** Claims for one built environment's buildings, spaces, and drawables. */
 const environmentClaims: (
   environment: IAutoMovieBuiltEnvironment,

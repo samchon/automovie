@@ -1,5 +1,6 @@
 import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieCameraClearanceReport } from "../scene/IAutoMovieCameraClearanceReport";
+import type { IAutoMovieFontSource } from "../typography/IAutoMovieFontSource";
 import type { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
 import type { IAutoMovieEditorialMarker } from "./IAutoMovieEditorialMarker";
 import type { IAutoMovieInteractionEvent } from "./IAutoMovieInteractionEvent";
@@ -7,6 +8,7 @@ import type { IAutoMoviePolygonBodyCue } from "./IAutoMoviePolygonBodyCue";
 import type { IAutoMoviePracticalSurfaceTrack } from "./IAutoMoviePracticalSurfaceTrack";
 import type { IAutoMovieShotCoverage } from "./IAutoMovieShotCoverage";
 import type { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
+import type { IAutoMovieSurfaceGraphicTrack } from "./IAutoMovieSurfaceGraphicTrack";
 
 /**
  * A shot: one continuous take (a scene, the camera that frames it, the camera's
@@ -75,7 +77,23 @@ export interface IAutoMovieShot {
    */
   practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
 
-  /** Polygon body changes in source-shot time. Each subject and bone pair may appear once. */
+  /**
+   * Pictures shown on `surface` affordances of placed props. At most one per
+   * node and surface. Omission or an empty list shows no surface graphic.
+   */
+  surfaceGraphics?: readonly IAutoMovieSurfaceGraphicTrack[];
+
+  /**
+   * Font sources the surface graphics' text layers name, unique by id. `render`
+   * decodes every listed source before it draws a frame of the shot and
+   * refuses the shot when one fails. Omitted when no layer letters text.
+   */
+  fonts?: readonly IAutoMovieFontSource[];
+
+  /**
+   * Polygon body changes in source-shot time. Each subject and bone pair may
+   * appear once.
+   */
   polygonBodyCues?: readonly IAutoMoviePolygonBodyCue[];
 
   /**

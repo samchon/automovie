@@ -1,6 +1,6 @@
 # src/cinematics/IAutoMovieShot.ts#IAutoMovieShot
 
-## @evidence contracts/development/design.md#principled-representation `validateShotArtifact` checks ids, scene/camera references, finite positive duration, unique resolving performance nodes, clip shape and optional metadata, plus one clear report for each delivered camera declaring an envelope. Motion-id existence is checked only when a registry is supplied, and carried clearance fields cannot independently establish current geometry freshness.
+## @evidence contracts/development/design.md#principled-representation `validateShotArtifact` checks ids, scene/camera references, finite positive duration, unique resolving performance nodes, clip shape and optional metadata, practical surface and surface graphic track shape, plus one clear report for each delivered camera declaring an envelope. Motion-id existence is checked only when a registry is supplied, and carried clearance fields cannot independently establish current geometry freshness.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

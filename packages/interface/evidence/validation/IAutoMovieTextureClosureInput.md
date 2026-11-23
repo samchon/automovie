@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The production id binds asset authorization while model materials and shot environments enumerate uses; facts resolves one asset path to byte-header dimensions/media or undefined.
+The production id binds asset authorization while model materials, shot environments and surface-graphic image uses enumerate uses; facts resolves one asset path to byte-header dimensions/media or undefined.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

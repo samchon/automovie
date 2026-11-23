@@ -56,3 +56,4 @@ export type { IAutoMovieValidateTransformScalars } from "./IAutoMovieValidateTra
 export type { IAutoMovieValidateUniqueBy } from "./IAutoMovieValidateUniqueBy";
 export type { IAutoMovieValidation } from "./IAutoMovieValidation";
 export type { IAutoMovieViolationCollector } from "./IAutoMovieViolationCollector";
+export type { IAutoMovieSurfaceGraphicImageUse } from "./IAutoMovieSurfaceGraphicImageUse";

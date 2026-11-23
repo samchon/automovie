@@ -55,3 +55,6 @@ export type { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
 export type { IAutoMovieTransition } from "./IAutoMovieTransition";
 export type { IAutoMovieTrim } from "./IAutoMovieTrim";
 export type { IAutoMovieValidatePerformShotFraming } from "./IAutoMovieValidatePerformShotFraming";
+export type { IAutoMovieSurfaceGraphic } from "./IAutoMovieSurfaceGraphic";
+export type { IAutoMovieSurfaceGraphicLayer } from "./IAutoMovieSurfaceGraphicLayer";
+export type { IAutoMovieSurfaceGraphicTrack } from "./IAutoMovieSurfaceGraphicTrack";

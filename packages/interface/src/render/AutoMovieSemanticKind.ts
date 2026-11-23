@@ -14,4 +14,5 @@ export type AutoMovieSemanticKind =
   | "instance-slot"
   | "water-body"
   | "soft-body"
-  | "planting";
+  | "planting"
+  | "surface-graphic";

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Use one drawable-world record for both semantic ownership and inventory cost, including compact populations and simulated drawables not represented by ordinary scene nodes.
+Use one drawable-world record for both semantic ownership and inventory cost, including compact populations, simulated drawables not represented by ordinary scene nodes, and surface graphics whose face rectangles the mask paints under their own ids.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

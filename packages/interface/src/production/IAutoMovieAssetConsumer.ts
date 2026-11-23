@@ -72,6 +72,16 @@ export type IAutoMovieAssetConsumer =
        * Observed plan, section, elevation, detail, or generated design study.
        *
        * The observation document owns this byte use; several buildings may cite readings from one sheet. Registration permits the document to cite exact image bytes and does not convert those bytes into built geometry.
+  | {
+      /**
+       * Still image a surface graphic's `image` layer shows on a prop's face in
+       * one compiled shot.
+       */
+      kind: "surface-graphic";
+
+      /** Exact shot id whose surface graphics name this image. */
+      id: string;
+    }
        */
       kind: "design-reference";
 

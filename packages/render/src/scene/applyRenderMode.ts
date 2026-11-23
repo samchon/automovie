@@ -18,6 +18,7 @@ import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderM
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 import { autoMovieSemanticMaskOf } from "./semanticMask/index.js";
+import { hideAutoMovieSurfaceGraphics } from "./surfaceGraphic/hideAutoMovieSurfaceGraphics.js";
 
 /** A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite. */
 const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (
@@ -84,6 +85,9 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
  * - `albedo`: every mesh drawn unlit in its material's base colour on black, one
  *   `createAutoMovieAlbedoMaterial` per original material: the material channel
  *   for a neural renderer that is given lighting separately.
+ *
+ * Surface graphics from `prepareAutoMovieSurfaceGraphics` draw in `beauty` and
+ * `mask` only; every other pass hides them for its duration.
  *
  * Every pass that swaps a material carries a formation's baked cycle onto the
  * replacement, so a marching crowd marches in `depth`, `normal`, `mask`,
@@ -183,6 +187,10 @@ export const applyRenderMode: (
   const restoreRenderables: () => void = hideNonMeshRenderables(scene);
   const restoreFog: () => void = suspendFog(scene);
   const restoreEnvironment: () => void = suspendEnvironment(scene);
+  // Surface graphics draw only in beauty and mask: elsewhere the prop's own
+  // surface beneath already draws, and a control channel carries no lettering.
+  const restoreGraphics: () => void =
+    mode === "mask" ? (): void => {} : hideAutoMovieSurfaceGraphics(scene);
   // A builder that throws returns no handle, so the three suspensions above
   // would have no way back and the scene would keep drawing on black with its
   // atmosphere off for the rest of the session. The semantic mask pass is the
@@ -195,7 +203,7 @@ export const applyRenderMode: (
     handle = build();
   } catch (error) {
     restoreAutoMovieRenderModeState(
-      [restoreEnvironment, restoreFog, restoreRenderables],
+      [restoreGraphics, restoreEnvironment, restoreFog, restoreRenderables],
       { error },
     );
   }
@@ -208,6 +216,7 @@ export const applyRenderMode: (
         run: (): void => {
           restoreAutoMovieRenderModeState([
             handle.restore,
+            restoreGraphics,
             restoreEnvironment,
             restoreFog,
             restoreRenderables,

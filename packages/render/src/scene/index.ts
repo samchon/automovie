@@ -124,3 +124,4 @@ export * from "./human-polygon/index.js";
 export * from "./AutoMovieResourceRetirementScope.js";
 export * from "./constructAutoMovieOwnedResources.js";
 export * from "./restoreAutoMovieRenderModeOnce.js";
+export * from "./surfaceGraphic/index.js";

@@ -1,0 +1,178 @@
+import type {
+  IAutoMovieFont,
+  IAutoMovieSurfaceGraphic,
+  IAutoMovieSurfaceGraphicLayer,
+} from "@automovie/interface";
+import * as THREE from "three";
+
+import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
+import { createAutoMovieSurfaceGraphicQuad } from "./createAutoMovieSurfaceGraphicQuad.js";
+import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraphicText.js";
+
+/**
+ * Build one key's graphic as a group of flat meshes on the face.
+ *
+ * The first mesh covers the whole face: the background's colour, or, for a
+ * `null` background, a material that writes no colour, so the face still exists
+ * as the region the mask paints whatever the layers hold. Each layer follows as
+ * its own mesh in order. Render order rises with draw order, the face at `1`
+ * and layer `i` at `2 + i`, and no material writes depth, so the layers stack
+ * by order rather than by depth offsets.
+ *
+ * Image layers take the texture `image` returns for their asset. A `contain`
+ * fit shrinks the quad to the image's aspect inside its box, centred; a `cover`
+ * fit keeps the box and narrows the texture window to crop, centred; `stretch`
+ * maps the whole image onto the box. Aspects are taken in metres on the face,
+ * from the image's pixel width and height. A text layer draws its triangulated
+ * glyphs, set by `createAutoMovieSurfaceGraphicText` from the decoded font
+ * `font` returns, in its colour.
+ *
+ * Every geometry and material made is pushed to `owned` as it is made, so the
+ * caller releases them even when a later layer throws.
+ */
+export function buildAutoMovieSurfaceGraphicKey(props: {
+  /** The key's graphic. */
+  graphic: IAutoMovieSurfaceGraphic;
+
+  /** Face width along the frame's `+X`, metres. */
+  width: number;
+
+  /** Face depth along the frame's `Z`, metres. */
+  depth: number;
+
+  /** The decoded texture for an image layer's asset. */
+  image: (asset: string) => THREE.Texture;
+
+  /** The decoded font a text layer's font id names. */
+  font: (id: string) => IAutoMovieFont;
+
+  /** Receives every geometry and material made. */
+  owned: { dispose(): void }[];
+}): THREE.Group {
+  const { graphic, width, depth, owned } = props;
+  const group: THREE.Group = new THREE.Group();
+
+  const face: THREE.Mesh = mesh(
+    createAutoMovieSurfaceGraphicQuad(width, depth, FULL),
+    graphic.background === null
+      ? new THREE.MeshBasicMaterial({
+          colorWrite: false,
+          depthWrite: false,
+          transparent: true,
+        })
+      : createAutoMovieSurfaceGraphicMaterial(
+          graphic.emission,
+          graphic.background,
+        ),
+    owned,
+  );
+  face.renderOrder = 1;
+  group.add(face);
+
+  graphic.layers.forEach(
+    (layer: IAutoMovieSurfaceGraphicLayer, index: number): void => {
+      const drawn: THREE.Mesh =
+        layer.kind === "rect"
+          ? mesh(
+              createAutoMovieSurfaceGraphicQuad(width, depth, layer),
+              createAutoMovieSurfaceGraphicMaterial(
+                graphic.emission,
+                layer.color,
+              ),
+              owned,
+            )
+          : layer.kind === "text"
+            ? mesh(
+                createAutoMovieSurfaceGraphicText(
+                  width,
+                  depth,
+                  layer,
+                  props.font(layer.font),
+                ),
+                createAutoMovieSurfaceGraphicMaterial(
+                  graphic.emission,
+                  layer.color,
+                ),
+                owned,
+              )
+            : imageMesh(layer, props);
+      drawn.renderOrder = 2 + index;
+      group.add(drawn);
+    },
+  );
+  return group;
+}
+
+/** The whole face in face fractions. */
+const FULL: IAutoMovieSurfaceGraphicLayer.IBox = {
+  x: 0,
+  y: 0,
+  width: 1,
+  height: 1,
+};
+
+/** A graphic mesh that casts no shadow, registered with its owner. */
+function mesh(
+  geometry: THREE.BufferGeometry,
+  material: THREE.Material,
+  owned: { dispose(): void }[],
+): THREE.Mesh {
+  owned.push(geometry, material);
+  const result: THREE.Mesh = new THREE.Mesh(geometry, material);
+  result.castShadow = false;
+  result.receiveShadow = material instanceof THREE.MeshLambertMaterial;
+  return result;
+}
+
+/** One image layer's quad, fitted into its box by metric aspect. */
+function imageMesh(
+  layer: IAutoMovieSurfaceGraphicLayer.IImage,
+  props: Parameters<typeof buildAutoMovieSurfaceGraphicKey>[0],
+): THREE.Mesh {
+  const texture: THREE.Texture = props.image(layer.asset);
+  const pixels: { width: number; height: number } = texture.image as {
+    width: number;
+    height: number;
+  };
+  const boxWidth: number = layer.width * props.width;
+  const boxHeight: number = layer.height * props.depth;
+  const ratio: number = pixels.width / pixels.height / (boxWidth / boxHeight);
+  let box: IAutoMovieSurfaceGraphicLayer.IBox = layer;
+  let uv: { u0: number; v0: number; u1: number; v1: number } = {
+    u0: 0,
+    v0: 0,
+    u1: 1,
+    v1: 1,
+  };
+
+  // A ratio above one means the image is wider than its box.
+  if (layer.fit === "contain")
+    box =
+      ratio > 1
+        ? {
+            x: layer.x,
+            width: layer.width,
+            y: layer.y + (layer.height * (1 - 1 / ratio)) / 2,
+            height: layer.height / ratio,
+          }
+        : {
+            x: layer.x + (layer.width * (1 - ratio)) / 2,
+            width: layer.width * ratio,
+            y: layer.y,
+            height: layer.height,
+          };
+  else if (layer.fit === "cover")
+    uv =
+      ratio > 1
+        ? { u0: (1 - 1 / ratio) / 2, u1: (1 + 1 / ratio) / 2, v0: 0, v1: 1 }
+        : { u0: 0, u1: 1, v0: (1 - ratio) / 2, v1: (1 + ratio) / 2 };
+  return mesh(
+    createAutoMovieSurfaceGraphicQuad(props.width, props.depth, box, uv),
+    createAutoMovieSurfaceGraphicMaterial(
+      props.graphic.emission,
+      { r: 1, g: 1, b: 1, a: null },
+      texture,
+    ),
+    props.owned,
+  );
+}

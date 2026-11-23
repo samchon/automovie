@@ -3,6 +3,7 @@ import type { IAutoMoviePerformance } from "../authoring/IAutoMoviePerformance";
 import type { IAutoMovieCameraClearanceRuntime } from "../cinematics/IAutoMovieCameraClearanceRuntime";
 import type { IAutoMoviePolygonBodyCue } from "../cinematics/IAutoMoviePolygonBodyCue";
 import type { IAutoMoviePracticalSurfaceTrack } from "../cinematics/IAutoMoviePracticalSurfaceTrack";
+import type { IAutoMovieSurfaceGraphicTrack } from "../cinematics/IAutoMovieSurfaceGraphicTrack";
 import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieActionTarget } from "../harness/IAutoMovieActionTarget";
@@ -15,6 +16,7 @@ import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMovieFontSource } from "../typography/IAutoMovieFontSource";
 import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
 import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
 import type { IAutoMoviePracticalLightBinding } from "./IAutoMoviePracticalLightBinding";
@@ -167,7 +169,24 @@ export interface IAutoMoviePerformShotProps {
    */
   practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
 
-  /** Polygon body changes keyed by staged node and rig bone, timed in source-shot seconds. */
+  /**
+   * Pictures on `surface` affordances of placed props. Nonempty input requires
+   * the corresponding generated rigid models in models. Omit for no surface
+   * graphic.
+   */
+  surfaceGraphics?: readonly IAutoMovieSurfaceGraphicTrack[];
+
+  /**
+   * Font sources the surface graphics' text layers may name, admitted from
+   * what the records state and carried onto `shot.fonts`. Omit when no layer
+   * letters text.
+   */
+  fonts?: readonly IAutoMovieFontSource[];
+
+  /**
+   * Polygon body changes keyed by staged node and rig bone, timed in
+   * source-shot seconds.
+   */
   polygonBodyCues?: readonly IAutoMoviePolygonBodyCue[];
 
   /**
