@@ -240,17 +240,21 @@ const bindingAsset: (binding: string | IAutoMovieTextureReference) => string = (
 ): string => (typeof binding === "string" ? binding : binding.asset);
 
 /**
- * Map Radiance header media to linear and supported8-bit image media to srgb environment intent.
+ * Map Radiance header media to linear and supported8-bit image media to srgb
+ * environment intent.
  *
- * The existing viewer decoding policy determines the environment's single color interpretation.
+ * The existing viewer decoding policy determines the environment's single color
+ * interpretation.
  *
- * Header facts are metadata; this does not inspect transfer-function chunks or decoded pixels.
+ * Header facts are metadata; this does not inspect transfer-function chunks or
+ * decoded pixels.
  *
  * The returned closed intent feeds cross-slot contradiction checks.
  *
  * One media comparison takes constant work.
  *
- * Environment and material consumers share the same request-local intent ledger.
+ * Environment and material consumers share the same request-local intent
+ * ledger.
  *
  * Only a string literal escapes and no image/decoder is retained.
  */
@@ -262,19 +266,25 @@ const environmentIntent: (
   facts.mediaType === "image/vnd.radiance" ? "linear" : "srgb";
 
 /**
- * Check registration, exact production/consumer authorization, allowed header media and positive bounded pixel edges.
+ * Check registration, exact production/consumer authorization, allowed header
+ * media and positive bounded pixel edges.
  *
- * The ledger owns identity and this helper owns the cited slot's closure policy.
+ * The ledger owns identity and this helper owns the cited slot's closure
+ * policy.
  *
  * It does not redigest bytes or certify complete image decoding.
  *
- * Unregistered/unreadable/disallowed assets report at the citing slot with field-specific dimensions.
+ * Unregistered/unreadable/disallowed assets report at the citing slot with
+ * field-specific dimensions.
  *
- * One map lookup plus record-use scan and facts callback dominate; fixed media/dimension checks follow.
+ * One map lookup plus record-use scan and facts callback dominate; fixed
+ * media/dimension checks follow.
  *
- * The coordinator shares its records map and the host may cache facts by current byte identity.
+ * The coordinator shares its records map and the host may cache facts by
+ * current byte identity.
  *
- * Only caller-owned diagnostics remain; asset/facts references are borrowed without an image load.
+ * Only caller-owned diagnostics remain; asset/facts references are borrowed
+ * without an image load.
  */
 const checkAsset: (props: {
   asset: string;

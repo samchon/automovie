@@ -1,12 +1,12 @@
 /**
- * Refuse a gradient-noise coordinate that is not finite or whose finest
- * lattice coordinate leaves the noise's domain bound.
+ * Refuse a gradient-noise coordinate that is not finite or whose finest lattice
+ * coordinate leaves the noise's domain bound.
  *
  * Each lattice corner's gradient is read from the counter stream at an index
- * built from the corner's integer coordinates, and the stream holds only
- * 2^53 indices, so the noise is defined on a bounded lattice. The caller
- * names the coordinate, so the refusal says which input left the domain
- * instead of letting the stream refuse an index the author never wrote.
+ * built from the corner's integer coordinates, and the stream holds only 2^53
+ * indices, so the noise is defined on a bounded lattice. The caller names the
+ * coordinate, so the refusal says which input left the domain instead of
+ * letting the stream refuse an index the author never wrote.
  *
  * @param name The coordinate's parameter name, such as `x`.
  * @param value The coordinate as given, in lattice units of the first octave.

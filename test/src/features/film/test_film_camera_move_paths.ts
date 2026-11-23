@@ -58,9 +58,9 @@ const frame: (
  *    earlier key instead of minting a zero-width span.
  * 5. A camera staged exactly on the aim point falls back to the +Z bearing.
  * 6. No entries → no clip (`null`).
- * 7. Truck movement ends screen-left at fixed depth, keeps an animated
- *    subject's endpoint shift, and has a defined lateral fallback for a
- *    vertical staged bearing.
+ * 7. Truck movement ends screen-left at fixed depth, keeps an animated subject's
+ *    endpoint shift, and has a defined lateral fallback for a vertical staged
+ *    bearing.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls compileCameraMove for orbit, follow, truck, static, colliding start times, and empty entries, observing key counts, selected positions, orbit radius/easing, and fallback bearings.
  * @evidence contracts/development/testing.md#independent-expectations A two-metre full subject at 90-degree FOV gives the fixed 1.15 metre distance and one-metre aim. Euclidean Math.hypot and atan2 measure orbit radius and angle independently; literal follow and truck endpoints follow the authored one-metre subject translation and framing grammar.

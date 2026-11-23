@@ -16,10 +16,9 @@
  * matches the opaque picture exactly only where alpha is 0 or 1; a partly
  * covered pixel, a soft edge or thin haze, is responded on its own colour
  * rather than on its mix with the backdrop. Glare a bright source spreads past
- * its coverage is light with almost no alpha, which straight 8-bit alpha
- * cannot hold after a saturating curve, so such a halo falls to nothing in
- * the layer; only associated output can carry light without coverage (Porter
- * and Duff's luminescent pixels), so a halo that matters belongs in the
- * opaque film.
+ * its coverage is light with almost no alpha, which straight 8-bit alpha cannot
+ * hold after a saturating curve, so such a halo falls to nothing in the layer;
+ * only associated output can carry light without coverage (Porter and Duff's
+ * luminescent pixels), so a halo that matters belongs in the opaque film.
  */
 export type AutoMovieFilmAlpha = "transparent" | "coverage";

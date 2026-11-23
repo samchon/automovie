@@ -77,9 +77,7 @@ export function createGymKit(
   };
 }
 
-/**
- * Types of the gym kit producer.
- */
+/** Types of the gym kit producer. */
 export namespace createGymKit {
   /** The room layout and the positive integer count of the kit's repeated group. */
   export interface IParams extends IAutoMovieFurnishingLayout {

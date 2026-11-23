@@ -50,10 +50,13 @@ import {
 import type { archetypeCatalog } from "./archetypeCatalog";
 
 /**
- * The catalog's rows of vehicles, animals, weapons and gym equipment. Part of `archetypeCatalog`, kept apart so each file stays within its size.
+ * The catalog's rows of vehicles, animals, weapons and gym equipment. Part of
+ * `archetypeCatalog`, kept apart so each file stays within its size.
  *
- * @param add Adds one row: its name, its archetype for a seed, and whether no seed varies it.
- * @param settled Whether a variant's bands are each one value and it has at most one read model.
+ * @param add Adds one row: its name, its archetype for a seed, and whether no
+ *   seed varies it.
+ * @param settled Whether a variant's bands are each one value and it has at
+ *   most one read model.
  */
 export function archetypeCatalogCarried(
   add: archetypeCatalog.Add,

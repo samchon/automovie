@@ -19,17 +19,34 @@ import * as THREE from "three";
 import { InspectionScene } from "../internal/InspectionScene";
 
 /**
- * The inspector's scene mount keeps one renderer and one frame loop alive across mount, dispose and mount on one canvas, draws only when something changed, and answers a refused request with the request it still draws.
+ * The inspector's scene mount keeps one renderer and one frame loop alive
+ * across mount, dispose and mount on one canvas, draws only when something
+ * changed, and answers a refused request with the request it still draws.
  *
  * Scenarios:
  *
- * 1. Mount, dispose before arrival, and mount again. The second mount admits a declared contact kind before any contact mark appears and gives its name to the selection panel.
- * 2. The first frame renders once at the address's second; a frame with nothing changed renders nothing; a new canvas size resizes the renderer and renders again.
- * 3. Playing, frames 500 ms apart advance the playhead half a second each and seek the instance there; past the end the playhead stops at the duration.
- * 4. A request whose mark pattern matches no kind is refused with the request still drawn. A declared contact pattern is accepted on a silent frame, then gains one legend entry at the requested contact second.
- * 5. A pending seek blocks other seeks and drawing. The completed seek draws the expired contact frame with an empty legend, then the next frame seeks to the newest second.
- * 6. Dispose with a seek pending cancels the pending frame, removes the inspection's objects from the scene, disposes the renderer and the instance once, and the seek resolving afterwards draws nothing; a second dispose does nothing. A third mount on the same host leaves exactly one renderer alive.
- * 7. A subject whose creation fails, and one whose duration is zero, report the reason, create no renderer that stays alive and dispose the instance they got.
+ * 1. Mount, dispose before arrival, and mount again. The second mount admits a
+ *    declared contact kind before any contact mark appears and gives its name
+ *    to the selection panel.
+ * 2. The first frame renders once at the address's second; a frame with nothing
+ *    changed renders nothing; a new canvas size resizes the renderer and
+ *    renders again.
+ * 3. Playing, frames 500 ms apart advance the playhead half a second each and seek
+ *    the instance there; past the end the playhead stops at the duration.
+ * 4. A request whose mark pattern matches no kind is refused with the request
+ *    still drawn. A declared contact pattern is accepted on a silent frame,
+ *    then gains one legend entry at the requested contact second.
+ * 5. A pending seek blocks other seeks and drawing. The completed seek draws the
+ *    expired contact frame with an empty legend, then the next frame seeks to
+ *    the newest second.
+ * 6. Dispose with a seek pending cancels the pending frame, removes the
+ *    inspection's objects from the scene, disposes the renderer and the
+ *    instance once, and the seek resolving afterwards draws nothing; a second
+ *    dispose does nothing. A third mount on the same host leaves exactly one
+ *    renderer alive.
+ * 7. A subject whose creation fails, and one whose duration is zero, report the
+ *    reason, create no renderer that stays alive and dispose the instance they
+ *    got.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public mount against a recording host (renderer, frame clock and size) and a subject double with a real three.js scene, and asserts the host's and subject's records and the reports.
  * @evidence contracts/development/testing.md#independent-expectations Counts follow the fixture's one live mount, one pending frame and one contact on [1, 1.25) seconds. The expectation uses the authored contact interval and scene children.
@@ -40,8 +57,9 @@ import { InspectionScene } from "../internal/InspectionScene";
 export async function test_inspector_mount_lifecycle(): Promise<void> {
   const host: RecordingHost = new RecordingHost();
   const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
-  const request: IAutoMovieCapturePlanRequest =
-    readAutoMovieInspectorAddress("marks=contact&at=0.25");
+  const request: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress(
+    "marks=contact&at=0.25",
+  );
 
   // 1. Mount, dispose before arrival, mount again.
   const first: RecordingSubject = new RecordingSubject(2);
@@ -154,8 +172,9 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
     "with the request still drawn",
     report.refusals[0]![0] === request,
   );
-  const marked: IAutoMovieCapturePlanRequest =
-    readAutoMovieInspectorAddress("marks=contact*&at=1");
+  const marked: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress(
+    "marks=contact*&at=1",
+  );
   mounted.apply(marked);
   TestValidator.equals(
     "an accepted request is not refused",
@@ -177,10 +196,12 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
   );
   TestValidator.predicate(
     "the contact second reports one actual mark",
-    report.legends.at(-1)!.some(
-      (entry: IAutoMovieInspectionLegendEntry): boolean =>
-        entry.label === "contact" && entry.count === 1,
-    ),
+    report.legends
+      .at(-1)!
+      .some(
+        (entry: IAutoMovieInspectionLegendEntry): boolean =>
+          entry.label === "contact" && entry.count === 1,
+      ),
   );
 
   // 5. A seek that resolves late.
@@ -364,7 +385,10 @@ class RecordingHost implements IAutoMovieInspectorSceneHost {
     return { width: this.width, height: 360, pixelRatio: 1 };
   }
 
-  /** Run every pending frame at one time, then let every seek they started settle. */
+  /**
+   * Run every pending frame at one time, then let every seek they started
+   * settle.
+   */
   public async run(nowMs: number): Promise<void> {
     const pending: ((nowMs: number) => void)[] = [...this.frames.values()];
     this.frames.clear();
@@ -475,7 +499,10 @@ class RecordingSubject implements IAutoMovieDrawSubject {
   }
 }
 
-/** Let every pending promise reaction run: a macrotask runs after the whole microtask queue drains. */
+/**
+ * Let every pending promise reaction run: a macrotask runs after the whole
+ * microtask queue drains.
+ */
 function flush(): Promise<void> {
   return new Promise<undefined>((resolve: (value: undefined) => void): void => {
     setImmediate((): void => resolve(undefined));

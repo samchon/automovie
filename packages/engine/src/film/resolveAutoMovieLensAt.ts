@@ -19,13 +19,13 @@ import { Vector3 } from "../math/Vector3";
  *
  * The focused depth of a mark `P` is its distance along the camera's forward
  * axis, `(P − C) · forward`, in metres, measured from where the camera stands
- * at this second, so a dolly toward a fixed mark shortens it. Inside a pull
- * the depth eases from the first mark's `z0` to the second's `z1` as
- * `z0 + (z1 − z0) × s(u)`, with `u = (t − start) / (end − start)` and
- * `s(u) = u²(3 − 2u)`, which starts and lands with zero rate as a focus
- * puller's hand does; before `start` the first mark holds and after `end` the
- * second. Marks are world points recorded when the shot was compiled, so a
- * subject that walks away from its mark goes soft: there is no follow focus.
+ * at this second, so a dolly toward a fixed mark shortens it. Inside a pull the
+ * depth eases from the first mark's `z0` to the second's `z1` as `z0 + (z1 −
+ * z0) × s(u)`, with `u = (t − start) / (end − start)` and `s(u) = u²(3 − 2u)`,
+ * which starts and lands with zero rate as a focus puller's hand does; before
+ * `start` the first mark holds and after `end` the second. Marks are world
+ * points recorded when the shot was compiled, so a subject that walks away from
+ * its mark goes soft: there is no follow focus.
  *
  * @param props The shot's intents, the second and the camera's placement.
  * @returns The stop and the focused depth, or null.
@@ -59,7 +59,5 @@ export const resolveAutoMovieLensAt: (
     );
     focusDistance = near + (depth(pull.to) - near) * u * u * (3 - 2 * u);
   }
-  return focusDistance > 0
-    ? { fNumber: active.fNumber, focusDistance }
-    : null;
+  return focusDistance > 0 ? { fNumber: active.fNumber, focusDistance } : null;
 };

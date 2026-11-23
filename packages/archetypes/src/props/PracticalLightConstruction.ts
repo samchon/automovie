@@ -66,17 +66,14 @@ function draw<Id extends createLight.Affordance>(
 }
 
 /**
- * Static practical-light bodies with authored grip, hanging and render-light bindings.
+ * Static practical-light bodies with authored grip, hanging and render-light
+ * bindings.
  */
 export namespace PracticalLightConstruction {
-  /**
-   * The contact ids {@link pendant} builds or reads.
-   */
+  /** The contact ids {@link pendant} builds or reads. */
   export type PendantContact = "grip" | "light" | "hook";
 
-  /**
-   * Build a suspended lamp with a downward light frame.
-   */
+  /** Build a suspended lamp with a downward light frame. */
   export function pendant(
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
@@ -126,19 +123,13 @@ export namespace PracticalLightConstruction {
     return builder.build(d.mass!);
   }
 
-  /**
-   * The values {@link standing} accepts at this place in its signature.
-   */
+  /** The values {@link standing} accepts at this place in its signature. */
   export type StandingKind = "tableLamp" | "floorLamp";
 
-  /**
-   * The contact ids {@link standing} builds or reads.
-   */
+  /** The contact ids {@link standing} builds or reads. */
   export type StandingContact = "grip" | "light";
 
-  /**
-   * Build a standing lamp with its source inside the shade.
-   */
+  /** Build a standing lamp with its source inside the shade. */
   export function standing(
     kind: StandingKind,
     params: Omit<createLight.IParams, "kind">,
@@ -191,14 +182,10 @@ export namespace PracticalLightConstruction {
     return builder.build(d.mass!);
   }
 
-  /**
-   * The contact ids {@link lantern} builds or reads.
-   */
+  /** The contact ids {@link lantern} builds or reads. */
   export type LanternContact = "grip" | "light" | "hook";
 
-  /**
-   * Build a raised-bail lantern with a standing base, grip and hanging hook.
-   */
+  /** Build a raised-bail lantern with a standing base, grip and hanging hook. */
   export function lantern(
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
@@ -272,18 +259,15 @@ export namespace PracticalLightConstruction {
     return builder.build(d.mass!);
   }
 
-  /**
-   * The values {@link wick} accepts at this place in its signature.
-   */
+  /** The values {@link wick} accepts at this place in its signature. */
   export type WickKind = "candle" | "fireTorch";
 
-  /**
-   * The contact ids {@link wick} builds or reads.
-   */
+  /** The contact ids {@link wick} builds or reads. */
   export type WickContact = "grip" | "light";
 
   /**
-   * Build a candle or a fictional torch body with a light frame at the wick or animated tip.
+   * Build a candle or a fictional torch body with a light frame at the wick or
+   * animated tip.
    */
   export function wick(
     kind: WickKind,

@@ -55,9 +55,7 @@ export function createStreetFixture(
   return produce(params, seed);
 }
 
-/**
- * Companion types and bands of {@link createStreetFixture}.
- */
+/** Companion types and bands of {@link createStreetFixture}. */
 export namespace createStreetFixture {
   /** The kinds of fixture. */
   export type Kind =

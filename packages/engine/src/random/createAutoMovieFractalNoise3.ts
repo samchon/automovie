@@ -12,19 +12,18 @@ import { createAutoMovieRandom } from "./createAutoMovieRandom";
  * Graphics 19(3)).
  *
  * Octave `o` (from 0) samples its own lattice at `2^o` times the point with
- * amplitude `roughness^o`, and the sum is divided by the sum of the
- * amplitudes, so it stays in [-1, 1] and keeps every octave's continuity.
- * Octave 0 uses `seed`; octave `o >= 1` uses the stream derived from `seed`
- * by the ids `"octave"` and `o`. A coordinate is admitted when
- * `|coordinate| * 2^(octaves - 1)` is at most
- * {@link createAutoMovieGradientNoise3.BOUND}.
+ * amplitude `roughness^o`, and the sum is divided by the sum of the amplitudes,
+ * so it stays in [-1, 1] and keeps every octave's continuity. Octave 0 uses
+ * `seed`; octave `o >= 1` uses the stream derived from `seed` by the ids
+ * `"octave"` and `o`. A coordinate is admitted when `|coordinate| * 2^(octaves
+ * - 1)` is at most {@link createAutoMovieGradientNoise3.BOUND}.
  *
  * @param seed Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
  * @param octaves Number of octaves, a positive integer.
  * @param roughness Amplitude ratio between successive octaves, in (0, 1).
  * @returns The noise, taking coordinates in first-octave lattice cells; it
- *   throws naming `x`, `y` or `z` when a coordinate is not finite or its
- *   finest octave coordinate exceeds the bound.
+ *   throws naming `x`, `y` or `z` when a coordinate is not finite or its finest
+ *   octave coordinate exceeds the bound.
  * @throws {Error} Naming `octaves` or `roughness` when either is outside its
  *   range, or when `seed` is not sixteen hexadecimal digits.
  */
@@ -56,8 +55,7 @@ export function createAutoMovieFractalNoise3(
     let frequency: number = 1;
     let amplitude: number = 1;
     for (const layer of layers) {
-      sum +=
-        amplitude * layer(x * frequency, y * frequency, z * frequency);
+      sum += amplitude * layer(x * frequency, y * frequency, z * frequency);
       frequency *= 2;
       amplitude *= roughness;
     }

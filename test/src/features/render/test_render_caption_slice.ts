@@ -24,7 +24,8 @@ const whole: () => IAutoMovieCaptionSidecar = (): IAutoMovieCaptionSidecar =>
  * frame-atomic rule: entries clip to the window and re-base to chunk-local
  * indices, so every chunk render carries its own caption sidecar.
  *
- * Scenarios (whole = 10 frames: duel `[0,3)`, aftermath `[3,10)`, the dissolve's midpoint at frame 3):
+ * Scenarios (whole = 10 frames: duel `[0,3)`, aftermath `[3,10)`, the
+ * dissolve's midpoint at frame 3):
  *
  * 1. A middle window `[1,5)` clips both spans and re-bases them to `[0,2)` /
  *    `[2,4)` with captions intact: the hand-math oracle.
@@ -33,7 +34,8 @@ const whole: () => IAutoMovieCaptionSidecar = (): IAutoMovieCaptionSidecar =>
  *    frameStart`).
  * 4. A window entirely inside one span drops the other (the `start >= stop` skip).
  * 5. Non-integer / negative `frameStart` and `frameEnd <= frameStart` throw.
- * 6. Non-integer frameEnd and windows starting at or beyond coverage refuse rather than producing negative frame counts.
+ * 6. Non-integer frameEnd and windows starting at or beyond coverage refuse rather
+ *    than producing negative frame counts.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real slicer over the caption planner's original two-span track and asserts clipped/rebased records, whole-window preservation, clamped coverage, single-span selection and every existing malformed or out-of-coverage refusal.
  * @evidence contracts/development/testing.md#independent-expectations Half-open interval intersection gives [0,2) and [2,4) for the [1,5) window over [0,3)/[3,10); authored fixture labels stay literal. Counts and interval endpoints remain exact, with nclose only for scalar clock leaves in whole-record comparisons.

@@ -17,14 +17,18 @@ import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, nclose } from "../internal/predicates";
 
 /**
- * Pins that `performShot` keys a moving camera at the delivery clock its frame format states.
+ * Pins that `performShot` keys a moving camera at the delivery clock its frame
+ * format states.
  *
  * Scenarios:
  *
- * 1. A two-second push-in delivered at 30 fps is keyed at the 61 instants `k / 30`.
- * 2. Delivered at the exact rate 30000/1001, its keys sit at `k × 1001 / 30000`, the render frame sampler's instants.
+ * 1. A two-second push-in delivered at 30 fps is keyed at the 61 instants `k /
+ *    30`.
+ * 2. Delivered at the exact rate 30000/1001, its keys sit at `k × 1001 / 30000`,
+ *    the render frame sampler's instants.
  * 3. A frame format without `fps` keys at the 24 fps fallback, 49 keys.
- * 4. A fractional `fps` of 29.97 without its exact rate is refused at `$input.frameFormat.fps`.
+ * 4. A fractional `fps` of 29.97 without its exact rate is refused at
+ *    `$input.frameFormat.fps`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs a push-in shot through performShot with each frame format and reads the hero camera clip's key times or the located refusal.
  * @evidence contracts/development/testing.md#independent-expectations The expected instants are the delivered frame times of the stated rate over the two-second span; the fractional refusal follows the production rule that a decimal rate does not identify its exact fraction.

@@ -4,9 +4,7 @@ import type { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironment
 import type { IAutoMovieSurfaceGraphicImageUse } from "./IAutoMovieSurfaceGraphicImageUse";
 import type { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 
-/**
- * All authored uses, ledger rows and supplied image facts for texture closure.
- */
+/** All authored uses, ledger rows and supplied image facts for texture closure. */
 export interface IAutoMovieTextureClosureInput {
   /** Exact production id whose ledger entries authorize these uses. */
   production: string;
@@ -25,7 +23,8 @@ export interface IAutoMovieTextureClosureInput {
 
   /**
    * Resolve supplied image-header facts for an authored asset path, including
-   * an unregistered scene reference, or return undefined for unavailable facts.
+   * an unregistered scene reference, or return undefined for unavailable
+   * facts.
    */
   facts: (asset: string) => IAutoMovieTextureImageFacts | undefined;
 }

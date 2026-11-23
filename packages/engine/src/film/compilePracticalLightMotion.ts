@@ -25,9 +25,23 @@ const EMITTER_FORWARD: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const SPOT_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
 
 /**
- * Bake the position, aim and optional switching of a practical light from a prop's existing motion. Darius Khondji describes using the actors' flashlights as visible sources in [American Cinematographer's account of Seven](https://theasc.com/article/seven-cinematography-khondji-fincher/).
+ * Bake the position, aim and optional switching of a practical light from a
+ * prop's existing motion. Darius Khondji describes using the actors'
+ * flashlights as visible sources in [American Cinematographer's account of
+ * Seven](https://theasc.com/article/seven-cinematography-khondji-fincher/).
  *
- * Place the emitter at each requested instant using the same shot-local object-motion sampler as baked prop placement. Translation, rotation and scale inherit the staged prop values until their respective channels begin. Emit linear position and spot rotation tracks for resolveShotLighting. Alignment is exact at the bake samples and interpolated between samples. Intensity switches at exact interval boundaries independently of frame spacing. A light whose source is a flame carries the flame's flicker instead: one `step` intensity track on the flame's key grid, `I_on · A(t) / Ā` inside `on` and 0 outside, whether or not `on` is given. A moving prop requires explicit sample times. performShot calls this compiler after collecting coupling and authored object clips, then passes the serializable result through the existing shot light-motion path.
+ * Place the emitter at each requested instant using the same shot-local
+ * object-motion sampler as baked prop placement. Translation, rotation and
+ * scale inherit the staged prop values until their respective channels begin.
+ * Emit linear position and spot rotation tracks for resolveShotLighting.
+ * Alignment is exact at the bake samples and interpolated between samples.
+ * Intensity switches at exact interval boundaries independently of frame
+ * spacing. A light whose source is a flame carries the flame's flicker instead:
+ * one `step` intensity track on the flame's key grid, `I_on · A(t) / Ā` inside
+ * `on` and 0 outside, whether or not `on` is given. A moving prop requires
+ * explicit sample times. performShot calls this compiler after collecting
+ * coupling and authored object clips, then passes the serializable result
+ * through the existing shot light-motion path.
  */
 export function compilePracticalLightMotion(
   input: IAutoMovieCompilePracticalLightMotion,

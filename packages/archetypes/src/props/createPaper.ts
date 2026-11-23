@@ -142,9 +142,7 @@ export function createPaper(
   return builder.build(d.mass!);
 }
 
-/**
- * The paper formats and their stable names in authored scenes.
- */
+/** The paper formats and their stable names in authored scenes. */
 export namespace createPaper {
   /** A loose sheet or a map that opens at one crease. */
   export type Format = "sheet" | "foldedMap";

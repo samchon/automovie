@@ -35,9 +35,14 @@ const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
 /**
  * Derive the stable semantic palette for one render subject.
  *
- * Each semantic id supplies a hashed starting colour; allocation visits ids in code-unit order and probes occupied colours forward. An allocated colour therefore depends on the complete claim population when collisions or probing chains occur. Reordering `scene.nodes` preserves the palette payload, while adding claims can change existing colours through those chains.
+ * Each semantic id supplies a hashed starting colour; allocation visits ids in
+ * code-unit order and probes occupied colours forward. An allocated colour
+ * therefore depends on the complete claim population when collisions or probing
+ * chains occur. Reordering `scene.nodes` preserves the palette payload, while
+ * adding claims can change existing colours through those chains.
  *
- * This function emits palette metadata. It observes no rendered pixels and does not prove byte-identical GPU segmentation.
+ * This function emits palette metadata. It observes no rendered pixels and does
+ * not prove byte-identical GPU segmentation.
  *
  * Pixels belong to exactly one entry: the drawable that paints them. A
  * building's logical layers, its spaces, boundaries and openings, paint nothing
@@ -97,9 +102,7 @@ export const deriveAutoMovieSemanticMask: (
   return { ...payload, digest: digestAutoMovieSemanticMask(payload) };
 };
 
-/**
- * One entity awaiting a colour.
- */
+/** One entity awaiting a colour. */
 interface IClaim {
   id: string;
   kind: IAutoMovieSemanticMaskEntry["kind"];

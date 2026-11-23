@@ -15,26 +15,24 @@ const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
  *
  * For `N = optics.samples`, sample `k = 0 … N − 1` takes:
  *
- * - its second: with a shutter, `t − T × (N − k − 0.5) / N`, the midpoints of
- *   `N` equal strata of the trailing interval `[t − T, t]` with
- *   `T = angle / 360 / fps`, in ascending time, so the frame's last placement,
- *   its marks and its pose sidecar all describe second `t`; without a shutter,
- *   `t`;
- * - its eye: with a lens, point `j` of the Hammersley set `(j / N, Φ₂(j))`,
- *   `Φ₂` the base-2 radical inverse, mapped to the unit disk by the concentric
- *   map of Shirley and Chiu (1997, "A low distortion map between disk and
- *   square", Journal of Graphics Tools) and scaled to the aperture radius.
- *   Alone, `j = k`. With a shutter too, `j = (a × k + ⌊N / 2⌋) mod N`, with
- *   `a` the integer nearest `N × 0.618…` that is coprime to `N`: a fixed
- *   permutation other than the identity, so a sample's time and its lens
- *   position are not correlated (Cook, Porter and Carpenter 1984, "Distributed
- *   ray tracing", SIGGRAPH).
+ * - Its second: with a shutter, `t − T × (N − k − 0.5) / N`, the midpoints of `N`
+ *   equal strata of the trailing interval `[t − T, t]` with `T = angle / 360 /
+ *   fps`, in ascending time, so the frame's last placement, its marks and its
+ *   pose sidecar all describe second `t`; without a shutter, `t`;
+ * - Its eye: with a lens, point `j` of the Hammersley set `(j / N, Φ₂(j))`, `Φ₂`
+ *   the base-2 radical inverse, mapped to the unit disk by the concentric map
+ *   of Shirley and Chiu (1997, "A low distortion map between disk and square",
+ *   Journal of Graphics Tools) and scaled to the aperture radius. Alone, `j =
+ *   k`. With a shutter too, `j = (a × k + ⌊N / 2⌋) mod N`, with `a` the integer
+ *   nearest `N × 0.618…` that is coprime to `N`: a fixed permutation other than
+ *   the identity, so a sample's time and its lens position are not correlated
+ *   (Cook, Porter and Carpenter 1984, "Distributed ray tracing", SIGGRAPH).
  *
  * The aperture diameter is the full-frame equivalent focal length of the
  * camera's field of view, `12 mm / tan(fovY / 2)`, divided by the f-number, so
- * the blur matches the picture's geometry rather than an authored focal
- * length. Every value depends only on `t`, `fps`, the optics and `fovY`, never
- * on an earlier frame.
+ * the blur matches the picture's geometry rather than an authored focal length.
+ * Every value depends only on `t`, `fps`, the optics and `fovY`, never on an
+ * earlier frame.
  *
  * @param props The frame's second, the frame rate, the optics and the field of
  *   view.
@@ -51,7 +49,9 @@ export const planAutoMovieFilmSamples: (
   if (count === undefined)
     throw new Error("planAutoMovieFilmSamples: the optics set no samples.");
   if (!(Number.isFinite(props.fps) && props.fps > 0))
-    throw new Error("planAutoMovieFilmSamples: fps must be finite and above zero.");
+    throw new Error(
+      "planAutoMovieFilmSamples: fps must be finite and above zero.",
+    );
   if (!(Number.isFinite(props.fovY) && props.fovY > 0 && props.fovY < 180))
     throw new Error("planAutoMovieFilmSamples: fovY must be within (0, 180).");
 

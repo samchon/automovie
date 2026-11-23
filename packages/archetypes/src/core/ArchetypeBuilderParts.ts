@@ -12,9 +12,7 @@ import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCel
 import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import type { AutoMovieArchetypeFriction } from "./AutoMovieArchetypeFriction";
 
-/**
- * One builder's parts and the shared material/mass records they use.
- */
+/** One builder's parts and the shared material/mass records they use. */
 export class ArchetypeBuilderParts {
   /** The existing default optical swatch, shared by the public builder alias. */
   public static readonly NEUTRAL: string = "#9a9a9a";
@@ -40,11 +38,13 @@ export class ArchetypeBuilderParts {
 
   /**
    * Record a primitive, admitted convex cell or visual mesh and its material.
+   *
    * @param id Unique part id.
    * @param geometry Local geometry; no bounding representation is substituted.
    * @param at Local origin in model metres.
    * @param rotation Unit local-to-model quaternion, or identity when absent.
-   * @param options Optical colour and opacity, relative density/weight and physical surface.
+   * @param options Optical colour and opacity, relative density/weight and
+   *   physical surface.
    * @throws {Error} For a repeated part id.
    */
   public add(

@@ -35,9 +35,7 @@ const SUBJECT: IAutoMovieCaptureSubject = {
 };
 
 /** Render a subject over the page double, keeping the files in memory. */
-async function render(
-  subject: IAutoMovieCaptureSubject,
-): Promise<{
+async function render(subject: IAutoMovieCaptureSubject): Promise<{
   result: IAutoMovieDrawnVideoResult;
   encoded: IAutoMovieDrawnVideoResult["cut"];
 }> {

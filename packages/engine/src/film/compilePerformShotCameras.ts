@@ -23,16 +23,34 @@ import { resolveProductionFrameRate } from "./resolveProductionFrameRate";
 import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
 
 /**
- * Compile the camera fields of a performed shot: the live camera's move, its per-span intent, one alternate take per coverage job, and the clearance reports.
+ * Compile the camera fields of a performed shot: the live camera's move, its
+ * per-span intent, one alternate take per coverage job, and the clearance
+ * reports.
  *
- * The live camera's `frame` moves, already sorted by start, compile through {@link compileCameraMove} into the clip `cam:<scope>`; with no move the camera is locked off and the clip is null. Each move's intent carries its framing, move, focal length and focus, ordinary focus resolved to the opening point the input gate accepted. An authored focus pull resolves two lens marks after actor and object motion are compiled. A downstream host reads the intent independently of the camera path. Each coverage job plays its one framing across the whole beat from its own staged camera, as the clip `cam:<scope>:<camera>`, so a host can cut to the angle at any instant, with no focus or focal length invented for it. Every subject is measured by one {@link createPerformShotSubjectFramer}, so hero and coverage frame the same subject. {@link compileCameraClearanceReports} then reports any take whose physical envelope is obstructed into the context's collector.
+ * The live camera's `frame` moves, already sorted by start, compile through
+ * {@link compileCameraMove} into the clip `cam:<scope>`; with no move the camera
+ * is locked off and the clip is null. Each move's intent carries its framing,
+ * move, focal length and focus, ordinary focus resolved to the opening point
+ * the input gate accepted. An authored focus pull resolves two lens marks after
+ * actor and object motion are compiled. A downstream host reads the intent
+ * independently of the camera path. Each coverage job plays its one framing
+ * across the whole beat from its own staged camera, as the clip
+ * `cam:<scope>:<camera>`, so a host can cut to the angle at any instant, with
+ * no focus or focal length invented for it. Every subject is measured by one
+ * {@link createPerformShotSubjectFramer}, so hero and coverage frame the same
+ * subject. {@link compileCameraClearanceReports} then reports any take whose
+ * physical envelope is obstructed into the context's collector.
  *
  * @param context The shot's staged tables and collector.
  * @param props.liveCamera The live camera id the camera gate settled.
  * @param props.frames The live camera's moves, sorted by start.
  * @param props.coverageJobs The coverage takes the camera gate admitted.
  * @param props.scope Clip id scope: the shot id when given, else the beat id.
- * @param props.frameFormat Delivery raster and clock: its width over height is the framing aspect, a non-positive side or none giving a square fit, and its `fps` and `frameRate` key the moving paths, the compiler's 24 fps fallback applying without `fps`. A rate `resolveProductionFrameRate` refuses is a `range` violation at `$input.frameFormat.fps`.
+ * @param props.frameFormat Delivery raster and clock: its width over height is
+ *   the framing aspect, a non-positive side or none giving a square fit, and
+ *   its `fps` and `frameRate` key the moving paths, the compiler's 24 fps
+ *   fallback applying without `fps`. A rate `resolveProductionFrameRate`
+ *   refuses is a `range` violation at `$input.frameFormat.fps`.
  * @param props.models Compiler-owned models of the staged nodes, if any.
  * @param props.formationMotions The shot's compact formation cues.
  * @param props.motions The compiled actor clips by node id.
@@ -161,7 +179,10 @@ export function compilePerformShotCameras(
   };
 }
 
-/** The exact delivery rate, or undefined when no `fps` is stated or it is refused. */
+/**
+ * The exact delivery rate, or undefined when no `fps` is stated or it is
+ * refused.
+ */
 function deliveryFrameRate(
   context: IAutoMovieEnginePerformShotGateContext,
   format: IAutoMovieCompilePerformShotCameras.IProps["frameFormat"],

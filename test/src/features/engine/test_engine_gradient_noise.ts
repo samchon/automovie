@@ -19,13 +19,21 @@ type Sampler = (point: readonly number[]) => number;
  * cells, defined for negative coordinates, and refuses inputs by name.
  *
  * Scenarios:
- * 1. The same seed and point repeat the value; a second seed differs at every point of a 16 by 16 off-lattice grid.
- * 2. Over 10,000 seeded points in [-1000, 1000], single-octave and 4-octave fractal values lie in [-1, 1].
+ *
+ * 1. The same seed and point repeat the value; a second seed differs at every
+ *    point of a 16 by 16 off-lattice grid.
+ * 2. Over 10,000 seeded points in [-1000, 1000], single-octave and 4-octave
+ *    fractal values lie in [-1, 1].
  * 3. Single-octave values at 1,000 integer lattice points are exactly zero.
- * 4. At 1,000 seeded points, a 1e-6 step in a seeded direction changes single-octave and fractal values by under 1e-4.
- * 5. At x = 0.5 + 3k, k = 0 .. 63, y = 0.3 (z = 0.7), the mean |n(x + 256) - n(x)| exceeds 0.1.
- * 6. At 1,000 points in [-50, 50] values stay in [-1, 1], and steps across every coordinate plane through zero are continuous.
- * 7. A non-finite coordinate, a coordinate one cell past the bound, octaves 0 or 2.5, and roughness 0 or 1 throw naming the parameter; a coordinate on the bound is accepted.
+ * 4. At 1,000 seeded points, a 1e-6 step in a seeded direction changes
+ *    single-octave and fractal values by under 1e-4.
+ * 5. At x = 0.5 + 3k, k = 0 .. 63, y = 0.3 (z = 0.7), the mean |n(x + 256) - n(x)|
+ *    exceeds 0.1.
+ * 6. At 1,000 points in [-50, 50] values stay in [-1, 1], and steps across every
+ *    coordinate plane through zero are continuous.
+ * 7. A non-finite coordinate, a coordinate one cell past the bound, octaves 0 or
+ *    2.5, and roughness 0 or 1 throw naming the parameter; a coordinate on the
+ *    bound is accepted.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public engine noise samplers and observes their values: repetition, seed sensitivity, range, lattice zeros, step continuity, the 256-cell difference and the named refusals catch a table-driven period, a missing normalization, a non-interpolating blend, a signed-index failure and silent acceptance of bad parameters.
  * @evidence contracts/development/testing.md#independent-expectations The range [-1, 1], zeros on the lattice, the octave and roughness domains and the domain bounds 2^25 and 2^16 are the documented contract; 1e-4 per 1e-6 step allows a slope of 100 lattice units, far above any quintic-blended unit-gradient octave sum of four; 0.1 mean difference over 64 off-lattice points separates an aperiodic lattice from a 256-periodic table, which gives zero.
@@ -103,15 +111,19 @@ export function test_engine_gradient_noise(): void {
           const others: [Sampler, Sampler][] = [
             [
               (p: readonly number[]): number => noise2(p[0]!, p[1]!),
-              ((n: (x: number, y: number) => number) =>
+              (
+                (n: (x: number, y: number) => number) =>
                 (p: readonly number[]): number =>
-                  n(p[0]!, p[1]!))(createAutoMovieGradientNoise2(other)),
+                  n(p[0]!, p[1]!)
+              )(createAutoMovieGradientNoise2(other)),
             ],
             [
               (p: readonly number[]): number => noise3(p[0]!, p[1]!, 0.5),
-              ((n: (x: number, y: number, z: number) => number) =>
+              (
+                (n: (x: number, y: number, z: number) => number) =>
                 (p: readonly number[]): number =>
-                  n(p[0]!, p[1]!, 0.5))(createAutoMovieGradientNoise3(other)),
+                  n(p[0]!, p[1]!, 0.5)
+              )(createAutoMovieGradientNoise3(other)),
             ],
           ];
           return others.every(([a, b]: [Sampler, Sampler]): boolean => {
@@ -197,27 +209,28 @@ export function test_engine_gradient_noise(): void {
             throwsError(() => noise3(0, -b3 - 1, 0), ["y", String(b3)]) &&
             throwsError(() => noise3(0, 0, b3 + 1), ["z", String(b3)]) &&
             Number.isFinite(fractal2(b2 / 8, -b2 / 8)) &&
-            throwsError(() => fractal2(b2 / 8 + 1 / 8, 0), [
-              "x",
-              String(b2),
-            ]) &&
+            throwsError(() => fractal2(b2 / 8 + 1 / 8, 0), ["x", String(b2)]) &&
             Number.isFinite(fractal3(b3 / 8, -b3 / 8, b3 / 8)) &&
-            throwsError(() => fractal3(0, 0, b3 / 8 + 1 / 8), [
-              "z",
-              String(b3),
-            ]) &&
-            throwsError(() => createAutoMovieFractalNoise2(seed, 0, 0.5), [
-              "octaves",
-            ]) &&
-            throwsError(() => createAutoMovieFractalNoise3(seed, 2.5, 0.5), [
-              "octaves",
-            ]) &&
-            throwsError(() => createAutoMovieFractalNoise2(seed, 4, 0), [
-              "roughness",
-            ]) &&
-            throwsError(() => createAutoMovieFractalNoise3(seed, 4, 1), [
-              "roughness",
-            ])
+            throwsError(
+              () => fractal3(0, 0, b3 / 8 + 1 / 8),
+              ["z", String(b3)],
+            ) &&
+            throwsError(
+              () => createAutoMovieFractalNoise2(seed, 0, 0.5),
+              ["octaves"],
+            ) &&
+            throwsError(
+              () => createAutoMovieFractalNoise3(seed, 2.5, 0.5),
+              ["octaves"],
+            ) &&
+            throwsError(
+              () => createAutoMovieFractalNoise2(seed, 4, 0),
+              ["roughness"],
+            ) &&
+            throwsError(
+              () => createAutoMovieFractalNoise3(seed, 4, 1),
+              ["roughness"],
+            )
           );
         },
       ],

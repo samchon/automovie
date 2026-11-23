@@ -1,7 +1,8 @@
 /**
  * The closed family of things a semantic mask can address.
  *
- * Entry labels retain open architectural vocabulary while this union supplies the computational family used for addressing and mask lookup.
+ * Entry labels retain open architectural vocabulary while this union supplies
+ * the computational family used for addressing and mask lookup.
  */
 export type AutoMovieSemanticKind =
   | "building"

@@ -67,14 +67,15 @@ export interface IAutoMovieFilmOptics {
    * present.
    *
    * Sampling applies to delivery draws and to plain `beauty` captures; every
-   * other draw, including the Viewer's, renders one sharp sample at the second.
+   * other draw, including the Viewer's, renders one sharp sample at the
+   * second.
    */
   samples?: number;
 
   /**
-   * The shutter: motion blur over the trailing interval `[t − T, t]` with
-   * `T = angle / 360 / fps`, sampled at the midpoints of `samples` equal strata
-   * in ascending time, each placed by the scene's `seek`. Absent draws every
+   * The shutter: motion blur over the trailing interval `[t − T, t]` with `T =
+   * angle / 360 / fps`, sampled at the midpoints of `samples` equal strata in
+   * ascending time, each placed by the scene's `seek`. Absent draws every
    * sample at `t`.
    */
   shutter?: IAutoMovieFilmOptics.IShutter;

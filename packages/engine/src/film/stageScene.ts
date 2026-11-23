@@ -2,8 +2,8 @@ import {
   IAutoMovieCamera,
   IAutoMovieConstraintViolation,
   type IAutoMovieFog,
-  type IAutoMovieMedium,
   IAutoMovieLight,
+  type IAutoMovieMedium,
   IAutoMovieSceneNode,
   IAutoMovieScript,
   IAutoMovieSpace,
@@ -50,17 +50,44 @@ const UNIT_QUATERNION_TOLERANCE: number = 1e-6;
 const LOOK_DISTANCE_EPSILON: number = 1e-9;
 
 /**
- * The STAGING consumer: fold the script's cast and the staging write's placements into the {@link IAutoMovieScene} every later stage performs into, or return every violation for the correction round.
+ * The STAGING consumer: fold the script's cast and the staging write's
+ * placements into the {@link IAutoMovieScene} every later stage performs into,
+ * or return every violation for the correction round.
  *
- * Referential integrity is the core check: every placement names a cast member, every cast member is placed, ids are non-blank and unique across actors, set pieces, cameras and lights, a mount rides another placed actor, and a camera's `lookAt` node is a placed actor, set piece or camera, the same table the performance stage resolves positional targets against. Scalars are range-checked where a later stage could not use them: finite positions and turns, a unit set rotation not combined with `facingDeg`, a positive finite set scale, a field of view in `(0, 180)` degrees, `0 < near < far`, the camera's depth precision and clearance envelope, a non-negative light intensity, each light's shape, and a finite derived camera look direction that does not collapse to its own position. Geometry is converted, not judged: whether 0.7 m is striking range is the reviewer's business.
+ * Referential integrity is the core check: every placement names a cast member,
+ * every cast member is placed, ids are non-blank and unique across actors, set
+ * pieces, cameras and lights, a mount rides another placed actor, and a
+ * camera's `lookAt` node is a placed actor, set piece or camera, the same table
+ * the performance stage resolves positional targets against. Scalars are
+ * range-checked where a later stage could not use them: finite positions and
+ * turns, a unit set rotation not combined with `facingDeg`, a positive finite
+ * set scale, a field of view in `(0, 180)` degrees, `0 < near < far`, the
+ * camera's depth precision and clearance envelope, a non-negative light
+ * intensity, each light's shape, and a finite derived camera look direction
+ * that does not collapse to its own position. Geometry is converted, not
+ * judged: whether 0.7 m is striking range is the reviewer's business.
  *
- * Conversions: an actor's `facingDeg`, about `+Y` with 0 facing `+Z`, becomes its rotation; a set piece becomes a static node through {@link setPieceTransform}; a camera's `lookAt` resolves to a point and the level-horizon look basis aims its `-Z` there; a light lowers through {@link lowerLightPlacement} to the scene light its `type` names.
+ * Conversions: an actor's `facingDeg`, about `+Y` with 0 facing `+Z`, becomes
+ * its rotation; a set piece becomes a static node through
+ * {@link setPieceTransform}; a camera's `lookAt` resolves to a point and the
+ * level-horizon look basis aims its `-Z` there; a light lowers through
+ * {@link lowerLightPlacement} to the scene light its `type` names.
  *
- * The optional `space`, the ground's walkable meaning, is accepted by {@link validateSpace} with its paths re-rooted under `$input.space`, and is composed as `space: null` when omitted, the scalar ground plane. An authored `fog` lowers verbatim, while `fogVisibility` solves the density from camera-axis depth and transmittance. {@link resolveStagedFog} admits one form and leaves fog absent when neither is authored. A `medium` is admitted by {@link resolveStagedMedium}, refused beside either fog form, and lowered verbatim. The optional `environment` is checked by {@link validateSceneEnvironment} against the staged lights and lowered verbatim.
+ * The optional `space`, the ground's walkable meaning, is accepted by
+ * {@link validateSpace} with its paths re-rooted under `$input.space`, and is
+ * composed as `space: null` when omitted, the scalar ground plane. An authored
+ * `fog` lowers verbatim, while `fogVisibility` solves the density from
+ * camera-axis depth and transmittance. {@link resolveStagedFog} admits one form
+ * and leaves fog absent when neither is authored. A `medium` is admitted by
+ * {@link resolveStagedMedium}, refused beside either fog form, and lowered
+ * verbatim. The optional `environment` is checked by
+ * {@link validateSceneEnvironment} against the staged lights and lowered
+ * verbatim.
  *
  * @param script The screenplay whose cast staging must place.
  * @param staging The staging write.
- * @returns The composed scene with its persistent mounts and authored actor support scopes, or every violation.
+ * @returns The composed scene with its persistent mounts and authored actor
+ *   support scopes, or every violation.
  */
 export function stageScene(
   script: IAutoMovieScript,
@@ -268,7 +295,10 @@ export function stageScene(
     staging.fogVisibility,
     out,
   );
-  const medium: IAutoMovieMedium | undefined = resolveStagedMedium(staging, out);
+  const medium: IAutoMovieMedium | undefined = resolveStagedMedium(
+    staging,
+    out,
+  );
   if (staging.environment !== undefined) {
     const validated: IAutoMovieValidation = validateSceneEnvironment({
       environment: staging.environment,

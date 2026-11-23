@@ -32,9 +32,12 @@ import {
 import type { archetypeCatalog } from "./archetypeCatalog";
 
 /**
- * The catalog's rows of the built environment: doors, windows and switches, stairs and street fixtures, machines, walls, bars and ladders. Part of `archetypeCatalog`, kept apart so each file stays within its size.
+ * The catalog's rows of the built environment: doors, windows and switches,
+ * stairs and street fixtures, machines, walls, bars and ladders. Part of
+ * `archetypeCatalog`, kept apart so each file stays within its size.
  *
- * @param add Adds one row: its name, its archetype for a seed, and whether no seed varies it.
+ * @param add Adds one row: its name, its archetype for a seed, and whether no
+ *   seed varies it.
  */
 export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
   // Door: every pair of (hinge side, hardware) values, and the sliding kind on both sides.

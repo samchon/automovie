@@ -67,8 +67,8 @@ export interface IAutoMovieShot {
    * out, a sunset. Each track addresses one staged light by the pointer
    * `/lights/<id>/<property>`, where the property is `intensity`, `color`,
    * `range`, `coneAngle`, `position` or `rotation`, and no two tracks across
-   * the list may address the same light property. Absent means legacy; an
-   * empty array means constant light.
+   * the list may address the same light property. Absent means legacy; an empty
+   * array means constant light.
    */
   lightMotions?: IAutoMovieClip[];
 
@@ -93,8 +93,8 @@ export interface IAutoMovieShot {
 
   /**
    * Font sources the surface graphics' text layers name, unique by id. `render`
-   * decodes every listed source before it draws a frame of the shot and
-   * refuses the shot when one fails. Omitted when no layer letters text.
+   * decodes every listed source before it draws a frame of the shot and refuses
+   * the shot when one fails. Omitted when no layer letters text.
    */
   fonts?: readonly IAutoMovieFontSource[];
 
@@ -108,39 +108,47 @@ export interface IAutoMovieShot {
    * Computed or scripted interactions on this shot's local clock, ordered by
    * time, then kind, then id. `performShot` emits this for contacts, hits,
    * falls, and attach handoffs so downstream tools can follow the same timing
-   * the engine used. Absent means legacy or no-event data; an empty array
-   * means the shot was assembled and had none.
+   * the engine used. Absent means legacy or no-event data; an empty array means
+   * the shot was assembled and had none.
    */
   events?: IAutoMovieInteractionEvent[];
 
-  /** Authored shot-local annotations in authored order. Omit when no marker list was supplied. */
+  /**
+   * Authored shot-local annotations in authored order. Omit when no marker list
+   * was supplied.
+   */
   editorialMarkers?: readonly IAutoMovieEditorialMarker[];
 
   /**
-   * The camera's directorial intent per frame span: framing, move, the
-   * resolved focus point, and the lens intent. Structural guide metadata a
-   * diffusion or render host reads beside `cameraMotion`, as it reads `events`.
-   * The deterministic camera solve never consumes it. Absent means legacy; an
-   * empty array means the shot was assembled with no frame actions.
+   * The camera's directorial intent per frame span: framing, move, the resolved
+   * focus point, and the lens intent. Structural guide metadata a diffusion or
+   * render host reads beside `cameraMotion`, as it reads `events`. The
+   * deterministic camera solve never consumes it. Absent means legacy; an empty
+   * array means the shot was assembled with no frame actions.
    */
   cameraIntent?: IAutoMovieCameraIntent[];
 
   /**
    * The alternate camera takes covering the same beat: one staged camera per
-   * additional angle, each with its own compiled move and intent. The hero
-   * take stays the singular `camera` and `cameraMotion` every consumer already
-   * reads; coverage rides beside it as structural guide metadata a diffusion
-   * or render host uses to render the beat from the other staged angles. The
-   * cut is untouched: coverage takes are alternates of this shot, never
-   * separate timeline entries. Absent means legacy or single-camera data; an
-   * empty array means the shot was assembled with one camera.
+   * additional angle, each with its own compiled move and intent. The hero take
+   * stays the singular `camera` and `cameraMotion` every consumer already
+   * reads; coverage rides beside it as structural guide metadata a diffusion or
+   * render host uses to render the beat from the other staged angles. The cut
+   * is untouched: coverage takes are alternates of this shot, never separate
+   * timeline entries. Absent means legacy or single-camera data; an empty array
+   * means the shot was assembled with one camera.
    */
   coverage?: IAutoMovieShotCoverage[];
 
   /**
-   * Swept-clearance reports for hero and alternate takes declaring physical envelopes, one per such camera. The performing producer checks the runtime revision; the stored report has no revision pair for an artifact reader to re-establish freshness independently.
+   * Swept-clearance reports for hero and alternate takes declaring physical
+   * envelopes, one per such camera. The performing producer checks the runtime
+   * revision; the stored report has no revision pair for an artifact reader to
+   * re-establish freshness independently.
    *
-   * Omission is admitted only when no delivered camera declares an envelope. A present list must carry clear reports with empty findings; blocked or stale evaluation refuses publication by the performing producer.
+   * Omission is admitted only when no delivered camera declares an envelope. A
+   * present list must carry clear reports with empty findings; blocked or stale
+   * evaluation refuses publication by the performing producer.
    */
   cameraClearance?: IAutoMovieCameraClearanceReport[];
 

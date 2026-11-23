@@ -5,9 +5,10 @@ import { AUTOMOVIE_TRUE_PEAK_PHASES } from "./AUTOMOVIE_TRUE_PEAK_PHASES";
  * neighbouring samples of one channel (ITU-R BS.1770-5 Annex 2).
  *
  * The window is the 24 samples `x[n − 11] … x[n + 12]` read from `samples[start
- * + t × stride]` for `t` from 0 to 23, and the interpolants lie a quarter, a
- * half and three quarters of a sample after `x[n]`. The caller supplies a whole
- * window; zeros stand for samples outside the signal.
+ *
+ * - T × stride]`for`t`from 0 to 23, and the interpolants lie a quarter, a half
+ *   and three quarters of a sample after`x[n]`. The caller supplies a whole
+ *   window; zeros stand for samples outside the signal.
  *
  * @param samples Samples holding the window.
  * @param start Index of `x[n − 11]`.

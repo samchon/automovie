@@ -18,17 +18,29 @@ import { filmResponseRendererFields } from "../internal/filmResponseRendererFiel
 import { nclose } from "../internal/nclose";
 
 /**
- * An opted-in Inspector reads the actual asynchronous placement before its review selection changes the scene.
+ * An opted-in Inspector reads the actual asynchronous placement before its
+ * review selection changes the scene.
  *
  * Scenarios:
  *
- * 1. The initial seek admits the subject. The framed draw's later pending seek emits no observation until it resolves.
- * 2. With an object hidden by the review request and a named review camera, the provider sees the original visibility, the settled world transform and the delivery camera at the delivery raster.
- * 3. One painted sample at frame three reports one confirmed error. Its red strokes are present only during the render, then leave the scene.
- * 4. Exact neighbors report the worst measured witness once when the episode closes. A backward replay paints the same cube without duplicate console evidence.
- * 5. Skipped frames and deferred coverage split episodes. After clearance, a new failure reports each of two pairs that share one actor.
- * 6. An off-grid playing streak reports its first visit once, and closes as one `playback` span of two painted samples when a seek interrupts it. Replaying its first visit is silent.
- * 7. Hidden witnesses draw no red stroke while the sample is still reported; showing them again redraws the cube. A pending seek completed after disposal produces no observation or draw.
+ * 1. The initial seek admits the subject. The framed draw's later pending seek
+ *    emits no observation until it resolves.
+ * 2. With an object hidden by the review request and a named review camera, the
+ *    provider sees the original visibility, the settled world transform and the
+ *    delivery camera at the delivery raster.
+ * 3. One painted sample at frame three reports one confirmed error. Its red
+ *    strokes are present only during the render, then leave the scene.
+ * 4. Exact neighbors report the worst measured witness once when the episode
+ *    closes. A backward replay paints the same cube without duplicate console
+ *    evidence.
+ * 5. Skipped frames and deferred coverage split episodes. After clearance, a new
+ *    failure reports each of two pairs that share one actor.
+ * 6. An off-grid playing streak reports its first visit once, and closes as one
+ *    `playback` span of two painted samples when a seek interrupts it.
+ *    Replaying its first visit is silent.
+ * 7. Hidden witnesses draw no red stroke while the sample is still reported;
+ *    showing them again redraws the cube. A pending seek completed after
+ *    disposal produces no observation or draw.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public mount with a real scene, asynchronous subject and recording frame host. Observes the provider inputs, the rendered scene and the public diagnostic report.
  * @evidence contracts/development/testing.md#independent-expectations The input seeks a 24 fps film at 0.125 s. The expected aspect comes from its 640 by 360 raster, the expected colour is red, and the playback span's clocks are the test's own 16 ms frame steps after 13/24 s.

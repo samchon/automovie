@@ -89,9 +89,10 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
  *
  * Surface graphics from `prepareAutoMovieSurfaceGraphics` draw in `beauty`,
  * `mask` and `graphics` only; every other pass hides them for its duration.
- * - `graphics`: {@link applyAutoMovieGraphicsMode}: the surface graphics as
- *   beauty draws them, every other mesh writing depth only, no backdrop, with
- *   the scene's fog and image lighting kept.
+ *
+ * - `graphics`: {@link applyAutoMovieGraphicsMode}: the surface graphics as beauty
+ *   draws them, every other mesh writing depth only, no backdrop, with the
+ *   scene's fog and image lighting kept.
  *
  * Every pass that swaps a material carries a formation's baked cycle onto the
  * replacement, so a marching crowd marches in `depth`, `normal`, `mask`,

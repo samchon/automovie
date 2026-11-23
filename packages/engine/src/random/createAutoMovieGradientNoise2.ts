@@ -12,27 +12,27 @@ import { fadeAutoMovieGradientNoise } from "./fadeAutoMovieGradientNoise";
  * Synthesizer", SIGGRAPH Computer Graphics 19(3)): each integer lattice corner
  * carries a unit gradient, the value at a point blends the four corners' dot
  * products of gradient and offset, and the blend uses the quintic fade of
- * Perlin 2002 ({@link fadeAutoMovieGradientNoise}). The value is therefore
- * zero at every lattice corner and continuous with continuous first and
- * second derivatives everywhere.
+ * Perlin 2002 ({@link fadeAutoMovieGradientNoise}). The value is therefore zero
+ * at every lattice corner and continuous with continuous first and second
+ * derivatives everywhere.
  *
  * A corner's gradient is read from the counter stream of `seed`
  * ({@link createAutoMovieRandom}) at the corner's own index, so no permutation
  * table and no short period exist, and the value depends only on the seed and
- * the point. Corner `(i, j)` reads index `(i + B) N + (j + B)` with
- * `B = 2^25` ({@link createAutoMovieGradientNoise2.BOUND}) and `N = 2B + 2`.
- * A point admitted by the bound has corners in `[-B, B + 1]` on each axis, so
- * both digits lie in `[0, N)` and the mixed-radix index is one-to-one, with
- * largest value `N^2 - 1 < 2^53`, a nonnegative safe integer the stream holds.
+ * the point. Corner `(i, j)` reads index `(i + B) N + (j + B)` with `B = 2^25`
+ * ({@link createAutoMovieGradientNoise2.BOUND}) and `N = 2B + 2`. A point
+ * admitted by the bound has corners in `[-B, B + 1]` on each axis, so both
+ * digits lie in `[0, N)` and the mixed-radix index is one-to-one, with largest
+ * value `N^2 - 1 < 2^53`, a nonnegative safe integer the stream holds.
  *
  * Bound: the fade weights of the four corners are nonnegative and sum to one,
  * and the gradients are unit vectors, so by Jensen's inequality the raw value
- * is at most `sqrt(sum w |p - c|^2)`. Per axis that sum is
- * `(1 - s) t^2 + s (1 - t)^2 <= t (1 - t) <= 1/4`, because the fade `s` lies
- * at or below `t` on `[0, 1/2]` and is symmetric. The raw value is thus at
- * most `sqrt(2) / 2`, attained at a cell centre when every gradient points at
- * it, and the output is the raw value times `2 / sqrt(2)`, clamped to [-1, 1]
- * only to absorb rounding.
+ * is at most `sqrt(sum w |p - c|^2)`. Per axis that sum is `(1 - s) t^2 + s (1
+ * - t)^2 <= t (1 - t) <= 1/4`, because the fade `s` lies at or below `t` on
+ * `[0, 1/2]` and is symmetric. The raw value is thus at most `sqrt(2) / 2`,
+ * attained at a cell centre when every gradient points at it, and the output is
+ * the raw value times `2 / sqrt(2)`, clamped to [-1, 1] only to absorb
+ * rounding.
  *
  * @param seed Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
  * @returns The noise, taking plan coordinates in lattice cells; it throws

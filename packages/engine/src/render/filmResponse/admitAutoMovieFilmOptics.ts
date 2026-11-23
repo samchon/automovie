@@ -8,13 +8,13 @@ import type { IAutoMovieFilmOptics } from "@automovie/interface";
  * `toneMapping` of `"none"` or `"acesFilmic"`; a `whiteBalance` within [1667,
  * 25000] K, the range of the Planckian approximation it is adapted from; a
  * `glare.strength` within [0, 0.2]; and a `grade` whose slope, offset and
- * saturation are finite and whose powers are finite and above zero; a
- * `samples` that is a safe integer of at least 2 and present exactly when a
- * `shutter` or a `lens` is; a `shutter.angle` within (0, 360]; and a `lens`
- * whose `fNumber` and `focusDistance` are finite and above zero. The draw
- * host calls it before every beauty draw that has optics, because a film
- * returns its optics per second and a value can go wrong at any one of them; it
- * reads the value once and returns nothing.
+ * saturation are finite and whose powers are finite and above zero; a `samples`
+ * that is a safe integer of at least 2 and present exactly when a `shutter` or
+ * a `lens` is; a `shutter.angle` within (0, 360]; and a `lens` whose `fNumber`
+ * and `focusDistance` are finite and above zero. The draw host calls it before
+ * every beauty draw that has optics, because a film returns its optics per
+ * second and a value can go wrong at any one of them; it reads the value once
+ * and returns nothing.
  */
 export function admitAutoMovieFilmOptics(
   optics: IAutoMovieFilmOptics,

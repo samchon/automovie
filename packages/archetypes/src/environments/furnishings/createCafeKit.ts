@@ -100,9 +100,7 @@ export function createCafeKit(
   };
 }
 
-/**
- * Types of the cafe kit producer.
- */
+/** Types of the cafe kit producer. */
 export namespace createCafeKit {
   /** The room layout and the positive integer count of the kit's repeated group. */
   export interface IParams extends IAutoMovieFurnishingLayout {

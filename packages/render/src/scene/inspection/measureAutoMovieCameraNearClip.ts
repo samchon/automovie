@@ -232,9 +232,7 @@ export function measureAutoMovieCameraNearClip(
   };
 }
 
-/**
- * Outcomes of one near-plane clip measurement.
- */
+/** Outcomes of one near-plane clip measurement. */
 export namespace measureAutoMovieCameraNearClip {
   /** Clear, clipped with its deepest witness, or unmeasured with a reason. */
   export type IResult =

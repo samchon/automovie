@@ -42,7 +42,16 @@ export function test_render_guide_passes(): void {
   TestValidator.equals(
     "closed pass list",
     [...AUTOMOVIE_GUIDE_PASSES],
-    ["beauty", "depth", "mask", "normal", "outline", "pose", "albedo", "graphics"],
+    [
+      "beauty",
+      "depth",
+      "mask",
+      "normal",
+      "outline",
+      "pose",
+      "albedo",
+      "graphics",
+    ],
   );
   TestValidator.equals("known pass accepted", isGuidePass("depth"), true);
   TestValidator.equals("unknown pass rejected", isGuidePass("sketch"), false);

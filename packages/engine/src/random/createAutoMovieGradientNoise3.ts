@@ -9,9 +9,9 @@ import { fadeAutoMovieGradientNoise } from "./fadeAutoMovieGradientNoise";
  * space in [-1, 1].
  *
  * The construction is the three-dimensional form of
- * `createAutoMovieGradientNoise2`: Perlin's gradient lattice (Perlin 1985,
- * "An Image Synthesizer", SIGGRAPH Computer Graphics 19(3)) blended over the
- * eight corners of a cell by the quintic fade of Perlin 2002
+ * `createAutoMovieGradientNoise2`: Perlin's gradient lattice (Perlin 1985, "An
+ * Image Synthesizer", SIGGRAPH Computer Graphics 19(3)) blended over the eight
+ * corners of a cell by the quintic fade of Perlin 2002
  * ({@link fadeAutoMovieGradientNoise}). The value is zero at every lattice
  * corner and continuous with continuous first and second derivatives.
  *
@@ -19,16 +19,16 @@ import { fadeAutoMovieGradientNoise } from "./fadeAutoMovieGradientNoise";
  * ({@link createAutoMovieRandom}) at the corner's own index, uniform over the
  * sphere by Archimedes' hat-box theorem (height uniform in [-1, 1], azimuth
  * uniform). Corner `(i, j, k)` reads index `((i + B) N + (j + B)) N + (k + B)`
- * with `B = 2^16` ({@link createAutoMovieGradientNoise3.BOUND}) and
- * `N = 2B + 2`. A point admitted by the bound has corners in `[-B, B + 1]` on
- * each axis, so every digit lies in `[0, N)` and the mixed-radix index is
- * one-to-one, with largest value `N^3 - 1`, about 2.25e15, below 2^53.
+ * with `B = 2^16` ({@link createAutoMovieGradientNoise3.BOUND}) and `N = 2B +
+ * 2`. A point admitted by the bound has corners in `[-B, B + 1]` on each axis,
+ * so every digit lies in `[0, N)` and the mixed-radix index is one-to-one, with
+ * largest value `N^3 - 1`, about 2.25e15, below 2^53.
  *
  * Bound: as in two dimensions, nonnegative fade weights that sum to one and
  * unit gradients bound the raw value by `sqrt(sum w |p - c|^2)`, and each of
- * the three axes contributes at most 1/4, so the raw value is at most
- * `sqrt(3) / 2`. The output is the raw value times `2 / sqrt(3)`, clamped to
- * [-1, 1] only to absorb rounding.
+ * the three axes contributes at most 1/4, so the raw value is at most `sqrt(3)
+ * / 2`. The output is the raw value times `2 / sqrt(3)`, clamped to [-1, 1]
+ * only to absorb rounding.
  *
  * @param seed Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
  * @returns The noise, taking coordinates in lattice cells; it throws naming

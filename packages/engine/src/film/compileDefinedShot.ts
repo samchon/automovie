@@ -33,11 +33,24 @@ import { validateShotProgramContract } from "./validateShotProgramContract";
 type IPriorActors = ReadonlyMap<string, IAutoMovieBeatEndActorState>;
 
 /**
- * Compile one {@link defineShot} registration into shot source, continuity and a contract realization, or into the diagnostics of the first phase that failed.
+ * Compile one {@link defineShot} registration into shot source, continuity and a
+ * contract realization, or into the diagnostics of the first phase that
+ * failed.
  *
- * The phases run in order: registration ids, one synchronous `build` call with `context`, the program held to its registration, the runtime's physics advice, staging, blocking against `runtime.previous`, restaging at the resumed placements, performance, contract realization, and continuity sampling. The builder supplies ordinary code; the engine owns referential integrity, blocking coherence, verb composition, range-of-motion and artifact validation, and continuity. A throw from the builder becomes `builder-failed`, and a throw from any other phase becomes `pipeline-failed` named after the phase that was running, so this boundary never throws.
+ * The phases run in order: registration ids, one synchronous `build` call with
+ * `context`, the program held to its registration, the runtime's physics
+ * advice, staging, blocking against `runtime.previous`, restaging at the
+ * resumed placements, performance, contract realization, and continuity
+ * sampling. The builder supplies ordinary code; the engine owns referential
+ * integrity, blocking coherence, verb composition, range-of-motion and artifact
+ * validation, and continuity. A throw from the builder becomes
+ * `builder-failed`, and a throw from any other phase becomes `pipeline-failed`
+ * named after the phase that was running, so this boundary never throws.
  *
- * When `runtime.previous` is supplied, each actor it names opens at that beat's position, facing, mount and pose, and the opening snapshot keeps its gait phase, root velocity, foot plants and mount. The runtime's foot plants for a node the performance replanted are replaced by the new ones.
+ * When `runtime.previous` is supplied, each actor it names opens at that beat's
+ * position, facing, mount and pose, and the opening snapshot keeps its gait
+ * phase, root velocity, foot plants and mount. The runtime's foot plants for a
+ * node the performance replanted are replaced by the new ones.
  */
 export function compileDefinedShot<Context>(
   props: IAutoMovieCompileDefinedShot.IProps<Context>,
@@ -306,7 +319,10 @@ export function compileDefinedShot<Context>(
   }
 }
 
-/** Carry the prior facts at the opening, except static pins released by an explicitly suspended support. */
+/**
+ * Carry the prior facts at the opening, except static pins released by an
+ * explicitly suspended support.
+ */
 function resumeOpeningSnapshot(
   opening: IAutoMovieBeatEndState,
   prior: IPriorActors | null,

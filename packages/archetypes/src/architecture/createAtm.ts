@@ -215,9 +215,7 @@ function fascia(
   });
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createAtm}.
- */
+/** Inputs, dimensions and contacts for {@link createAtm}. */
 export namespace createAtm {
   /** The named contacts built by this producer. */
   export type Affordance =

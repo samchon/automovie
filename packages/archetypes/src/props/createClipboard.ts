@@ -52,9 +52,7 @@ export function createClipboard(
   return builder.build(d.mass!);
 }
 
-/**
- * The contacts and dimensions of {@link createClipboard}.
- */
+/** The contacts and dimensions of {@link createClipboard}. */
 export namespace createClipboard {
   /**
    * The contacts this producer builds; a numbered family's count follows its

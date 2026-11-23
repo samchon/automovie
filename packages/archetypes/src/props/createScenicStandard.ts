@@ -134,9 +134,7 @@ export function createScenicStandard(
   return builder.build(dimensions.mass);
 }
 
-/**
- * Author controls for a carried scenic standard.
- */
+/** Author controls for a carried scenic standard. */
 export namespace createScenicStandard {
   /** A carried textile-shaped panel or a circular emblem. */
   export type Kind = "banner" | "roundel";

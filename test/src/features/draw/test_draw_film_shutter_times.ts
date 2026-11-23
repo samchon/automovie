@@ -67,9 +67,7 @@ export async function test_draw_film_shutter_times(): Promise<void> {
         ),
   );
 
-  const record: (
-    frame: IAutoMovieFilmOptics,
-  ) => Promise<{
+  const record: (frame: IAutoMovieFilmOptics) => Promise<{
     placed: number[];
     drawn: [number, number, number][];
   }> = async (

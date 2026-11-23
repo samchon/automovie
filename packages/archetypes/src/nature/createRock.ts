@@ -139,9 +139,7 @@ export function createRock(
   return builder.build(volume * d.gravity * 1000, { rests: "stone" });
 }
 
-/**
- * Companion types, constants and bands of {@link createRock}.
- */
+/** Companion types, constants and bands of {@link createRock}. */
 export namespace createRock {
   /** The kinds: the Udden-Wentworth cobble and boulder classes. */
   export type Kind = "cobble" | "boulder";

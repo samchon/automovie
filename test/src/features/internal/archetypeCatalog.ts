@@ -28,9 +28,11 @@ import { archetypeCatalogCarried } from "./archetypeCatalogCarried";
 import { archetypeCatalogEveryday } from "./archetypeCatalogEveryday";
 
 /**
- * Every archetype the package produces, one row per producer and kind, each as a function of the seed: the population the contract tests sweep.
+ * Every archetype the package produces, one row per producer and kind, each as
+ * a function of the seed: the population the contract tests sweep.
  *
- * A row's name is `<producer>-<kind>`. The door's three axes (kind, hinge side, hardware) are covered pairwise, not multiplied out.
+ * A row's name is `<producer>-<kind>`. The door's three axes (kind, hinge side,
+ * hardware) are covered pairwise, not multiplied out.
  *
  * @returns The rows.
  */
@@ -229,22 +231,35 @@ export namespace archetypeCatalog {
     name: string;
 
     /**
-     * The archetype for a seed; the middle of every band when the seed is absent.
+     * The archetype for a seed; the middle of every band when the seed is
+     * absent.
      *
      * @param seed The seed, or absent for every band's middle.
-     * @param dimensions Dimensions to fix, each in its band's unit, forwarded into the producer's params beside the row's own. A producer whose params do not accept a dimension draws it as usual, so a caller reads the built archetype's `dimensions` to learn whether a value took.
+     * @param dimensions Dimensions to fix, each in its band's unit, forwarded
+     *   into the producer's params beside the row's own. A producer whose
+     *   params do not accept a dimension draws it as usual, so a caller reads
+     *   the built archetype's `dimensions` to learn whether a value took.
      * @returns The archetype.
      */
     create(seed?: number | string, dimensions?: Dimensions): AutoMovieArchetype;
 
-    /** True when every band of the row's variant has zero width, as a standardised munition's read single figures do, so no seed varies it. */
+    /**
+     * True when every band of the row's variant has zero width, as a
+     * standardised munition's read single figures do, so no seed varies it.
+     */
     fixed?: boolean;
   }
 
-  /** Dimension values a caller fixes on a row, by dimension name, each in its band's unit. */
+  /**
+   * Dimension values a caller fixes on a row, by dimension name, each in its
+   * band's unit.
+   */
   export type Dimensions = Readonly<Record<string, number>>;
 
-  /** Adds one row: its name, its archetype for a seed and fixed dimensions, and whether no seed varies it. */
+  /**
+   * Adds one row: its name, its archetype for a seed and fixed dimensions, and
+   * whether no seed varies it.
+   */
   export type Add = (
     name: string,
     create: (
@@ -254,7 +269,10 @@ export namespace archetypeCatalog {
     fixed?: boolean,
   ) => void;
 
-  /** Whether a variant's bands are each one value and it has at most one read model to pick. */
+  /**
+   * Whether a variant's bands are each one value and it has at most one read
+   * model to pick.
+   */
   export type Settled = (
     bands: Readonly<Partial<Record<string, IAutoMovieArchetypeBand>>>,
     models?: Readonly<Partial<Record<string, unknown>>>,

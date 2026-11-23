@@ -24,10 +24,10 @@ import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
  * Host-owned capabilities and compiled facts `compileDefinedShot` needs to turn
  * a shot program's thin verbs into dense, validated motion.
  *
- * The shot program states what happens; this record supplies what only the
- * host knows: the rig and model of each staged node, the action synthesizer,
- * the delivery raster, builder-owned formations and clips, the previous beat's
- * end state, and any collision advice. `compileDefinedShot` forwards the
+ * The shot program states what happens; this record supplies what only the host
+ * knows: the rig and model of each staged node, the action synthesizer, the
+ * delivery raster, builder-owned formations and clips, the previous beat's end
+ * state, and any collision advice. `compileDefinedShot` forwards the
  * capabilities to `performShot`, the measurement inputs to
  * `realizeShotContract`, `previous` to `blockBeat`, `plants` to the closing
  * continuity snapshot, and `advice` to its own validation. Every optional
@@ -61,7 +61,9 @@ export interface IAutoMovieEngineShotRuntime {
     IAutoMovieProductionDesign["frameFormat"],
     "width" | "height"
   > &
-    Partial<Pick<IAutoMovieProductionDesign["frameFormat"], "fps" | "frameRate">>;
+    Partial<
+      Pick<IAutoMovieProductionDesign["frameFormat"], "fps" | "frameRate">
+    >;
 
   /**
    * Geometry revision and fixed inspection clock for camera-body clearance.
@@ -111,8 +113,8 @@ export interface IAutoMovieEngineShotRuntime {
 
   /**
    * Practical lights bound to staged prop emitters. Compiled from the final
-   * object clips, using the corresponding prop model in models, and appended
-   * to lightMotions. Omit when no practical source follows a prop.
+   * object clips, using the corresponding prop model in models, and appended to
+   * lightMotions. Omit when no practical source follows a prop.
    */
   practicalLights?: readonly IAutoMoviePracticalLightBinding[];
 
@@ -168,8 +170,8 @@ export interface IAutoMovieEngineShotRuntime {
   ): Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined;
 
   /**
-   * Clinical rest frames of a node's rig, keyed by humanoid bone, used by ground
-   * IK and attachment baking; `undefined` for a node without them.
+   * Clinical rest frames of a node's rig, keyed by humanoid bone, used by
+   * ground IK and attachment baking; `undefined` for a node without them.
    */
   restFrames?(
     node: string,
@@ -210,9 +212,9 @@ export interface IAutoMovieEngineShotRuntime {
   }>;
 
   /**
-   * Collision-response suggestions from shot code or a host analysis pass,
-   * with the author's decisions; validated, then copied onto the compiled
-   * result and never applied to motion.
+   * Collision-response suggestions from shot code or a host analysis pass, with
+   * the author's decisions; validated, then copied onto the compiled result and
+   * never applied to motion.
    */
   advice?: readonly IAutoMovieShotPhysicsAdvice[];
 }

@@ -223,9 +223,9 @@ export namespace IAutoMovieControlRecord {
   }
 
   /**
-   * The surface graphics alone as the beauty pass draws them, every other
-   * mesh held out by depth, written as RGBA with straight alpha: the
-   * compositing plate for legible screens and lettering.
+   * The surface graphics alone as the beauty pass draws them, every other mesh
+   * held out by depth, written as RGBA with straight alpha: the compositing
+   * plate for legible screens and lettering.
    */
   export interface IGraphicsPlate {
     /** The pass. */

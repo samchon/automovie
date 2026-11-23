@@ -18,13 +18,15 @@ import { throwsError } from "../internal/predicates";
  *
  * The L-shaped prism covers (0,0), (2,0), (2,1), (1,1), (1,2), (0,2) over z 0
  * to 1. Its box is [0,2]x[0,2]x[0,1], and its hull in the XY plane is bounded
- * by x + y = 3 between (2,1) and (1,2), so the point (1.25, 1.25, 0.5), whose x
- * + y is 2.5, is inside both mutants and outside the L. A square frame of outer
- * side 3 m around a centred 1 m hole has one handle; its box and hull have
- * none. The seat and leg stand 5e-7 m apart, below the 1e-6 m contact distance,
- * and the point (0.11, 0.11, 0.2875) under the seat beside the leg is the
- * midpoint of the seat's interior point (0.2, 0.2, 0.475) and the leg's (0.02,
- * 0.02, 0.1), so the hull holds it.
+ * by x + y = 3 between (2,1) and (1,2), so the point (1.25, 1.25, 0.5), whose
+ * x
+ *
+ * - Y is 2.5, is inside both mutants and outside the L. A square frame of outer
+ *   side 3 m around a centred 1 m hole has one handle; its box and hull have
+ *   none. The seat and leg stand 5e-7 m apart, below the 1e-6 m contact
+ *   distance, and the point (0.11, 0.11, 0.2875) under the seat beside the leg
+ *   is the midpoint of the seat's interior point (0.2, 0.2, 0.475) and the
+ *   leg's (0.02, 0.02, 0.1), so the hull holds it.
  *
  * Scenarios:
  *

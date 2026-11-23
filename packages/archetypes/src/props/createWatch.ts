@@ -83,9 +83,7 @@ export function createWatch(
   return builder.build(d.mass);
 }
 
-/**
- * The contacts and dimensions of {@link createWatch}.
- */
+/** The contacts and dimensions of {@link createWatch}. */
 export namespace createWatch {
   /**
    * The contacts this producer builds; a numbered family's count follows its

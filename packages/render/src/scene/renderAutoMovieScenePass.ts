@@ -15,7 +15,12 @@ import { resetAutoMovieSceneShadowTargets } from "./resetAutoMovieSceneShadowTar
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Draw a scene sample under reversible environment and material-pass owners. A beauty pass of a scene carrying a medium is refused before anything changes, because the medium is drawn only in a film's linear target. Both owners are restored independently, even after drawing or one restore fails. The primary failure remains first rather than being replaced by a secondary restoration error. Caller-owned scene and renderer are retained.
+ * Draw a scene sample under reversible environment and material-pass owners. A
+ * beauty pass of a scene carrying a medium is refused before anything changes,
+ * because the medium is drawn only in a film's linear target. Both owners are
+ * restored independently, even after drawing or one restore fails. The primary
+ * failure remains first rather than being replaced by a secondary restoration
+ * error. Caller-owned scene and renderer are retained.
  */
 export const renderAutoMovieScenePass: (
   renderer: THREE.WebGLRenderer,
