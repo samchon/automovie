@@ -20,9 +20,11 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * (`meeting`) is placed on demand the same way, so a strike reads the
  * partner's guard as the partner holds it, and what follows the strike is
  * planned from the strike as it is finally shown, the partner then read
- * live. Only where that part is itself waiting on this read (a defence
+ * live. Where that part is itself waiting on this read (a defence
  * anchored on the strike that reads the defender, or two roles of a mutual
- * action that start together), the demand's cycle, is the partner read no
+ * action that start together), the demand places the part's leading actions
+ * that do not wait on it (the pick-up before the disarm that answers the
+ * take), and past them, the demand's cycle, the partner is read no
  * later than the end of their placed actions, the caller holding their last
  * placed pose: the fixed point of a cycle of reads within one exchange,
  * where each actor commits to what the other had done when its own action
@@ -44,7 +46,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @evidence contracts/development/common.md#meaningful-documentation States what is known without placement, when placement is demanded, the partner within a group placed on demand and held only on a cycle, the cycle across groups and what is left to the caller.
  * @evidence contracts/development/implementation.md#principled-implementation A person's next action cannot begin before its part does, so up to that start the person holds their placed pose; past it the read person's waiting part is placed before the read answers, a depth-first topological order over the reads (lazy, demand-driven placement), a partner of the same group included; only a detected cycle within a group holds the partner at what they had placed, the fixed point of two reads that wait on each other.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One horizon check and one loop over the demand's answers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is read past what is placed except a held pose; a part is placed whole, once, never resumed, and a cycle across groups is refused, never broken by a default order.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is read past what is placed except a held pose; an action is placed once, a sequence part resumed only after the leading actions a cycle's demand placed, and a cycle across groups is refused, never broken by a default order.
  * @evidence contracts/development/implementation.md#efficient-algorithms One horizon scan, then at most one demand per waiting part holding the person, each placing that part once.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Places through the resolver's own walk.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.

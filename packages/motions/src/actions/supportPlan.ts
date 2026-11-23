@@ -216,7 +216,13 @@ export namespace supportPlan {
         return index === 0
           ? entry
           : supportCourse.apply(flat?.keys[index], a.posture, 0);
-      if (w === 1)
+      // A key between two intervals is the key itself on both sides; the
+      // last key, which no interval leaves, is where the last interval
+      // arrives, so the course ends on the posture it arrived with and the
+      // display does not trade it for the key's own joints at its instant
+      // (a near-straight arm's twist split one way by the interval's fit,
+      // the other by the key's).
+      if (w === 1 && index + 1 < intervals.length)
         return supportCourse.apply(
           flat?.keys[Math.min(index + 1, keys.length - 1)],
           b.posture,

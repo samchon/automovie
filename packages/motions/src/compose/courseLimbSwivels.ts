@@ -223,8 +223,10 @@ export namespace courseLimbSwivels {
       // course takes the limb on from the arm the plan showed rather than
       // from a cold fit, which may take another solution of the same goal
       // (an elbow swung most of a half turn away); refined, not placed
-      // exactly there, so the fit still settles where the goal is best
-      // reached near that arm. A limb whose goal the knot before held but
+      // exactly there, so the fit takes the feasible swivel nearest the
+      // reference the plan's arm gives (Tolani, Goswami and Badler 2000,
+      // section 3.2.4), which the plan's swivel itself is where it is
+      // feasible. A limb whose goal the knot before held but
       // whose fit reported no seed there keeps its own fit.
       if (from !== undefined) {
         const posture: IAutoMovieMotionHumanPosture = goals(seconds);

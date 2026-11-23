@@ -347,11 +347,12 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
     // instant the first step's foot leaves its place: a support step lifts at
     // a third of its move (`supportStep`), the move being half a step.
     const lifted: number = climb.ready;
-    // Each crutch's staged frame, which its flight carries from.
-    const tips: readonly IAutoMovieRigidTransform[] = [params.left, params.right].map(
-      (subject: string): IAutoMovieRigidTransform =>
-        context.prop(subject).frame(context.start),
-    );
+    // The sound foot's set-downs, action seconds, and each one's settle.
+    const bears: readonly number[] = plan.events
+      .filter((e: IAutoMovieMotionEvent): boolean => e.name.startsWith("bear"))
+      .map((e: IAutoMovieMotionEvent): number => e.share * plan.duration)
+      .sort((a: number, b: number): number => a - b);
+    const settle: number = climb.step / 2 / 3;
     const hold: ReturnType<typeof crutchHeldLeg> = crutchHeldLeg({
       body,
       side: injured,
@@ -361,18 +362,22 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
       knee: HELD.knee,
       read: (seconds: number): IAutoMovieMotionHumanPosture =>
         plan.posture(seconds),
-      // The held foot hangs over the lower of the treads the sound foot and
-      // the crutch tips stand on: going down, the crutches lead it there.
+      // The held foot is held above the tread the sound foot stands on: the
+      // floor a body reads under it until that foot sets down on the next
+      // (`bear<i>`), easing onto the next tread over the set-down's settle
+      // (a third of the half-step move, `supportStep`) so the held leg
+      // never snaps as the tread under it changes.
       floor: (seconds: number): number =>
-        Math.min(
-          ground +
-            climb.sign * climb.riser * crutchStairsFlight.arrived(climb, seconds),
-          ...tips.map(
-            (start: IAutoMovieRigidTransform): number =>
-              crutchStairsFlight.frameAt(climb, start, seconds).position.y,
-          ),
-        ),
-    });
+        bears.reduce(
+          (height: number, at: number): number =>
+            height +
+            climb.sign *
+              climb.riser *
+              minimumJerk.share(
+                Math.min(1, Math.max(0, (seconds - at) / settle)),
+              ),
+          ground,
+        ),    });
     const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
       seconds,
       channels,

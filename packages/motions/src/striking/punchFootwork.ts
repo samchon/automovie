@@ -8,6 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingArrest } from "./StrikingArrest";
@@ -354,38 +355,56 @@ export namespace punchFootwork {
         : t >= landing(next);
       const leadDown: boolean = backing ? nextDown : firstDown;
       const rearDown: boolean = backing ? firstDown : nextDown;
+      const down: Record<"left" | "right", boolean> =
+        lead === "left"
+          ? { left: leadDown, right: rearDown }
+          : { left: rearDown, right: leadDown };
+      const written: Omit<IAutoMovieMotionHumanPosture, "limbs"> = {
+        root: Vector3.add(
+          { ...entry.root, y: entry.root.y - dip * turning },
+          Vector3.scale(line, 0.5 * (moved + followed)),
+        ),
+        yaw: entry.yaw + PELVIS_SHARE * turn * turning,
+        pitch: entry.pitch,
+        roll: entry.roll,
+        joints: StrikingStance.facing(
+          {
+            ...joints,
+            ...StrikingTwist.trunk(entry.joints, SPINE_SHARE * turn * turning),
+            // The raised heel's toes bend to stay flat on the floor.
+            ...(which === "rear"
+              ? {
+                  [`${rear}Toes`]: [HEEL_RAISE * turning, 0, 0] as const,
+                }
+              : {}),
+          },
+          turn * turning,
+        ),
+      };
+      // A foot off its plant bears no weight, so its ankle holds no more
+      // dorsiflexion than the passive range: its heel rises about the toes'
+      // joint as the shank leans over it (`AutoMovieMotionHumanFootRelax`),
+      // where the stance's flat foot, dragged or stepped, kept the loaded
+      // stance's bend 12 degrees past it.
+      const relaxed = (
+        side: "left" | "right",
+      ): IAutoMovieMotionHumanFoot.IPlacement =>
+        down[side]
+          ? placed[side]
+          : AutoMovieMotionHumanFootRelax.of(
+              body,
+              { ...written, limbs: {} },
+              side,
+              placed[side],
+            );
       return resolveHumanPosture.lower(
         body,
         {
-          root: Vector3.add(
-            { ...entry.root, y: entry.root.y - dip * turning },
-            Vector3.scale(line, 0.5 * (moved + followed)),
-          ),
-          yaw: entry.yaw + PELVIS_SHARE * turn * turning,
-          pitch: entry.pitch,
-          roll: entry.roll,
-          joints: StrikingStance.facing(
-            {
-              ...joints,
-              ...StrikingTwist.trunk(
-                entry.joints,
-                SPINE_SHARE * turn * turning,
-              ),
-              // The raised heel's toes bend to stay flat on the floor.
-              ...(which === "rear"
-                ? {
-                    [`${rear}Toes`]: [HEEL_RAISE * turning, 0, 0] as const,
-                  }
-                : {}),
-            },
-            turn * turning,
-          ),
+          ...written,
           limbs: StrikingStance.legs(
             body,
-            placed,
-            lead === "left"
-              ? { left: leadDown, right: rearDown }
-              : { left: rearDown, right: leadDown },
+            { left: relaxed("left"), right: relaxed("right") },
+            down,
           ),
         },
         resolveHumanPosture.KNEE,

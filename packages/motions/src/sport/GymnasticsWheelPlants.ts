@@ -6,7 +6,6 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
@@ -14,8 +13,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanElbowPole } from "../compose/AutoMovieMotionHumanElbowPole";
-import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
-import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHandShape } from "../posture/HumanHandShape";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
@@ -23,6 +20,7 @@ import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsPalmRise } from "./GymnasticsPalmRise";
+import { layGymnasticsWheelFoot } from "./layGymnasticsWheelFoot";
 import { solveGymnasticsLaidArm } from "./solveGymnasticsLaidArm";
 
 /**
@@ -96,6 +94,9 @@ export namespace GymnasticsWheelPlants {
     /** The laid fingers' direction, for a hand. */
     fingers: IAutoMovieVector3;
 
+    /** The forefoot edge a foot's window declares held, in the foot's rest frame; none when it bears flat. */
+    edge?: IAutoMovieVector3;
+
     /** The laid limb goal, given the posture it is written into. */
     goal(posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal;
   }
@@ -110,7 +111,7 @@ export namespace GymnasticsWheelPlants {
   }
 
   /** How many keys a lead holds: a window's laid limb is solved at keys this far apart and read between them. */
-  export const KEYS: number = 8;
+  export const KEYS: number = 16;
 
   /** One window's laid limb solved at one key second, from the carried posture there. */
   interface IKeyed {
@@ -199,6 +200,7 @@ export namespace GymnasticsWheelPlants {
             opens: c.from <= 0,
             closes: c.to >= 1,
             fingers: along,
+            ...(typeof c.socket === "object" ? { edge: c.socket } : {}),
           };
           if (hand) {
             const target: ReturnType<typeof HumanHandTarget.prepareGoal> =
@@ -221,51 +223,18 @@ export namespace GymnasticsWheelPlants {
               },
             ];
           }
-          const heading: number = HumanFoot.heading(down.worldRotation);
-          const place: IAutoMovieMotionHumanFoot.IPlacement = {
-            ankle: down.worldPosition,
-            rotation: HumanFoot.rotation(heading, 0),
-          };
-          // The foot bears on its ball: it pivots there as the body turns
-          // over it (a round-off's quarter turn) and rolls onto the ball's
-          // edge, its heel lifting, where the shank leans past the ankle's
-          // range (`AutoMovieMotionHumanFootRelax`).
-          const ball: IAutoMovieVector3 = HumanFoot.point(
-            body,
-            side,
-            "ball",
-            place,
-          );
-          const yaw: number = carried(from).yaw;
+          // The foot bears on its ball and rolls onto its edge
+          // (`layGymnasticsWheelFoot`).
           return [
             {
               ...window,
-              goal: (
-                posture: IAutoMovieMotionHumanPosture,
-              ): IAutoMovieHumanLimbGoal =>
-                AutoMovieMotionHumanLeg.goal(
-                  body,
-                  posture,
-                  side,
-                  AutoMovieMotionHumanFootRelax.of(
-                    body,
-                    posture,
-                    side,
-                    HumanFoot.pivot(
-                      body,
-                      side,
-                      "ball",
-                      ball,
-                      heading + (posture.yaw - yaw),
-                      0,
-                    ),
-                    1,
-                    true,
-                    true,
-                    typeof c.socket === "object" ? c.socket : undefined,
-                  ),
-                  true,
-                ),
+              goal: layGymnasticsWheelFoot(
+                body,
+                side,
+                down,
+                carried(from).yaw,
+                typeof c.socket === "object" ? c.socket : undefined,
+              ),
             },
           ];
         },
@@ -429,20 +398,38 @@ export namespace GymnasticsWheelPlants {
         const a: IKeyed = keyAt(l, i);
         const b: IKeyed = u > 1e-12 ? keyAt(l, i + 1) : a;
         if (!l.hand) {
-          // A laid foot eased from the carried foot over the lead.
+          // A laid foot eased from the carried foot over the lead. Between
+          // two keys a foot bearing on an edge turns about that edge, so the
+          // point it bears on holds; another foot's ankle is interpolated.
+          const ra: IAutoMovieHumanLimbGoal["rotation"] = a.goal!.rotation;
+          const rb: IAutoMovieHumanLimbGoal["rotation"] = b.goal!.rotation;
+          const turned: IAutoMovieHumanLimbGoal["rotation"] =
+            ra === undefined || rb === undefined
+              ? undefined
+              : Quaternion.slerp(ra, rb, u);
           const goal: IAutoMovieHumanLimbGoal = {
             ...a.goal!,
-            point: Vector3.lerp(a.goal!.point, b.goal!.point, u),
-            ...(a.goal!.rotation === undefined ||
-            b.goal!.rotation === undefined
-              ? {}
-              : {
-                  rotation: Quaternion.slerp(
-                    a.goal!.rotation,
-                    b.goal!.rotation,
-                    u,
+            point:
+              l.edge === undefined ||
+              ra === undefined ||
+              rb === undefined ||
+              turned === undefined
+                ? Vector3.lerp(a.goal!.point, b.goal!.point, u)
+                : Vector3.subtract(
+                    Vector3.lerp(
+                      Vector3.add(
+                        a.goal!.point,
+                        Quaternion.rotateVector(ra, l.edge),
+                      ),
+                      Vector3.add(
+                        b.goal!.point,
+                        Quaternion.rotateVector(rb, l.edge),
+                      ),
+                      u,
+                    ),
+                    Quaternion.rotateVector(turned, l.edge),
                   ),
-                }),
+            ...(turned === undefined ? {} : { rotation: turned }),
           };
           const end: IAutoMovieVector3 = Vector3.lerp(
             a.end.worldPosition,

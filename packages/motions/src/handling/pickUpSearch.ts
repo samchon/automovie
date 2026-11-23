@@ -1,8 +1,10 @@
+import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanGrasp,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPickUp,
@@ -12,6 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanHand } from "../posture/HumanHand";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspSearch } from "./HumanGraspSearch";
@@ -32,6 +35,15 @@ import { pickUpPosture } from "./pickUpPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop is named: the grip is the prop's declared affordance.
  */
 export namespace pickUpSearch {
+  /** The digit tips a grip keeps above the floor. */
+  const TIPS: readonly IAutoMovieMotionHumanHand.DigitSurface[] = [
+    "thumbTip",
+    "indexTip",
+    "middleTip",
+    "ringTip",
+    "littleTip",
+  ];
+
   /** The turns about the wrapped axis a grip is taken at without a use, degrees, by its declared symmetry: any side of a round grip, in steps of 15, the two sides of a half-symmetric one, and only the declared side of the rest. */
   export const TURNS: Readonly<
     Record<NonNullable<IAutoMovieAffordance["symmetry"]>, readonly number[]>
@@ -211,7 +223,37 @@ export namespace pickUpSearch {
     // none kept all seven, and a glass across the body was refused a grip
     // 9 mm beyond the arm while others lay within it.
     const reachable: ReturnType<typeof HumanGraspSearch> = HumanGraspSearch(body, held, side, bend, true);
-    const admits: ReturnType<typeof pickUpPosture.reaches> = pickUpPosture.reaches(context, side, held);
+    const reaches: ReturnType<typeof pickUpPosture.reaches> = pickUpPosture.reaches(context, side, held);
+    // A grip whose fingertips, open as the hand arrives, would pass under the
+    // floor the feet stand on is no grip of a prop resting there: a grasp
+    // planner rejects the grasps that collide with the object's support
+    // (Miller and Allen 2004, GraspIt!, IEEE Robot Autom Mag 11(4):110). A
+    // ball on the floor is taken from above or the side, never under it.
+    const floors: readonly number[] = context.entry.supports
+      .filter(
+        (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+          (s.part === "leftFoot" || s.part === "rightFoot") &&
+          s.support.kind === "ground",
+      )
+      .map((s: IAutoMovieMotionHumanEntryState.ISupport): number =>
+        s.support.kind === "ground" ? (s.support.height ?? 0) : 0,
+      );
+    const tips: readonly IAutoMovieVector3[] = TIPS.map(
+      (surface: IAutoMovieMotionHumanHand.DigitSurface): IAutoMovieVector3 =>
+        HumanHand.offset(body, side, surface).point,
+    );
+    const floor: number | undefined =
+      floors.length === 0 ? undefined : Math.min(...floors);
+    const admits: ReturnType<typeof pickUpPosture.reaches> = (
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+    ): boolean =>
+      reaches(wrist) &&
+      (floor === undefined ||
+        tips.every(
+          (tip: IAutoMovieVector3): boolean =>
+            wrist.point.y + Quaternion.rotateVector(wrist.rotation, tip).y >=
+            floor,
+        ));
     const search: (tilts: readonly number[], turns: readonly number[]) => IAutoMovieMotionHumanGrasp.IReach = (
       tilts: readonly number[],
       turns: readonly number[],

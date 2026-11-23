@@ -53,6 +53,57 @@ export namespace HumanBoardHandover {
   /** Whether the plan's arms can hold the given holds at a local second, by the course's own still problem. */
   export type Stands = (t: number, holds: readonly IHold[]) => boolean;
 
+  /** A hand-over planned once, and the flight it was planned over. */
+  export interface IKept {
+    /** The hand-over, or none. */
+    handover: IHandover | undefined;
+
+    /** The flight's seconds it was planned over. */
+    flight: number;
+  }
+
+  /** The hand-overs planned for a boarding's parameters, by performer and start. */
+  const KEPT: WeakMap<object, Map<string, IKept>> = new WeakMap();
+
+  /**
+   * A boarding's hand-over planned once and read again by every replan of
+   * the same boarding: a replan at a slower tempo (`HumanPerformanceTempo`)
+   * plans the same boarding again, and the hand-over's instants are shares
+   * of the flight, rescaled onto the replan's.
+   *
+   * @param params The boarding's parameters, the replans' own record.
+   * @param key The performer and the start the boarding was planned at.
+   * @param flight The flight's seconds.
+   * @param plan The hand-over's planner, run once.
+   * @returns The hand-over, its instants on this flight, or none.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is kept, by what and how a replan reads it.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand-over's instants are the flight's own shares, so one planning serves every tempo of the same boarding.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One lookup, one rescale.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A boarding at another start or by another performer plans its own.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One planning per boarding, however many replans.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every replan of the same boarding reads the one planning.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Kept weakly by the boarding's parameters and released with them.
+   */
+  export function kept(
+    params: object,
+    key: string,
+    flight: number,
+    plan: () => IHandover | undefined,
+  ): IHandover | undefined {
+    let held: Map<string, IKept> | undefined = KEPT.get(params);
+    if (held === undefined) KEPT.set(params, (held = new Map()));
+    let found: IKept | undefined = held.get(key);
+    if (found === undefined) held.set(key, (found = { handover: plan(), flight }));
+    if (found.handover === undefined) return undefined;
+    const scale: number = flight / found.flight;
+    return {
+      ...found.handover,
+      takes: found.handover.takes * scale,
+      lets: found.handover.lets * scale,
+    };
+  }
+
   /**
    * Plan the hand-over of a hold on a partner, or none when the first hand
    * holds through the whole flight.

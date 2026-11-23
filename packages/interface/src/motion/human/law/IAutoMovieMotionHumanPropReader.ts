@@ -1,4 +1,5 @@
 import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanProp } from "../perform/IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionPropLaunch } from "./IAutoMovieMotionPropLaunch";
 
@@ -79,6 +80,22 @@ export interface IAutoMovieMotionHumanPropReader {
   ): Pick<IAutoMovieMotionHumanProp.IMounted, "prop" | "point"> | undefined;
 
   /**
+   * The performer's hand holding this prop at a film second, if a hand is its displayed carrier then: the same grip custody the frame is read by, so a law can ask who is armed instead of guessing from distances.
+   *
+   * @param seconds Film seconds.
+   * @returns The holding performer and hand, or none when no hand holds it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Declares film seconds and the identity of the holding performer and hand.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The performance reader supplies the grip custody.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Interface only.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Interface only.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Interface only.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Interface only.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Interface only.
+   */
+  holderAt?(seconds: number): IAutoMovieMotionHumanPropReader.IHolder | undefined;
+
+  /**
    * The travel of each of its articulations an act or its own track has moved by a film second (`HumanPerformance.state`); an articulation absent from the record is at rest. Read at plan time like `frame`, so an act that operates a part starts from where the part is. Absent from a context that tracks no state, where every articulation is at rest.
    *
    * @param seconds Film seconds.
@@ -112,5 +129,20 @@ export namespace IAutoMovieMotionHumanPropReader {
     frame: IAutoMovieRigidTransform;
     /** The prop's displayed world frame at the earlier time. */
     before: IAutoMovieRigidTransform;
+  }
+
+  /**
+   * The hand that holds a prop at a film second.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the performer and the hand.
+   * @evidence contracts/development/design.md#principled-representation A performer's subject and one side identify a holding hand.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the holder a law asks for without the grip's spans or offsets.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the subject and side vocabulary of the grips.
+   */
+  export interface IHolder {
+    /** The holding performer's subject. */
+    subject: string;
+    /** The holding hand. */
+    side: AutoMovieHumanSide;
   }
 }

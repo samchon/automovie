@@ -368,6 +368,18 @@ export function validatePhysicalProfile(
       );
     }
     const axes: Set<string> = new Set();
+    // A sequential chart names each joint-frame axis once.
+    if (joint.order !== undefined)
+      fail(
+        Array.isArray(joint.order) &&
+          joint.order.length === 3 &&
+          new Set(joint.order).size === 3 &&
+          joint.order.every(
+            (letter: string): boolean =>
+              letter === "x" || letter === "y" || letter === "z",
+          ),
+        `${path}.order`,
+      );
     fail(Array.isArray(joint.axes), `${path}.axes`);
     for (const [j, axis] of (Array.isArray(joint.axes)
       ? joint.axes

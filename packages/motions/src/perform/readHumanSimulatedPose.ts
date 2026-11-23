@@ -23,8 +23,10 @@ import type {
  * its articulation (`resolvePoseBone`). A bone on a three-axis joint takes
  * the articulation `inverse(rest) * inverse(parent) * world`, lowered to
  * clinical angles by the rig's codec (`poseJointCodec`) exactly: the angles
- * compose back to the solved rotation. A bone on a joint with fewer axes is
- * read on its own mobile axes: the solver keeps such a joint on the
+ * compose back to the solved rotation. So is a bone whose joint declares the
+ * rig's sequential chart (`IAutoMoviePhysicalJoint.order`), which the solver
+ * keeps its rotation in, its locked angles at rest. Any other bone on a
+ * joint with fewer axes is read on its own mobile axes: the solver keeps such a joint on the
  * coordinates of its free axes (`projectPhysicalJointRotation`: with
  * positive w each free coordinate is `2 atan(q.axis / w)` and a locked one
  * is held at zero), so each free coordinate is the joint's exact
@@ -138,6 +140,7 @@ export function readHumanSimulatedPose(
       solved !== undefined &&
       joint !== undefined &&
       joint.axes.length < 3 &&
+      joint.order === undefined &&
       frame[joint.parent] !== undefined
     ) {
       replaced.set(bone.bone, mobile(bone.bone, joint, frame));

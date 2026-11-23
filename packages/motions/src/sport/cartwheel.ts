@@ -76,8 +76,14 @@ export namespace cartwheel {
   /** The angle between two rows of the wheel's table, degrees. */
   export const STEP: number = 5;
 
-  /** The angle over which the body takes the wheel's shape and leaves it, degrees (provisional). */
-  export const SHAPE: number = 45;
+  /**
+   * The angle over which the body takes the wheel's shape and leaves it,
+   * degrees: the quarter turn to the first hand's contact, so the arms reach
+   * overhead as the hand comes down and the straddle opens as the trailing
+   * leg rises, rather than whipping up within the first degrees of the turn
+   * (provisional: no measured share of the turn located).
+   */
+  export const SHAPE: number = 90;
 
   /**
    * The wheel's shape on a body: the arms raised wide overhead, the legs

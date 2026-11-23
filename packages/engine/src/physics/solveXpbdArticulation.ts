@@ -6,6 +6,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { AutoMoviePhysicalJointChart } from "./AutoMoviePhysicalJointChart";
 import { AutoMovieXpbdArticulation } from "./AutoMovieXpbdArticulation";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
@@ -258,11 +259,34 @@ export namespace solveXpbdArticulation {
       joint.child.angularVelocity,
       joint.parent.angularVelocity,
     );
+    // A sequential chart moves each axis with the rotations composed before
+    // it, so the motion subspace is the chart's axes at the joint's present
+    // configuration (`AutoMoviePhysicalJointChart.directions`).
+    const order: readonly IAutoMoviePhysicalJointAxis["axis"][] | undefined =
+      joint.joint.order;
+    const chart: IAutoMovieVector3[] | undefined =
+      order === undefined
+        ? undefined
+        : AutoMoviePhysicalJointChart.directions(
+            order,
+            AutoMoviePhysicalJointChart.angles(
+              order,
+              Quaternion.multiply(
+                Quaternion.inverse(frame),
+                Quaternion.multiply(
+                  joint.child.orientation,
+                  joint.childFrame().rotation,
+                ),
+              ),
+            ),
+          );
     return joint.joint.axes.map(
       (declared: IAutoMoviePhysicalJointAxis): AutoMovieXpbdArticulation.IAxis => {
         const e: IAutoMovieVector3 = Quaternion.rotateVector(
           frame,
-          UNIT[declared.axis]!,
+          chart === undefined
+            ? UNIT[declared.axis]!
+            : chart[order!.indexOf(declared.axis)]!,
         );
         const moment: IAutoMovieVector3 = Vector3.cross(anchor, e);
         const motor: AutoMovieXpbdJoint.IMotor | undefined = joint.motors.get(

@@ -162,19 +162,19 @@ export namespace AutoMovieMotionHumanFootRelax {
       if (!(excess > 1e-6) && !(Math.abs(over) > 1e-6)) break;
       if (excess > 1e-6) pitch -= excess;
       roll = asked + over;
-      // A foot rolled past the range bears on the edge it rolls onto, where
-      // the law names one (`HumanFoot.edge`), and turns about it there.
-      const rolled: boolean = edge !== undefined && Math.abs(over) > 1e-6;
+      // A foot that bears on an edge the law names (`HumanFoot.edge`), the
+      // one it rolls onto past the range, turns about that edge throughout,
+      // so the point it bears on holds.
       foot = HumanFoot.pivot(
         body,
         side,
-        rolled ? edge! : pivot,
-        rolled
-          ? Vector3.add(
+        edge ?? pivot,
+        edge === undefined
+          ? forefoot
+          : Vector3.add(
               placement.ankle,
-              Quaternion.rotateVector(placement.rotation, edge!),
-            )
-          : forefoot,
+              Quaternion.rotateVector(placement.rotation, edge),
+            ),
         direction.heading,
         pitch,
         0,

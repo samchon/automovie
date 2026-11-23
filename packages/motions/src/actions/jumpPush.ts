@@ -426,12 +426,9 @@ export namespace jumpPush {
     // The flat foot's heel then rises by the rule a walking stance rises by:
     // asked from flat to its take-off pitch, and no later than the ankle's
     // dorsal limit asks. A foot the walk held by that rule is met by it.
-    // While the hip is farther from the ball than the leg and the foot can
-    // reach (a sprint's foot lands well ahead of its hip), the leg's lean
-    // has no value and the rule's rise is its farthest, 75 degrees at the
-    // long jump's cut, which the ease below carried as a 55 degree gap and
-    // swung the planted foot toes up; there the asked pitch stands.
-    const ballReach: number = body.measure.thigh + body.measure.shank;
+    // The rule reads the hip the planted leg stands from (`standing`).
+    const short: ReturnType<typeof lowerHumanPosture.prepareShort> =
+      lowerHumanPosture.prepareShort(body, resolveHumanPosture.KNEE);
     const ruled: (
       phase: IPhase,
       resolution?: ReturnType<typeof prepareHumanPoseResolution>,
@@ -449,9 +446,12 @@ export namespace jumpPush {
       const asked: number =
         Math.min(start, -HEEL) *
         minimumJerk.share((phase.seconds - lowered) / span);
-      return Vector3.distance(hip, ball) > ballReach
-        ? asked
-        : heelRise(hip, asked);
+      const stood: IAutoMovieVector3 | undefined = standing(
+        hip,
+        ballAt(asked).ankle,
+        short,
+      );
+      return stood === undefined ? asked : heelRise(stood, asked);
     };
     // What the entry's pitch and pitch rate differ from the rule's by is
     // eased out over the rise. A heel coming down about the ball is carried

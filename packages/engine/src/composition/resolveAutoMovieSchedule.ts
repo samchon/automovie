@@ -59,16 +59,23 @@ export function resolveAutoMovieSchedule(
   // part first (`IAutoMovieScheduleContext.demand`): a topological order over
   // the reads, so a production need not declare the read subject's chain
   // before the reader's. A part already being placed when a demand asks for
-  // it is a cycle of reads.
+  // it is a cycle of reads, and so is a part that names an anchor a part
+  // being placed has not yet placed, past its leading actions that do not.
   const waiting: IAutoMovieSchedulePart[] = [];
   // The parts being placed, outermost first.
   const placing: IAutoMovieSchedulePart[] = [];
   let demanding: number = 0;
+  // A sequence part is placed from where a demand's prefix left it
+  // (`IAutoMovieScheduleProgress`), any other part whole.
   const placePart = (part: IAutoMovieSchedulePart): number => {
     part.status = "placing";
     placing.push(part);
     try {
-      part.end = place(part.node, part.start);
+      if (part.node.kind === "sequence") {
+        part.progress ??= fresh(part.start);
+        advance(part.node.parts, part.progress);
+        part.end = part.progress.at;
+      } else part.end = place(part.node, part.start);
     } finally {
       placing.pop();
     }
@@ -76,6 +83,57 @@ export function resolveAutoMovieSchedule(
     waiting.splice(waiting.indexOf(part), 1);
     return part.end;
   };
+  // A sequence part waiting on an anchor a part being placed declares has
+  // its leading actions that do not wait on it placed now, up to the first
+  // that does: a person's actions before the one that answers the anchored
+  // action are read as placed (a pick-up before the disarm that answers the
+  // take), never as the entry they started from. Returns whether any action
+  // was placed.
+  const placePrefix = (
+    part: IAutoMovieSchedulePart,
+    readers: readonly IAutoMovieSchedulePart[],
+  ): boolean => {
+    if (part.node.kind !== "sequence") return false;
+    const progress: IAutoMovieScheduleProgress = (part.progress ??= fresh(
+      part.start,
+    ));
+    const from: number = progress.next;
+    part.status = "placing";
+    placing.push(part);
+    ++demanding;
+    try {
+      advance(
+        part.node.parts,
+        progress,
+        (child: IAutoMovieComposition): boolean =>
+          waits(references(child), readers),
+      );
+    } finally {
+      --demanding;
+      placing.pop();
+      part.status = "pending";
+    }
+    if (progress.next >= part.node.parts.length) {
+      part.status = "placed";
+      part.end = progress.at;
+      waiting.splice(waiting.indexOf(part), 1);
+    }
+    return progress.next > from;
+  };
+  // Whether a composition names an anchor a part being placed declares and
+  // has not yet placed (in an `at`, a cut's `of` or its intents' parameters,
+  // where a law names the action it answers): placing it now would read an
+  // anchor not yet there.
+  const waits = (
+    named: ReadonlySet<string>,
+    readers: readonly IAutoMovieSchedulePart[],
+  ): boolean =>
+    readers.some((reader: IAutoMovieSchedulePart): boolean =>
+      [...reader.anchors].some(
+        (anchor: string): boolean =>
+          !walk.anchors.has(anchor) && named.has(anchor),
+      ),
+    );
   // Within one parallel group each actor reads the other as placed at the
   // group's start, for both roles alike: the innermost part being placed
   // whose group has another part holding the subject names that start.
@@ -126,20 +184,11 @@ export function resolveAutoMovieSchedule(
       (part: IAutoMovieSchedulePart): boolean =>
         part.status === "pending" && part.subjects.has(subject),
     );
-    // A part that names an anchor a part being placed declares and has not
-    // yet placed (in an `at`, a cut's `of` or its intents' parameters, where
-    // a law names the action it answers) waits on that part: placing it now
-    // would read an anchor not yet there, so the two read each other.
-    if (
-      next !== undefined &&
-      placing.some((reader: IAutoMovieSchedulePart): boolean =>
-        [...reader.anchors].some(
-          (anchor: string): boolean =>
-            !walk.anchors.has(anchor) && next.references.has(anchor),
-        ),
-      )
-    )
-      return "cycle";
+    // A part that waits on an anchor a part being placed declares (`waits`)
+    // has only its leading actions that do not wait placed (`placePrefix`);
+    // past them the two read each other.
+    if (next !== undefined && waits(next.references, placing))
+      return placePrefix(next, [...placing]) ? "placed" : "cycle";
     if (next !== undefined) {
       ++demanding;
       try {
@@ -157,37 +206,45 @@ export function resolveAutoMovieSchedule(
       ? "cycle"
       : "none";
   };
+  // A sequence's parts placed in order from its progress, each from the
+  // previous one's end, until one the caller holds back (`until`). The entry
+  // an intent's cut interrupts is the first one the next part places, found
+  // by that part's leading intent: a demand may place another part's entries
+  // among them.
+  const advance = (
+    parts: readonly IAutoMovieComposition[],
+    progress: IAutoMovieScheduleProgress,
+    until?: (part: IAutoMovieComposition) => boolean,
+  ): void => {
+    for (; progress.next < parts.length; ++progress.next) {
+      const part: IAutoMovieComposition = parts[progress.next]!;
+      if (until !== undefined && until(part)) return;
+      const first: number = walk.entries.length;
+      progress.at = place(part, progress.at);
+      const leading: IAutoMovieIntent | undefined =
+        AutoMovieScheduleWalk.leading(part);
+      const own: number = walk.entries.findIndex(
+        (e: IAutoMovieScheduleEntry, i: number): boolean =>
+          i >= first && e.intent === leading,
+      );
+      if (progress.cut !== undefined && own >= 0)
+        walk.interrupted.set(progress.cut, own);
+      progress.cut =
+        part.kind === "intent" &&
+        walk.last !== undefined &&
+        walk.entries[walk.last]!.intent === part.intent &&
+        walk.entries[walk.last]!.cut !== undefined
+          ? walk.last
+          : undefined;
+    }
+  };
   const place = (node: IAutoMovieComposition, start: number): number => {
     if (node.kind === "intent")
       return AutoMovieSchedulePlace.intent(walk, node.intent, start);
     if (node.kind === "sequence") {
-      // The entry an intent's cut interrupts is the first one the next part
-      // places, found by that part's leading intent: a demand may place
-      // another part's entries among them.
-      let cutIndex: number | undefined;
-      return node.parts.reduce(
-        (at: number, part: IAutoMovieComposition): number => {
-          const first: number = walk.entries.length;
-          const end: number = place(part, at);
-          const leading: IAutoMovieIntent | undefined =
-            AutoMovieScheduleWalk.leading(part);
-          const own: number = walk.entries.findIndex(
-            (e: IAutoMovieScheduleEntry, i: number): boolean =>
-              i >= first && e.intent === leading,
-          );
-          if (cutIndex !== undefined && own >= 0)
-            walk.interrupted.set(cutIndex, own);
-          cutIndex =
-            part.kind === "intent" &&
-            walk.last !== undefined &&
-            walk.entries[walk.last]!.intent === part.intent &&
-            walk.entries[walk.last]!.cut !== undefined
-              ? walk.last
-              : undefined;
-          return end;
-        },
-        start,
-      );
+      const progress: IAutoMovieScheduleProgress = fresh(start);
+      advance(node.parts, progress);
+      return progress.at;
     }
     if (node.kind === "parallel") {
       const group: IAutoMovieSchedulePart[] = [];
@@ -260,6 +317,26 @@ interface IAutoMovieSchedulePart {
 
   /** Every part of its group, itself included. */
   siblings: readonly IAutoMovieSchedulePart[];
+
+  /** How far a sequence part is placed, once a demand placed its leading actions. */
+  progress?: IAutoMovieScheduleProgress;
+}
+
+/** How far a sequence is placed: its next part, where that part starts, and the entry its cut waits to name the interrupter of. */
+interface IAutoMovieScheduleProgress {
+  /** The index of the next part to place. */
+  next: number;
+
+  /** Where the next part starts, film seconds. */
+  at: number;
+
+  /** The entry whose cut the next part's leading intent interrupts, if any. */
+  cut: number | undefined;
+}
+
+/** A sequence's progress before any part is placed. */
+function fresh(start: number): IAutoMovieScheduleProgress {
+  return { next: 0, at: start, cut: undefined };
 }
 
 /** A parallel part's placing state. */

@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanPerformanceHold,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
@@ -94,6 +95,43 @@ export namespace HumanPerformanceHold {
       HumanPropFlight.active(self, subject, seconds, since) === undefined
       ? active.mount
       : undefined;
+  }
+
+  /**
+   * The hand holding a prop at a film second, by the same custody the frame
+   * is read by: the latest grip still holding it, when it is a hand's and no
+   * flight has taken the prop since.
+   *
+   * @param self The performance's state.
+   * @param subject The prop.
+   * @param seconds Film seconds.
+   * @returns The holding performer and hand, or none.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is returned and when none is.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the frame's own carrier selection and flight precedence, so the holder is the hand that displays the prop.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One custody reading and one flight test.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A worn or mounted span is no hand; a prop in flight has no holder.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One grip scan and, for a held prop, one bounded flight selection.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the grip records and flight selection the frame reads.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
+   */
+  export function holder(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    seconds: number,
+  ): IAutoMovieMotionHumanPropReader.IHolder | undefined {
+    if (self.props.get(subject)?.motion !== undefined) return undefined;
+    const { active, since }: ICustody = custody(
+      HumanPerformanceRead.grips(self, subject),
+      seconds,
+      false,
+    );
+    return active === undefined ||
+      active.bone !== undefined ||
+      active.mount !== undefined ||
+      HumanPropFlight.active(self, subject, seconds, since) !== undefined
+      ? undefined
+      : { subject: active.subject, side: active.side };
   }
 
   /** The carriers picked by the frame's usual grip and flight precedence. */

@@ -110,7 +110,21 @@ export function prepareWalkReachSwing(
       const down: number = Math.hypot(local.x, local.y);
       const beta: number = Math.atan2(local.x, -local.y);
       const extension: number = extensionAt + behind(Vector3.length(v));
-      if (local.y < 0 && Math.atan2(-local.z, down) > extension) {
+      // A walking leg keeps the hip-to-ankle distance and its knee angle at
+      // the extension boundary; a running one (given its departure) folds.
+      if (
+        leaving === undefined &&
+        local.y < 0 &&
+        Math.atan2(-local.z, down) > extension
+      ) {
+        const reach: number = Math.hypot(local.z, down);
+        const y: number = -reach * Math.cos(extension);
+        v = Quaternion.rotateVector(frame, {
+          x: -y * Math.sin(beta),
+          y: y * Math.cos(beta),
+          z: -reach * Math.sin(extension),
+        });
+      } else if (local.y < 0 && Math.atan2(-local.z, down) > extension) {
         const knee: IAutoMovieVector3 = {
           x: m.thigh * Math.cos(extensionAt) * Math.sin(beta),
           y: -m.thigh * Math.cos(extensionAt) * Math.cos(beta),

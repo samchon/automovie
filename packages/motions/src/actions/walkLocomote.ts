@@ -39,7 +39,7 @@ import { walkReach } from "./walkReach";
 import { walkStation } from "./walkStation";
 import { walkSteps } from "./walkSteps";
 import { walkSupportHeight } from "./walkSupportHeight";
-import { walkSwing } from "./walkSwing";
+import { TICK, walkSwing } from "./walkSwing";
 import { walkWindows } from "./walkWindows";
 
 /** The already evaluated pelvis at the current action second. */
@@ -210,6 +210,7 @@ export function walkLocomote(
     u: number,
     resolution?: ReturnType<typeof preparePoseResolution>,
     current?: IReachAt,
+    ankle?: IAutoMovieVector3,
   ): number {
     const t: number = swing.off + u * (swing.on - swing.off);
     const frame: walkReach.IPelvis =
@@ -226,7 +227,10 @@ export function walkLocomote(
             },
             resolution,
           );
-    return claim(frame.hips[side], scheduledAt(side, swing)(u).placement.ankle);
+    return claim(
+      frame.hips[side],
+      ankle ?? scheduledAt(side, swing)(u).placement.ankle,
+    );
   }
 
   // A swing's scheduled descent, kept per swing by its foot and toe-off.
@@ -260,7 +264,12 @@ export function walkLocomote(
       if (swing === undefined) continue;
 
       // A foot in flight bears nothing: it claims what its stance claimed
-      // when it left and what the next claims when it lands, blended.
+      // when it left and what the next claims when it lands, blended. What
+      // its stance claimed is its settled stance's, a tick before the
+      // toe-off as the swing departs from it (`walkSwing`): the schedule's
+      // toe-off ankle stands below the heel the stance's rule raises, and
+      // claimed from it the pelvis dropped at every toe-off. The stance is
+      // settled at an earlier second, so the read never returns here.
       if (gait.swing > 1) {
         const key: string = `${side}:${swing.off}`;
         let held: [number, number] | undefined = flights.get(key);
@@ -268,7 +277,14 @@ export function walkLocomote(
           const sampled: ReturnType<typeof preparePoseResolution> =
             read ?? preparePoseResolution();
           held = [
-            reaching(side, swing, 0, sampled),
+            reaching(
+              side,
+              swing,
+              0,
+              sampled,
+              undefined,
+              end(side, swing.off - TICK, resolution).ankle,
+            ),
             reaching(side, swing, 1, sampled),
           ];
           flights.set(key, held);
@@ -450,7 +466,8 @@ export function walkLocomote(
         steps.inPlace === true || turning.has(`${side}:${swing.on}`)
           ? swing.u
           : Math.min(swing.u, 0.5),
-        leaving(side, swing, resolution),
+        // A running swing holds its reach from the stance it leaves.
+        gait.swing > 1 ? leaving(side, swing, resolution) : undefined,
       );
     }
     return { feet, hips, settled, reached };

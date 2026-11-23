@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionHumanSimulationWindow,
   IAutoMoviePhysicalContactBinding,
   IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
@@ -41,7 +42,7 @@ const RATE: number = 120;
  * Scenarios:
  * 1. Kinematic mode shows the coupled handshake's own poses of both people bit for bit.
  * 2. Simulated, the gripping arms are the solver's and every grip stays within the solver's contact tolerance at every tracked step; two bakes give the same identity and solved frames.
- * 3. Both people released in the air together: the pair's total linear momentum changes by gravity's impulse only, within the native single-precision rounding of the substeps run.
+ * 3. Both people released in the air together: the pair's total linear momentum changes by gravity's impulse only, within the float64 rounding the substeps run can leave, bounded in the standard model of floating-point arithmetic (Higham 2002) from each segment's position and velocity updates.
  * 4. Joint residuals in both windows: every hand-back's post-stabilization and every fewer-axis joint's distance from its limit box stay within the 0.1 degree provisional guard (`simulationResiduals`).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Bakes two-body windows through `HumanPerformance.simulate` and reads the displayed poses and the engine's solved frames; catches a kinematic mode that departs from the coupled output, a grip the solver lets slip or pass in, a bake that differs between runs, and a coupling that creates momentum.
@@ -289,14 +290,32 @@ async function together(
         "dynamic",
     );
   const first: number = frames.findIndex(released);
-  all.check("the window releases both people", first > 0);
+  all.check("the window releases both people", first >= 0);
   const start: IAutoMovieVector3 = momentum(people, frames[first]!);
-  const scale: number = magnitude(people, frames[first]!);
+  const h: number = 1 / (input.rate * input.substeps!);
+  const segments: number = people.reduce(
+    (sum: number, body: IAutoMoviePhysicalSimulationInput.IBody): number =>
+      sum + body.profile.segments.length,
+    0,
+  );
+  // Every operation the solver performs conserves momentum exactly, so the
+  // departure is rounding alone, bounded in Higham's standard model
+  // (fl(a op b) = (a op b)(1 + delta), |delta| <= u; Higham 2002, sec. 2.2)
+  // per substep and segment: each of the substep's position updates of the
+  // segment (the prediction and one per joint correction it takes part in)
+  // rounds its centre by u |x|, which the velocity derived from the pose
+  // change, v = dx / h, carries as u |x| / h and keeps; each velocity
+  // update rounds by u |v| per term of the sweep that forms it, at most 7
+  // per tree level down to the segment and two more for the derivation and
+  // the motors' addition. Reading the momentum as a sum of N terms adds
+  // gamma_N times the summed magnitudes (Higham 2002, sec. 4.2) at both ends.
+  const u: number = Number.EPSILON / 2;
+  let accumulated: number = 0;
   let checked: number = 0;
   for (const [index, frame] of frames.entries()) {
     if (index <= first || !released(frame)) continue;
     checked++;
-    const step: number = index - first;
+    accumulated += input.substeps! * u * rounding(people, frame, h);
     const elapsed: number = frame.seconds - frames[first]!.seconds;
     const expected: IAutoMovieVector3 = Vector3.add(
       start,
@@ -305,17 +324,12 @@ async function together(
     const error: number = Vector3.length(
       Vector3.subtract(momentum(people, frame), expected),
     );
-
-    // The solver integrates in double precision: allow 64 float64 epsilons
-    // of the momentum's scale per substep run.
-    const bound: number =
-      64 *
-      Number.EPSILON *
-      input.substeps! *
-      step *
-      (scale + mass * Vector3.length(input.gravity) * elapsed);
+    const reading: number =
+      ((segments * u) / (1 - segments * u)) *
+      (magnitude(people, frames[first]!) + magnitude(people, frame));
+    const bound: number = accumulated + reading;
     all.check(
-      `the pair's momentum departs ${error} N s from gravity's impulse at ${frame.seconds} s`,
+      `the pair's momentum departs ${error} N s from gravity's impulse at ${frame.seconds} s, within the rounding bound ${bound} N s`,
       error <= bound,
     );
   }
@@ -394,6 +408,57 @@ function momentum(
         sum,
       ),
     { x: 0, y: 0, z: 0 },
+  );
+}
+
+/**
+ * One substep's rounding scale of the bodies' momentum over u, N s: each
+ * segment's mass times its position updates' reach over the substep, `K
+ * |x| / h` with K the prediction plus one per joint it takes part in, plus
+ * its velocity updates' reach, `(7 d + 2) |v|` with d its depth in the tree.
+ */
+function rounding(
+  bodies: readonly IAutoMoviePhysicalSimulationInput.IBody[],
+  frame: IAutoMoviePhysicalFrame,
+  h: number,
+): number {
+  return bodies.reduce(
+    (sum: number, body: IAutoMoviePhysicalSimulationInput.IBody): number =>
+      body.profile.segments.reduce(
+        (inner: number, segment: IAutoMoviePhysicalSegment): number => {
+          const state: IAutoMoviePhysicalFrame["bodies"][string][string] =
+            frame.bodies[body.id]![segment.bone]!;
+          const at: IAutoMovieVector3 = Vector3.add(
+            state.position,
+            Quaternion.rotateVector(state.rotation, segment.centerOfMass),
+          );
+          const updates: number =
+            1 +
+            body.profile.joints.filter(
+              (joint: IAutoMoviePhysicalJoint): boolean =>
+                joint.child === segment.bone || joint.parent === segment.bone,
+            ).length;
+          let depth: number = 0;
+          for (
+            let bone: string | undefined = segment.bone;
+            bone !== undefined;
+            bone = body.profile.joints.find(
+              (joint: IAutoMoviePhysicalJoint): boolean =>
+                joint.child === bone,
+            )?.parent
+          )
+            depth++;
+          return (
+            inner +
+            segment.mass *
+              ((updates * Vector3.length(at)) / h +
+                (7 * (depth - 1) + 2) *
+                  Vector3.length(centre(frame, body.id, segment)))
+          );
+        },
+        sum,
+      ),
+    0,
   );
 }
 

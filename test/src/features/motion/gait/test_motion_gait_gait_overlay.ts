@@ -43,10 +43,11 @@ export function test_motion_gait_gait_overlay(): void {
     );
   }
   const body = motionHumanBody("f-small");
+  // The phrase's arm is its `hand` (IAutoMovieMotionHumanArmPhrase.IParams).
   const touch = motionUpperPhrase.perform(
     body,
     "handOnHip",
-    { side: "left" },
+    { hand: "left" },
     false,
     "left",
   );

@@ -491,6 +491,10 @@ export namespace HumanPerformancePlace {
           ):
             | Pick<IAutoMovieMotionHumanProp.IMounted, "prop" | "point">
             | undefined => HumanPerformanceHold.mount(self, subject, seconds),
+          holderAt: (
+            seconds: number,
+          ): IAutoMovieMotionHumanPropReader.IHolder | undefined =>
+            HumanPerformanceHold.holder(self, subject, seconds),
           state: (seconds: number): Readonly<Record<string, number>> =>
             HumanPerformanceObject.state(self, prop, seconds),
         };

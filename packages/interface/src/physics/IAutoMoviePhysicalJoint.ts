@@ -31,6 +31,16 @@ export interface IAutoMoviePhysicalJoint {
   /** Distinct free angular axes; all translations and unlisted axes are locked. */
   axes: IAutoMoviePhysicalJointAxis[];
 
+  /**
+   * The joint's chart: the three joint-frame axes in the order the relative
+   * rotation composes, `q = R_order[0](a) R_order[1](b) R_order[2](c)`,
+   * each axis's angle its coordinate (an intrinsic Tait-Bryan chart, the
+   * rig's own composition of its clinical axes). A locked axis's angle is
+   * held at zero. Absent, each free axis's coordinate is `2 atan(q.axis /
+   * w)` independently.
+   */
+  order?: IAutoMoviePhysicalJointAxis["axis"][];
+
   /** Optional clinical swing-twist limit on the joint frame's relative rotation; absent, only the axes bound it. */
   swingTwist?: IAutoMoviePhysicalJoint.ISwingTwist;
 }

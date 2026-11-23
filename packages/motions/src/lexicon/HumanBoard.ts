@@ -23,6 +23,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { courseArmGoal } from "../compose/courseArmGoal";
@@ -34,6 +35,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
 import { HumanColliders } from "../posture/HumanColliders";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBoardHandover } from "./HumanBoardHandover";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
@@ -312,9 +315,14 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const handover: HumanBoardHandover.IHandover | undefined =
     hand?.partner === undefined
       ? undefined
-      : HumanBoardHandover.plan(
-          hand,
-          context.performer(hand.partner),
+      : HumanBoardHandover.kept(
+          params,
+          `${context.subject}|${context.start}`,
+          flight,
+          (): HumanBoardHandover.IHandover | undefined =>
+        HumanBoardHandover.plan(
+          hand!,
+          context.performer(hand!.partner!),
           flight,
           context.start,
           // The holds as the plan's posture writes a hand on the partner (the
@@ -322,8 +330,44 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           // and thighs the rests the arm keeps clear of up to the wrist),
           // admitted by the course's own still problem there.
           (t: number, holds: readonly HumanBoardHandover.IHold[]): boolean => {
+            // A hand the boarding's own arm fit cannot lay on its point is
+            // not held there by any course, so the still problem, which
+            // fails slowly through all its starts, is not asked (a necessary
+            // condition tested first, as the planner tests its hold before
+            // its trajectory).
+            const fitted: ReturnType<typeof poseBones> = poseBones(
+              context.body,
+              resolveHumanPosture(
+                context.body,
+                holds.reduce(
+                  (
+                    posture: IAutoMovieMotionHumanPosture,
+                    held: HumanBoardHandover.IHold,
+                  ): IAutoMovieMotionHumanPosture =>
+                    HumanUnseatPose.reach(posture, held.side, held.point, 1),
+                  boarding(t),
+                ),
+              ),
+              undefined,
+              new Set<AutoMovieHumanoidBone>(
+                holds.map(
+                  (held: HumanBoardHandover.IHold): AutoMovieHumanoidBone =>
+                    `${held.side}Hand`,
+                ),
+              ),
+            );
+            if (
+              holds.some(
+                (held: HumanBoardHandover.IHold): boolean =>
+                  Vector3.distance(
+                    fitted.get(`${held.side}Hand`)!.worldPosition,
+                    held.point,
+                  ) > AutoMovieMotionHumanAuditTangle.BUILT,
+              )
+            )
+              return false;
             const other: IAutoMovieMotionHumanPerformerReader =
-              context.performer(hand.partner!);
+              context.performer(hand!.partner!);
             const resting: ReturnType<
               ReturnType<typeof HumanColliders.preparePlaced>
             > = HumanColliders.preparePlaced(other.body, PARTNER)(
@@ -362,6 +406,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
                 boarding(seconds),
             );
           },
+        ),
         );
   const lets: number =
     handover === undefined ? release : Math.min(release, handover.lets);

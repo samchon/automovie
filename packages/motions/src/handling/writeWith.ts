@@ -28,14 +28,6 @@ import { HumanHand } from "../posture/HumanHand";
 import { pickUp } from "./pickUp";
 
 /**
- * A hand's breadth across the knuckles as a share of its length: 0.45,
- * the adult ratio of hand breadth to hand length, men and women alike
- * (https://pmc.ncbi.nlm.nih.gov/articles/PMC9225906/, the ratio the
- * dining specs' `everydayTake.BREADTH` reads).
- */
-const HAND_BREADTH: number = 0.45;
-
-/**
  * The parts a held tool's work shares between `write` and `workHeld`: a
  * surface the other hand holds still, the reach refusal of a working point,
  * the other hand's tool kept on the work, the fingers' drives of the tool's
@@ -125,11 +117,13 @@ export namespace writeWith {
    * @param origin The surface's origin, world metres.
    * @param facing The surface's attitude, world.
    * @param clock The stroke's clock.
+   * @param turn The steadying tool's turn about the surface's normal (`splay`); none when absent.
+   * @param together The group the stroking arm is planned in, so the two arms are one problem over one span; planned alone when absent.
    * @returns The steadying hand's parts.
    * @throws {HumanRefusal} When the other hand does not hold the tool, the tool has no such point, or the point is beyond the arm.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the steadying hand contributes and its refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The same held lever `write` aims by, held at one point under the stroke's envelope.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the steadying hand contributes, its group and its refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The same held lever `write` aims by, held at one point under the stroke's envelope; in the stroking arm's group the two arms' probes are kept clear of each other as both move, since planning one after the other is incomplete where their paths are coupled (Erdmann and Lozano-Perez 1987, Algorithmica 2:477).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the held tool, its lever and target, then build the carried arm.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The held owner refuses a hand that does not hold the tool; the reach owner a point beyond the arm.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per call.
@@ -144,6 +138,7 @@ export namespace writeWith {
     facing: IAutoMovieQuaternion,
     clock: IAutoMovieMotionClock,
     turn: IAutoMovieQuaternion = Quaternion.identity(),
+    together?: ReturnType<typeof AutoMovieMotionHumanArm.together>,
   ): writeWith.ISteadied {
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const aim: writeWith.IAim = steadyAim(context, steady, side, origin, facing);
@@ -176,6 +171,7 @@ export namespace writeWith {
         side: other,
         from: 0,
         to: clock.duration,
+        ...(together === undefined ? {} : { together }),
         span: {
           start: 0,
           ready: clock.at("strokeStart"),
@@ -272,23 +268,32 @@ export namespace writeWith {
    * handle leaves the plate toward its own hand. The grips are the working
    * points less the levers, so turning each lever about the normal through
    * its point moves its grip on a circle; the least equal turn of both that
-   * puts the grips' centres a hand's breadth (`HAND_BREADTH` of the hand's
-   * length) and the arm planner's clearance (`HumanArmTrajectoryTerms.DEPTH`
-   * for each hand) apart is found by bisection on that separation, which
-   * grows with the turn up to a right angle. Grips already that far apart
-   * are left as held.
+   * keeps the grips' centres a hand's length and the arm planner's clearance
+   * (`HumanArmTrajectoryTerms.DEPTH` for each hand) apart over the whole
+   * stroke is found by bisection on that separation, which grows with the
+   * turn up to a right angle. A hand closed on a handle lies within half its
+   * length of the grip's centre, the palm's middle, so two hands whose grips
+   * stand a hand's length apart lie in disjoint spheres and cannot meet, the
+   * sphere bound the arm planner's own clearance reads; a hand's breadth
+   * apart, measured at the stroke's first point alone, left the stroking
+   * hand 16 mm inside the steadying one across a knife's saw (measured on
+   * the dining cut). The stroking grip moves along the stroke's segments
+   * with its lever fixed, so its least distance from the steadying grip is
+   * the least over those segments, each a closed-form point-to-segment
+   * distance. Grips already that far apart are left as held.
    *
    * @param body The body.
    * @param facing The surface's attitude, world.
-   * @param stroke The stroking tool's working point and lever, world metres.
+   * @param stroke The stroking tool's working point at the stroke's start and its lever, world metres.
    * @param steady The steadying tool's working point and lever, world metres.
+   * @param path The stroking working point's vertices in order, world metres; the start alone when absent.
    * @returns The stroking tool's turn and the steadying tool's, world.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the premise, the rule, the bound and when nothing turns.
-   * @evidence contracts/development/implementation.md#principled-implementation A grip is its working point less its lever, so a turn of the lever about the normal through the point moves the grip on a circle of the lever's flat length; the separation is monotone in an equal outward turn on [0, 90] degrees, so bisection finds its least sufficient turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Flatten, choose each outward sense, bisect one angle.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bound is the hand's own breadth and the planner's own clearance; a separation the right angle cannot reach turns to the right angle.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of bisection steps, once per plan.
+   * @evidence contracts/development/common.md#meaningful-documentation States the premise, the rule, the bound, the path and when nothing turns.
+   * @evidence contracts/development/implementation.md#principled-implementation A grip is its working point less its lever, so a turn of the lever about the normal through the point moves the grip on a circle of the lever's flat length, and along the stroke the grip traces the path's segments shifted by the lever; two hands within half a hand's length of their grips are clear when the grips are a hand's length apart (disjoint bounding spheres); the separation is monotone in an equal outward turn on [0, 90] degrees, so bisection finds its least sufficient turn.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Flatten, choose each outward sense, bisect one angle on the least separation along the path.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bound is the hand's own length and the planner's own clearance; a separation the right angle cannot reach turns to the right angle.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of bisection steps, once per plan, each one closed-form distance a stroke segment.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No equivalent owner exists.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns two fresh turns.
    */
@@ -297,6 +302,7 @@ export namespace writeWith {
     facing: IAutoMovieQuaternion,
     stroke: writeWith.ILever,
     steady: writeWith.ILever,
+    path: readonly IAutoMovieVector3[] = [stroke.point],
   ): writeWith.ISplay {
     const up: IAutoMovieVector3 = Quaternion.rotateVector(facing, {
       x: 0,
@@ -306,11 +312,28 @@ export namespace writeWith {
     const flat = (v: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.subtract(v, Vector3.scale(up, Vector3.dot(v, up)));
     const need: number =
-      HAND_BREADTH * body.measure.hand + 2 * HumanArmTrajectoryTerms.DEPTH;
+      body.measure.hand + 2 * HumanArmTrajectoryTerms.DEPTH;
     const grip = (l: writeWith.ILever, q: IAutoMovieQuaternion): IAutoMovieVector3 =>
       Vector3.subtract(l.point, Quaternion.rotateVector(q, l.lever));
-    const apart = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number =>
-      Vector3.length(flat(Vector3.subtract(grip(stroke, a), grip(steady, b))));
+    // The least flat distance of the stroking grip, carried along the path
+    // with its lever fixed, from the steadying grip.
+    const apart = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number => {
+      const fixed: IAutoMovieVector3 = grip(steady, b);
+      const at = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+        flat(Vector3.subtract(grip({ point, lever: stroke.lever }, a), fixed));
+      let least: number = Infinity;
+      for (let i: number = 0; i < path.length; ++i) {
+        const p: IAutoMovieVector3 = at(path[i]!);
+        least = Math.min(least, Vector3.length(p));
+        if (i + 1 === path.length) break;
+        const d: IAutoMovieVector3 = Vector3.subtract(at(path[i + 1]!), p);
+        const dd: number = Vector3.dot(d, d);
+        if (!(dd > 0)) continue;
+        const u: number = Math.max(0, Math.min(1, -Vector3.dot(p, d) / dd));
+        least = Math.min(least, Vector3.length(Vector3.add(p, Vector3.scale(d, u))));
+      }
+      return least;
+    };
     const none: IAutoMovieQuaternion = Quaternion.identity();
     if (apart(none, none) >= need) return { stroke: none, steady: none };
     // Each grip swings toward its own side of the other's: the sense whose

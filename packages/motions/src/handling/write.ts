@@ -258,7 +258,8 @@ function planWrite(
     side,
   );
   // With the other hand steadying a tool of its own, both handles turn out
-  // toward their hands so the two grips stand a hand apart (`writeWith.splay`).
+  // toward their hands so the two grips stay a hand's length apart over the
+  // whole stroke (`writeWith.splay`).
   const aim: writeWith.IAim | undefined =
     p.steady === undefined
       ? undefined
@@ -277,6 +278,7 @@ function planWrite(
             point: aim.target,
             lever: Quaternion.rotateVector(aim.rotation, aim.contact),
           },
+          vertices.map((vertex: IVertex): IAutoMovieVector3 => vertex.point),
         );
   const holding: IAutoMovieQuaternion =
     turns === undefined
@@ -289,6 +291,11 @@ function planWrite(
     vertices.map((vertex: IVertex): IAutoMovieVector3 => vertex.point),
     lever,
   );
+  // The whole clock is the law's own, lengthened by a slower tempo. A
+  // steadying arm is planned in the stroking arm's group, the two one
+  // problem over one span (writeWith.steady).
+  const group: ReturnType<typeof AutoMovieMotionHumanArm.together> =
+    AutoMovieMotionHumanArm.together(context.handover, true, context.tempo);
   const steadied: writeWith.ISteadied | undefined =
     p.steady === undefined
       ? undefined
@@ -300,6 +307,7 @@ function planWrite(
           facing,
           clock,
           turns?.steady,
+          group,
         );
   const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried({
     body: context.body,
@@ -307,12 +315,7 @@ function planWrite(
     from: 0,
     to: clock.duration,
     span: { start: 0, ready, relax: done, end: clock.duration },
-    // The whole clock is the law's own, lengthened by a slower tempo.
-    together: AutoMovieMotionHumanArm.together(
-      context.handover,
-      true,
-      context.tempo,
-    ),
+    together: group,
     rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
     // The mark is as wide as the tip that makes it: the stroke's point may
     // land within the radius the tip declares; a tip declaring none is a point.
@@ -434,6 +437,4 @@ function strokePoint(
   return Vector3.lerp(
     a.point,
     b.point,
-    AutoMovieMotionInterval.progress(a.length, b.length, distance),
-  );
-}
+    AutoMovieMotionInterval.progress(a.l

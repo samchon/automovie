@@ -237,9 +237,15 @@ function scene(
       : HumanChain.subject("a")
           .stand({ hold: SIT })
           .until({ of: SEATING, event: "seated" });
+  // It stops a foot's length short of the seated partner's shins (at the
+  // seat's edge its shank stood 46.5 mm into the partner's as it stepped
+  // off) and reaches the head by the hip hinge the setting takes.
   const dresser: Chain =
     pose === "front"
-      ? waiting.walk({ to: { x: 0, y: 0, z: 0 }, face: 0 })
+      ? waiting.walk({
+          to: { x: 0, y: 0, z: -a.measure.footLength },
+          face: 0,
+        })
       : waiting;
   return new HumanPerformance({
     seed: "place-over-head",
@@ -277,9 +283,13 @@ function scene(
       ((placing: Chain): Chain =>
         // A partner seated facing the dresser rises forward over the knees
         // the dresser stands at (its head went 0.11 m into the dresser's
-        // hips), so the dresser turns and walks off first.
+        // hips), so the dresser walks off to its side first: turning to walk
+        // back, its first step went 38.7 mm into the partner's shins.
         pose === "front"
-          ? placing.walk({ to: { x: 0, y: 0, z: -AWAY }, face: 180 })
+          ? placing.walk({
+              to: { x: -AWAY, y: 0, z: -a.measure.footLength },
+              face: -90,
+            })
           : placing)(
         dresser
           .pickUp({

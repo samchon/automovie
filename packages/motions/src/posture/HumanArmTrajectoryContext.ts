@@ -266,8 +266,13 @@ export namespace HumanArmTrajectoryContext {
 
     // A declared rest is a resting contact: no deeper than where the
     // segments meet (the audit's reference depth of the pair), and drawn to
-    // it by the objective; any other pair keeps `DEPTH` of margin. An
-    // own collider's corner keeps the tangle audit's reference depth in
+    // it by the objective; any other pair keeps `DEPTH` of margin. The
+    // segments the goal lays the hand on (the frame's resting parts) lie on
+    // the hand, which reads them not at all, and on its forearm at contact
+    // depth, read both ways: a hand closed on a partner's wrist or on a
+    // weapon the partner holds lays its forearm over the gripped hand, as a
+    // two-handed pistol grab's redirecting forearm lies over the gun hand.
+    // An own collider's corner keeps the tangle audit's reference depth in
     // that segment; an external collider has no own-body reference. An axis
     // sphere keeps the depth the arm resting at the waypoint has
     // (`HumanArmTrajectoryWaypoint.IWaypoint.placed`).
@@ -301,7 +306,14 @@ export namespace HumanArmTrajectoryContext {
       if (Number.isNaN(v)) {
         const frame: IAutoMovieMotionHumanArmGeometry.IFrame = point.frames[a]!;
         const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
-        const rested: number = give(declared(a, k, probe, s.bone));
+        const lower: boolean =
+          probe >= G.SURFACE
+            ? frame.owners[probe - G.SURFACE] === "lower"
+            : probe >= 2 && probe < 6;
+        const rested: number = give(
+          declared(a, k, probe, s.bone) ||
+            (lower && frame.resting.has(s.part)),
+        );
         if (probe >= G.SURFACE)
           v =
             (s.part >= 0 && s.part < model.parts.length
@@ -407,7 +419,12 @@ export namespace HumanArmTrajectoryContext {
                 body.part,
                 col.part,
               )[body.corner]!
-            : 0) - give(lying(a, k, own, body.bone));
+            : 0) -
+          give(
+            lying(a, k, own, body.bone) ||
+              (own === "lowerArm" &&
+                point.frames[a]!.resting.has(body.part)),
+          );
         point.inside[a]!.set(key, v);
       }
       return v;
@@ -606,16 +623,4 @@ function boxes(
     Math.max(twist.max, rest[2]!, back[2]!),
   ];
   (["flexion", "abduction", "twist"] as const).forEach(
-    (key: "flexion" | "abduction" | "twist", i: number): void => {
-      for (const [constraint, o] of [
-        [setup.constraint.lower, 3],
-        [setup.constraint.hand, 6],
-      ] as const) {
-        const r: { min: number; max: number } | null | undefined =
-          constraint?.[key];
-        if (r !== null && r !== undefined) out[o + i] = [r.min, r.max];
-      }
-    },
-  );
-  return out;
-}
+    (key: "flexion"

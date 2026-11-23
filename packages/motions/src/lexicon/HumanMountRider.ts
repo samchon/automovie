@@ -166,7 +166,7 @@ export namespace HumanMountRider {
    * @returns The arm's goal and the hand's finger joints.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States where the wrist goes, how the hand turns, how the fingers close and what the first pass leaves out.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture shows, so the hand leaves the place it held.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture shows, and the elbow's pole blends from the elbow the posture shows, so the hand leaves the place it held and the arm the pose it held.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The target, the turn, the blend from the joints' hand, the fingers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip out of the arm's reach is not checked here: the limb fit leaves the hand short of it, which the contact audit reports. The closure is the caller's, curled on the real colliders.
    * @evidence contracts/development/implementation.md#efficient-algorithms Holding fully needs no resolution; a partial hold observes the free wrist and its ancestors. A native read omits unrelated simple leg fits through the canonical goal selector; an incoming custom reader keeps the full fit. The fingers blend linearly over the closed joints given.
@@ -213,9 +213,7 @@ export namespace HumanMountRider {
     posture: IAutoMovieMotionHumanPosture,
     share: number,
   ): Taking {
-    let free:
-      | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieRigidTransform>
-      | undefined;
+    let free: ReadonlyMap<AutoMovieHumanoidBone, IFree> | undefined;
     return (side, grip, closed) =>
       held(body, side, posture, grip, share, closed, () => {
         free ??= freeHands(body, posture, BOTH_HANDS);
@@ -238,7 +236,7 @@ export namespace HumanMountRider {
     grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
     share: number,
     closed: IAutoMovieMotionHumanPosture["joints"],
-    free: () => IAutoMovieRigidTransform,
+    free: () => IFree,
   ): IAutoMovieMotionHumanMountRider.IHoldResult {
     const s: number = Math.min(1, Math.max(0, share));
     const {
@@ -255,10 +253,19 @@ export namespace HumanMountRider {
       });
     let point: IAutoMovieVector3 = target;
     let rotation: IAutoMovieQuaternion = turned;
+    const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      body,
+      posture,
+      side,
+      0.2,
+    );
+    let bend: IAutoMovieVector3 = hang;
     if (s < 1) {
-      const hand: IAutoMovieRigidTransform = free();
+      const hand: IFree = free();
       point = Vector3.lerp(hand.position, target, s);
       rotation = Quaternion.slerp(hand.rotation, turned, s);
+      // The elbow leaves where the posture shows it, so a hand taken from or given back to its rest keeps its elbow's side at the end it is free.
+      if (hand.pole !== undefined) bend = Vector3.lerp(hand.pole, hang, s);
     }
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
       side,
@@ -281,7 +288,7 @@ export namespace HumanMountRider {
       arm: {
         point,
         rotation,
-        bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+        bend,
         ...(contact === undefined ? {} : { contact }),
         planted: s >= 1,
       },
@@ -303,8 +310,8 @@ export namespace HumanMountRider {
     requested: ReadonlySet<AutoMovieHumanoidBone>,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieRigidTransform> {
-    const out: Map<AutoMovieHumanoidBone, IAutoMovieRigidTransform> = new Map();
+  ): ReadonlyMap<AutoMovieHumanoidBone, IFree> {
+    const out: Map<AutoMovieHumanoidBone, IFree> = new Map();
     const rest: Set<AutoMovieHumanoidBone> = new Set();
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const bone of requested) {
@@ -317,12 +324,20 @@ export namespace HumanMountRider {
         goal.on === undefined &&
         goal.rotation !== undefined
       ) {
-        out.set(bone, { position: goal.point, rotation: goal.rotation });
+        out.set(bone, {
+          position: goal.point,
+          rotation: goal.rotation,
+          pole: goal.bend,
+        });
         delete limbs[arm];
       } else rest.add(bone);
     }
     if (rest.size === 0) return out;
+    // The elbows the same fit places, read with their wrists: each is an ancestor of its wrist, so the fit computes it anyway.
     const read = prepareHumanPoseResolution(resolution);
+    const elbows: Set<AutoMovieHumanoidBone> = new Set(rest);
+    for (const bone of rest)
+      elbows.add(bone.startsWith("left") ? "leftLowerArm" : "rightLowerArm");
     const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       poseBones(
         body,
@@ -338,16 +353,26 @@ export namespace HumanMountRider {
           projection,
         ).pose,
         read(),
-        rest,
+        elbows,
       );
     for (const bone of rest) {
       const found: IAutoMovieResolvedBone = bones.get(bone)!;
+      const elbow: IAutoMovieResolvedBone | undefined = bones.get(
+        bone.startsWith("left") ? "leftLowerArm" : "rightLowerArm",
+      );
       out.set(bone, {
         position: found.worldPosition,
         rotation: found.worldRotation,
+        ...(elbow === undefined ? {} : { pole: elbow.worldPosition }),
       });
     }
     return out;
+  }
+
+  /** A free wrist as the posture shows it, and the point its elbow bends toward there: the arm goal's own pole, or the elbow the fit placed. */
+  interface IFree extends IAutoMovieRigidTransform {
+    /** The point the elbow bends toward, world metres; none when the fit did not place the elbow. */
+    pole?: IAutoMovieVector3;
   }
 
   /**

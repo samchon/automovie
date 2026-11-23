@@ -244,14 +244,13 @@ export function supportStep(props: supportStep.IProps): number {
     push({
       posture: supportKey.solved(
         body,
-        // Over the old place the body still stands in the stance it leaves;
-        // over a cleared foot's new place it already takes the one it
-        // arrives at, as the set-down does.
-        props.preference(
-          l > 0 && cleared.length > 0 ? props.stance : props.leaving,
-          start,
-          oldPlace,
-        ),
+        // Until the stepping limb sets down, the body bears only on the
+        // supports it keeps from the stance it leaves, so every key of the
+        // swing keeps that stance's posture: in single support the centre of
+        // mass stays over the base of support that bears (Winter 1995, Gait
+        // Posture 3:193). Taking the arriving stance's posture mid-swing swung
+        // the trunk back toward the middle in the air and out again to land.
+        props.preference(props.leaving, start, oldPlace),
         start,
         kept,
         oldPlace,

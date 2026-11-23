@@ -338,18 +338,22 @@ export namespace HumanFoot {
    * @param body The body.
    * @param side The foot.
    * @param border +1 for the +X border, -1 for the -X one.
+   * @param half How far the edge lies from the sole's midline, metres; half the foot's breadth when absent.
    * @returns The edge, metres in the foot's rest frame from the ankle.
    */
   export function edge(
     body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     border: number,
+    half: number = body.measure.footBreadth / 2,
   ): IAutoMovieVector3 {
+    // The edge runs along the forefoot from the ball to the toe; a foot
+    // rolled about its long axis bears on whichever of its two ends lies
+    // lower in the foot's frame, the other standing no lower.
     const ball: IAutoMovieVector3 = offset(body, side, "ball", 0);
-    return {
-      ...ball,
-      x: ball.x + (Math.sign(border) * body.measure.footBreadth) / 2,
-    };
+    const toe: IAutoMovieVector3 = offset(body, side, "toe", 0);
+    const low: IAutoMovieVector3 = toe.y < ball.y ? toe : ball;
+    return { ...low, x: low.x + Math.sign(border) * half };
   }
 
   /**

@@ -582,9 +582,13 @@ export function test_motion_swing_tennis_point(): void {
           racket.affordance("face").frame.translation,
         ),
       );
+      // The ball's centre is its grip offset turned by its frame: the toss
+      // leaves it turned, so the bare offset would lift the centre a
+      // diameter off the face.
+      const ballFrame: IAutoMovieRigidTransform = won.prop("ball", seconds);
       const ballCentre: IAutoMovieVector3 = Vector3.add(
-        won.prop("ball", seconds).position,
-        centre,
+        ballFrame.position,
+        Quaternion.rotateVector(ballFrame.rotation, centre),
       );
       const foot = (time: number): IAutoMovieVector3 =>
         won.bones(player, time).get("leftFoot")!.worldPosition;

@@ -97,10 +97,12 @@ export async function test_motion_swing_golf_putt(): Promise<void> {
   }).bones("golfer", 0);
 
   // The golfer stands at the putt's own address for the ball and the line
-  // putted, as a golfer aims the stance along the line, the putter read in
-  // the hand as the hold keeps it (`PrecisionStrokeForms.address`).
+  // putted, square to the line as a right-handed golfer addresses it: facing
+  // the ball, the line along the left shoulder, so the shoulders rock the
+  // putter along it (Pelz, Putting Bible), the putter read in the hand as
+  // the hold keeps it (`PrecisionStrokeForms.address`).
   const heading = (aim: IAutoMovieVector3): number =>
-    (Math.atan2(aim.x - resting.x, aim.z - resting.z) * 180) / Math.PI;
+    (Math.atan2(aim.x - resting.x, aim.z - resting.z) * 180) / Math.PI - 90;
   const performers = (
     aim: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPerformance.IInput["performers"] => [
