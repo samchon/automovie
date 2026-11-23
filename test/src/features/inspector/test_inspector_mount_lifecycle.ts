@@ -2,21 +2,16 @@ import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionLegendEntry,
 } from "@automovie/interface";
-import type {
-  IAutoMovieDrawScene,
-  IAutoMovieDrawSubject,
-} from "@automovie/render";
 import {
   AutoMovieInspectorPlayhead,
   type IAutoMovieInspectorScene,
-  type IAutoMovieInspectorSceneHost,
   mountAutoMovieInspectorScene,
   readAutoMovieInspectorAddress,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
-import * as THREE from "three";
+import type * as THREE from "three";
 
-import { InspectionScene } from "../internal/InspectionScene";
+import { InspectorMountRecording } from "../internal/InspectorMountRecording";
 
 /**
  * The inspector's scene mount keeps one renderer and one frame loop alive
@@ -55,15 +50,17 @@ import { InspectionScene } from "../internal/InspectionScene";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each naming its input and the behaviour it pins.
  */
 export async function test_inspector_mount_lifecycle(): Promise<void> {
-  const host: RecordingHost = new RecordingHost();
+  const host: InspectorMountRecording.Host = new InspectorMountRecording.Host();
   const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
   const request: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress(
     "marks=contact&at=0.25",
   );
 
   // 1. Mount, dispose before arrival, mount again.
-  const first: RecordingSubject = new RecordingSubject(2);
-  const firstReport: RecordingReport = new RecordingReport();
+  const first: InspectorMountRecording.Subject =
+    new InspectorMountRecording.Subject(2);
+  const firstReport: InspectorMountRecording.Report =
+    new InspectorMountRecording.Report();
   mountAutoMovieInspectorScene({
     name: "recorded",
     subject: first,
@@ -72,8 +69,10 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
     host,
     report: firstReport,
   }).dispose();
-  const second: RecordingSubject = new RecordingSubject(2);
-  const report: RecordingReport = new RecordingReport();
+  const second: InspectorMountRecording.Subject =
+    new InspectorMountRecording.Subject(2);
+  const report: InspectorMountRecording.Report =
+    new InspectorMountRecording.Report();
   const mounted: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({
     name: "recorded",
     subject: second,
@@ -122,7 +121,7 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
   );
 
   // 2. Draw only on change.
-  const renderer: RecordingRenderer = host.renderers[0]!;
+  const renderer: InspectorMountRecording.Renderer = host.renderers[0]!;
   await host.run(0);
   TestValidator.equals("the first frame renders", renderer.renders, 1);
   TestValidator.equals(
@@ -205,7 +204,7 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
   );
 
   // 5. A seek that resolves late.
-  const instance: RecordingInstance = second.instance!;
+  const instance: InspectorMountRecording.Instance = second.instance!;
   instance.hold = true;
   playhead.seek(1.5);
   await host.run(10_200);
@@ -264,20 +263,22 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
     [renderer.disposed, second.disposed],
     [1, 1],
   );
-  const third: RecordingSubject = new RecordingSubject(2);
+  const third: InspectorMountRecording.Subject =
+    new InspectorMountRecording.Subject(2);
   const again: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({
     name: "recorded",
     subject: third,
     request,
     playhead,
     host,
-    report: new RecordingReport(),
+    report: new InspectorMountRecording.Report(),
   });
   await third.arrive();
   TestValidator.equals(
     "one renderer alive after mounting again",
     host.renderers.filter(
-      (candidate: RecordingRenderer): boolean => candidate.disposed === 0,
+      (candidate: InspectorMountRecording.Renderer): boolean =>
+        candidate.disposed === 0,
     ).length,
     1,
   );
@@ -285,8 +286,10 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
   again.dispose();
 
   // 7. Failures.
-  const failing: RecordingSubject = new RecordingSubject(2);
-  const failed: RecordingReport = new RecordingReport();
+  const failing: InspectorMountRecording.Subject =
+    new InspectorMountRecording.Subject(2);
+  const failed: InspectorMountRecording.Report =
+    new InspectorMountRecording.Report();
   mountAutoMovieInspectorScene({
     name: "recorded",
     subject: failing,
@@ -299,8 +302,10 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
   TestValidator.equals("a failed creation is reported", failed.errors, [
     "no such film",
   ]);
-  const empty: RecordingSubject = new RecordingSubject(0);
-  const invalid: RecordingReport = new RecordingReport();
+  const empty: InspectorMountRecording.Subject =
+    new InspectorMountRecording.Subject(0);
+  const invalid: InspectorMountRecording.Report =
+    new InspectorMountRecording.Report();
   mountAutoMovieInspectorScene({
     name: "recorded",
     subject: empty,
@@ -318,218 +323,9 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
   TestValidator.equals(
     "no renderer stays alive",
     host.renderers.filter(
-      (candidate: RecordingRenderer): boolean => candidate.disposed === 0,
+      (candidate: InspectorMountRecording.Renderer): boolean =>
+        candidate.disposed === 0,
     ).length,
     0,
   );
-}
-
-/** A renderer that counts what it is asked to do. */
-class RecordingRenderer implements IAutoMovieInspectorSceneHost.IRenderer {
-  public localClippingEnabled: boolean = false;
-  public toneMapping: THREE.ToneMapping = THREE.NoToneMapping;
-  public toneMappingExposure: number = 1;
-  public autoClear: boolean = true;
-  public shadowMap: { autoUpdate: boolean } = { autoUpdate: true };
-  private target_: THREE.WebGLRenderTarget | null = null;
-
-  public getRenderTarget(): THREE.WebGLRenderTarget | null {
-    return this.target_;
-  }
-
-  public setRenderTarget(target: THREE.WebGLRenderTarget | null): void {
-    this.target_ = target;
-  }
-  public renders: number = 0;
-  public disposed: number = 0;
-  public readonly sizes: [number, number][] = [];
-
-  public render(): void {
-    ++this.renders;
-  }
-
-  public setPixelRatio(): void {}
-
-  public setSize(width: number, height: number): void {
-    this.sizes.push([width, height]);
-  }
-
-  public dispose(): void {
-    ++this.disposed;
-  }
-}
-
-/** A host whose frames run when the test says, with a settable size. */
-class RecordingHost implements IAutoMovieInspectorSceneHost {
-  public readonly renderers: RecordingRenderer[] = [];
-  public readonly frames: Map<number, (nowMs: number) => void> = new Map();
-  public width: number = 640;
-  private next_: number = 1;
-
-  public createRenderer(): RecordingRenderer {
-    const renderer: RecordingRenderer = new RecordingRenderer();
-    this.renderers.push(renderer);
-    return renderer;
-  }
-
-  public requestFrame(callback: (nowMs: number) => void): number {
-    this.frames.set(this.next_, callback);
-    return this.next_++;
-  }
-
-  public cancelFrame(handle: number): void {
-    this.frames.delete(handle);
-  }
-
-  public size(): IAutoMovieInspectorSceneHost.ISize {
-    return { width: this.width, height: 360, pixelRatio: 1 };
-  }
-
-  /**
-   * Run every pending frame at one time, then let every seek they started
-   * settle.
-   */
-  public async run(nowMs: number): Promise<void> {
-    const pending: ((nowMs: number) => void)[] = [...this.frames.values()];
-    this.frames.clear();
-    for (const callback of pending) callback(nowMs);
-    await flush();
-  }
-}
-
-/** Two named quads, a permanent axis and a contact with a half-open lifetime. */
-class RecordingInstance implements IAutoMovieDrawScene {
-  public readonly scene: THREE.Scene = InspectionScene.scene(
-    InspectionScene.quad("hero", -2),
-    InspectionScene.quad("prop", 2),
-  );
-  public readonly camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
-    40,
-    16 / 9,
-    0.1,
-    100,
-  );
-  public readonly fps: number = 30;
-  public readonly width: number = 640;
-  public readonly height: number = 360;
-  public readonly markKinds: readonly string[] = ["contact"];
-  public readonly seeks: number[] = [];
-  public hold: boolean = false;
-  private held_: (() => void)[] = [];
-
-  public constructor(
-    public readonly durationSeconds: number,
-    private readonly owner_: RecordingSubject,
-  ) {
-    this.camera.position.set(0, 0, 8);
-  }
-
-  public marks = (
-    seconds: number,
-  ): ReturnType<NonNullable<IAutoMovieDrawScene["marks"]>> => [
-    InspectionScene.mark("hero/axis", "curve/axis", 0x00a0ff, {
-      type: "polyline",
-      points: [-2, -1, 0, -2, 1, 0],
-      closed: false,
-    }),
-    ...(seconds >= 1 && seconds < 1.25
-      ? [
-          InspectionScene.mark("hero/contact", "contact", 0x00c2a8, {
-            type: "arrows",
-            origins: [-2, 0, 0],
-            vectors: [0, 1, 0],
-          }),
-        ]
-      : []),
-  ];
-
-  public seek(seconds: number): Promise<void> {
-    this.seeks.push(seconds);
-    if (!this.hold) return Promise.resolve();
-    return new Promise<undefined>(
-      (resolve: (value: undefined) => void): void => {
-        this.held_.push((): void => resolve(undefined));
-      },
-    );
-  }
-
-  /** Resolve every held seek and let the mount react. */
-  public async settle(): Promise<void> {
-    for (const resolve of this.held_.splice(0)) resolve();
-    await flush();
-  }
-
-  public dispose(): void {
-    ++this.owner_.disposed;
-  }
-}
-
-/** A subject whose creation the test settles. */
-class RecordingSubject implements IAutoMovieDrawSubject {
-  public disposed: number = 0;
-  public instance: RecordingInstance | undefined;
-  private settle_: ((instance: RecordingInstance) => void) | undefined;
-  private reject_: ((error: Error) => void) | undefined;
-
-  public constructor(private readonly duration_: number) {}
-
-  public create(): Promise<RecordingInstance> {
-    return new Promise<RecordingInstance>(
-      (
-        resolve: (instance: RecordingInstance) => void,
-        reject: (error: Error) => void,
-      ): void => {
-        this.settle_ = resolve;
-        this.reject_ = reject;
-      },
-    );
-  }
-
-  /** Deliver the instance and let the mount take it. */
-  public async arrive(): Promise<void> {
-    this.instance = new RecordingInstance(this.duration_, this);
-    this.settle_!(this.instance);
-    await flush();
-  }
-
-  /** Fail the creation and let the mount hear it. */
-  public async fail(error: Error): Promise<void> {
-    this.reject_!(error);
-    await flush();
-  }
-}
-
-/**
- * Let every pending promise reaction run: a macrotask runs after the whole
- * microtask queue drains.
- */
-function flush(): Promise<void> {
-  return new Promise<undefined>((resolve: (value: undefined) => void): void => {
-    setImmediate((): void => resolve(undefined));
-  });
-}
-/** A report that keeps every event. */
-class RecordingReport implements IAutoMovieInspectorScene.IReport {
-  public readonly facts: IAutoMovieInspectorScene.IFacts[] = [];
-  public readonly legends: IAutoMovieInspectionLegendEntry[][] = [];
-  public readonly errors: string[] = [];
-  public readonly refusals: [IAutoMovieCapturePlanRequest, string][] = [];
-
-  public ready(facts: IAutoMovieInspectorScene.IFacts): void {
-    this.facts.push(facts);
-  }
-
-  public legend(entries: IAutoMovieInspectionLegendEntry[]): void {
-    this.legends.push(entries);
-  }
-
-  public labels(): void {}
-
-  public error(message: string | null): void {
-    if (message !== null) this.errors.push(message);
-  }
-
-  public refused(request: IAutoMovieCapturePlanRequest, message: string): void {
-    this.refusals.push([request, message]);
-  }
 }
