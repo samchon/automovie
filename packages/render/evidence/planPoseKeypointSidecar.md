@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Frames use frameTimes' independently computed binary64 i/fps schedule, whose positive clock supplies the non-decreasing queries the forward cursor requires. Motion sampling, projection and fog use engine functions. Camera depth is projectToNdc's pre-divide depth, unaffected by the discarded frustum-scaled coordinates, so unit frustum arguments preserve that depth; root-sampled fog approximates depth variation across each actor.
+Frames use frameTimes' independently computed binary64 i/fps schedule, and each frame's shot is `playbackShownLayer` of `playbackLayersAt`, the shot the picture shows most of, so the poses follow the shot on screen through a fade or a dissolve. Motion sampling, projection and fog use engine functions. Camera depth is projectToNdc's pre-divide depth, unaffected by the discarded frustum-scaled coordinates, so unit frustum arguments preserve that depth; root-sampled fog approximates depth variation across each actor.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -18,7 +18,7 @@ The doc states the clock, how each frame's shot and each actor's pose are resolv
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Initial maps index all supplied shots, scenes, motions and skeletons, including unused extras, while timeline and cursor work costs O(E + F) for E cut entries and F output samples. Each first-live shot scans its scene's cameras and indexes that scene's nodes; different shots sharing a scene rebuild that node index. Every frame scans its live shot's performances, and each resolved actor pays sampleMotion's key/joint/expression work plus resolvePoseKeypoints' forward kinematics, joint projection and camera-clip sampling. Fog requests sample the camera again per actor. These delegated populations drive cost beyond a constant per-performance bound, and none of the input arrays or output populations is capped here.
+Initial maps index all supplied shots, scenes, motions and skeletons, including unused extras, while timeline work costs O(E) and per-frame layer resolution O(F log E) for E cut entries and F output samples. Each first-live shot scans its scene's cameras and indexes that scene's nodes; different shots sharing a scene rebuild that node index. Every frame scans its live shot's performances, and each resolved actor pays sampleMotion's key/joint/expression work plus resolvePoseKeypoints' forward kinematics, joint projection and camera-clip sampling. Fog requests sample the camera again per actor. These delegated populations drive cost beyond a constant per-performance bound, and none of the input arrays or output populations is capped here.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

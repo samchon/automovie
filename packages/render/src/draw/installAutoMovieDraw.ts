@@ -1,13 +1,11 @@
-import { playbackEntryTime } from "@automovie/engine";
+import { playbackEntryTime, playbackShownLayer } from "@automovie/engine";
 import type {
   IAutoMovieDialogueMouthTrack,
   IAutoMovieDrawCall,
   IAutoMovieDrawDescription,
   IAutoMovieDrawResult,
-  IAutoMovieDrawnMouth,
   IAutoMovieFilmOptics,
   IAutoMovieInspectionDiagnostics,
-  IAutoMovieInspectionLabel,
   IAutoMovieInspectionLegendEntry,
   IAutoMovieInspectionView,
   IAutoMoviePlaybackEntry,
@@ -15,15 +13,11 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { resolveAutoMovieCapturePatterns } from "../capture/resolveAutoMovieCapturePatterns.js";
 import type { AutoMovieFilmAlpha } from "../scene/filmResponse/AutoMovieFilmAlpha.js";
 import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
-import type { IAutoMovieInspectionPath } from "../scene/inspection/IAutoMovieInspectionPath.js";
-import { listAutoMovieInspectionPaths } from "../scene/inspection/listAutoMovieInspectionPaths.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
 import { renderWithAutoMovieInspectionDiagnostics } from "../scene/inspection/renderWithAutoMovieInspectionDiagnostics.js";
 import { resolveAutoMovieInspectionView } from "../scene/inspection/resolveAutoMovieInspectionView.js";
-import { autoMovieSemanticMaskOf } from "../scene/semanticMask/index.js";
 import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
 import { AutoMovieDrawBeauty } from "./AutoMovieDrawBeauty.js";
@@ -34,10 +28,10 @@ import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import type { IAutoMovieDrawSubject } from "./IAutoMovieDrawSubject.js";
 import { describeAutoMovieDrawScene } from "./describeAutoMovieDrawScene.js";
-import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";
 import { isAutoMoviePlainBeautyRequest } from "./isAutoMoviePlainBeautyRequest.js";
 import { observeAutoMoviePlacedInspection } from "./observeAutoMoviePlacedInspection.js";
 import { planAutoMovieDrawLayers } from "./planAutoMovieDrawLayers.js";
+import { readAutoMovieDrawResult } from "./readAutoMovieDrawResult.js";
 import { selectAutoMovieDrawSubject } from "./selectAutoMovieDrawSubject.js";
 
 /**
@@ -72,9 +66,15 @@ const SUPERSAMPLE = 2 as const;
  *    samples are accumulated;
  * 4. Places the second itself through `AutoMovieDrawPlacement.inspect`, which
  *    restores the previous inspection, samples the request's trails and seeks
- *    the call's second; when the subject supplies diagnostics, the draw
- *    observes the settled delivery scene before the fresh inspection is
- *    applied, and no seek occurs between this application and drawing;
+ *    the call's second, or, when `playbackShownLayer` says the picture shows
+ *    more of a transition's outgoing shot, places that shot, so marks,
+ *    diagnostics, mouths, the camera record and every pass follow the shot on
+ *    screen; a live layer drawn under it is drawn and held first. When the
+ *    subject supplies diagnostics, the draw observes the settled scene before
+ *    the fresh inspection is applied, and no seek occurs between this
+ *    application and drawing. The subject's `beforeDraw` runs right after this
+ *    and every other placement, a transition shot's and each sample's, before
+ *    any pass's render mode applies;
  * 5. Draws through the camera `resolveAutoMovieInspectionView` gives, mark lines
  *    at the supersampling factor's width: the `beauty` shade by
  *    `AutoMovieDrawBeauty`, whose stages give a subject's optics and shading
@@ -83,12 +83,7 @@ const SUPERSAMPLE = 2 as const;
  *    picture too and composites the held layers by their weights through
  *    `renderAutoMovieFilmFrame`, a fade over a transparent background falling
  *    to alpha 0;
- * 6. Reads the drawn pixels back, flips them to rows from the top and averages a
- *    supersampled picture down, places the request's labels at the label scale,
- *    copies the inspection's legend of the marks drawn, and resolves every
- *    pattern of the request and view by `resolveAutoMovieCapturePatterns`
- *    against the scene's object paths and the selected mark paths, so the
- *    record names what each matched.
+ * 6. Reads the picture back and assembles the result by `readAutoMovieDrawResult`.
  *
  * It reads the renderer's own canvas back in the same task. Without optics the
  * scene is drawn straight to the canvas, so colour conversion and tone mapping
@@ -291,9 +286,27 @@ async function drawCall(
   const film: boolean =
     shade === "beauty" &&
     (delivery || isAutoMoviePlainBeautyRequest(call.request));
-  const layers: IAutoMoviePlaybackLayer[] | null = film
-    ? planAutoMovieDrawLayers(loaded.name, scene, call.seconds)
-    : null;
+  const planned: IAutoMoviePlaybackLayer[] | null = planAutoMovieDrawLayers(
+    loaded.name,
+    scene,
+    call.seconds,
+  );
+  const layers: IAutoMoviePlaybackLayer[] | null = film ? planned : null;
+
+  // Every record of the frame, from marks and diagnostics to the camera, the
+  // mouths and a structural pass, follows the shot the picture shows most of:
+  // inside a transition, before its midpoint, the outgoing shot.
+  const shown: IAutoMoviePlaybackLayer | null =
+    planned === null ? null : playbackShownLayer(planned);
+  const seekShown: ((at: number) => Promise<void>) | undefined =
+    shown === null || shown.live
+      ? undefined
+      : (at: number): Promise<void> =>
+          scene.seekShot!(
+            shown.shot,
+            playbackEntryTime(scene.cut!.entries[shown.entry]!, at),
+            at,
+          );
   const outgoing: IAutoMoviePlaybackLayer | undefined = layers?.find(
     (layer: IAutoMoviePlaybackLayer): boolean => !layer.live,
   );
@@ -344,6 +357,27 @@ async function drawCall(
     });
   }
 
+  // A live layer under an outgoing shot that the picture shows more of is
+  // drawn and held before the shown shot is placed for the frame's records.
+  let heldLive: boolean = false;
+  if (layers !== null && drawsLive && seekShown !== undefined) {
+    placement.restore();
+    if (sampled === undefined)
+      await fed((at: number): Promise<void> => scene.seek(at))(call.seconds);
+    prepare();
+    beauty.draw({
+      scene,
+      camera: cameraAt(call.seconds),
+      seconds: call.seconds,
+      width,
+      height,
+      sampled,
+      ...(alpha === undefined ? {} : { alpha }),
+    });
+    beauty.hold(1);
+    heldLive = true;
+  }
+
   // 4. The second itself, once the subject is ready.
   let diagnostics: IAutoMovieInspectionDiagnostics | undefined;
   const handle: IAutoMovieInspectionHandle = await placement.inspect(
@@ -358,6 +392,7 @@ async function drawCall(
       );
       scene.beforeDraw?.(renderer, call.seconds);
     },
+    seekShown,
   );
 
   // 5. Draw through the resolved camera at the drawn raster.
@@ -383,7 +418,7 @@ async function drawCall(
           else renderer.render(scene.scene, resolved.camera);
           return;
         }
-        if (drawsLive)
+        if (drawsLive && !heldLive)
           beauty.draw({
             scene,
             camera: resolved.camera,
@@ -397,7 +432,7 @@ async function drawCall(
 
         // The held layers, mixed by their weights: the outgoing shot in slot
         // 0 and the live one in slot 1.
-        if (drawsLive) beauty.hold(1);
+        if (drawsLive && !heldLive) beauty.hold(1);
         beauty.composite(
           layers.map(
             (
@@ -416,64 +451,12 @@ async function drawCall(
     });
 
   // 6. Read back before the task ends, then the labels at the output raster.
-  const context: WebGLRenderingContext | WebGL2RenderingContext =
-    renderer.getContext();
-  const bytes: Uint8Array = new Uint8Array(width * height * 4);
-  context.readPixels(
-    0,
-    0,
-    width,
-    height,
-    context.RGBA,
-    context.UNSIGNED_BYTE,
-    bytes,
-  );
-  const labels: IAutoMovieInspectionLabel[] = handle.labels(
-    resolved.camera,
-    call.width,
-    call.height,
-    call.scale,
-  ).labels;
-  const mouths: IAutoMovieDrawnMouth[] | undefined = placement.mouths();
-  return {
-    pixels: encodeAutoMovieDrawPixels(bytes, width, height, factor),
-    width: call.width,
-    height: call.height,
-    labels: labels.map(
-      (
-        label: IAutoMovieInspectionLabel,
-      ): IAutoMovieDrawResult["labels"][number] => ({
-        text: label.text,
-        x: label.x,
-        y: label.y,
-      }),
-    ),
-    legend: [
-      ...handle.legend.map(
-        (
-          entry: IAutoMovieInspectionLegendEntry,
-        ): IAutoMovieInspectionLegendEntry => ({ ...entry }),
-      ),
-      ...diagnosticLegend,
-    ],
-    ...(diagnostics === undefined ? {} : { diagnostics }),
-
-    // The mask pass chose its palette from the scene's attachment, which
-    // the host cannot see, so the page reports what it painted with.
-    ...(shade === "mask"
-      ? { semanticMask: autoMovieSemanticMaskOf(scene.scene)?.mask ?? null }
-      : {}),
-    ...(mouths === undefined ? {} : { mouths }),
-    camera: resolved.record,
-    resolved: resolveAutoMovieCapturePatterns({
-      paths: [
-        ...listAutoMovieInspectionPaths(scene.scene).map(
-          (entry: IAutoMovieInspectionPath): string => entry.path,
-        ),
-        ...handle.selected,
-      ],
-      request: call.request,
-      view: call.view,
-    }),
-  };
+  return readAutoMovieDrawResult({
+    ...{ renderer, call, width, height, factor, handle, diagnosticLegend },
+    scene: scene.scene,
+    resolved,
+    shade,
+    diagnostics,
+    mouths: placement.mouths(),
+  });
 }

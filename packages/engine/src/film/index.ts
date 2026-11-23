@@ -86,6 +86,7 @@ export * from "./playbackEntryTime";
 export * from "./playbackFrameSamples";
 export * from "./playbackLayersAt";
 export * from "./playbackSampleAt";
+export * from "./playbackShownLayer";
 export * from "./pointSubjectBox";
 export * from "./preparePlaybackTimeline";
 export * from "./productionFrameBoundaryToGridTick";

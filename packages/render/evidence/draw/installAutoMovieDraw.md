@@ -10,7 +10,7 @@ WebGL's `readPixels` on the default framebuffer, read before the task ends, retu
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The installer owns loading and the order of a draw's steps; `AutoMovieDrawPlacement` owns the inspection lifecycle, framing and the mouth record, `AutoMovieDrawBeauty` the beauty stages, the graphics plate and the held transition layers, and `planAutoMovieDrawLayers` the transition plan, so each file holds one responsibility under the line limit. One placed observer is invoked by the final seek alone, before inspection. Describing, pixel encoding and pattern resolution retain their owners.
+The installer owns loading and the order of a draw's steps, including the rules that the subject's `beforeDraw` runs right after each placement before any render mode applies and that the frame's records follow `playbackShownLayer`, the shot the picture shows most of; `readAutoMovieDrawResult` owns the read-back and the result; `AutoMovieDrawPlacement` owns the inspection lifecycle, framing and the mouth record, `AutoMovieDrawBeauty` the beauty stages, the graphics plate and the held transition layers, and `planAutoMovieDrawLayers` the transition plan, so each file holds one responsibility under the line limit. One placed observer is invoked by the final seek alone, before inspection. Describing, pixel encoding and pattern resolution retain their owners.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

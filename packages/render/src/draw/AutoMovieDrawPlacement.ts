@@ -77,11 +77,14 @@ export class AutoMovieDrawPlacement {
   /**
    * Place the subject at `seconds` and bind a fresh inspection of `request`,
    * calling `onPlaced` on the settled scene before the inspection changes it.
+   * `seek` places the subject instead of its own `seek`, as a transition's
+   * outgoing shot is placed; trails are still sampled on the subject's clock.
    */
   public async inspect(
     request: IAutoMovieInspectionRequest,
     seconds: number,
     onPlaced?: () => void,
+    seek?: (seconds: number) => Promise<void>,
   ): Promise<IAutoMovieInspectionHandle> {
     const previous: IAutoMovieInspectionHandle | null = this.applied_;
     this.applied_ = null;
@@ -93,7 +96,7 @@ export class AutoMovieDrawPlacement {
         renderer: this.renderer,
         markKinds: this.scene.markKinds,
         place: (): Promise<IAutoMovieMark[]> =>
-          this.place(request, seconds, onPlaced),
+          this.place(request, seconds, onPlaced, seek),
       });
     this.applied_ = handle;
     return handle;
@@ -136,6 +139,7 @@ export class AutoMovieDrawPlacement {
     request: IAutoMovieInspectionRequest,
     seconds: number,
     onPlaced?: () => void,
+    seek?: (seconds: number) => Promise<void>,
   ): Promise<IAutoMovieMark[]> {
     const { scene } = this;
     const trails: IAutoMovieInspectionTrail[] = [];
@@ -158,7 +162,7 @@ export class AutoMovieDrawPlacement {
 
     // The mouths read from here on are the ones placed at the drawn second.
     this.spoken_?.clear();
-    await scene.seek(seconds);
+    await (seek === undefined ? scene.seek(seconds) : seek(seconds));
     onPlaced?.();
     return [
       ...(scene.marks?.(seconds) ?? []),
