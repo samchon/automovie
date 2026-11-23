@@ -11,45 +11,44 @@ import type {
 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
+import { strikingReadBack } from "./strikingReadBack";
 
 /**
- * A stopped weapon riding the body it met: after a strike's limb has stopped
- * on another person, that person keeps moving (a cover still closing, a
- * trunk still turning), and a limb held at the world point of the contact
- * would be run through by the surface it rests on. The ride gives the limb's
- * goal way before that surface.
+ * A stopped weapon riding the body it met: after a strike's limb has stopped on
+ * another person, that person keeps moving (a cover still closing, a trunk
+ * still turning), and a limb held at the world point of the contact would be
+ * run through by the surface it rests on. The ride gives the limb's goal way
+ * before that surface.
  *
- * The contact is one-sided: the met segment's rigid motion since the stop,
- * read at the weapon's point nearest the met body, is applied to the limb's
- * goal only along the contact normal (out of the met body toward the weapon)
- * and only outward, so the limb is pushed off by a surface advancing into it
- * from any side (a covering glove closing across the line as much as one
- * coming down it) and is never dragged after one that withdraws, the
- * non-penetration constraint of a frictionless contact. The push is what the
- * surface has advanced along the normal less what the law's own goal has
- * moved away from the contact along it since the stop: whole while the weapon
- * rests on the surface for the dwell ({@link StrikingStroke.DWELL}), gone once
- * the law's withdrawal outruns the surface, and held where the law's path
- * would carry the limb back into the surface (a guard that lies beyond a
- * contact made early, near the striker's own body).
+ * The contact is one-sided: the met segment's rigid motion since the stop, read
+ * at the weapon's point nearest the met body, is applied to the limb's goal
+ * only along the contact normal (out of the met body toward the weapon) and
+ * only outward, so the limb is pushed off by a surface advancing into it from
+ * any side (a covering glove closing across the line as much as one coming down
+ * it) and is never dragged after one that withdraws, the non-penetration
+ * constraint of a frictionless contact. The push is what the surface has
+ * advanced along the normal less what the law's own goal has moved away from
+ * the contact along it since the stop: whole while the weapon rests on the
+ * surface for the dwell ({@link StrikingStroke.DWELL}), gone once the law's
+ * withdrawal outruns the surface, and held where the law's path would carry the
+ * limb back into the surface (a guard that lies beyond a contact made early,
+ * near the striker's own body).
  *
  * Two people's poses can each depend on the other's (each rides the other's
  * arm), so the met segment is read on a fixed grid of film seconds from the
- * stop, memoised in ascending order, and a pose reads the grid two steps
- * behind its own second: every read reaches strictly earlier nodes, whatever
- * the other person's pose reads back.
+ * stop, memoised in ascending order, and a pose reads the grid two steps behind
+ * its own second: every read reaches strictly earlier nodes, whatever the other
+ * person's pose reads back.
  */
 export namespace StrikingRide {
   /**
-   * The grid's step and half the lag behind the shown second, seconds: half
-   * the 1/120 s step of the performance's contact resolution, so the lag is
-   * one resolution step.
+   * The grid's step and half the lag behind the shown second, seconds: half the
+   * 1/120 s step of the performance's contact resolution, so the lag is one
+   * resolution step.
    */
   export const STEP: number = 1 / 240;
 
-  /**
-   * What a ride is built from.
-   */
+  /** What a ride is built from. */
   export interface IProps {
     /**
      * The person the weapon met, read at call time.
@@ -78,9 +77,7 @@ export namespace StrikingRide {
     axis(seconds: number): readonly [IAutoMovieVector3, IAutoMovieVector3];
   }
 
-  /**
-   * A built ride.
-   */
+  /** A built ride. */
   export interface IRide {
     /**
      * A posture with one limb's goal carried by the met segment.
@@ -99,12 +96,15 @@ export namespace StrikingRide {
 
   /**
    * The step of the central differences that read the met surface's normal,
-   * metres: 1 mm, well under every collider radius, so both samples lie on
-   * the same side of the surface the weapon touches.
+   * metres: 1 mm, well under every collider radius, so both samples lie on the
+   * same side of the surface the weapon touches.
    */
   const NORMAL_STEP: number = 0.001;
 
-  /** The intervals the weapon's axis is sampled in for its point nearest the met body. */
+  /**
+   * The intervals the weapon's axis is sampled in for its point nearest the met
+   * body.
+   */
   const AXIS_SAMPLES: number = 8;
 
   /** Where the weapon touched the met body at the stop. */
@@ -130,7 +130,9 @@ export namespace StrikingRide {
    *
    * @param props The stop, the met person and the weapon's axis.
    * @returns The ride, memoising the met segment's frames for its life.
-   * @throws {Error} From `carry`, when a grid node is read before the nodes under it are known, which the two-step lag excludes.
+   * @throws {HumanRefusal} From `carry`, when a grid node is read before the
+   *   nodes under it are known: the two-step lag excludes it for the poses
+   *   that read the grid, so only a read outside the lag reaches it.
    */
   export function create(props: IProps): IRide {
     const frames: IFrame[] = [];
@@ -145,8 +147,7 @@ export namespace StrikingRide {
     // lies at least one node earlier.
     const frame = (index: number): IFrame => {
       if (index < frames.length) return frames[index]!;
-      if (filling)
-        throw new Error("A ride's frame was read before the frames under it");
+      if (filling) throw strikingReadBack("stopped limb's ride");
       filling = true;
       try {
         while (frames.length <= index) {
@@ -179,10 +180,7 @@ export namespace StrikingRide {
         HumanColliders.reading(other.body, bones);
       const [a, b] = props.axis(props.stop);
       const gap = (shift: IAutoMovieVector3): number =>
-        geometry.segment(
-          Vector3.add(a, shift),
-          Vector3.add(b, shift),
-        ).distance;
+        geometry.segment(Vector3.add(a, shift), Vector3.add(b, shift)).distance;
       const axis = (k: 0 | 1 | 2): IAutoMovieVector3 => ({
         x: k === 0 ? NORMAL_STEP : 0,
         y: k === 1 ? NORMAL_STEP : 0,
@@ -217,7 +215,11 @@ export namespace StrikingRide {
     };
 
     // The fixed contact-relative vector carried by one node's actual turn.
-    const moved: (relative: IAutoMovieVector3, turn: IAutoMovieQuaternion, to: IFrame) => IAutoMovieVector3 = (
+    const moved: (
+      relative: IAutoMovieVector3,
+      turn: IAutoMovieQuaternion,
+      to: IFrame,
+    ) => IAutoMovieVector3 = (
       relative: IAutoMovieVector3,
       turn: IAutoMovieQuaternion,
       to: IFrame,
@@ -244,20 +246,25 @@ export namespace StrikingRide {
         const first: IFrame = frame(0);
         const low: IFrame = frame(index);
         const high: IFrame = frame(index + 1);
-        const inverse: IAutoMovieQuaternion = Quaternion.inverse(first.rotation);
-        const lowTurn: IAutoMovieQuaternion = Quaternion.multiply(low.rotation, inverse);
-        const relative: IAutoMovieVector3 = Vector3.subtract(met.point, first.position);
+        const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+          first.rotation,
+        );
+        const lowTurn: IAutoMovieQuaternion = Quaternion.multiply(
+          low.rotation,
+          inverse,
+        );
+        const relative: IAutoMovieVector3 = Vector3.subtract(
+          met.point,
+          first.position,
+        );
         const lowPoint: IAutoMovieVector3 = moved(relative, lowTurn, low);
-        const highPoint: IAutoMovieVector3 = moved(relative, Quaternion.multiply(high.rotation, inverse), high);
+        const highPoint: IAutoMovieVector3 = moved(
+          relative,
+          Quaternion.multiply(high.rotation, inverse),
+          high,
+        );
         const advanced: number = Vector3.dot(
-          Vector3.subtract(
-            Vector3.lerp(
-              lowPoint,
-              highPoint,
-              share,
-            ),
-            met.point,
-          ),
+          Vector3.subtract(Vector3.lerp(lowPoint, highPoint, share), met.point),
           met.normal,
         );
         held ??= props.goal(props.stop);

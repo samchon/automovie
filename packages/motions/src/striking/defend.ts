@@ -21,6 +21,7 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { defendFootwork } from "./defendFootwork";
 import { defendGeometry } from "./defendGeometry";
+import { strikingReadBack } from "./strikingReadBack";
 
 /**
  * A defence against one placed strike: a glove, forearm or shin brought to
@@ -217,10 +218,7 @@ export namespace defend {
     let building: boolean = false;
     const geometry = (): defendGeometry.IGeometry => {
       if (built !== undefined) return built;
-      if (building)
-        throw new Error(
-          `${context.subject}: the defence against ${p.against} was read back while it was being planned`,
-        );
+      if (building) throw strikingReadBack("defend", context.subject);
       building = true;
       try {
         built = defendGeometry.build(context, timing, support);

@@ -33,6 +33,7 @@ import { StrikingWeapon } from "./StrikingWeapon";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
 import { punchGeometry } from "./punchGeometry";
 import { punchLaunch } from "./punchLaunch";
+import { strikingReadBack } from "./strikingReadBack";
 
 /**
  * A punch: the fist's knuckles brought onto the target along a measured path
@@ -343,10 +344,7 @@ export namespace punch {
     let launched: punchLaunch.ILaunch | undefined;
     const geometry = (): punchGeometry.IGeometry => {
       if (built !== undefined) return built;
-      if (building)
-        throw new Error(
-          `${context.subject}: the punch was read back while it was being planned`,
-        );
+      if (building) throw strikingReadBack("punch", context.subject);
       building = true;
       try {
         built = punchGeometry.build(

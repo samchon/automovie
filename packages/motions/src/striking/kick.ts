@@ -27,6 +27,7 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
+import { strikingReadBack } from "./strikingReadBack";
 
 /**
  * A kick: the round kick's lower shin or the push kick's ball of the foot
@@ -237,10 +238,7 @@ export namespace kick {
     let launched: KickLaunch.ILaunch | undefined;
     const geometry = (): IAutoMovieMotionHumanKickGeometry => {
       if (built !== undefined) return built;
-      if (building)
-        throw new Error(
-          `${context.subject}: the kick was read back while it was being planned`,
-        );
+      if (building) throw strikingReadBack("kick", context.subject);
       building = true;
       try {
         const made: KickLaunch.ILaunch =

@@ -2,24 +2,29 @@ import type { AutoMovieScheduleError } from "@automovie/engine";
 import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHitTrack } from "./HumanHitTrack";
 
 /**
- * A composition the engine's schedule resolver could not place, as the
- * refusal its author repairs from.
+ * A composition the engine's schedule resolver could not place, as the refusal
+ * its author repairs from.
  *
  * The resolver knows anchors, events and cue tracks but not performers and
  * actions, so it throws its own error with those as fields. The performance
- * owns what they mean to an author: a missing anchor is an action composed
- * too late or never anchored, a missing event is a misspelt instant, a
- * duplicate anchor is two actions under one id.
+ * owns what they mean to an author: a missing anchor is an action composed too
+ * late or never anchored, a missing event is a misspelt instant or a hit track
+ * no strike placed before it has reached yet, a duplicate anchor is two actions
+ * under one id.
  */
 export namespace HumanScheduleRefusal {
   /**
    * The refusal of a schedule error.
    *
    * @param error The resolver's error.
-   * @param instance Which occurrence of an action in its performer's chain is being placed, from 1.
-   * @returns The located refusal, or the error itself when it reports laws that gave an invalid timing or lack a function, which no change to the composition repairs.
+   * @param instance Which occurrence of an action in its performer's chain is
+   *   being placed, from 1.
+   * @returns The located refusal, or the error itself when it reports laws that
+   *   gave an invalid timing or lack a function, which no change to the
+   *   composition repairs.
    */
   export function of(
     error: AutoMovieScheduleError,
@@ -49,6 +54,21 @@ export namespace HumanScheduleRefusal {
           fix: `give the action this one waits for the anchor ${error.value} and compose it earlier, or name one of the anchors and cue tracks listed`,
         });
       case "event":
+        // An empty hit track names no instant at all: no strike placed
+        // before this action reaches the struck body.
+        if (
+          error.of?.startsWith(HumanHitTrack.PREFIX) === true &&
+          error.alternatives.length === 0
+        )
+          return new HumanRefusal({
+            ...where,
+            kind: "participant",
+            axis: "hit",
+            value: error.of,
+            feasible: null,
+            reason: `no strike placed before this action reaches ${error.of.slice(HumanHitTrack.PREFIX.length)}, so ${error.of} has no instant yet`,
+            fix: "compose the strikers' chains first and this reaction in a chain of its own after them, or aim a strike that reaches the struck body",
+          });
         return new HumanRefusal({
           ...where,
           kind: "parameter",

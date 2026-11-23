@@ -177,7 +177,7 @@ export namespace DefenceOutcome {
         value: forced,
         feasible: { kind: "alternatives", values: reachable },
         reason: `a ${forced} defence needs a margin in [${wanted[0].toFixed(3)}, ${wanted[1].toFixed(3)}] s, but plausible timing gives [${q0.toFixed(3)}, ${q1.toFixed(3)}] s even at attack stretch ${factor.toFixed(3)}`,
-        fix: "force an outcome plausible timing reaches, let the attack's duration stretch further, or give the attack more telegraph",
+        fix: "force one of the outcomes listed, or change what sets the timing: the attack's technique (a round kick shows most of its preparation, a lead jab least) or the defender's proficiency",
       });
     }
 
