@@ -1,0 +1,29 @@
+import * as THREE from "three";
+
+/**
+ * The drawn objects whose every material states a display colour (`toneMapped:
+ * false`), each with its layer mask, so the film response stage draws them
+ * after the response and leaves them out of the scene's linear light.
+ */
+export function collectAutoMovieFilmOverlays(
+  scene: THREE.Scene,
+): Map<THREE.Object3D, number> {
+  const overlays: Map<THREE.Object3D, number> = new Map();
+  scene.traverse((object: THREE.Object3D): void => {
+    const material: unknown =
+      "material" in object ? object.material : undefined;
+    if (material === undefined || object.layers.mask === 0) return;
+    const materials: unknown[] = Array.isArray(material)
+      ? material
+      : [material];
+    if (
+      materials.length !== 0 &&
+      materials.every(
+        (entry: unknown): boolean =>
+          entry instanceof THREE.Material && entry.toneMapped === false,
+      )
+    )
+      overlays.set(object, object.layers.mask);
+  });
+  return overlays;
+}
