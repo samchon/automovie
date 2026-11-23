@@ -128,11 +128,11 @@ Knots on the frame grid and the instants, made in order; a read takes the bracke
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Every knot is the resolve's own limb fit on the posture's assembly, cold only at the span's start without an entry; a continuation whose admitted arc vanished refuses at its fit instead of jumping.
+Every knot is the resolve's own limb fit on the posture's assembly, cold only at the span's start without an entry, the other limbs it fits continued from the knot before's fits of them too; a continuation whose admitted arc vanished refuses at its fit instead of jumping.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One continued limb fit per frame of the span and per instant, made once; a read is a bisection of the knots' seconds and one interpolation, with no solve.
+One continued limb fit per frame of the span and per instant, made once, every other limb the knot's resolve fits continued as well, so no knot after the first sweeps a limb; a read is a bisection of the knots' seconds and one interpolation, with no solve.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

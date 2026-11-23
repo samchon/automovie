@@ -25,6 +25,7 @@ import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanAr
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { writtenHumanSeeds } from "../posture/writtenHumanSeeds";
 import { HumanMountPush } from "./HumanMountPush";
 
 /**
@@ -171,17 +172,36 @@ export namespace HumanSwungLeg {
     swing: Swing,
   ): IKeys | null {
     const limb: AutoMovieHumanLimb = `${side}Leg`;
-    let seed: IAutoMovieSwivelSeed | null | undefined;
+    let seeds: Fitted = undefined;
     // The lowest of each fitted frame's sole sockets, world metres.
     const lows: number[] = [];
     const fitted = (seconds: number): Joints => {
+      // Every limb continues the frame before's fit of it; on the first frame
+      // the other limbs continue the swivels their written joints give them
+      // (`writtenHumanSeeds`) and the swung leg is fitted cold, so no frame
+      // sweeps another limb's goal afresh.
+      const posture: IAutoMovieMotionHumanPosture = asked(seconds);
       const near: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> =
-        seed === undefined || seed === null
-          ? {}
-          : { [limb]: { ...seed, tolerance: hingedArmSwivel.RESOLUTION } };
+        {};
+      if (seeds === undefined) {
+        const written: Partial<
+          Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>
+        > = writtenHumanSeeds(body, posture);
+        for (const [other, seed] of Object.entries(written) as [
+          AutoMovieHumanLimb,
+          IAutoMovieSwivelNear,
+        ][])
+          if (other !== limb) near[other] = seed;
+      } else
+        for (const [other, seed] of Object.entries(seeds) as [
+          AutoMovieHumanLimb,
+          IAutoMovieSwivelSeed | null | undefined,
+        ][])
+          if (seed !== undefined && seed !== null)
+            near[other] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
       const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
-        resolveHumanPosture.seeded(body, asked(seconds), undefined, near);
-      seed = solved.seeds[limb];
+        resolveHumanPosture.seeded(body, posture, undefined, near);
+      seeds = solved.seeds;
       lows.push(
         Math.min(
           ...HumanFoot.sockets(body, poseBones(body, solved.pose), side).map(
@@ -247,9 +267,13 @@ export namespace HumanSwungLeg {
     const landed: IAutoMovieHumanLimbGoal | undefined = asked(end).limbs[limb];
     const planted: boolean =
       landed?.planted === true || landed?.contact !== undefined;
-    seed = undefined;
+    // The middle and the landing fit the swung leg on its own, the other
+    // limbs continuing their fits.
+    const unswung = (): Fitted =>
+      seeds === undefined ? undefined : { ...seeds, [limb]: undefined };
+    seeds = unswung();
     const apex: Joints = fitted((start + end) / 2);
-    seed = undefined;
+    seeds = unswung();
     return {
       start,
       end,
@@ -370,3 +394,11 @@ export namespace HumanSwungLeg {
     "twist",
   ];
 }
+
+/**
+ * The fits a swing's frame continues: each limb's seed at the frame fitted
+ * before it; none before the first.
+ */
+type Fitted =
+  | IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"]
+  | undefined;

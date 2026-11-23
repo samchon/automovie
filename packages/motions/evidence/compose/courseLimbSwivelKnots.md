@@ -6,7 +6,7 @@ States the members.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The resolver's own seeds at a second.
+The resolver's own seeds at a second: the coursed limbs' a read interpolates, and the other limbs' the next knot continues.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

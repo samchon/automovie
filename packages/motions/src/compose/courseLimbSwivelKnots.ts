@@ -22,6 +22,13 @@ export namespace courseLimbSwivelKnots {
      * the entered knot.
      */
     held?: ReadonlySet<AutoMovieHumanLimb>;
+
+    /**
+     * Every other limb's seed the knot's resolve reported (a leg on its goal),
+     * which the next knot continues and no second between knots reads; none for
+     * the entered knot.
+     */
+    fits?: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;
   }
 
   /**

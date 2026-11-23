@@ -97,13 +97,15 @@ export namespace courseLimbSwivels {
    * instants. The first is placed at the swivels the limbs enter the span with
    * (`IPrepare.entry`), cold without them; every later one is a fit continuing
    * the knot just before it, so each knot is reached from its neighbour by the
-   * continued fit's own bounded step and no knot depends on a farther one.
-   * Where a continued arm's admitted arc vanishes, its fit refuses
-   * (`HumanLimbFit`) rather than jumping. A second between two knots takes
-   * their interpolation (`courseLimbSwivelKnots.between`). The goals stay the
-   * displayed ones; only the branch, swivel and twist come from the course, so
-   * no read searches. The knots are made in order the first time a read reaches
-   * them and kept, so the course is the same in any reading order.
+   * continued fit's own bounded step and no knot depends on a farther one. The
+   * other limbs a knot's resolve fits (a seated leg on its rest) continue the
+   * knot before's fits too, so no knot after the first sweeps any limb. Where a
+   * continued arm's admitted arc vanishes, its fit refuses (`HumanLimbFit`)
+   * rather than jumping. A second between two knots takes their interpolation
+   * (`courseLimbSwivelKnots.between`). The goals stay the displayed ones; only
+   * the branch, swivel and twist come from the course, so no read searches. The
+   * knots are made in order the first time a read reaches them and kept, so the
+   * course is the same in any reading order.
    *
    * @param props The posture reader, the limbs, the span and the knotted
    *   instants.
@@ -136,6 +138,17 @@ export namespace courseLimbSwivels {
       const continued: Partial<
         Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>
       > = from === undefined ? {} : near(from.seeds, prescribed);
+      // Every other limb the knot before fitted (a seated leg on its rest, a
+      // foot on a rail) continues that fit too, refined from its seed rather
+      // than swept afresh at every knot; the course does not give it to the
+      // display, whose legs keep their own fits.
+      for (const [limb, seed] of from?.fits ?? [])
+        if (
+          continued[limb] === undefined &&
+          !limbs.includes(limb) &&
+          posture.limbs[limb] !== undefined
+        )
+          continued[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
       // A limb whose goal begins after the knot before (a hand laid on the
       // floor mid-turn, a fist taking its grip), the plan writing it no goal
       // there, has no fit there to continue: its fit starts from the swivel
@@ -205,9 +218,17 @@ export namespace courseLimbSwivels {
               HumanLimbFit.seed(body, solved.pose, limb)));
         if (seed !== undefined && seed !== null) seeds.set(limb, seed);
       }
+      const fits: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
+      for (const [limb, seed] of Object.entries(solved.seeds) as [
+        AutoMovieHumanLimb,
+        IAutoMovieSwivelSeed | null | undefined,
+      ][])
+        if (!limbs.includes(limb) && seed !== undefined && seed !== null)
+          fits.set(limb, seed);
       return {
         seconds,
         seeds,
+        fits,
         held: new Set<AutoMovieHumanLimb>(
           limbs.filter(
             (limb: AutoMovieHumanLimb): boolean =>

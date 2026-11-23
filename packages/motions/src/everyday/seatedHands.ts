@@ -26,6 +26,7 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { writtenHumanSeeds } from "../posture/writtenHumanSeeds";
 import { handReach } from "./handReach";
 import type { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { prepareThighSkin } from "./prepareThighSkin";
@@ -532,7 +533,11 @@ export namespace seatedHands {
     return Vector3.addScaled(skin, normal, depth + sagitta);
   }
 
-  /** Resolve this call's observed frames under the canonical demand guards. */
+  /**
+   * Resolve this call's observed frames under the canonical demand guards, each
+   * goal limb continued from the swivel its written joints give it
+   * (`writtenHumanSeeds`), never swept cold at every read.
+   */
   function resolved(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -548,7 +553,7 @@ export namespace seatedHands {
         body,
         posture,
         undefined,
-        undefined,
+        writtenHumanSeeds(body, posture),
         read,
         requested,
         projection,

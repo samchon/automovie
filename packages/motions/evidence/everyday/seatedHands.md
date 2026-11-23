@@ -18,7 +18,7 @@ Retains the existing provisional hanging-elbow out share of 0.2 and canonical pa
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One canonical observational resolution and demanded FK, then constant work for the requested targets; independent world arm goals that cannot change thigh observations need no fit, under the resolver's existing guard.
+One canonical observational resolution and demanded FK, then constant work for the requested targets; independent world arm goals that cannot change thigh observations need no fit, under the resolver's existing guard; the goal limbs fitted continue the swivels the posture's written joints give them (`writtenHumanSeeds`), with no sweep per read.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -48,7 +48,7 @@ The original hanging and fully resting branches and elbow hints remain unchanged
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At positive share one pose resolution and FK supplies origins and targets instead of resolving that same posture twice.
+At positive share one pose resolution and FK supplies origins and targets instead of resolving that same posture twice; its goal limbs continue the swivels the posture's written joints give them (`writtenHumanSeeds`, closed form), one local refinement each and no sweep per read.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
