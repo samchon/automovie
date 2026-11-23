@@ -11,13 +11,15 @@ import { AUTOMOVIE_COARTICULATION } from "./AUTOMOVIE_COARTICULATION";
  * Blend a line's visemes at one film frame by coarticulation, in closed form.
  *
  * Each range is a target whose dominance is `magnitude × exp(−|t − centre| /
- * τ)` around its centre (Cohen and Massaro, 1993, with the parameters of
- * `AUTOMOVIE_COARTICULATION`). The silence before the first range and after the
- * last are `sil` targets that hold full dominance inside themselves and decay
- * from their inner edge. A viseme's weight at `t` is the sum of its targets'
- * dominance over the sum of all dominance, so the weights lie in [0, 1] and sum
- * to 1, and every boundary blends instead of jumping. Frame `f` stands for film
- * time `f / fps`, the instant its picture shows.
+ * τ)` around its centre, with its viseme's own magnitude and time constant
+ * (Cohen and Massaro, 1993, with the parameters of `AUTOMOVIE_COARTICULATION`,
+ * where `PP` and `FF` dominate strongly over a shorter reach). The silence
+ * before the first range and after the last are `sil` targets that hold full
+ * dominance inside themselves and decay from their inner edge. A viseme's
+ * weight at `t` is the sum of its targets' dominance over the sum of all
+ * dominance, so the weights lie in [0, 1] and sum to 1, and every boundary
+ * blends instead of jumping. Frame `f` stands for film time `f / fps`, the
+ * instant its picture shows.
  *
  * @param props The joined timeline, the frame and the film rate.
  * @returns The weight of every viseme the line uses, `sil` included.
@@ -33,7 +35,13 @@ export function sampleAutoMovieDialogueVisemeWeights(
       "dialogue viseme frame and rate must be finite and positive",
     );
   const { ranges } = props.timeline;
-  const tau: number = AUTOMOVIE_COARTICULATION.timeConstantSeconds * props.fps;
+
+  // Time constants in frames, so distances in frames divide them directly.
+  const tau: (viseme: AutoMovieViseme) => number = (
+    viseme: AutoMovieViseme,
+  ): number =>
+    (AUTOMOVIE_COARTICULATION.timeConstantSeconds[viseme] ??
+      AUTOMOVIE_COARTICULATION.defaultTimeConstantSeconds) * props.fps;
   const magnitude: (viseme: AutoMovieViseme) => number = (
     viseme: AutoMovieViseme,
   ): number =>
@@ -47,7 +55,7 @@ export function sampleAutoMovieDialogueVisemeWeights(
     dominance.set(
       viseme,
       (dominance.get(viseme) ?? 0) +
-        magnitude(viseme) * Math.exp(-distance / tau),
+        magnitude(viseme) * Math.exp(-distance / tau(viseme)),
     );
   };
 

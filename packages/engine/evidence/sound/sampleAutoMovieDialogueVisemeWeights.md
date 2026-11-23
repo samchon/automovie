@@ -6,7 +6,7 @@ The comment gives the dominance function and its source, the silent targets befo
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Cohen and Massaro's coarticulation model: each segment's target is weighted by a dominance that decays exponentially from its centre, and a parameter at time t is the dominance-weighted mean of the targets. With one-hot viseme targets the mean is each viseme's share of the total dominance, a closed form evaluated at any frame. The silences before and after the line are semi-infinite targets, so the mouth rests outside the line instead of holding its last shape.
+Cohen and Massaro's coarticulation model: each segment's target is weighted by a dominance that decays exponentially from its centre at its own rate, as the model gives each segment its own rate parameter, and a parameter at time t is the dominance-weighted mean of the targets. With one-hot viseme targets the mean is each viseme's share of the total dominance, a closed form evaluated at any frame. The silences before and after the line are semi-infinite targets, so the mouth rests outside the line instead of holding its last shape.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ The parameters live in `AUTOMOVIE_COARTICULATION`; the join supplies placed rang
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No viseme is special-cased in code; `PP` and `FF` differ only by their documented magnitude. The time constant's bound on the step between frames is derived in the constant's comment, not tuned to a test.
+No viseme is special-cased in code; `PP` and `FF` differ only by their documented magnitude and time constant. Each time constant's bound on the step between frames, and the shortest bilabial reach the one-half rule admits, are derived in the constant's comment, not tuned to a test.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

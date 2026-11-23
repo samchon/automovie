@@ -29,11 +29,17 @@ import { TestValidator } from "@nestia/e2e";
  *    bilabials, labiodentals and vowels, no weight changes by more than 0.5
  *    between neighbouring frames, from six frames before the line to six
  *    after.
+ * 6. The same bound holds in a line where a bilabial meets a labiodental (/mf/ and
+ *    /pv/), the pair whose dominances both decay fastest.
+ * 7. In /mam/ at three frames a phoneme, `aa` outweighs every other viseme on
+ *    frames 4 and 5, the two nearest the vowel's centre, so the bilabials'
+ *    strong dominance does not reach far enough to keep the lips shut through
+ *    the vowel.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the chunks, rates, frames and the bound each case checks.
  * @evidence contracts/development/testing.md#behavioral-verification Times phonemes with `productionPhonemesToVisemes`, binds them with `joinAutoMovieDialogueVisemes` and samples `sampleAutoMovieDialogueVisemeWeights`. A per-chunk instead of per-phoneme timing, a mouth that ignores the bilabial, or a sampler that snaps between ranges (a step of 1) fails.
- * @evidence contracts/development/testing.md#independent-expectations Shares are 24 000 / 3; frames are samples × 24 / 48 000; the centred frames follow from them; the 0.5 step bound and the dominance ordering are the requirements of #4054.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs a stressed and an unstressed chunk, a consonant and a vowel frame, and a line that includes the silence on both sides; the IPA table belongs to `test_engine_dialogue_viseme_mpeg4_map` and speaker binding outcomes to `test_engine_dialogue_viseme_join`.
+ * @evidence contracts/development/testing.md#independent-expectations Shares are 24 000 / 3; frames are samples × 24 / 48 000; the centred frames follow from them; the 0.5 step bound and the dominance ordering are the requirements of #4054, and a vowel showing on its own frames between bilabials is the supervisor's decision on their reach; none is computed by the sampler under test.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs a stressed and an unstressed chunk, a consonant and a vowel frame, a line that includes the silence on both sides, a bilabial against a labiodental, and a short vowel between bilabials; the IPA table belongs to `test_engine_dialogue_viseme_mpeg4_map` and speaker binding outcomes to `test_engine_dialogue_viseme_join`.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_dialogue_viseme_coarticulation`; it starts no process.
  */
 export function test_engine_dialogue_viseme_coarticulation(): void {
@@ -148,4 +154,69 @@ export function test_engine_dialogue_viseme_coarticulation(): void {
     "no weight changes by more than 0.5 between neighbouring frames",
     largest > 0 && largest <= 0.5,
   );
+
+  // A bilabial beside a labiodental is the fastest pair of time constants.
+  const clusters: string[] = ["a", "m", "f", "a", "p", "v", "o"];
+  const clustered: IAutoMovieDialogueVisemeTimeline = timeline(
+    clusters.map(
+      (phonemes: string, index: number): IAutoMovieProductionPhonemeChunk => ({
+        phonemes,
+        startSample: index * 6_000,
+        endSample: (index + 1) * 6_000,
+      }),
+    ),
+    clusters.length * 6_000,
+  );
+  TestValidator.predicate(
+    "a bilabial beside a labiodental changes no weight by more than 0.5 per frame",
+    largestStep(clustered, -6, clusters.length * 3 + 6) <= 0.5,
+  );
+
+  // A three-frame /a/ between two /m/ opens on its own frames.
+  const mam: IAutoMovieDialogueVisemeTimeline = timeline(
+    [
+      { phonemes: "m", startSample: 0, endSample: 6_000 },
+      { phonemes: "a", startSample: 6_000, endSample: 12_000 },
+      { phonemes: "m", startSample: 12_000, endSample: 18_000 },
+    ],
+    18_000,
+  );
+  TestValidator.predicate(
+    "aa leads on both frames nearest the vowel's centre between two bilabials",
+    [4, 5].every(
+      (frame: number): boolean =>
+        heaviest(
+          sampleAutoMovieDialogueVisemeWeights({
+            timeline: mam,
+            frame,
+            fps: 24,
+          }),
+        ) === "aa",
+    ),
+  );
+}
+
+/** The largest change of any viseme weight between neighbouring 24 fps frames. */
+function largestStep(
+  timeline: IAutoMovieDialogueVisemeTimeline,
+  from: number,
+  to: number,
+): number {
+  let largest: number = 0;
+  let previous: IAutoMovieHumanVisemeWeights | undefined;
+  for (let frame: number = from; frame <= to; ++frame) {
+    const current: IAutoMovieHumanVisemeWeights =
+      sampleAutoMovieDialogueVisemeWeights({ timeline, frame, fps: 24 });
+    if (previous !== undefined)
+      for (const key of new Set([
+        ...Object.keys(current),
+        ...Object.keys(previous),
+      ]) as Set<keyof IAutoMovieHumanVisemeWeights>)
+        largest = Math.max(
+          largest,
+          Math.abs((current[key] ?? 0) - (previous[key] ?? 0)),
+        );
+    previous = current;
+  }
+  return largest;
 }
