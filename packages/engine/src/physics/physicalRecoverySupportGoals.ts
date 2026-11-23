@@ -10,7 +10,9 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
 
 /**
- * Recover original declared world endpoints at a single clock. Accepted recovery offsets translate the declaration; a fitted, unmet output never becomes a new promise.
+ * Recover original declared world endpoints at a single clock. Accepted
+ * recovery offsets translate the declaration; a fitted, unmet output never
+ * becomes a new promise.
  */
 export function physicalRecoverySupportGoals(
   body: IAutoMoviePhysicalSimulationInput.IBody,
@@ -33,7 +35,13 @@ export function physicalRecoverySupportGoals(
             (candidate: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
               candidate.bone === limb.bone,
           );
-        if (state?.swing?.bone === limb.bone && owner && body.balance) {
+        // A limb asked to step keeps its planted goal until it lifts.
+        if (
+          state?.swing?.bone === limb.bone &&
+          !state.seating?.[limb.bone] &&
+          owner &&
+          body.balance
+        ) {
           const original: IAutoMovieVector3 = physicalSupportPoint(
             target.segments[owner.bone]!,
             owner.localPoint,

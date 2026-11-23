@@ -31,8 +31,8 @@ type Limb = IAutoMovieFootfallPattern["limbs"][number];
  *   feet's edges (Pratt et al., M2V2, Eq. 1 and footnote 2). xi_ref is the
  *   authored centre of mass over the planted polygon, clamped into it.
  * - Wrench: the pendulum's horizontal force m omega^2 (c - u), the weight with a
- *   height servo held to a narrow band, and the torso's servo moment (Stephens
- *   2011, Eqs. 5.23, 5.26).
+ *   height servo held to a narrow band, and the torso's servo moment with any
+ *   swinging hip's reaction (Stephens 2011, Eqs. 5.23, 5.26).
  * - Bearing: each planted foot bears on its outline latched at the planted pose
  *   and shrunk by the margin, so each foot's own centre of pressure stays
  *   inside its outline (Stephens 2011, Eqs. 5.6-5.7); an infeasible wrench
@@ -251,6 +251,7 @@ export namespace physicalStanceBalance {
         .map(({ limb, outline }) => ({
           limb,
           outline,
+          bearing: input.feet[limb.bone]!.bearing,
           flat: input.feet[limb.bone]!.flat,
           ankle: { ...input.feet[limb.bone]!.ankle, y: floor },
           ...(input.feet[limb.bone]!.edge
@@ -326,14 +327,14 @@ export namespace physicalStanceBalance {
     // hips' (Coros, Beaudoin and van de Panne 2010, Section 3.5).
     const authority = (x: number, z: number): number =>
       lift * reach(polygon, pressure, { x, y: 0, z });
-    const torso: IAutoMovieVector3 = {
+    const reaction: IAutoMovieVector3 = {
       x: Math.max(-authority(0, 1), Math.min(authority(0, -1), input.torque.x)),
       y: 0,
       z: Math.max(-authority(-1, 0), Math.min(authority(1, 0), input.torque.z)),
     };
     const torque: IAutoMovieVector3 = Vector3.add(
       Vector3.cross(Vector3.subtract(center, input.origin), force),
-      Vector3.scale(torso, input.strength),
+      Vector3.scale(reaction, input.strength),
     );
     return {
       force,
@@ -360,6 +361,9 @@ export namespace physicalStanceBalance {
     velocity?: { x: number; z: number };
     /** The limb swinging at the previous call; a change resets the bias. */
     swing?: string;
+
+    /** The last commanded centre of pressure, world metres. */
+    command?: { x: number; z: number };
   }
 
   /**
@@ -415,7 +419,11 @@ export namespace physicalStanceBalance {
 
   /**
    * How far a point inside a convex polygon may move along a direction before
-   * it reaches the polygon's edge, metres; zero from outside.
+   * it reaches the polygon's edge, metres; zero from outside. The polygon is
+   * the intersection of its edges' half-planes n . x <= n . a, so the room is
+   * the least (n . (a - p)) / (n . d) over the edges the direction heads out
+   * of, n . d > 0: a point on an edge keeps its whole room inward and none
+   * outward, with no ray-edge crossing for round-off to decide.
    *
    * @param polygon The convex polygon, world metres.
    * @param from The point, world metres.
@@ -431,28 +439,30 @@ export namespace physicalStanceBalance {
     if (polygon.length < 3 || !(length > 0)) return 0;
     const dx: number = direction.x / length;
     const dz: number = direction.z / length;
+    const mean: { x: number; z: number } = {
+      x: polygon.reduce((sum, p) => sum + p.x, 0) / polygon.length,
+      z: polygon.reduce((sum, p) => sum + p.z, 0) / polygon.length,
+    };
     let best: number = Infinity;
     for (let i: number = 0; i < polygon.length; i++) {
       const a: IAutoMovieVector3 = polygon[i]!;
       const b: IAutoMovieVector3 = polygon[(i + 1) % polygon.length]!;
-      const ex: number = b.x - a.x;
-      const ez: number = b.z - a.z;
-      const denominator: number = dx * ez - dz * ex;
-      if (Math.abs(denominator) < 1e-12) continue;
-      const t: number =
-        ((a.x - from.x) * ez - (a.z - from.z) * ex) / denominator;
-      const s: number =
-        ((a.x - from.x) * dz - (a.z - from.z) * dx) / denominator;
-      if (t >= 0 && s >= 0 && s <= 1) best = Math.min(best, t);
+      const span: number = Math.hypot(b.x - a.x, b.z - a.z);
+      if (!(span > 1e-12)) continue;
+
+      // The edge's outward unit normal: away from the vertices' mean.
+      let nx: number = (b.z - a.z) / span;
+      let nz: number = -(b.x - a.x) / span;
+      if (nx * (mean.x - a.x) + nz * (mean.z - a.z) > 0) {
+        nx = -nx;
+        nz = -nz;
+      }
+      const slack: number = nx * (a.x - from.x) + nz * (a.z - from.z);
+      if (slack < -1e-9) return 0;
+      const rate: number = nx * dx + nz * dz;
+      if (rate > 0) best = Math.min(best, Math.max(0, slack) / rate);
     }
-    const inside: boolean =
-      Vector3.length(
-        Vector3.subtract(
-          AutoMoviePhysicalBalance.nearest(polygon, { ...from, y: 0 }),
-          { ...from, y: 0 },
-        ),
-      ) < 1e-9;
-    return inside && Number.isFinite(best) ? best : 0;
+    return Number.isFinite(best) ? best : 0;
   }
 
   /**
@@ -700,33 +710,30 @@ export namespace physicalStanceBalance {
   }
 
   /**
-   * The longest a limb about to swing waits for the floor to stop carrying it
-   * before it lifts anyway, seconds: four fade windows (stated).
+   * The longest a landed foot whose share has not ramped in holds the next
+   * step's decision back, seconds: four fade windows (stated).
    */
   export const UNLOAD: number = 4 * FADE;
 
   /**
    * Whether a limb about to swing lifts: its bearing share has ramped out and
    * the floor measurably carries it no more, its low-passed load under
-   * `RELEASE` of the weight, or it has waited `UNLOAD` since its step was
-   * committed. A foot lifted while the floor still carries it throws the body
-   * up off the leg that pushed (Pratt et al., M2V2, Section VII-A: the foot is
-   * unloaded before it swings; Herzog et al. 2016, Section 5.3).
+   * `RELEASE` of the weight. A foot the floor still carries stays in the stance
+   * however long it waits, its step a request planned again each frame (Feng et
+   * al. 2015, Figure 2: lift-off delayed, double support kept); a foot lifted
+   * while loaded throws the body up off the leg that pushed (Pratt et al.,
+   * M2V2, Section VII-A; Herzog et al. 2016, Section 5.3).
    *
-   * @param input The limb's bearing share, its measured load and the weight,
-   *   newtons, and the seconds since the step was committed.
+   * @param input The limb's bearing share, and its measured load and the
+   *   weight, newtons.
    * @returns Whether it lifts.
    */
   export function release(input: {
     bearing: number;
     load: number;
     weight: number;
-    waited: number;
   }): boolean {
-    return (
-      input.bearing <= 0 &&
-      (input.load <= RELEASE * input.weight || input.waited >= UNLOAD)
-    );
+    return input.bearing <= 0 && input.load <= RELEASE * input.weight;
   }
 
   /**
@@ -848,12 +855,15 @@ export namespace physicalStanceBalance {
    * may load, and the command's polygon is the union of them shrunk by `MARGIN`
    * (Pratt et al., M2V2, footnote 2). The margin is kept on the whole support,
    * not on each foot, so a narrow foot (a heel point and a forefoot edge) keeps
-   * its own vertices instead of collapsing to one point that bears no moment.
+   * its own vertices instead of collapsing to one point that bears no moment. A
+   * foot with a bearing share under one is drawn that share of the way out from
+   * the fully bearing feet's hull; an absent share is one.
    */
   export function support<T>(
     feet: readonly {
       limb: T;
       outline: readonly IAutoMovieVector3[];
+      bearing?: number;
       flat: number;
       ankle: IAutoMovieVector3;
       edge?: readonly IAutoMovieVector3[];
@@ -876,8 +886,33 @@ export namespace physicalStanceBalance {
     // shortened by the margin along its length only, an edge being a line;
     // the margin then comes off that hull once, never off each foot, so a
     // narrow foot does not vanish on its own.
-    const points: IAutoMovieVector3[] = feet.flatMap((foot, i: number) =>
+    const contacts: IAutoMovieVector3[][] = feet.map((foot, i: number) =>
       foot.flat > 0 ? drawn[i]!.points : shorten(drawn[i]!.points, MARGIN),
+    );
+    // A foot whose bearing share is ramping, leaving the stance or joining
+    // it, has its contacts drawn from the fully bearing feet's hull toward
+    // its own by that share, so the support and the command on it move
+    // continuously through the transition (Feng et al. 2015, Section
+    // II-B4; Herzog et al. 2016, Section 5.3).
+    const full: IAutoMovieVector3[] = convexHull2D(
+      contacts.filter((_, i: number) => (feet[i]!.bearing ?? 1) >= 1).flat(),
+    );
+    const points: IAutoMovieVector3[] = contacts.flatMap(
+      (list: IAutoMovieVector3[], i: number): IAutoMovieVector3[] => {
+        const share: number = Math.max(0, Math.min(1, feet[i]!.bearing ?? 1));
+        if (share >= 1 || full.length === 0) return list;
+        return list.map((point: IAutoMovieVector3): IAutoMovieVector3 => {
+          const near: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+            full,
+            point,
+          );
+          return {
+            x: near.x + (point.x - near.x) * share,
+            y: point.y,
+            z: near.z + (point.z - near.z) * share,
+          };
+        });
+      },
     );
     return {
       feet: drawn,

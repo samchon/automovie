@@ -24,8 +24,8 @@ export namespace AutoMoviePhysicalBalance {
   export const MINIMUM_JERK: number = (10 * Math.sqrt(3)) / 3;
 
   /**
-   * The peak vertical acceleration of a swing's clearance h 16 (p (1 - p))^2
-   * of unit height in unit time, at lift-off and touchdown
+   * The peak vertical acceleration of a swing's clearance h 16 (p (1 - p))^2 of
+   * unit height in unit time, at lift-off and touchdown
    * (`samplePhysicalRecoveryGoal`): a clearance h in T peaks at CLEARANCE h /
    * T^2.
    */
@@ -55,14 +55,15 @@ export namespace AutoMoviePhysicalBalance {
 
   /**
    * Choose the recovery step once the capture point leaves the shrunken
-   * support: the support furthest along the capture point's direction, the
-   * one that landed last only after any other, then the shortest travel,
-   * then the declared footfall phase; its target is where the capture point
-   * will be when it can land, clamped to the reach. Young adults recover
-   * a lateral push mostly by a single side step of the limb the push loaded
-   * (Mille et al. 2005, Clinical Biomechanics), which the
-   * controller unloads over a short ramp before lifting
-   * (`advancePhysicalBalance`).
+   * support: a capturing step before one that is not, one whose remaining
+   * supports already hold the commanded centre of pressure before one that must
+   * first be unloaded, the one that landed last only after any other, then the
+   * shortest travel, the lead along the capture point's direction and the
+   * declared footfall phase; its target is where the capture point will be when
+   * it can land, clamped to the reach. Young adults recover a lateral push
+   * mostly by a single side step of the limb the push loaded (Mille et al.
+   * 2005, Clinical Biomechanics), which the controller unloads over a short
+   * ramp before lifting (`advancePhysicalBalance`).
    */
   export function assess(
     input: IAutoMoviePhysicalBalance.IAssessInput,
@@ -113,6 +114,7 @@ export namespace AutoMoviePhysicalBalance {
       capturePoint,
       polygon,
       outside,
+      beyond,
     };
     if (height <= 0 || polygon.length === 0) return result;
     if (beyond <= input.margin && !input.force)
@@ -151,6 +153,8 @@ export namespace AutoMoviePhysicalBalance {
             timing.acceleration,
           )
         : (input.swingSeconds ?? 0);
+    // A swing under way lands its elapsed time sooner than a fresh one.
+    const spent: number = Math.max(0, timing?.elapsed ?? 0);
     const candidates: {
       support: IAutoMoviePhysicalSupportPatch;
       phase: number;
@@ -159,6 +163,7 @@ export namespace AutoMoviePhysicalBalance {
       target: IAutoMovieVector3;
       seconds: number;
       viable: boolean;
+      unloadable: boolean;
     }[] = input.supports.flatMap(
       (
         support: (typeof input.supports)[number],
@@ -170,6 +175,7 @@ export namespace AutoMoviePhysicalBalance {
         target: IAutoMovieVector3;
         seconds: number;
         viable: boolean;
+        unloadable: boolean;
       }[] => {
         const limb: IAutoMovieFootfallPattern["limbs"][number] | undefined =
           input.pattern.limbs.find(
@@ -272,7 +278,8 @@ export namespace AutoMoviePhysicalBalance {
         // that still captures, forward, backward or aside.
         const keep = (p: IAutoMovieVector3): IAutoMovieVector3 => {
           const lateral: number = across(p);
-          const fixed: number = sign * Math.max(sign * lateral, Math.abs(width));
+          const fixed: number =
+            sign * Math.max(sign * lateral, Math.abs(width));
           return {
             x: p.x + side.x * (fixed - lateral),
             y: p.y,
@@ -315,7 +322,8 @@ export namespace AutoMoviePhysicalBalance {
             else near = middle;
           }
           return step(far);
-        };        let distance: number = Math.min(
+        };
+        let distance: number = Math.min(
           input.maximumStep,
           Math.hypot(
             capturePoint.x - support.position.x,
@@ -330,7 +338,7 @@ export namespace AutoMoviePhysicalBalance {
           landing = AutoMoviePhysicalBalance.diverge(
             capturePoint,
             holding,
-            omega * ((timing?.ramp ?? 0) + swing(distance)),
+            omega * Math.max(0, (timing?.ramp ?? 0) + swing(distance) - spent),
           );
           const placed: IAutoMovieVector3 = place(landing);
           const travel: IAutoMovieVector3 = {
@@ -357,6 +365,14 @@ export namespace AutoMoviePhysicalBalance {
         // within reach captures.
         const viable: boolean = excess(after(target), landing) <= SETTLED;
         if (!timing && !viable) return [];
+        // A limb whose remaining supports already hold the commanded centre
+        // of pressure gives up its load at once; another first has the
+        // centre of pressure moved off it (Pratt et al., M2V2, Section
+        // VII-A: the leg is unloaded before it swings).
+        const unloadable: boolean =
+          input.pressure !== undefined &&
+          holding.length >= 3 &&
+          excess(holding, input.pressure) <= 0;
         return [
           {
             support,
@@ -364,7 +380,9 @@ export namespace AutoMoviePhysicalBalance {
             distance,
             lead: along,
             target,
-            viable,            seconds: swing(distance),
+            viable,
+            unloadable,
+            seconds: swing(distance),
           },
         ];
       },
@@ -375,6 +393,7 @@ export namespace AutoMoviePhysicalBalance {
         b: (typeof candidates)[number],
       ): number =>
         Number(b.viable) - Number(a.viable) ||
+        Number(b.unloadable) - Number(a.unloadable) ||
         Number(a.support.bone === input.recent) -
           Number(b.support.bone === input.recent) ||
         a.distance - b.distance ||
@@ -408,9 +427,11 @@ export namespace AutoMoviePhysicalBalance {
    * al. (2006) capture at xi only by an instantaneous step.
    *
    * @param capture The present capture point, world metres.
-   * @param polygon The supports' convex hull; empty leaves the capture point where it is.
+   * @param polygon The supports' convex hull; empty leaves the capture point
+   *   where it is.
    * @param elapsed The time ahead times the pendulum frequency, dimensionless.
-   * @returns The capture point then, world metres, at the capture point's height.
+   * @returns The capture point then, world metres, at the capture point's
+   *   height.
    */
   export function diverge(
     capture: IAutoMovieVector3,
@@ -428,8 +449,8 @@ export namespace AutoMoviePhysicalBalance {
   }
 
   /**
-   * The point of a horizontal convex polygon nearest a point: the point
-   * itself inside, else its projection on the nearest edge.
+   * The point of a horizontal convex polygon nearest a point: the point itself
+   * inside, else its projection on the nearest edge.
    *
    * @param polygon The counter-clockwise hull, world metres.
    * @param point The point, world metres.
@@ -481,8 +502,8 @@ const SETTLED: number = 1e-4;
 
 /**
  * How far a point lies outside a convex floor polygon, metres: zero inside,
- * else its distance to the nearest edge; a polygon of fewer than three
- * vertices has no inside.
+ * else its distance to the nearest edge; a polygon of fewer than three vertices
+ * has no inside.
  */
 function excess(
   polygon: readonly IAutoMovieVector3[],

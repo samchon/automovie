@@ -28,6 +28,7 @@ import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { physicalGravityTorques } from "./physicalGravityTorques";
 import { physicalJointEffort } from "./physicalJointEffort";
+import { physicalStanceJointTarget } from "./physicalStanceJointTarget";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { physicalTrackingWithdrawn } from "./physicalTrackingWithdrawn";
 import { readPhysicalScene } from "./readPhysicalScene";
@@ -41,7 +42,8 @@ import { trackPhysicalRootSupportTargets } from "./trackPhysicalRootSupportTarge
 import { trackPhysicalSupports } from "./trackPhysicalSupports";
 
 /**
- * Apply bounded PD forces and equal-opposite joint torques before the fixed step.
+ * Apply bounded PD forces and equal-opposite joint torques before the fixed
+ * step.
  */
 export function trackPhysicalWorld(
   world: AutoMovieXpbdWorld,
@@ -294,7 +296,7 @@ export function trackPhysicalWorld(
           planted: balanceSupports
             .filter(
               (support: (typeof supports)[number]): boolean =>
-                support.bone !== assessment.state.swing?.bone,
+                support.bone !== lifted(assessment.state),
             )
             .map((support: (typeof supports)[number]): string => support.bone),
           state: assessment.state,
@@ -384,6 +386,9 @@ export function trackPhysicalWorld(
       actuation,
       supports,
       recoveryBone: lifted(recovery[body.id]),
+      ...(requested(recovery[body.id]) !== undefined
+        ? { requested: requested(recovery[body.id]) }
+        : {}),
       step,
       seconds,
       dt,
@@ -434,53 +439,80 @@ export function trackPhysicalWorld(
         Quaternion.multiply(parent.rotation(), joint.parentFrame.rotation);
       const childFrame: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(child.rotation(), joint.childFrame.rotation);
-      // A planted support keeps its planted world orientation under internal
-      // actuation, as SIMBICON holds its torso and swing hip in the world
-      // frame (Yin, Loken and van de Panne 2007, Section 3.2): its joint is
-      // driven against the actual parent toward the authored, planted
-      // orientation rather than a goal refit to the moving body, so a leaning
-      // shank does not tip the foot onto an edge, and its load comes from the
-      // support allocation.
+      // Under internal actuation a stance limb, any limb not lifted for a
+      // swing, sets its joints' references by their role
+      // (`physicalStanceJointTarget`): a planted foot holds the world
+      // orientation latched when its stance began, against the actual parent,
+      // so a leaning shank does not tip it onto an edge; the leg's first joint
+      // holds the trunk at its intended world orientation over the actual
+      // thigh (Yin, Loken and van de Panne 2007, Section 3.2); the rest keep
+      // the goal posture refit to the present footholds.
+      const swinging: string | undefined = lifted(recovery[body.id]);
+      const stance:
+        | IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number]
+        | undefined = actuation
+        ? body.balance?.pattern.limbs.find(
+            (
+              limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
+            ): boolean =>
+              swinging !== limb.bone &&
+              (limb.chain.includes(joint.child) ||
+                (limb.contacts?.includes(joint.child) ?? false)),
+          )
+        : undefined;
       const planted: boolean =
+        !!stance &&
+        (stance.bone === joint.child ||
+          (stance.contacts?.includes(joint.child) ?? false));
+      // A swinging foot is held at its authored world orientation, level,
+      // apart from its path, so a toe or heel neither drags nor strikes first
+      // (Pratt et al., M2V2, Section VII-D1).
+      const level: boolean =
         !!actuation &&
+        swinging !== undefined &&
         (body.balance?.pattern.limbs.some(
           (
             limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
           ): boolean =>
-            recovery[body.id]?.swing?.bone !== limb.bone &&
+            limb.bone === swinging &&
             (limb.bone === joint.child ||
               (limb.contacts?.includes(joint.child) ?? false)),
         ) ??
           false);
-      const stanceChain: boolean =
-        !!actuation &&
-        (body.balance?.pattern.limbs.some(
-          (
-            limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
-          ): boolean =>
-            recovery[body.id]?.swing?.bone !== limb.bone &&
-            (limb.chain.includes(joint.child) ||
-              (limb.contacts?.includes(joint.child) ?? false)),
-        ) ??
-          false);
-      const desiredParent: IAutoMovieRigidTransform["rotation"] = planted
-        ? parentFrame
-        : Quaternion.multiply(
-            goals[joint.parent]!.pose.rotation,
-            joint.parentFrame.rotation,
-          );
-      // A planted foot is aimed at the rotation latched where it stood when
-      // its stance began, as its impedance is (`trackPhysicalRoot`), so its
-      // yaw PD and its impedance agree and the sole does not creep.
-      const latched: IAutoMovieRigidTransform["rotation"] | undefined = planted
-        ? assessment?.state.seating?.[joint.child]?.anchor?.rotation
-        : undefined;
-      const desiredChild: IAutoMovieRigidTransform["rotation"] =
-        Quaternion.multiply(
-          latched ??
-            (planted ? authoredGoals : goals)[joint.child]!.pose.rotation,
-          joint.childFrame.rotation,
-        );
+      const reference: physicalStanceJointTarget.IResult =
+        physicalStanceJointTarget({
+          parentFrame: joint.parentFrame.rotation,
+          childFrame: joint.childFrame.rotation,
+          actual: {
+            parent: parent.rotation(),
+            child: child.rotation(),
+            parentSpin: parent.angvel(),
+            childSpin: child.angvel(),
+          },
+          goal: {
+            parent: goals[joint.parent]!.pose.rotation,
+            child: goals[joint.child]!.pose.rotation,
+            parentSpin: goals[joint.parent]!.angularVelocity,
+            childSpin: goals[joint.child]!.angularVelocity,
+          },
+          ...(planted || level
+            ? {
+                role: "planted" as const,
+                latched:
+                  (planted
+                    ? assessment?.state.seating?.[joint.child]?.anchor?.rotation
+                    : undefined) ?? authoredGoals[joint.child]!.pose.rotation,
+              }
+            : stance !== undefined && stance.chain[0] === joint.child
+              ? {
+                  role: "hip" as const,
+                  intended: {
+                    rotation: authoredGoals[joint.parent]!.pose.rotation,
+                    spin: authoredGoals[joint.parent]!.angularVelocity,
+                  },
+                }
+              : { role: "posture" as const }),
+        });
       const inv: IAutoMovieRigidTransform["rotation"] =
         Quaternion.inverse(parentFrame);
       const moving: boolean =
@@ -503,37 +535,18 @@ export function trackPhysicalWorld(
         seconds,
         compliance: body.complianceStrength,
       });
-      const desiredVelocity: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(desiredParent),
-        Vector3.subtract(
-          goals[joint.child]!.angularVelocity,
-          goals[joint.parent]!.angularVelocity,
-        ),
-      );
       const result: IAutoMovieConfigurePhysicalJointMotor.IResult =
         configurePhysicalJointMotor({
           world,
           native: bound.joints.get(`${body.id}/${joint.id}`)!,
           joint,
           current: Quaternion.multiply(inv, childFrame),
-          // A stance joint holds its relative rotation latched when its
-          // stance began, so its yaw PD keeps the heading it touched down
-          // with (Coros, Beaudoin and van de Panne 2010, Section 3.5).
-          target:
-            (stanceChain
-              ? Object.values(assessment?.state.seating ?? {}).find(
-                  (seat) => seat.anchor?.joints?.[joint.id] !== undefined,
-                )?.anchor?.joints?.[joint.id]
-              : undefined) ??
-            Quaternion.multiply(
-              Quaternion.inverse(desiredParent),
-              desiredChild,
-            ),
+          target: reference.target,
           velocity: Quaternion.rotateVector(
             inv,
             Vector3.subtract(child.angvel(), parent.angvel()),
           ),
-          targetVelocity: desiredVelocity,
+          targetVelocity: reference.velocity,
           strength,
           feedForward: Vector3.add(
             gravity.joints.get(joint.id) ?? { x: 0, y: 0, z: 0 },
@@ -583,13 +596,24 @@ function plantedPoses(
 const NO_POSTURE: ReadonlySet<string> = new Set();
 
 /**
- * The limb a recovery swing has lifted: none while it still gives up its
- * share of the stance (`advancePhysicalBalance`), which the stance and
- * support tracking then still carry.
+ * The limb a recovery swing has lifted: none while it still gives up its share
+ * of the stance (`advancePhysicalBalance`), which the stance and support
+ * tracking then still carry.
  */
 function lifted(
   state: IAutoMoviePhysicalRecoveryState | undefined,
 ): string | undefined {
   const bone: string | undefined = state?.swing?.bone;
   return bone !== undefined && !state?.seating?.[bone] ? bone : undefined;
+}
+
+/**
+ * The limb asked to step that has not lifted yet: it is still support, giving
+ * up its share (`advancePhysicalBalance`).
+ */
+function requested(
+  state: IAutoMoviePhysicalRecoveryState | undefined,
+): string | undefined {
+  const bone: string | undefined = state?.swing?.bone;
+  return bone !== undefined && state?.seating?.[bone] ? bone : undefined;
 }

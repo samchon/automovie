@@ -113,6 +113,8 @@ export * from "./physicalShapeSpan";
 export * from "./physicalShapeSurfaceAnchor";
 export * from "./physicalSingularBudget";
 export * from "./physicalStanceBalance";
+export * from "./physicalStanceJointTarget";
+export * from "./physicalStanceSeat";
 export * from "./physicalSupportFootprint";
 export * from "./physicalSupportPoint";
 export * from "./physicalSupportRootDrop";

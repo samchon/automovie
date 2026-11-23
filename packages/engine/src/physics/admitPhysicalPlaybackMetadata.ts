@@ -9,7 +9,8 @@ import type {
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 
 /**
- * Refuse malformed causal metadata even when an archive has a valid integrity trailer.
+ * Refuse malformed causal metadata even when an archive has a valid integrity
+ * trailer.
  */
 export function admitPhysicalPlaybackMetadata(
   header: IAutoMoviePhysicalPlayback.IHeader,
@@ -208,6 +209,7 @@ export function admitPhysicalPlaybackMetadata(
         (!Number.isSafeInteger(state.revision) || state.revision < 0)) ||
       (state.failedLanding !== undefined &&
         typeof state.failedLanding !== "boolean") ||
+      (state.cleared !== undefined && typeof state.cleared !== "boolean") ||
       (state.seating !== undefined &&
         (typeof state.seating !== "object" ||
           Array.isArray(state.seating) ||
@@ -254,6 +256,8 @@ export function admitPhysicalPlaybackMetadata(
           state.pressure.acceleration?.z,
           state.pressure.velocity?.x ?? 0,
           state.pressure.velocity?.z ?? 0,
+          state.pressure.command?.x ?? 0,
+          state.pressure.command?.z ?? 0,
         ].every(Number.isFinite))
     )
       throw new Error("Malformed physical playback recovery state");

@@ -61,6 +61,11 @@ const REACH: number = 0.5;
  *    stop in double support).
  * 4. A four-support body steps a front foot, and after a landing the other front
  *    foot before the one that just landed.
+ * 5. Among capturing steps, the limb whose remaining supports already hold the
+ *    commanded centre of pressure steps first (Pratt et al., M2V2, Section
+ *    VII-A: the leg is unloaded before it swings).
+ * 6. A swing under way is re-aimed by the same rules with its elapsed time spent:
+ *    it keeps its own side and lands sooner than a fresh swing.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each rule and its closed form.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMoviePhysicalBalance.assess` on rectangular foot patches and reads its state, step target and timing.
@@ -322,6 +327,71 @@ export function test_physical_balance_step_choice(): void {
         `after ${first.bone} landed the next step was ${next?.bone}, not the other front foot`,
       );
   }
+  // 5. Among capturing steps, a limb whose remaining foot already holds the
+  // commanded centre of pressure steps first: it can be unloaded at once.
+  for (const [pressure, expected] of [
+    [{ x: 0.1, y: 0, z: 0.1 }, "right"],
+    [{ x: -0.1, y: 0, z: 0.1 }, "left"],
+  ] as const) {
+    const chosen = AutoMoviePhysicalBalance.assess({
+      center: { x: 0.02, y: HEIGHT, z: 0.3 },
+      velocity: { x: 0, y: 0, z: 0 },
+      gravity: G,
+      floor: 0,
+      supports: biped,
+      pattern: pattern(["left", "right"]),
+      maximumStep: REACH,
+      margin: MARGIN,
+      unavailable: [],
+      swing: SWING,
+      inset: INSET,
+      heading: { x: 0, y: 0, z: 1 },
+      pressure,
+    }).step;
+    if (chosen?.bone !== expected)
+      failures.push(
+        `with the centre of pressure on the ${expected === "right" ? "left" : "right"} foot, ${chosen?.bone} stepped`,
+      );
+  }
+
+  // 6. A swing under way is aimed by the same rules with its elapsed time
+  // spent: the right foot, lifted 0.1 s ago, keeps its side however far
+  // left the capture point lies, and lands sooner than a fresh swing would.
+  const inFlight = (elapsed: number, x: number) =>
+    AutoMoviePhysicalBalance.assess({
+      center: { x, y: HEIGHT, z: 0.3 },
+      velocity: { x: 0, y: 0, z: 0 },
+      gravity: G,
+      floor: 0,
+      supports: biped,
+      pattern: pattern(["left", "right"]),
+      maximumStep: REACH,
+      margin: MARGIN,
+      unavailable: ["left"],
+      swing: { ...SWING, ramp: 0, elapsed },
+      inset: INSET,
+      heading: { x: 0, y: 0, z: 1 },
+      force: true,
+    }).step;
+  const kept = inFlight(0.1, 0.3);
+  if (!kept || kept.bone !== "right" || !(kept.target.x <= -0.1 + 1e-9))
+    failures.push(
+      `an in-flight right step crosses to x ${kept?.target.x} (${kept?.bone})`,
+    );
+  const fresh = inFlight(0, 0.02);
+  const late = inFlight(0.1, 0.02);
+  if (
+    !fresh ||
+    !late ||
+    !(
+      Math.hypot(late.target.x + 0.1, late.target.z - 0.1) <
+      Math.hypot(fresh.target.x + 0.1, fresh.target.z - 0.1)
+    )
+  )
+    failures.push(
+      `an in-flight step lands at ${JSON.stringify(late?.target)}, no sooner than a fresh one at ${JSON.stringify(fresh?.target)}`,
+    );
+
   TestValidator.equals("recovery step choice", failures, []);
 }
 

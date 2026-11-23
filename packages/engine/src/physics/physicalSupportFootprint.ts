@@ -85,6 +85,45 @@ export function physicalSupportFootprint(
 /** The support functions of {@link physicalSupportFootprint}. */
 export namespace physicalSupportFootprint {
   /**
+   * Whether a limb is grounded: a point of one of its contact carriers'
+   * colliders lies within the contact skin of the floor, `LIFT` above it
+   * (`physicalStanceBalance.LIFT`). A foot rolled onto an edge is grounded; a
+   * lifted one is not.
+   *
+   * @param profile The body's profile.
+   * @param poses The carriers' poses: the native segments or fixed world
+   *   transforms.
+   * @param limb The support limb; omitted contacts select its own bone.
+   * @param floor The floor height, world metres.
+   * @returns Whether the limb is grounded.
+   */
+  export function grounded(
+    profile: IAutoMoviePhysicalProfile,
+    poses:
+      | ReadonlyMap<string, AutoMovieXpbdBody>
+      | Readonly<Record<string, IAutoMovieRigidTransform>>,
+    limb: IAutoMovieFootfallPattern["limbs"][number],
+    floor: number,
+  ): boolean {
+    const carriers: readonly string[] = limb.contacts ?? [limb.bone];
+    return profile.segments.some((segment: IAutoMoviePhysicalSegment) => {
+      if (!carriers.includes(segment.bone)) return false;
+      const pose: IAutoMovieRigidTransform | undefined = poseOf(
+        poses,
+        segment.bone,
+      );
+      return (
+        pose !== undefined &&
+        colliders(segment).some(
+          (shape: IAutoMoviePhysicalShape): boolean =>
+            physicalShapeBounds.lowest(pose, shape) <=
+            floor + physicalStanceBalance.LIFT,
+        )
+      );
+    });
+  }
+
+  /**
    * Every collider the world binds for a segment: its drawn shapes and its
    * simulation-only contact shapes, such as a foot's sole box, which are what
    * meets the floor.

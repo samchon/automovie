@@ -6,8 +6,10 @@ import { TestValidator } from "@nestia/e2e";
  * simulation:
  *
  * 1. Lift-off: a limb about to swing lifts once its share has ramped out and its
- *    measured load is under `RELEASE` of the weight, or after `UNLOAD`; never
- *    while its share is still ramping (Pratt et al., M2V2, Section VII-A).
+ *    measured load is under `RELEASE` of the weight; never while its share is
+ *    still ramping, and never while the floor still carries it, however long it
+ *    has waited (Pratt et al., M2V2, Section VII-A; Feng et al. 2015, Figure
+ *    2).
  * 2. Early touchdown: a lifted foot's load above `TOUCH` of the weight lands it
  *    only once held for `DWELL`; a load under it restarts the count (Stephens
  *    2011, Figure 4.6).
@@ -22,7 +24,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States each rule and its closed form.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.release`, `touchdown`, `ready`, `tipping` and `saturate` and reads their values.
  * @evidence contracts/development/testing.md#independent-expectations The expectations are the stated thresholds and the closed-form rate and angle evaluated by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a loaded from an unloaded limb, a waited one from a fresh one, a held load from a scuff, a ramping landing from a settled one, horizontal from vertical momentum, and a small error from a saturated one.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates a loaded from an unloaded limb, a long-waiting loaded one from an unloaded one, a held load from a scuff, a ramping landing from a settled one, horizontal from vertical momentum, and a small error from a saturated one.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_physical_recovery_timing(): void {
@@ -31,21 +33,15 @@ export function test_physical_recovery_timing(): void {
     if (actual !== expected) failures.push(`${name}: ${actual}`);
   };
   const W: number = 700;
-  const {
-    RELEASE,
-    TOUCH,
-    DWELL,
-    UNLOAD,
-    TORSO_ERROR,
-  }: typeof physicalStanceBalance = physicalStanceBalance;
+  const { RELEASE, TOUCH, DWELL, TORSO_ERROR }: typeof physicalStanceBalance =
+    physicalStanceBalance;
 
-  // 1. Lift-off on the measured load.
-  const release = (bearing: number, load: number, waited: number): boolean =>
-    physicalStanceBalance.release({ bearing, load, weight: W, waited });
-  check("ramping limb", release(0.4, 0, 0), false);
-  check("loaded limb", release(0, 1.5 * RELEASE * W, 0.05), false);
-  check("unloaded limb", release(0, 0.5 * RELEASE * W, 0.05), true);
-  check("waited limb", release(0, 1.5 * RELEASE * W, UNLOAD), true);
+  // 1. Lift-off on the measured load alone.
+  const release = (bearing: number, load: number): boolean =>
+    physicalStanceBalance.release({ bearing, load, weight: W });
+  check("ramping limb", release(0.4, 0), false);
+  check("loaded limb", release(0, 1.5 * RELEASE * W), false);
+  check("unloaded limb", release(0, 0.5 * RELEASE * W), true);
 
   // 2. Early touchdown held for DWELL.
   const first = physicalStanceBalance.touchdown({
