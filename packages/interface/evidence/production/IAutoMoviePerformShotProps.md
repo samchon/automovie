@@ -6,7 +6,7 @@ Separates what the shot is made of (script, stage, performance) from the capabil
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-IAutoMoviePerformShotProps owns performShot's canonical inputs; caller registry callbacks avoid copying rig authorities, and optional framing/coupling context is read by the corresponding compilation stage.
+IAutoMoviePerformShotProps owns performShot's canonical inputs; caller registry callbacks avoid copying rig authorities, and optional framing/coupling context is read by the corresponding compilation stage, and the delivery frame format carries the raster and clock the camera stage keys paths with.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

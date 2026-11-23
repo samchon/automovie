@@ -1,3 +1,4 @@
+import type { IAutoMovieProductionFrameRate } from "../production/IAutoMovieProductionFrameRate";
 import type { IAutoMovieCamera } from "../scene/IAutoMovieCamera";
 import type { IAutoMovieCameraCoverageEntry } from "./IAutoMovieCameraCoverageEntry";
 
@@ -25,5 +26,8 @@ export namespace IAutoMovieCompileCameraCoverage {
 
     /** Frame width over height, as {@link compileCameraMove} reads it. */
     aspect?: number;
+
+    /** Exact delivery frame rate the moving paths are keyed at, as {@link compileCameraMove} reads it. */
+    frameRate?: IAutoMovieProductionFrameRate;
   };
 }

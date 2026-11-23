@@ -18,6 +18,7 @@ import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
 import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
 import type { IAutoMoviePracticalLightBinding } from "./IAutoMoviePracticalLightBinding";
+import type { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
@@ -76,9 +77,11 @@ export interface IAutoMoviePerformShotProps {
   formationMotions?: readonly IAutoMovieFormationMotion[];
 
   /**
-   * Delivery raster for the horizontal half of the framing fit. Omitted, or
-   * with a non-positive side, a wide subject is fitted to a square frame,
-   * which stands back far enough for any raster of that height.
+   * Delivery raster and clock. The raster sets the horizontal half of the
+   * framing fit: omitted, or with a non-positive side, a wide subject is
+   * fitted to a square frame, which stands back far enough for any raster of
+   * that height. The clock sets the frames moving camera paths are keyed at:
+   * omitted, the camera compiler keys at 24 frames per second.
    */
   frameFormat?: {
     /**
@@ -89,6 +92,14 @@ export interface IAutoMoviePerformShotProps {
      * Delivery height in pixels used as the aspect-ratio denominator; the same non-positive-side fallback applies.
      */
     height: number;
+
+    /**
+     * Delivery frames per second. Omitted, the camera compiler's 24 fps fallback applies. Without `frameRate` it must be a positive safe integer; with it, it must equal that rate's quotient. A violation of either is reported at `$input.frameFormat.fps`.
+     */
+    fps?: number;
+
+    /** Exact delivery frame rate when `fps` is fractional; read only with `fps`. */
+    frameRate?: IAutoMovieProductionFrameRate;
   };
 
   /**

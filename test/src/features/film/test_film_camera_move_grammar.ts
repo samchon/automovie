@@ -63,10 +63,10 @@ const SUBJECT: IAutoMovieFramedSubject = {
  * 1. `static medium` → one key at the framed position `(0, 1.44, 0.62)` (the
  *    staged bearing is +Z), rotation identity (−Z already faces the aim),
  *    emitted as `translation` + `rotation` node tracks on the camera.
- * 2. `push-in medium` → an eased dolly (9 keys) from `0.62×1.25 = 0.775` to
- *    `0.62×0.8 = 0.496` along the bearing, easeInOut so it starts slow (the
- *    quarter-mark key sits at 0.7401, short of a linear 0.705), spanning start
- *    → shot end.
+ * 2. `push-in medium` → an eased dolly keyed at every frame of the 24 fps default
+ *    (49 keys) from `0.62×1.25 = 0.775` to `0.62×0.8 = 0.496` along the
+ *    bearing, easeInOut so it starts slow (the quarter-mark key sits at 0.7401,
+ *    short of a linear 0.705), spanning start → shot end.
  * 3. `whip` from a 90°-yawed staged orientation → two keys 0.2 s apart, both at
  *    the STAGED position (a whip pans in place), rotating from the staged
  *    quaternion to the aim.
@@ -134,9 +134,9 @@ export function test_film_camera_move_grammar(): void {
       shotDuration: 2,
     })!;
   TestValidator.equals(
-    "push-in eases over 9 keys",
+    "push-in keys every 24 fps frame",
     dolly.tracks[0]!.times.length,
-    9,
+    49,
   );
   TestValidator.equals(
     "push-in spans the shot (0 → 2 s)",
@@ -145,7 +145,10 @@ export function test_film_camera_move_grammar(): void {
         "startsAtShotOpen",
         (): boolean => nclose(dolly.tracks[0]!.times[0]!, 0),
       ],
-      ["endsAtShotClose", (): boolean => nclose(dolly.tracks[0]!.times[8]!, 2)],
+      [
+        "endsAtShotClose",
+        (): boolean => nclose(dolly.tracks[0]!.times[48]!, 2),
+      ],
     ]),
     { startsAtShotOpen: true, endsAtShotClose: true },
   );
@@ -155,14 +158,15 @@ export function test_film_camera_move_grammar(): void {
   );
   TestValidator.predicate(
     "dolly to 0.8×d (the last key)",
-    nclose(dolly.tracks[0]!.values[26]!, 0.496),
+    nclose(dolly.tracks[0]!.values[146]!, 0.496),
   );
   // Eased, not ramped: at the quarter mark easeInOut(0.25) = 0.125, so the dolly
   // has crept only 12.5% of the way (d = 0.62 × 1.19375 = 0.7401), well short of
   // a linear quarter (0.705): the camera starts slow.
   TestValidator.predicate(
     "the dolly eases in (slow at the start)",
-    nclose(dolly.tracks[0]!.values[8]!, 0.7401, 1e-3),
+    nclose(dolly.tracks[0]!.times[12]!, 0.5) &&
+      nclose(dolly.tracks[0]!.values[38]!, 0.7401, 1e-3),
   );
 
   const yawed: IAutoMovieCamera = camera(undefined, {

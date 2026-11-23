@@ -5,6 +5,7 @@ import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion";
 import type { IAutoMovieFormationMotion } from "../production/IAutoMovieFormationMotion";
 import type { IAutoMoviePerformShotCoverageJob } from "../production/IAutoMoviePerformShotCoverageJob";
 import type { IAutoMoviePerformShotFrameJob } from "../production/IAutoMoviePerformShotFrameJob";
+import type { IAutoMoviePerformShotProps } from "../production/IAutoMoviePerformShotProps";
 import type { IAutoMovieCameraClearanceRuntime } from "./IAutoMovieCameraClearanceRuntime";
 
 /**
@@ -29,8 +30,8 @@ export namespace IAutoMovieCompilePerformShotCameras {
     /** Clip-id suffix, normally the shot id or otherwise beat id; used verbatim in cam:<scope> and coverage ids. */
     scope: string;
 
-    /** Delivered width/height ratio; undefined uses the camera compiler's square fit, as do non-positive/non-finite values at that lower layer. */
-    aspect: number | undefined;
+    /** Delivery raster and clock as `performShot` received them. Its width over height is the framing aspect, and undefined or a non-positive side uses the camera compiler's square fit. Its exact `fps` and `frameRate` key the moving camera paths; without `fps` the compiler's 24 fps fallback applies, and a rate `resolveProductionFrameRate` refuses is a `range` violation at `$input.frameFormat.fps`. */
+    frameFormat: IAutoMoviePerformShotProps["frameFormat"];
 
     /** Portable staged model catalogue. Undefined behaves as an empty catalogue: framing may use rig/default bounds, while envelope clearance refuses unmeasurable staged obstacles. */
     models: readonly IAutoMovieModel[] | undefined;

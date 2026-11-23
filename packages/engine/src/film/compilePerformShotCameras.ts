@@ -9,6 +9,7 @@ import {
   type IAutoMovieFramedSubject,
   type IAutoMoviePerformShotCoverageJob,
   type IAutoMoviePerformShotFrameJob,
+  IAutoMovieProductionFrameRate,
   IAutoMovieShot,
   IAutoMovieShotCoverage,
 } from "@automovie/interface";
@@ -18,6 +19,7 @@ import { compileCameraCoverage } from "./compileCameraCoverage";
 import { compileCameraMove } from "./compileCameraMove";
 import { compilePerformShotFocusPull } from "./compilePerformShotFocusPull";
 import { createPerformShotSubjectFramer } from "./createPerformShotSubjectFramer";
+import { resolveProductionFrameRate } from "./resolveProductionFrameRate";
 import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
 
 /**
@@ -30,7 +32,7 @@ import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
  * @param props.frames The live camera's moves, sorted by start.
  * @param props.coverageJobs The coverage takes the camera gate admitted.
  * @param props.scope Clip id scope: the shot id when given, else the beat id.
- * @param props.aspect Frame width over height, or undefined for a square fit.
+ * @param props.frameFormat Delivery raster and clock: its width over height is the framing aspect, a non-positive side or none giving a square fit, and its `fps` and `frameRate` key the moving paths, the compiler's 24 fps fallback applying without `fps`. A rate `resolveProductionFrameRate` refuses is a `range` violation at `$input.frameFormat.fps`.
  * @param props.models Compiler-owned models of the staged nodes, if any.
  * @param props.formationMotions The shot's compact formation cues.
  * @param props.motions The compiled actor clips by node id.
@@ -47,6 +49,14 @@ export function compilePerformShotCameras(
   "cameraMotion" | "cameraIntent" | "coverage" | "cameraClearance"
 > {
   const duration: number = context.performance.duration;
+  const format: IAutoMovieCompilePerformShotCameras.IProps["frameFormat"] =
+    props.frameFormat;
+  const aspect: number | undefined =
+    format === undefined || !(format.width > 0) || !(format.height > 0)
+      ? undefined
+      : format.width / format.height;
+  const frameRate: IAutoMovieProductionFrameRate | undefined =
+    deliveryFrameRate(context, format);
   const hero: IAutoMovieCamera = context.staged.scene.cameras.find(
     (camera: IAutoMovieCamera): boolean => camera.id === props.liveCamera,
   )!;
@@ -64,7 +74,8 @@ export function compilePerformShotCameras(
       }),
     ),
     shotDuration: duration,
-    aspect: props.aspect,
+    aspect,
+    frameRate,
   });
   const coverage: IAutoMovieShotCoverage[] = props.coverageJobs.map(
     ({
@@ -96,7 +107,8 @@ export function compilePerformShotCameras(
           },
         ],
         shotDuration: duration,
-        aspect: props.aspect,
+        aspect,
+        frameRate,
       }),
   );
   const cameraClearance: IAutoMovieShot["cameraClearance"] =
@@ -146,4 +158,26 @@ export function compilePerformShotCameras(
     coverage,
     ...(cameraClearance === undefined ? {} : { cameraClearance }),
   };
+}
+
+/** The exact delivery rate, or undefined when no `fps` is stated or it is refused. */
+function deliveryFrameRate(
+  context: IAutoMovieEnginePerformShotGateContext,
+  format: IAutoMovieCompilePerformShotCameras.IProps["frameFormat"],
+): IAutoMovieProductionFrameRate | undefined {
+  if (format?.fps === undefined) return undefined;
+  try {
+    return resolveProductionFrameRate({
+      fps: format.fps,
+      frameRate: format.frameRate,
+    });
+  } catch (error) {
+    context.out.push(
+      "range",
+      "$input.frameFormat.fps",
+      error instanceof Error ? error.message : String(error),
+      format.fps,
+    );
+    return undefined;
+  }
 }

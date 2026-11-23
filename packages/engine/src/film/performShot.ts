@@ -359,12 +359,7 @@ export function performShot(
     frames: plan.frames,
     coverageJobs: cameras.coverageJobs,
     scope: props.shotId ?? performance.beat,
-    aspect:
-      props.frameFormat === undefined ||
-      !(props.frameFormat.width > 0) ||
-      !(props.frameFormat.height > 0)
-        ? undefined
-        : props.frameFormat.width / props.frameFormat.height,
+    frameFormat: props.frameFormat,
     models: props.models,
     formationMotions,
     motions,

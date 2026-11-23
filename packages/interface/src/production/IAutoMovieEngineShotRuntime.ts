@@ -52,12 +52,15 @@ export interface IAutoMovieEngineShotRuntime {
 
   /**
    * Delivery raster in pixels, used to project required camera subjects at the
-   * opening, review and closing times and to fit framing horizontally.
+   * opening, review and closing times and to fit framing horizontally, and the
+   * delivery clock moving camera paths are keyed at. Without `fps`, camera
+   * paths are keyed at 24 frames per second.
    */
   frameFormat: Pick<
     IAutoMovieProductionDesign["frameFormat"],
     "width" | "height"
-  >;
+  > &
+    Partial<Pick<IAutoMovieProductionDesign["frameFormat"], "fps" | "frameRate">>;
 
   /**
    * Geometry revision and fixed inspection clock for camera-body clearance.

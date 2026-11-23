@@ -24,7 +24,7 @@ All motion is on the context's shot-local seconds clock, placement uses world me
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-performShot supplies final actor/object/formation motion and staged rotations to the shared subject framer, while the same models and runtime feed clearance; no rendering state is included.
+performShot supplies final actor/object/formation motion and staged rotations to the shared subject framer, while the same models and runtime feed clearance; it passes its delivery raster and clock unchanged, so the aspect and rate are derived once for hero and coverage takes. No rendering state is included.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -32,4 +32,4 @@ Missing models permit the subject framer's rig/default-size fallbacks but do not
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Describes clip naming, locked-off behavior, units, borrowed tables, model fallback and conditional runtime requirements.
+Describes clip naming, locked-off behavior, units, borrowed tables, the raster and clock fallbacks and refusal, model fallback and conditional runtime requirements.

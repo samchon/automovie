@@ -225,9 +225,9 @@ export function test_film_perform_shot_coverage(): void {
   );
   const dolly: IAutoMovieClip = several.shot.coverage![1]!.cameraMotion!;
   TestValidator.equals(
-    "a push-in alternate keys the dolly",
+    "a push-in alternate keys the dolly at every 24 fps frame",
     dolly.tracks[0]!.times.length,
-    9,
+    49,
   );
   TestValidator.predicate(
     "the dolly starts at 1.25× the framed distance",
@@ -239,7 +239,7 @@ export function test_film_perform_shot_coverage(): void {
   );
   TestValidator.predicate(
     "the dolly settles at 0.8× the framed distance",
-    vclose(firstKey(dolly.tracks[0]!.values, 8), {
+    vclose(firstKey(dolly.tracks[0]!.values, 48), {
       x: -0.2976,
       y: 0.864,
       z: 0,
