@@ -71,6 +71,20 @@ export interface IAutoMoviePhysicalRecoveryState {
    * swing's minimum phase, local seconds.
    */ touchdown?: number;
   /**
+   * Whether the lifted swing foot has risen clear of the floor since its
+   * lift-off: until it has, its contact is the floor it never left, not an
+   * early touchdown.
+   */ cleared?: boolean;
+  /**
+   * The capture point's distance past the support at the previous controller
+   * step, metres, so whether it is shrinking is measured, not modelled.
+   */ excess?: number;
+  /**
+   * The open window over which a capture point past the shrunken support is
+   * watched for shrinking: when it began, local seconds, and the excursion it
+   * began at, metres.
+   */ band?: { since: number; excess: number };
+  /**
    * Monotone support-plan revision, used only to invalidate transient motor
    * goals.
    */ revision?: number;
@@ -80,9 +94,11 @@ export interface IAutoMoviePhysicalRecoveryState {
    * it, began, its bearing share in [0, 1], ramping toward whether the foot
    * is grounded, its flatness share in [0, 1], ramping toward whether the foot
    * is grounded and seated, its low-passed measured floor load in newtons,
-   * which decides lift-off and touchdown only, the sole's own height spread
-   * latched when its stance began, metres, and the foot's actual support point
-   * and rotation latched then, world frame.
+   * which decides lift-off and touchdown only, its entry share in [0, 1],
+   * zero while the foot is out of contact and unloaded and ramping in once it
+   * touches again, the sole's own height spread latched when its stance
+   * began, metres, and the foot's actual support point and rotation latched
+   * then or when it last touched again, world frame.
    */ seating?: Record<
     string,
     {
@@ -91,6 +107,7 @@ export interface IAutoMoviePhysicalRecoveryState {
       bearing?: number;
       flat?: number;
       load?: number;
+      entry?: number;
       relief?: number;
       anchor?: {
         point: IAutoMovieVector3;

@@ -424,6 +424,32 @@ export namespace AutoMoviePhysicalBalance {
   }
 
   /**
+   * The step a request plans next while its limb has not lifted: the best
+   * step when its own limb has none, or when the best captures and its own
+   * does not; but once its limb has begun unloading, only its own, its place
+   * and time planned again and its limb kept, none when its own has no step.
+   * A step is committed at its trigger and adapted, never handed to another
+   * limb (design-4017-landing, decision 2; Khadiv et al. 2017 and Griffin et
+   * al. 2017 adapt throughout but never cancel): moving the request after its
+   * load has started to leave bounds both limbs' ramps at once.
+   *
+   * @param input Whether the requested limb has begun unloading, its own
+   *   limb's step if it has one, and the best step over every limb.
+   * @returns The step to request, or undefined to keep the request as it is.
+   */
+  export function retarget(input: {
+    unloading: boolean;
+    own?: NonNullable<IAutoMoviePhysicalBalance.IResult["step"]>;
+    best: NonNullable<IAutoMoviePhysicalBalance.IResult["step"]>;
+  }): IAutoMoviePhysicalBalance.IResult["step"] {
+    if (input.unloading) return input.own;
+    return input.own === undefined ||
+      (input.best.viable === true && input.own.viable !== true)
+      ? input.best
+      : input.own;
+  }
+
+  /**
    * The capture point a time ahead while the supports hold their centre of
    * pressure at their point nearest it. With the centre of pressure u fixed,
    * the inverted pendulum's capture point moves as u + (xi - u) e^(omega t)

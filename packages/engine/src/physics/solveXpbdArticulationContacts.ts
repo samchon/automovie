@@ -56,9 +56,14 @@ export namespace solveXpbdArticulationContacts {
     // Without a feasible cascade this substep, the supports hold the motors'
     // own response, as for a tree without a root task. The task holds only
     // the supports it keeps: a released body's patches are left to the
-    // contact passes.
+    // contact passes. Its patches carry their torsional rows, so the ground's
+    // moment about the vertical is the task's too.
     if (task !== undefined) {
-      const kept: ISet = keep(tree, set, task.released);
+      const kept: ISet = keep(
+        tree,
+        Rows.collect(tree, contacts, h, true),
+        task.released,
+      );
       if (kept.rows.length === 0) return { response: base, records: [] };
       const tasked: IHeld | null = solveTask(
         tree,
@@ -186,6 +191,15 @@ export namespace solveXpbdArticulationContacts {
       ...levers.map((lever: IAutoMovieVector3): number => Vector3.length(lever)),
     );
     const wrench = (row: IRow, lever: IAutoMovieVector3): number[] => {
+      if (row.moment === true)
+        return [
+          0,
+          0,
+          0,
+          row.direction.x / length,
+          row.direction.y / length,
+          row.direction.z / length,
+        ];
       const force: IAutoMovieVector3 = row.direction;
       const moment: IAutoMovieVector3 = Vector3.scale(
         Vector3.cross(lever, row.direction),
@@ -392,10 +406,12 @@ export namespace solveXpbdArticulationContacts {
         kept.rows.push(set.rows[r]!);
         return kept.rows.length - 1;
       };
+      const { torsion, ...rest }: IPatch = patch;
       kept.patches.push({
-        ...patch,
+        ...rest,
         normals: patch.normals.map(copy),
         tangents: patch.tangents.map(copy),
+        ...(torsion !== undefined ? { torsion: copy(torsion) } : {}),
       });
     }
     return kept;
@@ -503,8 +519,11 @@ export namespace solveXpbdArticulationContacts {
     /** Unit world direction of the force on the tree body. */
     direction: IAutoMovieVector3;
 
-    /** The least impulse of a normal row, newton seconds; absent for a tangential row. */
+    /** The least impulse of a normal row, newton seconds; absent for a tangential or torsional row. */
     lower?: number;
+
+    /** Whether the row is a unit moment about the direction, a patch's torsional friction, rather than a force at the point. */
+    moment?: boolean;
 
     /** The present velocity along the direction relative to the other side, metres per second. */
     velocity: number;
@@ -532,6 +551,8 @@ export namespace solveXpbdArticulationContacts {
     /** Its two tangential rows' indices. */
     tangents: number[];
 
+    /** Its torsional row's index, when the set carries one. */
+    torsion?: number;
   }
 
   /**

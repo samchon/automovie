@@ -29,6 +29,7 @@ import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { physicalGravityTorques } from "./physicalGravityTorques";
 import { physicalJointEffort } from "./physicalJointEffort";
 import { physicalStanceJointTarget } from "./physicalStanceJointTarget";
+import { physicalSwingReference } from "./physicalSwingReference";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { physicalTrackingWithdrawn } from "./physicalTrackingWithdrawn";
 import { readPhysicalScene } from "./readPhysicalScene";
@@ -516,6 +517,36 @@ export function trackPhysicalWorld(
         });
       const inv: IAutoMovieRigidTransform["rotation"] =
         Quaternion.inverse(parentFrame);
+      const rate: IAutoMovieVector3 = Quaternion.rotateVector(
+        inv,
+        Vector3.subtract(child.angvel(), parent.angvel()),
+      );
+      // A lifted swing starts from the leg's present state, its rates as
+      // well as its angles: through the fade its joints' reference rates are
+      // drawn from their actual rates toward the path's, as their angles are
+      // (`physicalSwingReference`; design-4017-edge, S1), since a swing
+      // trajectory is planned from the foot's present position and velocity
+      // (Khadiv et al. 2017, Section III-B; TSID `remove_contact`). A rate
+      // reference left at the path's first, near rest, would have the joints'
+      // damping hold back a leg the advancing pelvis is turning, pressing the
+      // lifted foot back into the floor.
+      const targetVelocity: IAutoMovieVector3 =
+        swinging !== undefined &&
+        (body.balance?.pattern.limbs.some(
+          (
+            limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
+          ): boolean =>
+            limb.bone === swinging &&
+            (limb.chain.includes(joint.child) ||
+              (limb.contacts?.includes(joint.child) ?? false)),
+        ) ??
+          false)
+          ? physicalSwingReference.rate({
+              actual: rate,
+              path: reference.velocity,
+              elapsed: seconds - recovery[body.id]!.swing!.start,
+            })
+          : reference.velocity;
       const moving: boolean =
         body.balance?.pattern.limbs.some(
           (
@@ -543,11 +574,8 @@ export function trackPhysicalWorld(
           joint,
           current: Quaternion.multiply(inv, childFrame),
           target: reference.target,
-          velocity: Quaternion.rotateVector(
-            inv,
-            Vector3.subtract(child.angvel(), parent.angvel()),
-          ),
-          targetVelocity: reference.velocity,
+          velocity: rate,
+          targetVelocity,
           strength,
           feedForward: Vector3.add(
             gravity.joints.get(joint.id) ?? { x: 0, y: 0, z: 0 },

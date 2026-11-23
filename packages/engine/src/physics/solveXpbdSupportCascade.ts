@@ -17,7 +17,8 @@ import { solveXpbdDualActiveSet as ActiveSet } from "./solveXpbdDualActiveSet";
  * ones, a normal row's impulse stays at or above its Signorini bound, each
  * patch's whole friction, the contact passes' plus the rows', stays inside the
  * inscribed pyramid `|t1| + |t2| <= mu (N + sum lambda_n)` the wrench
- * allocation uses, every joint impulse within its motor's cap on its own
+ * allocation uses, a patch's torsional moment within its points' friction on
+ * their levers, every joint impulse within its motor's cap on its own
  * direction (Herzog et al. 2016, Section 2.1), and each bounded group's summed
  * normal impulse within its bound, the ramp a leaving contact's force follows
  * to zero (Section 5.3).
@@ -135,6 +136,54 @@ function cascade(
             z * patch.prior.second
           ),
         );
+    // The torsional row's moment is bounded by each pressed point's friction
+    // pyramid on its lever from the centroid, |tau| <= mu sum_i (|r_i . t1| +
+    // |r_i . t2|) N_i with N_i the point's whole normal impulse, the contact
+    // passes' plus the row's: the most moment four corner points in their own
+    // linearized cones give about the normal (TSID `contact-6d.cpp`,
+    // `updateForceInequalityConstraints` and `updateForceGeneratorMatrix`).
+    // It is an inequality on the impulse, not a hold: friction bounds the
+    // force variables as TSID's cones do, and the patch's turning about its
+    // normal stays the contact passes', as for the patch friction. A hold
+    // would repeat across the patches of a tree whose joints cannot turn its
+    // supports about the vertical against its root, a four-legged body's
+    // two-axis legs or a Human's foot and toes, and its equalities would lose
+    // full rank; the row carries the moment the task asks of the ground.
+    if (patch.torsion !== undefined) {
+      const pivot: Contacts.IRow = set.rows[patch.torsion]!;
+      const first: Contacts.IRow = set.rows[patch.tangents[0]!]!;
+      const second: Contacts.IRow = set.rows[patch.tangents[1]!]!;
+      const levers: number[] = patch.normals.map((r: number): number => {
+        const point: Contacts.IRow = set.rows[r]!;
+        const dx: number = point.point.x - pivot.point.x;
+        const dy: number = point.point.y - pivot.point.y;
+        const dz: number = point.point.z - pivot.point.z;
+        return (
+          Math.abs(
+            dx * first.direction.x +
+              dy * first.direction.y +
+              dz * first.direction.z,
+          ) +
+          Math.abs(
+            dx * second.direction.x +
+              dy * second.direction.y +
+              dz * second.direction.z,
+          )
+        );
+      });
+      const given: number = patch.normals.reduce(
+        (sum: number, r: number, i: number): number =>
+          sum - patch.friction * levers[i]! * set.rows[r]!.lower!,
+        0,
+      );
+      for (const s of [-1, 1])
+        inequality(
+          `t${name}:${s}`,
+          [patch.torsion, ...patch.normals],
+          [-s, ...levers.map((lever: number): number => patch.friction * lever)],
+          -given,
+        );
+    }
   }
   // Each direction of an actuated axis is bounded by its own cap.
   actuators.forEach((actuator: Contacts.IActuator, j: number): void => {

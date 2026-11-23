@@ -121,28 +121,32 @@ export function trackPhysicalBalanceTargets(input: {
     const posture: ReadonlySet<string> = bound.posture.get(body.id)!;
     const joints: ReadonlyMap<string, IAutoMoviePhysicalJoint> =
       bound.jointByChild.get(body.id)!;
+    // A lifted swing keeps one joint-space reference, continuous through the
+    // swing (design-4017-edge, S1): its fit is seeded from the previous one
+    // alone, never restarted from the authored pose, whose solution, when
+    // neither fit meets the tolerance, can win on residual one frame and
+    // lose the next and throw the leg between two branches.
+    const lifting: boolean =
+      !!input.state.swing && !input.state.seating?.[input.state.swing.bone];
+    const warm: Record<string, IAutoMovieRigidTransform> | undefined = reference
+      ? warmPhysicalSupportTargets({
+          order: bound.order.get(body.id)!,
+          joints,
+          descendants: bound.descendants.get(body.id)!,
+          selected: posture,
+          targets,
+          before: reference.before,
+          previous: reference.completed,
+          pattern: policy.pattern,
+          planted: new Set(planted),
+          tolerance,
+        })
+      : undefined;
     const result: IAutoMoviePlanPhysicalSupportTargets.IResult =
       choosePhysicalSupportFit({
         candidates: [
-          fit(),
-          ...(reference
-            ? [
-                fit(
-                  warmPhysicalSupportTargets({
-                    order: bound.order.get(body.id)!,
-                    joints,
-                    descendants: bound.descendants.get(body.id)!,
-                    selected: posture,
-                    targets,
-                    before: reference.before,
-                    previous: reference.completed,
-                    pattern: policy.pattern,
-                    planted: new Set(planted),
-                    tolerance,
-                  }),
-                ),
-              ]
-            : []),
+          ...(lifting && warm ? [] : [fit()]),
+          ...(warm ? [fit(warm)] : []),
         ],
         tolerance,
         reference: reference?.completed,
@@ -156,6 +160,45 @@ export function trackPhysicalBalanceTargets(input: {
             ): joint is IAutoMoviePhysicalJoint => !!joint,
           ),
       });
+    // The lifted swing's chain is fitted to its foot's full pose, the path's
+    // endpoint and the planned level attitude, from the previous reference
+    // (`physicalSwingReference.pose`).
+    const liftedLimb: (typeof policy.pattern.limbs)[number] | undefined =
+      lifting && warm
+        ? policy.pattern.limbs.find(
+            (candidate: (typeof policy.pattern.limbs)[number]): boolean =>
+              candidate.bone === input.state.swing!.bone,
+          )
+        : undefined;
+    const liftedJoint: IAutoMoviePhysicalJoint | undefined = liftedLimb
+      ? body.profile.joints.find(
+          (joint: IAutoMoviePhysicalJoint): boolean =>
+            joint.child === liftedLimb.chain[0],
+        )
+      : undefined;
+    if (
+      liftedLimb &&
+      liftedJoint &&
+      warm &&
+      result.targets[liftedJoint.parent] &&
+      endpoints[liftedLimb.bone] &&
+      targets[liftedLimb.bone]
+    )
+      Object.assign(
+        result.targets,
+        physicalSwingReference.pose({
+          profile: body.profile,
+          chain: liftedLimb.chain,
+          base: result.targets[liftedJoint.parent]!,
+          seed: warm,
+          authored: targets,
+          goal: endpoints[liftedLimb.bone]!,
+          ...(liftedLimb.localPoint ? { localPoint: liftedLimb.localPoint } : {}),
+          rotation: targets[liftedLimb.bone]!.rotation,
+          iterations: policy.iterations ?? 24,
+          tolerance,
+        }).targets,
+      );
     // A lifted swing's chain starts its references where its joints stand at
     // lift-off and is drawn toward the fit over the fade
     // (`physicalSwingReference`), so its joints' references do not jump.

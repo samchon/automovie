@@ -95,6 +95,16 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
   }
   let rootTorque: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let orientation: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  // The trunk's intended attitude under internal actuation is turned by the
+  // stance feet's heading as each was latched when its stance began, so its
+  // yaw servo holds the heading the feet stand at (design-4017-qp3, Section
+  // 1, rule 2: the stance yaw reference latched at touchdown).
+  const intended: IAutoMovieQuaternion = actuation
+    ? Quaternion.multiply(
+        latchedHeading(body, seating, planted, recoveryBone),
+        rootIntent.pose.rotation,
+      )
+    : rootIntent.pose.rotation;
   if (rootDynamic && body.rootTorque && rootStrength > 0) {
     const axes: IAutoMoviePhysicalJointAxis[] = (["x", "y", "z"] as const).map(
       (axis: "x" | "y" | "z"): IAutoMoviePhysicalJointAxis => ({
@@ -112,7 +122,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
       actuation
         ? physicalStanceBalance.saturate(
             base.rotation(),
-            rootIntent.pose.rotation,
+            intended,
             physicalStanceBalance.TORSO_ERROR,
           )
         : rootIntent.pose.rotation,
@@ -251,10 +261,15 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
             // hold it where the legs leave freedom
             // (`physicalStanceJointTarget`). In single support the trunk is
             // left to those, ranked with the swing (Khadiv et al. 2017,
-            // Table I).
+            // Table I). Its heading is the ground's in any support: no joint
+            // motion turns the whole body about the vertical, so its yaw servo
+            // is the feet's torsional friction (design-4017-qp3, Section 1,
+            // rule 2; `AutoMovieXpbdSupportRows`).
             torque: Vector3.add(
               swingHip(body, segments, recoveryBone, actuation),
-              recoveryBone === undefined ? orientation : { x: 0, y: 0, z: 0 },
+              recoveryBone === undefined
+                ? orientation
+                : { x: 0, y: orientation.y, z: 0 },
             ),
             origin,
             // The trunk's intended attitude, which its hip strategy's angle
@@ -354,7 +369,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
                 Quaternion.multiply(
                   physicalStanceBalance.saturate(
                     base.rotation(),
-                    rootIntent.pose.rotation,
+                    intended,
                     physicalStanceBalance.TORSO_ERROR,
                   ),
                   Quaternion.inverse(base.rotation()),
@@ -519,13 +534,68 @@ function transitions(
   const share: number = input.requested
     ? Math.max(0, Math.min(1, input.seating?.[input.requested]?.bearing ?? 1))
     : 1;
+  // A foot entering the holds, landed or touching again after it left them,
+  // has its force bound ramp in with the lesser of its bearing and entry
+  // shares, mirrored at lift-off (design-4017-qp3, Section 3, rule 3;
+  // Herzog et al. 2016, Section 5.3).
+  const entering: AutoMovieXpbdWorld.IBound[] = limbs.flatMap(
+    (limb: IAutoMovieFootfallPattern["limbs"][number]): AutoMovieXpbdWorld.IBound[] => {
+      if (limb.bone === input.requested) return [];
+      const seat: NonNullable<trackPhysicalRoot.IInput["seating"]>[string] | undefined =
+        input.seating?.[limb.bone];
+      const ramp: number = Math.max(
+        0,
+        Math.min(1, seat?.bearing ?? 1, seat?.entry ?? 1),
+      );
+      const bodies: AutoMovieXpbdBody[] = carriers(limb.bone);
+      return ramp < 1 && bodies.length > 0
+        ? [{ bodies, force: ramp * force }]
+        : [];
+    },
+  );
+  const bounds: AutoMovieXpbdWorld.IBound[] = [
+    ...(leaving.length > 0 ? [{ bodies: leaving, force: share * force }] : []),
+    ...entering,
+  ];
   return {
-    ...(leaving.length > 0
-      ? { bounds: [{ bodies: leaving, force: share * force }] }
-      : {}),
+    ...(bounds.length > 0 ? { bounds } : {}),
     ...(lifted.length > 0 ? { released: new Set(lifted) } : {}),
     ...(stance.length > 0 ? { stance } : {}),
   };
+}
+
+/**
+ * The yaw the stance feet stand turned by from their planted poses, as each
+ * foot's world rotation was latched when its stance began or it last touched
+ * again: their mean heading turn about the vertical, identity without a
+ * latched foot (design-4017-qp3, Section 1, rule 2; Pratt et al., M2V2,
+ * Section VII-C: a frame fixed to the supporting foot).
+ */
+function latchedHeading(
+  body: IAutoMoviePhysicalSimulationInput.IBody,
+  seating: trackPhysicalRoot.IInput["seating"],
+  planted: trackPhysicalRoot.IInput["planted"],
+  swing: string | undefined,
+): IAutoMovieQuaternion {
+  let sum: number = 0;
+  let count: number = 0;
+  for (const limb of (body.supportTracking?.pattern ?? body.balance?.pattern)
+    ?.limbs ?? []) {
+    const anchor: { rotation: IAutoMovieQuaternion } | undefined =
+      seating?.[limb.bone]?.anchor;
+    const goal: IAutoMovieRigidTransform | undefined = planted?.[limb.bone];
+    if (limb.bone === swing || !anchor || !goal) continue;
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.multiply(anchor.rotation, Quaternion.inverse(goal.rotation)),
+      { x: 0, y: 0, z: 1 },
+    );
+    if (!(Math.hypot(forward.x, forward.z) > 0)) continue;
+    sum += Math.atan2(forward.x, forward.z);
+    count += 1;
+  }
+  return count > 0
+    ? Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, ((sum / count) * 180) / Math.PI)
+    : { x: 0, y: 0, z: 0, w: 1 };
 }
 
 /**
@@ -559,6 +629,7 @@ export namespace trackPhysicalRoot {
           bearing?: number;
           flat?: number;
           load?: number;
+          entry?: number;
           relief?: number;
           anchor?: { point: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
         }

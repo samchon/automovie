@@ -209,6 +209,15 @@ export function admitPhysicalPlaybackMetadata(
         (!Number.isSafeInteger(state.revision) || state.revision < 0)) ||
       (state.failedLanding !== undefined &&
         typeof state.failedLanding !== "boolean") ||
+      (state.cleared !== undefined && typeof state.cleared !== "boolean") ||
+      (state.excess !== undefined &&
+        !(Number.isFinite(state.excess) && state.excess >= 0)) ||
+      (state.band !== undefined &&
+        !(
+          Number.isFinite(state.band?.since) &&
+          Number.isFinite(state.band?.excess) &&
+          state.band.excess >= 0
+        )) ||
       (state.seating !== undefined &&
         (typeof state.seating !== "object" ||
           Array.isArray(state.seating) ||
@@ -219,6 +228,7 @@ export function admitPhysicalPlaybackMetadata(
               bearing?: number;
               flat?: number;
               load?: number;
+              entry?: number;
               relief?: number;
               anchor?: {
                 point: { x: number; y: number; z: number };
@@ -239,7 +249,7 @@ export function admitPhysicalPlaybackMetadata(
                   seat.anchor.rotation?.z,
                   seat.anchor.rotation?.w,
                 ].every(Number.isFinite)) ||
-              [seat.bearing, seat.flat].some(
+              [seat.bearing, seat.flat, seat.entry].some(
                 (share: number | undefined): boolean =>
                   share !== undefined && !(share >= 0 && share <= 1),
               ),

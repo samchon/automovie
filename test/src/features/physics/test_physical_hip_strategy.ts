@@ -24,7 +24,10 @@ import { TestValidator } from "@nestia/e2e";
  *    support, holds; 2.5 cm past the support steps against that reach; 1.5 cm
  *    past it holds with the trunk's angle left and steps once it is spent; one
  *    whose spin-free part is coming back holds; and one within the margin
- *    holds (Koolen et al., Corollary 3).
+ *    holds (Koolen et al., Corollary 3). With the previous step's excess
+ *    measured, whether it shrinks is read from it: a capture point stalled
+ *    6.5 cm outside steps although its spin-free part is inside, and one whose
+ *    excess fell holds (design-4017-edge, E3).
  * 3. Capacity: two hips side by side have a strategy against a forward push,
  *    with the torque their aligned axes give and the trunk's inertia about
  *    them, and none against a lateral one; one stance hip has one either way;
@@ -33,7 +36,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the reach, the trigger and the capacity rule with their closed forms.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.hipReach`, `exceeds` and `hip` and reads their values.
  * @evidence contracts/development/testing.md#independent-expectations The flywheel model is integrated step by step, independently of the closed form; the trigger and capacity expectations are hand-evaluated distances, torques and inertias.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates an excess just inside the reach from one just outside, inside from past the support, an angle left from one spent, an excess growing from one coming back, a forward push from a lateral one, and two stance hips from one.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates an excess just inside the reach from one just outside, inside from past the support, an angle left from one spent, an excess growing from one coming back, a measured stall from a measured shrink, a forward push from a lateral one, and two stance hips from one.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory over stand-in segment poses; no native world, viewer or file host.
  */
 export function test_physical_hip_strategy(): void {
@@ -106,6 +109,7 @@ export function test_physical_hip_strategy(): void {
     angle: number,
     spin: IAutoMovieVector3 = still,
     margin: number = 0,
+    previous?: number,
   ): boolean =>
     physicalStanceBalance.exceeds({
       support,
@@ -121,7 +125,11 @@ export function test_physical_hip_strategy(): void {
           gravity,
           omega,
         }),
+      ...(previous !== undefined ? { previous } : {}),
     });
+  // The quad recover stall: 6.5 cm past the support, its spin-free part 2 cm
+  // inside, the excess not shrinking from one step to the next.
+  const stall: IAutoMovieVector3 = { x: 0, y: 0, z: 0.085 };
   const trigger: [string, boolean, boolean][] = [
     ["past the shrunken edge only", exceeds(0.38 + 0.0016, theta), false],
     ["2.5 cm past the support", exceeds(0.425, theta), true],
@@ -129,6 +137,9 @@ export function test_physical_hip_strategy(): void {
     ["1.5 cm with the angle spent", exceeds(0.415, 0), true],
     ["coming back", exceeds(0.425, theta, { x: 0, y: 0, z: 0.03 }), false],
     ["within the margin", exceeds(0.405, 0, still, 0.01), false],
+    ["predicted back but stalled", exceeds(0.465, 0, stall, 0, 0.065), true],
+    ["measured shrinking", exceeds(0.465, 0, still, 0, 0.07), false],
+    ["measured growing", exceeds(0.465, 0, stall, 0, 0.06), true],
   ];
   for (const [name, actual, expected] of trigger)
     if (actual !== expected) failures.push(`${name}: ${actual}`);

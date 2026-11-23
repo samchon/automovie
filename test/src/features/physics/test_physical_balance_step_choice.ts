@@ -69,11 +69,15 @@ const REACH: number = 0.5;
  * 7. Unloading ranks capturing steps only: past every step's reach a front foot
  *    of a four-support body steps, not a rear one the centre of pressure has
  *    already left.
+ * 8. A request whose limb has begun unloading keeps that limb even when
+ *    another limb's step captures and its own does not, and is kept as it is
+ *    when its own limb has no step; before unloading it moves to the capturing
+ *    step (design-4017-landing, decision 2: commit at the trigger).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each rule and its closed form.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMoviePhysicalBalance.assess` on rectangular foot patches and reads its state, step target and timing.
  * @evidence contracts/development/testing.md#independent-expectations The capture point at landing follows the closed form with the remaining foot's shrunken rectangle clamped by hand, and the new support is a hand-built convex hull, not the implementation's polygon routines.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a trigger on the full outline from one on the shrunken outline, a crossover step from one on its own side, a landing that leaves the capture point outside the new support from one that captures it, an unclamped step from a clamped one, and a repeated front foot from the other.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates a trigger on the full outline from one on the shrunken outline, a crossover step from one on its own side, a landing that leaves the capture point outside the new support from one that captures it, an unclamped step from a clamped one, a repeated front foot from the other, and an unloading request from one not yet unloading.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_physical_balance_step_choice(): void {
@@ -416,6 +420,38 @@ export function test_physical_balance_step_choice(): void {
   }).step;
   if (!beyond || beyond.viable !== false || !beyond.bone.startsWith("front"))
     failures.push(`past every reach, ${beyond?.bone} stepped (viable ${beyond?.viable})`);
+
+  // 8. A request keeps its limb once that limb has begun unloading.
+  const own: NonNullable<IAutoMoviePhysicalBalance.IResult["step"]> = {
+    bone: "front-right",
+    target: { x: -0.4, y: 0, z: 0.8 },
+    seconds: 0.3,
+    viable: false,
+  };
+  const better: NonNullable<IAutoMoviePhysicalBalance.IResult["step"]> = {
+    bone: "front-left",
+    target: { x: 0.4, y: 0, z: 0.8 },
+    seconds: 0.3,
+    viable: true,
+  };
+  const committed: IAutoMoviePhysicalBalance.IResult["step"] =
+    AutoMoviePhysicalBalance.retarget({
+      unloading: true,
+      own,
+      best: better,
+    });
+  if (committed?.bone !== own.bone)
+    failures.push(`an unloading request moved to ${committed?.bone}`);
+  if (
+    AutoMoviePhysicalBalance.retarget({ unloading: true, best: better }) !==
+    undefined
+  )
+    failures.push("an unloading request without a step of its own moved");
+  if (
+    AutoMoviePhysicalBalance.retarget({ unloading: false, own, best: better })
+      ?.bone !== better.bone
+  )
+    failures.push("a request not yet unloading kept a step that does not capture");
 
   TestValidator.equals("recovery step choice", failures, []);
 }

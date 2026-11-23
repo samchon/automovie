@@ -21,11 +21,16 @@ import { TestValidator } from "@nestia/e2e";
  *    Section 5.3).
  * 4. A point on a support's front edge has no room forward and the support's
  *    whole depth backward; a point inside has its distance to each edge.
+ * 5. Entry: a touching foot keeps its entry share however little it carries,
+ *    and a loaded one keeps it through a lost contact; one out of contact and
+ *    unloaded has left the holds, its share zero; touching again it is
+ *    re-latched once and its share ramps back over `FADE`, half of it at half
+ *    the window (design-4017-qp3, Section 3, rules 2 and 3).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bearing rule, the ramp, the drawn outline and the room with their closed forms.
  * @evidence contracts/development/testing.md#behavioral-verification Advances `physicalStanceSeat` substep by substep and reads the shares, and reads `physicalStanceBalance.support`'s polygon and `physicalStanceBalance.reach`.
  * @evidence contracts/development/testing.md#independent-expectations Shares from the ramp's slope dt / FADE; spans, edges and room from the squares' coordinates, the margin and the share by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases A bearing share that follows measured load fails scenario 1; one that ramps a lifted foot out fails scenario 2; a foot dropped from the support at once fails scenario 3's partial shares; a ray crossing decided by round-off fails scenario 4's edge point either way.
+ * @evidence contracts/development/testing.md#distinguishing-cases A bearing share that follows measured load fails scenario 1; one that ramps a lifted foot out fails scenario 2; a foot dropped from the support at once fails scenario 3's partial shares; a ray crossing decided by round-off fails scenario 4's edge point either way; an entry that follows load alone fails scenario 5's touching unloaded foot, and one that never resets fails its foot out of contact.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_physical_stance_seat(): void {
@@ -47,22 +52,30 @@ export function test_physical_stance_seat(): void {
     load: number,
     grounded: boolean,
     steps: number,
-  ): void => {
+    touching: boolean = grounded,
+  ): boolean => {
+    let entered: boolean = false;
     for (let i: number = 0; i < steps; i++)
-      physicalStanceSeat({
-        seat: foot,
-        spread: 0,
-        load,
-        grounded,
-        seconds: (i + 1) * dt,
-        dt,
-      });
+      entered =
+        physicalStanceSeat({
+          seat: foot,
+          spread: 0,
+          load,
+          grounded,
+          touching,
+          weight,
+          seconds: (i + 1) * dt,
+          dt,
+        }) || entered;
+    return entered;
   };
 
   // 1. Unloaded but grounded feet keep bearing.
   const loads: number[] = [weight / 2, weight / 2, 0, 0];
   const four: physicalStanceSeat.ISeat[] = loads.map(() => seat(1));
-  four.forEach((foot, i: number): void => advance(foot, loads[i]!, true, 48));
+  four.forEach((foot, i: number): void => {
+    advance(foot, loads[i]!, true, 48);
+  });
   if (four.some((foot): boolean => foot.bearing !== 1))
     findings.push(
       `grounded feet bear ${four.map((foot) => foot.bearing).join(", ")}`,
@@ -151,6 +164,23 @@ export function test_physical_stance_seat(): void {
     findings.push(
       `from inside the room is ${room(inside, 1)} and ${room(inside, -1)}`,
     );
+
+  // 5. Entry: a foot that left the holds ramps its share back in.
+  const rear: physicalStanceSeat.ISeat = seat(1);
+  if (advance(rear, 0, true, 48, true) || rear.entry !== 1)
+    findings.push(`a touching unloaded foot has entry ${rear.entry}`);
+  advance(rear, weight, true, 1, false);
+  if (rear.entry !== 1)
+    findings.push(`a loaded foot's lost contact reset its entry to ${rear.entry}`);
+  advance(rear, 0, true, 24, false);
+  if (rear.entry !== 0)
+    findings.push(`a foot out of contact and unloaded has entry ${rear.entry}`);
+  const touched: boolean = advance(rear, 0, true, 1, true);
+  if (!touched) findings.push("a foot touching again is not re-latched");
+  if (advance(rear, 0, true, ramp / 2 - 1, true))
+    findings.push("a foot already back is re-latched again");
+  if (!(Math.abs(rear.entry! - 0.5) < 1e-9))
+    findings.push(`half a ramp after touching again, entry is ${rear.entry}`);
 
   TestValidator.equals("stance seating and support", findings, []);
 }

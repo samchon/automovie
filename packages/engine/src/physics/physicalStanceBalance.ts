@@ -13,6 +13,7 @@ import { convexHull2D } from "../math/convexHull2D";
 import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
+import { physicalLegCapacity } from "./physicalLegCapacity";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
 
 /** A support limb of the balance pattern. */
@@ -31,7 +32,8 @@ type Limb = IAutoMovieFootfallPattern["limbs"][number];
  *   M2V2, Eq. 1). xi_ref is the authored centre of mass over the planted
  *   polygon, clamped into it. The centre of pressure is kept on the support
  *   polygon shrunk by a margin, off the feet's edges (M2V2, footnote 2), and
- *   the support is shared between capture, the torso's moment and the
+ *   where no foot carries more than its leg holds (`physicalLegCapacity`),
+ *   and the support is shared between capture, the torso's moment and the
  *   command's convergence in that order (`allocate`).
  * - Wrench: the pendulum's horizontal force m omega^2 (c - u) through the
  *   allocated pivot u, the weight with a height servo held to a narrow band,
@@ -324,20 +326,56 @@ export namespace physicalStanceBalance {
     // The torso's moment asks the centre of pressure to lie (tau_z, -tau_x) /
     // F_y from the pivot; the support is shared between capture, that moment
     // and convergence in that order (`allocate`), and the moment borne is
-    // what the two points' offset carries. Yaw is left out: the feet turn the
-    // body only by opposing friction, and heading is the stance hips' (Coros,
-    // Beaudoin and van de Panne 2010, Section 3.5).
+    // what the two points' offset carries. Its yaw is borne as asked: the
+    // feet turn the body only by their friction about the vertical, which the
+    // support cascade's torsional rows carry within their levers' cones
+    // (`AutoMovieXpbdSupportRows`; design-4017-qp3, Section 1, rule 2).
     const limbs: readonly Limb[] =
       (body.supportTracking?.pattern ?? body.balance?.pattern)?.limbs ??
       input.stance;
+    // No foot is asked for more of the weight than its leg's joints hold at
+    // its present pose (`physicalLegCapacity`): the command's region is the
+    // support cut to where every foot's share stays within its capacity.
+    const capacity: IAutoMovieVector3[] | undefined = physicalLegCapacity.region(
+      bearing.map(({ limb, points }) => {
+        const middle: IAutoMovieVector3 = Vector3.scale(
+          points.reduce(
+            (sum: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
+              Vector3.add(sum, p),
+            { x: 0, y: 0, z: 0 },
+          ),
+          1 / Math.max(1, points.length),
+        );
+        return {
+          points,
+          share:
+            physicalLegCapacity({
+              profile: body.profile,
+              segments,
+              chain: limb.chain,
+              point: { ...middle, y: floor },
+            }) / lift,
+        };
+      }),
+    );
+    const capped = (
+      outline: readonly IAutoMovieVector3[],
+    ): readonly IAutoMovieVector3[] => {
+      if (!capacity) return outline;
+      const cut: IAutoMovieVector3[] = physicalLegCapacity.intersect(
+        outline,
+        capacity,
+      );
+      return cut.length >= 3 ? cut : outline;
+    };
     const { pressure, pivot, clamped }: ReturnType<typeof allocate> = allocate(
       {
         capture,
         reference,
         command,
         offset: { x: input.torque.z / lift, y: 0, z: -input.torque.x / lift },
-        shrunken: polygon,
-        support: bearable.hull,
+        shrunken: capped(polygon),
+        support: capped(bearable.hull),
         ...(input.intended
           ? {
               hip: (direction: IAutoMovieVector3): number | undefined => {
@@ -374,7 +412,7 @@ export namespace physicalStanceBalance {
     );
     const reaction: IAutoMovieVector3 = {
       x: -(pressure.z - pivot.z) * lift,
-      y: 0,
+      y: input.torque.y,
       z: (pressure.x - pivot.x) * lift,
     };
     const torque: IAutoMovieVector3 = Vector3.add(
@@ -788,22 +826,37 @@ export namespace physicalStanceBalance {
    * a contact, an aborted lift or an early touchdown, so the foot joins the
    * support again and the step is planned again, and the floor's force on it
    * is the root task's once more; a single substep's scuff is not (Stephens
-   * 2011, Figure 4.6; Feng et al. 2015, Section III-A4).
+   * 2011, Figure 4.6; Feng et al. 2015, Section III-A4). Only a foot that has
+   * cleared the floor since its lift-off can touch down: until then its load
+   * is the floor it never left, and accepting it lands a null step where it
+   * stood. And only one coming down: a toe that scrapes the floor while the
+   * foot still rises is a scuff, which neither lands nor restarts the swing
+   * (Stephens 2011, Figure 4.6), as Feng's Atlas, scraping a block halfway
+   * through, touched down much earlier than planned (Feng et al. 2015,
+   * Section III-A4).
    *
-   * @param input The foot's measured load and the weight, newtons; when its
-   *   load began, local seconds, if it is pressing; the present local seconds;
-   *   and the substep, seconds.
-   * @returns When its present load began, absent while it does not press, and
-   *   whether it has touched down.
+   * @param input The foot's measured load and the weight, newtons; whether it
+   *   has cleared the floor since lift-off; whether it is coming down; when
+   *   its load began, local seconds, if it is pressing; the present local
+   *   seconds; and the substep, seconds.
+   * @returns When its present load began, absent while it does not press, has
+   *   not cleared or still rises, and whether it has touched down.
    */
   export function touchdown(input: {
     load: number;
     weight: number;
+    cleared: boolean;
+    descending: boolean;
     since: number | undefined;
     seconds: number;
     dt: number;
   }): { since?: number; landed: boolean } {
-    if (!(input.load > TOUCH * input.weight)) return { landed: false };
+    if (
+      !input.cleared ||
+      !input.descending ||
+      !(input.load > TOUCH * input.weight)
+    )
+      return { landed: false };
     const since: number = input.since ?? input.seconds;
     return { since, landed: input.seconds - since >= input.dt - 1e-9 };
   }
@@ -1036,7 +1089,9 @@ export namespace physicalStanceBalance {
    * 2. Trunk: p is nearest u_law + delta, delta = (M_z, -M_x) / F_y the offset
    *    the trunk's moment asks of it from the pivot, on the shrunken polygon,
    *    or on the support itself once xi_eff has passed the shrunken edge, and
-   *    then u = p - delta.
+   *    then u = p - delta. On held feet a body has little posture freedom, a
+   *    four-support body none, so the trunk's moment is part of holding the
+   *    body and is served before convergence.
    * 3. Convergence: u_law = xi + k (xi - xi_ref) takes what is left, the term
    *    that is trimmed.
    *
@@ -1288,14 +1343,19 @@ export namespace physicalStanceBalance {
   /**
    * Whether the capture point has gone past what the stance holds without a
    * step: past the support by more than the margin and the hip strategy's
-   * reach toward it, and not coming back, the capture point without the
-   * body's spin at or past the support's nearest point along the excess,
-   * since xi_eff' = omega (xi - p) with p at that point (Koolen et al.,
-   * Corollary 3; derived).
+   * reach toward it, and not shrinking (Koolen et al., Corollary 3). Whether
+   * it shrinks is measured, its distance past the support against the
+   * previous step's: a capture point that stalls outside, its pivot held off
+   * the support's edge while the spin decays, is not coming back however the
+   * spin-free part lies. Without a previous distance it is predicted, the
+   * capture point without the body's spin at or past the support's nearest
+   * point along the excess, since xi_eff' = omega (xi - p) with p at that
+   * point (derived).
    *
    * @param input The support, the capture point with spin and the spin's
-   *   shift, world metres; the margin, metres; and the hip strategy's reach
-   *   along an outward direction, metres.
+   *   shift, world metres; the margin, metres; the hip strategy's reach along
+   *   an outward direction, metres; and the capture point's distance past the
+   *   support at the previous controller step, metres, if it was measured.
    * @returns Whether a step is due.
    */
   export function exceeds(input: {
@@ -1304,6 +1364,7 @@ export namespace physicalStanceBalance {
     spin: IAutoMovieVector3;
     margin: number;
     reach: (direction: IAutoMovieVector3) => number;
+    previous?: number;
   }): boolean {
     const edge: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
       input.support,
@@ -1320,6 +1381,7 @@ export namespace physicalStanceBalance {
       z: (input.capture.z - edge.z) / gap,
     };
     if (gap <= input.margin + input.reach(n)) return false;
+    if (input.previous !== undefined) return gap >= input.previous;
     return (
       (input.capture.x - input.spin.x - edge.x) * n.x +
         (input.capture.z - input.spin.z - edge.z) * n.z >=

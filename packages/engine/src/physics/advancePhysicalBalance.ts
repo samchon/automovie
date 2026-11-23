@@ -24,11 +24,12 @@ import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
 import { physicalBalanceBracing } from "./physicalBalanceBracing";
 import { physicalBalanceExhaustion } from "./physicalBalanceExhaustion";
-import { physicalShapeBounds } from "./physicalShapeBounds";
+import { physicalCaptureBand } from "./physicalCaptureBand";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 import { physicalStanceSeat } from "./physicalStanceSeat";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
 import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalSwingReference } from "./physicalSwingReference";
 import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
 
 /**
@@ -119,6 +120,7 @@ export function advancePhysicalBalance(input: {
     // Authored motion now owns this endpoint. A recovery request cannot keep
     // replacing an authored limb action or scheduled swing, nor count its cancellation as a fall.
     resolveSwing("cancelled");
+    delete state.cleared;
     state.swing = undefined;
     state.outsideSince = undefined;
     state.failedLanding = undefined;
@@ -138,7 +140,25 @@ export function advancePhysicalBalance(input: {
   // (Stephens 2011, Figure 4.6); the limb lands where it bears.
   // Before it, a lifted swing foot the floor carries on two successive
   // substeps, an aborted lift or an early touchdown, joins the support again
-  // and the step is planned again (`physicalStanceBalance.touchdown`).
+  // and the step is planned again (`physicalStanceBalance.touchdown`), but
+  // only once it has cleared the floor since its lift-off, no point of it
+  // left within the contact skin: until then its load is the floor it never
+  // left, and a null step would land where it stood (design-4017-verdicts,
+  // C17).
+  if (
+    state.swing &&
+    !state.seating?.[state.swing.bone] &&
+    !physicalSupportFootprint.grounded(
+      input.profile,
+      input.segments,
+      input.policy.pattern.limbs.find(
+        (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
+          limb.bone === state.swing!.bone,
+      )!,
+      input.floor,
+    )
+  )
+    state.cleared = true;
   let early: boolean = false;
   if (
     state.swing &&
@@ -150,6 +170,13 @@ export function advancePhysicalBalance(input: {
       physicalStanceBalance.touchdown({
         load: measuredLoad(state.swing.bone),
         weight: input.profile.mass * input.gravity,
+        cleared: state.cleared === true,
+        // Coming down: the foot's endpoint not rising (Stephens 2011,
+        // Figure 4.6: a scuff while it rises is not a touchdown).
+        descending:
+          input.segments
+            .get(state.swing.bone)!
+            .velocityAtPoint(actual(state.swing.bone)).y <= 0,
         since: state.touchdown,
         seconds: input.seconds,
         dt: input.dt,
@@ -218,10 +245,12 @@ export function advancePhysicalBalance(input: {
         bearing: 0,
         flat: 1,
         load: 0,
+        entry: 0,
         relief: soleSpread(bone),
         anchor: latch(limb),
       };
       resolveSwing("landed");
+      delete state.cleared;
       state.outsideSince = undefined;
       state.swing = undefined;
       state.revision = (state.revision ?? 0) + 1;
@@ -230,6 +259,7 @@ export function advancePhysicalBalance(input: {
       state.swing.end + (input.policy.landingTimeout ?? input.policy.duration)
     ) {
       resolveSwing("failed");
+      delete state.cleared;
       state.failedLanding = true;
       state.swing = undefined;
       state.outsideSince = input.seconds;
@@ -286,6 +316,7 @@ export function advancePhysicalBalance(input: {
           state.swing.end =
             input.seconds + (state.swing.end - state.swing.start);
           state.swing.start = input.seconds;
+          state.cleared = false;
           state.steps.push(structuredClone(state.swing));
           state.revision = (state.revision ?? 0) + 1;
         }
@@ -306,20 +337,33 @@ export function advancePhysicalBalance(input: {
       bearing: first ? 1 : 0,
       flat: first ? 1 : 0,
       load: first ? weight / input.policy.pattern.limbs.length : 0,
+      entry: first ? 1 : 0,
       relief: spread,
       // The foot's world orientation is latched where it actually stands
       // when its stance begins, at the first step or on landing: its
       // planted-foot hold (`physicalStanceJointTarget`).
       anchor: latch(limb),
     });
-    physicalStanceSeat({
-      seat,
-      spread,
-      load: measuredLoad(limb.bone),
-      grounded: grounded.has(limb.bone),
-      seconds: input.seconds,
-      dt: input.dt,
-    });
+    // A foot that touches again after leaving the holds is added with zero
+    // error where it stands, as a landed foot is, its force bound ramping in
+    // (`physicalStanceSeat`; design-4017-qp3, Section 3, rules 2 and 3).
+    if (
+      physicalStanceSeat({
+        seat,
+        spread,
+        load: measuredLoad(limb.bone),
+        grounded: grounded.has(limb.bone),
+        touching:
+          (supports.find(
+            (support: (typeof supports)[number]): boolean =>
+              support.bone === limb.bone,
+          )?.samples.length ?? 0) > 0,
+        weight,
+        seconds: input.seconds,
+        dt: input.dt,
+      })
+    )
+      seat.anchor = latch(limb);
   }
   // Support is what the controller has planted, not what touches this step:
   // every planted limb, a limb asked to step among them until it lifts,
@@ -516,11 +560,12 @@ export function advancePhysicalBalance(input: {
     timing,
   );
   // A step is due once the capture point is past the support itself by more
-  // than the margin and the hip strategy's reach toward it, and not coming
-  // back (`physicalStanceBalance.exceeds`, `hip`, `hipReach`; Koolen et al.,
-  // Corollary 3; Stephens 2011, Table 4.1: ankle, then hip, then step). The
-  // reach is taken with the trunk's angle left, so a trunk that has spent
-  // its range leaves the support's edge alone.
+  // than the margin and the hip strategy's reach toward it, and not shrinking
+  // against the previous step's measured excess (`physicalStanceBalance`
+  // `.exceeds`, `hip`, `hipReach`; Koolen et al., Corollary 3; Stephens 2011,
+  // Table 4.1: ankle, then hip, then step; design-4017-edge, E3). The reach
+  // is taken with the trunk's angle left, so a trunk that has spent its
+  // range leaves the support's edge alone.
   const stance: (typeof input.policy.pattern.limbs)[number][] =
     input.policy.pattern.limbs.filter(
       (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
@@ -551,10 +596,30 @@ export function advancePhysicalBalance(input: {
             })
           : 0;
       },
+      ...(state.excess !== undefined ? { previous: state.excess } : {}),
     });
+  if (Number.isFinite(assessment.outside)) state.excess = assessment.outside;
+  else delete state.excess;
+  // A capture point parked past the shrunken support, neither captured nor
+  // past the support itself, steps once it has not shrunk over 1 / omega
+  // (`physicalCaptureBand`).
+  const band: ReturnType<typeof physicalCaptureBand> = state.swing
+    ? { due: false }
+    : physicalCaptureBand({
+        ...(state.band ? { band: state.band } : {}),
+        excess:
+          assessment.beyond !== undefined && Number.isFinite(assessment.beyond)
+            ? assessment.beyond
+            : 0,
+        margin: input.policy.margin,
+        seconds: input.seconds,
+        omega,
+      });
+  if (band.band) state.band = band.band;
+  else delete state.band;
   const holding: boolean =
     assessment.state === "supported" ||
-    (state.outsideSince === undefined && !tipping && !past);
+    (state.outsideSince === undefined && !tipping && !past && !band.due);
   if (holding && !state.swing) state.failedLanding = undefined;
   state.last = state.failedLanding
     ? "unrecoverable"
@@ -589,9 +654,10 @@ export function advancePhysicalBalance(input: {
   } else if (state.swing && lifted === undefined) {
     // A request is planned again each frame until its limb lifts: its
     // place and time follow the capture point, it moves to another limb
-    // only when that one's step captures and its own does not, and it is
-    // withdrawn once the capture point is back inside (Feng et al. 2015,
-    // Figure 2: lift-off delayed, double support kept).
+    // only when that one's step captures and its own does not and its own
+    // has not begun unloading (`Balance.retarget`), and it is withdrawn once
+    // the capture point is back inside (Feng et al. 2015, Figure 2: lift-off
+    // delayed, double support kept).
     if (assessment.state === "supported") {
       state.swing = undefined;
       state.revision = (state.revision ?? 0) + 1;
@@ -617,15 +683,21 @@ export function advancePhysicalBalance(input: {
               true,
               timing,
             ).step;
-      const chosen: NonNullable<IAutoMoviePhysicalBalance.IResult["step"]> =
-        own === undefined ||
-        (assessment.step.viable === true && own.viable !== true)
-          ? assessment.step
-          : own;
-      if (chosen.bone !== bone) {
-        state.revision = (state.revision ?? 0) + 1;
+      const chosen: IAutoMoviePhysicalBalance.IResult["step"] =
+        Balance.retarget({
+          unloading: (state.seating?.[bone]?.bearing ?? 1) < 1,
+          ...(own ? { own } : {}),
+          best: assessment.step,
+        });
+      if (chosen === undefined) {
+        state.swing.end = input.seconds + (state.swing.end - state.swing.start);
+        state.swing.start = input.seconds;
+      } else {
+        if (chosen.bone !== bone) {
+          state.revision = (state.revision ?? 0) + 1;
+        }
+        request(chosen);
       }
-      request(chosen);
     }
   }
   if (state.swing && lifted === undefined)
@@ -881,39 +953,28 @@ export function advancePhysicalBalance(input: {
 
   /**
    * How much further a limb's lowest contact point hangs below its endpoint
-   * now than at its planted pose, metres, never negative: what a pitched
-   * foot's toe or heel takes from the swing's clearance.
+   * at its planned swing attitude than at its planted pose, metres: its
+   * carriers at their authored attitude, the level foot the swing holds,
+   * carried with the endpoint to where it stands (`physicalSwingReference`
+   * `.hang`).
    */
   function hang(limb: (typeof input.policy.pattern.limbs)[number]): number {
-    const below = (
-      pose: (bone: string) => IAutoMovieRigidTransform | undefined,
-      endpoint: IAutoMovieVector3,
-    ): number => {
-      let lowest: number = Infinity;
-      for (const carrier of limb.contacts ?? [limb.bone]) {
-        const segment: IAutoMoviePhysicalSegment | undefined =
-          input.profile.segments.find(
-            (candidate: IAutoMoviePhysicalSegment): boolean =>
-              candidate.bone === carrier,
-          );
-        const at: IAutoMovieRigidTransform | undefined = pose(carrier);
-        if (!segment || !at) continue;
-        for (const shape of physicalSupportFootprint.colliders(segment))
-          lowest = Math.min(lowest, physicalShapeBounds.lowest(at, shape));
-      }
-      return Number.isFinite(lowest) ? endpoint.y - lowest : 0;
-    };
-    const now: number = below((bone: string) => {
-      const rigid: AutoMovieXpbdBody | undefined = input.segments.get(bone);
-      return rigid
-        ? { position: rigid.translation(), rotation: rigid.rotation() }
-        : undefined;
-    }, actual(limb.bone));
-    const planted: number = below(
-      (bone: string) => input.targets[bone],
-      authored(limb.bone),
-    );
-    return Math.max(0, now - planted);
+    const at: IAutoMovieVector3 = actual(limb.bone);
+    const shift: IAutoMovieVector3 = Vector3.subtract(at, authored(limb.bone));
+    return physicalSwingReference.hang({
+      profile: input.profile,
+      carriers: limb.contacts ?? [limb.bone],
+      planned: (bone: string): IAutoMovieRigidTransform | undefined => {
+        const goal: IAutoMovieRigidTransform | undefined = input.targets[bone];
+        return goal
+          ? { position: Vector3.add(goal.position, shift), rotation: goal.rotation }
+          : undefined;
+      },
+      endpoint: at,
+      planted: (bone: string): IAutoMovieRigidTransform | undefined =>
+        input.targets[bone],
+      rest: authored(limb.bone),
+    });
   }
 
   /** A limb's swinging mass: its chain and contact carriers, kilograms. */
