@@ -3,12 +3,14 @@ import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
 /**
  * The Chromium switches and executable for a capture backend.
  *
- * | Backend | Switches | Named |
- * | --- | --- | --- |
- * | `software` | `--use-gl=angle --use-angle=swiftshader` | `swiftshader` |
- * | `gpu` | `--use-gl=angle --use-angle=default --ignore-gpu-blocklist` | `gpu` |
+ * | Backend    | Switches                                                    | Named         |
+ * | ---------- | ----------------------------------------------------------- | ------------- |
+ * | `software` | `--use-gl=angle --use-angle=swiftshader`                    | `swiftshader` |
+ * | `gpu`      | `--use-gl=angle --use-angle=default --ignore-gpu-blocklist` | `gpu`         |
  *
- * The executable is `CHROME_PATH` when the environment sets it to a non-blank path, else the Chromium build Playwright pins, which `executablePath` leaves absent.
+ * The executable is `CHROME_PATH` when the environment sets it to a non-blank
+ * path, else the Chromium build Playwright pins, which `executablePath` leaves
+ * absent.
  */
 export function planAutoMovieChromiumLaunch(
   backend: AutoMovieCaptureBackend,

@@ -7,9 +7,17 @@ import { readAutoMovieReviewOptions } from "./readAutoMovieReviewOptions";
 import { recordAutoMoviePlayback } from "./recordAutoMoviePlayback";
 
 /**
- * Run `automovie review` in a production: record real-time playback of its running inspector page for a person to watch, and resolve to the exit status.
+ * Run `automovie review` in a production: record real-time playback of its
+ * running inspector page for a person to watch, and resolve to the exit
+ * status.
  *
- * Options are read by `readAutoMovieCaptureArguments` and admitted by `readAutoMovieReviewOptions`. The recording is `recordAutoMoviePlayback` with the production's `playwright-core`; it and `playback.json`, holding the time readings and the page's script errors, go into `--out` or `media/automovie/review`. It prints the video and the number of errors, and resolves to 1 when the page reported a script error, since a playback that errors is not one to watch, and 0 otherwise.
+ * Options are read by `readAutoMovieCaptureArguments` and admitted by
+ * `readAutoMovieReviewOptions`. The recording is `recordAutoMoviePlayback` with
+ * the production's `playwright-core`; it and `playback.json`, holding the time
+ * readings and the page's script errors, go into `--out` or
+ * `media/automovie/review`. It prints the video and the number of errors, and
+ * resolves to 1 when the page reported a script error, since a playback that
+ * errors is not one to watch, and 0 otherwise.
  */
 export async function reviewAutoMovie(props: {
   /** The tokens after `review`. */

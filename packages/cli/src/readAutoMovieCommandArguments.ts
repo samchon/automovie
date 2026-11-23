@@ -5,7 +5,13 @@ import { readAutoMovieCreateArguments } from "./readAutoMovieCreateArguments";
 /**
  * Resolve one complete CLI request before any scaffold publication begins.
  *
- * `args` excludes the node executable and script positions. No arguments, or a lone `-h`/`--help`, means help; a lone `-v`/`--version` means version. `create` and `add` delegate their grammars to {@link readAutoMovieCreateArguments} and {@link readAutoMovieAddArguments}; `capture`, `inspect`, `render` and `review` keep their tokens for the production's option reader, which `run` loads. Every refusal throws an `Error` whose message names the correction.
+ * `args` excludes the node executable and script positions. No arguments, or a
+ * lone `-h`/`--help`, means help; a lone `-v`/`--version` means version.
+ * `create` and `add` delegate their grammars to
+ * {@link readAutoMovieCreateArguments} and {@link readAutoMovieAddArguments};
+ * `capture`, `inspect`, `render` and `review` keep their tokens for the
+ * production's option reader, which `run` loads. Every refusal throws an
+ * `Error` whose message names the correction.
  *
  * @param args The command-line tokens after the executable and script.
  * @returns The admitted request.

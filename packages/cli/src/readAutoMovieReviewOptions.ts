@@ -1,18 +1,23 @@
 import { AUTOMOVIE_REVIEW_OPTIONS } from "./AUTOMOVIE_REVIEW_OPTIONS";
 
-/** Longest observation in seconds: one day, beyond any film's playback a person reviews. */
+/**
+ * Longest observation in seconds: one day, beyond any film's playback a person
+ * reviews.
+ */
 const LONGEST: number = 86_400;
 
 /**
  * Read the options of `automovie review`, `AUTOMOVIE_REVIEW_OPTIONS`.
  *
- * | Option | Meaning | Absent |
- * | --- | --- | --- |
- * | `--url <address>` | The running inspector page, with the request it opens on | Required |
- * | `--seconds <s>` | Wall-clock seconds of playback recorded, positive, at most a day | Required |
- * | `--out <folder>` | Where the recording and `playback.json` go | `media/automovie/review` |
+ * | Option            | Meaning                                                          | Absent                   |
+ * | ----------------- | ---------------------------------------------------------------- | ------------------------ |
+ * | `--url <address>` | The running inspector page, with the request it opens on         | Required                 |
+ * | `--seconds <s>`   | Wall-clock seconds of playback recorded, positive, at most a day | Required                 |
+ * | `--out <folder>`  | Where the recording and `playback.json` go                       | `media/automovie/review` |
  *
- * It throws naming the option for an option outside the list, an empty value, a missing `--url` or `--seconds`, an address that is not HTTP on this machine, and seconds out of range.
+ * It throws naming the option for an option outside the list, an empty value, a
+ * missing `--url` or `--seconds`, an address that is not HTTP on this machine,
+ * and seconds out of range.
  */
 export function readAutoMovieReviewOptions(
   values: ReadonlyMap<string, string>,

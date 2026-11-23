@@ -14,7 +14,8 @@ import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
  * @param path The encoded artifact to decode without modification.
  * @param streamIndex The primary audio stream observed in the input listing.
  * @param thresholds The audio silence threshold and minimum duration.
- * @param run The established FFmpeg process owner with separate output consumers.
+ * @param run The established FFmpeg process owner with separate output
+ *   consumers.
  * @returns Audio evidence or a reason decoded content is uncovered.
  */
 export async function runAutoMovieDeliveryAudioDecode(

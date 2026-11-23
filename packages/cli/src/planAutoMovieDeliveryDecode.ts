@@ -9,13 +9,14 @@ import { planAutoMovieDeliveryInput } from "./planAutoMovieDeliveryInput";
  * qualify after the last frame's duration is included. The audit decides the
  * final minimum duration and removes detector intervals containing one frame.
  *
- * The same plan measures the encoder's own image-sequence input when given
- * the input options the encoder used, such as its `-framerate`.
+ * The same plan measures the encoder's own image-sequence input when given the
+ * input options the encoder used, such as its `-framerate`.
  *
  * @param path The delivery file, or the encoder's input pattern, to decode.
  * @param frameRate The commissioned rational delivery frame rate.
  * @param thresholds The delivery audit's detector settings.
- * @param inputOptions Demuxer options placed before the input, empty for a delivery file.
+ * @param inputOptions Demuxer options placed before the input, empty for a
+ *   delivery file.
  * @returns Arguments for a shell-free invocation with evidence on stderr.
  */
 export function planAutoMovieDeliveryDecode(

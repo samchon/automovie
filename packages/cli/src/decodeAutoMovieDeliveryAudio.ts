@@ -13,11 +13,14 @@ const MAXIMUM_PENDING_PCM = 1024 * 1024;
  * silence scan.
  *
  * @param binary The FFmpeg executable already resolved by the delivery host.
- * @param args Decode arguments whose PCM and frame log describe the same samples.
+ * @param args Decode arguments whose PCM and frame log describe the same
+ *   samples.
  * @param streamIndex The stream index reported with the evidence.
  * @param thresholds The audio silence threshold and minimum duration.
- * @param run The established FFmpeg process owner with separate output consumers.
- * @param presented The container's presented span, or undefined when every decoded sample is presented.
+ * @param run The established FFmpeg process owner with separate output
+ *   consumers.
+ * @param presented The container's presented span, or undefined when every
+ *   decoded sample is presented.
  * @returns Audio evidence or a reason decoded content is uncovered.
  */
 export async function decodeAutoMovieDeliveryAudio(

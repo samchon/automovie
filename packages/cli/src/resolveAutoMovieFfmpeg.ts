@@ -1,7 +1,11 @@
 /**
- * Find the FFmpeg executable a capture of a video file runs: `FFMPEG_PATH` when the environment sets it to a non-blank path, else the binary of the production's `ffmpeg-static`.
+ * Find the FFmpeg executable a capture of a video file runs: `FFMPEG_PATH` when
+ * the environment sets it to a non-blank path, else the binary of the
+ * production's `ffmpeg-static`.
  *
- * It throws naming both `FFMPEG_PATH` and `ffmpeg-static` when neither gives a path, so a capture that plans a video says how to supply one before it touches its folder.
+ * It throws naming both `FFMPEG_PATH` and `ffmpeg-static` when neither gives a
+ * path, so a capture that plans a video says how to supply one before it
+ * touches its folder.
  */
 export function resolveAutoMovieFfmpeg(props: {
   /** The environment, read for `FFMPEG_PATH`. */

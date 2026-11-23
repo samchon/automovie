@@ -4,15 +4,19 @@ import { AUTOMOVIE_INSPECT_OPTIONS } from "./AUTOMOVIE_INSPECT_OPTIONS";
 const PORTS: number = 65_535;
 
 /**
- * Split the options of `automovie inspect` into the command's own, `AUTOMOVIE_INSPECT_OPTIONS`, and the request the page opens on, which `parseAutoMovieCapturePlanRequest` reads.
+ * Split the options of `automovie inspect` into the command's own,
+ * `AUTOMOVIE_INSPECT_OPTIONS`, and the request the page opens on, which
+ * `parseAutoMovieCapturePlanRequest` reads.
  *
- * | Option | Meaning | Absent |
- * | --- | --- | --- |
- * | `--module <file>` | The subject module whose `subjects` the inspector page offers | Required |
- * | `--port <n>` | The port the page is served on, 1 to 65535 | A free port |
- * | `--props <file>` | A JSON file whose value the module's `subjects` is called with, for a module whose subjects are built from data a host computes, such as a motion case | `null` |
+ * | Option            | Meaning                                                                                                                                                | Absent      |
+ * | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
+ * | `--module <file>` | The subject module whose `subjects` the inspector page offers                                                                                          | Required    |
+ * | `--port <n>`      | The port the page is served on, 1 to 65535                                                                                                             | A free port |
+ * | `--props <file>`  | A JSON file whose value the module's `subjects` is called with, for a module whose subjects are built from data a host computes, such as a motion case | `null`      |
  *
- * Every other option is left for the request reader, which refuses one it does not know. It throws for a missing `--module`, an empty value of any of its options, and a port that is not a whole number from 1 to 65535.
+ * Every other option is left for the request reader, which refuses one it does
+ * not know. It throws for a missing `--module`, an empty value of any of its
+ * options, and a port that is not a whole number from 1 to 65535.
  */
 export function readAutoMovieInspectHostOptions(
   values: ReadonlyMap<string, string>,
@@ -23,7 +27,10 @@ export function readAutoMovieInspectHostOptions(
   /** The port to serve on, or null for a free one. */
   port: number | null;
 
-  /** Path of the props JSON file, relative to the production or absolute, or null for none. */
+  /**
+   * Path of the props JSON file, relative to the production or absolute, or
+   * null for none.
+   */
   props: string | null;
 
   /** The request's own options, for the request reader. */

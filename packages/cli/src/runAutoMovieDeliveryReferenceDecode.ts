@@ -14,17 +14,18 @@ type Stream = IAutoMovieDeliveryContentAudit.Stream;
  * encoder pads and cuts it. The audit attributes a delivered black, frozen or
  * silent interval to the drawn source when this reference shows it too.
  *
- * Both inputs are read from the encoder's own argument vector, so the
- * reference is exactly what produced the delivery: the first `-i` with the
- * `-framerate` before it is the picture, a second `-i` is the soundtrack, and
- * the last `-t` is the cut. Call it while the drawn frames still exist.
+ * Both inputs are read from the encoder's own argument vector, so the reference
+ * is exactly what produced the delivery: the first `-i` with the `-framerate`
+ * before it is the picture, a second `-i` is the soundtrack, and the last `-t`
+ * is the cut. Call it while the drawn frames still exist.
  *
  * @param binary The FFmpeg executable already resolved by the delivery host.
  * @param encoder The argument vector the delivery encode ran with.
  * @param expected The commissioned frame count and rational frame rate.
  * @param thresholds The effective detector settings of the delivery audit.
  * @param run The established FFmpeg process owner.
- * @returns Reference evidence per medium: decoded, missing when the encoder had no soundtrack, or uncovered with its reason.
+ * @returns Reference evidence per medium: decoded, missing when the encoder had
+ *   no soundtrack, or uncovered with its reason.
  */
 export async function runAutoMovieDeliveryReferenceDecode(
   binary: string,
@@ -79,7 +80,10 @@ export async function runAutoMovieDeliveryReferenceDecode(
   return { video, audio };
 }
 
-/** Reads the picture input, its frame rate, an optional soundtrack and the cut from an encoder vector. */
+/**
+ * Reads the picture input, its frame rate, an optional soundtrack and the cut
+ * from an encoder vector.
+ */
 function readEncoderInputs(encoder: readonly string[]): {
   picture: string;
   frameRate: string;

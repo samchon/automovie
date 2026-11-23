@@ -17,11 +17,24 @@ import { resolveAutoMovieFfmpeg } from "./resolveAutoMovieFfmpeg";
 import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
 
 /**
- * Run `automovie capture` in a production: read the options through the request grammar, capture a subject drawn by the draw page or a video file's own frames, print what was written, and resolve to the exit status.
+ * Run `automovie capture` in a production: read the options through the request
+ * grammar, capture a subject drawn by the draw page or a video file's own
+ * frames, print what was written, and resolve to the exit status.
  *
- * Options are read by `readAutoMovieCaptureArguments` and split by `readAutoMovieCaptureHostOptions`; the rest is the request `parseAutoMovieCapturePlanRequest` reads, so the command takes exactly the keys of a page's address. With `--module` the subject is drawn through `AutoMovieCaptureHost`, its module called with the JSON of `--props` when given; with `--file` the file is probed by FFmpeg and captured by `runAutoMovieVideoCapture`, its subject named by `subject` or the file's name. Both write into `--out`, or `media/capture/<subject>`.
+ * Options are read by `readAutoMovieCaptureArguments` and split by
+ * `readAutoMovieCaptureHostOptions`; the rest is the request
+ * `parseAutoMovieCapturePlanRequest` reads, so the command takes exactly the
+ * keys of a page's address. With `--module` the subject is drawn through
+ * `AutoMovieCaptureHost`, its module called with the JSON of `--props` when
+ * given; with `--file` the file is probed by FFmpeg and captured by
+ * `runAutoMovieVideoCapture`, its subject named by `subject` or the file's
+ * name. Both write into `--out`, or `media/capture/<subject>`.
  *
- * It prints the folder and how many cells were drawn, the backend, every sheet, every cell not drawn with its cause, and each unmatched or changed comparison entry. The status is 1 when any cell was not drawn, because an undrawn cell is unverified evidence, and 0 otherwise; a refusal throws to `run`, which prints it.
+ * It prints the folder and how many cells were drawn, the backend, every sheet,
+ * every cell not drawn with its cause, and each unmatched or changed comparison
+ * entry. The status is 1 when any cell was not drawn, because an undrawn cell
+ * is unverified evidence, and 0 otherwise; a refusal throws to `run`, which
+ * prints it.
  */
 export async function captureAutoMovie(props: {
   /** The tokens after `capture`. */

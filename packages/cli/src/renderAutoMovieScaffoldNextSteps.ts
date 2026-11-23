@@ -1,7 +1,15 @@
 /**
- * Explain the work between a freshly written installation and a runnable production.
+ * Explain the work between a freshly written installation and a runnable
+ * production.
  *
- * `directory` is printed as given (`run` passes the absolute target). The text starts with a blank line because `run` appends it to the written-file list. A `production` is a single production in its own pnpm repository; a `workspace` is a pnpm workspace root that still needs its first production; a `workspace-production` is a production added to such a root. The steps name the generated `README.md`, `AGENTS.md`, the `lint` and `evidence` scripts and the workspace's `add` command, so they must change with the scaffold's first-run README sections.
+ * `directory` is printed as given (`run` passes the absolute target). The text
+ * starts with a blank line because `run` appends it to the written-file list. A
+ * `production` is a single production in its own pnpm repository; a `workspace`
+ * is a pnpm workspace root that still needs its first production; a
+ * `workspace-production` is a production added to such a root. The steps name
+ * the generated `README.md`, `AGENTS.md`, the `lint` and `evidence` scripts and
+ * the workspace's `add` command, so they must change with the scaffold's
+ * first-run README sections.
  *
  * @param directory The installed directory.
  * @param kind Which installation was written.

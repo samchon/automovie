@@ -8,15 +8,17 @@ interface ISampleRange {
 
 /**
  * Measures silence at exact sample frame boundaries in f32le PCM. Every channel
- * must be within the amplitude limit. Separate pipe chunks can split a float
- * or an interleaved sample frame. Sample frames from the presented count on
- * are counted for coverage but not measured, and an interval still open there
- * ends with the stream.
+ * must be within the amplitude limit. Separate pipe chunks can split a float or
+ * an interleaved sample frame. Sample frames from the presented count on are
+ * counted for coverage but not measured, and an interval still open there ends
+ * with the stream.
  *
  * @param format Decoded sample rate and interleaved channel count.
  * @param settings Maximum normalized amplitude and minimum qualifying duration.
- * @param presented Sample frames the container presents, after which decoded samples are padding.
- * @returns A byte stream consumer and its complete sample and interval evidence.
+ * @param presented Sample frames the container presents, after which decoded
+ *   samples are padding.
+ * @returns A byte stream consumer and its complete sample and interval
+ *   evidence.
  */
 export function createAutoMovieDeliveryAudioScan(
   format: { sampleRate: number; channels: number },

@@ -1,11 +1,14 @@
 import type { IAutoMovieDrawPage } from "@automovie/render";
 
 /**
- * The part of `playwright-core`'s `chromium` the capture host calls, declared structurally so the command loads the production's own Playwright at run time and a test passes a double.
+ * The part of `playwright-core`'s `chromium` the capture host calls, declared
+ * structurally so the command loads the production's own Playwright at run time
+ * and a test passes a double.
  */
 export interface IAutoMovieChromium {
   /**
-   * Start a headless browser with the given switches, from `executablePath` when given.
+   * Start a headless browser with the given switches, from `executablePath`
+   * when given.
    */
   launch(options: {
     headless: true;
@@ -14,21 +17,18 @@ export interface IAutoMovieChromium {
   }): Promise<IAutoMovieChromium.IBrowser>;
 }
 export namespace IAutoMovieChromium {
-  /**
-   * A launched browser: its version, its pages, and its end.
-   */
+  /** A launched browser: its version, its pages, and its end. */
   export interface IBrowser {
-    /**
-     * The browser's version, such as `131.0.6778.33`.
-     */
+    /** The browser's version, such as `131.0.6778.33`. */
     version(): string;
 
-    /**
-     * Open a fresh page.
-     */
+    /** Open a fresh page. */
     newPage(): Promise<
       IAutoMovieDrawPage & {
-        /** Optional browser diagnostics; portable draw-only drivers need not emit browser events. */
+        /**
+         * Optional browser diagnostics; portable draw-only drivers need not
+         * emit browser events.
+         */
         on?: {
           (event: "pageerror", listener: (error: Error) => void): unknown;
           (
@@ -39,9 +39,7 @@ export namespace IAutoMovieChromium {
       }
     >;
 
-    /**
-     * End the browser and every page it holds.
-     */
+    /** End the browser and every page it holds. */
     close(): Promise<void>;
   }
 }

@@ -29,7 +29,10 @@ interface IDeliveryHost {
   >;
 }
 
-/** Scene and encoded evidence from a single release attempt on the output directory. */
+/**
+ * Scene and encoded evidence from a single release attempt on the output
+ * directory.
+ */
 interface IDeliveryReport {
   subject: string;
   revision: ReturnType<typeof readAutoMovieRevision>;
@@ -56,7 +59,10 @@ const SPEC: Parameters<typeof Render.renderAutoMovieDrawnVideo>[0]["spec"] = {
   crf: 18,
 };
 
-/** Defaults measure long enough intervals to distinguish them from a transient frame or sample. */
+/**
+ * Defaults measure long enough intervals to distinguish them from a transient
+ * frame or sample.
+ */
 const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
   black: {
     minimumDuration: { ticks: 1, timeBase: [1, 5] },
@@ -76,10 +82,10 @@ const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
 /**
  * Renders one subject and publishes an approved film beside its shared report.
  * Every measurable audit runs on the drawn frames or the exact staged encoded
- * bytes. A blocked attempt replaces the report and preserves the former film.
- * A failed encode still reports the frames and scene inspection already drawn.
- * If the approved film or its report cannot be installed, the former film is
- * put back, so the film and report on disk always come from the same attempt.
+ * bytes. A blocked attempt replaces the report and preserves the former film. A
+ * failed encode still reports the frames and scene inspection already drawn. If
+ * the approved film or its report cannot be installed, the former film is put
+ * back, so the film and report on disk always come from the same attempt.
  */
 export async function renderAutoMovieVideo(
   props: {
@@ -370,7 +376,10 @@ async function removeEmptyReservation(reservation: string): Promise<void> {
   });
 }
 
-/** Selects the first usable cursor in each audit while retaining complete details in the report. */
+/**
+ * Selects the first usable cursor in each audit while retaining complete
+ * details in the report.
+ */
 function releaseFindings(
   diagnostics: IDeliveryReport["diagnostics"],
   delivery: DeliveryAudit,
@@ -429,7 +438,10 @@ function releaseFindings(
   return details;
 }
 
-/** Formats the available output frame and film seconds without inventing an audio frame. */
+/**
+ * Formats the available output frame and film seconds without inventing an
+ * audio frame.
+ */
 function cursor(seconds: number, frame?: number): string {
   return (
     (frame === undefined ? "" : " at frame " + frame) + " (" + seconds + " s)"

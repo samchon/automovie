@@ -1,7 +1,9 @@
 /**
- * Admit the value following `--name`: present, non-blank and not itself an option.
+ * Admit the value following `--name`: present, non-blank and not itself an
+ * option.
  *
- * The value is returned as typed; the template's name rule trims and admits it at render time.
+ * The value is returned as typed; the template's name rule trims and admits it
+ * at render time.
  *
  * @param value The token after `--name`, absent at the end of the arguments.
  * @returns The value.

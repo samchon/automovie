@@ -11,16 +11,18 @@ const MAXIMUM_MOVIE_BOX = 64 * 1024 * 1024;
  *
  * An AAC decoder returns whole 1024-sample frames, so the final decoded frame
  * can run past the soundtrack. The container records where presentation ends:
- * the sample table gives the exact media end, with a shortened last sample,
- * and the edit list gives the encoder priming skipped at the start. The edit's
+ * the sample table gives the exact media end, with a shortened last sample, and
+ * the edit list gives the encoder priming skipped at the start. The edit's
  * duration is stored in the coarser movie clock, so an edit ending within one
  * movie tick of the media end is that end rounded (2133.33 ms is written as
  * 2133 ms). Only an edit ending a whole movie tick or more earlier trims the
  * track. The presented duration is that end less the skipped priming.
  *
  * @param path The delivery file whose bytes are audited.
- * @param streamIndex FFmpeg's input stream index, which counts the file's tracks in order.
- * @returns The presented duration in the track's media clock, or why it is unknown.
+ * @param streamIndex FFmpeg's input stream index, which counts the file's
+ *   tracks in order.
+ * @returns The presented duration in the track's media clock, or why it is
+ *   unknown.
  */
 export async function readAutoMovieDeliveryAudioTrack(
   path: string,

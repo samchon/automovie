@@ -10,9 +10,19 @@ import { renderAutoMovieVideo } from "./renderAutoMovieVideo";
 import { resolveAutoMovieFfmpeg } from "./resolveAutoMovieFfmpeg";
 
 /**
- * Run `automovie render` in a production: draw one subject of a module's draw page frame by frame in headless Chromium and encode it into one video, resolving to the exit status.
+ * Run `automovie render` in a production: draw one subject of a module's draw
+ * page frame by frame in headless Chromium and encode it into one video,
+ * resolving to the exit status.
  *
- * Options are read by `readAutoMovieCaptureArguments` and split by `readAutoMovieRenderOptions`; the rest is the request, of which a render takes only `subject`, read by `parseAutoMovieCapturePlanRequest` as `capture` reads it, and any other key is refused. A `--props` file is read as JSON before anything starts. FFmpeg is resolved before the page is built, so a missing encoder costs no drawing. The work is `renderAutoMovieVideo` through one `AutoMovieCaptureHost`, closed on every outcome. It prints the video, the report and the frame count, and resolves to 0; a refusal throws to `run`, which prints it.
+ * Options are read by `readAutoMovieCaptureArguments` and split by
+ * `readAutoMovieRenderOptions`; the rest is the request, of which a render
+ * takes only `subject`, read by `parseAutoMovieCapturePlanRequest` as `capture`
+ * reads it, and any other key is refused. A `--props` file is read as JSON
+ * before anything starts. FFmpeg is resolved before the page is built, so a
+ * missing encoder costs no drawing. The work is `renderAutoMovieVideo` through
+ * one `AutoMovieCaptureHost`, closed on every outcome. It prints the video, the
+ * report and the frame count, and resolves to 0; a refusal throws to `run`,
+ * which prints it.
  */
 export async function renderAutoMovie(props: {
   /** The tokens after `render`. */
