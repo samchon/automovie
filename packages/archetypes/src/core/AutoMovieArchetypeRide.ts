@@ -17,16 +17,6 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
 
 /**
- * How many of a ride's latest distinct seconds keep their sample
- * (`AutoMovieArchetypeRide.along`): a reader of a carried body asks the support
- * at its own second and at the few seconds around it a stride average or a rate
- * reads, across the display's stages. A sample is a pure function of its
- * second, so this bounds memory only; a sample dropped is posed again, the
- * same.
- */
-const KEPT: number = 32;
-
-/**
  * A moving support in time: an archetype following a course, with whatever of
  * it moves as it goes.
  *
@@ -190,25 +180,6 @@ export namespace AutoMovieArchetypeRide {
       };
       return { ...sample, course: state };
     }
-    // A reader asks a ride for several of its parts at one second (a rider's
-    // seat, stirrups and reins), and every part is a frame of one pose of the
-    // support. The pose is a pure function of its second, so the latest
-    // seconds' samples are kept and each part is composed from its second's
-    // sample: the support is posed once per instant asked, however many parts
-    // are read there.
-    const kept: Map<number, ISample<Id, D>> = new Map();
-    const sampled = (seconds: number): ISample<Id, D> => {
-      const found: ISample<Id, D> | undefined = kept.get(seconds);
-      if (found !== undefined) {
-        kept.delete(seconds);
-        kept.set(seconds, found);
-        return found;
-      }
-      const sample: ISample<Id, D> = at(seconds);
-      kept.set(seconds, sample);
-      if (kept.size > KEPT) kept.delete(kept.keys().next().value!);
-      return sample;
-    };
     const ride: IRide<Id, D> = {
       plan,
       duration: plan.duration,
@@ -216,10 +187,9 @@ export namespace AutoMovieArchetypeRide {
         (p: { seconds: number }, q: { seconds: number }): number =>
           p.seconds - q.seconds,
       ),
-      // Each caller owns its record; the pose inside it is its second's one.
-      at: (seconds: number): ISample<Id, D> => ({ ...sampled(seconds) }),
+      at,
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
-        const sample: ISample<Id, D> = sampled(seconds);
+        const sample: ISample<Id, D> = at(seconds);
         return AutoMovieArchetypeFrame.compose(
           sample.placement,
           sample.archetype.affordance(id).frame,

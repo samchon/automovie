@@ -258,11 +258,11 @@ States each input's role and the default.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The plan gives the course state in closed form and the pose function maps it to the support's own state, so each sample is independent of every other and the same at its second whenever it is read.
+The plan gives the course state in closed form and the pose function maps it to the support's own state, so each sample is independent of every other.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Plan the course unless a plan was handed in, merge the instants, return two samplers over one kept sample per second.
+Plan the course unless a plan was handed in, merge the instants, return two samplers.
 
 ## @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -270,15 +270,15 @@ Nothing beyond the owners it calls.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One course sample and one pose per distinct second asked; every part and placement read at that second is composed from it.
+One course sample and one pose per call.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The plan is shared by every sample, and a ride that planned the course for its own instants hands that plan in. A sample is a pure function of its second, so the latest seconds' samples are kept and shared by the parts and placements read there: a carried rider's read asks the seat, the stirrups and the reins at one second, and the support is posed once for them all.
+The plan is shared by every sample, and a ride that planned the course for its own instants hands that plan in; samples are not cached, so every caller owns its record and every read observes its course and poser.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The ride holds the rest archetype, the plan and the samples of its latest `KEPT` seconds for as long as its caller keeps it; an older second's sample is dropped as a newer one is kept.
+The ride holds the rest archetype and the plan for as long as its caller keeps it.
 
 # src/core/AutoMovieArchetypeRide.ts#AutoMovieArchetypeRide.towed
 
