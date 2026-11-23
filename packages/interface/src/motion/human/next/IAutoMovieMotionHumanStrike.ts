@@ -72,8 +72,6 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
    * A close strike: the point of the elbow, the back of a spinning fist or the
    * forehead brought onto a target inside the punch's range.
    *
-   * Action: `act("closeStrike", params)`; not a chain method.
-   *
    * @param params The `technique`, `at`, `arm` and `feint` of
    *   `IAutoMovieMotionHumanCloseStrike.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
@@ -88,8 +86,6 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
    * A foot strike beyond the round and push kicks: the heel, the sole or the
    * blade of the foot brought onto the target through a chamber and recoiled to
    * the stance.
-   *
-   * Action: `act("footStrike", params)`; not a chain method.
    *
    * @param params The `technique`, `at`, `leg`, `spin` and `jump` of
    *   `IAutoMovieMotionHumanFootStrike.IParams`.

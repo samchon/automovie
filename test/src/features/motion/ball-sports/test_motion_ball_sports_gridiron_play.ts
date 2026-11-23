@@ -137,7 +137,6 @@ export function test_motion_ball_sports_gridiron_play(): void {
       laws: [
         AutoMovieMotionHumanThrowCatch.HumanSportThrow.gridironSnap,
         AutoMovieMotionHumanThrowCatch.HumanSportThrow.gridironPass,
-        AutoMovieMotionHumanThrowCatch.stageCatch,
       ],
       performers,
       props: [

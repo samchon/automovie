@@ -1,10 +1,13 @@
 import type { IAutoMovieMotionHumanBrace } from "../everyday/IAutoMovieMotionHumanBrace";
 import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
 import type { IAutoMovieMotionHumanFlinch } from "../reaction/IAutoMovieMotionHumanFlinch";
+import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanKnockdown } from "../reaction/IAutoMovieMotionHumanKnockdown";
 import type { IAutoMovieMotionHumanPerturb } from "../reaction/IAutoMovieMotionHumanPerturb";
 import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
+import type { IAutoMovieMotionHumanCloseStrike } from "../striking/IAutoMovieMotionHumanCloseStrike";
 import type { IAutoMovieMotionHumanDefend } from "../striking/IAutoMovieMotionHumanDefend";
+import type { IAutoMovieMotionHumanFootStrike } from "../striking/IAutoMovieMotionHumanFootStrike";
 import type { IAutoMovieMotionHumanGuard } from "../striking/IAutoMovieMotionHumanGuard";
 import type { IAutoMovieMotionHumanKick } from "../striking/IAutoMovieMotionHumanKick";
 import type { IAutoMovieMotionHumanKnee } from "../striking/IAutoMovieMotionHumanKnee";
@@ -65,6 +68,32 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
   knee(params: IAutoMovieMotionHumanKnee.IParams, anchor?: string): this;
 
   /**
+   * Bring the point of the elbow, the back of a spinning fist or the forehead
+   * onto a target inside the punch's range.
+   *
+   * @param params The technique, the target, the arm and the feint.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  closeStrike(
+    params: IAutoMovieMotionHumanCloseStrike.IParams,
+    anchor?: string,
+  ): this;
+
+  /**
+   * Bring the heel, the sole or the blade of the foot onto a target through a
+   * chamber, beyond the round and push kicks, and recoil to the stance.
+   *
+   * @param params The technique, the target, the leg, the spin and the jump.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  footStrike(
+    params: IAutoMovieMotionHumanFootStrike.IParams,
+    anchor?: string,
+  ): this;
+
+  /**
    * Take and hold a clinch grip on a partner: the neck tie, or collar and
    * sleeve.
    *
@@ -100,6 +129,16 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @returns The chain.
    */
   flinch(params?: IAutoMovieMotionHumanFlinch.IParams, anchor?: string): this;
+
+  /**
+   * Give way to a contact: the head turned aside by a slap, or the trunk
+   * carried by a hand that pushes or pulls, then a return.
+   *
+   * @param params The contact's target, part, way and intensity.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  give(params?: IAutoMovieMotionHumanGive.IParams, anchor?: string): this;
 
   /**
    * Take one unplanned capture step after a push.

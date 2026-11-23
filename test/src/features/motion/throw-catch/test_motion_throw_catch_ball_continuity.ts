@@ -15,7 +15,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanStance,
-  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanObject,
   HumanPerformance,
@@ -124,7 +123,7 @@ export function test_motion_throw_catch_ball_continuity(): void {
     };
   const performance: HumanPerformance = new HumanPerformance({
     seed: "exercise-ball-bounce-and-capture",
-    laws: [release, AutoMovieMotionHumanThrowCatch.stageCatch],
+    laws: [release],
     props: [ball],
     performers: [
       {

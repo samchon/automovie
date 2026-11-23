@@ -115,7 +115,6 @@ export function test_motion_throw_catch_handball_goal(): void {
     }
     return new HumanPerformance({
       seed: keeper === undefined ? "handball-goal" : "handball-save",
-      laws: [AutoMovieMotionHumanThrowCatch.stageCatch],
       performers,
       props: [
         HumanObject.prop("ball", ball, { at: { x: 0, y: 0, z: 0.49 }, yaw: 0 }),

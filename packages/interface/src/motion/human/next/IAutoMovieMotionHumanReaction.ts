@@ -37,8 +37,6 @@ export interface IAutoMovieMotionHumanReaction<Chain> {
    * carried by a hand that pushes or pulls, then a return to what the body
    * held.
    *
-   * Registered law: `registered("give", params)`; not a chain method.
-   *
    * @param params The `target`, `part`, `way` and `intensity` of
    *   `IAutoMovieMotionHumanGive.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.

@@ -12,16 +12,11 @@ import type { IAutoMovieMotionHumanThrowObjectParams } from "../throwing/IAutoMo
 /**
  * Throwing, catching and kicking an object or a ball, and juggling.
  *
- * `stageCatch` and `stageDeflect` are registered laws and not methods here:
- * `chain.registered("stageCatch", { partner, ball })`. `partner` is the anchor
- * of the action that releases the ball (a `throwObject`, a `release` or a
- * `ballSport` release); the ball must be a portable prop with no drag, and the
- * anchored action must publish exactly one launch of it. `intercept` is the
- * seconds after the release at which the hands meet the ball, a bounce
- * included; absent, the base catch law's interception point sets it, within the
- * flight's provisional planning horizon, so a long pass is caught after the
- * thrower's action has ended. `stageDeflect` hands the same ball straight
- * back.
+ * `stageCatch` catches a real ball at its realized flight; the base catch law's
+ * interception point lies within the flight's provisional planning horizon, so
+ * a long pass is caught after the thrower's action has ended. `stageDeflect` is
+ * a registered law and not a method here: `chain.registered("stageDeflect", {
+ * partner, ball })`; it hands the same ball straight back.
  *
  * A method here is a method of `HumanChain` when its name is in
  * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
@@ -40,7 +35,10 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * distance and the angle by the range equation, so a farther target is a
    * faster throw.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims only the parts it moves; it can be cut into `catchObject` from its `release` instant, and `stand` and `walk` from its `followThrough` instant.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims only the parts it moves; it can be cut into `catchObject` from its
+   * `release` instant, and `stand` and `walk` from its `followThrough`
+   * instant.
    *
    * @param params The `target`, `style`, `hand`, `prop`, `angle`, `attitude`,
    *   `implement` and `manner` of `IAutoMovieMotionHumanThrowObjectParams`.
@@ -56,7 +54,9 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * Catching an object thrown by another action: the hands meet it where its
    * path enters the reach, give with it, and bring it to the chest.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims only the parts it moves; it can be cut into `ballSport`, `throwObject`, `stand` and `walk` from its `secured` instant.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims only the parts it moves; it can be cut into `ballSport`,
+   * `throwObject`, `stand` and `walk` from its `secured` instant.
    *
    * @param params The `partner`, `hands`, `hand`, `ball` and `glove` of
    *   `IAutoMovieMotionHumanCatchObject.IParams`.
@@ -69,9 +69,30 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
   ): Chain;
 
   /**
+   * Catching a real ball another performer's anchored action launched, at its
+   * realized flight: `partner` is the anchor of the action that releases the
+   * ball (a `throwObject`, a `release` or a `ballSport` release); the ball must
+   * be a portable prop with no drag, and the anchored action must publish
+   * exactly one launch of it. `intercept` is the seconds after the release at
+   * which the hands meet the ball, a bounce included; absent, the base catch
+   * law's interception point sets it.
+   *
+   * @param params The `partner`, `hands`, `hand`, `ball`, `glove` and
+   *   `intercept` of `IAutoMovieMotionHumanCatchObject.IStageParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   */
+  stageCatch(
+    params: IAutoMovieMotionHumanCatchObject.IStageParams,
+    anchor?: string,
+  ): Chain;
+
+  /**
    * Letting go: a hand opens on what it holds, and the held prop leaves it.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims only the opening hand's arm; it can be cut into any action from its `open` instant.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims only the opening hand's arm; it can be cut into any action from its
+   * `open` instant.
    *
    * @param params The `hand`, `prop` and `launch` of
    *   `IAutoMovieMotionHumanRelease.IParams`.
@@ -131,7 +152,8 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    *
    * Registered law: `registered("stickBall", params)`; not a chain method.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It owns both arms and hands in the stroke while the carrier keeps its support.
+   * Overlay law: it rides a carrier that yields the channels it claims. It owns
+   * both arms and hands in the stroke while the carrier keeps its support.
    *
    * @param params The `kind`, `stick`, `ball`, `target`, `hand`, `duration` and
    *   `speed` of `IAutoMovieMotionHumanStickBall.IParams`.

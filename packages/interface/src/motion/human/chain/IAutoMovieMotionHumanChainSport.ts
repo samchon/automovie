@@ -5,21 +5,22 @@ import type { IAutoMovieMotionHumanSwim } from "../next/IAutoMovieMotionHumanSwi
 import type { IAutoMovieMotionHumanAthletics } from "../sport/IAutoMovieMotionHumanAthletics";
 import type { IAutoMovieMotionHumanBallSport } from "../sport/IAutoMovieMotionHumanBallSport";
 import type { IAutoMovieMotionHumanBaseball } from "../sport/IAutoMovieMotionHumanBaseball";
+import type { IAutoMovieMotionHumanChiSau } from "../sport/IAutoMovieMotionHumanChiSau";
 import type { IAutoMovieMotionHumanGymnastics } from "../sport/IAutoMovieMotionHumanGymnastics";
 import type { IAutoMovieMotionHumanMartialArt } from "../sport/IAutoMovieMotionHumanMartialArt";
 import type { IAutoMovieMotionHumanRacket } from "../sport/IAutoMovieMotionHumanRacket";
 import type { IAutoMovieMotionHumanChainMutual } from "./IAutoMovieMotionHumanChainMutual";
 
 /**
- * The chain methods of exercise, dance and sport: the bodyweight exercises,
- * the static stretches, the dance steps, and the positions and techniques
- * of athletics, gymnastics, martial arts, ball sports, baseball, racket
- * sports and swimming.
+ * The chain methods of exercise, dance and sport: the bodyweight exercises, the
+ * static stretches, the dance steps, and the positions and techniques of
+ * athletics, gymnastics, martial arts, ball sports, baseball, racket sports and
+ * swimming.
  */
 export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanChainMutual {
   /**
-   * Perform a standing bodyweight exercise counted in repetitions: a squat,
-   * a lunge, high knees or a jumping jack.
+   * Perform a standing bodyweight exercise counted in repetitions: a squat, a
+   * lunge, high knees or a jumping jack.
    *
    * @param params The exercise, the repetitions, the depth and the tempo.
    * @param anchor An optional anchor id.
@@ -74,8 +75,8 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
   ): this;
 
   /**
-   * Perform a martial-art technique: a horse stance, a choku-zuki or a tai
-   * chi push.
+   * Perform a martial-art technique: a horse stance, a choku-zuki or a tai chi
+   * push.
    *
    * @param params The technique, the count and the time.
    * @param anchor An optional anchor id.
@@ -87,8 +88,18 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
   ): this;
 
   /**
-   * Perform a team ball skill with an implied ball: a dribble, a dig, a set
-   * or a throw-in.
+   * Roll wing chun's sticky hands with a partner, both forearms in contact
+   * through a small vertical circle; the partner performs it naming this one.
+   *
+   * @param params The partner, the cycles and the time.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  chiSau(params: IAutoMovieMotionHumanChiSau.IParams, anchor?: string): this;
+
+  /**
+   * Perform a team ball skill with an implied ball: a dribble, a dig, a set or
+   * a throw-in.
    *
    * @param params The skill, the side and the count.
    * @param anchor An optional anchor id.
@@ -113,8 +124,8 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
   ): this;
 
   /**
-   * Take a racket or golf position without the stroke: the ready position,
-   * a split step or the golf address.
+   * Take a racket or golf position without the stroke: the ready position, a
+   * split step or the golf address.
    *
    * @param params The position, the side and the time held.
    * @param anchor An optional anchor id.

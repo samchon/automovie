@@ -16,7 +16,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanSwim,
-  AutoMovieMotionHumanThrowCatch,
   AutoMovieMotionHumanWaterPolo,
   HumanChain,
   HumanObject,
@@ -340,7 +339,6 @@ function stage(
     seed: `water-polo-${outcome}`,
     laws: [
       AutoMovieMotionHumanSwim.aquatic,
-      AutoMovieMotionHumanThrowCatch.stageCatch,
     ],
     performers: [...performers],
     props: [...props],

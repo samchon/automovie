@@ -11,7 +11,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanObject,
   HumanPerformance,
@@ -90,7 +89,6 @@ export function test_motion_throw_catch_ball_pass_custody(): void {
   const take = (intercept: number): HumanPerformance =>
     new HumanPerformance({
       seed: "one-court-pass",
-      laws: [AutoMovieMotionHumanThrowCatch.stageCatch],
       performers: [...cast],
       props: [ball],
       composition: AutoMovieComposition.parallel(

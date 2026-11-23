@@ -38,6 +38,7 @@ import type { IAutoMovieMotionHumanSupport } from "./next/IAutoMovieMotionHumanS
 import type { IAutoMovieMotionHumanSwim } from "./next/IAutoMovieMotionHumanSwim";
 import type { IAutoMovieMotionHumanTouch } from "./next/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanFlinch } from "./reaction/IAutoMovieMotionHumanFlinch";
+import type { IAutoMovieMotionHumanGive } from "./reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanKnockdown } from "./reaction/IAutoMovieMotionHumanKnockdown";
 import type { IAutoMovieMotionHumanPerturb } from "./reaction/IAutoMovieMotionHumanPerturb";
 import type { IAutoMovieMotionHumanStagger } from "./reaction/IAutoMovieMotionHumanStagger";
@@ -122,6 +123,9 @@ export interface IAutoMovieMotionHumanActionParams {
   /** The protective startle. */
   flinch: IAutoMovieMotionHumanFlinch.IParams;
 
+  /** Giving way to a contact. */
+  give: IAutoMovieMotionHumanGive.IParams;
+
   /** A capture step after a push. */
   stagger: IAutoMovieMotionHumanStagger.IParams;
 
@@ -196,6 +200,9 @@ export interface IAutoMovieMotionHumanActionParams {
 
   /** Catching an object. */
   catchObject: IAutoMovieMotionHumanCatchObject.IParams;
+
+  /** Catching a real ball an anchored action launched. */
+  stageCatch: IAutoMovieMotionHumanCatchObject.IStageParams;
 
   /** Letting go of a held prop. */
   release: IAutoMovieMotionHumanRelease.IParams;

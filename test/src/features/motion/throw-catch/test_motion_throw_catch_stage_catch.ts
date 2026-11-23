@@ -26,7 +26,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanStance,
-  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
@@ -136,7 +135,7 @@ export function test_motion_throw_catch_stage_catch(): void {
     });
     return {
       seed: "staged-foam-catch",
-      laws: [release, AutoMovieMotionHumanThrowCatch.stageCatch],
+      laws: [release],
       props: [ball],
       performers: [
         {

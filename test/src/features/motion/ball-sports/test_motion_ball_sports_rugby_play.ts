@@ -154,7 +154,6 @@ export function test_motion_ball_sports_rugby_play(): void {
       seed,
       laws: [
         AutoMovieMotionHumanThrowCatch.HumanSportThrow.rugbyPass,
-        AutoMovieMotionHumanThrowCatch.stageCatch,
       ],
       performers,
       props: [

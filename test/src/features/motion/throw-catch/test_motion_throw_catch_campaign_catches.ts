@@ -18,7 +18,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanStance,
-  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanObject,
   HumanPerformance,
@@ -116,7 +115,7 @@ export function test_motion_throw_catch_campaign_catches(): void {
         holding("catchFixtureThrower", [{ side: "right", prop: "ball" }]);
       const film: HumanPerformance = new HumanPerformance({
         seed: label,
-        laws: [thrower, AutoMovieMotionHumanThrowCatch.stageCatch, ...laws],
+        laws: [thrower, ...laws],
         performers: [
           {
             subject: "thrower",

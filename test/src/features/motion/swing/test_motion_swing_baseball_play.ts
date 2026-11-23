@@ -223,7 +223,6 @@ export function test_motion_swing_baseball_play(): void {
         AutoMovieMotionHumanThrowCatch.HumanSportThrow.pitch,
         AutoMovieMotionHumanThrowCatch.HumanSportThrow.underarmPitch,
         AutoMovieMotionHumanSwing.HumanPrecisionSport.baseballHit,
-        AutoMovieMotionHumanThrowCatch.stageCatch,
       ],
       performers: [
         {

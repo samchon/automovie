@@ -99,7 +99,6 @@ export function test_motion_throw_catch_ball_deflection(): void {
       seed: "ball-deflection",
       laws: [
         AutoMovieMotionHumanThrowCatch.stageDeflect,
-        AutoMovieMotionHumanThrowCatch.stageCatch,
       ],
       performers: [
         passer,

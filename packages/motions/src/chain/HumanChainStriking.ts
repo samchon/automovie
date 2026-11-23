@@ -1,8 +1,11 @@
 import type {
   IAutoMovieMotionHumanBrace,
   IAutoMovieMotionHumanClinch,
+  IAutoMovieMotionHumanCloseStrike,
   IAutoMovieMotionHumanDefend,
   IAutoMovieMotionHumanFlinch,
+  IAutoMovieMotionHumanFootStrike,
+  IAutoMovieMotionHumanGive,
   IAutoMovieMotionHumanGuard,
   IAutoMovieMotionHumanKick,
   IAutoMovieMotionHumanKnee,
@@ -93,6 +96,36 @@ export class HumanChainStriking extends HumanChainHostage {
   }
 
   /**
+   * Bring the point of the elbow, the back of a spinning fist or the forehead
+   * onto a target inside the punch's range.
+   *
+   * @param params The technique, the target, the arm and the feint.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public closeStrike(
+    params: IAutoMovieMotionHumanCloseStrike.IParams,
+    anchor?: string,
+  ): this {
+    return this.act("closeStrike", params, anchor);
+  }
+
+  /**
+   * Bring the heel, the sole or the blade of the foot onto a target through a
+   * chamber, beyond the round and push kicks, and recoil to the stance.
+   *
+   * @param params The technique, the target, the leg, the spin and the jump.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public footStrike(
+    params: IAutoMovieMotionHumanFootStrike.IParams,
+    anchor?: string,
+  ): this {
+    return this.act("footStrike", params, anchor);
+  }
+
+  /**
    * Take and hold a clinch grip on a partner: the neck tie, or collar and
    * sleeve.
    *
@@ -147,6 +180,21 @@ export class HumanChainStriking extends HumanChainHostage {
     anchor?: string,
   ): this {
     return this.act("flinch", params, anchor);
+  }
+
+  /**
+   * Give way to a contact: the head turned aside by a slap, or the trunk
+   * carried by a hand that pushes or pulls, then a return.
+   *
+   * @param params The contact's target, part, way and intensity.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public give(
+    params: IAutoMovieMotionHumanGive.IParams = {},
+    anchor?: string,
+  ): this {
+    return this.act("give", params, anchor);
   }
 
   /**

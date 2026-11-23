@@ -77,7 +77,6 @@ export function test_motion_throw_catch_basketball_possession(): void {
   const take = (outcome: PossessionCase): HumanPerformance =>
     new HumanPerformance({
       seed: `basketball-possession-${outcome}`,
-      laws: [AutoMovieMotionHumanThrowCatch.stageCatch],
       performers: [
         {
           subject: "guard",

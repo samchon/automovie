@@ -116,7 +116,6 @@ export function test_motion_throw_catch_football_goal(): void {
       seed: keeper === undefined ? "penalty-goal" : `penalty-${keeper.save}`,
       laws: [
         AutoMovieMotionHumanThrowCatch.HumanSportThrow.kickRight,
-        AutoMovieMotionHumanThrowCatch.stageCatch,
         AutoMovieMotionHumanThrowCatch.stageDeflect,
       ],
       performers,

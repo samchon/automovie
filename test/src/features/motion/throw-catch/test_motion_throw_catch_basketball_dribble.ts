@@ -116,7 +116,6 @@ export function test_motion_throw_catch_basketball_dribble(): void {
         .stand({ hold: 1.2, sway: 0 });
     return new HumanPerformance({
       seed: `basketball-dribble-${catches.length}-${shoot}`,
-      laws: [AutoMovieMotionHumanThrowCatch.stageCatch],
       performers: [
         {
           subject: "feeder",

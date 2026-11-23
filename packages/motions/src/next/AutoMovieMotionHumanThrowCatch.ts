@@ -43,7 +43,7 @@ import { HUMAN_THROWCATCH_UNDERARM_PITCH } from "./presets/HUMAN_THROWCATCH_UNDE
  *   a circle, or the javelin from a runway.
  * - `stickBall`: A hockey blade push or a lacrosse pocket exchange.
  * - `ballSport`: Team ball skills.
- * - `stageCatch`: The registered, physical-prop variant of the catch law.
+ * - `stageCatch`: The physical-prop variant of the catch law, a chain method.
  * - `stageDeflect`: A deliberate deflection of an incoming ball: the staged
  *   interception of `stageCatch`, whose hand meets the ball on its actual
  *   flight at the authored instant, hands the same ball straight back instead
@@ -419,9 +419,9 @@ export namespace AutoMovieMotionHumanThrowCatch {
     HUMAN_THROWCATCH_KICK_LEFT;
 
   /**
-   * The registered, physical-prop variant of the catch law. Compose the
-   * anchored launch first through the proposed catch time, then use
-   * `registered("stageCatch", { partner, ball })` on the catcher. A portable
+   * The physical-prop variant of the catch law, an action of the vocabulary:
+   * compose the anchored launch first through the proposed catch time, then
+   * `stageCatch({ partner, ball })` on the catcher's chain. A portable
    * drag-free prop must reach the base law's interception point on its actual
    * flight before this law gives its grip custody of the prop. An authored
    * `intercept` reads that flight at release plus its seconds, including any
