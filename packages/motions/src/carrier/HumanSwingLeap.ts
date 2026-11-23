@@ -31,13 +31,19 @@ type Posture = IAutoMovieMotionHumanPosture;
 /** The step that reads the seat's velocity at release, seconds. */
 const RATE: number = 1e-3;
 
-/** The landing's knee give: the pelvis lands this share of its standing height (provisional staging). */
+/**
+ * The landing's knee give: the pelvis lands this share of its standing height
+ * (provisional staging).
+ */
 const LAND: number = 0.8;
 
 /** Seconds from touchdown to standing still (provisional staging). */
 const SETTLE: number = 0.4;
 
-/** How far each upper arm abducts for the landing, degrees (provisional staging). */
+/**
+ * How far each upper arm abducts for the landing, degrees (provisional
+ * staging).
+ */
 const OPEN: number = 35;
 
 /** World vertical. */
@@ -49,18 +55,17 @@ const ARM: RegExp =
 
 /**
  * Leap off a moving swing seat: the pelvis leaves with the velocity of the
- * seat's point under it at the action's start and follows the projectile
- * under standard gravity until it is `LAND` of its standing height above
- * the ground, while the seated posture unfolds toward standing and each
- * ankle swings from where the seat held it to the ground under its knee,
- * the foot turning with its shank so the ankle keeps its angle until it
- * comes flat on landing. The feet then bear flat where they landed and the
- * pelvis rises to standing over them in `SETTLE`.
+ * seat's point under it at the action's start and follows the projectile under
+ * standard gravity until it is `LAND` of its standing height above the ground,
+ * while the seated posture unfolds toward standing and each ankle swings from
+ * where the seat held it to the ground under its knee, the foot turning with
+ * its shank so the ankle keeps its angle until it comes flat on landing. The
+ * feet then bear flat where they landed and the pelvis rises to standing over
+ * them in `SETTLE`.
  *
  * @param context The seated entry on the moving seat and the ground's height.
  * @returns The flight, touchdown and settle.
  * @throws {HumanRefusal} When the pelvis starts below its landing height.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the release velocity's source, the projectile, the landing height and the settle.
  * @evidence contracts/development/implementation.md#principled-implementation A projectile from the seat's displayed velocity, landed where its height meets the standing pelvis's.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the release, solve the touchdown once, then one posture reader.
@@ -292,9 +297,7 @@ export function HumanSwingLeap(
         };
         // In the air the foot bears nothing.
         limbs[`${side}Leg`] =
-          t >= flight
-            ? leg
-            : unloadedFoot(body, hipAt(hips, side), leg, facing);
+          t >= flight ? leg : unloadedFoot(body, hipAt(hips, side), leg);
       }
       return {
         root,

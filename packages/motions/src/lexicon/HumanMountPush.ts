@@ -79,8 +79,8 @@ export namespace HumanMountPush {
    * A leg's ankle bend in closed form. The knee of the two-link leg from the
    * hip to the ankle lies in the plane of the pole: with the axis `u = (ankle -
    * hip) / d`, the pole's direction square to it `w`, the thigh `a` and the
-   * shank `b`, `cos 慣 = (a짼 + d짼 - b짼) / (2 a d)` and the knee is `hip + a (cos
-   * 慣 u + sin 慣 w)`. The shank's lean off the foot's normal in that plane is
+   * shank `b`, `cos α = (a² + d² - b²) / (2 a d)` and the knee is `hip + a (cos
+   * α u + sin α w)`. The shank's lean off the foot's normal in that plane is
    * the ankle's sagittal flexion, the verdicts' reading.
    *
    * @param body The body, whose thigh and shank lengths are read.
@@ -314,13 +314,15 @@ export namespace HumanMountPush {
    * about the ball, so the shank leans anew and a turn by the bend's excess
    * alone falls short of it. With the foot and the shank asked at `target` to
    * each other, the two turn together as one rigid piece: the knee, `b` along
-   * the shank from the ankle, is then `ball + R(罐) c` for the fixed `c = (ankle
-   * - ball) + b (cos target n + sin target t)` (the foot's normal `n` and toes
-   * `t` in the plane), so it runs on a circle about the ball, and the thigh
-   * holds it on the circle of radius `a` about the hip. The knee is their
-   * meeting point, the two circles' intersection, on the pole's side of the leg
-   * and the nearer of the two to the foot as placed; circles that do not meet
-   * give their nearest points, the leg at its reach as `bend` reads it.
+   * the shank from the ankle, is then `ball + R(θ) c` for the fixed `c =
+   * (ankle
+   *
+   * - Ball) + b (cos target n + sin target t)`(the foot's normal`n`and toes`t`in
+   *   the plane), so it runs on a circle about the ball, and the thigh holds it
+   *   on the circle of radius`a`about the hip. The knee is their meeting point,
+   *   the two circles' intersection, on the pole's side of the leg and the
+   *   nearer of the two to the foot as placed; circles that do not meet give
+   *   their nearest points, the leg at its reach as`bend` reads it.
    *
    * @param body The body, whose thigh and shank lengths are read.
    * @param hip The hip joint, world metres.
