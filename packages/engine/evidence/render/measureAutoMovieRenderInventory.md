@@ -6,7 +6,7 @@ Measure populations then simulations with one model cache, complete resource clo
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Population/simulation/resource policy owners feed one orchestrator and semantic node index, keeping owner attribution aligned with the mask without embedding a renderer or simulation host.
+Population, simulation, texture (`measureRenderTextures`), geometry memory (`measureRenderGeometryBytes`) and frame-pass (`measureRenderPasses`) phases feed one orchestrator and semantic node index, which keeps the phase order and the totals, keeping owner attribution aligned with the mask without embedding a renderer or simulation host.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
