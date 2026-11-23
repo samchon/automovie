@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieViewHermite.ts#IAutoMovieViewHermite
-
-## @evidence contracts/development/design.md#principled-representation
-
-ICurve holds source knots, two derivative rows in the unnormalized source coordinate and c1..c5 coefficients on each normalized unit span.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-ViewHermite prepares the optional quintic spans retained by ViewOutline.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Equal array lengths and span admissibility are preparation premises; the record preserves source values rather than encoding a fitted display curve.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes source-coordinate derivatives from unit-span polynomial coefficients.
-
 # src/construction/IAutoMovieViewHermite.ts#IAutoMovieViewHermite.ICurve
 
 ## @evidence contracts/development/design.md#principled-representation

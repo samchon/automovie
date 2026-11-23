@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanSequentialConvex.ts#IAutoMovieMotionHumanSequentialConvex
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-accuracy: The model's own accuracy in the merit's units, below which a predicted decrease is not one and the solve settles without trying the step (the termination of an SQP on its subproblem's accuracy, Nocedal and Wright chapter 18); never settles so when absent. correct: The second-order correction of a rejected step, against the Maratos effect (Nocedal and Wright 2006, section 15.6, pp. 443-444): the step `p` plus a correction `p^` that meets the constraints' linearisation at the trial, `A(x) p^ + c(x + p) = 0` on the rows the step meets, its minimum-norm solution being their (15.36). Asked only for a step whose ratio did not exceed `ISchedule.eta` and whose predicted decrease is positive, once per step and before the region shrinks; the corrected point is judged on the step's own predicted decrease, taken where its ratio exceeds `eta` and dropped otherwise, never searched along (their Algorithm 15.2, p. 443, in the trust region of their Algorithm 18.4, p. 549). Absent, no correction is tried. from: The penalty to start at, a solve continued from another's result (`IResult.penalty`); the first when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-accuracy: The model's own accuracy in the merit's units, below which a predicted decrease is not one and the solve settles without trying the step (the termination of an SQP on its subproblem's accuracy, Nocedal and Wright chapter 18); never settles so when absent. correct: The second-order correction of a rejected step, against the Maratos effect (Nocedal and Wright 2006, section 15.6, pp. 443-444): the step `p` plus a correction `p^` that meets the constraints' linearisation at the trial, `A(x) p^ + c(x + p) = 0` on the rows the step meets, its minimum-norm solution being their (15.36). Asked only for a step whose ratio did not exceed `ISchedule.eta` and whose predicted decrease is positive, once per step and before the region shrinks; the corrected point is judged on the step's own predicted decrease, taken where its ratio exceeds `eta` and dropped otherwise, never searched along (their Algorithm 15.2, p. 443, in the trust region of their Algorithm 18.4, p. 549). Absent, no correction is tried. from: The penalty to start at, a solve continued from another's result (`IResult.penalty`); the first when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: posture/HumanSequentialConvex.ts (HumanSequentialConvex.minimise, problem); posture/HumanSequentialConvex.ts (HumanSequentialConvex.steering, problem); lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit.solved, return); posture/HumanArmOptimiser.ts (HumanArmOptimiser.optimise.problem, return); posture/HumanBodyFit.ts (HumanBodyFit.fit.problem, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Caller-owned iterates and evaluations remain generic because the same algorithm solves arm trajectories, stance courses and static body fits; no SDK object is hidden by these parameters.
-
 # src/motion/human/posture/IAutoMovieMotionHumanSequentialConvex.ts#IAutoMovieMotionHumanSequentialConvex.IEvaluation
 
 ## @evidence contracts/development/common.md#meaningful-documentation

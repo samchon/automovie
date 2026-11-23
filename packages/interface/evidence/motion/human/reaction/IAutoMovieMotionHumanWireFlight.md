@@ -1,21 +1,3 @@
-# src/motion/human/reaction/IAutoMovieMotionHumanWireFlight.ts#IAutoMovieMotionHumanWireFlight
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the path, its profile, the shapes, the heading and the absent gravity check, with the source.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World points in metres, seconds and a closed shape union; the law refuses a non-positive time.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The parameters the registered `wireFlight` law reads.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The path is the author's; nothing is fitted to it.
-
 # src/motion/human/reaction/IAutoMovieMotionHumanWireFlight.ts#IAutoMovieMotionHumanWireFlight.Shape
 
 ## @evidence contracts/development/common.md#meaningful-documentation

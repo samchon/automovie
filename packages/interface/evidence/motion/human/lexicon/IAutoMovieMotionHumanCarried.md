@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanCarried.ts#IAutoMovieMotionHumanCarried
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-on: The carrier's bone the body goes with; the upper chest when absent. hold: Seconds carried. turn: The carried body's heading from the carrier's, degrees about +Y.
-
-## @evidence contracts/development/design.md#principled-representation
-
-on: The carrier's bone the body goes with; the upper chest when absent. hold: Seconds carried. turn: The carried body's heading from the carrier's, degrees about +Y.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: lexicon/HumanCarried.ts (HumanCarried.carried, context); lexicon/HumanCarriedBearing.ts (HumanCarriedBearing.plan.first, c); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.kind, carry); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.kind, rows); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.couple, carry); lexicon/HumanCarriedLean.ts (HumanCarriedLean.layer, carry).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidBone, IAutoMovieMotionHumanCarriedDrag.Name, AutoMovieHumanoidRegion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanCarried.ts#IAutoMovieMotionHumanCarried.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

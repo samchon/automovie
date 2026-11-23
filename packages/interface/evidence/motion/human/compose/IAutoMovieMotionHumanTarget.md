@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanTarget.ts#IAutoMovieMotionHumanTarget
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-height: Height above the floor, as a share of the stature. range: Distance ahead of the root, as a share of the arm (upper arm and forearm). lateral: Offset toward the performer's left, as a share of the half shoulder width; negative is right, 0 when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-height: Height above the floor, as a share of the stature. range: Distance ahead of the root, as a share of the arm (upper arm and forearm). lateral: Offset toward the performer's left, as a share of the half shoulder width; negative is right, 0 when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanTarget.ts (AutoMovieMotionHumanTarget.fallback, place); compose/AutoMovieMotionHumanTarget.ts (AutoMovieMotionHumanTarget.resolve, place); compose/AutoMovieMotionHumanTargetGrid.ts (AutoMovieMotionHumanTargetGrid.place, return); compose/AutoMovieMotionHumanTargetGrid.ts (named, return); compose/AutoMovieMotionHumanTargetGrid.ts (nudged, record); compose/AutoMovieMotionHumanTargetGrid.ts (nudged, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanHand.Surface, IAutoMovieMotionHumanHand.Shape, IAutoMovieMotionHumanBend.Arm identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanTarget.ts#IAutoMovieMotionHumanTarget.IDefault
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/physics/IAutoMoviePlanPhysicalContactTargets.ts#IAutoMoviePlanPhysicalContactTargets
-
-## @evidence contracts/development/design.md#principled-representation
-
-Actual receiver geometry, original supports and floor/avoidance rows contribute to one measured residual vector while the source root is rebased to its actual pose.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-planPhysicalContactTargets composes existing geometry queries and articulation rows rather than adding native dynamics to the input. planPhysicalContactTargets allocates target and residual records for the tracking caller; ids retain the original relationships.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Bounded fitting preserves unmet intent rather than generating a contact receipt; self/floor constraints have no per-binding result row and an empty residual map alone is not proof of success.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Explains simultaneous actual receivers, original support promises and shared residual budgets. Identifies coherent motor poses and binding-attributed residuals after a bounded fit.
-
 # src/physics/IAutoMoviePlanPhysicalContactTargets.ts#IAutoMoviePlanPhysicalContactTargets.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

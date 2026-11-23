@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanPunch.ts#IAutoMovieMotionHumanPunch
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-hand: Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. accuracy: Declared accuracy; `hit` when absent. feint: A feint: the share of the delivery shown before returning, in (0, 1).
-
-## @evidence contracts/development/design.md#principled-representation
-
-hand: Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. accuracy: Declared accuracy; `hit` when absent. feint: A feint: the share of the delivery shown before returning, in (0, 1).
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.punch, params); striking/punch.ts (punch.hand, params); striking/punch.ts (punch.plan, context); striking/punchContact.ts (punchContact.solve, context); striking/punchGeometry.ts (punchGeometry.build, context); striking/defend.ts (defend.telegraph).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanStrikingQuality.Accuracy identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/striking/IAutoMovieMotionHumanPunch.ts#IAutoMovieMotionHumanPunch.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

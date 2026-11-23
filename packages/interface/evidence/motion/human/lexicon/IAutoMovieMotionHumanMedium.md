@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanMedium.ts#IAutoMovieMotionHumanMedium
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names each medium, its depth and the wind's force.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Depths in metres above the ground, forces in newtons, delays in seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The parameter records of `HumanMediumWalk`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A medium is one closed kind with its own depth; a walk without one is a walk on rigid ground.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanMedium.ts#IAutoMovieMotionHumanMedium.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

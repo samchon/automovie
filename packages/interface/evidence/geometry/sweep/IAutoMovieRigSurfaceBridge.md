@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieRigSurfaceBridge.ts#IAutoMovieRigSurfaceBridge
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Corresponding metre loops and dimensionless tension define reserved Hermite bridge controls in a live packed buffer. Loop cardinality and tension are admitted by planning; degenerate directions or crossing columns remain possible and are not hidden by the contract.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Corresponding metre loops and dimensionless tension define reserved Hermite bridge controls in a live packed buffer.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-rigAutoMovieSurfaceBridge consumes the shared samples and probes supplied by network patch planning.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Loop cardinality and tension are admitted by planning; degenerate directions or crossing columns remain possible and are not hidden by the contract.
-
 # src/geometry/sweep/IAutoMovieRigSurfaceBridge.ts#IAutoMovieRigSurfaceBridge.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

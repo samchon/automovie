@@ -1,21 +1,3 @@
-# src/motion/human/everyday/IAutoMovieMotionHumanBend.ts#IAutoMovieMotionHumanBend
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-hand: The hand; `right` when absent. strategy: How the body lowers; `auto` when absent. hold: Seconds the hand stays at the target; 0.5 when absent. Inclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#principled-representation
-
-hand: The hand; `right` when absent. strategy: How the body lowers; `auto` when absent. hold: Seconds the hand stays at the target; 0.5 when absent. Inclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.bend, params); everyday/bend.ts (bend.plan, context); compose/AutoMovieMotionHumanBend.ts (AutoMovieMotionHumanBend.arm, preset); compose/AutoMovieMotionHumanResolve.ts (AutoMovieMotionHumanResolve.bend, preset).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionTarget, AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/everyday/IAutoMovieMotionHumanBend.ts#IAutoMovieMotionHumanBend.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/physics/IAutoMoviePhysicalCoupledTargetFit.ts#IAutoMoviePhysicalCoupledTargetFit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Groups the interval identity, convergence and refusal data.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Separates measured target fit from solver contact and displayed physical motion.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-A completed simulation exposes only successful report rows. Errors carry failures.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Diagnostic records carry no candidate motor goals or achieved force claims.
-
 # src/physics/IAutoMoviePhysicalCoupledTargetFit.ts#IAutoMoviePhysicalCoupledTargetFit.IInterval
 
 ## @evidence contracts/development/common.md#meaningful-documentation

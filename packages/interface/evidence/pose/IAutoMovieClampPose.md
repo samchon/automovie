@@ -1,21 +1,3 @@
-# src/pose/IAutoMovieClampPose.ts#IAutoMovieClampPose
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states what it clamps and what it returns.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A callable projection with its one-joint clamp and angle-taking form as members, all of one unchanged rig.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The motions body keeps one (`IAutoMovieMotionHumanBody.projection`); the engine's clamp preparations build it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Rig readers only; every pose and joint is clamped afresh.
-
 # src/pose/IAutoMovieClampPose.ts#IAutoMovieClampPose.IJoints
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/motion/human/audit/IAutoMovieMotionHumanAuditTangle.ts#IAutoMovieMotionHumanAuditTangle
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-depth: How deep beyond the rest pose, metres, positive. seconds: The film second of that depth; zero for a single pose.
-
-## @evidence contracts/development/design.md#principled-representation
-
-depth: How deep beyond the rest pose, metres, positive. seconds: The film second of that depth; zero for a single pose.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure.read, pairs); audit/AutoMovieMotionHumanAuditTangle.ts (AutoMovieMotionHumanAuditTangle.measure.pairs, x); audit/AutoMovieMotionHumanAuditTangle.ts (AutoMovieMotionHumanAuditTangle.measure.pairs, y); audit/AutoMovieMotionHumanAuditTangle.ts (AutoMovieMotionHumanAuditTangle.pose, return); audit/AutoMovieMotionHumanAuditTangle.ts (AutoMovieMotionHumanAuditTangle.across, return); audit/AutoMovieMotionHumanAuditTangle.ts (AutoMovieMotionHumanAuditTangle.measure, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidBone, IAutoMovieMotionHumanAuditMeasure identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/audit/IAutoMovieMotionHumanAuditTangle.ts#IAutoMovieMotionHumanAuditTangle.IPair
 
 ## @evidence contracts/development/common.md#meaningful-documentation

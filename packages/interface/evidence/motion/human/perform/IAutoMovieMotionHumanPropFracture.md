@@ -1,21 +1,3 @@
-# src/motion/human/perform/IAutoMovieMotionHumanPropFracture.ts#IAutoMovieMotionHumanPropFracture
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the staging boundary, the budget's owner, and the placement result.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Connects a canonical interaction event and placed frames to the model's deterministic replacement pieces.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-HumanPerformance prepares a requested split once and publishes a frame reader to scene consumers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No inferred material or striking response. An intact prop before the event remains the caller's original model.
-
 # src/motion/human/perform/IAutoMovieMotionHumanPropFracture.ts#IAutoMovieMotionHumanPropFracture.IRequest
 
 ## @evidence contracts/development/common.md#meaningful-documentation

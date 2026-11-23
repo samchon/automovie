@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanLegPhrase.ts#IAutoMovieMotionHumanLegPhrase
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-contact: What the foot bears on while it is on its place, when the place is solid; absent for a place in the air, which gives no contact window. manner: The manner's size: the extent scales a place in the air about where the foot leaves from. A phrase that states a contact keeps its place whatever the extent. Neutral when absent. target: Retained callback for the foot's tapping target frame on the phrase clock.
-
-## @evidence contracts/development/design.md#principled-representation
-
-contact: What the foot bears on while it is on its place, when the place is solid; absent for a place in the air, which gives no contact window. manner: The manner's size: the extent scales a place in the air about where the foot leaves from. A phrase that states a contact keeps its place whatever the extent. Neutral when absent. target: Retained callback for the foot's tapping target frame on the phrase clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.extended, props); compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.bearing, props); compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.cleared, props); compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.lift, props); compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.tap, props); compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.swing, props).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionClock, AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement, IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanLegPhrase.ts#IAutoMovieMotionHumanLegPhrase.IPhrase
 
 ## @evidence contracts/development/common.md#meaningful-documentation

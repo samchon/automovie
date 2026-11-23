@@ -1,21 +1,3 @@
-# src/human/generation/arm/IAutoMovieHumanArmCurveSpec.ts#IAutoMovieHumanArmCurveSpec
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes segment transforms, sourced datums, curve constraints and source-parameter outline jets; nested declarations retain their units, frames, optional states and callback contracts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Segment transforms, sourced datums, curve constraints and source-parameter outline jets. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these dependency-free exchange types for AutoMovieHumanArmCurveSpec; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups the existing ArmCurveSpec contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
-
 # src/human/generation/arm/IAutoMovieHumanArmCurveSpec.ts#IAutoMovieHumanArmCurveSpec.ITransform
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/human/skeleton/IAutoMovieFitHumanPhysicalStandingPose.ts#IAutoMovieFitHumanPhysicalStandingPose
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Declares the pose and solver units and the distinction between a fit and a refusal.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Uses an unchanged canonical profile, complete world poses, a horizontal support plane and a discriminated fit result.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Human owns the identified sole regions. Engine owns the joint solve. The consumer owns whether to start a simulation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A failed transfer exposes its failure reason and no runnable target.
-
 # src/human/skeleton/IAutoMovieFitHumanPhysicalStandingPose.ts#IAutoMovieFitHumanPhysicalStandingPose.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

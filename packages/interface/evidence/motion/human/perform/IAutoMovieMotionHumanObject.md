@@ -1,21 +1,3 @@
-# src/motion/human/perform/IAutoMovieMotionHumanObject.ts#IAutoMovieMotionHumanObject
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-body: Its physical data (an archetype's model body); none when absent or null.
-
-## @evidence contracts/development/design.md#principled-representation
-
-body: Its physical data (an archetype's model body); none when absent or null.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: perform/HumanObject.ts (HumanObject.frame, placement); perform/HumanObject.ts (HumanObject.prop, placement); perform/HumanObject.ts (HumanObject.prop, motion); perform/HumanObject.ts (HumanObject.seat, placement); perform/HumanObstacle.ts (HumanObstacle.apertures, placement); perform/HumanObstacle.ts (HumanObstacle.object, placement).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieAffordance, IAutoMoviePhysicalShape, IAutoMovieBody, IAutoMovieRigidTransform identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/perform/IAutoMovieMotionHumanObject.ts#IAutoMovieMotionHumanObject.IModel
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/human/generation/f1/IAutoMovieHumanF1NativeRoot.ts#IAutoMovieHumanF1NativeRoot
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Native root controls, original-source calibration and inspection data.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Physical source positions use millimetres and chart angles use radians. Each observation has its own clock and derivative scope.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanF1NativeRootLaw and AutoMovieHumanF1NativeRootLevel produce and consume these contracts for Human assembly and inspection.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Observed values, discarded targets and unavailable reads remain distinct.
-
 # src/human/generation/f1/IAutoMovieHumanF1NativeRoot.ts#IAutoMovieHumanF1NativeRoot.ITargets
 
 ## @evidence contracts/development/common.md#meaningful-documentation

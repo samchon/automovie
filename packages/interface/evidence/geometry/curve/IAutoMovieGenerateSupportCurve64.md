@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieGenerateSupportCurve64.ts#IAutoMovieGenerateSupportCurve64
-
-## @evidence contracts/development/design.md#principled-representation
-
-Millimetre Fourier amplitudes use normal-angle radians; the generated closed cubic curve uses phase in turns.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The generator consumes IProps and returns its cubic declaration with computed analytic qualifications in IResult.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Support perimeter, polynomial arclength and source-outline arclength are not conflated.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Input and result describe convexity admission, finite estimates and output storage.
-
 # src/geometry/curve/IAutoMovieGenerateSupportCurve64.ts#IAutoMovieGenerateSupportCurve64.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

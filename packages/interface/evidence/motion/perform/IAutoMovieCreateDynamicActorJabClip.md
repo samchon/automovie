@@ -1,21 +1,3 @@
-# src/motion/perform/IAutoMovieCreateDynamicActorJabClip.ts#IAutoMovieCreateDynamicActorJabClip
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-A caller-supplied pose reader uses local seconds and one skeleton identity over a finite positive duration; null refuses the whole bake and exceptions propagate. The strike peaks at 40 percent of the span and retracts over the remainder.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieCreateDynamicActorJabClip contracts used by packages/engine/src/perform/createDynamicActorJabClip.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A caller-supplied pose reader uses local seconds and one skeleton identity over a finite positive duration; null refuses the whole bake and exceptions propagate. The strike peaks at 40 percent of the span and retracts over the remainder. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieCreateDynamicActorJabClip contract belongs to interface; packages/engine/src/perform/createDynamicActorJabClip.ts uses its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/perform/IAutoMovieCreateDynamicActorJabClip.ts#IAutoMovieCreateDynamicActorJabClip.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

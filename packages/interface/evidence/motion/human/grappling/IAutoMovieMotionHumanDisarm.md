@@ -1,21 +1,3 @@
-# src/motion/human/grappling/IAutoMovieMotionHumanDisarm.ts#IAutoMovieMotionHumanDisarm
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two techniques, the two roles, the custody change and the source.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A closed weapon kind, the partner and the weapon by subject id, and one hand.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The members the `disarm` and `disarmed` laws read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The weapon's custody passes by grips the performance already resolves; no second owner is invented.
-
 # src/motion/human/grappling/IAutoMovieMotionHumanDisarm.ts#IAutoMovieMotionHumanDisarm.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

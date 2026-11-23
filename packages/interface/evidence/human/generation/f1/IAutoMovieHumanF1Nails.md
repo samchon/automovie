@@ -1,21 +1,3 @@
-# src/human/generation/f1/IAutoMovieHumanF1Nails.ts#IAutoMovieHumanF1Nails
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The recorded digit inputs and generated nail outputs for F1.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Rows bind family names and segment frames to proportions, and each result carries that row with the generated nail.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanF1Nails owns the adaptation to the installed F1 family and returns the pair for capture and construction.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The general nail law remains independent of the named rows.
-
 # src/human/generation/f1/IAutoMovieHumanF1Nails.ts#IAutoMovieHumanF1Nails.IRow
 
 ## @evidence contracts/development/common.md#meaningful-documentation

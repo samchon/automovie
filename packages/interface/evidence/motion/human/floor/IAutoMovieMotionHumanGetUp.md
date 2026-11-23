@@ -1,21 +1,3 @@
-# src/motion/human/floor/IAutoMovieMotionHumanGetUp.ts#IAutoMovieMotionHumanGetUp
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-pattern: The pattern; `symmetric` from the back when absent, and always `rotation` from the front or the hands and knees. lead: The foot set forward in the half kneel of the rotation; `right` when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-pattern: The pattern; `symmetric` from the back when absent, and always `rotation` from the front or the hands and knees. lead: The foot set forward in the half kneel of the rotation; `right` when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.getUp, params); floor/getUp.ts (getUp.plan, context); floor/getUp.ts (getUp.PATTERNS); floor/getUp.ts (getUp.ROUTES); floor/getUp.ts (getUp.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/floor/IAutoMovieMotionHumanGetUp.ts#IAutoMovieMotionHumanGetUp.Stage
 
 ## @evidence contracts/development/common.md#meaningful-documentation

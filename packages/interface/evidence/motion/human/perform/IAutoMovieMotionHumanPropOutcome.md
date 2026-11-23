@@ -1,21 +1,3 @@
-# src/motion/human/perform/IAutoMovieMotionHumanPropOutcome.ts#IAutoMovieMotionHumanPropOutcome
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-from: Seconds since the launch it begins. end: Seconds since the launch it ends at a contact; Infinity when it does not. contact: The contact that ends it, absent when none does.
-
-## @evidence contracts/development/design.md#principled-representation
-
-from: Seconds since the launch it begins. end: Seconds since the launch it ends at a contact; Infinity when it does not. contact: The contact that ends it, absent when none does.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: perform/HumanPropOutcome.ts (HumanPropOutcome.legs, return); perform/HumanPropOutcome.ts (HumanPropOutcome.at, leg); perform/HumanPropFlight.ts (HumanPropFlight.fly.meet, return); perform/HumanPropFlight.ts (HumanPropFlight.fly.settle, m); perform/HumanPropFlight.ts (HumanPropFlight.contactOf, meeting); perform/HumanPropSweep.ts (HumanPropSweep.sweep, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieProjectileContinue.Segment, IAutoMovieMotionHumanPropFlight.IContact, IAutoMovieHit, IAutoMovieMotionHumanPropFlight.Struck, IAutoMovieMotionHumanProp, IAutoMovieProjectile identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/perform/IAutoMovieMotionHumanPropOutcome.ts#IAutoMovieMotionHumanPropOutcome.ILeg
 
 ## @evidence contracts/development/common.md#meaningful-documentation

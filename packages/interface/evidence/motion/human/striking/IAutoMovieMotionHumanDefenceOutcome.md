@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanDefenceOutcome.ts#IAutoMovieMotionHumanDefenceOutcome
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-launch: The strike's launch, film seconds. hit: The strike's contact, film seconds; after the launch. movement: The defence's movement time, seconds; positive.
-
-## @evidence contracts/development/design.md#principled-representation
-
-launch: The strike's launch, film seconds. hit: The strike's contact, film seconds; after the launch. movement: The defence's movement time, seconds; positive.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: striking/DefenceOutcome.ts (DefenceOutcome.classify, return); striking/DefenceOutcome.ts (DefenceOutcome.band, outcome); striking/DefenceOutcome.ts (DefenceOutcome.decide, forced); striking/DefenceOutcome.ts (DefenceOutcome.decide, input); striking/DefenceOutcome.ts (DefenceOutcome.decide, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanSkill identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/striking/IAutoMovieMotionHumanDefenceOutcome.ts#IAutoMovieMotionHumanDefenceOutcome.Outcome
 
 ## @evidence contracts/development/common.md#meaningful-documentation

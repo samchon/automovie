@@ -1,21 +1,3 @@
-# src/motion/human/exercise/IAutoMovieMotionHumanTapDance.ts#IAutoMovieMotionHumanTapDance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the steps and the strike events.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A step name, a tempo or track lock, a repeat count and the leading foot.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: exercise/tapDance.ts (tapDance.STEPS, tapDance.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly; their strikes are tapDance.STEPS.
-
 # src/motion/human/exercise/IAutoMovieMotionHumanTapDance.ts#IAutoMovieMotionHumanTapDance.Step
 
 ## @evidence contracts/development/common.md#meaningful-documentation

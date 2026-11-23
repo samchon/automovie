@@ -1,21 +1,3 @@
-# src/drawing/IAutoMovieOpeningFillExtent.ts#IAutoMovieOpeningFillExtent
-
-## @evidence contracts/development/design.md#principled-representation
-
-IResult distinguishes world Y height from the wider horizontal axis span, both in metres with finite nonempty-input premises.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Opening fill fallback and room schedule boxes share this world-axis reading, while profile-local dimensions remain separate.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Rotation-induced bound changes remain observable and are not corrected into presumed manufactured dimensions.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-IResult explains orientation, empty geometry, rounding and caller responsibility for numeric inputs.
-
 # src/drawing/IAutoMovieOpeningFillExtent.ts#IAutoMovieOpeningFillExtent.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

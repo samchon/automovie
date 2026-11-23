@@ -1,21 +1,3 @@
-# src/motion/IAutoMovieResolveHydrodynamicForce.ts#IAutoMovieResolveHydrodynamicForce
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Segment volume and submerged volume are cubic metres; centre and surface are world metres, relative velocity is metres per second, density is kilograms per cubic metre and output forces are world newtons. resolveHydrodynamicForce rejects nonpositive volume or density; other finite geometry remains caller-supplied.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieResolveHydrodynamicForce contracts used by packages/engine/src/motion/resolveHydrodynamicForce.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Segment volume and submerged volume are cubic metres; centre and surface are world metres, relative velocity is metres per second, density is kilograms per cubic metre and output forces are world newtons. resolveHydrodynamicForce rejects nonpositive volume or density; other finite geometry remains caller-supplied. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieResolveHydrodynamicForce contract belongs to interface; packages/engine/src/motion/resolveHydrodynamicForce.ts and packages/motions/src/perform/HumanWater.ts use its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/IAutoMovieResolveHydrodynamicForce.ts#IAutoMovieResolveHydrodynamicForce.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

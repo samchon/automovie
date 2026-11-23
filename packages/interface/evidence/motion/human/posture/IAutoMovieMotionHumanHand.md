@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanHand.ts#IAutoMovieMotionHumanHand
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-point: The wrist joint, world metres. curl: Extra flexion of every finger joint over the shape, degrees; 0 when absent. from: Seconds since the action's start from which the hand is written.
-
-## @evidence contracts/development/design.md#principled-representation
-
-point: The wrist joint, world metres. curl: Extra flexion of every finger joint over the shape, degrees; 0 when absent. from: Seconds since the action's start from which the hand is written.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: actions/stand.ts (stand.plan, side); affordance/operateInsert.ts (operateInsert.tool, side); carrying/carry.ts (carry.place, side); carrying/carry.ts (carry.place, loaded); carrying/carry.ts (carry.plan, side); compose/AutoMovieMotionHumanArmAngles.ts (AutoMovieMotionHumanArmAngles.angles, side).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion, IAutoMovieMotionHumanBody identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanHand.ts#IAutoMovieMotionHumanHand.Surface
 
 ## @evidence contracts/development/common.md#meaningful-documentation

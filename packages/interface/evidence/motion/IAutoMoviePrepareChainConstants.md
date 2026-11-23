@@ -1,21 +1,3 @@
-# src/motion/IAutoMoviePrepareChainConstants.ts#IAutoMoviePrepareChainConstants
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states its frame, unit and the fixed rig it was read from.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A chain's rest translations, rotations, offsets, hinge and domains with its rig readers, all of one unchanged body.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The motions body keeps one per limb (`IAutoMovieMotionHumanBody.chains`); the engine's plant preparation reads it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Rest facts only; every pose and target is read afresh.
-
 # src/motion/IAutoMoviePrepareChainConstants.ts#IAutoMoviePrepareChainConstants.IConstants
 
 ## @evidence contracts/development/common.md#meaningful-documentation

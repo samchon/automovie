@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#IAutoMovieMotionHumanArmGeometry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-constraint: Each joint's range; the elbow's and the wrist's may be absent. tip: Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. corners: Each surface probe's index among its part's own probes, for the audit's reference depth of it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-constraint: Each joint's range; the elbow's and the wrist's may be absent. tip: Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. corners: Each surface probe's index among its part's own probes, for the audit's reference depth of it.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: posture/HumanArmDifferential.ts (HumanArmDifferential.step, setup); posture/HumanArmFrame.ts (HumanArmFrame.of, setup); posture/HumanArmFrame.ts (HumanArmFrame.built, setup); posture/HumanArmGeometry.ts (HumanArmGeometry.prepare, return); posture/HumanArmGeometry.ts (HumanArmGeometry.rotation, setup); posture/HumanArmGeometry.ts (HumanArmGeometry.clamped, setup).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieJointConstraint, IAutoMovieJointRotationFrame identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#IAutoMovieMotionHumanArmGeometry.ISetup
 
 ## @evidence contracts/development/common.md#meaningful-documentation

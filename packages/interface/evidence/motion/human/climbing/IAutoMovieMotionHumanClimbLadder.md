@@ -1,21 +1,3 @@
-# src/motion/human/climbing/IAutoMovieMotionHumanClimbLadder.ts#IAutoMovieMotionHumanClimbLadder
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-rungs: How many rungs the feet climb; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless.
-
-## @evidence contracts/development/design.md#principled-representation
-
-rungs: How many rungs the feet climb; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainTravel.ts (HumanChainTravel.climbLadder, params); climbing/climbLadder.ts (climbLadder.plan, context); climbing/climbLadder.ts (climbLadder.plan, limb); climbing/climbLadder.ts (climbLadder.plan.level, limb); climbing/climbLadder.ts (climbLadder.plan, return); executable/cases/climbCases.ts (climbCases).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionManner, IAutoMovieMotionHumanLadder.ILadder identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/climbing/IAutoMovieMotionHumanClimbLadder.ts#IAutoMovieMotionHumanClimbLadder.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

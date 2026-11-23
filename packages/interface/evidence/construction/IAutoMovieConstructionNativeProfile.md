@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionNativeProfile.ts#IAutoMovieConstructionNativeProfile
-
-## @evidence contracts/development/design.md#principled-representation
-
-Separates material/binding addresses and revision tokens from the native part's geometry.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-NativeProfile reads these identities to publish its region and dependency declaration.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Tokens identify owners; matching strings do not prove geometric or binding equivalence.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States identity purpose and the adapter's presence admission.
-
 # src/construction/IAutoMovieConstructionNativeProfile.ts#IAutoMovieConstructionNativeProfile.IIdentity
 
 ## @evidence contracts/development/design.md#principled-representation

@@ -1,21 +1,3 @@
-# src/motion/human/throwing/IAutoMovieMotionHumanThrowObjectLever.ts#IAutoMovieMotionHumanThrowObjectLever
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-kind: Turns chosen by the act. prop: The implement's subject id, held in the throwing hand at the throw's entry. point: The affordance the thrown prop rides: an atlatl's spur, a sling's pouch.
-
-## @evidence contracts/development/design.md#principled-representation
-
-kind: Turns chosen by the act. prop: The implement's subject id, held in the throwing hand at the throw's entry. point: The affordance the thrown prop rides: an atlatl's spur, a sling's pouch.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: throwing/throwObjectLever.ts (throwObjectLever.of, props); throwing/throwObject.ts (throwObject.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly; runtime handling remains in throwObjectLever.of.
-
 # src/motion/human/throwing/IAutoMovieMotionHumanThrowObjectLever.ts#IAutoMovieMotionHumanThrowObjectLever.ITurns
 
 ## @evidence contracts/development/common.md#meaningful-documentation

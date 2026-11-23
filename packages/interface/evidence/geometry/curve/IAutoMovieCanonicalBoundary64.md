@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieCanonicalBoundary64.ts#IAutoMovieCanonicalBoundary64
-
-## @evidence contracts/development/design.md#principled-representation
-
-Exact dyadic phase identity survives rounding collisions while interval uses retain directed walks.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Inverse anchors and partition input/output describe distinct operations on the same normalized authority domain.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Neither coincident positions nor an incidence count certifies shared source topology.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines normalized units, identity, admission, direction and diagnostic limitations.
-
 # src/geometry/curve/IAutoMovieCanonicalBoundary64.ts#IAutoMovieCanonicalBoundary64.Interval
 
 ## @evidence contracts/development/design.md#principled-representation

@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanLegChain.ts#IAutoMovieMotionHumanLegChain
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-hip: The hip joint, world metres. knee: The knee, world metres. ankle: The ankle, world metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-hip: The hip joint, world metres. knee: The knee, world metres. ankle: The ankle, world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: posture/HumanLegChain.ts (HumanLegChain.pose, held); posture/HumanLegChain.ts (HumanLegChain.read, return); posture/HumanLegChain.ts (HumanLegChain.fit, return); reaction/staggerSequential.ts (staggerSequential.solve.piecesOf.swivels.slope.read, return); posture/HumanLegChain.ts (HumanLegChain.pose, return); posture/HumanLegChain.ts (HumanLegChain.seeded, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion, IAutoMovieSwivelSeed identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanLegChain.ts#IAutoMovieMotionHumanLegChain.IPosed
 
 ## @evidence contracts/development/common.md#meaningful-documentation

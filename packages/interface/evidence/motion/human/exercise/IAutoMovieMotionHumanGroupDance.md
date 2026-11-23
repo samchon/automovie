@@ -1,21 +1,3 @@
-# src/motion/human/exercise/IAutoMovieMotionHumanGroupDance.ts#IAutoMovieMotionHumanGroupDance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three dances and the seeded variation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A dance kind with the group geometry it needs.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: exercise/groupDance.ts (groupDance.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly.
-
 # src/motion/human/exercise/IAutoMovieMotionHumanGroupDance.ts#IAutoMovieMotionHumanGroupDance.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

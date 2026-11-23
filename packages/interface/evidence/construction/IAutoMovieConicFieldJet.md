@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConicFieldJet.ts#IAutoMovieConicFieldJet
-
-## @evidence contracts/development/design.md#principled-representation
-
-IJet fixes the six entries of a symmetric two-coordinate Hessian; IAlgebra preserves those coordinates across scalar operations and primal branch reads.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The interface owns the arithmetic boundary used by the engine's NUMBER and AD conic implementations.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The tuple enforces entry count but not finite values or geometric regularity; geometry owners admit divisors and source domains.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States derivative order, absence of factorial scaling and each operation's premises.
-
 # src/construction/IAutoMovieConicFieldJet.ts#IAutoMovieConicFieldJet.IJet
 
 ## @evidence contracts/development/design.md#principled-representation

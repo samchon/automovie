@@ -1,21 +1,3 @@
-# src/core/math/IAutoMovieSolveHalfPlaneProgram.ts#IAutoMovieSolveHalfPlaneProgram
-
-## @evidence contracts/development/design.md#principled-representation
-
-Planar points, directed unit lines and a feasibility-labelled result describe the disc-constrained half-plane program in one caller-chosen coordinate scale.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-solveAutoMovieHalfPlaneProgram and collision-avoidance callers share the same point/line/result vocabulary without embedding agent state.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The numerical solver admits positive finite radius and finite near-unit directions; infeasible constraints yield a labelled fallback, not a claimed feasible solution.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents left-of-line inclusion, coordinate scale, numeric admission and fallback meaning.
-
 # src/core/math/IAutoMovieSolveHalfPlaneProgram.ts#IAutoMovieSolveHalfPlaneProgram.IPoint
 
 ## @evidence contracts/development/design.md#principled-representation

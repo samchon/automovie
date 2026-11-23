@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieContourLoftCurves64.ts#IAutoMovieContourLoftCurves64
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Millimetre polygon arclength charts, evaluated source phases and exact Bernstein restrictions remain distinct records. Optional materialized nets and lazy original/path data describe existing representations; their consistency is a numerical-owner premise, not a fitted mesh substitute.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Millimetre polygon arclength charts, evaluated source phases and exact Bernstein restrictions remain distinct records.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieContourLoftCurves64 exchanges these records with contour sampling and interaction refinement.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Optional materialized nets and lazy original/path data describe existing representations; their consistency is a numerical-owner premise, not a fitted mesh substitute.
-
 # src/geometry/curve/IAutoMovieContourLoftCurves64.ts#IAutoMovieContourLoftCurves64.Curve
 
 ## @evidence contracts/development/design.md#principled-representation

@@ -1,21 +1,3 @@
-# src/cinematics/IAutoMovieCompilePerformShotCameras.ts#IAutoMovieCompilePerformShotCameras
-
-## @evidence contracts/development/design.md#principled-representation
-
-IProps joins final motion on one shot clock with staged cameras and geometry; validation belongs to performShot and its delegated gates.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The camera stage consumes these fields for shared framing and clearance rather than receiving frontend state or a second scene representation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Missing models and runtime keep their distinct framing-fallback and clearance-refusal meanings.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-IProps documents clip identity, units, final-motion ordering and absence behavior.
-
 # src/cinematics/IAutoMovieCompilePerformShotCameras.ts#IAutoMovieCompilePerformShotCameras.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

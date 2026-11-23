@@ -1,21 +1,3 @@
-# src/motion/composition/IAutoMovieAuditOutcome.ts#IAutoMovieAuditOutcome
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Contact expectations and measurements use one seconds clock, subject/region identities and newton-second impulses; the auditor matches either side order and tests peak individual impulse, without admitting numeric ranges.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieAuditOutcome contracts used by packages/engine/src/composition/auditAutoMovieOutcome.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Contact expectations and measurements use one seconds clock, subject/region identities and newton-second impulses; the auditor matches either side order and tests peak individual impulse, without admitting numeric ranges. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieAuditOutcome contract belongs to interface; packages/engine/src/composition/auditAutoMovieOutcome.ts uses its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/composition/IAutoMovieAuditOutcome.ts#IAutoMovieAuditOutcome.ISide
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/human/generation/conic/IAutoMovieHumanNativeProjectionCourse.ts#IAutoMovieHumanNativeProjectionCourse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Original and projected material-axis records.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Physical lengths are millimetres, source identity is explicit, and a speed bound accompanies the projected axis.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanNativeProjectionCourse owns the preparation and native-scale evaluation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The representation retains the straight-frame premise at the actual caller.
-
 # src/human/generation/conic/IAutoMovieHumanNativeProjectionCourse.ts#IAutoMovieHumanNativeProjectionCourse.IPrepared
 
 ## @evidence contracts/development/common.md#meaningful-documentation

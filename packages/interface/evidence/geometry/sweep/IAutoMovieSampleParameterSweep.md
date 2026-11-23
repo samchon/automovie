@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieSampleParameterSweep.ts#IAutoMovieSampleParameterSweep
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-A fixed normalized-u/turn footprint combines metre section coordinates with live dimensionless scale and frame slots. Signed Cartesian cancellation may legitimately yield the origin; nonrepresentable products fail before publishing output instead of becoming radial substitutes.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A fixed normalized-u/turn footprint combines metre section coordinates with live dimensionless scale and frame slots.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-sampleAutoMovieParameterSweep registers shapes once and uses the sweep rig's supplied readers during pose writes.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Signed Cartesian cancellation may legitimately yield the origin; nonrepresentable products fail before publishing output instead of becoming radial substitutes.
-
 # src/geometry/sweep/IAutoMovieSampleParameterSweep.ts#IAutoMovieSampleParameterSweep.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

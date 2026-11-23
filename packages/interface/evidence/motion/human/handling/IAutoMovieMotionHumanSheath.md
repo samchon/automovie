@@ -1,21 +1,3 @@
-# src/motion/human/handling/IAutoMovieMotionHumanSheath.ts#IAutoMovieMotionHumanSheath
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the carrier and blade conventions, the seated and drawn frames and the owner that stages them.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The pair is named by scene subjects and affordance ids, and the clearance is a length in metres along the mouth's own axis, so the staged frames follow the carrier wherever it is worn.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The staging input and the staged identities the draw and return compositions read; `HumanSheath` owns both.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No blade or carrier kind is named; the frames are derived from the declared mouth and tip.
-
 # src/motion/human/handling/IAutoMovieMotionHumanSheath.ts#IAutoMovieMotionHumanSheath.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

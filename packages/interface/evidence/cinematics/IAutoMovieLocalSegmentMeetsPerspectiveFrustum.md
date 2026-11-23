@@ -1,21 +1,3 @@
-# src/cinematics/IAutoMovieLocalSegmentMeetsPerspectiveFrustum.ts#IAutoMovieLocalSegmentMeetsPerspectiveFrustum
-
-## @evidence contracts/development/design.md#principled-representation
-
-IProps names local endpoints, metre-valued depths and dimensionless lens/crop scalars; numerical validity remains a caller premise.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The shared local predicate serves world-segment and box-frustum readers without repeated corner transformation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Canonical vector and crop contracts are reused, and geometric intersection is not presented as rendered visibility.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-IProps records axis convention, inclusive planes and representability assumptions.
-
 # src/cinematics/IAutoMovieLocalSegmentMeetsPerspectiveFrustum.ts#IAutoMovieLocalSegmentMeetsPerspectiveFrustum.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

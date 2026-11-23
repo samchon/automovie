@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieCurveAssembly64.ts#IAutoMovieCurveAssembly64
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Named region factories publish physical boundary fields through one resolved context and retain their concrete result type. The constrained generic preserves actual producer results; readonly views do not freeze containers, and dependency/publication validity is checked during assembly.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Named region factories publish physical boundary fields through one resolved context and retain their concrete result type.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-generateAutoMovieCurveAssembly64 schedules Factory callbacks and returns Output maps keyed by region and boundary IDs.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The constrained generic preserves actual producer results; readonly views do not freeze containers, and dependency/publication validity is checked during assembly.
-
 # src/geometry/curve/IAutoMovieCurveAssembly64.ts#IAutoMovieCurveAssembly64.Result
 
 ## @evidence contracts/development/design.md#principled-representation

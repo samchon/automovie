@@ -1,21 +1,3 @@
-# src/cinematics/IAutoMovieProjectToNdc.ts#IAutoMovieProjectToNdc
-
-## @evidence contracts/development/design.md#principled-representation
-
-IResult keeps dimensionless delivered NDC separate from signed metre depth, without claiming every result is finite.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-All projection consumers share the same three-number result while deciding their own near/far and frame inclusion policy.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Out-of-frame and behind-lens values remain representable instead of being coerced into visible coordinates.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-IResult describes crop remapping, axis direction, non-finite values and caller ownership.
-
 # src/cinematics/IAutoMovieProjectToNdc.ts#IAutoMovieProjectToNdc.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

@@ -1,21 +1,3 @@
-# src/motion/composition/IAutoMovieEvaluateSchedule.ts#IAutoMovieEvaluateSchedule
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The instant uses film seconds; active entries keep input entry order and carry local seconds and normalized phase in [0, 1). State values are borrowed from the latest ended entry, breaking equal-end ties by larger entry index.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieEvaluateSchedule contracts used by packages/engine/src/composition/evaluateAutoMovieSchedule.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The instant uses film seconds; active entries keep input entry order and carry local seconds and normalized phase in [0, 1). State values are borrowed from the latest ended entry, breaking equal-end ties by larger entry index. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieEvaluateSchedule contract belongs to interface; packages/engine/src/composition/evaluateAutoMovieSchedule.ts uses its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/composition/IAutoMovieEvaluateSchedule.ts#IAutoMovieEvaluateSchedule.IActive
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/motion/human/audit/IAutoMovieMotionHumanAuditPartner.ts#IAutoMovieMotionHumanAuditPartner
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-depth: How deep, metres, positive. worst: The deepest pair, named `<subject> <part> in <other> <into>`; zero and `none` when the bodies never pass into each other.
-
-## @evidence contracts/development/design.md#principled-representation
-
-depth: How deep, metres, positive. worst: The deepest pair, named `<subject> <part> in <other> <into>`; zero and `none` when the bodies never pass into each other.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure, one); audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure, other); audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure.read, from); audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure.read, to); audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure, return); audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure.pairs, x).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieMotionHumanAuditMeasure identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/audit/IAutoMovieMotionHumanAuditPartner.ts#IAutoMovieMotionHumanAuditPartner.IPerson
 
 ## @evidence contracts/development/common.md#meaningful-documentation

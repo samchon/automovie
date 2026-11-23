@@ -1,21 +1,3 @@
-# src/human/generation/hand/IAutoMovieHumanNail.ts#IAutoMovieHumanNail
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Nail geometry inputs and generated plate, ownership and diagnostic records.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The nail frame, digit charts and plate plane are separate named domains, using millimetres and radians.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanNail consumes the inputs and derives a nail for the skin builder and region readers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Published and estimated proportions are supplied by the caller, while the same law builds hand and foot nails.
-
 # src/human/generation/hand/IAutoMovieHumanNail.ts#IAutoMovieHumanNail.IFrame
 
 ## @evidence contracts/development/common.md#meaningful-documentation

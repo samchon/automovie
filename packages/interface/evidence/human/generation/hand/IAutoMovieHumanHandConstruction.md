@@ -1,21 +1,3 @@
-# src/human/generation/hand/IAutoMovieHumanHandConstruction.ts#IAutoMovieHumanHandConstruction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the AutoMovieHumanHandConstruction exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A type-only namespace groups IFixedContourInput, IInput, IBuilt. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these declarations used by Human's AutoMovieHumanHandConstruction; Human retains the computation and source preparation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace only qualifies the IFixedContourInput, IInput, IBuilt contracts and adds no alternate implementation, optional mode or runtime state.
-
 # src/human/generation/hand/IAutoMovieHumanHandConstruction.ts#IAutoMovieHumanHandConstruction.IFixedContourInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

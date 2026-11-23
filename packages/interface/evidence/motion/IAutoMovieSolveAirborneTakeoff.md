@@ -1,21 +1,3 @@
-# src/motion/IAutoMovieSolveAirborneTakeoff.ts#IAutoMovieSolveAirborneTakeoff
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The solve uses flight-clock seconds, unit take-off/frame quaternions, signed somersault/twist turns and world angular momentum in kg m²/s. Angular tolerance is radians whereas solution residual components are revolutions; met reports both the residual and momentum bounds, and flight is the trajectory actually judged.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieSolveAirborneTakeoff contracts used by packages/engine/src/motion/solveAirborneTakeoff.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The solve uses flight-clock seconds, unit take-off/frame quaternions, signed somersault/twist turns and world angular momentum in kg m²/s. Angular tolerance is radians whereas solution residual components are revolutions; met reports both the residual and momentum bounds, and flight is the trajectory actually judged. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieSolveAirborneTakeoff contract belongs to interface; packages/engine/src/motion/solveAirborneTakeoff.ts and packages/engine/src/motion/AirborneTakeoffLinear.ts use its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/IAutoMovieSolveAirborneTakeoff.ts#IAutoMovieSolveAirborneTakeoff.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

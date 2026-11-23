@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieLoftViewSource.ts#IAutoMovieLoftViewSource
-
-## @evidence contracts/development/design.md#principled-representation
-
-The view source preserves signed original outlines, fullness, station-mm domain and cap laws, while IResult retains every scalar failure beside a nullable source.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-LoftViewSource owns scalar preparation for native source readers and reuses the ViewPart authoring subset.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A source discriminator cannot disguise invalid present data as absence; numerical source admission remains in the engine.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes original signs, domain, cap spans and aggregate failure results.
-
 # src/construction/IAutoMovieLoftViewSource.ts#IAutoMovieLoftViewSource.IInput
 
 ## @evidence contracts/development/design.md#principled-representation

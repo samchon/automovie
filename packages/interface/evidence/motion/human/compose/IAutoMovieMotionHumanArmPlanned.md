@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanArmPlanned.ts#IAutoMovieMotionHumanArmPlanned
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-back: The arm at the end of the span, where it returns to another arm than it left; `rest` when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-back: The arm at the end of the span, where it returns to another arm than it left; `rest` when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanArmFollow.ts (AutoMovieMotionHumanArmFollow.follower, span); compose/AutoMovieMotionHumanArmPlanned.ts (AutoMovieMotionHumanArmPlanned.stated, return); compose/AutoMovieMotionHumanArmPlanned.ts (AutoMovieMotionHumanArmPlanned.planned, span); everyday/gestureHands.ts (gestureHands.planned, span); everyday/sit.ts (sit.plan.span, return); compose/AutoMovieMotionHumanArmPlanned.ts (AutoMovieMotionHumanArmPlanned.together, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanArmCarry.ICarry, AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory, IAutoMovieMotionHumanArmAngles.IAngles identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanArmPlanned.ts#IAutoMovieMotionHumanArmPlanned.ISpan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

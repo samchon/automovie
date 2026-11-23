@@ -1,21 +1,3 @@
-# src/recovery/computation/IAutoMovieRecoveryChartLeafFit.ts#IAutoMovieRecoveryChartLeafFit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Stable chart identity retained by the fitted patch family. Private physical chart observations in millimetres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Private physical chart observations in millimetres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-RecoveryChartLeafFit, RecoveryChartSurface share IAutoMovieRecoveryChartLeafFit's canonical records; the referenced quantities retain one declaration owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Requested correspondence residual in millimetres, independent of embedding.
-
 # src/recovery/computation/IAutoMovieRecoveryChartLeafFit.ts#IAutoMovieRecoveryChartLeafFit.Input
 
 ## @evidence contracts/development/common.md#meaningful-documentation

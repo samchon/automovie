@@ -1,21 +1,3 @@
-# src/motion/human/touch/IAutoMovieMotionHumanSeatedReach.ts#IAutoMovieMotionHumanSeatedReach
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-room: Degrees of flexion the range still leaves.
-
-## @evidence contracts/development/design.md#principled-representation
-
-room: Degrees of flexion the range still leaves.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: touch/HumanSeatedReach.ts (HumanSeatedReach.rooms, return); touch/HumanSeatedReach.ts (HumanSeatedReach.rooms.joints, return); touch/HumanSeatedReach.ts (HumanSeatedReach.rooms, j); touch/HumanSeatedReach.ts (HumanSeatedReach.lean, joints); touch/HumanSeatedReach.ts (HumanSeatedReach.lean.pivots, j); touch/HumanSeatedReach.ts (HumanSeatedReach.lean, j).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/touch/IAutoMovieMotionHumanSeatedReach.ts#IAutoMovieMotionHumanSeatedReach.IJoint
 
 ## @evidence contracts/development/common.md#meaningful-documentation

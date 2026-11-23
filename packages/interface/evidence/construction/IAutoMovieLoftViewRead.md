@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieLoftViewRead.ts#IAutoMovieLoftViewRead
-
-## @evidence contracts/development/design.md#principled-representation
-
-IValues and IJets separate scalar source values from complete physical-station derivatives; extent/touch lengths use mm and angular entries use radians.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-LoftViewRead supplies these inputs to native section preparation and source boundary readers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Optional touch/split/piece data indicate declared chain geometry; finite values alone do not establish positive admitted native shape or physical2.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents effective shoulders, optional chain layouts and station-jet meaning.
-
 # src/construction/IAutoMovieLoftViewRead.ts#IAutoMovieLoftViewRead.IValues
 
 ## @evidence contracts/development/design.md#principled-representation

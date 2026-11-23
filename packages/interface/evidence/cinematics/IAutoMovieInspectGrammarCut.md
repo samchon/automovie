@@ -1,21 +1,3 @@
-# src/cinematics/IAutoMovieInspectGrammarCut.ts#IAutoMovieInspectGrammarCut
-
-## @evidence contracts/development/design.md#principled-representation
-
-IThresholds separates bearing degrees from world-metre displacement; readFilmGrammar validates both as finite positive numbers.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Only the two thresholds that inspectGrammarCut reads are exposed; camera and subject observations remain separate canonical inputs.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Policy thresholds remain data without encoding a particular film or promising perceptual continuity.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-IThresholds states defaults, units, comparison boundaries and admission ownership.
-
 # src/cinematics/IAutoMovieInspectGrammarCut.ts#IAutoMovieInspectGrammarCut.IThresholds
 
 ## @evidence contracts/development/design.md#principled-representation

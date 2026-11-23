@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieFitSubdivisionLimit.ts#IAutoMovieFitSubdivisionLimit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Quad topology and packed targets share one spatial unit; fitted controls retain that unit and report their measured limit residual. Pinned controls are held rather than limit-interpolated; structural buffers do not establish full manifoldness or convergence.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Quad topology and packed targets share one spatial unit; fitted controls retain that unit and report their measured limit residual.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-fitAutoMovieSubdivisionLimit builds stencils and delegates the solve; callers own the resulting controls and acceptance decision.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Pinned controls are held rather than limit-interpolated; structural buffers do not establish full manifoldness or convergence.
-
 # src/geometry/sweep/IAutoMovieFitSubdivisionLimit.ts#IAutoMovieFitSubdivisionLimit.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

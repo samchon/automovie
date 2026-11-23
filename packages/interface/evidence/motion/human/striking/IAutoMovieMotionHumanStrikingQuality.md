@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanStrikingQuality.ts#IAutoMovieMotionHumanStrikingQuality
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-accuracy: The declared accuracy; `hit` when absent. radius: The weapon's half width, metres. distance: The distance the weapon travels, metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-accuracy: The declared accuracy; `hit` when absent. radius: The weapon's half width, metres. distance: The distance the weapon travels, metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: striking/StrikingQuality.ts (StrikingQuality.stops, accuracy); striking/StrikingQuality.ts (StrikingQuality.offset, input); striking/StrikingQuality.ts (StrikingQuality.offset).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanSkill, IAutoMovieRandom identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/striking/IAutoMovieMotionHumanStrikingQuality.ts#IAutoMovieMotionHumanStrikingQuality.Accuracy
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieSolidCycle.ts#IAutoMovieSolidCycle
-
-## @evidence contracts/development/design.md#principled-representation
-
-Boundary cycles coindex mesh IDs, unwrapped native-chart points and neighboring segments; feet use chart distance rather than world distance.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-SolidCycle and body atlas publication share cycle, neighbor and foot records, including the -1 open-boundary sentinel.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Array correspondence and valid body indices require producer admission; an optional exact along curve applies only to vertices lying on that curve.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines traversal, periodic branches, open neighbors and exact-curve eligibility.
-
 # src/construction/IAutoMovieSolidCycle.ts#IAutoMovieSolidCycle.ICycle
 
 ## @evidence contracts/development/design.md#principled-representation

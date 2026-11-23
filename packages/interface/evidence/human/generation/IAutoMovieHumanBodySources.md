@@ -1,21 +1,3 @@
-# src/human/generation/IAutoMovieHumanBodySources.ts#IAutoMovieHumanBodySources
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes invocation-owned source factories, explicit raw requests and observed preparation state; nested declarations retain their units, frames, optional states and callback contracts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Invocation-owned source factories, explicit raw requests and observed preparation state. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these dependency-free exchange types for AutoMovieHumanBodySources; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups the existing BodySources contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
-
 # src/human/generation/IAutoMovieHumanBodySources.ts#IAutoMovieHumanBodySources.IOriginal
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieLoftContract.ts#IAutoMovieLoftContract
-
-## @evidence contracts/development/design.md#principled-representation
-
-Stations, bounded scalar rows and projected rings name distinct numerical checking boundaries; IDiagnostic preserves the failed producer, level and premise.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Construction readers reuse the checked arrays directly, and realization/reporting consumers share the diagnostic without an exception-class dependency.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Existing intersection brands can be bypassed by casts or invalidated by alias mutation; their runtime validators and limits are documented rather than treating the tags as proof.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines borrowed ownership, erased marker properties, projection/units and caller-bound validation limits.
-
 # src/construction/IAutoMovieLoftContract.ts#IAutoMovieLoftContract.IDiagnostic
 
 ## @evidence contracts/development/design.md#principled-representation

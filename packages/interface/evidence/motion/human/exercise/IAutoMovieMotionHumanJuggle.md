@@ -1,21 +1,3 @@
-# src/motion/human/exercise/IAutoMovieMotionHumanJuggle.ts#IAutoMovieMotionHumanJuggle
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the patterns and the theorem.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A pattern, its balls and its height.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: exercise/juggle.ts (juggle.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly.
-
 # src/motion/human/exercise/IAutoMovieMotionHumanJuggle.ts#IAutoMovieMotionHumanJuggle.Pattern
 
 ## @evidence contracts/development/common.md#meaningful-documentation

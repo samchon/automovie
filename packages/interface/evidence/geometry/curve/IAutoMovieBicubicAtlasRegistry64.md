@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieBicubicAtlasRegistry64.ts#IAutoMovieBicubicAtlasRegistry64
-
-## @evidence contracts/development/design.md#principled-representation
-
-Exact phases and declared identities index registry objects independently of rounded Cartesian positions.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-IResult is the shared state exchanged between the atlas registry and emitter.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Open-atom incidence avoids equating three coarse/fine uses with three overlapping surface incidents.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The result defines shared mutation, phase comparison premises and omitted-patch accounting.
-
 # src/geometry/curve/IAutoMovieBicubicAtlasRegistry64.ts#IAutoMovieBicubicAtlasRegistry64.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

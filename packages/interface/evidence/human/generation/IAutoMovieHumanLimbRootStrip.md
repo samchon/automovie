@@ -1,21 +1,3 @@
-# src/human/generation/IAutoMovieHumanLimbRootStrip.ts#IAutoMovieHumanLimbRootStrip
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Endpoint jets and strip-ring readers connecting a trunk opening to a limb's own sections. Member comments specify the individual units, frames and optional-value meanings.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups only IJet, IInputs, IStrip, JetAt, EdgeAt declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-IJet, IInputs, IStrip, JetAt, EdgeAt separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanLimbRootStrip exchanges the named IJet, IInputs, IStrip, JetAt, EdgeAt contracts with its Human callers. Interface owns these type declarations without importing that implementation.
-
 # src/human/generation/IAutoMovieHumanLimbRootStrip.ts#IAutoMovieHumanLimbRootStrip.IJet
 
 ## @evidence contracts/development/common.md#meaningful-documentation

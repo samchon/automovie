@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanJacobian.ts#IAutoMovieMotionHumanJacobian
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-linear: The linear velocity it gives the world origin, metres; a place's direction, or the turn's at the origin. moves: The bones moved; null for every bone. linear: Metres, at the bone's origin.
-
-## @evidence contracts/development/design.md#principled-representation
-
-linear: The linear velocity it gives the world origin, metres; a place's direction, or the turn's at the origin. moves: The bones moved; null for every bone. linear: Metres, at the bone's origin.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: posture/HumanArmJacobian.ts (HumanArmJacobian.columns.joints, return); posture/HumanBodyFit.ts (HumanBodyFit.fit.units, v); posture/HumanBodyFit.ts (HumanBodyFit.fit.least, v); posture/HumanFitVariables.ts (HumanFitVariables.BODY, return); posture/HumanFitVariables.ts (HumanFitVariables.vector, variables); posture/HumanFitVariables.ts (HumanFitVariables.vector, v).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidBone, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanJacobian.ts#IAutoMovieMotionHumanJacobian.IVariable
 
 ## @evidence contracts/development/common.md#meaningful-documentation

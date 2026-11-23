@@ -1,21 +1,3 @@
-# src/pose/IAutoMovieHumanoidSurfaceRegions.ts#IAutoMovieHumanoidSurfaceRegions
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two forms a station takes. States what the pair defines.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A bone, the joint it leans toward or the bounds centre, and a share. A ray: an origin on the segment and a direction in the rest frame.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The three members the surface resolver reads. The two members a region needs.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Bones are the interface's closed bone union. None; the point itself is read from the colliders, never stored.
-
 # src/pose/IAutoMovieHumanoidSurfaceRegions.ts#IAutoMovieHumanoidSurfaceRegions.IStation
 
 ## @evidence contracts/development/common.md#meaningful-documentation

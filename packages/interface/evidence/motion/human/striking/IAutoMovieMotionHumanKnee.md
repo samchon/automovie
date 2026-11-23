@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanKnee.ts#IAutoMovieMotionHumanKnee
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-leg: Which leg: lead or rear; rear when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-leg: Which leg: lead or rear; rear when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.knee, params); striking/knee.ts (knee.plan, context); striking/knee.ts (knee.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/striking/IAutoMovieMotionHumanKnee.ts#IAutoMovieMotionHumanKnee.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

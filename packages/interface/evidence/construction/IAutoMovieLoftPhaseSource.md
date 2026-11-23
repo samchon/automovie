@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieLoftPhaseSource.ts#IAutoMovieLoftPhaseSource
-
-## @evidence contracts/development/design.md#principled-representation
-
-Source coordinates retain station-mm, signed-root or radian units; cardinal derivative rows and station weights remain in that chosen coordinate until explicitly transformed.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-LoftPhaseSource prepares these native curve combinations for phase evaluation and chain source interpolation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Array order and dimensions are preparation premises; a weighted native family is not a fit of display samples.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes source-coordinate derivatives from a physical station change.
-
 # src/construction/IAutoMovieLoftPhaseSource.ts#IAutoMovieLoftPhaseSource.ISource
 
 ## @evidence contracts/development/design.md#principled-representation

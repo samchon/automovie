@@ -1,21 +1,3 @@
-# src/validation/IAutoMoviePlacedContact.ts#IAutoMoviePlacedContact
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The inputs name the observed frames, authored target, units and unavailable case. The result separates measured findings from invalid inputs and unsupported coverage.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A support compares a point against a carrier-local anchor. A grip compares two world rigid frames against one hand-local offset. Their geometric quantities and limits remain distinct.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Engine measures the two relations. A production adapter selects the declared active contact and supplies the same placed facts to each inspection host.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No branch supplies a rest pose or chooses a support based on proximity. Discriminants separate the inputs and measurements used by each relation.
-
 # src/validation/IAutoMoviePlacedContact.ts#IAutoMoviePlacedContact.ISupportSample
 
 ## @evidence contracts/development/common.md#meaningful-documentation

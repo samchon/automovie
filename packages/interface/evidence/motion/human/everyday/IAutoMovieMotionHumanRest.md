@@ -1,21 +1,3 @@
-# src/motion/human/everyday/IAutoMovieMotionHumanRest.ts#IAutoMovieMotionHumanRest
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-left: The left hand's place; `side` when absent. right: The right hand's place; `side` when absent. hold: How long, seconds; 2 when absent. Exclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#principled-representation
-
-left: The left hand's place; `side` when absent. right: The right hand's place; `side` when absent. hold: How long, seconds; 2 when absent. Exclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.rest, params); everyday/rest.ts (rest.plan, context); everyday/rest.ts (rest.goals, places); everyday/restGoals.ts (restGoals, places); everyday/rest.ts (rest.goals, return); everyday/restClasped.ts (restClasped.front, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanHand.Surface, IAutoMovieMotionHumanHand.Shape, IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/everyday/IAutoMovieMotionHumanRest.ts#IAutoMovieMotionHumanRest.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

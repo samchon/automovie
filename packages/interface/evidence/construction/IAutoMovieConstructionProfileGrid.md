@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionProfileGrid.ts#IAutoMovieConstructionProfileGrid
-
-## @evidence contracts/development/design.md#principled-representation
-
-Physical station marks and dimensionless piece marks retain original guides and omit declared collapsed rows.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-ProfileGrid creates these grids for ProfileBody's source face and shared-boundary publication.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Sampled chord refinement and endpoint checks do not prove continuous topology or an unsampled error bound.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names chart units, omitted poles and the grid's downstream owner.
-
 # src/construction/IAutoMovieConstructionProfileGrid.ts#IAutoMovieConstructionProfileGrid.IGrid
 
 ## @evidence contracts/development/common.md#meaningful-documentation

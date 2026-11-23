@@ -1,21 +1,3 @@
-# src/validation/IAutoMovieDetectFreeFall.ts#IAutoMovieDetectFreeFall
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Declared support and initial trajectory facts for the free-fall adviser. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World points, velocities, acceleration and seconds retain distinct physical units.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The adviser consumes existing body/vector contracts and proposes an event and projectile clip.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Declared attachment/falling flags are premises, and no missing physical body is fabricated.
-
 # src/validation/IAutoMovieDetectFreeFall.ts#IAutoMovieDetectFreeFall.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

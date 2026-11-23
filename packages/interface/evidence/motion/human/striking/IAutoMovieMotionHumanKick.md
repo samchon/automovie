@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanKick.ts#IAutoMovieMotionHumanKick
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-leg: Which leg: the stance's lead or rear; rear for a round kick and lead for a push kick when absent. accuracy: Declared accuracy; `hit` when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-leg: Which leg: the stance's lead or rear; rear for a round kick and lead for a push kick when absent. accuracy: Declared accuracy; `hit` when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.kick, params); striking/kick.ts (kick.leg, params); striking/kick.ts (kick.plan, context); striking/kick.ts (kick.redirected, context); striking/kick.ts (kick.measure, context); striking/KickGeometry.ts (KickGeometry.build, context).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanStrikingQuality.Accuracy, IAutoMovieMotionHumanKickGeometry.ISource identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/striking/IAutoMovieMotionHumanKick.ts#IAutoMovieMotionHumanKick.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

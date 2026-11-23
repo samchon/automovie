@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanStrikingStroke.ts#IAutoMovieMotionHumanStrikingStroke
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-point: Chamber or via point in world metres. begin: Start of the motion toward the via point, film seconds. end: Arrival at the via point, film seconds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-point: Chamber or via point in world metres. begin: Start of the motion toward the via point, film seconds. end: Arrival at the via point, film seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: striking/StrikingStroke.ts (StrikingStroke.create, return); striking/StrikingStroke.ts (StrikingStroke.delivery, d); striking/StrikingStroke.ts (StrikingStroke.create, input); striking/punchGeometry.ts (punchGeometry.build).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieSuperposeMinimumJerk.IUnit, IAutoMovieMotionHumanStrikingAim.ITracker identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/striking/IAutoMovieMotionHumanStrikingStroke.ts#IAutoMovieMotionHumanStrikingStroke.IDelivery
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/production/IAutoMovieClassifyPlaybackBoundary.ts#IAutoMovieClassifyPlaybackBoundary
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the output and shot-local clocks, the edit cases that break continuity and the declared deliberate break.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The relation comes from the canonical sequence and its prepared playback layout. Each endpoint keeps the live entry, shot and retimed shot-local second, so a comparison uses source time rather than output spacing.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Engine derives the relation from the edit it already owns. The producer evaluates its own tracks at the returned shot clocks and selects any limits.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A transition overlap or a change of shot is never called continuous, and an instant outside the timeline is unavailable rather than clamped.
-
 # src/production/IAutoMovieClassifyPlaybackBoundary.ts#IAutoMovieClassifyPlaybackBoundary.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/motion/human/sport/IAutoMovieMotionHumanStickBall.ts#IAutoMovieMotionHumanStickBall
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The kind determines its actual tool contact, custody change and support requirements.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One named stick and ball per action, with a declared direction and an explicitly timed contact.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The dedicated sport law owns reach, its tool frame and required model affordances.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The contract names model props and a canonical scene aim target.
-
 # src/motion/human/sport/IAutoMovieMotionHumanStickBall.ts#IAutoMovieMotionHumanStickBall.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

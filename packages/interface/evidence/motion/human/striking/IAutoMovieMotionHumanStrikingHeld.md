@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanStrikingHeld.ts#IAutoMovieMotionHumanStrikingHeld
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-from: The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies the line. Surface normals keep their contact meaning. edge: The affordance whose `+Y` is the edge's direction; absent, any direction square to the axis. prop: The prop's subject id; absent when the bare hand is the effector.
-
-## @evidence contracts/development/design.md#principled-representation
-
-from: The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies the line. Surface normals keep their contact meaning. edge: The affordance whose `+Y` is the edge's direction; absent, any direction square to the axis. prop: The prop's subject id; absent when the bare hand is the effector.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: affordance/operateInsert.ts (operateInsert.tool, return); affordance/operateInsert.ts (operateInsert.target, tool); handling/HumanGraspDemand.ts (HumanGraspDemand.grip, return); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.held, return); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.setup, read); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.present.s, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanSide, IAutoMovieVector3, IAutoMovieMotionHumanHeld.IHeld, IAutoMovieMotionWieldedTool, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/striking/IAutoMovieMotionHumanStrikingHeld.ts#IAutoMovieMotionHumanStrikingHeld.IPoints
 
 ## @evidence contracts/development/common.md#meaningful-documentation

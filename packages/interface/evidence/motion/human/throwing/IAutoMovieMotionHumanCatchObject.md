@@ -1,21 +1,3 @@
-# src/motion/human/throwing/IAutoMovieMotionHumanCatchObject.ts#IAutoMovieMotionHumanCatchObject
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-hands: One hand or two; `two` when absent. hand: The catching hand when one; `right` when absent. glove: A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-hands: One hand or two; `two` when absent. hand: The catching hand when one; `right` when absent. glove: A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: actions/HumanMutual.ts (HumanMutual.pass, params); chain/HumanChainMutual.ts (HumanChainMutual.catchObject, params); throwing/catchObject.ts (catchObject.plan, context); throwing/catchObject.ts (catchObject.plan, return); actions/HumanMutual.ts (HumanMutual.pass); executable/cases/throwCases.ts (throwCases.object).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanSide, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/throwing/IAutoMovieMotionHumanCatchObject.ts#IAutoMovieMotionHumanCatchObject.Hands
 
 ## @evidence contracts/development/common.md#meaningful-documentation

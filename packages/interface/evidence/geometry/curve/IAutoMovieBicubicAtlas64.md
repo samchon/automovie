@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieBicubicAtlas64.ts#IAutoMovieBicubicAtlas64
-
-## @evidence contracts/development/design.md#principled-representation
-
-Chart/grid records use model millimetres and normalized parameters; emitted vertex receipts use model metres and global indices.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Planning, registry and emission share these canonical chart, cell and incidence records.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Exact phase and declared coefficient identities remain separate from rounded positions and render-normal fans.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Member contracts describe units, allocation, cache lifetimes, approximation limits and count scope.
-
 # src/geometry/curve/IAutoMovieBicubicAtlas64.ts#IAutoMovieBicubicAtlas64.Patch
 
 ## @evidence contracts/development/design.md#principled-representation

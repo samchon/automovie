@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionRing.ts#IAutoMovieConstructionRing
-
-## @evidence contracts/development/design.md#principled-representation
-
-IRing pairs body face/end indices and millimetre stations with a signed phase correspondence and shared sampling count.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-ConstructionRing consumes this interface record to publish the continuation's one shared boundary to both faces.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The sign union fixes orientation alternatives; valid faces, equal endpoint geometry and sampling count remain continuation premises.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Gives kept-side cycle roles, station units and phase reversal.
-
 # src/construction/IAutoMovieConstructionRing.ts#IAutoMovieConstructionRing.IRing
 
 ## @evidence contracts/development/design.md#principled-representation

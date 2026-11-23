@@ -1,21 +1,3 @@
-# src/motion/human/music/IAutoMovieMotionHumanConduct.ts#IAutoMovieMotionHumanConduct
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the figures, the ictus rule and their source.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A closed meter union, a bar count and the shared beat clock's tempo or cue-track lock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-What `conduct` reads.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The figure is the meter's; no free path is authorable.
-
 # src/motion/human/music/IAutoMovieMotionHumanConduct.ts#IAutoMovieMotionHumanConduct.Meter
 
 ## @evidence contracts/development/common.md#meaningful-documentation

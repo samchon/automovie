@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanArmTarget.ts#IAutoMovieMotionHumanArmTarget
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-point: Where the surface goes, world metres. bend: The elbow's bend hint, world metres. curl: Extra flexion of every finger joint over the shape, degrees; 0 when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-point: Where the surface goes, world metres. bend: The elbow's bend hint, world metres. curl: Extra flexion of every finger joint over the shape, degrees; 0 when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanArmMove.ts (AutoMovieMotionHumanArmMove.reach, from); compose/AutoMovieMotionHumanArmMove.ts (AutoMovieMotionHumanArmMove.retract, to); compose/AutoMovieMotionHumanArmTarget.ts (AutoMovieMotionHumanArmTarget.origin, return); compose/AutoMovieMotionHumanArmTarget.ts (AutoMovieMotionHumanArmTarget.point, from); affordance/operate.ts (operate.plan.target, return); affordance/operateInsert.ts (operateInsert.target, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanHand.Surface, IAutoMovieMotionHumanHand.Shape, IAutoMovieVector3, IAutoMovieQuaternion, AutoMovieHumanSide, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanArmTarget.ts#IAutoMovieMotionHumanArmTarget.ITarget
 
 ## @evidence contracts/development/common.md#meaningful-documentation

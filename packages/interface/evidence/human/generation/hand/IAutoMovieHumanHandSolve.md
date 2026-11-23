@@ -1,21 +1,3 @@
-# src/human/generation/hand/IAutoMovieHumanHandSolve.ts#IAutoMovieHumanHandSolve
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Solved hand scales, the corresponding arm/wrist law and joints, preserving the arm producer's concrete result type. Member comments specify the individual units, frames and optional-value meanings.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups only ISolved, SolveMakeArm declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-ISolved, SolveMakeArm separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanHandSolve exchanges the named ISolved, SolveMakeArm contracts with its Human callers. Interface owns these type declarations without importing that implementation.
-
 # src/human/generation/hand/IAutoMovieHumanHandSolve.ts#IAutoMovieHumanHandSolve.ISolved
 
 ## @evidence contracts/development/common.md#meaningful-documentation

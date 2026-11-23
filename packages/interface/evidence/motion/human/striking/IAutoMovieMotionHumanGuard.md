@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanGuard.ts#IAutoMovieMotionHumanGuard
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-duration: How long, seconds; 1 when absent and at least the 0.6 s the stance takes to set. stance: Which side leads; the entry's leading side when absent. facing: What to face; the entry's line when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-duration: How long, seconds; 1 when absent and at least the 0.6 s the stance takes to set. stance: Which side leads; the entry's leading side when absent. facing: What to face; the entry's line when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.guard, params); striking/guard.ts (guard.plan, context); striking/guard.ts (guard.build, context); striking/guard.ts (guard.blendArms, context).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/striking/IAutoMovieMotionHumanGuard.ts#IAutoMovieMotionHumanGuard.Style
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieSampleSweepSection.ts#IAutoMovieSampleSweepSection
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-A metre section and safe angular sample count yield radii at evenly spaced polar directions. The finite star-shapedness walk rejects observed violations but does not certify all unsampled intervals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A metre section and safe angular sample count yield radii at evenly spaced polar directions.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-sampleAutoMovieSweepSection uses the canonical section discriminants and existing curve parameterizer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The finite star-shapedness walk rejects observed violations but does not certify all unsampled intervals.
-
 # src/geometry/sweep/IAutoMovieSampleSweepSection.ts#IAutoMovieSampleSweepSection.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

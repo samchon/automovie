@@ -1,21 +1,3 @@
-# src/motion/human/perform/IAutoMovieMotionHumanSharedCarry.ts#IAutoMovieMotionHumanSharedCarry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines who is in contact, what the tracks supply and where this phase starts and ends.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A single rigid world track and two named prop-local grip points define both contact trajectories in film seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Input, actors and prepared readers for AutoMovieMotionHumanSharedCarry.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the performance prop, performer, posture and rigid-frame contracts.
-
 # src/motion/human/perform/IAutoMovieMotionHumanSharedCarry.ts#IAutoMovieMotionHumanSharedCarry.ICarrier
 
 ## @evidence contracts/development/common.md#meaningful-documentation

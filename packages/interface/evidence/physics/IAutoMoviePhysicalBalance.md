@@ -1,21 +1,3 @@
-# src/physics/IAutoMoviePhysicalBalance.ts#IAutoMoviePhysicalBalance
-
-## @evidence contracts/development/design.md#principled-representation
-
-Actual support patches form the horizontal convex hull; COM height and velocity predict a capture point independently of eventual contact outcomes.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The bone id links one actual patch and endpoint to the existing footfall pattern. A step exists only for the recovery branch; shared geometric facts remain available for supported and unrecoverable assessments.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Invalid finite state/limits throw; absent hull, insufficient remaining supports or unreachable travel can refuse recovery rather than fabricate a step.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-All positions are world metres; points and position serve distinct hull and endpoint roles. Members distinguish prediction from measured outcome and specify world metres, absent step and empty-hull behavior.
-
 # src/physics/IAutoMoviePhysicalBalance.ts#IAutoMoviePhysicalBalance.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

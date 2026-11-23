@@ -1,21 +1,3 @@
-# src/motion/human/grappling/IAutoMovieMotionHumanHostageHold.ts#IAutoMovieMotionHumanHostageHold
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the arm, the weapon's place, the shared walk and the two roles.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A closed arm placement, a weapon point at a named region and a backward distance in metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The members the `hostageHold` and `heldHostage` laws read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The weapon stays at its region within the law's tolerance; a region out of reach is refused.
-
 # src/motion/human/grappling/IAutoMovieMotionHumanHostageHold.ts#IAutoMovieMotionHumanHostageHold.Arm
 
 ## @evidence contracts/development/common.md#meaningful-documentation

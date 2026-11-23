@@ -1,21 +1,3 @@
-# src/motion/composition/IAutoMovieMeasureSchedule.ts#IAutoMovieMeasureSchedule
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Classification callbacks use borrowed schedule entries and film-time intervals; displacements are metres, rates are per minute and shares are dimensionless. Callback exceptions propagate; returned measurement records are fresh and callers own numeric validity.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieMeasureSchedule contracts used by packages/engine/src/composition/measureAutoMovieSchedule.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Classification callbacks use borrowed schedule entries and film-time intervals; displacements are metres, rates are per minute and shares are dimensionless. Callback exceptions propagate; returned measurement records are fresh and callers own numeric validity. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieMeasureSchedule contract belongs to interface; packages/engine/src/composition/measureAutoMovieSchedule.ts uses its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/composition/IAutoMovieMeasureSchedule.ts#IAutoMovieMeasureSchedule.IClassify
 
 ## @evidence contracts/development/common.md#meaningful-documentation

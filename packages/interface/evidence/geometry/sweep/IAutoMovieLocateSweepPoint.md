@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieLocateSweepPoint.ts#IAutoMovieLocateSweepPoint
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Model-metre points yield normalized u, polar turns v and signed in-plane metre radial residual. Sampled roots can miss tangencies; endpoint fallback is not proof of being beyond an end, and the residual is not closest-surface distance.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Model-metre points yield normalized u, polar turns v and signed in-plane metre radial residual.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-locateAutoMovieSweepPoint performs section-plane inversion against a compiled direction-correspondence sweep.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Sampled roots can miss tangencies; endpoint fallback is not proof of being beyond an end, and the residual is not closest-surface distance.
-
 # src/geometry/sweep/IAutoMovieLocateSweepPoint.ts#IAutoMovieLocateSweepPoint.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

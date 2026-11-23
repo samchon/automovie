@@ -1,21 +1,3 @@
-# src/drawing/IAutoMovieOpeningNominalExtent.ts#IAutoMovieOpeningNominalExtent
-
-## @evidence contracts/development/design.md#principled-representation
-
-IResult carries a basis for two distinct metre-valued frames or null for unmeasurable geometry; dimension absence is not encoded as zero.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Drawing opening marks and schedule rows consume the same precedence and provenance result from autoMovieOpeningNominalExtent.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A fill substitute remains labelled as such, so a leaf's extent cannot silently become a hole measurement.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-IResult documents profile precedence, null causes, basis-specific axes and rounding.
-
 # src/drawing/IAutoMovieOpeningNominalExtent.ts#IAutoMovieOpeningNominalExtent.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

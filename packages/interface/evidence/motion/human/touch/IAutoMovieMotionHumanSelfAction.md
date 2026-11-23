@@ -1,21 +1,3 @@
-# src/motion/human/touch/IAutoMovieMotionHumanSelfAction.ts#IAutoMovieMotionHumanSelfAction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-hand: The arm of a fist pump; `right` when absent. count: Pumps or rolls; 3 for a pump, 2 for a roll when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-hand: The arm of a fist pump; `right` when absent. count: Pumps or rolls; 3 for a pump, 2 for a roll when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.selfAction, params); touch/selfAction.ts (selfAction.plan, context); touch/selfAction.ts (selfAction.plan); executable/cases/selfCases.ts (selfCases).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanSide, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/touch/IAutoMovieMotionHumanSelfAction.ts#IAutoMovieMotionHumanSelfAction.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

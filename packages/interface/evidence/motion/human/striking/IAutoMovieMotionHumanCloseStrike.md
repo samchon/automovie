@@ -1,21 +1,3 @@
-# src/motion/human/striking/IAutoMovieMotionHumanCloseStrike.ts#IAutoMovieMotionHumanCloseStrike
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-at: What it strikes. technique: The close strike. arm: The striking arm, rear when absent. feint: A share of the delivery shown before the return.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A closed technique union, a target, the arm side and an optional feint share.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by the close strike law and its strike rows.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses the motion target; the law owns reach refusals.
-
 # src/motion/human/striking/IAutoMovieMotionHumanCloseStrike.ts#IAutoMovieMotionHumanCloseStrike.Technique
 
 ## @evidence contracts/development/common.md#meaningful-documentation

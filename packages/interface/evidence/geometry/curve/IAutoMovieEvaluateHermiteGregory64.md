@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieEvaluateHermiteGregory64.ts#IAutoMovieEvaluateHermiteGregory64
-
-## @evidence contracts/development/design.md#principled-representation
-
-The unit-square query returns position and unnormalized derivatives in the boundary-jet frame and units.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-IResult is the evaluator's sampled chart data used for positions and analytic tangent planes.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Rational Gregory twist blending is not represented as a bicubic coefficient grid.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The result specifies caller compatibility, coordinate admission and fresh vector ownership.
-
 # src/geometry/curve/IAutoMovieEvaluateHermiteGregory64.ts#IAutoMovieEvaluateHermiteGregory64.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

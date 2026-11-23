@@ -1,21 +1,3 @@
-# src/motion/human/sport/IAutoMovieMotionHumanRacket.ts#IAutoMovieMotionHumanRacket
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-hand: The racket or lead hand; `right` when absent. hold: Seconds held; 0.6 when absent. Inclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#principled-representation
-
-hand: The racket or lead hand; `right` when absent. hold: Seconds held; 0.6 when absent. Inclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.racket, params); sport/racket.ts (racket.plan, context); sport/racket.ts (racket.plan); executable/cases/racketCases.ts (racketCases).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/sport/IAutoMovieMotionHumanRacket.ts#IAutoMovieMotionHumanRacket.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

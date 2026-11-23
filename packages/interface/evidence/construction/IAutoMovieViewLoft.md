@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieViewLoft.ts#IAutoMovieViewLoft
-
-## @evidence contracts/development/design.md#principled-representation
-
-The result distinguishes a usable chain, separately qualified solid surface and local sections retained after partial admission failures.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieViewLoft.create publishes these records for construction and section inspection without requiring a renderer or diagnostic exception class.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Null final geometry does not erase admitted sections, and continuity labels do not certify a collapsed pole's physical station derivatives.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The records define station/world units, ownership, diagnostic/null meanings and phase/station continuity limits.
-
 # src/construction/IAutoMovieViewLoft.ts#IAutoMovieViewLoft.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

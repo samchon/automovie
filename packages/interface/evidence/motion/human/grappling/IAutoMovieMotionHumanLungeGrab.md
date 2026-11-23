@@ -1,21 +1,3 @@
-# src/motion/human/grappling/IAutoMovieMotionHumanLungeGrab.ts#IAutoMovieMotionHumanLungeGrab
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the step, the reach and the grab it ends in.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The victim and the region named, one leading side.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The members the `lungeGrab` law reads.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A region beyond the lunge's reach is refused with the distance named.
-
 # src/motion/human/grappling/IAutoMovieMotionHumanLungeGrab.ts#IAutoMovieMotionHumanLungeGrab.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

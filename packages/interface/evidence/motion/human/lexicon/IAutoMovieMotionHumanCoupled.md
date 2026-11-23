@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanCoupled.ts#IAutoMovieMotionHumanCoupled
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-carry: The carry; `piggyback` when absent. duration: Seconds carried; the laws' own when absent. lift: Seconds of the lift into the carry; none when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-carry: The carry; `piggyback` when absent. duration: Seconds carried; the laws' own when absent. lift: Seconds of the lift into the carry; none when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: lexicon/HumanCoupled.ts (HumanCoupled.carry, params); lexicon/HumanCoupled.ts (HumanCoupled.helpUp, params); lexicon/HumanCoupled.ts (HumanCoupled.supportWalk, params); lexicon/HumanCoupled.ts (HumanCoupled.throwing, params); lexicon/HumanCoupled.ts (HumanCoupled.carry); lexicon/HumanCoupled.ts (HumanCoupled.helpUp).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanCarried.Carry identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanCoupled.ts#IAutoMovieMotionHumanCoupled.ICarry
 
 ## @evidence contracts/development/common.md#meaningful-documentation

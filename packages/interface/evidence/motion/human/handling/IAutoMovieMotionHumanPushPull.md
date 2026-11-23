@@ -1,21 +1,3 @@
-# src/motion/human/handling/IAutoMovieMotionHumanPushPull.ts#IAutoMovieMotionHumanPushPull
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-to: Where the walk goes, world metres; required unless the load does not move. left: The handle the left hand takes, an affordance id; `left` when absent. right: The handle the right hand takes, an affordance id; `right` when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-to: Where the walk goes, world metres; required unless the load does not move. left: The handle the left hand takes, an affordance id; `left` when absent. right: The handle the right hand takes, an affordance id; `right` when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainTravel.ts (HumanChainTravel.pushPull, params); handling/pushPull.ts (pushPull.plan, context); handling/pushPull.ts (pushPull.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanPushPullLean.Load identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/handling/IAutoMovieMotionHumanPushPull.ts#IAutoMovieMotionHumanPushPull.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

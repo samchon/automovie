@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanStageBladeFootwork.ts#IAutoMovieMotionHumanStageBladeFootwork
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes the shot-local controls, frame, scale and named prop event.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Direction is read from the entry body's heading, position in metres and time in seconds. A normalized prop cue is independent of support.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One stage mark shift takes its style, direction, optional lead, travel distance, duration and editing cue. Runtime owner is motions/src/lexicon/stageBladeFootwork.ts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No equipment target, physical impact, score or outcome is inferred by the controls.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanStageBladeFootwork.ts#IAutoMovieMotionHumanStageBladeFootwork.Style
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionProfileBody.ts#IAutoMovieConstructionProfileBody
-
-## @evidence contracts/development/design.md#principled-representation
-
-Keeps a singular tip separate from the regular millimetre station grid and its shared mesh boundary.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-ProfileBody produces records that ProfileSkin consumes after drawing the faces.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A retained end is not permission to cap a partially trimmed ring; ProfileSkin admits the complete source boundary.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the publication-to-closure lifetime and separate tip/grid roles.
-
 # src/construction/IAutoMovieConstructionProfileBody.ts#IAutoMovieConstructionProfileBody.IEnd
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/validation/IAutoMovieClipTrackShapeFaults.ts#IAutoMovieClipTrackShapeFaults
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Untrusted track projection shared by clip artifact admission and sampling. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Unknown clock/value/interpolation/channel fields permit staged admission of second-based keyframes.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The sampler and artifact gate share fault generation while choosing throw-first or append-all behavior.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Container and channel-reference admission remain separate from numeric stride/clock inspection.
-
 # src/validation/IAutoMovieClipTrackShapeFaults.ts#IAutoMovieClipTrackShapeFaults.ITrack
 
 ## @evidence contracts/development/common.md#meaningful-documentation

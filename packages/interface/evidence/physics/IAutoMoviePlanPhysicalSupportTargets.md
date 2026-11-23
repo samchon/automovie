@@ -1,21 +1,3 @@
-# src/physics/IAutoMoviePlanPhysicalSupportTargets.ts#IAutoMoviePlanPhysicalSupportTargets
-
-## @evidence contracts/development/design.md#principled-representation
-
-Lower copied world poses by the shared reach estimate, then fit each declared chain toward the original or explicitly replaced endpoint.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-planPhysicalSupportTargets coordinates reach and chain fitting for the existing support controller. The support planner supplies these new motor-target records to tracking while leaving native body state unchanged.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Original goals remain fixed and bounded fits can return unmet residuals; the returned motor targets never teleport simulated bodies.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Specifies changed support goals, reach-derived lowering and bounded chain-fitting policy. Defines fitted motor poses, bounded lowering intent and remaining endpoint error.
-
 # src/physics/IAutoMoviePlanPhysicalSupportTargets.ts#IAutoMoviePlanPhysicalSupportTargets.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

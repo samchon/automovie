@@ -1,21 +1,3 @@
-# src/motion/human/carrying/IAutoMovieMotionHumanCarry.ts#IAutoMovieMotionHumanCarry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-to: The floor point walked to, world metres. hand: The loaded side for `oneHand` and `hip`; `right` when absent. load: The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless.
-
-## @evidence contracts/development/design.md#principled-representation
-
-to: The floor point walked to, world metres. hand: The loaded side for `oneHand` and `hip`; `right` when absent. load: The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: carrying/carry.ts (carry.place, how); carrying/carry.ts (carry.place, return); carrying/carry.ts (carry.plan, context); chain/HumanChainTravel.ts (HumanChainTravel.carry, params); carrying/carry.ts (carry.tilt); carrying/carry.ts (carry.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, AutoMovieHumanSide, IAutoMovieMotionHumanGait.WalkPace and IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/carrying/IAutoMovieMotionHumanCarry.ts#IAutoMovieMotionHumanCarry.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

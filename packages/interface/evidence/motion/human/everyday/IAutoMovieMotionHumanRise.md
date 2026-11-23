@@ -1,21 +1,3 @@
-# src/motion/human/everyday/IAutoMovieMotionHumanRise.ts#IAutoMovieMotionHumanRise
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-to: Where the body gets off a high seat: ahead of it, or to one side of a seat sat astride. When absent, the left of a seat the entry's base names as sat astride (the side horses and cycles are mounted from, a provisional convention) and ahead of any other. Read only where the feet are off the floor; a seat inside the band is risen from over the planted feet. manner: How it is performed: the manner's tempo stretches or shortens the rise, or the getting off; neutral when absent. body: Borrowed body measurements and joint ranges used to compose the rising legs.
-
-## @evidence contracts/development/design.md#principled-representation
-
-to: Where the body gets off a high seat: ahead of it, or to one side of a seat sat astride. When absent, the left of a seat the entry's base names as sat astride (the side horses and cycles are mounted from, a provisional convention) and ahead of any other. Read only where the feet are off the floor; a seat inside the band is risen from over the planted feet. manner: How it is performed: the manner's tempo stretches or shortens the rise, or the getting off; neutral when absent. body: Borrowed body measurements and joint ranges used to compose the rising legs.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.rise, params); everyday/rise.ts (rise.plan, context); lexicon/HumanMountOff.ts (HumanMountOff.plan, context); compose/AutoMovieMotionHumanRise.ts (AutoMovieMotionHumanRise.lift, stance); touch/kiss.ts (kiss.solve, stance); touch/kiss.ts (kiss.posed, stance).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionManner, IAutoMovieMotionHumanFoot.IPlacement, IAutoMovieMotionHumanBody identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/everyday/IAutoMovieMotionHumanRise.ts#IAutoMovieMotionHumanRise.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieSolidFoot.ts#IAutoMovieSolidFoot
-
-## @evidence contracts/development/design.md#principled-representation
-
-IFoot reports a locally admitted stationary chart point and its world-mm point/distance from the query target.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-SolidFoot supplies this result to trim and intersection readers without another point representation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A local stationary solution is not a global nearest-point guarantee, and finite/regular admission belongs to the solver.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Separates chart coordinates from world-mm separation.
-
 # src/construction/IAutoMovieSolidFoot.ts#IAutoMovieSolidFoot.IFoot
 
 ## @evidence contracts/development/design.md#principled-representation

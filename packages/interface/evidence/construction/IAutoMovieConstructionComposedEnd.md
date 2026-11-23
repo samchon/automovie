@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionComposedEnd.ts#IAutoMovieConstructionComposedEnd
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the sections, the forks, the lobes and the seam plane with its orientation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A branch node's surface is made of its children's root sections (Ji, Liu and Wang 2010); the union outline of closed curves is their arcs outside one another, and the plane through two crossing points that holds the axes' bisector is the mirror plane of two equal children, in which their skins meet.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The section record, the input, the composition with its forks, seams and lobes, the builder and the section of a cut skin.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Neighbours that do not cross twice, others that overlap and a bisector along the forks' chord are refused by name; no fork is tabulated or snapped.
-
 # src/construction/IAutoMovieConstructionComposedEnd.ts#IAutoMovieConstructionComposedEnd.ISection
 
 ## @evidence contracts/development/design.md#principled-representation

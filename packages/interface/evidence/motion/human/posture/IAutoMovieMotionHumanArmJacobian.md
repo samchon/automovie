@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanArmJacobian.ts#IAutoMovieMotionHumanArmJacobian
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-free: Zero-based indices of freely variable coordinates in c. chain: Pure synchronous forward-kinematics callback for the supplied coordinate vector; borrowed coordinates must remain stable for the call.
-
-## @evidence contracts/development/design.md#principled-representation
-
-free: Zero-based indices of freely variable coordinates in c. chain: Pure synchronous forward-kinematics callback for the supplied coordinate vector; borrowed coordinates must remain stable for the call.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: posture/HumanArmJacobian.ts (HumanArmJacobian.columns, return); posture/HumanArmJacobian.ts (HumanArmJacobian.read, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanJacobian.ITwist, IAutoMovieMotionHumanArmGeometry.IPlaced identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanArmJacobian.ts#IAutoMovieMotionHumanArmJacobian.IColumn
 
 ## @evidence contracts/development/common.md#meaningful-documentation

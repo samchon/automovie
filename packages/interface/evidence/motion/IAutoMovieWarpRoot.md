@@ -1,21 +1,3 @@
-# src/motion/IAutoMovieWarpRoot.ts#IAutoMovieWarpRoot
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Translation is metres in the root's parent frame and yaw is degrees about that frame's +Y; start and end share the sample's seconds clock. warpRoot requires end after start, holds the full displacement after the window and preserves source scale.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieWarpRoot contracts used by packages/engine/src/motion/warpRoot.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Translation is metres in the root's parent frame and yaw is degrees about that frame's +Y; start and end share the sample's seconds clock. warpRoot requires end after start, holds the full displacement after the window and preserves source scale. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieWarpRoot contract belongs to interface; packages/engine/src/motion/warpRoot.ts uses its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/IAutoMovieWarpRoot.ts#IAutoMovieWarpRoot.IWarp
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/pose/IAutoMovieSkeletonPoseResolution.ts#IAutoMovieSkeletonPoseResolution
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states what it admits, what it returns fresh and what it may share under a lent operation, in model metres, clinical degrees and canonical bone names.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A fixed rig (IRig) with its fixed-demand snapshot (IBoneDemand), one admitted pose's reading (IReading), a fixed-source overlay (IOverlayReader) and a staged tuple reader (ITupleReader, ITupleRead over IJoints) are the five shapes the engine's prepared forward kinematics hands out.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The engine's shot staging, attachment, foot planting and digit fits, and the motions body, borrow these readers; no member serves a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No state row, admission flag or cached answer is exposed: a reading's bone rows are its own immutable frames, read into caller storage; provenance stays the engine's runtime check, not a field of these shapes.
-
 # src/pose/IAutoMovieSkeletonPoseResolution.ts#IAutoMovieSkeletonPoseResolution.IJoints
 
 ## @evidence contracts/development/common.md#meaningful-documentation

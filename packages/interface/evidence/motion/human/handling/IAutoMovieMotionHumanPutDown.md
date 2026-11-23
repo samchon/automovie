@@ -1,21 +1,3 @@
-# src/motion/human/handling/IAutoMovieMotionHumanPutDown.ts#IAutoMovieMotionHumanPutDown
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes world placement, bone-local wearing and socket custody from `placed`, with movement and refusal rules for a tracked receiver.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The destination is a world point in metres, a bone-local rigid transform or a named receiver socket. The placement law admits each destination and checks the fitted display at transfer.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.putDown, params); handling/putDown.ts (putDown.plan, context); handling/putDown.ts (putDown.demands, ahead); handling/putDownTarget.ts (putDownTarget.of, context); handling/putDown.ts (putDown.plan); handling/putDownTarget.ts (putDownTarget.of).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, AutoMovieHumanoidBone, IAutoMovieRigidTransform, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/handling/IAutoMovieMotionHumanPutDown.ts#IAutoMovieMotionHumanPutDown.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

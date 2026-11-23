@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanPlaced.ts#IAutoMovieMotionHumanPlaced
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-from: Seconds since the action's start the arm is written from. to: Seconds since the action's start the arm is written until. span: The action's instants the arm's whole action is planned over, the reach to the place, the hold on it and the return (`AutoMovieMotionHumanArm.carried`'s `span`), in the law's clock instants or as the weight states them (`AutoMovieMotionHumanArm.stated`); the deprecated joint-space carry when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-from: Seconds since the action's start the arm is written from. to: Seconds since the action's start the arm is written until. span: The action's instants the arm's whole action is planned over, the reach to the place, the hold on it and the return (`AutoMovieMotionHumanArm.carried`'s `span`), in the law's clock instants or as the weight states them (`AutoMovieMotionHumanArm.stated`); the deprecated joint-space carry when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanPlaced.ts (AutoMovieMotionHumanPlaced.arm, props); exercise/workout.ts (workout.plan, return); compose/AutoMovieMotionHumanPlaced.ts (AutoMovieMotionHumanPlaced.wrist, place).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles, IAutoMovieMotionHumanArmPlanned.ISpan, IAutoMovieMotionHumanPosture, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanPlaced.ts#IAutoMovieMotionHumanPlaced.IArm
 
 ## @evidence contracts/development/common.md#meaningful-documentation

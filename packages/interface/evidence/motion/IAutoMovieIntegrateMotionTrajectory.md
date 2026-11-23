@@ -1,21 +1,3 @@
-# src/motion/IAutoMovieIntegrateMotionTrajectory.ts#IAutoMovieIntegrateMotionTrajectory
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieIntegrateMotionTrajectory contracts used by packages/engine/src/motion/integrateMotionTrajectory.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieIntegrateMotionTrajectory contract belongs to interface; packages/engine/src/motion/integrateMotionTrajectory.ts and packages/engine/src/motion/integrateAirborneRotation.ts use its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/IAutoMovieIntegrateMotionTrajectory.ts#IAutoMovieIntegrateMotionTrajectory.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

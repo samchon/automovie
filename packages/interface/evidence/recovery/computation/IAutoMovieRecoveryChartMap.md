@@ -1,21 +1,3 @@
-# src/recovery/computation/IAutoMovieRecoveryChartMap.ts#IAutoMovieRecoveryChartMap
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Number of private observation vertices, including clipped edge observations. Coherently oriented private chart triangles; never generation input.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Fixed normalized square-chart values, once per named boundary or guide vertex.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-RecoveryChartMap, RecoveryChartSurface share IAutoMovieRecoveryChartMap's canonical records; the referenced quantities retain one declaration owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Coherently oriented private chart triangles; never generation input.
-
 # src/recovery/computation/IAutoMovieRecoveryChartMap.ts#IAutoMovieRecoveryChartMap.Input
 
 ## @evidence contracts/development/design.md#principled-representation

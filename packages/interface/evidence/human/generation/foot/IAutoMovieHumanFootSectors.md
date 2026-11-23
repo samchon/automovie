@@ -1,21 +1,3 @@
-# src/human/generation/foot/IAutoMovieHumanFootSectors.ts#IAutoMovieHumanFootSectors
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the AutoMovieHumanFootSectors exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A type-only namespace groups IPiece, ISectors, JoinMiss. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these declarations used by Human's AutoMovieHumanFootSectors; Human retains the computation and source preparation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace only qualifies the IPiece, ISectors, JoinMiss contracts and adds no alternate implementation, optional mode or runtime state.
-
 # src/human/generation/foot/IAutoMovieHumanFootSectors.ts#IAutoMovieHumanFootSectors.IPiece
 
 ## @evidence contracts/development/common.md#meaningful-documentation

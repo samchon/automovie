@@ -1,21 +1,3 @@
-# src/motion/human/everyday/IAutoMovieMotionHumanBrace.ts#IAutoMovieMotionHumanBrace
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-target: Where the force comes from; straight ahead when absent. kind: What is braced for; `impact` when absent. hold: How long the brace lasts, seconds; 1.5 when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-target: Where the force comes from; straight ahead when absent. kind: What is braced for; `impact` when absent. hold: How long the brace lasts, seconds; 1.5 when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.brace, params); everyday/brace.ts (brace.plan, context); everyday/brace.ts (brace.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/everyday/IAutoMovieMotionHumanBrace.ts#IAutoMovieMotionHumanBrace.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/human/generation/leg/IAutoMovieHumanLegLaw.ts#IAutoMovieHumanLegLaw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes fitted leg spline channels and bare canonical section samples before end residuals; nested declarations retain their units, frames, optional states and callback contracts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Fitted leg spline channels and bare canonical section samples before end residuals. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these dependency-free exchange types for AutoMovieHumanLegLaw; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups the existing LegLaw contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
-
 # src/human/generation/leg/IAutoMovieHumanLegLaw.ts#IAutoMovieHumanLegLaw.IFamily
 
 ## @evidence contracts/development/common.md#meaningful-documentation

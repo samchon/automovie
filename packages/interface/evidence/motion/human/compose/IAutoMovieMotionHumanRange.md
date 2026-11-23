@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanRange.ts#IAutoMovieMotionHumanRange
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-degrees: The magnitude, degrees; not negative, since the motion gives the sign.
-
-## @evidence contracts/development/design.md#principled-representation
-
-degrees: The magnitude, degrees; not negative, since the motion gives the sign.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanRange.ts (AutoMovieMotionHumanRange.share, amount); compose/AutoMovieMotionHumanResolve.ts (AutoMovieMotionHumanResolve.table, level); compose/AutoMovieMotionHumanRange.ts (AutoMovieMotionHumanRange.degrees, motion); compose/AutoMovieMotionHumanRange.ts (AutoMovieMotionHumanRange.limit, motion); compose/AutoMovieMotionHumanResolve.ts (AutoMovieMotionHumanResolve.amount, motion); touch/selfAction.ts (selfAction.plan.lift, motion).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The literal vocabulary is declared independently of runtime values; implementations are checked against this exact set.
-
 # src/motion/human/compose/IAutoMovieMotionHumanRange.ts#IAutoMovieMotionHumanRange.Level
 
 ## @evidence contracts/development/common.md#meaningful-documentation

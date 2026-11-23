@@ -1,21 +1,3 @@
-# src/core/math/IAutoMovieSwingTwist.ts#IAutoMovieSwingTwist
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Quaternion factors used by distal-twist distribution and hinged-chain orientation error. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The result uses two dimensionless quaternions in the input rotation frame with swing-times-twist order.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Joint twist and hinged-chain error consumers share the engine's decomposition output.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Near-degenerate projection uses an explicit convention rather than claiming unique twist recovery.
-
 # src/core/math/IAutoMovieSwingTwist.ts#IAutoMovieSwingTwist.IResult
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieSolidMeshPlan.ts#IAutoMovieSolidMeshPlan
-
-## @evidence contracts/development/design.md#principled-representation
-
-Triangles pair exactly three original vertex IDs with three native-cover lifts; plans retain constraint subdivision provenance beside the triangles.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-SolidMeshPlan publishes index plans consumed by face meshing using the shared constraint edge type.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Tuple arity enforces three corners but valid IDs, integer lifts and positive native orientation remain planner admission.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines native orientation, period lifts and retained original constraints.
-
 # src/construction/IAutoMovieSolidMeshPlan.ts#IAutoMovieSolidMeshPlan.ITriangle
 
 ## @evidence contracts/development/design.md#principled-representation

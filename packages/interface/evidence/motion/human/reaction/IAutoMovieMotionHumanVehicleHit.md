@@ -1,21 +1,3 @@
-# src/motion/human/reaction/IAutoMovieMotionHumanVehicleHit.ts#IAutoMovieMotionHumanVehicleHit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the contact, the trajectory classes with the source, the ride and the landing.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The car by subject id and its front affordance; the class is computed, never authored.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The members the `vehicleHit` and `vehicleDive` laws read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A car whose course never meets the pedestrian is refused, and so is a dive that cannot clear its path.
-
 # src/motion/human/reaction/IAutoMovieMotionHumanVehicleHit.ts#IAutoMovieMotionHumanVehicleHit.Trajectory
 
 ## @evidence contracts/development/common.md#meaningful-documentation

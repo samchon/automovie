@@ -1,21 +1,3 @@
-# src/motion/IAutoMovieSuperposeMinimumJerk.ts#IAutoMovieSuperposeMinimumJerk
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each unit adds metres in the origin's frame over a positive duration on one seconds clock. Results are fresh position, velocity and acceleration vectors in metres, metres per second and metres per second squared; the producer rejects nonpositive duration and minimumJerk admits each normalized sample.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieSuperposeMinimumJerk contracts used by packages/engine/src/motion/superposeMinimumJerk.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each unit adds metres in the origin's frame over a positive duration on one seconds clock. Results are fresh position, velocity and acceleration vectors in metres, metres per second and metres per second squared; the producer rejects nonpositive duration and minimumJerk admits each normalized sample. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieSuperposeMinimumJerk contract belongs to interface; packages/engine/src/motion/superposeMinimumJerk.ts and packages/motions/src/handling/HumanPrehension.ts use its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/IAutoMovieSuperposeMinimumJerk.ts#IAutoMovieSuperposeMinimumJerk.IUnit
 
 ## @evidence contracts/development/common.md#meaningful-documentation

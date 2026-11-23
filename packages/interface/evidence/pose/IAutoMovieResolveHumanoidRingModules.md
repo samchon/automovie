@@ -1,21 +1,3 @@
-# src/pose/IAutoMovieResolveHumanoidRingModules.ts#IAutoMovieResolveHumanoidRingModules
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies rest joint ancestry, optional leaf endpoint and explicit segment girth. States the centre, in-plane half dimensions and ordered polygon samples of one section.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Human-frame metre tuples plus a positive radius describe one rest segment; null parent selects the root and null tip uses a child endpoint. All coordinates and dimensions use Human-frame metres, with points counter-clockwise about the owning module axis.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-resolveAutoMovieHumanoidRingModules consumes these plain joint facts to produce rigid ring modules without importing a Human runtime model. resolveAutoMovieHumanoidRingModules produces these sections for the coarse rigid-module surface builder.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Ancestry and finite geometry remain producer premises; the record does not infer missing leaf endpoints or resolve arbitrary cyclic skeletons. depth and breadth describe a section rather than global axes; arbitrary point arrays do not enforce winding or nondegeneracy by type.
-
 # src/pose/IAutoMovieResolveHumanoidRingModules.ts#IAutoMovieResolveHumanoidRingModules.IBone
 
 ## @evidence contracts/development/common.md#meaningful-documentation

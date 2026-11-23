@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanMountRider.ts#IAutoMovieMotionHumanMountRider
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-point: Grip contact point in world metres. radius: Grip radius in metres; defaults to zero for a surface contact.
-
-## @evidence contracts/development/design.md#principled-representation
-
-point: Grip contact point in world metres. radius: Grip radius in metres; defaults to zero for a surface contact.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: lexicon/HumanMountRider.ts (HumanMountRider.hold, grip); lexicon/HumanMountRider.ts (HumanMountRider.hold, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanMountRider.ts#IAutoMovieMotionHumanMountRider.IHoldGrip
 
 ## @evidence contracts/development/common.md#meaningful-documentation

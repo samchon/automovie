@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanEnvironmentRecovery.ts#IAutoMovieMotionHumanEnvironmentRecovery
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the entering gait, the two causes, the outcomes and the registered law.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The cause is a measured obstruction or a friction coefficient; the outcome selects an existing support or reaction law.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Exposes the contacted geometry and the chosen compatible resolution, as planEnvironmentRecovery reads them.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No hazard is inferred from a name alone: the law measures the cue before it publishes a support loss.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanEnvironmentRecovery.ts#IAutoMovieMotionHumanEnvironmentRecovery.IRail
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionSplitSeam.ts#IAutoMovieConstructionSplitSeam
-
-## @evidence contracts/development/design.md#principled-representation
-
-Fork phases and physical station locate original endpoints; a built seam uses a dimensionless arc-length share.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-SplitSeam creates straight or cubic seams that both adjoining SplitBand inputs read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A refusal string reports unusable endpoints, plane or knots; a constructed spline is not a proof of nonintersection or regularity everywhere.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes input chart coordinates, world geometry and the normalized reader variable.
-
 # src/construction/IAutoMovieConstructionSplitSeam.ts#IAutoMovieConstructionSplitSeam.IPoint
 
 ## @evidence contracts/development/design.md#principled-representation

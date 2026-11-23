@@ -1,21 +1,3 @@
-# src/construction/IAutoMoviePreparedConstructionKnownPort.ts#IAutoMoviePreparedConstructionKnownPort
-
-## @evidence contracts/development/design.md#principled-representation
-
-The kernel surface transposes the authored rectangle to transverse u and original-clock v while retaining source identities.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-KnownPort returns one surface with its descriptor and resolved rails for downstream composition.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Retained owner references are not cloned functions or proof of shared material/binding semantics.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the chart transposition and retained dependency ownership.
-
 # src/construction/IAutoMoviePreparedConstructionKnownPort.ts#IAutoMoviePreparedConstructionKnownPort.IPrepared
 
 ## @evidence contracts/development/design.md#principled-representation

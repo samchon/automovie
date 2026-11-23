@@ -1,21 +1,3 @@
-# src/motion/IAutoMovieSolveDistalTwist.ts#IAutoMovieSolveDistalTwist
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Joint inputs use clinical degrees, bases are normalized, requested/above/rest rotations are unit quaternions and all frames refer to the same prepared rig. Optional synchronous ROM projectors preserve the bone identity and do not mutate borrowed joints; solver and caller admission own numerical validity.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieSolveDistalTwist contracts used by packages/engine/src/motion/solveDistalTwist.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Joint inputs use clinical degrees, bases are normalized, requested/above/rest rotations are unit quaternions and all frames refer to the same prepared rig. Optional synchronous ROM projectors preserve the bone identity and do not mutate borrowed joints; solver and caller admission own numerical validity. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieSolveDistalTwist contract belongs to interface; packages/engine/src/motion/solveDistalTwist.ts uses its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/IAutoMovieSolveDistalTwist.ts#IAutoMovieSolveDistalTwist.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

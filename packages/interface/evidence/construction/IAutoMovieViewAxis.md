@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieViewAxis.ts#IAutoMovieViewAxis
-
-## @evidence contracts/development/design.md#principled-representation
-
-The axis capability evaluates world-mm section frames at station mm, with optional analytic jets; knots and straight-run records keep the same physical coordinate.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-ViewAxis and its course/parallel-axis producers share these contracts with loft frame and source readers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-An absent jet remains value-only; finite knots and orthonormal frame premises belong to the corresponding engine producer.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents source station, frame ownership, optional derivatives and straight-run placement.
-
 # src/construction/IAutoMovieViewAxis.ts#IAutoMovieViewAxis.IAxis
 
 ## @evidence contracts/development/design.md#principled-representation

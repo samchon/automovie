@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionState.ts#IAutoMovieConstructionState
-
-## @evidence contracts/development/design.md#principled-representation
-
-Face/name indexes, output lists and pending transformations have explicit per-walk ownership; checkpoints retain geometry lengths and cycle copies.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Realize and its leaf/operator handlers share this state and the same snap/restore protocol.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Rollback excludes diagnostics, overrides and arbitrary edits to old records; it is valid for the walk's append/cycle mutation model.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines mutation ownership and the checkpoint's scope.
-
 # src/construction/IAutoMovieConstructionState.ts#IAutoMovieConstructionState.IState
 
 ## @evidence contracts/development/design.md#principled-representation

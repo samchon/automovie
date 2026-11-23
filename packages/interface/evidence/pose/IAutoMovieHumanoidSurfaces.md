@@ -1,21 +1,3 @@
-# src/pose/IAutoMovieHumanoidSurfaces.ts#IAutoMovieHumanoidSurfaces
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines rest-local point and unit directions plus optional socket heading and region extent. Separates all region frames from all socket frames for one body's geometry.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Bone identity selects the rest frame; point/radius are metres and directions dimensionless. Generated frames carry region radius only when it is a region extent. Closed region/socket records require every supported key; entries use their own bone-local frames rather than one world snapshot.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-resolveAutoMovieHumanoidSurfaces creates these frames from physical geometry; its place helper applies a resolved bone transform. The humanoid surface resolver fills both records for downstream contact and attachment targeting.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Existing humanoid bone identifiers and vector contracts carry the frame without a renderer handle. Region and socket vocabularies reuse canonical key unions instead of allowing arbitrary missing entries.
-
 # src/pose/IAutoMovieHumanoidSurfaces.ts#IAutoMovieHumanoidSurfaces.IFrame
 
 ## @evidence contracts/development/common.md#meaningful-documentation

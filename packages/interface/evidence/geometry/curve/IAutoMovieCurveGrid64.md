@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieCurveGrid64.ts#IAutoMovieCurveGrid64
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Millimetre cubic courses share normalized phase while station coordinates retain their declared chart; generated mesh positions are metres. Correspondence and topology domains are caller declarations; coefficientwise interpolation does not establish injectivity or approximation qualification.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Millimetre cubic courses share normalized phase while station coordinates retain their declared chart; generated mesh positions are metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The curve-grid generator owns admission and consumes Input to publish Result geometry, construction and observed counts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Correspondence and topology domains are caller declarations; coefficientwise interpolation does not establish injectivity or approximation qualification.
-
 # src/geometry/curve/IAutoMovieCurveGrid64.ts#IAutoMovieCurveGrid64.Input
 
 ## @evidence contracts/development/design.md#principled-representation

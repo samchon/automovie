@@ -1,21 +1,3 @@
-# src/validation/IAutoMoviePlacedContinuity.ts#IAutoMoviePlacedContinuity
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The input variants distinguish missing and unavailable facts. The endpoint record defines the presentation clock and frame. The result separates evaluated checks from excluded or unsupported coverage.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A continuity edge, transform admission and holder relation each have their own observations and policy.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Production selects an explicit edge or custody rule. Engine supplies local checks over those facts to the diagnostics adapter.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Neither a prior UI visit nor a default speed or cut interpretation enters the contract.
-
 # src/validation/IAutoMoviePlacedContinuity.ts#IAutoMoviePlacedContinuity.IEndpoint
 
 ## @evidence contracts/development/common.md#meaningful-documentation

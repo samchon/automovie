@@ -1,21 +1,3 @@
-# src/render/IAutoMovieResolveMaterial.ts#IAutoMovieResolveMaterial
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Cross-model material identity lookup for simulated surfaces and render inventories. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The lookup combines borrowed model records and one exact material id, with no encoded-media payload.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Simulated material libraries and render inventory share the same global material resolver input.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Conflicts and absence are refusals, while successful output still aliases its source material.
-
 # src/render/IAutoMovieResolveMaterial.ts#IAutoMovieResolveMaterial.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

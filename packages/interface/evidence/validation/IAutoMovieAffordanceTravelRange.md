@@ -1,21 +1,3 @@
-# src/validation/IAutoMovieAffordanceTravelRange.ts#IAutoMovieAffordanceTravelRange
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Legal travel endpoints derived from an articulation's authored kind and limits. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The result encodes unbounded ends as null and finite travel in the articulation's degrees or metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Engine admission and posing share the per-kind range calculation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Caller admission remains necessary because deriving endpoints does not validate kind or numeric inputs.
-
 # src/validation/IAutoMovieAffordanceTravelRange.ts#IAutoMovieAffordanceTravelRange.IResult
 
 ## @evidence contracts/development/common.md#meaningful-documentation

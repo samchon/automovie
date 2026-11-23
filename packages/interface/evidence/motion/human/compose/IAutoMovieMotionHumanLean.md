@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanLean.ts#IAutoMovieMotionHumanLean
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-peak: The deepest forward pitch, degrees; positive. from: Seconds since the action's start from which the trunk is written. to: Seconds since the action's start until which the trunk is written.
-
-## @evidence contracts/development/design.md#principled-representation
-
-peak: The deepest forward pitch, degrees; positive. from: Seconds since the action's start from which the trunk is written. to: Seconds since the action's start until which the trunk is written.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanLean.ts (AutoMovieMotionHumanLean.tilt, props); compose/AutoMovieMotionHumanLean.ts (AutoMovieMotionHumanLean.pivot, more); exercise/dance.ts (dance.plan, return); reaction/flinch.ts (flinch.plan, return); reaction/give.ts (give.plan.primitive, return); reaction/knockdown.ts (knockdown.plan, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanLean.ts#IAutoMovieMotionHumanLean.IBow
 
 ## @evidence contracts/development/common.md#meaningful-documentation

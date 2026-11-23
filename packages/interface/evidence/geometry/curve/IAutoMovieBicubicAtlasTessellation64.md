@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieBicubicAtlasTessellation64.ts#IAutoMovieBicubicAtlasTessellation64
-
-## @evidence contracts/development/design.md#principled-representation
-
-Input uses millimetre coefficients and unit-square charts; chunks convert to model metres while preserving append-only global indices.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The tessellation generator accepts Input, yields Chunk and returns Summary on exhaustion.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Completion, finite geometry and approximation qualification remain separate from source fidelity and embedding.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The three contracts state borrowed input lifetime, transferred buffers, policy defaults and terminal summary limits.
-
 # src/geometry/curve/IAutoMovieBicubicAtlasTessellation64.ts#IAutoMovieBicubicAtlasTessellation64.Input
 
 ## @evidence contracts/development/design.md#principled-representation

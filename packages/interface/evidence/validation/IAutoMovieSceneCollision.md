@@ -1,21 +1,3 @@
-# src/validation/IAutoMovieSceneCollision.ts#IAutoMovieSceneCollision
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes part identity, participation, authority, contact windows, evidence and coverage.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each part supplies a placed solid, a conservative envelope or unavailable geometry. Findings distinguish measured shape contact from an unresolved bound.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The Engine reads placed shapes through the existing initialized geometry contract. A host can consume the same findings without reconstructing poses or depending on a renderer format.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Only explicit assembly and managed formation membership excludes internal pairs. A box overlap alone establishes candidate status. An incomplete search reports its cause.
-
 # src/validation/IAutoMovieSceneCollision.ts#IAutoMovieSceneCollision.IGroup
 
 ## @evidence contracts/development/common.md#meaningful-documentation

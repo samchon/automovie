@@ -1,21 +1,3 @@
-# src/pose/IAutoMovieSwivelArcs.ts#IAutoMovieSwivelArcs
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states its term. Each member states its end and unit.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The three coefficients of a sinusoid. The two ends of an arc.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Three members. Two members.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None optional. None optional.
-
 # src/pose/IAutoMovieSwivelArcs.ts#IAutoMovieSwivelArcs.ISinusoid
 
 ## @evidence contracts/development/common.md#meaningful-documentation

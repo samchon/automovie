@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanTouchContacts.ts#IAutoMovieMotionHumanTouchContacts
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-hand: Whose arm: the leading hand's or the other's. part: The arm's segment. on: The bone it lies along, named as for the right hand leading; its side is exchanged when the left hand leads.
-
-## @evidence contracts/development/design.md#principled-representation
-
-hand: Whose arm: the leading hand's or the other's. part: The arm's segment. on: The bone it lies along, named as for the right hand leading; its side is exchanged when the left hand leads.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanTouchContacts.ts (AutoMovieMotionHumanTouchContacts.sided, declared); compose/AutoMovieMotionHumanTouchContacts.ts (AutoMovieMotionHumanTouchContacts.sided, rest); compose/AutoMovieMotionHumanTouchContacts.ts (AutoMovieMotionHumanTouchContacts.sided, return); compose/AutoMovieMotionHumanTouchContacts.ts (AutoMovieMotionHumanTouchContacts.windows, rests); compose/AutoMovieMotionHumanTouchContacts.ts (AutoMovieMotionHumanTouchContacts.windows, rest); compose/AutoMovieMotionHumanTouchContacts.ts (AutoMovieMotionHumanTouchContacts.sided).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanTouchContacts.ts#IAutoMovieMotionHumanTouchContacts.IDeclared
 
 ## @evidence contracts/development/common.md#meaningful-documentation

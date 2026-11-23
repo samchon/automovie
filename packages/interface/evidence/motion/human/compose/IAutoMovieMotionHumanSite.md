@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanSite.ts#IAutoMovieMotionHumanSite
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-weight: Its relative weight, positive. low: The lowest place a hand may hold, metres from the handle's base. high: The highest, metres from the handle's base; at least `low`.
-
-## @evidence contracts/development/design.md#principled-representation
-
-weight: Its relative weight, positive. low: The lowest place a hand may hold, metres from the handle's base. high: The highest, metres from the handle's base; at least `low`.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanSite.ts (AutoMovieMotionHumanSite.draw, sites); compose/AutoMovieMotionHumanSite.ts (AutoMovieMotionHumanSite.draw, s); compose/AutoMovieMotionHumanSite.ts (AutoMovieMotionHumanSite.draw.total, s); compose/AutoMovieMotionHumanSite.ts (AutoMovieMotionHumanSite.grasp, band).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted fields and units are declared here directly; runtime handling remains in AutoMovieMotionHumanSite.draw.
-
 # src/motion/human/compose/IAutoMovieMotionHumanSite.ts#IAutoMovieMotionHumanSite.IWeighted
 
 ## @evidence contracts/development/common.md#meaningful-documentation

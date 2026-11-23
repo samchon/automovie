@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieSampleContourRing64.ts#IAutoMovieSampleContourRing64
-
-## @evidence contracts/development/design.md#principled-representation
-
-Millimetre knots retain generating phases and an admitted period, or a zero-period construction-only fallback on sampling refusal.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-IResult feeds sampled ring creation and local unsupported-group reporting in contour loft generation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Only a trusted finite source endpoint survives representation refusal; no replacement contour is generated.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The result distinguishes sampling failure, rank failure and valid sampled boundary storage.
-
 # src/geometry/curve/IAutoMovieSampleContourRing64.ts#IAutoMovieSampleContourRing64.IResult
 
 ## @evidence contracts/development/design.md#principled-representation

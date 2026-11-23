@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanTravelCarExit.ts#IAutoMovieMotionHumanTravelCarExit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the opening, the entered support and the standing outcome.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A placed bench and an opening in world metres, with an authored exterior floor elevation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The registered getOut planner consumes these parameters.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Uses the existing seat frame and obstacle aperture types.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanTravelCarExit.ts#IAutoMovieMotionHumanTravelCarExit.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

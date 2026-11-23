@@ -1,21 +1,3 @@
-# src/human/generation/head/IAutoMovieHumanHeadTapeBrow.ts#IAutoMovieHumanHeadTapeBrow
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Brow tape search modes, sagittal ear attachments and dimensionless continuation coordinates. Member comments specify the individual units, frames and optional-value meanings.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups only Mode, P2, MaximumSeed declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Mode, P2, MaximumSeed separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanHeadTapeBrow exchanges the named Mode, P2, MaximumSeed contracts with its Human callers. Interface owns these type declarations without importing that implementation.
-
 # src/human/generation/head/IAutoMovieHumanHeadTapeBrow.ts#IAutoMovieHumanHeadTapeBrow.Mode
 
 ## @evidence contracts/development/common.md#meaningful-documentation

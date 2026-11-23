@@ -1,21 +1,3 @@
-# src/core/math/IAutoMovieCreateQuadraticMemory.ts#IAutoMovieCreateQuadraticMemory
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Synchronous storage borrowing for the quadratic solver's typed-array workspace. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One byte-addressed borrow operation carries the existing heap views and a caller-chosen synchronous result.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The memory factory owns buffer lifetime while numerical kernels own layout and copied output.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Generic result typing does not revoke retained views or make asynchronous callbacks safe.
-
 # src/core/math/IAutoMovieCreateQuadraticMemory.ts#IAutoMovieCreateQuadraticMemory.IResult
 
 ## @evidence contracts/development/common.md#meaningful-documentation

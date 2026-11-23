@@ -1,21 +1,3 @@
-# src/motion/human/sport/IAutoMovieMotionHumanMartialArt.ts#IAutoMovieMotionHumanMartialArt
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. hold: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#principled-representation
-
-count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. hold: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s".
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.martialArt, params); sport/martialArt.ts (martialArt.plan, context); sport/martialArt.ts (martialArt.plan); executable/cases/martialArtCases.ts (martialArtCases).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/sport/IAutoMovieMotionHumanMartialArt.ts#IAutoMovieMotionHumanMartialArt.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieLoftViewFullSource.ts#IAutoMovieLoftViewFullSource
-
-## @evidence contracts/development/design.md#principled-representation
-
-One immutable scalar/axis/feature tuple owns Point0 and independently available physical2 in station mm and phase radians.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The factory exposes only the domain and two capabilities consumed by original-root construction.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No fake chain, fit, source-profile substitute or missing derivative is introduced; unavailable orders remain explicit admission failures.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States direct source ownership, independent capabilities and actual feature/shift scope.
-
 # src/construction/IAutoMovieLoftViewFullSource.ts#IAutoMovieLoftViewFullSource.IInput
 
 ## @evidence contracts/development/design.md#principled-representation

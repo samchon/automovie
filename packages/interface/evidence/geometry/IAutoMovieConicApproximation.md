@@ -1,21 +1,3 @@
-# src/geometry/IAutoMovieConicApproximation.ts#IAutoMovieConicApproximation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States units, coefficient normalization, line representation and the limits of reported evidence.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Readonly planar tuples and explicit domains represent source charts and conic coefficients; finite values, positive weights and ordered domains require runtime admission.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-approximateAutoMovieRecoveryCompactCurves, approximateAutoMovieRecoveryConicsAhn, approximateAutoMovieRecoveryConicsGhosh share IAutoMovieConicApproximation's canonical records; the referenced quantities retain one declaration owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No specimen, source artifact, rendering option or optional algorithm-specific state enters this planar contract.
-
 # src/geometry/IAutoMovieConicApproximation.ts#IAutoMovieConicApproximation.IOptions
 
 ## @evidence contracts/development/common.md#meaningful-documentation

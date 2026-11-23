@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanQuadraticProgram.ts#IAutoMovieMotionHumanQuadraticProgram
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-coef: Each variable's coefficient, in `index`'s order. weight: The l1 penalty weight; absent for a hard row.
-
-## @evidence contracts/development/design.md#principled-representation
-
-coef: Each variable's coefficient, in `index`'s order. weight: The l1 penalty weight; absent for a hard row.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: posture/HumanBodyFitRows.ts (HumanBodyFitRows); posture/HumanArmTrajectoryRanges.ts (HumanArmTrajectoryRanges); posture/HumanInteractionMesh.ts (HumanInteractionMesh.adapt); posture/HumanQuadraticAdmission.ts (HumanQuadraticAdmission).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The constrained quadratic problem owns rows, bounds and numerical residuals; its status explicitly preserves infeasible and exhausted solves.
-
 # src/motion/human/posture/IAutoMovieMotionHumanQuadraticProgram.ts#IAutoMovieMotionHumanQuadraticProgram.IProblem
 
 ## @evidence contracts/development/common.md#meaningful-documentation

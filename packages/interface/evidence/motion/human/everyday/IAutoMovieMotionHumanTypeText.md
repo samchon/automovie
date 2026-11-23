@@ -1,21 +1,3 @@
-# src/motion/human/everyday/IAutoMovieMotionHumanTypeText.ts#IAutoMovieMotionHumanTypeText
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-at: The home row's middle, world metres. yaw: The heading the typist faces, degrees about +Y. at: Key centre in keyboard-local metres: +X toward the user's left, +Z away, home-row middle at the origin.
-
-## @evidence contracts/development/design.md#principled-representation
-
-at: The home row's middle, world metres. yaw: The heading the typist faces, degrees about +Y. at: Key centre in keyboard-local metres: +X toward the user's left, +Z away, home-row middle at the origin.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.typeText, params); everyday/typeText.ts (typeText.plan, context); everyday/typeText.ts (typeText.board, return); everyday/typeText.ts (typeText.key, return); everyday/typeText.ts (typeText.plan); executable/cases/everydayTypeCases.ts (everydayTypeCases).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/everyday/IAutoMovieMotionHumanTypeText.ts#IAutoMovieMotionHumanTypeText.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

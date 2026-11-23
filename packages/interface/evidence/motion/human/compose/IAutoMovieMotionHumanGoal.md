@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanGoal.ts#IAutoMovieMotionHumanGoal
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-from: Seconds since the action's start from which the limb is written. to: Seconds since the action's start until which the limb is written. origin: The goal at weight 0; the goal the posture so far holds when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-from: Seconds since the action's start from which the limb is written. to: Seconds since the action's start until which the limb is written. origin: The goal at weight 0; the goal the posture so far holds when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanGoal.ts (AutoMovieMotionHumanGoal.toward, props); compose/AutoMovieMotionHumanGoal.ts (AutoMovieMotionHumanGoal.drive, props); compose/AutoMovieMotionHumanGoal.ts (AutoMovieMotionHumanGoal.pulse, goal); compose/AutoMovieMotionHumanGoal.ts (AutoMovieMotionHumanGoal.pulse, origin).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieHumanLimbGoal, AutoMovieHumanLimb identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanGoal.ts#IAutoMovieMotionHumanGoal.Frame
 
 ## @evidence contracts/development/common.md#meaningful-documentation

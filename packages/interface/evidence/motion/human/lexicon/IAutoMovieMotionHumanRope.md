@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanRope.ts#IAutoMovieMotionHumanRope
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the four crossings, the rope's representation and the refusals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A discriminated union on kind; each names the rope prop and line and the few controls its crossing takes, in metres and metres per second.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One registered vocabulary entry; planRope in motions is the only consumer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The line's ends and length come from the prop.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanRope.ts#IAutoMovieMotionHumanRope.Descent
 
 ## @evidence contracts/development/common.md#meaningful-documentation

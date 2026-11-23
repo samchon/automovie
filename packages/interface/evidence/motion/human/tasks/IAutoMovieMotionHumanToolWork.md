@@ -1,21 +1,3 @@
-# src/motion/human/tasks/IAutoMovieMotionHumanToolWork.ts#IAutoMovieMotionHumanToolWork
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Working with a one-handed tool held in the hand, in cycles over a work point while standing: hammering, sawing, stirring or turning a screwdriver.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Closed choices "hammer", "saw", "stir", "screwdriver" distinguish the admitted cases.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: executable/cases/toolCases.ts (held, kind); tasks/HumanToolWork.ts (HumanToolWork.of, work); executable/cases/toolCases.ts (toolCases); tasks/useTool.ts (useTool.PERIODS); tasks/useTool.ts (useTool.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly; runtime handling remains in held.
-
 # src/motion/human/tasks/IAutoMovieMotionHumanToolWork.ts#IAutoMovieMotionHumanToolWork.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

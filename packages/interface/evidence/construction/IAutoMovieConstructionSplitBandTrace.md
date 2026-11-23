@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionSplitBandTrace.ts#IAutoMovieConstructionSplitBandTrace
-
-## @evidence contracts/development/design.md#principled-representation
-
-Closed events retain the actual columns, common factor and local iteration values without selecting a geometric policy.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One optional synchronous sink and its detached value events serve the actual strip consumer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No observer launches a solve or substitutes a ribbon.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States derivative units, missing-forward-target meaning and observer ownership.
-
 # src/construction/IAutoMovieConstructionSplitBandTrace.ts#IAutoMovieConstructionSplitBandTrace.Sink
 
 ## @evidence contracts/development/design.md#principled-representation

@@ -1,21 +1,3 @@
-# src/core/math/IAutoMovieFitRigidMeshTransform.ts#IAutoMovieFitRigidMeshTransform
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Correspondence inputs and centered rigid-transform output of fitRigidMeshTransform. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Selected XYZ correspondences and quaternion/centroid results retain input coordinate units and frames.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Rigid fitting callers share canonical vectors and quaternions rather than a separate mesh representation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A proper rigid fit excludes scaling and reflection but does not certify nonpenetration or joint feasibility.
-
 # src/core/math/IAutoMovieFitRigidMeshTransform.ts#IAutoMovieFitRigidMeshTransform.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

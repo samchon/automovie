@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieLoftSectionConnect.ts#IAutoMovieLoftSectionConnect
-
-## @evidence contracts/development/design.md#principled-representation
-
-Native, basis and mixed alternatives identify complete local fields over physical-mm bounds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieLoftSectionConnect publishes span laws that AutoMovieLoftSection selects before preparing a station reader.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Native and basis geometry remain explicit alternatives rather than an inferred fit through sampled Cartesian endpoint points.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Members define field selection, interval units, endpoint weight orientation and binding ownership.
-
 # src/construction/IAutoMovieLoftSectionConnect.ts#IAutoMovieLoftSectionConnect.ISpan
 
 ## @evidence contracts/development/design.md#principled-representation

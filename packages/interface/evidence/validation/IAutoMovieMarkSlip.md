@@ -1,21 +1,3 @@
-# src/validation/IAutoMovieMarkSlip.ts#IAutoMovieMarkSlip
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Per-contact displacement measurements converted to world inspection marks. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World metre endpoint pairs and horizontal limits define contact displacement at one instant.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Slip-mark conversion shares the canonical mark representation with inspection consumers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The measured XZ threshold is caller data and does not repair the contact motion.
-
 # src/validation/IAutoMovieMarkSlip.ts#IAutoMovieMarkSlip.IEntries
 
 ## @evidence contracts/development/common.md#meaningful-documentation

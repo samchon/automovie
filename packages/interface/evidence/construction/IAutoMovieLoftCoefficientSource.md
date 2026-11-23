@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieLoftCoefficientSource.ts#IAutoMovieLoftCoefficientSource
-
-## @evidence contracts/development/design.md#principled-representation
-
-The source records separate selected-coordinate coefficient derivatives and virtual pole endpoints from physical station derivatives; a null coordinate change leaves physical2 unavailable.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-LoftCoefficientSource and station interpolation reuse StationHermite endpoints and the canonical outline parameter.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Virtual finite derivatives do not claim regular mm derivatives at a singular pole; row compatibility is checked by the engine.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes endpoint units, interpolation weights and coordinate-change availability.
-
 # src/construction/IAutoMovieLoftCoefficientSource.ts#IAutoMovieLoftCoefficientSource.IEnd
 
 ## @evidence contracts/development/design.md#principled-representation

@@ -1,21 +1,3 @@
-# src/motion/IAutoMovieContactMask.ts#IAutoMovieContactMask
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Resolved effector positions and ground heights share model-frame metres; tolerance is finite nonnegative metres. contactMask rejects nonfinite ground, propagates callback errors and reports false for a missing effector.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieContactMask contracts used by packages/engine/src/motion/contactMask.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Resolved effector positions and ground heights share model-frame metres; tolerance is finite nonnegative metres. contactMask rejects nonfinite ground, propagates callback errors and reports false for a missing effector. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieContactMask contract belongs to interface; packages/engine/src/motion/contactMask.ts uses its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/IAutoMovieContactMask.ts#IAutoMovieContactMask.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/cinematics/IAutoMovieCompileCameraClearanceReports.ts#IAutoMovieCompileCameraClearanceReports
-
-## @evidence contracts/development/design.md#principled-representation
-
-IProps combines one shot snapshot with world geometry, shot-local motion and a collector; numeric/revision admission stays in the engine.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The namespace owns clearance-compilation inputs shared with compilePerformShotCameras, reusing canonical scene and runtime records.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Conditional runtime absence is documented in IProps instead of concealed by a fabricated clearance context.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-IProps defines take selection, units, borrowed inputs and refusal effects for clearance compilation.
-
 # src/cinematics/IAutoMovieCompileCameraClearanceReports.ts#IAutoMovieCompileCameraClearanceReports.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

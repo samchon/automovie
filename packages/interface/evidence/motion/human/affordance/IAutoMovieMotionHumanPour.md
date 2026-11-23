@@ -1,21 +1,3 @@
-# src/motion/human/affordance/IAutoMovieMotionHumanPour.ts#IAutoMovieMotionHumanPour
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the scope and the owner of runtime admission.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A pour combines rigid affordances, phase lengths in seconds, and conserved amounts in millilitres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Parameters are used by the registered action and by the action-local volume query.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Uses the canonical hand side and scene prop ids. No runtime geometry or model catalogue dependency enters the contract.
-
 # src/motion/human/affordance/IAutoMovieMotionHumanPour.ts#IAutoMovieMotionHumanPour.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

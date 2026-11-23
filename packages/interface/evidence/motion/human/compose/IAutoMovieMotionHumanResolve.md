@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanResolve.ts#IAutoMovieMotionHumanResolve
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-shares: The share record. metres: The point in the performer's floor frame, metres. shares: The shares, the extra outward share included.
-
-## @evidence contracts/development/design.md#principled-representation
-
-shares: The share record. metres: The point in the performer's floor frame, metres. shares: The shares, the extra outward share included.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanResolve.ts (AutoMovieMotionHumanResolve.place, return); compose/AutoMovieMotionHumanResolve.ts (AutoMovieMotionHumanResolve.shares, return); compose/AutoMovieMotionHumanResolve.ts (AutoMovieMotionHumanResolve.bend, return); compose/AutoMovieMotionHumanResolve.ts (AutoMovieMotionHumanResolve.amount, return); compose/AutoMovieMotionHumanResolve.ts (AutoMovieMotionHumanResolve.table, bodies); compose/AutoMovieMotionHumanResolve.ts (AutoMovieMotionHumanResolve.table.row, b).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanTarget.IDefault, IAutoMovieVector3, IAutoMovieMotionHumanTargetGrid.INudge, IAutoMovieMotionHumanBend.IShares identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanResolve.ts#IAutoMovieMotionHumanResolve.IPlace
 
 ## @evidence contracts/development/common.md#meaningful-documentation

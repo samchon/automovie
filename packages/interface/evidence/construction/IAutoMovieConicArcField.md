@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConicArcField.ts#IAutoMovieConicArcField
-
-## @evidence contracts/development/design.md#principled-representation
-
-Geometry separates source-length positions from dimensionless tangent directions; reading/failure discriminants preserve required source Hessians and radial phase jets.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-ConicArcField and native section readers use the same interface records for numeric and differentiated conic evaluation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Unavailable derivative orders stay failures; numeric finiteness and source admission are checked by the engine, not by generic T.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents point and tangent derivative layouts, curvature and named failure.
-
 # src/construction/IAutoMovieConicArcField.ts#IAutoMovieConicArcField.IGeometry
 
 ## @evidence contracts/development/design.md#principled-representation

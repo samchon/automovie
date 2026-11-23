@@ -1,21 +1,3 @@
-# src/core/math/IAutoMovieMatrix4.ts#IAutoMovieMatrix4
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Affine decomposition values returned by the engine's Matrix4 operations. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The decomposition joins destination-frame translation, quaternion orientation and dimensionless scale.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-World-driver consumers read the existing vector/quaternion types through IDecomposeResult.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The type does not represent shear or certify an arbitrary matrix's right-handedness and finite arithmetic.
-
 # src/core/math/IAutoMovieMatrix4.ts#IAutoMovieMatrix4.IDecomposeResult
 
 ## @evidence contracts/development/common.md#meaningful-documentation

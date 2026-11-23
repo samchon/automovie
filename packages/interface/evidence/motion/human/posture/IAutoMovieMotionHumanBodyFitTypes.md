@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanBodyFitTypes.ts#IAutoMovieMotionHumanBodyFitTypes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-point: The point in the bone's frame, metres; its origin when absent. on: The bone carrying the goal frame; world coordinates when absent. goal: Where it goes, metres in the goal frame.
-
-## @evidence contracts/development/design.md#principled-representation
-
-point: The point in the bone's frame, metres; its origin when absent. on: The bone carrying the goal frame; world coordinates when absent. goal: Where it goes, metres in the goal frame.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: actions/support.ts (support.plan, return); actions/supportContact.ts (supportContact.swing, return); actions/supportKey.ts (supportKey.solved, swings); actions/supportKey.ts (supportKey.solved.targets, return); posture/HumanBodyFit.ts (HumanBodyFit.fit, t); posture/HumanBodyFitMerit.ts (HumanBodyFitMerit.of.misses.goals, t).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieQuaternion, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSequentialConvex.Reason, IAutoMovieMotionHumanBody identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanBodyFitTypes.ts#IAutoMovieMotionHumanBodyFitTypes.ITarget
 
 ## @evidence contracts/development/common.md#meaningful-documentation

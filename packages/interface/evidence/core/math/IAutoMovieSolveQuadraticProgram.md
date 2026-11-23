@@ -1,21 +1,3 @@
-# src/core/math/IAutoMovieSolveQuadraticProgram.ts#IAutoMovieSolveQuadraticProgram
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Sparse diagonal objectives and original-coordinate diagnostics for solving and refinement. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A sparse PSD objective retains caller units and results extend canonical kernel diagnostics.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Quadratic solving, polishing and refinement share the same input/result contracts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Admission, convergence and post-transform geometric validity remain distinct obligations.
-
 # src/core/math/IAutoMovieSolveQuadraticProgram.ts#IAutoMovieSolveQuadraticProgram.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

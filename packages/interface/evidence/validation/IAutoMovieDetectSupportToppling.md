@@ -1,21 +1,3 @@
-# src/validation/IAutoMovieDetectSupportToppling.ts#IAutoMovieDetectSupportToppling
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Static support-hull facts supplied to the toppling adviser. Nested contracts define the relevant units, ownership and failure states.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World metre geometry and a horizontal margin define one static support query.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The support adviser joins existing hull geometry to canonical event/toppling results.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A static hull query is not a dynamic simulation or complete stability proof.
-
 # src/validation/IAutoMovieDetectSupportToppling.ts#IAutoMovieDetectSupportToppling.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

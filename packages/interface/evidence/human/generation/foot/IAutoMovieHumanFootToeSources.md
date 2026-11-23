@@ -1,21 +1,3 @@
-# src/human/generation/foot/IAutoMovieHumanFootToeSources.ts#IAutoMovieHumanFootToeSources
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the AutoMovieHumanFootToeSources exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A type-only namespace groups ICandidate. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these declarations used by Human's AutoMovieHumanFootToeSources; Human retains the computation and source preparation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace only qualifies the ICandidate contracts and adds no alternate implementation, optional mode or runtime state.
-
 # src/human/generation/foot/IAutoMovieHumanFootToeSources.ts#IAutoMovieHumanFootToeSources.ICandidate
 
 ## @evidence contracts/development/design.md#principled-representation

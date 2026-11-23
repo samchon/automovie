@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionSplitCompose.ts#IAutoMovieConstructionSplitCompose
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two derivations and their sources.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Planes fixed in a section's frame are resolved through that frame, and the composed end's forks, seam planes and rails are computed from the children's skins, so every result is a function of the parts' frames.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-A frame record, a child record, the derived record and three functions.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every failed premise is returned as a named refusal; nothing is clamped, tabulated or repaired.
-
 # src/construction/IAutoMovieConstructionSplitCompose.ts#IAutoMovieConstructionSplitCompose.IBasis
 
 ## @evidence contracts/development/design.md#principled-representation

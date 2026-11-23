@@ -1,21 +1,3 @@
-# src/motion/human/posture/IAutoMovieMotionHumanResolveHumanPosture.ts#IAutoMovieMotionHumanResolveHumanPosture
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-pose: The canonical pose. seeds: Each fitted limb's seed. values: Each fitted limb's fit value (`IAutoMovieSeededChainFit.value`), where its fit reports one.
-
-## @evidence contracts/development/design.md#principled-representation
-
-pose: The canonical pose. seeds: Each fitted limb's seed. values: Each fitted limb's fit value (`IAutoMovieSeededChainFit.value`), where its fit reports one.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: posture/resolveHumanPosture.ts (resolveHumanPosture.seeded, return); posture/resolveHumanPosture.ts (resolveHumanPosture.refit, return); posture/resolveHumanPosture.ts (resolveHumanPosture, near); posture/resolveHumanPosture.ts (resolveHumanPosture.seeded, near); posture/resolveHumanPosture.ts (resolveHumanPosture.refit, near); handling/HumanGraspSearch.ts (HumanGraspSearch.fit).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanLimb, IAutoMovieSwivelNear, IAutoMoviePose identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/posture/IAutoMovieMotionHumanResolveHumanPosture.ts#IAutoMovieMotionHumanResolveHumanPosture.INear
 
 ## @evidence contracts/development/common.md#meaningful-documentation

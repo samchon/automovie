@@ -1,21 +1,3 @@
-# src/human/generation/f1/IAutoMovieHumanF1Engineering.ts#IAutoMovieHumanF1Engineering
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Fields exchanged by the F1 engineering control and capture paths.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Driver ratios are dimensionless, girths and support breadth use millimetres, and resolution status accompanies the exact fields.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanF1Engineering produces these data for preflight and capture.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The records describe qualified input resolution and do not claim population or surface validity.
-
 # src/human/generation/f1/IAutoMovieHumanF1Engineering.ts#IAutoMovieHumanF1Engineering.IRatios
 
 ## @evidence contracts/development/design.md#principled-representation

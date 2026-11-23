@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieSolidRail.ts#IAutoMovieSolidRail
-
-## @evidence contracts/development/design.md#principled-representation
-
-Source chart coordinates and world millimetre chords remain distinct, with station or metric-square part offset modes.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-SolidRail.at delegates to explain; joins consume the same rails and optional diagnostic quantities.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Offset/normal-section failures return a null rail, while source callback exceptions retain their original propagation policy.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines mode selection, measurement units and null-versus-throw behavior.
-
 # src/construction/IAutoMovieSolidRail.ts#IAutoMovieSolidRail.IRail
 
 ## @evidence contracts/development/design.md#principled-representation

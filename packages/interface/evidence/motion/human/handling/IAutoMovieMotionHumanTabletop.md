@@ -1,21 +1,3 @@
-# src/motion/human/handling/IAutoMovieMotionHumanTabletop.ts#IAutoMovieMotionHumanTabletop
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names each tabletop composition and the identity rule they share.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Props by subject, places as world points and squares by name; the composer owns the refusals.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The parameters `HumanTabletop` reads.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No prop is duplicated or replaced; every step names a real subject.
-
 # src/motion/human/handling/IAutoMovieMotionHumanTabletop.ts#IAutoMovieMotionHumanTabletop.IChessMove
 
 ## @evidence contracts/development/common.md#meaningful-documentation

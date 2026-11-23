@@ -1,21 +1,3 @@
-# src/motion/human/tasks/IAutoMovieMotionHumanLongTool.ts#IAutoMovieMotionHumanLongTool
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the held tool, the two hands and each stroke.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A closed union of strokes over one held tool and a world work point.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The long-tool law reads these inputs; the tool's reach is its own contacts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No tool length or hand place is typed.
-
 # src/motion/human/tasks/IAutoMovieMotionHumanLongTool.ts#IAutoMovieMotionHumanLongTool.Stroke
 
 ## @evidence contracts/development/common.md#meaningful-documentation

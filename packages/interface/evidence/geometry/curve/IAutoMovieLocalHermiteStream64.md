@@ -1,21 +1,3 @@
-# src/geometry/curve/IAutoMovieLocalHermiteStream64.ts#IAutoMovieLocalHermiteStream64
-
-## @evidence contracts/development/design.md#principled-representation
-
-Open normalized courses and physical millimetre stations define the field; chunks use model metres and global vertex indices.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Input, Chunk and Summary describe the local Hermite generator's accepted run, yielded suffixes and terminal return.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Omitted intervals remain explicit and finite output does not certify continuity, embedding or source fidelity.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Contracts state admission owners, immutable input lifetime, transferred arrays and cancellation semantics.
-
 # src/geometry/curve/IAutoMovieLocalHermiteStream64.ts#IAutoMovieLocalHermiteStream64.Input
 
 ## @evidence contracts/development/design.md#principled-representation

@@ -1,21 +1,3 @@
-# src/production/IAutoMovieCompiledPopulationRepresentation.ts#IAutoMovieCompiledPopulationRepresentation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Explains applicable tiers, default tier, radius units and fallback, and caller ownership of measurements and admission.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Missing geometry is represented by explicit digest and radius fallback policies, not claimed as measured enclosure; no renderer handles or model catalogue is embedded.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Model-group IDs join tiers, model records and root-centred metre estimates. Numeric validity and geometric enclosure remain host responsibilities because the compiler only reads estimates.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Both compact population compilers supply the same four inputs; hero filtering stays with the formation caller rather than adding a population-kind switch.
-
 # src/production/IAutoMovieCompiledPopulationRepresentation.ts#IAutoMovieCompiledPopulationRepresentation.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

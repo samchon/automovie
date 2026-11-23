@@ -1,21 +1,3 @@
-# src/motion/human/everyday/IAutoMovieMotionHumanApproach.ts#IAutoMovieMotionHumanApproach
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-at: The gap: a named band or metres; `personal` when absent. from: Where around a person target to stop, in that person's own frame: `front`, `left`, `right` or `behind`; along the line from the start when absent (and always for a prop or point). pace: The pace; `normal` when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-at: The gap: a named band or metres; `personal` when absent. from: Where around a person target to stop, in that person's own frame: `front`, `left`, `right` or `behind`; along the line from the start when absent (and always for a prop or point). pace: The pace; `normal` when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: chain/HumanChainTravel.ts (HumanChainTravel.approach, params); everyday/approach.ts (approach.plan, context); everyday/approach.ts (approach.to, context); everyday/approach.ts (approach.to, aimed); everyday/approach.ts (approach.to); everyday/approach.ts (approach.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanProxemics.Band, IAutoMovieMotionHumanGait.WalkPace, IAutoMovieMotionManner, IAutoMovieMotionHumanEffort.IEffort, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/everyday/IAutoMovieMotionHumanApproach.ts#IAutoMovieMotionHumanApproach.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

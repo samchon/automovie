@@ -1,21 +1,3 @@
-# src/human/generation/IAutoMovieHumanFootPrior.ts#IAutoMovieHumanFootPrior
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the AutoMovieHumanFootPrior exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A type-only namespace groups IToe, IPrior. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these declarations used by Human's AutoMovieHumanFootPrior; Human retains the computation and source preparation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace only qualifies the IToe, IPrior contracts and adds no alternate implementation, optional mode or runtime state.
-
 # src/human/generation/IAutoMovieHumanFootPrior.ts#IAutoMovieHumanFootPrior.IToe
 
 ## @evidence contracts/development/common.md#meaningful-documentation

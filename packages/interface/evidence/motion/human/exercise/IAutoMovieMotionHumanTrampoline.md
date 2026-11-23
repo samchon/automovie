@@ -1,21 +1,3 @@
-# src/motion/human/exercise/IAutoMovieMotionHumanTrampoline.ts#IAutoMovieMotionHumanTrampoline
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the bounces, the shapes and the kill.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The bed, the count, the apex and the shape.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: exercise/trampolineBounce.ts (trampolineBounce.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly.
-
 # src/motion/human/exercise/IAutoMovieMotionHumanTrampoline.ts#IAutoMovieMotionHumanTrampoline.Shape
 
 ## @evidence contracts/development/common.md#meaningful-documentation

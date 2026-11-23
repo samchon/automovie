@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieSolidZip.ts#IAutoMovieSolidZip
-
-## @evidence contracts/development/design.md#principled-representation
-
-ISequence coindexes mesh vertex IDs and cyclic parameters with period 2pi, preserving boundary order on any branch.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-SolidZip uses this representation to connect existing boundary samples, including normalized-arclength clocks.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Number arrays cannot enforce matching lengths, ordering or valid IDs; zipper callers supply admitted sequences.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes the cyclic parameter from geometric polar angle.
-
 # src/construction/IAutoMovieSolidZip.ts#IAutoMovieSolidZip.ISequence
 
 ## @evidence contracts/development/design.md#principled-representation

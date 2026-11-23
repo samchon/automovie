@@ -1,21 +1,3 @@
-# src/motion/human/exercise/IAutoMovieMotionHumanBallet.ts#IAutoMovieMotionHumanBallet
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the steps, the turnout and the refusals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A step kind with its own optional fields.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: exercise/balletStep.ts (balletStep.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted literal values are declared here directly.
-
 # src/motion/human/exercise/IAutoMovieMotionHumanBallet.ts#IAutoMovieMotionHumanBallet.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

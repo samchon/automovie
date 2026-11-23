@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanWallRun.ts#IAutoMovieMotionHumanWallRun
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States both moves, the compositions, the checks and the refusals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A discriminated union on kind; each names the wall, its face and the foot that steps.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One registered vocabulary entry; planWallRun in motions is the only consumer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No height or friction is restated; they come from the wall and the body.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanWallRun.ts#IAutoMovieMotionHumanWallRun.IWallStep
 
 ## @evidence contracts/development/common.md#meaningful-documentation

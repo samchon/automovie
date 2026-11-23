@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieMapSurfaceTier.ts#IAutoMovieMapSurfaceTier
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-A source quad address passes through one dimensionless patch chart into a destination tier's quad address. Matching ordered names cannot prove equivalent authored ranges; callers supply the same network chart and corner=null.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A source quad address passes through one dimensionless patch chart into a destination tier's quad address.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-mapAutoMovieSurfaceTier composes source bilinear coordinates with locateAutoMovieSurfaceCoordinate using canonical cage types.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Matching ordered names cannot prove equivalent authored ranges; callers supply the same network chart and corner=null.
-
 # src/geometry/sweep/IAutoMovieMapSurfaceTier.ts#IAutoMovieMapSurfaceTier.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

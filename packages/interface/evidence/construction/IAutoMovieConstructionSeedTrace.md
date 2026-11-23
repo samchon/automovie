@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionSeedTrace.ts#IAutoMovieConstructionSeedTrace
-
-## @evidence contracts/development/design.md#principled-representation
-
-Existing candidate, Newton and admission branches publish their actual finite state and termination reason.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One optional nonthrowing observer receives values without changing candidate order or solve policy.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No trace event supplies a substitute meeting or repeats a solver.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States parameter units, null meaning and observer ownership.
-
 # src/construction/IAutoMovieConstructionSeedTrace.ts#IAutoMovieConstructionSeedTrace.Reason
 
 ## @evidence contracts/development/design.md#principled-representation

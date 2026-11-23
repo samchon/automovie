@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanCarriedCouplingPose.ts#IAutoMovieMotionHumanCarriedCouplingPose
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-point: Metres. places: Left and right hand holds in that order; null for a hand that does not hold.
-
-## @evidence contracts/development/design.md#principled-representation
-
-point: Metres. places: Left and right hand holds in that order; null for a hand that does not hold.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: lexicon/HumanCarriedCouplingPose.ts (HumanCarriedCouplingPose.holds.at, return); lexicon/HumanCarriedCouplingPose.ts (HumanCarriedCouplingPose.posture, bearers); lexicon/HumanCarriedCouplingPose.ts (HumanCarriedCouplingPose.posture.of, return); lexicon/HumanCarriedCouplingPose.ts (HumanCarriedCouplingPose.holds, return); lexicon/HumanCarriedCouplingPose.ts (HumanCarriedCouplingPose.stance, bent); lexicon/HumanCarriedCouplingPose.ts (HumanCarriedCouplingPose.stood, bent).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieResolvedBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanCarriedCouplingPose.ts#IAutoMovieMotionHumanCarriedCouplingPose.IHold
 
 ## @evidence contracts/development/common.md#meaningful-documentation

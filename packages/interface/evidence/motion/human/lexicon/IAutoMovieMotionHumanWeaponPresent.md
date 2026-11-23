@@ -1,21 +1,3 @@
-# src/motion/human/lexicon/IAutoMovieMotionHumanWeaponPresent.ts#IAutoMovieMotionHumanWeaponPresent
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-gun: The held weapon's prop subject id; the bare hand when absent. hand: The shooting hand; `right` when absent. hands: How many hands hold it; 2 when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-gun: The held weapon's prop subject id; the bare hand when absent. hand: The shooting hand; `right` when absent. hands: How many hands hold it; 2 when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: lexicon/HumanWeaponPose.ts (HumanWeaponPose.of, context); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.present, context); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.present, ahead); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.hand, p); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.held, context); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.setup, context).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanSide, IAutoMovieMotionManner, IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/lexicon/IAutoMovieMotionHumanWeaponPresent.ts#IAutoMovieMotionHumanWeaponPresent.IWield
 
 ## @evidence contracts/development/common.md#meaningful-documentation

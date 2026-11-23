@@ -1,21 +1,3 @@
-# src/motion/IAutoMovieIntegrateAirborneRotation.ts#IAutoMovieIntegrateAirborneRotation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Shape inertia and relative momentum use the root frame while conserved momentum and returned orientation use the world frame. Time is seconds; the integrator admits interval, step and tolerances, and callers supply finite momentum, unit orientation and nonsingular positive principal moments.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieIntegrateAirborneRotation contracts used by packages/engine/src/motion/integrateAirborneRotation.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Shape inertia and relative momentum use the root frame while conserved momentum and returned orientation use the world frame. Time is seconds; the integrator admits interval, step and tolerances, and callers supply finite momentum, unit orientation and nonsingular positive principal moments. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieIntegrateAirborneRotation contract belongs to interface; packages/engine/src/motion/integrateAirborneRotation.ts and packages/engine/src/motion/solveAirborneTakeoff.ts use its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/IAutoMovieIntegrateAirborneRotation.ts#IAutoMovieIntegrateAirborneRotation.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

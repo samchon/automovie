@@ -1,21 +1,3 @@
-# src/motion/human/touch/IAutoMovieMotionHumanLegTouch.ts#IAutoMovieMotionHumanLegTouch
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-with: The part of the leg; the toes when absent. side: The leg; `right` when absent. hold: Seconds the leg stays on the place; 0.5 when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-with: The part of the leg; the toes when absent. side: The leg; `right` when absent. hold: Seconds the leg stays on the place; 0.5 when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: touch/legTouch.ts (legTouch.plan, context); touch/legTouch.ts (legTouch.plan).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/touch/IAutoMovieMotionHumanLegTouch.ts#IAutoMovieMotionHumanLegTouch.With
 
 ## @evidence contracts/development/common.md#meaningful-documentation

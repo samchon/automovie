@@ -1,21 +1,3 @@
-# src/motion/human/grappling/IAutoMovieMotionHumanForceExchange.ts#IAutoMovieMotionHumanForceExchange
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-release: Seconds from the break to the release. edge: The base's extent along the pull, metres. seconds: Seconds from the pull's start to the broken base.
-
-## @evidence contracts/development/design.md#principled-representation
-
-release: Seconds from the break to the release. edge: The base's extent along the pull, metres. seconds: Seconds from the pull's start to the broken base.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: grappling/HumanForceExchange.ts (HumanForceExchange.breaking, props); grappling/HumanForceExchange.ts (HumanForceExchange.broken, props); grappling/HumanForceExchange.ts (HumanForceExchange.drawn, props); grappling/HumanForceExchange.ts (HumanForceExchange.drawn, return); grappling/HumanForceExchange.ts (HumanForceExchange.resisted, props); grappling/HumanForceExchange.ts (HumanForceExchange.swing, props).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical AutoMovieHumanForceSite, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/grappling/IAutoMovieMotionHumanForceExchange.ts#IAutoMovieMotionHumanForceExchange.ISwing
 
 ## @evidence contracts/development/common.md#meaningful-documentation

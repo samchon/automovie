@@ -1,21 +1,3 @@
-# src/motion/human/touch/IAutoMovieMotionHumanTouchSite.ts#IAutoMovieMotionHumanTouchSite
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-up: Along the surface toward the head, metres; 0 when absent. out: To the right of someone facing the surface, metres; 0 when absent. draw: The radius the seed draws the place within, metres, uniform over the disc.
-
-## @evidence contracts/development/design.md#principled-representation
-
-up: Along the surface toward the head, metres; 0 when absent. out: To the right of someone facing the surface, metres; 0 when absent. draw: The radius the seed draws the place within, metres, uniform over the disc.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: touch/touchHold.ts (touchHold.region, perceived); touch/touchHold.ts (touchHold.region, held); touch/touchHold.ts (touchHold.region, return); touch/touchHold.ts (touchHold.perceived, perceived); touch/touchHold.ts (touchHold.perceived, return); touch/touchRegion.ts (touchRegion.reader, return).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanTarget.IPlace identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/touch/IAutoMovieMotionHumanTouchSite.ts#IAutoMovieMotionHumanTouchSite.ISite
 
 ## @evidence contracts/development/common.md#meaningful-documentation

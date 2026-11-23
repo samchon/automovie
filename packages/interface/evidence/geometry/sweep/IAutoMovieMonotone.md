@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieMonotone.ts#IAutoMovieMonotone
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Writable indexed scalar storage holds one derivative per knot in ordinate units per abscissa unit. The numeric index signature permits arrays and typed buffers; sufficient capacity and admitted knot/value data remain caller premises.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Writable indexed scalar storage holds one derivative per knot in ordinate units per abscissa unit.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieMonotone.slope writes this buffer for repeated scalar interpolation without requiring a specific array class.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The numeric index signature permits arrays and typed buffers; sufficient capacity and admitted knot/value data remain caller premises.
-
 # src/geometry/sweep/IAutoMovieMonotone.ts#IAutoMovieMonotone.ISlopeSlopes
 
 ## @evidence contracts/development/common.md#meaningful-documentation

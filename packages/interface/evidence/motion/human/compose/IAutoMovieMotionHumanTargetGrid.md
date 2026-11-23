@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanTargetGrid.ts#IAutoMovieMotionHumanTargetGrid
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-out: Toward the acting hand's side; negative is toward the midline and across it; 0 when absent. up: Upward; 0 when absent. forward: Forward; 0 when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-out: Toward the acting hand's side; negative is toward the midline and across it; 0 when absent. up: Upward; 0 when absent. forward: Forward; 0 when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanPlaced.ts (AutoMovieMotionHumanPlaced.grid, grid); compose/AutoMovieMotionHumanTargetGrid.ts (AutoMovieMotionHumanTargetGrid.nearest, return); compose/AutoMovieMotionHumanTargetGrid.ts (named, base); compose/AutoMovieMotionHumanTargetGrid.ts (nudged, base); executable/cases/everydayGestureVerdicts.ts (everydayGestureVerdicts.placed, expected); executable/cases/MotionPlaceVerdicts.ts (MotionPlaceVerdicts.at, expected).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieMotionHumanTarget.Name, IAutoMovieMotionHumanTarget.IDefault identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanTargetGrid.ts#IAutoMovieMotionHumanTargetGrid.INudge
 
 ## @evidence contracts/development/common.md#meaningful-documentation

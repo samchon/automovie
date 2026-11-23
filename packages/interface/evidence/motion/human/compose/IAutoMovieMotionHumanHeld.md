@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanHeld.ts#IAutoMovieMotionHumanHeld
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-frame: The prop's frame in the hand's grip frame: its origin from the grip socket in the hand bone's axes, metres, and its rotation from the hand bone's. point: The prop's point that meets the region; the caller names it when absent.
-
-## @evidence contracts/development/design.md#principled-representation
-
-frame: The prop's frame in the hand's grip frame: its origin from the grip socket in the hand bone's axes, metres, and its rotation from the hand bone's. point: The prop's point that meets the region; the caller names it when absent.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanHeld.ts (AutoMovieMotionHumanHeld.of, return); compose/AutoMovieMotionHumanHeld.ts (AutoMovieMotionHumanHeld.grasped, return); compose/AutoMovieMotionHumanHeld.ts (AutoMovieMotionHumanHeld.point, held); compose/AutoMovieMotionHumanHeld.ts (AutoMovieMotionHumanHeld.grip, held); compose/AutoMovieMotionHumanHeld.ts (AutoMovieMotionHumanHeld.hold, held); striking/StrikingHeld.ts (StrikingHeld.read, held).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Shares the canonical IAutoMovieRigidTransform, IAutoMovieAffordance, IAutoMovieMotionHumanTouchEffector.IEffector, IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-
 # src/motion/human/compose/IAutoMovieMotionHumanHeld.ts#IAutoMovieMotionHumanHeld.IHeld
 
 ## @evidence contracts/development/common.md#meaningful-documentation

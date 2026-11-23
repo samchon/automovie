@@ -1,21 +1,3 @@
-# src/geometry/sweep/IAutoMovieOrientSweep.ts#IAutoMovieOrientSweep
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Live metre transport frames and increasing normalized station knots determine dimensionless station rotations. The fixed flag chooses an existing frame rule; station capacity and ordering must stay unchanged because rotation storage is compiled once.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Live metre transport frames and increasing normalized station knots determine dimensionless station rotations.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-orientAutoMovieSweep retains IProps while the owning rig updates transport before orientation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The fixed flag chooses an existing frame rule; station capacity and ordering must stay unchanged because rotation storage is compiled once.
-
 # src/geometry/sweep/IAutoMovieOrientSweep.ts#IAutoMovieOrientSweep.IProps
 
 ## @evidence contracts/development/design.md#principled-representation

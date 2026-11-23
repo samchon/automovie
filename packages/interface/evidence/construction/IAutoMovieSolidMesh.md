@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieSolidMesh.ts#IAutoMovieSolidMesh
-
-## @evidence contracts/development/design.md#principled-representation
-
-Mesh, face and seam records preserve indexed world-mm geometry and owner-local coordinates with explicit periodic boundary occurrences.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-SolidMesh owns these shared interface records for face planning, boundary publication and join tessellation; SolidSurface owns evaluation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Arrays do not certify valid indices, coindexing, closedness or outward geometry; planning/refusal diagnostics remain explicit.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents buffer layouts, owner identity, period lifts, seam units and failure callbacks.
-
 # src/construction/IAutoMovieSolidMesh.ts#IAutoMovieSolidMesh.IOwner
 
 ## @evidence contracts/development/design.md#principled-representation

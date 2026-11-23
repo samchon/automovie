@@ -1,21 +1,3 @@
-# src/recovery/computation/IAutoMovieRecoveryChartLeafControls.ts#IAutoMovieRecoveryChartLeafControls
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Unique named rectangles covering the unit UV square with disjoint interiors. Stable identity within the owning chart, boundary or occurrence registry; equal coordinates do not create identity.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Unique named rectangles covering the unit UV square with disjoint interiors.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-RecoveryChartLeafControls, RecoveryChartLeafFit share IAutoMovieRecoveryChartLeafControls's canonical records; the referenced quantities retain one declaration owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Stable identity within the owning chart, boundary or occurrence registry; equal coordinates do not create identity.
-
 # src/recovery/computation/IAutoMovieRecoveryChartLeafControls.ts#IAutoMovieRecoveryChartLeafControls.Input
 
 ## @evidence contracts/development/common.md#meaningful-documentation

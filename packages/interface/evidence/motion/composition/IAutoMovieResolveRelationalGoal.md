@@ -1,21 +1,3 @@
-# src/motion/composition/IAutoMovieResolveRelationalGoal.ts#IAutoMovieResolveRelationalGoal
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Bodies expose admitted physical profiles and named segment-local points in metres; pose readers supply world transforms at film seconds. Support normals are world unit vectors and turn limits are radians. The whole-body solver owns numerical fitting; outside the goal window the result is inactive with no target point.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-This namespace groups the IAutoMovieResolveRelationalGoal contracts used by packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Bodies expose admitted physical profiles and named segment-local points in metres; pose readers supply world transforms at film seconds. Support normals are world unit vectors and turn limits are radians. The whole-body solver owns numerical fitting; outside the goal window the result is inactive with no target point. The namespace groups these type contracts without implementing the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The canonical IAutoMovieResolveRelationalGoal contract belongs to interface; packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts uses its nested records and callbacks. Runtime computation remains with those consumers.
-
 # src/motion/composition/IAutoMovieResolveRelationalGoal.ts#IAutoMovieResolveRelationalGoal.IRegion
 
 ## @evidence contracts/development/common.md#meaningful-documentation

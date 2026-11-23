@@ -1,21 +1,3 @@
-# src/motion/human/compose/IAutoMovieMotionHumanDrinkingArm.ts#IAutoMovieMotionHumanDrinkingArm
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-tilt: How far the reached hand carries the vessel's axis off the asked one, degrees. flexion: The shoulder's flexion, degrees, as the source measures it (`measured`). abduction: The shoulder's abduction, degrees, as the source measures it (`measured`).
-
-## @evidence contracts/development/design.md#principled-representation
-
-tilt: How far the reached hand carries the vessel's axis off the asked one, degrees. flexion: The shoulder's flexion, degrees, as the source measures it (`measured`). abduction: The shoulder's abduction, degrees, as the source measures it (`measured`).
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime boundary references: compose/AutoMovieMotionHumanDrinkingArm.ts (AutoMovieMotionHumanDrinkingArm.measured, return); compose/AutoMovieMotionHumanDrinkingArm.ts (AutoMovieMotionHumanDrinkingArm.read, return); compose/AutoMovieMotionHumanDrinkingArm.ts (AutoMovieMotionHumanDrinkingArm.drinks, arm); compose/AutoMovieMotionHumanDrinkingArm.ts (AutoMovieMotionHumanDrinkingArm.nearer, arm); compose/AutoMovieMotionHumanDrinkingArm.ts (AutoMovieMotionHumanDrinkingArm.nearer.past, of); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.drinking.found, arm).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The admitted fields and units are declared here directly; runtime handling remains in AutoMovieMotionHumanDrinkingArm.measured.
-
 # src/motion/human/compose/IAutoMovieMotionHumanDrinkingArm.ts#IAutoMovieMotionHumanDrinkingArm.IArm
 
 ## @evidence contracts/development/common.md#meaningful-documentation

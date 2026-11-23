@@ -1,21 +1,3 @@
-# src/human/generation/f1/IAutoMovieHumanF1Placement.ts#IAutoMovieHumanF1Placement
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes named segment frames and optional parent-relative joint rotations for reference placement; nested declarations retain their units, frames, optional states and callback contracts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Named segment frames and optional parent-relative joint rotations for reference placement. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these dependency-free exchange types for AutoMovieHumanF1Placement; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups the existing F1Placement contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
-
 # src/human/generation/f1/IAutoMovieHumanF1Placement.ts#IAutoMovieHumanF1Placement.IFrames
 
 ## @evidence contracts/development/common.md#meaningful-documentation
