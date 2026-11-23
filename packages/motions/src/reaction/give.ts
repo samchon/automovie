@@ -34,30 +34,34 @@ import { ReactionSource } from "./ReactionSource";
 
 /**
  * Giving way to a contact: the head turned aside by a slap, or the trunk
- * carried by a hand that pushes or pulls, then a return to what the body
- * held. It is the receiver's part of a stage slap, a grab or a light push
- * that does not cost the feet their place; a push that does is `stagger`.
+ * carried by a hand that pushes or pulls, then a return to what the body held.
+ * It is the receiver's part of a stage slap, a grab or a light push that does
+ * not cost the feet their place; a push that does is `stagger`. A leg giving
+ * way to a low kick is not a give: use `stagger` or a short `step`.
  *
- * The contact comes from a target (the striking hand, the grabbing arm),
- * read one look before the start. The head turns about the neck to the side
- * away from it, by `TURN` at full intensity with a slight tilt the same way;
- * the trunk leans from the hips and shifts away from it, or toward it when
- * it pulls. The movement starts at the action's start, peaks after `RISE`
- * and returns over `RETURN`. Sync the action's start to the contact of the
- * action it answers.
+ * The contact comes from a target (the striking hand, the grabbing arm), read
+ * one look before the start. The head turns about the neck to the side away
+ * from it, by `TURN` at full intensity with a slight tilt the same way; the
+ * trunk leans from the hips and shifts away from it, or toward it when it
+ * pulls. The movement starts at the action's start, peaks after `RISE` and
+ * returns over `RETURN`. Sync the action's start to the contact of the action
+ * it answers.
  *
- * It rides whatever base the body is on (standing, seated) and claims the
- * head, or the root and the trunk; the feet and the arms stay as they were.
+ * It rides whatever base the body is on (standing, seated) and claims the head,
+ * or the root and the trunk; the feet and the arms stay as they were.
  *
- * Every size and time is provisional: #3347 located no study of a slapped
- * head's rotation, and the stage-combat convention (the receiver turns the
- * head with the hand's passage) gives the direction only.
+ * Every size and time is provisional: the research located no study of a
+ * slapped head's rotation, and the stage-combat convention (the receiver turns
+ * the head with the hand's passage) gives the direction only.
  */
 export namespace give {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "give";
 
-  /** Cancel table: anything may follow from the peak on, a stagger or a knockdown at any time. */
+  /**
+   * Cancel table: anything may follow from the peak on, a stagger or a
+   * knockdown at any time.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       any: ["fromStroke", "smooth"],
@@ -65,11 +69,17 @@ export namespace give {
       knockdown: ["anytime", "reflex"],
     });
 
-  /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
+  /**
+   * A reaction interrupts whatever the body was doing, at any instant, as a
+   * reflex.
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
-  /** The head's turn at full intensity, degrees (provisional), inside the neck's rotation of about 80 degrees each way. */
+  /**
+   * The head's turn at full intensity, degrees (provisional), inside the neck's
+   * rotation of about 80 degrees each way.
+   */
   export const TURN: number = 45;
 
   /** The head's tilt with the turn at full intensity, degrees (provisional). */
@@ -197,7 +207,10 @@ export namespace give {
     };
   }
 
-  /** The neck and head angles that turn and tilt the head to a side: 1 for the performer's left, -1 for the right. */
+  /**
+   * The neck and head angles that turn and tilt the head to a side: 1 for the
+   * performer's left, -1 for the right.
+   */
   function turned(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGive.IParams>,
     trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

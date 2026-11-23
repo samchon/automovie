@@ -39,47 +39,46 @@ import { punchLaunch } from "./punchLaunch";
  * and returned to the guard, with the trunk turning and the feet stepping or
  * pivoting to carry the shoulder.
  *
- * The law writes effector goals, not joint angles. The fist socket is
- * brought from where it is at the launch onto the target region's point
- * (another person's actual region, a prop point, a free point, or a virtual
- * opponent at range) on a minimum-jerk delivery that aims through the target
- * so the fist lands at 0.78 of its peak speed (Liu et al. 2022); the wrist
- * goal is the fist point less the hand-rotated socket offset, the elbow bend
- * hint and the shoulder carried by the trunk turn shape the arm, and the
- * engine's limb fit solves the joints. The target is tracked online with the
- * visuomotor latency ({@link StrikingAim}); the fist stops on the first
- * surface of the struck body it meets ({@link StrikingStroke}), so a guard on
- * the line is struck instead of the face it covers, and two punches thrown at
- * once meet whichever arm or head is in the way.
+ * The law writes effector goals, not joint angles. The fist socket is brought
+ * from where it is at the launch onto the target region's point (another
+ * person's actual region, a prop point, a free point, or a virtual opponent at
+ * range) on a minimum-jerk delivery that aims through the target so the fist
+ * lands at 0.78 of its peak speed (Liu et al. 2022); the wrist goal is the fist
+ * point less the hand-rotated socket offset, the elbow bend hint and the
+ * shoulder carried by the trunk turn shape the arm, and the engine's limb fit
+ * solves the joints. The target is tracked online with the visuomotor latency
+ * ({@link StrikingAim}); the fist stops on the first surface of the struck body
+ * it meets ({@link StrikingStroke}), so a guard on the line is struck instead of
+ * the face it covers, and two punches thrown at once meet whichever arm or head
+ * is in the way.
  *
- * Techniques (IBA coaching manual pp. 42 to 45 and the kickboxing research
- * of #3201): `straight` lands nearly extended (elbow 5 to 25 degrees) along the
- * line, palm down; `hook` lands with the elbow near a right angle (70 to 100
- * degrees), arriving across the line, palm down; `uppercut` rises from below
- * with the elbow at 60 to 100 degrees, palm toward the puncher. A rear-hand
- * punch turns the trunk through to bring the rear shoulder forward and
- * pivots the rear foot on its ball; a lead hook turns the other way. A body
- * punch lowers the root through the knees. When the arm's band falls short,
- * the lead foot steps in by up to one stance length, never past the room in
- * front of the arms ({@link StrikingRoom}) and never toward a target that no
- * place on the line brings within the band, and the rear foot drags
- * from mid-delivery to mid-return (the IBA stepping jab), so no planted foot
- * is left behind a travelling hip; the trunk's turn is shared by the pelvis
- * and the lumbar and thoracic spine. Beyond that the fist extends
- * along the line at the band's reach and falls short, the declared
- * miss-at-maximum-reach rule.
+ * Techniques (IBA coaching manual pp. 42 to 45 and the kickboxing research of
+ * the research): `straight` lands nearly extended (elbow 5 to 25 degrees) along
+ * the line, palm down; `hook` lands with the elbow near a right angle (70 to
+ * 100 degrees), arriving across the line, palm down; `uppercut` rises from
+ * below with the elbow at 60 to 100 degrees, palm toward the puncher. A
+ * rear-hand punch turns the trunk through to bring the rear shoulder forward
+ * and pivots the rear foot on its ball; a lead hook turns the other way. A body
+ * punch lowers the root through the knees. When the arm's band falls short, the
+ * lead foot steps in by up to one stance length, never past the room in front
+ * of the arms ({@link StrikingRoom}) and never toward a target that no place on
+ * the line brings within the band, and the rear foot drags from mid-delivery to
+ * mid-return (the IBA stepping jab), so no planted foot is left behind a
+ * travelling hip; the trunk's turn is shared by the pelvis and the lumbar and
+ * thoracic spine. Beyond that the fist extends along the line at the band's
+ * reach and falls short, the declared miss-at-maximum-reach rule.
  *
- * Timing: a lone punch takes the elite cross's 0.310 s (Cheraghi et al.
- * 2014) scaled by its own path to the target over the rear hand's, so a jab
- * is faster (`StrikingSkill.lone`, derived and provisional); a punch that follows another punch's contact keeps the measured
- * combination intervals, 0.35 s between alternating hands and 0.45 s for the
- * same hand at elite skill (Piorkowski et al. 2011), counted from that
- * contact. The return to the guard takes one alternating interval. Skill
- * scales them ({@link StrikingSkill}): the delivery and both intervals by the
- * strike phase's factor, the intervals' scaling derived and provisional
- * (`StrikingSkill.interval`), and a seeded guard drop may hold the returning
- * glove low before it reaches the guard. A feint shows a share of the
- * delivery without contact and returns in the same time.
+ * Timing: a lone punch takes the elite cross's 0.310 s (Cheraghi et al. 2014)
+ * scaled by its own path to the target over the rear hand's, so a jab is faster
+ * (`StrikingSkill.lone`, derived and provisional); a punch that follows another
+ * punch's contact keeps the measured combination intervals, 0.35 s between
+ * alternating hands and 0.45 s for the same hand at elite skill (Piorkowski et
+ * al. 2011), counted from that contact. The return to the guard takes one
+ * alternating interval. Skill scales them ({@link StrikingSkill}): the delivery
+ * and both intervals by the strike phase's factor, the intervals' scaling
+ * derived and provisional (`StrikingSkill.interval`), and a seeded guard drop
+ * may hold the returning glove low before it reaches the guard. A feint shows a
+ * share of the delivery without contact and returns in the same time.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the effector-goal method, the reach and step-in rule, the timing with sources, the guard drop and the feint, with provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table chaining punches from contact, parameters with closed technique and hand unions, and a pure plan of postures in world metres and seconds with capsule weapons.
@@ -108,7 +107,6 @@ export namespace punch {
    *
    * @param params The parameters.
    * @returns The lead or the rear hand.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation The parameter's own documentation states the defaults this resolves.
    * @evidence contracts/development/implementation.md#principled-implementation The declared hand, else the rear for an uppercut and the lead otherwise.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
@@ -128,8 +126,8 @@ export namespace punch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When a feint's share lies outside (0, 1), or the plan is read back while it is being built.
-   *
+   * @throws {Error} When a feint's share lies outside (0, 1), or the plan is
+   *   read back while it is being built.
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
    * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units carry the wrist through the contact point solved by the two-segment reach with the target tracked online; the performance's joint contact resolution stops the arm's capsules, after which the arm and trunk retrace the approach to the guard.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing first, the geometry built on first use, and every posture, contact window, weapon and record read from it.

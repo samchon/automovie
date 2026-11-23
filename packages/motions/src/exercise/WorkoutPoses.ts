@@ -10,17 +10,17 @@ import { WorkoutKind } from "./WorkoutKind";
 import { WorkoutStance } from "./WorkoutStance";
 
 /**
- * The standing poses and single acts of the workout law (#3377, #3378):
- * stretches and yoga poses (calf, chest, triceps, the lunge with a twist,
- * warrior I and II, the triangle, the standing half of a sun salutation),
- * karate's front stance and blocks, a footballer's header and traps, a
- * dancer's turn and closed hold and a thrower's turn.
+ * The standing poses and single acts of the workout law: stretches and yoga
+ * poses (calf, chest, triceps, the lunge with a twist, warrior I and II, the
+ * triangle, the standing half of a sun salutation), karate's front stance and
+ * blocks, a footballer's header and traps, a dancer's turn and closed hold and
+ * a thrower's turn.
  *
- * A split stance's front knee and a straddle's straight leg are solved on
- * the body so both feet reach the floor (`WorkoutStance`). Every stated
- * angle is provisional, read off the pose's usual description (ACSM's
- * Guidelines, 11th ed., for the stretches; Iyengar, Light on Yoga, for the
- * poses; Nakayama, Dynamic Karate, for the stance and the blocks).
+ * A split stance's front knee and a straddle's straight leg are solved on the
+ * body so both feet reach the floor (`WorkoutStance`). Every stated angle is
+ * provisional, read off the pose's usual description (ACSM's Guidelines, 11th
+ * ed., for the stretches; Iyengar, Light on Yoga, for the poses; Nakayama,
+ * Dynamic Karate, for the stance and the blocks).
  *
  * First pass: no ball is moved; a straddled foot's sideways tilt is not
  * flattened; a turn is one full turn on the left foot's ball without a rise
@@ -61,7 +61,10 @@ export namespace WorkoutPoses {
       ],
     );
 
-  /** A karate block's chamber: the fists at the hips, the blocking arm folded across. */
+  /**
+   * A karate block's chamber: the fists at the hips, the blocking arm folded
+   * across.
+   */
   const chamber = (
     body: IAutoMovieMotionHumanBody,
   ): IAutoMovieMotionHumanExerciseKey.IKey =>
@@ -80,7 +83,10 @@ export namespace WorkoutPoses {
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /** A standing calf stretch: the left leg back and straight with its heel down, the hands forward, held 20 s. */
+    /**
+     * A standing calf stretch: the left leg back and straight with its heel
+     * down, the hands forward, held 20 s.
+     */
     calfStretch: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -104,7 +110,10 @@ export namespace WorkoutPoses {
       true,
     ),
 
-    /** A chest stretch: both straight arms opened behind the line of the shoulders, held 20 s. */
+    /**
+     * A chest stretch: both straight arms opened behind the line of the
+     * shoulders, held 20 s.
+     */
     chestStretch: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -125,7 +134,10 @@ export namespace WorkoutPoses {
       ],
     ),
 
-    /** A triceps stretch: the right elbow overhead and bent, the left hand brought to it, held 20 s. */
+    /**
+     * A triceps stretch: the right elbow overhead and bent, the left hand
+     * brought to it, held 20 s.
+     */
     tricepsStretch: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -148,7 +160,10 @@ export namespace WorkoutPoses {
       ],
     ),
 
-    /** A lunge with a twist, in place: a split stance with the trunk turned over the front leg, alternating. */
+    /**
+     * A lunge with a twist, in place: a split stance with the trunk turned over
+     * the front leg, alternating.
+     */
     lungeTwist: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -194,7 +209,10 @@ export namespace WorkoutPoses {
       true,
     ),
 
-    /** The triangle of yoga: a straddle with the trunk bent to the side and the arms in one line, held 15 s. */
+    /**
+     * The triangle of yoga: a straddle with the trunk bent to the side and the
+     * arms in one line, held 15 s.
+     */
     triangle: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -217,7 +235,11 @@ export namespace WorkoutPoses {
       true,
     ),
 
-    /** Warrior II of yoga: a straddle with the right thigh turned out and bent 60 degrees over an upright shank, the arms level to the sides, held 15 s; the straight leg's spread is solved so both feet stand. */
+    /**
+     * Warrior II of yoga: a straddle with the right thigh turned out and bent
+     * 60 degrees over an upright shank, the arms level to the sides, held 15 s;
+     * the straight leg's spread is solved so both feet stand.
+     */
     warriorTwo: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -242,7 +264,12 @@ export namespace WorkoutPoses {
       true,
     ),
 
-    /** The standing half of a sun salutation: the arms raised, the trunk folded over the legs, lifted half way with a flat back, folded again and raised; the plank, the cobra and the dog that complete the flow are their own rows. */
+    /**
+     * The standing half of a sun salutation: the arms raised, the trunk folded
+     * over the legs, lifted half way with a flat back, folded again and raised;
+     * the plank, the cobra and the dog that complete the flow are their own
+     * rows.
+     */
     sunSalutation: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -299,7 +326,10 @@ export namespace WorkoutPoses {
       ],
     ),
 
-    /** Karate's front stance (zenkutsu-dachi): a split stance with the fists at the hips, held 3 s. */
+    /**
+     * Karate's front stance (zenkutsu-dachi): a split stance with the fists at
+     * the hips, held 3 s.
+     */
     frontStance: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -370,7 +400,10 @@ export namespace WorkoutPoses {
       ],
     ),
 
-    /** A football header: the trunk drawn back and snapped forward through the ball. */
+    /**
+     * A football header: the trunk drawn back and snapped forward through the
+     * ball.
+     */
     header: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -427,7 +460,10 @@ export namespace WorkoutPoses {
       ],
     ),
 
-    /** A thigh trap: the right thigh raised under the ball over the standing left foot. */
+    /**
+     * A thigh trap: the right thigh raised under the ball over the standing
+     * left foot.
+     */
     thighTrap: WorkoutStance.of(
       ["leftFoot"],
       WorkoutStance.LEFT,
@@ -453,10 +489,16 @@ export namespace WorkoutPoses {
     /** The follower's underarm turn: a full turn under the raised right hand. */
     underarmTurn: turn(0.6, { raise: 20, elbow: 40 }),
 
-    /** One turn of a hammer or discus thrower, the arms long ahead; the release is a throw after it. */
+    /**
+     * One turn of a hammer or discus thrower, the arms long ahead; the release
+     * is a throw after it.
+     */
     hammerTurn: turn(0.5, { shoulder: 80, raise: 0, elbow: 3 }),
 
-    /** A ballroom closed hold: the left hand out at the shoulder's height, the right arm round the partner, held 5 s. */
+    /**
+     * A ballroom closed hold: the left hand out at the shoulder's height, the
+     * right arm round the partner, held 5 s.
+     */
     closedHold: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,

@@ -39,31 +39,29 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 
 /**
- * Taking a clinch grip on a partner standing within reach and holding it:
- * the two-handed neck tie of Muay Thai (`plum`), or judo's collar and sleeve
- * grip (`collarSleeve`, kumikata).
+ * Taking a clinch grip on a partner standing within reach and holding it: the
+ * two-handed neck tie of Muay Thai (`plum`), or judo's collar and sleeve grip
+ * (`collarSleeve`, kumikata).
  *
- * The goals are the partner's regions, read on the partner's displayed body
- * at every second, so the grip follows the partner. In the plum both palms
- * lie on the back of the partner's neck (the `nape`), one each side of it
- * (`SPREAD` of the half shoulder width, provisional); in the collar and
- * sleeve grip the right hand closes on the partner's left collar (`neckLeft`)
- * and the left hand on the partner's right sleeve at the elbow (`elbowRight`),
- * mirrored for a left-handed grip. Each hand reaches its region in the aimed
- * movement time to a 5 cm grip (McIntosh et al. 2018), holds `hold` seconds
- * and lets go. The feet stay planted. Events: the phrase's `ready` (`grip`,
- * both hands closed), `strokeStart`, `stroke`, `strokeEnd`, `relax`
- * (`release`).
+ * The goals are the partner's regions, read on the partner's displayed body at
+ * every second, so the grip follows the partner. In the plum both palms lie on
+ * the back of the partner's neck (the `nape`), one each side of it (`SPREAD` of
+ * the half shoulder width, provisional); in the collar and sleeve grip the
+ * right hand closes on the partner's left collar (`neckLeft`) and the left hand
+ * on the partner's right sleeve at the elbow (`elbowRight`), mirrored for a
+ * left-handed grip. Each hand reaches its region in the aimed movement time to
+ * a 5 cm grip (McIntosh et al. 2018), holds `hold` seconds and lets go. The
+ * feet stay planted. Events: the phrase's `ready` (`grip`, both hands closed),
+ * `strokeStart`, `stroke`, `strokeEnd`, `relax` (`release`).
  *
  * With `under` the clinch is a throw's entry (tsukuri): the body lowers and
- * moves across the floor through the reach until its fulcrum region stands
- * at the partner's region that lies on it, the contact the throw turns over
- * (#3439), and at the height of the partner's centre of mass, so the
- * fulcrum is under the body it turns; the throw itself is the partner's
- * `perturb` under the pull.
+ * moves across the floor through the reach until its fulcrum region stands at
+ * the partner's region that lies on it, the contact the throw turns over, and
+ * at the height of the partner's centre of mass, so the fulcrum is under the
+ * body it turns; the throw itself is the partner's `perturb` under the pull.
  *
- * Not yet: pummelling, underhooks and overhooks, and the turn-in's own
- * footwork (Koshida et al. 2016).
+ * Not yet: pummelling, underhooks and overhooks, and the turn-in's own footwork
+ * (Koshida et al. 2016).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two grips with their regions, the timing, the events and what is missing.
  * @evidence contracts/development/design.md#principled-representation A law record of two arm visits on the partner's regions over a standing base.
@@ -89,12 +87,15 @@ export namespace clinch {
     ],
   };
 
-  /** How far each plum hand lies from the nape's middle, a share of the partner's half shoulder width (provisional). */
+  /**
+   * How far each plum hand lies from the nape's middle, a share of the
+   * partner's half shoulder width (provisional).
+   */
   export const SPREAD: number = 0.35;
 
   /**
-   * The partner's region each hand grips and the sideways offset across it,
-   * a share of the partner's half shoulder width toward the partner's left.
+   * The partner's region each hand grips and the sideways offset across it, a
+   * share of the partner's half shoulder width toward the partner's left.
    *
    * @param grip The grip.
    * @param collar The collar hand.
@@ -126,8 +127,8 @@ export namespace clinch {
   }
 
   /**
-   * A partner's region on displayed bones, moved across by a share of the
-   * half shoulder width toward the partner's left.
+   * A partner's region on displayed bones, moved across by a share of the half
+   * shoulder width toward the partner's left.
    *
    * @param body The partner's body.
    * @param bones The partner's displayed bones.
@@ -171,7 +172,6 @@ export namespace clinch {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the partner, gripping regions, hold timing, optional throw-entry lowering and negative-hold refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Both arm visits follow the partner's actual regions over the standing base; an optional under entry lowers the fulcrum by the initial region-height difference.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the clock/base and arm visits, wraps each displayed evaluation with a local partner reader, then adds optional root lowering.

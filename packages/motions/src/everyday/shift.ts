@@ -22,25 +22,25 @@ import { seated } from "./seated";
 import { seatedHands } from "./seatedHands";
 
 /**
- * Shifting along a bench while seated: the seat socket slides sideways
- * along the seat by the requested distance, while the feet stay planted and
- * the hands stay on the thighs.
+ * Shifting along a bench while seated: the seat socket slides sideways along
+ * the seat by the requested distance, while the feet stay planted and the hands
+ * stay on the thighs.
  *
  * The goal is the socket's path; the root follows with the seated pitch kept,
  * and the legs and hands are solved by inverse kinematics. A seated person
- * edges along by unweighting the buttocks, not by lifting them off: the
- * seat bears throughout, sliding, so the body never stands on its feet
- * alone with its centre of mass behind them, and the socket keeps to the
- * seat on the slide's minimum-jerk share `s`; the slide lasts `0.6 + |d|`
- * seconds for `d` metres (provisional). The feet do not step, so a shift is
- * limited to what the planted legs allow sideways: 0.35 thigh lengths, which
- * turns each thigh about 19 degrees in abduction or adduction, inside their
- * 30 degree range (provisional); a longer shift is refused and takes several
- * shifts, as people edge along a bench a few tens of centimetres at a time.
+ * edges along by unweighting the buttocks, not by lifting them off: the seat
+ * bears throughout, sliding, so the body never stands on its feet alone with
+ * its centre of mass behind them, and the socket keeps to the seat on the
+ * slide's minimum-jerk share `s`; the slide lasts `0.6 + |d|` seconds for `d`
+ * metres (provisional). The feet do not step, so a shift is limited to what the
+ * planted legs allow sideways: 0.35 thigh lengths, which turns each thigh about
+ * 19 degrees in abduction or adduction, inside their 30 degree range
+ * (provisional); a longer shift is refused and takes several shifts, as people
+ * edge along a bench a few tens of centimetres at a time.
  *
- * On a seat above 1.2 of the popliteal height, where a foot is off the
- * floor, the shift is refused: getting off and sitting down again moves
- * the body there.
+ * On a seat above 1.2 of the popliteal height, where a foot is off the floor,
+ * the shift is refused: getting off and sitting down again moves the body
+ * there.
  *
  * Events `seatOff` (the buttocks unweighted as the slide starts) and
  * `seatContact` (bearing fully again as it ends).
@@ -54,7 +54,10 @@ export namespace shift {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "shift";
 
-  /** The share of the slide over which the buttocks unweight at its start, and bear fully again before its end (provisional). */
+  /**
+   * The share of the slide over which the buttocks unweight at its start, and
+   * bear fully again before its end (provisional).
+   */
   const UNWEIGHT: number = 0.15;
 
   /** Cancel table: after setting down a shift may continue sitting. */
@@ -76,7 +79,6 @@ export namespace shift {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the shift exceeds the planted legs' side reach.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States context/plan and lateral-reach refusal; the namespace gives world-metre socket travel, action seconds and seat/plant conventions.
    * @evidence contracts/development/implementation.md#principled-implementation The original minimum-jerk seat-socket slide derives the root under unchanged heading, while native planted-leg goals and thigh hand-rest targets keep their original geometry.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate side reach/base, prepare fixed feet, then evaluate the original socket course and hand-rest owner.
@@ -133,7 +135,7 @@ export namespace shift {
     const planned: IAutoMovieMotionHumanActionPlan = {
       duration,
       // A shift slides along the seat it was entered on and stays seated on
-      // it (#3363: a base transition declares the base it ends in).
+      // it (a base transition declares the base it ends in).
       base:
         context.entry.base.kind === "seated"
           ? context.entry.base

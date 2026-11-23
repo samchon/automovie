@@ -21,19 +21,18 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture case of the handstand (#3251): `gymnastics-handstand`, kicked up
- * from quiet standing, held 2 s and stepped down.
+ * Capture case of the handstand: `gymnastics-handstand`, kicked up from quiet
+ * standing, held 2 s and stepped down.
  *
  * It reports foot slip at most 5 mm and no range-of-motion overshoot, the
- * issue's hand slip at most 5 mm from `handsDown` to `release`, and through
- * the hold: both palms within 10 mm of the floor, each wrist within 5 cm
+ * issue's hand slip at most 5 mm from `handsDown` to `release`, and through the
+ * hold: both palms within 10 mm of the floor, each wrist within 5 cm
  * horizontally of its shoulder (the stacked handstand), the hips above the
- * shoulders and the ankles above the hips, and the centre of mass within
- * half a hand of the line between the hands (balanced over the hands).
+ * shoulders and the ankles above the hips, and the centre of mass within half a
+ * hand of the line between the hands (balanced over the hands).
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the case and every verdict with its bound and source.
  * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones and the engine's centre of mass.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance and one verdict block per body.

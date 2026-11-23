@@ -39,9 +39,9 @@ import { HumanCarriedGrip } from "./HumanCarriedGrip";
 import { HumanCarriedLean } from "./HumanCarriedLean";
 
 /**
- * The plan of holding a person in a named carry (`HumanCarried.bearing`):
- * the bearer's hands where the coupled carry lays the held regions (#3437),
- * for a first or a second helper.
+ * The plan of holding a person in a named carry (`HumanCarried.bearing`): the
+ * bearer's hands where the coupled carry lays the held regions, for a first or
+ * a second helper.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is planned and for which law.
  * @evidence contracts/development/design.md#principled-representation The law's plan as a function of its context, kept beside the law record `HumanCarried` declares.
@@ -54,7 +54,6 @@ export namespace HumanCarriedBearing {
    *
    * @param context The carrier's context.
    * @returns The plan.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and where the law is documented.
    * @evidence contracts/development/implementation.md#principled-implementation With the carried person named, each holding palm goes where the coupled carry lays the held region in this bearer's displayed anchor frame, the bone the borne body rides (`HumanCarriedCouplingPose.holds`), a second helper's in its own, the goal attached to that bone (`IGoal.on`) so a layer's tip carries it, and a lone bearer's base takes the coupling's stance (`bendLower.lower`) and tips about the feet by the pair's balance (`HumanCarriedCouplingLoad.lean`) as the hands take the body, two helpers keeping their stances; otherwise each wrist goes to the row's place from one of the carrier's own regions, in arm lengths, and the base is kept.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The role, the coupling, one arm primitive per holding hand, then the inherited base tipped.
@@ -75,7 +74,7 @@ export namespace HumanCarriedBearing {
 
     // With the carried person named, each holding hand goes where the
     // coupled carry lays the held region, in the frame of the carrier's own bone the borne body rides
-    // (#3437); the carried body is never read, only its rest body.
+    //; the carried body is never read, only its rest body.
     const of: string | undefined = context.params.of;
     const beside: string | undefined = context.params.beside;
 

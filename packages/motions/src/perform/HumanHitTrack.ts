@@ -1,6 +1,4 @@
-import {
-  resolveAutoMovieContactEvents,
-} from "@automovie/engine";
+import { resolveAutoMovieContactEvents } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieInteractionEvent,
@@ -19,28 +17,25 @@ import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /**
- * A struck subject's hits as a track of named instants, so an action is
- * synced to a hit as to any instant (#3480: `sync({ hit })`).
+ * A struck subject's hits as a track of named instants, so an action is synced
+ * to a hit as to any instant (`sync({ hit })`).
  *
- * The track of `on` is named `hit:<on>`, or `hit:<on>:<by>` for the hits by
- * one striking prop or anchored striker; each hit is an instant named
- * `hit`, in time order. The schedule asks for it when an action is placed
- * (`resolveAutoMovieSchedule.ILaws.instants`), so the strikers must be
- * composed before the struck performer, as a pursuit is. While the schedule
- * is being placed the melee stops are not resolved yet, so each placed
- * weapon of another person is swept against the struck person alone, as
- * their placed poses show them (`resolveAutoMovieContactEvents`); the
- * flights and the blasts are the hit record's own. Once everything is
- * placed the record's resolved hits are read instead.
+ * The track of `on` is named `hit:<on>`, or `hit:<on>:<by>` for the hits by one
+ * striking prop or anchored striker; each hit is an instant named `hit`, in
+ * time order. The schedule asks for it when an action is placed
+ * (`resolveAutoMovieSchedule.ILaws.instants`), so the strikers must be composed
+ * before the struck performer, as a pursuit is. While the schedule is being
+ * placed the melee stops are not resolved yet, so each placed weapon of another
+ * person is swept against the struck person alone, as their placed poses show
+ * them (`resolveAutoMovieContactEvents`); the flights and the blasts are the
+ * hit record's own. Once everything is placed the record's resolved hits are
+ * read instead.
  */
 export namespace HumanHitTrack {
   /** The instant name of every hit on a track. */
   export const EVENT: string = "hit";
 
-  /**
-   * The prefix of a hit track's name.
-
-   */
+  /** The prefix of a hit track's name. */
   export const PREFIX: string = "hit:";
 
   /**
@@ -92,7 +87,10 @@ export namespace HumanHitTrack {
       );
   }
 
-  /** The melee hits on a person while placing: each placed weapon of another person swept against them alone. */
+  /**
+   * The melee hits on a person while placing: each placed weapon of another
+   * person swept against them alone.
+   */
   function provisional(
     self: IAutoMovieMotionHumanPerformanceState,
     on: string,

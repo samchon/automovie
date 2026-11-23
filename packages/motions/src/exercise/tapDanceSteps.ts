@@ -1,8 +1,8 @@
 import type { IAutoMovieMotionHumanTapDance } from "@automovie/interface";
 
 /**
- * The strike tables of the tap steps (#3991, 	apDance): each strike's
- * foot, quarter beat, setting, landing place, bearing and sound.
+ * The strike tables of the tap steps: each strike's foot, quarter beat,
+ * setting, landing place, bearing and sound.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a strike and a step hold.
  * @evidence contracts/development/design.md#principled-representation Steps as data over the tap law.
@@ -46,7 +46,10 @@ export namespace tapDanceSteps {
     beats: number;
   }
 
-  /** The steps' strike tables: shuffle, flap, ball change, heel drop, cramp roll and a single time step. */
+  /**
+   * The steps' strike tables: shuffle, flap, ball change, heel drop, cramp roll
+   * and a single time step.
+   */
   export const STEPS: Readonly<
     Record<IAutoMovieMotionHumanTapDance.Step, IStep>
   > = {

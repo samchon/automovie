@@ -30,11 +30,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { resolveCarriedHoldGeometry } from "./resolveCarriedHoldGeometry";
 
 /**
- * The borne body of a coupled carry placed on its bearer (#3437): the carry's
- * key posture, the region places both bodies are read at, the anchor bone
- * the borne body rides, its posture carried by that bone at each instant
- * and the bearer's hold places. `HumanCarriedCoupling` states the coupling these
- * read.
+ * The borne body of a coupled carry placed on its bearer: the carry's key
+ * posture, the region places both bodies are read at, the anchor bone the borne
+ * body rides, its posture carried by that bone at each instant and the bearer's
+ * hold places. `HumanCarriedCoupling` states the coupling these read.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is placed, what is read and who states the coupling.
  * @evidence contracts/development/design.md#principled-representation The borne body's place as its key frame carried by the bearer's anchor bone, a parent constraint, and the holds as points in the same frame.
@@ -42,7 +41,10 @@ import { resolveCarriedHoldGeometry } from "./resolveCarriedHoldGeometry";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The bearer never reads the borne body's displayed bones, so the two cannot chase each other.
  */
 export namespace HumanCarriedCouplingPose {
-  /** The bones `HumanTrunk.resolve` places from a posture's root and joints alone. */
+  /**
+   * The bones `HumanTrunk.resolve` places from a posture's root and joints
+   * alone.
+   */
   export const TRUNK: readonly AutoMovieHumanoidBone[] = [
     "hips",
     "spine",
@@ -55,13 +57,12 @@ export namespace HumanCarriedCouplingPose {
   ];
 
   /**
-   * The bone a region's place is carried by, as the coupling anchors on it:
-   * the region's own bone, a trunk bone or a limb's (a drag's thigh).
+   * The bone a region's place is carried by, as the coupling anchors on it: the
+   * region's own bone, a trunk bone or a limb's (a drag's thigh).
    *
    * @param body The body.
    * @param name The region.
    * @returns The bone.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the rule.
    * @evidence contracts/development/implementation.md#principled-implementation A region rides its own bone, so whatever moves that bone moves what rests on it; a reader of a limb's bone resolves the limb (`bones`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
@@ -85,10 +86,11 @@ export namespace HumanCarriedCouplingPose {
    * @param body The body.
    * @param posture The posture.
    * @param anchor The anchor bone.
-   * @param resolution The forward-kinematics reader of the posture evaluation this call is part of, used for this call only; a fresh one when absent.
+   * @param resolution The forward-kinematics reader of the posture evaluation
+   *   this call is part of, used for this call only; a fresh one when absent.
    * @param requested The bones the caller reads; every bone when absent.
-   * @returns The resolved bones, only the requested ones and their ancestors when a set is given.
-   *
+   * @returns The resolved bones, only the requested ones and their ancestors
+   *   when a set is given.
    * @evidence contracts/development/common.md#meaningful-documentation States which resolution is taken when, the borrowed reader and the requested set.
    * @evidence contracts/development/implementation.md#principled-implementation A trunk bone stands from the root and the joints alone; a limb's stands where its fit puts it, so only then are the limbs fitted.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One membership test, one resolution.
@@ -123,17 +125,18 @@ export namespace HumanCarriedCouplingPose {
   }
 
   /**
-   * The borne body's posture at an instant: the key pose carried rigidly by
-   * the bearer's anchor bone as displayed, its clinging hands on the
-   * bearer's regions.
+   * The borne body's posture at an instant: the key pose carried rigidly by the
+   * bearer's anchor bone as displayed, its clinging hands on the bearer's
+   * regions.
    *
    * @param body The borne body.
    * @param coupling The coupling.
    * @param row The carry's row, for its key posture.
-   * @param bearers Each bearer's body and displayed bones at the instant, by role.
+   * @param bearers Each bearer's body and displayed bones at the instant, by
+   *   role.
    * @returns The posture, with a whole-body rotation.
-   * @throws {HumanRefusal} A `participant` refusal on `by` when a bearer the coupling names is not given or lacks its anchor bone.
-   *
+   * @throws {HumanRefusal} A `participant` refusal on `by` when a bearer the
+   *   coupling names is not given or lacks its anchor bone.
    * @evidence contracts/development/common.md#meaningful-documentation States what carries the borne body and what the hands do.
    * @evidence contracts/development/implementation.md#principled-implementation The borne root frame is the bearer's anchor bone's displayed frame composed with the key frame, a parent constraint at its offset as a held object keeps its offset in the hand; the resting region therefore stays on its region however the bearer's trunk turns. The frame becomes the root and a whole-body rotation about it (#3423), and each clinging hand's world goal is taken back through that rotation so the turned goal lands on the bearer's region.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The anchor's frame, the composed frame, the posture, the hands.
@@ -152,8 +155,9 @@ export namespace HumanCarriedCouplingPose {
   }
 
   /**
-   * Prepare the fixed carried key and actual clinging palm geometry.
-   * Each request supplies its current bearer frames.
+   * Prepare the fixed carried key and actual clinging palm geometry. Each
+   * request supplies its current bearer frames.
+   *
    * @evidence contracts/development/common.md#meaningful-documentation States the fixed shape and the current dependencies.
    * @evidence contracts/development/implementation.md#principled-implementation The posed borne body follows the exact anchor, and the palm goal preserves the bearer contact point and its outward normal.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares the key and the occupied clinging palm readers, then places them by the current anchor and regions.
@@ -271,16 +275,16 @@ export namespace HumanCarriedCouplingPose {
   }
 
   /**
-   * Where each hand of a bearer holds, in that bearer's anchor frame: the
-   * borne region it holds on the coupling's key pose, left then right; null
-   * for a hand that does not hold.
+   * Where each hand of a bearer holds, in that bearer's anchor frame: the borne
+   * region it holds on the coupling's key pose, left then right; null for a
+   * hand that does not hold.
    *
    * @param borne The borne body.
    * @param coupling The coupling.
    * @param row The carry's row.
    * @param role The bearer's role; the coupling's first bearer when absent.
-   * @returns The two holds, each the held region's point and outward normal in that bearer's anchor frame, and the anchor bone.
-   *
+   * @returns The two holds, each the held region's point and outward normal in
+   *   that bearer's anchor frame, and the anchor bone.
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, the order and the null.
    * @evidence contracts/development/implementation.md#principled-implementation The hold is read off the same key relation the borne body rides by, in the same anchor frame, so the bearer reaches where the borne body lies without reading it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the shared carried-hold geometry reader.
@@ -300,15 +304,15 @@ export namespace HumanCarriedCouplingPose {
 
   /**
    * A bearer at the origin in the performer's actual standing posture
-   * (`stand.posture`), lowered as a squat by the stance's depth with the
-   * trunk inclined by its angle (`bendLower.lower`). The standing alignment,
-   * planted feet and minimum knee bend are the same at zero and at every
-   * nonzero inclination or depth, so the stance has no finite jump at zero.
+   * (`stand.posture`), lowered as a squat by the stance's depth with the trunk
+   * inclined by its angle (`bendLower.lower`). The standing alignment, planted
+   * feet and minimum knee bend are the same at zero and at every nonzero
+   * inclination or depth, so the stance has no finite jump at zero.
    *
    * @param body The bearer's body.
-   * @param bent The stance: the trunk's forward inclination, degrees, and the lowering, a share of a squat's drop.
+   * @param bent The stance: the trunk's forward inclination, degrees, and the
+   *   lowering, a share of a squat's drop.
    * @returns The posture.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the two cases, the inputs and their units.
    * @evidence contracts/development/implementation.md#principled-implementation Applies the bend law's continuous lowering to the same planted standing posture at every parameter, rather than changing the kinematic representation at zero.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One standing posture and one lowering.
@@ -332,13 +336,12 @@ export namespace HumanCarriedCouplingPose {
   }
 
   /**
-   * A bearer's bones in its planted stance (`stance`), including at zero:
-   * every trial is resolved by the same whole-body kinematics.
+   * A bearer's bones in its planted stance (`stance`), including at zero: every
+   * trial is resolved by the same whole-body kinematics.
    *
    * @param body The bearer's body.
    * @param bent The stance.
    * @returns The resolved bones.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States which resolution is taken when.
    * @evidence contracts/development/implementation.md#principled-implementation One kinematic map for the whole parameter domain, so finite differences describe a stance's derivative rather than a branch's finite jump.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture resolution and one forward kinematics pass.
@@ -355,13 +358,13 @@ export namespace HumanCarriedCouplingPose {
   }
 
   /**
-   * The carry's key posture of the borne body at the origin: the row's
-   * heading and tip, and its leg angles or the fitted ones.
+   * The carry's key posture of the borne body at the origin: the row's heading
+   * and tip, and its leg angles or the fitted ones.
    *
    * @param row The carry's row.
-   * @param legs Both legs' hip flexion, knee flexion and hip abduction, degrees; the row's when absent.
+   * @param legs Both legs' hip flexion, knee flexion and hip abduction,
+   *   degrees; the row's when absent.
    * @returns The posture.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States what the posture takes from the row.
    * @evidence contracts/development/implementation.md#principled-implementation The carry's table posture, both legs alike, the arms left to the clinging goals.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
@@ -397,8 +400,8 @@ export namespace HumanCarriedCouplingPose {
    * @param bones Its resolved bones.
    * @param name The region.
    * @returns World metres.
-   * @throws {HumanRefusal} A `parameter` refusal on `carry` when the rig lacks the region's bone.
-   *
+   * @throws {HumanRefusal} A `parameter` refusal on `carry` when the rig lacks
+   *   the region's bone.
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the frame and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The region's bone-local point carried by its bone's world frame (`resolveAutoMovieHumanoidSurfaces.point`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one placement; the carry laws' one region reader.

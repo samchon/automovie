@@ -32,10 +32,16 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
-/** How far above the skin the gripping hand's grip socket rides, metres (provisional: the closed fist's half depth over a blanket's thickness). */
+/**
+ * How far above the skin the gripping hand's grip socket rides, metres
+ * (provisional: the closed fist's half depth over a blanket's thickness).
+ */
 const OVER: number = 0.05;
 
-/** Each hand's way up the body, its own side's regions from the thigh to the chest. */
+/**
+ * Each hand's way up the body, its own side's regions from the thigh to the
+ * chest.
+ */
 const WAY: Readonly<
   Record<AutoMovieHumanSide, readonly AutoMovieHumanoidRegion[]>
 > = {
@@ -44,18 +50,17 @@ const WAY: Readonly<
 };
 
 /**
- * Pull a cover up while lying, or push it off (#3987). Each hand's way runs
- * over its own side of the lying body, from the thigh's front over the
- * upper abdomen to the chest (`WAY`), each region `OVER` out along its
- * normal, read on the posture the body lies in at the start. Pulling, both
- * hands go to the thigh end by `ready`, grip the soft cover there (the
- * soft prop binds its particle nearest each hand's grip socket when the
- * grip closes) and draw it up the way to the chest by `strokeEnd`, where
- * they let go and return; pushing runs the way from the chest down. The
- * hands face the body, the palms down onto the cover, the fingers across
- * the body toward its midline. Both arms are laid in one course (`courseArmGoal`). A performer
- * not lying on the back (the sternum less than half the chest's depth above
- * the upper back) is refused.
+ * Pull a cover up while lying, or push it off. Each hand's way runs over its
+ * own side of the lying body, from the thigh's front over the upper abdomen to
+ * the chest (`WAY`), each region `OVER` out along its normal, read on the
+ * posture the body lies in at the start. Pulling, both hands go to the thigh
+ * end by `ready`, grip the soft cover there (the soft prop binds its particle
+ * nearest each hand's grip socket when the grip closes) and draw it up the way
+ * to the chest by `strokeEnd`, where they let go and return; pushing runs the
+ * way from the chest down. The hands face the body, the palms down onto the
+ * cover, the fingers across the body toward its midline. Both arms are laid in
+ * one course (`courseArmGoal`). A performer not lying on the back (the sternum
+ * less than half the chest's depth above the upper back) is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the way, the grip on the soft prop, the timing, the hands' turn, the course and the refusal.
  * @evidence contracts/development/design.md#principled-representation Two strokes of the arm phrase over the body's own regions, gripping the soft prop.

@@ -20,29 +20,28 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the standing stretches and yoga poses (#3246), each held
- * 3 s on the right side at moderate intensity from quiet standing.
+ * Capture cases of the standing stretches and yoga poses, each held 3 s on the
+ * right side at moderate intensity from quiet standing.
  *
  * Every case reports foot slip at most 5 mm and no range-of-motion overshoot
  * (the issue's acceptance: every pose inside range of motion). Beyond that,
  * through the hold from `reachEnd` to `release`:
  *
- * - `stretch-neckSide`: the neck's and head's lateral flexion together
- *   within 2 degrees of the declared share of the neck's range;
- * - `stretch-crossBody`: the stretched wrist past the midline toward the
- *   other side;
- * - `stretch-overheadSide`: both wrists above the crown and the head moved
- *   at least 5 cm to the side over the hips;
- * - `stretch-quadriceps`: the hand within 5 cm of the ankle, the knee's
- *   included angle at most 60 degrees, and the centre of mass over the
- *   standing foot (the issue's balance acceptance for `balance: "none"`);
- * - `stretch-tree`: the raised ankle at least half a shank above the
- *   standing ankle, the palms' skins within 10 mm of each other, and the
- *   extrapolated centre of mass (Hof 2005) over the standing foot.
+ * - `stretch-neckSide`: the neck's and head's lateral flexion together within 2
+ *   degrees of the declared share of the neck's range;
+ * - `stretch-crossBody`: the stretched wrist past the midline toward the other
+ *   side;
+ * - `stretch-overheadSide`: both wrists above the crown and the head moved at
+ *   least 5 cm to the side over the hips;
+ * - `stretch-quadriceps`: the hand within 5 cm of the ankle, the knee's included
+ *   angle at most 60 degrees, and the centre of mass over the standing foot
+ *   (the issue's balance acceptance for `balance: "none"`);
+ * - `stretch-tree`: the raised ankle at least half a shank above the standing
+ *   ankle, the palms' skins within 10 mm of each other, and the extrapolated
+ *   centre of mass (Hof 2005) over the standing foot.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
  * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones and the engine's centre of mass.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per pose and body, one verdict block per pose.

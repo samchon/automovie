@@ -16,25 +16,26 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * The grips one simulated performer holds on another inside a window, each
- * as the solver's collider relationship (#3441): a hand's contact window of
- * kind `grip` whose support is a person the window also simulates.
+ * The grips one simulated performer holds on another inside a window, each as
+ * the solver's collider relationship: a hand's contact window of kind `grip`
+ * whose support is a person the window also simulates.
  *
  * The gripping hand's actuator chain is its upper arm, forearm and hand. The
- * receiver is the partner's segment that carries the gripped region or
- * bone, the nearest profile segment up the rig when the bone carries none.
- * Of the hand's colliders and the receiver's, the pair nearest each other
- * in the sampled poses at the grip's first step is the pair bound, the pair
- * the authored grip actually closes.
+ * receiver is the partner's segment that carries the gripped region or bone,
+ * the nearest profile segment up the rig when the bone carries none. Of the
+ * hand's colliders and the receiver's, the pair nearest each other in the
+ * sampled poses at the grip's first step is the pair bound, the pair the
+ * authored grip actually closes.
  *
  * @param performance The performance the window samples.
  * @param bodies The simulated performers' bodies, by subject.
- * @param profiles The profiles the window solves, by subject: the bodies' with the hands welded.
+ * @param profiles The profiles the window solves, by subject: the bodies' with
+ *   the hands welded.
  * @param targets Each simulated performer's sampled segment poses, by step.
  * @param clock The window's first film second, interval count and rate.
  * @returns The grips, in performer then placement order.
- * @throws {HumanRefusal} When a gripping arm has no actuator segment in the profile.
- *
+ * @throws {HumanRefusal} When a gripping arm has no actuator segment in the
+ *   profile.
  * @evidence contracts/development/common.md#meaningful-documentation States which contact windows become grips, the chain, the receiver and the collider choice.
  * @evidence contracts/development/implementation.md#principled-implementation A grip of the reduced-order coupling (#3437, #3439) is the same hand-on-person relationship the engine's binding fits as motor intent (`IAutoMoviePhysicalContactBinding`); its colliders are the touching pair, measured with the engine's convex pair distance.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Finds the windows, maps their bones to segments and picks the colliders; the per-step bindings and groups are the body planner's.
@@ -127,7 +128,10 @@ export function bindHumanSimulationGrips(
 
 /** Companion types of {@link bindHumanSimulationGrips}. */
 export namespace bindHumanSimulationGrips {
-  /** A window's grid: its first film second, interval count and intervals per second. */
+  /**
+   * A window's grid: its first film second, interval count and intervals per
+   * second.
+   */
   export interface IClock {
     /** First film second, step zero. */
     from: number;
@@ -176,7 +180,10 @@ export namespace bindHumanSimulationGrips {
   }
 }
 
-/** The first and last steps of a contact window inside the window's grid; the first exceeds the last when it holds at none. */
+/**
+ * The first and last steps of a contact window inside the window's grid; the
+ * first exceeds the last when it holds at none.
+ */
 function steps(
   segment: IAutoMovieMotionHumanSegment,
   window: IAutoMovieMotionHumanContactWindow,
@@ -201,7 +208,10 @@ function steps(
   return [first, last];
 }
 
-/** The profile segment that carries a rig bone: the bone's own, or its nearest ancestor's. */
+/**
+ * The profile segment that carries a rig bone: the bone's own, or its nearest
+ * ancestor's.
+ */
 function carrier(
   body: IAutoMovieMotionHumanBody,
   profile: IAutoMoviePhysicalProfile,

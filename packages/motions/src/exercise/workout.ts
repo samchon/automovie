@@ -57,33 +57,32 @@ import { workoutLaidHands } from "./workoutLaidHands";
 import { workoutSpans } from "./workoutSpans";
 
 /**
- * An exercise, a stretch or a pose done on a support that is not only the
- * feet, or with the feet kept under a moving trunk: the body gets from
- * standing into the exercise's first posture, passes through the postures
- * of each repetition, and gets up again (#3377, #3378).
+ * An exercise, a stretch or a pose done on a support that is not only the feet,
+ * or with the feet kept under a moving trunk: the body gets from standing into
+ * the exercise's first posture, passes through the postures of each repetition,
+ * and gets up again.
  *
- * The physics is kinematic and stated: every posture is a set of joint
- * angles and a whole-body tilt (`WorkoutKind`, `ExerciseKey`), passed
- * through in joint space on minimum-jerk progress, and the body is placed
- * by what bears it. The bones that bear (the toes of a push-up, the hands
- * on a bar, the pelvis on a bench, the feet of a squat) keep their mean
- * place, so the body pivots about its support and rises by what its limbs
- * shorten. Hands that bear on the floor are laid there by the arm's solve
- * and stay. Nothing is integrated: no force, no load and no balance check
- * decides a posture.
+ * The physics is kinematic and stated: every posture is a set of joint angles
+ * and a whole-body tilt (`WorkoutKind`, `ExerciseKey`), passed through in joint
+ * space on minimum-jerk progress, and the body is placed by what bears it. The
+ * bones that bear (the toes of a push-up, the hands on a bar, the pelvis on a
+ * bench, the feet of a squat) keep their mean place, so the body pivots about
+ * its support and rises by what its limbs shorten. Hands that bear on the floor
+ * are laid there by the arm's solve and stay. Nothing is integrated: no force,
+ * no load and no balance check decides a posture.
  *
  * Events: `enter`; for each repetition `r` the kind's own pairs (such as
  * `lower1`, `bottom1`, `press1`, `top1`; `reach1`, `reachEnd1` for a held
- * pose); `release` and `relax`. With `stay`, the body is left on its
- * support and the plan declares that base. A succeeding exercise with the
- * same floor stance uses the incoming palms and bearing pins. An already
- * lowered entry approaches the first key from its displayed posture.
+ * pose); `release` and `relax`. With `stay`, the body is left on its support
+ * and the plan declares that base. A succeeding exercise with the same floor
+ * stance uses the incoming palms and bearing pins. An already lowered entry
+ * approaches the first key from its displayed posture.
  *
- * First pass limits: the way down from standing and back is a blend of the
- * two postures with the root carried between them and kept above the floor,
- * so the feet slide while it lasts and no hand helps; equipment (bars,
- * benches, machines, ropes) is not shown and nothing is held; a kind's own
- * table states which of its supports are kept by angles alone.
+ * First pass limits: the way down from standing and back is a blend of the two
+ * postures with the root carried between them and kept above the floor, so the
+ * feet slide while it lasts and no hand helps; equipment (bars, benches,
+ * machines, ropes) is not shown and nothing is held; a kind's own table states
+ * which of its supports are kept by angles alone.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the law plans, its physics, the events and the first pass limits.
  * @evidence contracts/development/design.md#principled-representation A law record over a table of kinds, each a route of keyed postures and a pin, so fifty exercises share one planner.
@@ -122,8 +121,8 @@ export namespace workout {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number, the hold is negative, or a hanging kind names no bar.
-   *
+   * @throws {HumanRefusal} When the count is not a positive whole number, the
+   *   hold is negative, or a hanging kind names no bar.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation One clock of spans, each between two keys; the posture at a second is the two keys' blend placed by the kind's pin, and on the way from and to standing the root is carried between the standing root and the pinned one; on the way off a bar the body is raised by whatever its colliders would sink beyond the share of the supported posture's own sink the way has reached, the reading the floor audit makes, so the floor is a constraint and the way meets the supported posture continuously.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock and spans, the pin's place, the posture function, the laid hands, the supports.
@@ -359,7 +358,10 @@ export namespace workout {
             from,
           );
 
-    /** The time-only keyed contribution, including any load owned by the exercise. */
+    /**
+     * The time-only keyed contribution, including any load owned by the
+     * exercise.
+     */
     const write: IAutoMovieMotionHumanPrimitive["write"] = (
       base: IAutoMovieMotionHumanPosture,
       seconds: number,

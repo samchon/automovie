@@ -18,11 +18,11 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the team ball skills (#3247) from quiet standing, with
- * an implied ball.
+ * Capture cases of the team ball skills from quiet standing, with an implied
+ * ball.
  *
- * Every case reports foot slip at most 5 mm (decision 11's planted-foot
- * bound) and no range-of-motion overshoot. Beyond that:
+ * Every case reports foot slip at most 5 mm (decision 11's planted-foot bound)
+ * and no range-of-motion overshoot. Beyond that:
  *
  * - `team-ball-dribble`: four pushes counted as palm drops, the palm facing
  *   within 30 degrees of straight down at each lowest point;
@@ -31,12 +31,11 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *   platform);
  * - `team-ball-set`: both wrists above the crown at `stroke`;
  * - `team-ball-throwIn`: both wrists behind the head at `ready` and, at the
- *   instant the hands move fastest, their path rising between 20 and 40
- *   degrees (about 30 degrees, Linthorne and Everett 2006).
+ *   instant the hands move fastest, their path rising between 20 and 40 degrees
+ *   (about 30 degrees, Linthorne and Everett 2006).
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
  * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per skill, one verdict block per skill.

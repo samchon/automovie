@@ -44,25 +44,24 @@ import { AthleticsRunUp } from "./AthleticsRunUp";
 import { fieldThrowKeys } from "./fieldThrowKeys";
 
 /**
- * A field event's throw (#3872). In a circle the feet stand in the power
- * position across it, their balls pivoting while the body turns over them
- * by the event's turn; the javelin is cut from a run at the block foot's
- * footfall (`AthleticsRunUp`) and turns no further. The body's joints go
- * from the event's wind key to its release key and back to standing
- * (`fieldThrowKeys`). The implement rides the throwing hand to the release
- * and is launched there (`launches`) from its held frame at the release
- * angle `EVENTS[event].angle`, with the drag-free speed
- * `v^2 = g d^2 / (2 cos^2 a (h + d tan a))` that lands it at the authored
- * distance, measured from the circle's inside edge or the arc (World
- * Athletics TR 33.12, 34.5).
+ * A field event's throw. In a circle the feet stand in the power position
+ * across it, their balls pivoting while the body turns over them by the event's
+ * turn; the javelin is cut from a run at the block foot's footfall
+ * (`AthleticsRunUp`) and turns no further. The body's joints go from the
+ * event's wind key to its release key and back to standing (`fieldThrowKeys`).
+ * The implement rides the throwing hand to the release and is launched there
+ * (`launches`) from its held frame at the release angle `EVENTS[event].angle`,
+ * with the drag-free speed `v^2 = g d^2 / (2 cos^2 a (h + d tan a))` that lands
+ * it at the authored distance, measured from the circle's inside edge or the
+ * arc (World Athletics TR 33.12, 34.5).
  *
  * Refused: an implement the hands do not hold, a foot touching outside the
- * circle or past the arc (a foul, TR 33.2 and TR 32.16), and a distance
- * needing more speed than `EVENTS[event].speed`.
+ * circle or past the arc (a foul, TR 33.2 and TR 32.16), and a distance needing
+ * more speed than `EVENTS[event].speed`.
  *
- * First pass: the turns pivot on both balls in the power position rather
- * than the single-support steps of the elite technique; the hand's own
- * motion is keyed, so its speed at the release is not the launch's.
+ * First pass: the turns pivot on both balls in the power position rather than
+ * the single-support steps of the elite technique; the hand's own motion is
+ * keyed, so its speed at the release is not the launch's.
  *
  * Events: `windup`, `release`, `recover`.
  *
@@ -113,14 +112,14 @@ export namespace fieldThrow {
   }
 
   /**
-   * The events: turns of half, one and a half and three and a half turns
-   * (the shot's turn to the front, the discus' 1.5 turns, the hammer's
-   * three turns and its turn into the release; provisional seconds), the
-   * optimum release angles measured for each (shot 37, Linthorne 2001, J
-   * Sports Sci 19:359; discus 35, Leigh, Gross, Li and Yu 2008, J Sports
-   * Sci 26:1021; hammer 40, Dapena 1984, J Biomech 17:553; javelin 33,
-   * Morriss and Bartlett 1996, Sports Med 21:438), and release speeds a
-   * little above the world-record throws' (about 14, 25, 30 and 30 m/s).
+   * The events: turns of half, one and a half and three and a half turns (the
+   * shot's turn to the front, the discus' 1.5 turns, the hammer's three turns
+   * and its turn into the release; provisional seconds), the optimum release
+   * angles measured for each (shot 37, Linthorne 2001, J Sports Sci 19:359;
+   * discus 35, Leigh, Gross, Li and Yu 2008, J Sports Sci 26:1021; hammer 40,
+   * Dapena 1984, J Biomech 17:553; javelin 33, Morriss and Bartlett 1996,
+   * Sports Med 21:438), and release speeds a little above the world-record
+   * throws' (about 14, 25, 30 and 30 m/s).
    */
   export const EVENTS: Readonly<
     Record<IAutoMovieMotionHumanFieldThrow.Event, IEvent>
@@ -131,7 +130,10 @@ export namespace fieldThrow {
     javelin: { turn: 0, seconds: 0, angle: 33, speed: 31 },
   };
 
-  /** Seconds from the end of the turn to the release (provisional, a delivery's tenths of a second). */
+  /**
+   * Seconds from the end of the turn to the release (provisional, a delivery's
+   * tenths of a second).
+   */
   export const DELIVER: number = 0.25;
 
   /** Seconds from the release back to standing (provisional). */
@@ -142,8 +144,9 @@ export namespace fieldThrow {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When no hand holds the implement, the area lacks its contact, a foot falls outside the circle or past the arc, the distance is not positive, or the distance needs more than the event's release speed.
-   *
+   * @throws {HumanRefusal} When no hand holds the implement, the area lacks its
+   *   contact, a foot falls outside the circle or past the arc, the distance is
+   *   not positive, or the distance needs more than the event's release speed.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and every refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The stance where the entry planted the feet, the turn on minimum-jerk progress, the release point read off the release posture's grip and held frame, the speed from the drag-free range equation.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Holding hand and area, stance and foul, clock and posture, release and launch.
@@ -241,8 +244,12 @@ export namespace fieldThrow {
     // they stand.
     const facing: number = yaw - spec.turn;
     const out: Record<AutoMovieHumanSide, number> = {
-      left: wrapDegrees(HumanFoot.heading(context.entry.feet.left.rotation) - facing),
-      right: wrapDegrees(HumanFoot.heading(context.entry.feet.right.rotation) - facing),
+      left: wrapDegrees(
+        HumanFoot.heading(context.entry.feet.left.rotation) - facing,
+      ),
+      right: wrapDegrees(
+        HumanFoot.heading(context.entry.feet.right.rotation) - facing,
+      ),
     };
     const footAt: (
       s: AutoMovieHumanSide,

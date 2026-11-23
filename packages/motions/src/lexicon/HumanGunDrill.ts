@@ -12,33 +12,32 @@ import { HUMAN_MILITARY_DRILL_COVER_VENT } from "../next/presets/HUMAN_MILITARY_
 import { touch } from "../touch/touch";
 
 /**
- * A field gun's drill (#3489), the duties of the National Park Service's
- * drill for the 12-pounder Napoleon, each a row of a shipped law on the
- * gun's affordances (#3484):
+ * A field gun's drill, the duties of the National Park Service's drill for the
+ * 12-pounder Napoleon, each a row of a shipped law on the gun's affordances:
  *
- * | Row | Law | Duty |
- * | --- | --- | --- |
- * | `coverVent` | `touch`, the fingertips held on `vent` (the thumb is no touch effector yet) | No. 3 covers the vent while the bore is sponged |
- * | `spongeBore` | `operate` inserting the sponge head into `muzzle`, withdrawn | No. 1 sponges |
- * | `passCharge` | `handOver` of the cartridge | No. 5 brings the charge to No. 2 |
- * | `loadCharge` | `putDown` into `muzzle` | No. 2 places the charge |
- * | `ramCharge` | `operate` inserting the rammer head to the breech | No. 1 rams |
- * | `prickVent` | `operate` inserting the priming wire into `vent` | No. 3 pierces the cartridge |
- * | `runUp` | `operate` of a wheel's `leftSpin` or `rightSpin`, until the haul rows of #3351 land | the crew runs the gun into battery |
- * | `layGun` | `operate` of the independent `screw`, a knob | the gunner points |
- * | `hookPrimer` | `putDown` of the primer into `vent` | No. 4 hooks the lanyard |
- * | `standClear` | `walk` to a place outside the wheel's line | Nos. 1 to 3 step clear |
- * | `pullLanyard` | `operate` of the lanyard's handle, a slider | No. 4 fires on command |
+ * | Row           | Law                                                                                              | Duty                                            |
+ * | ------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
+ * | `coverVent`   | `touch`, the fingertips held on `vent` (the thumb is no touch effector yet)                      | No. 3 covers the vent while the bore is sponged |
+ * | `spongeBore`  | `operate` inserting the sponge head into `muzzle`, withdrawn                                     | No. 1 sponges                                   |
+ * | `passCharge`  | `handOver` of the cartridge                                                                      | No. 5 brings the charge to No. 2                |
+ * | `loadCharge`  | `putDown` into `muzzle`                                                                          | No. 2 places the charge                         |
+ * | `ramCharge`   | `operate` inserting the rammer head to the breech                                                | No. 1 rams                                      |
+ * | `prickVent`   | `operate` inserting the priming wire into `vent`                                                 | No. 3 pierces the cartridge                     |
+ * | `runUp`       | `operate` of a wheel's `leftSpin` or `rightSpin`, until a haul row of `operate` exists (not yet) | the crew runs the gun into battery              |
+ * | `layGun`      | `operate` of the independent `screw`, a knob                                                     | the gunner points                               |
+ * | `hookPrimer`  | `putDown` of the primer into `vent`                                                              | No. 4 hooks the lanyard                         |
+ * | `standClear`  | `walk` to a place outside the wheel's line                                                       | Nos. 1 to 3 step clear                          |
+ * | `pullLanyard` | `operate` of the lanyard's handle, a slider                                                      | No. 4 fires on command                          |
  *
- * The crew is a composition of one chain per role (`gunner`, `n1` to
- * `n5`), each row synced to the cue of the row before it in the drill's
- * order (#3340), the gunner's command to fire being a cue, not a motion.
- * The sequence is the NPS page's, which says its drill was altered for the
- * crew's safety (the timing of the vent and the primer); the period manual
- * (the 1864 Instruction for Field Artillery) is located but not read. Each
- * row's duration is its law's, provisional, and the composed cycle is to fit
- * the rates read: 3 to 4 rounds a minute for a well-drilled crew (NPS), about
- * 2 round shot or 3 canister under battle (History of War).
+ * The crew is a composition of one chain per role (`gunner`, `n1` to `n5`),
+ * each row synced to the cue of the row before it in the drill's order, the
+ * gunner's command to fire being a cue, not a motion. The sequence is the NPS
+ * page's, which says its drill was altered for the crew's safety (the timing of
+ * the vent and the primer); the period manual (the 1864 Instruction for Field
+ * Artillery) is located but not read. Each row's duration is its law's,
+ * provisional, and the composed cycle is to fit the rates read: 3 to 4 rounds a
+ * minute for a well-drilled crew (NPS), about 2 round shot or 3 canister under
+ * battle (History of War).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each row's law and duty, how the crew is composed, the source's caveat and the rates the cycle is held to.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).

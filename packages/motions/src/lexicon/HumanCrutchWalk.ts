@@ -25,13 +25,25 @@ import { crutchWalkCourse } from "./crutchWalkCourse";
 /** How far a staged crutch tip may stand off the floor, metres. */
 const FLOOR: number = 0.01;
 
-/** How far a swung-through foot lands past the crutch tips, metres (provisional: a short step past the tripod). */
+/**
+ * How far a swung-through foot lands past the crutch tips, metres (provisional:
+ * a short step past the tripod).
+ */
 const THROUGH: number = 0.15;
 
-/** The hip's and knee's flexion that hold a three-point gait's injured foot off the floor, degrees (provisional: the knee bent near a right angle and the hip a little forward, so the foot clears the floor by a hand's breadth even as the sound knee gives under the swing). */
+/**
+ * The hip's and knee's flexion that hold a three-point gait's injured foot off
+ * the floor, degrees (provisional: the knee bent near a right angle and the hip
+ * a little forward, so the foot clears the floor by a hand's breadth even as
+ * the sound knee gives under the swing).
+ */
 const HELD: Readonly<Record<"hip" | "knee", number>> = { hip: 30, knee: 80 };
 
-/** How far above the crutch pads the axillae stay while the body swings, metres: two to three finger widths (provisional, the axillary crutch fitting's clearance). */
+/**
+ * How far above the crutch pads the axillae stay while the body swings, metres:
+ * two to three finger widths (provisional, the axillary crutch fitting's
+ * clearance).
+ */
 const PAD: number = 0.05;
 
 /** World vertical. */
@@ -40,7 +52,10 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 /** No offset: a planted crutch's grip lies on the support course. */
 const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/** One staged crutch: its entry frame, its grip in its own frame and its advances. */
+/**
+ * One staged crutch: its entry frame, its grip in its own frame and its
+ * advances.
+ */
 interface ICrutch {
   /** The staged frame at the action's start. */
   start: IAutoMovieRigidTransform;
@@ -52,7 +67,10 @@ interface ICrutch {
   moves: crutchWalkCourse.IAdvance[];
 }
 
-/** The crutches' common centre at entry: midway between their staged tips, on the floor. */
+/**
+ * The crutches' common centre at entry: midway between their staged tips, on
+ * the floor.
+ */
 function centreOf(
   left: IAutoMovieRigidTransform,
   right: IAutoMovieRigidTransform,
@@ -66,23 +84,22 @@ function centreOf(
 }
 
 /**
- * Walking on two crutches (#3994): a crutch gait on the support law, the
- * crutches advancing on their own track and the body swinging on the hands.
+ * Walking on two crutches: a crutch gait on the support law, the crutches
+ * advancing on their own track and the body swinging on the hands.
  *
- * Each station first advances both crutch tips (`ADVANCE` of its time),
- * the feet standing; then the hands bear on the planted handgrips while the
- * feet swing. In a three-point gait only the sound foot bears and steps, the
- * injured leg held off the floor (`HELD`), its foot first lifted clear over
- * its place before the leg folds; in a swing-to gait both feet land
- * level with the tips, and in a swing-through gait `THROUGH` past them
- * (Physiopedia, Crutches, https://www.physio-pedia.com/Crutches). The crutch
- * props share the walk's clock (`track`), so a scene's crutches and the body
- * read one course. Each station carries both crutches and the feet rigidly
- * with the walker: displaced by the station and turned about the walk's
- * `origin` (each crutch about its own tip and the feet about the tips'
- * midpoint when none is given). The hands hold their grips where the crutch
- * stands at each support key and ride the crutch's lift between them
- * (`carryCrutchHands`).
+ * Each station first advances both crutch tips (`ADVANCE` of its time), the
+ * feet standing; then the hands bear on the planted handgrips while the feet
+ * swing. In a three-point gait only the sound foot bears and steps, the injured
+ * leg held off the floor (`HELD`), its foot first lifted clear over its place
+ * before the leg folds; in a swing-to gait both feet land level with the tips,
+ * and in a swing-through gait `THROUGH` past them (Physiopedia, Crutches,
+ * https://www.physio-pedia.com/Crutches). The crutch props share the walk's
+ * clock (`track`), so a scene's crutches and the body read one course. Each
+ * station carries both crutches and the feet rigidly with the walker: displaced
+ * by the station and turned about the walk's `origin` (each crutch about its
+ * own tip and the feet about the tips' midpoint when none is given). The hands
+ * hold their grips where the crutch stands at each support key and ride the
+ * crutch's lift between them (`carryCrutchHands`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the order of each gait, where the weight goes and how the props share the clock.
  * @evidence contracts/development/design.md#principled-representation Support stances whose contacts are the bearing feet and hands, and one track per crutch derived from the same stations.

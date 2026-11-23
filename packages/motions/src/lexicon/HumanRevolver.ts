@@ -7,15 +7,15 @@ import { operate } from "../affordance/operate";
 import { HumanActionRow } from "../law/HumanActionRow";
 
 /**
- * A revolver's handling (#3488), each a row of `operate` on the revolver's
- * affordances: `cock` draws the `hammer` hinge back by the thumb, the
- * cylinder turning one chamber by `follows`; `fanHammer` is the other
- * palm's stroke on the hammer for each shot; `openGate` and `closeGate`
- * swing the loading `gate`; `loadChamber` inserts a cartridge into the
- * chamber the gate shows (`operate`'s `insert`). The composition gives the
- * revolver's contacts; the timings are `operate`'s paces, provisional: a
- * press takes 0.25 s, a hinge (the hammer, the gate) moves at 0.6 m/s along
- * its arc and a slider or an inserted cartridge at 0.4 m/s (`operate.PACE`).
+ * A revolver's handling, each a row of `operate` on the revolver's affordances:
+ * `cock` draws the `hammer` hinge back by the thumb, the cylinder turning one
+ * chamber by `follows`; `fanHammer` is the other palm's stroke on the hammer
+ * for each shot; `openGate` and `closeGate` swing the loading `gate`;
+ * `loadChamber` inserts a cartridge into the chamber the gate shows
+ * (`operate`'s `insert`). The composition gives the revolver's contacts; the
+ * timings are `operate`'s paces, provisional: a press takes 0.25 s, a hinge
+ * (the hammer, the gate) moves at 0.6 m/s along its arc and a slider or an
+ * inserted cartridge at 0.4 m/s (`operate.PACE`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each row operates and what is provisional.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).

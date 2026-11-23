@@ -16,17 +16,17 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
 /**
- * The meeting of an action two or more performers do together: one frame
- * with the place of each shared contact, and the film seconds all arrive
- * at, hold and leave.
+ * The meeting of an action two or more performers do together: one frame with
+ * the place of each shared contact, and the film seconds all arrive at, hold
+ * and leave.
  *
- * A meeting is computed once, by a pure function of where the roles stand
- * when it starts, and every role's law reads the same record, so no law
- * derives its partner's side of a contact. The roles are put in one order
- * (by role name, then by subject) before anything is computed, so the record
- * is the same whichever role asks first. A role with no performer is left
- * out: the contacts are then the present role's default places and the
- * meeting is not solid, so each role's law performs alone in the air.
+ * A meeting is computed once, by a pure function of where the roles stand when
+ * it starts, and every role's law reads the same record, so no law derives its
+ * partner's side of a contact. The roles are put in one order (by role name,
+ * then by subject) before anything is computed, so the record is the same
+ * whichever role asks first. A role with no performer is left out: the contacts
+ * are then the present role's default places and the meeting is not solid, so
+ * each role's law performs alone in the air.
  */
 export namespace AutoMovieMotionMeeting {
   /**
@@ -35,9 +35,13 @@ export namespace AutoMovieMotionMeeting {
    * @param kind The kind.
    * @param roles The roles present, in any order.
    * @param context The film second the meeting starts at.
-   * @param window The film seconds it holds over; its natural instants when absent.
+   * @param window The film seconds it holds over; its natural instants when
+   *   absent.
    * @returns The meeting.
-   * @throws {HumanRefusal} A `participant` refusal on `roles` with the kind's range of roles, with no role or more roles than the kind has; on `role` listing the kind's roles, for a role it does not name; and a `parameter` refusal on `window` when the window ends before the contact can be made.
+   * @throws {HumanRefusal} A `participant` refusal on `roles` with the kind's
+   *   range of roles, with no role or more roles than the kind has; on `role`
+   *   listing the kind's roles, for a role it does not name; and a `parameter`
+   *   refusal on `window` when the window ends before the contact can be made.
    */
   export function of(
     kind: IAutoMovieMotionMeetingKind,
@@ -70,16 +74,20 @@ export namespace AutoMovieMotionMeeting {
           reason: `a ${kind.name} has no role "${role.name}"; its roles are ${kind.roles.join(", ")}`,
           fix: "name one of the kind's roles",
         });
-    const ordered: IAutoMovieMotionMeetingRole[] = [...roles].sort((a: IAutoMovieMotionMeetingRole, b: IAutoMovieMotionMeetingRole): number =>
-      a.name !== b.name
-        ? a.name < b.name
-          ? -1
-          : 1
-        : a.subject < b.subject
-          ? -1
-          : a.subject > b.subject
-            ? 1
-            : 0,
+    const ordered: IAutoMovieMotionMeetingRole[] = [...roles].sort(
+      (
+        a: IAutoMovieMotionMeetingRole,
+        b: IAutoMovieMotionMeetingRole,
+      ): number =>
+        a.name !== b.name
+          ? a.name < b.name
+            ? -1
+            : 1
+          : a.subject < b.subject
+            ? -1
+            : a.subject > b.subject
+              ? 1
+              : 0,
     );
     const solid: boolean = ordered.length === kind.roles.length;
     const floors: IAutoMovieVector3[] = ordered.map(
@@ -105,13 +113,15 @@ export namespace AutoMovieMotionMeeting {
           ? ordered[0]!.posture.yaw
           : (Math.atan2(across.x, across.z) * 180) / Math.PI,
     };
-    const surfaces: Record<string, IAutoMovieMotionMeetingKind.ISurface> | undefined =
-      solid ? kind.surfaces?.(ordered) : undefined;
+    const surfaces:
+      | Record<string, IAutoMovieMotionMeetingKind.ISurface>
+      | undefined = solid ? kind.surfaces?.(ordered) : undefined;
     let world: Record<string, IAutoMovieVector3>;
     let normals: Record<string, IAutoMovieVector3> | undefined;
     if (surfaces !== undefined) {
       const axes: IAutoMovieMotionHumanFrame = {
-        origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw,
+        origin: { x: 0, y: 0, z: 0 },
+        yaw: frame.yaw,
       };
       world = {};
       normals = {};
@@ -120,20 +130,33 @@ export namespace AutoMovieMotionMeeting {
         normals[name] = HumanFrame.local(axes, surface.normal);
       }
     } else if (solid && kind.place !== undefined) world = kind.place(ordered);
-    else world = Object.fromEntries(
-      Object.entries(kind.contacts).map(
-        ([name, place]: [string, IAutoMovieMotionHumanTarget.IDefault]): [string, IAutoMovieVector3] => [
-          name,
-          mean(ordered.map((r: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
-            AutoMovieMotionHumanTarget.fallback(r.body, r.posture, place).point)),
-        ],
-      ),
-    );
+    else
+      world = Object.fromEntries(
+        Object.entries(kind.contacts).map(
+          ([name, place]: [string, IAutoMovieMotionHumanTarget.IDefault]): [
+            string,
+            IAutoMovieVector3,
+          ] => [
+            name,
+            mean(
+              ordered.map(
+                (r: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
+                  AutoMovieMotionHumanTarget.fallback(r.body, r.posture, place)
+                    .point,
+              ),
+            ),
+          ],
+        ),
+      );
     const timings: IAutoMovieMotionMeetingTiming[] = ordered.map(
-      (r: IAutoMovieMotionMeetingRole): IAutoMovieMotionMeetingTiming => kind.timing(r, world),
+      (r: IAutoMovieMotionMeetingRole): IAutoMovieMotionMeetingTiming =>
+        kind.timing(r, world),
     );
     const latest = (key: keyof IAutoMovieMotionMeetingTiming): number =>
-      context.start + Math.max(...timings.map((t: IAutoMovieMotionMeetingTiming): number => t[key]));
+      context.start +
+      Math.max(
+        ...timings.map((t: IAutoMovieMotionMeetingTiming): number => t[key]),
+      );
 
     // A window moves the whole meeting later to its start and holds the
     // contact to its end.
@@ -158,7 +181,7 @@ export namespace AutoMovieMotionMeeting {
     };
 
     // A coupling is the kind's, from the ordered roles, and only when every
-    // role is present (#3437).
+    // role is present.
     const coupling: IAutoMovieMotionCoupling | undefined =
       solid && kind.couple !== undefined
         ? kind.couple(ordered, instants)
@@ -177,7 +200,9 @@ export namespace AutoMovieMotionMeeting {
       ),
       instants,
       roles: ordered.map(
-        (r: IAutoMovieMotionMeetingRole): Pick<IAutoMovieMotionMeetingRole, "name" | "subject"> => ({
+        (
+          r: IAutoMovieMotionMeetingRole,
+        ): Pick<IAutoMovieMotionMeetingRole, "name" | "subject"> => ({
           name: r.name,
           subject: r.subject,
         }),
@@ -195,7 +220,8 @@ export namespace AutoMovieMotionMeeting {
    * @param contact The contact's name.
    * @param posture Where the performer stands.
    * @returns The place, solid when the meeting is.
-   * @throws {HumanRefusal} A `parameter` refusal on `contact` that lists the meeting's contacts, on a contact the meeting lacks.
+   * @throws {HumanRefusal} A `parameter` refusal on `contact` that lists the
+   *   meeting's contacts, on a contact the meeting lacks.
    */
   export function place(
     meeting: IAutoMovieMotionMeeting,
@@ -221,7 +247,10 @@ export namespace AutoMovieMotionMeeting {
       return {
         point,
         solid: meeting.solid,
-        normal: HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: meeting.frame.yaw }, surface),
+        normal: HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw: meeting.frame.yaw },
+          surface,
+        ),
       };
     const back: IAutoMovieVector3 = {
       x: posture.root.x - point.x,
@@ -248,7 +277,10 @@ export namespace AutoMovieMotionMeeting {
    * @param start The film second of the action's time zero.
    * @returns The instants, seconds since the action's start.
    */
-  export function local(meeting: IAutoMovieMotionMeeting, start: number): IAutoMovieMotionMeetingTiming {
+  export function local(
+    meeting: IAutoMovieMotionMeeting,
+    start: number,
+  ): IAutoMovieMotionMeetingTiming {
     return {
       ready: meeting.instants.ready - start,
       stroke: meeting.instants.stroke - start,

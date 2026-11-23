@@ -12,15 +12,15 @@ import type {
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
- * A posture's root and world limb goals after its whole-body `rotation`
- * (#3423): the root's position goes round the rotation's point and its
- * rotation becomes the turn times the heading, and each world limb goal's
- * point and bend go round the same point and its rotation is composed after
- * the turn. A goal attached to a bone (`on`) is kept, since its bone moves
- * with the turned body already. A planted goal refuses the turn unless the
- * rotation keeps it (`planted: true`): then it stays in the world and its
- * limb is re-solved onto it. Without a rotation the root is the
- * posture's own and the goals are returned unchanged.
+ * A posture's root and world limb goals after its whole-body `rotation` : the
+ * root's position goes round the rotation's point and its rotation becomes the
+ * turn times the heading, and each world limb goal's point and bend go round
+ * the same point and its rotation is composed after the turn. A goal attached
+ * to a bone (`on`) is kept, since its bone moves with the turned body already.
+ * A planted goal refuses the turn unless the rotation keeps it (`planted:
+ * true`): then it stays in the world and its limb is re-solved onto it. Without
+ * a rotation the root is the posture's own and the goals are returned
+ * unchanged.
  *
  * The root's rotation is composed as a quaternion and never read back into
  * Euler angles, so a turn through the vertical keeps every digit, which the
@@ -29,8 +29,8 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  *
  * @param posture The posture.
  * @returns Its root's world position and rotation and its limb goals, turned.
- * @throws {Error} When the posture has a rotation and a planted world goal, naming the limb: a rigid turn of the body cannot keep a plant.
- *
+ * @throws {Error} When the posture has a rotation and a planted world goal,
+ *   naming the limb: a rigid turn of the body cannot keep a plant.
  * @evidence contracts/development/common.md#meaningful-documentation States what goes round, what is kept, why the rotation stays a quaternion and the refusal.
  * @evidence contracts/development/implementation.md#principled-implementation One rigid motion `p -> a + T (p - a)` applied to every world place of the posture and `R -> T R` to every world rotation, so the resolved body is the unturned body turned rigidly.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One root and one pass over the four limbs.

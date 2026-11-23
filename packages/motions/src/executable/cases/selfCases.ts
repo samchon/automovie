@@ -25,28 +25,26 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the self-directed body actions (#3285) on one polygon man
- * standing from quiet standing.
+ * Capture cases of the self-directed body actions on one polygon man standing
+ * from quiet standing.
  *
- * - Touch rows of the `touch` law on the performer's own regions: a belly
- *   pat, a nape rub, a scratch of the left forearm, a self hug (hands on the
- *   opposite shoulders), both hands over the ears, a hand on the heart, a
- *   slap of the thigh, a facepalm and a brow wiped with the back of the hand.
- * - Whole-body rows of the `selfAction` law: the stretch, victory arms, a
- *   fist pump, a neck roll and a shoulder roll.
+ * - Touch rows of the `touch` law on the performer's own regions: a belly pat, a
+ *   nape rub, a scratch of the left forearm, a self hug (hands on the opposite
+ *   shoulders), both hands over the ears, a hand on the heart, a slap of the
+ *   thigh, a facepalm and a brow wiped with the back of the hand.
+ * - Whole-body rows of the `selfAction` law: the stretch, victory arms, a fist
+ *   pump, a neck roll and a shoulder roll.
  *
- * Every case reports foot slip at most 5 mm and no range-of-motion
- * overshoot. A touch row adds the issue's acceptance for each hand: the
- * effector within 10 mm of its region's surface through the contact window
- * (along the normal for a moving kind, as a point for a still one), a pat
- * coming down exactly `count` times, and the forearm never deeper than
- * 10 mm into the rest of the body. The stretch and victory rows check both
- * wrists above the crown at `stroke`; the fist pump checks three drops of
- * the fist.
+ * Every case reports foot slip at most 5 mm and no range-of-motion overshoot. A
+ * touch row adds the issue's acceptance for each hand: the effector within 10
+ * mm of its region's surface through the contact window (along the normal for a
+ * moving kind, as a point for a still one), a pat coming down exactly `count`
+ * times, and the forearm never deeper than 10 mm into the rest of the body. The
+ * stretch and victory rows check both wrists above the crown at `stroke`; the
+ * fist pump checks three drops of the fist.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every row and every verdict with its bound and source.
  * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones through the touch effector's point and the engine's region placement.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the touch rows, one over the whole-body rows.

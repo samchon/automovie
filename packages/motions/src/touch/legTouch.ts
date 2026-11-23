@@ -13,10 +13,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { prepareSupportCorrection } from "../actions/prepareSupportCorrection";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import { prepareSupportCorrection } from "../actions/prepareSupportCorrection";
 import { prepareGroundedBalance } from "../everyday/prepareGroundedBalance";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
@@ -28,31 +28,31 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * A touch with the leg while standing (#3357's effectors below the hip): the
- * toes, the heel or the knee of one leg is brought onto a place and held
- * there, the other leg bearing the body.
+ * A touch with the leg while standing (effectors below the hip): the toes, the
+ * heel or the knee of one leg is brought onto a place and held there, the other
+ * leg bearing the body.
  *
- * The body first moves over its standing foot: the root is shifted level
- * until the pelvis stands over that ankle, or, with balance asked
+ * The body first moves over its standing foot: the root is shifted level until
+ * the pelvis stands over that ankle, or, with balance asked
  * (`IAutoMovieMotionHumanBalance`), until the centre of mass does
- * (`HumanBalance.prepareCentre`), the standing leg keeping its planted goal. The moving leg is then a goal
- * of the posture resolver, as an arm is: for the toes and the heel the
- * ankle is placed so that part of the foot, read in the foot's rest frame
- * and turned as the foot stood at the entry, lies on the place; for the knee
- * the thigh's length fixes where the hip must be, so the root is shifted
- * further along the level line to the place until the knee, the leg's bend
- * hint, is exactly a thigh from the displayed hip, and the shank hangs
- * from it with the foot left free, since a foot held as it stood would
+ * (`HumanBalance.prepareCentre`), the standing leg keeping its planted goal.
+ * The moving leg is then a goal of the posture resolver, as an arm is: for the
+ * toes and the heel the ankle is placed so that part of the foot, read in the
+ * foot's rest frame and turned as the foot stood at the entry, lies on the
+ * place; for the knee the thigh's length fixes where the hip must be, so the
+ * root is shifted further along the level line to the place until the knee, the
+ * leg's bend hint, is exactly a thigh from the displayed hip, and the shank
+ * hangs from it with the foot left free, since a foot held as it stood would
  * state another plane for the knee. A place the leg does not reach so is
  * refused.
  *
- * Events: `ready` on the place, `strokeEnd` and `relax` at the hold's end,
- * as a touch's. The leg may be cut from `relax` on.
+ * Events: `ready` on the place, `strokeEnd` and `relax` at the hold's end, as a
+ * touch's. The leg may be cut from `relax` on.
  *
  * First pass: the foot's parts are offsets of the ankle (provisional where
  * marked), the shin is the round kick's and has no slow stroke here, the
- * contact is not declared as a window, and the standing balance is the
- * static one, not checked through the lift.
+ * contact is not declared as a window, and the standing balance is the static
+ * one, not checked through the lift.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the balance, how each part of the leg is placed, the events and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation A law record over the posture resolver's leg goal on a standing base, the leg's counterpart of the touch stroke's arm goal.
@@ -68,16 +68,26 @@ export namespace legTouch {
     any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** How far the knee's joint centre lies under its front skin, metres (provisional). */
+  /**
+   * How far the knee's joint centre lies under its front skin, metres
+   * (provisional).
+   */
   export const KNEE: number = 0.05;
 
   /** How far behind the ankle's joint the heel's pad lies, metres (provisional). */
   export const HEEL: number = 0.04;
 
-  /** The farthest the root is shifted along the level line to put the knee a thigh from the hip, metres (provisional). */
+  /**
+   * The farthest the root is shifted along the level line to put the knee a
+   * thigh from the hip, metres (provisional).
+   */
   export const SHIFT: number = 0.25;
 
-  /** The place tolerance the balance shift and the knee's placement settle to, metres: the limb solver's own (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre). */
+  /**
+   * The place tolerance the balance shift and the knee's placement settle to,
+   * metres: the limb solver's own (`HumanArmTrajectoryTerms.TOLERANCE`, a
+   * millimetre).
+   */
   export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
 
   /**
@@ -85,8 +95,10 @@ export namespace legTouch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative, the centre of mass does not settle over the standing ankle, or the knee cannot be put on the place by shifting the root within `SHIFT` to the solver's place tolerance.
-   *
+   * @throws {HumanRefusal} When the hold is negative, the centre of mass does
+   *   not settle over the standing ankle, or the knee cannot be put on the
+   *   place by shifting the root within `SHIFT` to the solver's place
+   *   tolerance.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the balance and the placement.
    * @evidence contracts/development/implementation.md#principled-implementation The baseline moves the pelvis over the stance ankle and reaches the target from the hip. A requested hip correction pins the actual touching knee and bearing foot.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The place, the balance, the leg's goal, the clock, the posture.
@@ -134,8 +146,11 @@ export namespace legTouch {
         : { limbs: { ...posture.limbs, [`${side}Leg`]: goal } }),
     });
     const ankle: IAutoMovieVector3 = context.entry.feet[standing].ankle;
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    let projection:
+      | ReturnType<typeof prepareHumanPostureProjection>
+      | undefined;
 
     // The entry geometry places the pelvis over the stance ankle. Active corrections use the resulting foot support.
     const over: IAutoMovieVector3 = level(
@@ -143,7 +158,10 @@ export namespace legTouch {
         ankle,
         Vector3.add(
           entry.root,
-          Quaternion.rotateVector(resolveHumanPosture.heading(entry), body.rest.get("hips")!),
+          Quaternion.rotateVector(
+            resolveHumanPosture.heading(entry),
+            body.rest.get("hips")!,
+          ),
         ),
       ),
     );
@@ -160,13 +178,25 @@ export namespace legTouch {
       Quaternion.rotateVector(foot.rotation, local);
     // The hip as the body displays it under a shift: the pelvis is fitted
     // over the planted leg, so the hip is read, not carried with the root.
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperLeg`]);
-    const frames: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
+    const requested: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([`${side}UpperLeg`]);
+    const frames: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+      body,
+      requested,
+    );
     const hip = (by: IAutoMovieVector3): IAutoMovieVector3 =>
       frames(
-        resolveHumanPosture.seeded(body, moved(entry, by), undefined, {}, resolution, undefined,
-          projection ??= prepareHumanPostureProjection(body)).pose,
-        resolution()).get(`${side}UpperLeg`)!.worldPosition;
+        resolveHumanPosture.seeded(
+          body,
+          moved(entry, by),
+          undefined,
+          {},
+          resolution,
+          undefined,
+          (projection ??= prepareHumanPostureProjection(body)),
+        ).pose,
+        resolution(),
+      ).get(`${side}UpperLeg`)!.worldPosition;
     let shift: IAutoMovieVector3 = over;
     let goal: IAutoMovieHumanLimbGoal;
     if (part === "knee") {
@@ -202,16 +232,11 @@ export namespace legTouch {
               )[0]!;
         shift = Vector3.add(shift, Vector3.scale(line, far));
         current = hip(shift);
-        residual = Math.abs(
-          Vector3.distance(knee, current) - thigh,
-        );
+        residual = Math.abs(Vector3.distance(knee, current) - thigh);
         if (!(Vector3.distance(shift, over) <= SHIFT)) break;
         if (residual <= TOLERANCE || !(residual < before)) break;
       }
-      if (
-        !(Vector3.distance(shift, over) <= SHIFT) ||
-        !(residual <= TOLERANCE)
-      )
+      if (!(Vector3.distance(shift, over) <= SHIFT) || !(residual <= TOLERANCE))
         throw new HumanRefusal({
           kind: "reach",
           axis: "target",
@@ -253,32 +278,44 @@ export namespace legTouch {
       );
     const relax: number = reach + hold;
     const duration: number = relax + reach;
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
     const lift: number = 0.05;
     const events: IAutoMovieMotionHumanActionPlan["events"] = [
-        { name: "ready", share: reach / duration },
-        { name: "strokeStart", share: reach / duration },
-        { name: "strokeEnd", share: relax / duration },
-        { name: "relax", share: relax / duration },
-      ];
-    const window: HumanPhysics.Window = HumanPhysics.prepare(p, {}, context.start, { duration, events }, context.instant);
-    const contacts: IAutoMovieMotionHumanContactWindow[] = base.contacts.filter(
-      (c: IAutoMovieMotionHumanContactWindow): boolean => c.part !== `${side}Foot`,
+      { name: "ready", share: reach / duration },
+      { name: "strokeStart", share: reach / duration },
+      { name: "strokeEnd", share: relax / duration },
+      { name: "relax", share: relax / duration },
+    ];
+    const window: HumanPhysics.Window = HumanPhysics.prepare(
+      p,
+      {},
+      context.start,
+      { duration, events },
+      context.instant,
     );
-    const adjust: ReturnType<typeof prepareGroundedBalance> = window?.by === "hips" && part === "knee"
-      ? prepareSupportCorrection(body, window, { duration, contacts }, [`${side}LowerLeg`])
-      : prepareGroundedBalance(body, window, () => [standing]);
+    const contacts: IAutoMovieMotionHumanContactWindow[] = base.contacts.filter(
+      (c: IAutoMovieMotionHumanContactWindow): boolean =>
+        c.part !== `${side}Foot`,
+    );
+    const adjust: ReturnType<typeof prepareGroundedBalance> =
+      window?.by === "hips" && part === "knee"
+        ? prepareSupportCorrection(body, window, { duration, contacts }, [
+            `${side}LowerLeg`,
+          ])
+        : prepareGroundedBalance(body, window, () => [standing]);
     return {
-      duration, events, ...HumanPhysics.declared(context.params, window),
+      duration,
+      events,
+      ...HumanPhysics.declared(context.params, window),
       contacts,
       posture: (
         seconds: number,
         _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
         source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        nativeProjection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+        nativeProjection?: Parameters<
+          IAutoMovieMotionHumanActionPlan["posture"]
+        >[3],
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number =
@@ -287,19 +324,23 @@ export namespace legTouch {
             : t <= relax
               ? 1
               : 1 - minimumJerk.share((t - relax) / reach);
-        const raw: IAutoMovieMotionHumanPosture = moved(base.posture(t, undefined, source, nativeProjection), Vector3.scale(shift, s), {
-          point: Vector3.add(
-            Vector3.add(
-              foot.ankle,
-              Vector3.scale(Vector3.subtract(goal.point, foot.ankle), s),
+        const raw: IAutoMovieMotionHumanPosture = moved(
+          base.posture(t, undefined, source, nativeProjection),
+          Vector3.scale(shift, s),
+          {
+            point: Vector3.add(
+              Vector3.add(
+                foot.ankle,
+                Vector3.scale(Vector3.subtract(goal.point, foot.ankle), s),
+              ),
+              { x: 0, y: lift * Math.sin(Math.PI * s), z: 0 },
             ),
-            { x: 0, y: lift * Math.sin(Math.PI * s), z: 0 },
-          ),
-          ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
-          // The hint rides the root, which is short of its full shift by 1 - s.
-          bend: Vector3.subtract(goal.bend, Vector3.scale(shift, 1 - s)),
-          ...(s === 0 ? { planted: true } : {}),
-        });
+            ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
+            // The hint rides the root, which is short of its full shift by 1 - s.
+            bend: Vector3.subtract(goal.bend, Vector3.scale(shift, 1 - s)),
+            ...(s === 0 ? { planted: true } : {}),
+          },
+        );
         return adjust(raw, t, undefined, source, nativeProjection);
       },
     };

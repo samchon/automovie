@@ -42,43 +42,42 @@ import { HumanWeaponPose } from "./HumanWeaponPose";
 import { HumanWeaponTrack } from "./HumanWeaponTrack";
 
 /**
- * Presenting any held launcher with the weapon as the effector, and the
- * shot's press and recoil: a pistol, a long gun, a crossbow, a bow, a
- * couched lance (#3491's generalised `present`).
+ * Presenting any held launcher with the weapon as the effector, and the shot's
+ * press and recoil: a pistol, a long gun, a crossbow, a bow, a couched lance
+ * (generalised `present`).
  *
  * The weapon is a prop the hand holds (`HumanObject.prop`, taken by its
- * `grip`); the law reads its working point `tip` and its sighting `edge`
- * (a firearm's `muzzle` and `sight` when absent) as the hand holds them, so
- * the weapon's line is what is aimed. The line runs from the `anchor` to the
+ * `grip`); the law reads its working point `tip` and its sighting `edge` (a
+ * firearm's `muzzle` and `sight` when absent) as the hand holds them, so the
+ * weapon's line is what is aimed. The line runs from the `anchor` to the
  * target: the eye (the head's joint, a handgun's), the cheek (`CHEEK` of the
  * way from the head's joint down to the firing shoulder, a long gun's or a
- * crossbow's), the face (the mouth's region, where a bow's drawing hand
- * anchors under the jaw or at the mouth's corner, provisional) or the arm
- * (the firing shoulder's joint, a lance couched under the armpit). Absent,
- * the anchor is the eye for a handgun and the cheek for a long gun, today's
- * rule. With no weapon named the hand itself points, and with no target a
- * place straight ahead at eye height stands in.
+ * crossbow's), the face (the mouth's region, where a bow's drawing hand anchors
+ * under the jaw or at the mouth's corner, provisional) or the arm (the firing
+ * shoulder's joint, a lance couched under the armpit). Absent, the anchor is
+ * the eye for a handgun and the cheek for a long gun, today's rule. With no
+ * weapon named the hand itself points, and with no target a place straight
+ * ahead at eye height stands in.
  *
- * `present` brings the tip onto the line and holds it, or lowers the weapon
- * to a ready position; `fire` presses the trigger (driving the weapon's
- * `trigger` articulation to its full travel by the break and back by the
- * end, `IHumanActionPlan.drives`), turns the muzzle up about the hand and
- * returns it onto the line. `HumanWeaponFirearm` keeps both under its
- * firearm names. Both may be performed over a carrier, a stand, a ride or a
- * stance on a moving floor: then they claim the trunk's turn and the holding
- * arms and hands, and their plan, made in the world at their start, is
- * carried by the support's motion (`HumanSupportCarry`, #3491).
+ * `present` brings the tip onto the line and holds it, or lowers the weapon to
+ * a ready position; `fire` presses the trigger (driving the weapon's `trigger`
+ * articulation to its full travel by the break and back by the end,
+ * `IHumanActionPlan.drives`), turns the muzzle up about the hand and returns it
+ * onto the line. `HumanWeaponFirearm` keeps both under its firearm names. Both
+ * may be performed over a carrier, a stand, a ride or a stance on a moving
+ * floor: then they claim the trunk's turn and the holding arms and hands, and
+ * their plan, made in the world at their start, is carried by the support's
+ * motion (`HumanSupportCarry`).
  *
- * A handgun is held in both hands unless one is asked, the support hand
- * wrapped beside the shooting hand; a long gun (a prop that declares a
- * `foreEnd`) takes the support hand on its fore-end and is refused in one
- * hand. A target more than `TURN` degrees off the heading is refused: the
- * performer turns first.
+ * A handgun is held in both hands unless one is asked, the support hand wrapped
+ * beside the shooting hand; a long gun (a prop that declares a `foreEnd`) takes
+ * the support hand on its fore-end and is refused in one hand. A target more
+ * than `TURN` degrees off the heading is refused: the performer turns first.
  *
- * First pass: the target is read once at the action's start, the holster is
- * a prop where the scene stands it and does not ride the body, and no
- * reload is planned. The recoil's size and times are provisional: no
- * recoil-recovery study was read (#3348 lists it as research to do).
+ * First pass: the target is read once at the action's start, the holster is a
+ * prop where the scene stands it and does not ride the body, and no reload is
+ * planned. The recoil's size and times are provisional: no recoil-recovery
+ * study was read (listed as research to do).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the effector, how the firearm is given, how a shot is composed, the two-hand rules with their refusals and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation Two law records over the held-tool stroke planner and two rows of the shipped pick up and put down; the carriage is a closed union.
@@ -86,19 +85,35 @@ import { HumanWeaponTrack } from "./HumanWeaponTrack";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No firearm kind is named: a long gun is a prop with a fore-end, and lengths are shares of the arm and the weapon's own length.
  */
 export namespace HumanWeaponPresent {
-  /** The widest angle between the heading and the target the arms present to without a turn of the feet, degrees (provisional). */
+  /**
+   * The widest angle between the heading and the target the arms present to
+   * without a turn of the feet, degrees (provisional).
+   */
   export const TURN: number = 60;
 
-  /** The angle the bore's line may miss the aim point by once presented, degrees: the declared dispersion (provisional). */
+  /**
+   * The angle the bore's line may miss the aim point by once presented,
+   * degrees: the declared dispersion (provisional).
+   */
   export const DISPERSION: number = 1;
 
-  /** How far the sight line of a shouldered long gun lies below the head's joint, a share of the head's height over the firing shoulder (provisional: the head down on the stock; the head's own tilt is not posed yet). */
+  /**
+   * How far the sight line of a shouldered long gun lies below the head's
+   * joint, a share of the head's height over the firing shoulder (provisional:
+   * the head down on the stock; the head's own tilt is not posed yet).
+   */
   export const CHEEK: number = 0.4;
 
-  /** The trunk's turn toward the firing side under a shouldered long gun, degrees (provisional: a bladed stance, no source read). */
+  /**
+   * The trunk's turn toward the firing side under a shouldered long gun,
+   * degrees (provisional: a bladed stance, no source read).
+   */
   export const BLADED: number = 35;
 
-  /** Seconds to present the weapon from where the hand holds it, novice and elite (provisional). */
+  /**
+   * Seconds to present the weapon from where the hand holds it, novice and
+   * elite (provisional).
+   */
   export const PRESENT: readonly [number, number] = [0.9, 0.5];
 
   /**
@@ -110,20 +125,37 @@ export namespace HumanWeaponPresent {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IReady {
-    /** How far ahead of the eye along the floor line to the target, a share of the arm's reach from the shoulder to the grip (upper arm, forearm and half the hand). */
+    /**
+     * How far ahead of the eye along the floor line to the target, a share of
+     * the arm's reach from the shoulder to the grip (upper arm, forearm and
+     * half the hand).
+     */
     ahead: number;
 
-    /** How far below the eye, a share of the stature: about the drop from the eye to the breastbone. */
+    /**
+     * How far below the eye, a share of the stature: about the drop from the
+     * eye to the breastbone.
+     */
     below: number;
   }
 
-  /** The ready station a seated presentation comes up through, before the chest on the line to the target (provisional: about 0.3 m ahead and 0.35 m below the eye on a 1.75 m body with a 0.66 m reach). */
+  /**
+   * The ready station a seated presentation comes up through, before the chest
+   * on the line to the target (provisional: about 0.3 m ahead and 0.35 m below
+   * the eye on a 1.75 m body with a 0.66 m reach).
+   */
   export const READY: IReady = { ahead: 0.45, below: 0.2 };
 
-  /** The muzzle's rise about the hand at the recoil's peak, degrees, novice and elite (provisional). */
+  /**
+   * The muzzle's rise about the hand at the recoil's peak, degrees, novice and
+   * elite (provisional).
+   */
   export const RISE: readonly [number, number] = [14, 7];
 
-  /** The trigger press, the rise to the recoil's peak and the return onto the line, seconds (provisional). */
+  /**
+   * The trigger press, the rise to the recoil's peak and the return onto the
+   * line, seconds (provisional).
+   */
   export const SHOT: Readonly<Record<"press" | "rise" | "recover", number>> = {
     press: 0.1,
     rise: 0.07,
@@ -131,9 +163,13 @@ export namespace HumanWeaponPresent {
   };
 
   /**
-   * Present the weapon: bring the muzzle onto the line from the eye to the target, or to a ready position, by `stroke`, and hold it. A target more than `TURN` degrees off the heading is refused on `target`, a long gun in one hand on `hands`, a fore-end the support arm cannot reach on `gun`.
+   * Present the weapon: bring the muzzle onto the line from the eye to the
+   * target, or to a ready position, by `stroke`, and hold it. A target more
+   * than `TURN` degrees off the heading is refused on `target`, a long gun in
+   * one hand on `hands`, a fore-end the support arm cannot reach on `gun`.
    *
-   * A grip a pick up weighs for the presentation is judged at the pose the plan strokes to (`demands`).
+   * A grip a pick up weighs for the presentation is judged at the pose the plan
+   * strokes to (`demands`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the instant, the hold, the three refusals and the demands a grip is judged by.
    * @evidence contracts/development/implementation.md#principled-implementation The bore's line is put on the line from the head's joint to the target with the muzzle a share of the arm ahead, so the weapon is sighted along the eye's line, canted about the bore the way the arm holds it with the least strain (the arm fit does not twist the forearm); the support hand's place follows from the weapon's own contacts as the firing hand holds it.
@@ -383,7 +419,9 @@ export namespace HumanWeaponPresent {
     };
 
   /**
-   * Fire one shot from where the weapon is held: the trigger breaks at `strokeStart` (the decisive instant), the recoil peaks at `stroke`, and the weapon is back where it was held at the end.
+   * Fire one shot from where the weapon is held: the trigger breaks at
+   * `strokeStart` (the decisive instant), the recoil peaks at `stroke`, and the
+   * weapon is back where it was held at the end.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the three instants and which is decisive.
    * @evidence contracts/development/implementation.md#principled-implementation Recoil turns the weapon about the hand, muzzle up: the held frame is turned about the horizontal axis square to the bore by the rise, which grows from the trigger to the peak and decays over the recovery, the hand's grip point kept, and the arm the hold showed kept with it (`StrikingBlade.IStroke.kept`).
@@ -516,7 +554,7 @@ export namespace HumanWeaponPresent {
         // The shot leaves the muzzle along the bore, its direction drawn
         // inside the declared dispersion's cone from the shooter's own stream
         // (uniform over the cone's disc), at the break plus the lock's time,
-        // with the support's velocity added (#3488, #3491).
+        // with the support's velocity added.
         const fired: IAutoMovieMotionHumanWeaponPresent.IWield["shot"] =
           context.params.shot;
         const launches: IAutoMovieMotionPropLaunch[] = [];
@@ -590,7 +628,10 @@ export namespace HumanWeaponPresent {
     };
 }
 
-/** A hand frame kept on a chest: where it lay on one chest's frame, carried onto another's. */
+/**
+ * A hand frame kept on a chest: where it lay on one chest's frame, carried onto
+ * another's.
+ */
 function onChest(
   hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
   then: IAutoMovieResolvedBone,
@@ -616,7 +657,11 @@ function onChest(
 }
 
 /**
- * Two arms on one weapon with their elbows placed outside each other: at each second each arm's elbow is put on the circle one upper arm from its shoulder and one forearm from its wrist, at the point nearest outward and a little down on its own side, and the goal names it authoritative (`elbow: "placed"`); an arm whose wrist lies past its reach keeps the law's own hint.
+ * Two arms on one weapon with their elbows placed outside each other: at each
+ * second each arm's elbow is put on the circle one upper arm from its shoulder
+ * and one forearm from its wrist, at the point nearest outward and a little
+ * down on its own side, and the goal names it authoritative (`elbow:
+ * "placed"`); an arm whose wrist lies past its reach keeps the law's own hint.
  */
 function placedElbows(
   body: IAutoMovieMotionHumanBody,
@@ -683,7 +728,10 @@ function placedElbows(
   };
 }
 
-/** The elbow one upper arm from the shoulder and one forearm from the wrist nearest a direction, or undefined when the wrist lies past the arm's reach. */
+/**
+ * The elbow one upper arm from the shoulder and one forearm from the wrist
+ * nearest a direction, or undefined when the wrist lies past the arm's reach.
+ */
 function elbowOn(
   shoulder: IAutoMovieVector3,
   wrist: IAutoMovieVector3,

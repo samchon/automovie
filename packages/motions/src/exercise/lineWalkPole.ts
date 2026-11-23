@@ -19,10 +19,10 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 
 /**
- * A balancing pole held across a line walker (#3997): each hand grips the
- * pole at its `leftGrip` and `rightGrip` affordance where the pole rests as
- * the walk starts, and keeps that grip in the frame that travels with the
- * hips, so the pole rides with the body and stays in both hands.
+ * A balancing pole held across a line walker: each hand grips the pole at its
+ * `leftGrip` and `rightGrip` affordance where the pole rests as the walk
+ * starts, and keeps that grip in the frame that travels with the hips, so the
+ * pole rides with the body and stays in both hands.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the grips and how they travel.
  * @evidence contracts/development/design.md#principled-representation Hand goals at the pole's own affordances, held in the hips' frame.
@@ -54,7 +54,6 @@ export namespace lineWalkPole {
    * @param start The hips' frame as the walk starts.
    * @returns The contacts and the goals.
    * @throws {HumanRefusal} When the pole declares no left or right grip.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the output and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Each grip's world point at the start, expressed in the hips' start frame and re-placed in the current one; the fist overhand, its fingers ahead over the pole and the palm down.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read, localise, place.

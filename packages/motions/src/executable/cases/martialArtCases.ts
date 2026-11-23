@@ -19,23 +19,22 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the martial-art techniques (#3252) from quiet standing.
+ * Capture cases of the martial-art techniques from quiet standing.
  *
- * Every case reports foot slip at most 5 mm (the issue's stance contacts)
- * and no range-of-motion overshoot. Beyond that:
+ * Every case reports foot slip at most 5 mm (the issue's stance contacts) and
+ * no range-of-motion overshoot. Beyond that:
  *
- * - `martial-horseStance`: the feet within 20 mm of two shoulder widths
- *   apart and both knees bent below 165 degrees in the hold;
- * - `martial-chokuZuki`: four punches counted as fist extensions, each fist
- *   at least 0.85 of its arm's reach from its shoulder at its peak, and each
- *   peak within 400 ms of its punch's start (VencesBrito et al. 2011);
+ * - `martial-horseStance`: the feet within 20 mm of two shoulder widths apart and
+ *   both knees bent below 165 degrees in the hold;
+ * - `martial-chokuZuki`: four punches counted as fist extensions, each fist at
+ *   least 0.85 of its arm's reach from its shoulder at its peak, and each peak
+ *   within 400 ms of its punch's start (VencesBrito et al. 2011);
  * - `martial-taiChiPush`: the palms at least 0.6 of the arm ahead of their
- *   shoulders at the push's end, and no palm faster than 0.5 m/s
- *   (provisional bound for the slow, continuous form).
+ *   shoulders at the push's end, and no palm faster than 0.5 m/s (provisional
+ *   bound for the slow, continuous form).
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
  * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per technique, one verdict block per technique.

@@ -16,36 +16,34 @@ import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
 
 /**
- * The swimming strokes written as keyed postures on the water plane
- * (#3378): the breaststroke, the backstroke and floating on the back.
+ * The swimming strokes written as keyed postures on the water plane : the
+ * breaststroke, the backstroke and floating on the back.
  *
  * There is no fluid, as in the crawl: the hip joints are kept half a chest's
- * depth under the plane the author declares and carried along at the
- * stroke's speed, and the body passes through the stroke's keys in joint
- * space, a cycle after a cycle. The breaststroke is prone and travels the
- * way the swimmer faced; the backstroke and the float are supine, the head
- * where the back of the standing body was, so the backstroke travels that
- * way, head first.
+ * depth under the plane the author declares and carried along at the stroke's
+ * speed, and the body passes through the stroke's keys in joint space, a cycle
+ * after a cycle. The breaststroke is prone and travels the way the swimmer
+ * faced; the backstroke and the float are supine, the head where the back of
+ * the standing body was, so the backstroke travels that way, head first.
  *
- * - Breaststroke: glide (arms ahead, legs long), pull (the arms swept out
- *   and back to the shoulders' line with the head lifted to breathe),
- *   recovery (the hands under the chin, the heels drawn to the seat), kick
- *   (the arms shot ahead as the legs whip out and close). The order and the
- *   one breath a stroke are the stroke's rule (World Aquatics, Swimming
- *   Rules, the breaststroke: one arm stroke and one leg kick a cycle, in
- *   that order); the angles and the times are provisional.
- * - Backstroke: the arms alternate half a cycle apart, each recovering
- *   straight over the water and pulling out to the side and down to the
- *   hip, with one leg beat an arm (provisional; a six-beat kick is not
- *   written).
+ * - Breaststroke: glide (arms ahead, legs long), pull (the arms swept out and
+ *   back to the shoulders' line with the head lifted to breathe), recovery (the
+ *   hands under the chin, the heels drawn to the seat), kick (the arms shot
+ *   ahead as the legs whip out and close). The order and the one breath a
+ *   stroke are the stroke's rule (World Aquatics, Swimming Rules, the
+ *   breaststroke: one arm stroke and one leg kick a cycle, in that order); the
+ *   angles and the times are provisional.
+ * - Backstroke: the arms alternate half a cycle apart, each recovering straight
+ *   over the water and pulling out to the side and down to the hip, with one
+ *   leg beat an arm (provisional; a six-beat kick is not written).
  * - Floating: one posture held, the arms and the legs a little apart.
  *
  * Events: `stroke{i}` at each cycle's start, and `relax`.
  *
- * First pass: no body roll in the backstroke, no undulation, no glide
- * speed that falls between kicks (the hips travel at a constant speed), no
- * start, turn or finish, and the mouth's clearance for the breaststroke's
- * breath is the key's head lift, not solved against the plane.
+ * First pass: no body roll in the backstroke, no undulation, no glide speed
+ * that falls between kicks (the hips travel at a constant speed), no start,
+ * turn or finish, and the mouth's clearance for the breaststroke's breath is
+ * the key's head lift, not solved against the plane.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the model, each stroke's keys with the cited rule, the events and the first pass limits.
  * @evidence contracts/development/design.md#principled-representation A stroke is a cycle of keyed postures pinned by the hip joints on a travelling point, the form the workout's kinds have, so no stroke writes its own limb rows.
@@ -61,7 +59,10 @@ export namespace SwimStroke {
   /** The pin mean reads only the two hip origins after full canonical admission. */
   const HIP_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set(HIPS);
 
-  /** A backstroke key: one arm's shoulder flexion and abduction, the other's, and which leg is up. */
+  /**
+   * A backstroke key: one arm's shoulder flexion and abduction, the other's,
+   * and which leg is up.
+   */
   function back(
     body: IAutoMovieMotionHumanBody,
     right: readonly [number, number],
@@ -82,7 +83,6 @@ export namespace SwimStroke {
    *
    * @param body The body.
    * @returns Each stroke.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and that the values are provisional.
    * @evidence contracts/development/implementation.md#principled-implementation Exercise keys on the body (`ExerciseKey.from`), so what a key leaves unstated is the body's own standing.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One table.
@@ -106,7 +106,10 @@ export namespace SwimStroke {
     };
   }
 
-  /** Build only the selected stroke's keys; the public table requests each row explicitly. */
+  /**
+   * Build only the selected stroke's keys; the public table requests each row
+   * explicitly.
+   */
   function keyed(
     body: IAutoMovieMotionHumanBody,
     name: IAutoMovieMotionHumanSwimStroke.Name,
@@ -196,9 +199,9 @@ export namespace SwimStroke {
   /**
    * Plan a keyed stroke.
    *
-   * @param props The body, the entry posture, the stroke, the plane's height, the cycles and the tempo factor.
+   * @param props The body, the entry posture, the stroke, the plane's height,
+   *   the cycles and the tempo factor.
    * @returns The plan.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
    * @evidence contracts/development/implementation.md#principled-implementation The second gives the cycle and the place in it; the two keys around that place are blended in joint space on minimum-jerk progress and pinned by the hip joints on the point the plane carries along.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The cycle's times, the travelling point, the posture, the events.

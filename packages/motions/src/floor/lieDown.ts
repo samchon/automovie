@@ -50,34 +50,33 @@ type Pins = ReturnType<typeof prepareLieDownFootPins> | undefined;
 type Release = ReturnType<typeof floorEntry.between> | undefined;
 
 /**
- * Lying down on the floor from standing into a position: supine, prone, or
- * on the left or right side. Entered on the knees or crouched over the
- * hands, as a crawl ends, the body goes from the posture it displays
- * through the route's postures after the kneel; any other base is refused (`floorEntry`).
+ * Lying down on the floor from standing into a position: supine, prone, or on
+ * the left or right side. Entered on the knees or crouched over the hands, as a
+ * crawl ends, the body goes from the posture it displays through the route's
+ * postures after the kneel; any other base is refused (`floorEntry`).
  *
  * The movement passes through the floor postures people use to get down
- * (VanSant 1988, Phys Ther 68:185, codes the components of the reverse
- * rise): to lie on the back the body sits down onto the floor and rolls back;
- * to lie face down it kneels, goes onto hands and knees and lowers itself
- * forward; to lie on a side it lies on its back and rolls onto that side.
- * Each posture is a set of joint angles and a whole-body tilt (`POSES`,
- * provisional), passed through in joint space on minimum-jerk progress. At
- * every second the body rests on the floor: the root's height puts the
- * lowest point of the body's collision shapes on it (`knockdown.rest`).
- * Entered standing, the feet keep their place while the body goes down to
- * the route's first posture. The mean of their bearing soles gives the
- * root path and each foot is fitted to its own stationary socket. The pelvis then
- * stays over the first landing, or its entry place when already on the
- * floor. Rolling from supine turns about the longitudinal axis with the
- * dependent heel fixed horizontally.
- * Each phase takes `PHASE` seconds (provisional), scaled by the manner's
- * tempo; the position is then held `hold` seconds. Events: `getDown` at
- * the start, the arrival at each posture on the route (`seatContact`,
- * `kneeContact`, `handsDown`, `supine`, `prone`, `lateral`) and `settled`.
+ * (VanSant 1988, Phys Ther 68:185, codes the components of the reverse rise):
+ * to lie on the back the body sits down onto the floor and rolls back; to lie
+ * face down it kneels, goes onto hands and knees and lowers itself forward; to
+ * lie on a side it lies on its back and rolls onto that side. Each posture is a
+ * set of joint angles and a whole-body tilt (`POSES`, provisional), passed
+ * through in joint space on minimum-jerk progress. At every second the body
+ * rests on the floor: the root's height puts the lowest point of the body's
+ * collision shapes on it (`knockdown.rest`). Entered standing, the feet keep
+ * their place while the body goes down to the route's first posture. The mean
+ * of their bearing soles gives the root path and each foot is fitted to its own
+ * stationary socket. The pelvis then stays over the first landing, or its entry
+ * place when already on the floor. Rolling from supine turns about the
+ * longitudinal axis with the dependent heel fixed horizontally. Each phase
+ * takes `PHASE` seconds (provisional), scaled by the manner's tempo; the
+ * position is then held `hold` seconds. Events: `getDown` at the start, the
+ * arrival at each posture on the route (`seatContact`, `kneeContact`,
+ * `handsDown`, `supine`, `prone`, `lateral`) and `settled`.
  *
  * Not yet: lying on a bed or a sofa (A2 support frames, A8 `surface`), the
- * recovery position, sleep with seeded position changes (Skarpsno et al.
- * 2017; De Koninck et al. 1992), rolling over and rising from a bed.
+ * recovery position, sleep with seeded position changes (Skarpsno et al. 2017;
+ * De Koninck et al. 1992), rolling over and rising from a bed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the routes with their source, the floor rule, the timing, the events and what is missing.
  * @evidence contracts/development/design.md#principled-representation A law record of one whole-body row over key postures on one clock.
@@ -112,7 +111,10 @@ export namespace lieDown {
     sitSide: "side",
   };
 
-  /** The route of postures to each position, after standing, with each arrival's event. */
+  /**
+   * The route of postures to each position, after standing, with each arrival's
+   * event.
+   */
   export const ROUTES: Readonly<
     Record<IAutoMovieMotionHumanLieDown.Position, readonly [string, string][]>
   > = {
@@ -155,7 +157,6 @@ export namespace lieDown {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation Defines the floor route, action seconds, hold refusal and existing position/base/contact behavior; current floor/folded-seat observations borrow synchronous FK/ROM sources without retaining them.
    * @evidence contracts/development/implementation.md#principled-implementation Follows the existing position's ordered joint-space route, keeps the mean of the feet's bearing sole sockets in place through a standing entry's first phase and the pelvis's horizontal place after it, and rests each actual changing body on its exact collider bounds, then applies the existing folded-leg/side-hand goals when required.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed route keys and joint pairs feed one time-only posture reader; canonical floor and folded-seat owners retain their separate geometric responsibilities.
@@ -394,7 +395,10 @@ export namespace lieDown {
           : (landed ??= pelvisOf(posedAt(0, 1), read, project));
       return { x: stood.x - now.x, y: 0, z: stood.z - now.z };
     };
-    /** Place one raw route key and pin each foot only on the first descending phase. */
+    /**
+     * Place one raw route key and pin each foot only on the first descending
+     * phase.
+     */
     function placed(
       index: number,
       u: number,
@@ -593,7 +597,7 @@ export namespace lieDown {
         primitives: [lying],
       });
     // Down on the floor the body lies; a lie that stops sitting up is seated
-    // (#3363: a base transition declares the base it ends in).
+    // (a base transition declares the base it ends in).
     const lain: IAutoMovieMotionHumanActionPlan = {
       ...planned,
       base: sitting ? { kind: "seated" } : { kind: "lying" },

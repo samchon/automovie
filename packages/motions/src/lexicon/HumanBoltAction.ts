@@ -8,17 +8,16 @@ import { HumanActionRow } from "../law/HumanActionRow";
 import { release } from "../throwing/release";
 
 /**
- * A bolt-action rifle's and a pistol's magazine handling (#3488), each a
- * row of a shipped law: `liftBolt` and `lowerBolt` turn the `bolt` hinge,
- * `drawBolt` and `closeBolt` run the `boltSlide` slider back and forward
- * (the four motions of cycling the bolt, composed in that order);
- * `seatMagazine` inserts a magazine into the gun's `magazine` socket
- * (`operate`'s `insert`); `pressRelease` presses the magazine release
- * button and `dropMagazine` lets the empty magazine fall (`release`).
- * The composition gives the contacts; the timings are `operate`'s paces,
- * provisional: the bolt handle's hinge moves at 0.6 m/s along its arc, the
- * bolt slide and the inserted magazine at 0.4 m/s and the release button
- * press takes 0.25 s (`operate.PACE`).
+ * A bolt-action rifle's and a pistol's magazine handling, each a row of a
+ * shipped law: `liftBolt` and `lowerBolt` turn the `bolt` hinge, `drawBolt` and
+ * `closeBolt` run the `boltSlide` slider back and forward (the four motions of
+ * cycling the bolt, composed in that order); `seatMagazine` inserts a magazine
+ * into the gun's `magazine` socket (`operate`'s `insert`); `pressRelease`
+ * presses the magazine release button and `dropMagazine` lets the empty
+ * magazine fall (`release`). The composition gives the contacts; the timings
+ * are `operate`'s paces, provisional: the bolt handle's hinge moves at 0.6 m/s
+ * along its arc, the bolt slide and the inserted magazine at 0.4 m/s and the
+ * release button press takes 0.25 s (`operate.PACE`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each row operates, the order of a cycle and what is provisional.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).

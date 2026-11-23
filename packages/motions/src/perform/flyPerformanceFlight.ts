@@ -40,7 +40,10 @@ import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { prepareRigidFlightMass } from "./prepareRigidFlightMass";
 
 /**
- * Integrate one declared physical flight of a placed performance: solve its take-off momentum or use the given one, integrate its rotation over the playback grid, check its native touchdown and hand the turning back to its plan.
+ * Integrate one declared physical flight of a placed performance: solve its
+ * take-off momentum or use the given one, integrate its rotation over the
+ * playback grid, check its native touchdown and hand the turning back to its
+ * plan.
  *
  * Moved unchanged from `HumanPerformanceFlight` to keep that file under the
  * repository's 500-line limit; its caller and behaviour are unchanged.
@@ -186,7 +189,10 @@ export function flyPerformanceFlight(
   }
   run(prepared, readBones);
 
-  /** Integrate the original physical law using either a checked rigid partition or all its original mass parts. */
+  /**
+   * Integrate the original physical law using either a checked rigid partition
+   * or all its original mass parts.
+   */
   function run(
     mass: prepareAutoMovieMassModel.IPrepared,
     readShape: ReturnType<typeof poseBones.prepare>,
@@ -393,12 +399,12 @@ export function flyPerformanceFlight(
 
 /**
  * The target-relative dense angular-momentum budget, independently of the
- * orientation's local estimate. If each read differs from the constant
- * model momentum L by at most delta ||L||, two reads differ by at most
- * 2 delta/(1-delta) of the reference read. Thus #3416's existing 1 %
- * comparison requires delta <= .01/(2+.01), with no absolute floor.
- * Controller probes are sampled; this implication does not certify every
- * time or the separate finite-difference pose-observation error.
+ * orientation's local estimate. If each read differs from the constant model
+ * momentum L by at most delta ||L||, two reads differ by at most 2
+ * delta/(1-delta) of the reference read. Thus existing 1 % comparison requires
+ * delta <= .01/(2+.01), with no absolute floor. Controller probes are sampled;
+ * this implication does not certify every time or the separate
+ * finite-difference pose-observation error.
  */
 const MOMENTUM_ACCURACY: Readonly<{ relative: number; absolute: number }> = {
   relative: 0.01 / (2 + 0.01),
@@ -408,7 +414,10 @@ const MOMENTUM_ACCURACY: Readonly<{ relative: number; absolute: number }> = {
 /** A regular playback knot is empty until its unturned pose is first evaluated. */
 type UniformPose = IAutoMoviePose | null;
 
-/** Numeric playback data shared by staged and physical rotation policies (`HumanPerformanceFlight`'s own). */
+/**
+ * Numeric playback data shared by staged and physical rotation policies
+ * (`HumanPerformanceFlight`'s own).
+ */
 type IPlayback = Pick<
   Parameters<typeof HumanPerformanceFlightRotation>[0],
   "step" | "times" | "table"

@@ -24,9 +24,9 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedLift } from "./HumanCarriedLift";
 
 /**
- * The plan of being carried in a named carry (`HumanCarried.borne`): the
- * borne body on the bearer by the carry's coupled meeting (#3437), with the
- * lift and the set-down, and the seconds reader both carry laws share.
+ * The plan of being carried in a named carry (`HumanCarried.borne`): the borne
+ * body on the bearer by the carry's coupled meeting, with the lift and the
+ * set-down, and the seconds reader both carry laws share.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is planned and for which law.
  * @evidence contracts/development/design.md#principled-representation The law's plan as a function of its context, kept beside the law record `HumanCarried` declares.
@@ -40,7 +40,6 @@ export namespace HumanCarriedBorne {
    * @param context The carried person's context.
    * @returns The plan.
    * @throws {HumanRefusal} As `HumanCarried.borne` states.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and where the law is documented.
    * @evidence contracts/development/implementation.md#principled-implementation The coupling is read from the meeting; each second the key posture rides the first bearer's displayed anchor bone at the key offset (`HumanCarriedCouplingPose.posture`); without a solid meeting the resting region is placed on the carrier's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The row, the coupling, the windows, then one posture function.
@@ -69,7 +68,7 @@ export namespace HumanCarriedBorne {
     const carrier: IAutoMovieMotionHumanPerformerReader | undefined =
       by === undefined ? undefined : context.performer(by);
 
-    // A second helper takes the carry's other side (#3440).
+    // A second helper takes the carry's other side.
     const second: string | undefined = context.params.with;
     if (
       second !== undefined &&
@@ -97,7 +96,7 @@ export namespace HumanCarriedBorne {
       rightLowerLeg: [knee, 0, 0],
     };
 
-    // A carrier makes the carry a coupled meeting (#3437): the borne body
+    // A carrier makes the carry a coupled meeting: the borne body
     // rests on every contact of the coupling, each with its load share.
     const coupling: IAutoMovieMotionCoupling | undefined =
       by === undefined
@@ -314,7 +313,6 @@ export namespace HumanCarriedBorne {
    * @param seconds The seconds.
    * @returns The seconds.
    * @throws {HumanRefusal} A `parameter` refusal on `seconds`.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the bound and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A carry lasts a positive time.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bound.

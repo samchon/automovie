@@ -20,15 +20,15 @@ import { HumanPropHold } from "./HumanPropHold";
 
 /**
  * A prop's world frame as the grips that hold it carry it: the reader
- * `HumanPerformanceRead.prop` documents and delegates to, split from it so
- * the hold's reading, with a grip's in-hand motion, has a file of its own.
+ * `HumanPerformanceRead.prop` documents and delegates to, split from it so the
+ * hold's reading, with a grip's in-hand motion, has a file of its own.
  *
  * A grip window that declares an in-hand motion (`HumanContactWindow.inHand`)
- * moves the prop within the hand: at a share s of the window, the prop's
- * frame in the hand is the motion's displacement d(s) composed before the
- * offset stored at closure, its position R_d p + t_d and its rotation
- * R_d R, so d(0), the identity, leaves the stored offset unchanged and the
- * prop never jumps when the grip closes.
+ * moves the prop within the hand: at a share s of the window, the prop's frame
+ * in the hand is the motion's displacement d(s) composed before the offset
+ * stored at closure, its position R_d p + t_d and its rotation R_d R, so d(0),
+ * the identity, leaves the stored offset unchanged and the prop never jumps
+ * when the grip closes.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is split out and how the in-hand motion composes on the stored offset.
  * @evidence contracts/development/design.md#principled-representation A function of the performance's state, a prop and film seconds.
@@ -39,7 +39,10 @@ export namespace HumanPerformanceHold {
   /** Active samples on one socket path. Each subject is indexed by film second. */
   type AutoMovieMountPath = Map<string, Set<number>>;
 
-  /** The hands being read, by performer and second: a re-entrant read is a posture reading the prop its own hand holds. */
+  /**
+   * The hands being read, by performer and second: a re-entrant read is a
+   * posture reading the prop its own hand holds.
+   */
   const HANDS: AutoMovieMountPath = new Map();
 
   /**
@@ -48,10 +51,11 @@ export namespace HumanPerformanceHold {
    * @param self The performance's state.
    * @param subject The prop.
    * @param seconds Film seconds.
-   * @param own The performer reading the prop and their own bones, for a prop they may carry.
+   * @param own The performer reading the prop and their own bones, for a prop
+   *   they may carry.
    * @returns Its frame.
-   * @throws {HumanRefusal} If the selected socket chain revisits a prop at the same film second.
-   *
+   * @throws {HumanRefusal} If the selected socket chain revisits a prop at the
+   *   same film second.
    * @evidence contracts/development/common.md#meaningful-documentation Points to the reader's documentation and states the in-hand composition.
    * @evidence contracts/development/implementation.md#principled-implementation The parent constraint's offset stored at closure (inverse(hand) times prop), the latest grip carrying, two hands closing together holding and releasing one rigid body, and a grip's in-hand displacement composed before the offset. A world-frame read preserves the previous carrier at hand or socket closure. A supplied performer pose can read the authored socket chain at closure while fitting its attached prop.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Choose the carrying grip, seat its offset once, compose any in-hand motion, place by the hand.
@@ -98,15 +102,14 @@ export namespace HumanPerformanceHold {
   }
 
   /**
-   * The hand holding a prop at a film second, by the same custody the frame
-   * is read by: the latest grip still holding it, when it is a hand's and no
+   * The hand holding a prop at a film second, by the same custody the frame is
+   * read by: the latest grip still holding it, when it is a hand's and no
    * flight has taken the prop since.
    *
    * @param self The performance's state.
    * @param subject The prop.
    * @param seconds Film seconds.
    * @returns The holding performer and hand, or none.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States what is returned and when none is.
    * @evidence contracts/development/implementation.md#principled-implementation Reads the frame's own carrier selection and flight precedence, so the holder is the hand that displays the prop.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One custody reading and one flight test.
@@ -142,11 +145,17 @@ export namespace HumanPerformanceHold {
     steady: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
     /** The last carrier to let go, whose final frame supplies unlaunched rest. */
     released: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    /** Film second of the last closure before the query, which overrides older flights. */
+    /**
+     * Film second of the last closure before the query, which overrides older
+     * flights.
+     */
     since: number;
   }
 
-  /** Select displayed grip, second hand, rest and the flight cutoff once from the sorted spans. */
+  /**
+   * Select displayed grip, second hand, rest and the flight cutoff once from
+   * the sorted spans.
+   */
   function custody(
     grips: readonly IAutoMovieMotionHumanPerformanceState.IGrip[],
     seconds: number,
@@ -222,7 +231,7 @@ export namespace HumanPerformanceHold {
     );
 
     // A launch after the latest grip's start sets the prop flying, and it
-    // flies until a later grip takes it (#3479: a grip, then a worn bone,
+    // flies until a later grip takes it (a grip, then a worn bone,
     // then a flight or its rest).
     const flown: IAutoMovieRigidTransform | undefined = HumanPropFlight.frame(
       self,
@@ -476,10 +485,10 @@ export namespace HumanPerformanceHold {
   }
 
   /**
-   * A prop's socket in the world at a film second: the prop's own frame and
-   * the socket as the prop's articulations pose it then (a bow's nocking
-   * point drawn back with its string). The performer's supplied bones stay
-   * the source of every worn or held ancestor's frame, as for a direct hold.
+   * A prop's socket in the world at a film second: the prop's own frame and the
+   * socket as the prop's articulations pose it then (a bow's nocking point
+   * drawn back with its string). The performer's supplied bones stay the source
+   * of every worn or held ancestor's frame, as for a direct hold.
    */
   function socket(
     self: IAutoMovieMotionHumanPerformanceState,

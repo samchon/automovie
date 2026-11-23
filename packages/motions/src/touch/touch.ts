@@ -32,13 +32,13 @@ import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanA
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import { touchPrimitive } from "../compose/touchPrimitive";
 import { AutoMovieMotionHumanTouchContacts } from "../compose/AutoMovieMotionHumanTouchContacts";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { touchPrimitive } from "../compose/touchPrimitive";
 import { HumanHeld } from "../handling/HumanHeld";
 import { HumanHeldUse } from "../handling/HumanHeldUse";
 import { HumanBound } from "../law/HumanBound";
@@ -48,36 +48,36 @@ import { poseBones } from "../posture/poseBones";
 import { touchBalance } from "./touchBalance";
 import { touchCrossedSupport } from "./touchCrossedSupport";
 import { touchEffectors } from "./touchEffectors";
+import { touchFaces } from "./touchFaces";
 import { touchFingerStance } from "./touchFingerStance";
 import { touchHold } from "./touchHold";
 import { touchLayouts } from "./touchLayouts";
 import { touchPresented } from "./touchPresented";
 import { touchReach } from "./touchReach";
 import { touchRegion } from "./touchRegion";
-import { touchFaces } from "./touchFaces";
 import { touchSide } from "./touchSide";
 import { touchStance } from "./touchStance";
 
 /**
- * One or both hands touch a partner's or the performer's own region with a
- * tap, pat, stroke, rub, press, squeeze, hold or scratch (Jung et al. 2017).
- * Social touches (#3284) and self-directed touches (#3285) are rows of this
- * one law, each stating effector, region, kind and timing.
+ * One or both hands touch a partner's or the performer's own region with a tap,
+ * pat, stroke, rub, press, squeeze, hold or scratch (Jung et al. 2017). Social
+ * touches and self-directed touches are rows of this one law, each stating
+ * effector, region, kind and timing.
  *
- * Free-space transport brings the hand to the region; the kind's stroke
- * repeats `count` times, holds, then returns in the reach's time. Manner
- * scales tempo, lift and travel. The entry body holds except for the rise
- * and lean the arm needs. A grounded performer can take one step toward an
- * external site beyond its planted reach (`touchStance`). Seated and
- * carried touches are bounded by the reach from their existing base.
- * Self regions use the entry limb, except that the other arm is presented
- * across the waist, palm down, on the same envelope (`touchPresented`). A leg's
- * region follows the legs as a lean leaves them. Thus a touched limb stays
- * independent of the touching hand or has an explicit presentation.
+ * Free-space transport brings the hand to the region; the kind's stroke repeats
+ * `count` times, holds, then returns in the reach's time. Manner scales tempo,
+ * lift and travel. The entry body holds except for the rise and lean the arm
+ * needs. A grounded performer can take one step toward an external site beyond
+ * its planted reach (`touchStance`). Seated and carried touches are bounded by
+ * the reach from their existing base. Self regions use the entry limb, except
+ * that the other arm is presented across the waist, palm down, on the same
+ * envelope (`touchPresented`). A leg's region follows the legs as a lean leaves
+ * them. Thus a touched limb stays independent of the touching hand or has an
+ * explicit presentation.
  *
  * Events: the phrase instants (`ready` on the region, `strokeStart` to
- * `strokeEnd` the repetitions, `relax` leaving). A touch may be cut before
- * it arrives or from `relax` on, into standing, a walk, a gesture or another
+ * `strokeEnd` the repetitions, `relax` leaving). A touch may be cut before it
+ * arrives or from `relax` on, into standing, a walk, a gesture or another
  * touch, the declined handshake's rule.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the families it serves, the timing, the source of the kinds, what stays still and the events and cuts.
@@ -100,7 +100,10 @@ export namespace touch {
     }),
   };
 
-  /** A touch may be performed over a carrier: it claims the touching arms and hands, and the trunk when it must lean. */
+  /**
+   * A touch may be performed over a carrier: it claims the touching arms and
+   * hands, and the trunk when it must lean.
+   */
   export const overlay: boolean = true;
 
   /** Each part's effector (`touchEffectors`). */
@@ -111,7 +114,12 @@ export namespace touch {
     >
   > = touchEffectors.TABLE;
 
-  /** The share of the arm's length (upper arm and forearm) the wrist is kept within before the trunk leans in, so the elbow never locks straight on a region: the one provisional share an operated part is reached by too (`operate.REACH`). */
+  /**
+   * The share of the arm's length (upper arm and forearm) the wrist is kept
+   * within before the trunk leans in, so the elbow never locks straight on a
+   * region: the one provisional share an operated part is reached by too
+   * (`operate.REACH`).
+   */
   export const REACH: number = operate.REACH;
 
   /**
@@ -119,8 +127,12 @@ export namespace touch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number, the hold is negative, the clearance is not positive, a site's radius is negative, the region is out of reach, `prop` names a prop the hand does not hold or a point it lacks, `grasp` comes without a prop, its point or a region of the performer's own, or a rest names the other hand's arm on a touch of one hand.
-   *
+   * @throws {HumanRefusal} When the count is not a positive whole number, the
+   *   hold is negative, the clearance is not positive, a site's radius is
+   *   negative, the region is out of reach, `prop` names a prop the hand does
+   *   not hold or a point it lacks, `grasp` comes without a prop, its point or
+   *   a region of the performer's own, or a rest names the other hand's arm on
+   *   a touch of one hand.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the timing and the sources.
    * @evidence contracts/development/implementation.md#principled-implementation A phrase clock from the free-space transport of the farther hand, the kind's repetitions and the hold, with one touch stroke per hand over the base it was entered on or its carrier; a region the arm does not reach as it stands is closed by the girdle, the heels and the lean of `AutoMovieMotionHumanTouchStance`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Defaults, the stance, the clock, one stroke per hand, the composition.
@@ -142,11 +154,11 @@ export namespace touch {
   }
 
   /**
-   * A light, sudden flick of the hand's surface, seconds a stroke: no study
-   * of a hair flick or a brushing flick was found, so the duration of a
-   * natural flick gesture stands in as a proxy, 0.151 s (151 +- 53 ms,
-   * Moyle and Cockburn 2003, "A Flick in the Right Direction", AUIC 2003,
-   * CRPIT 18; 29 participants, 5200 flicks measured at a pointing device).
+   * A light, sudden flick of the hand's surface, seconds a stroke: no study of
+   * a hair flick or a brushing flick was found, so the duration of a natural
+   * flick gesture stands in as a proxy, 0.151 s (151 +- 53 ms, Moyle and
+   * Cockburn 2003, "A Flick in the Right Direction", AUIC 2003, CRPIT 18; 29
+   * participants, 5200 flicks measured at a pointing device).
    */
   export const FLICK: number = 0.151;
 
@@ -156,9 +168,10 @@ export namespace touch {
    * speed (`AutoMovieMotionHumanTouchForm.FORMS`). Internal to the rows; it
    * adds no parameter to the touch's schema.
    *
-   * @param seconds Each repetition's length, seconds, before the manner's time scale.
-   * @returns The law, the touch's name, cancel table and refusals with the repetition fixed.
-   *
+   * @param seconds Each repetition's length, seconds, before the manner's time
+   *   scale.
+   * @returns The law, the touch's name, cancel table and refusals with the
+   *   repetition fixed.
    * @evidence contracts/development/common.md#meaningful-documentation States what is fixed, its unit and that no parameter is added.
    * @evidence contracts/development/implementation.md#principled-implementation The touch's own plan with the repetition's period given instead of read off its form; the reach, the hold and the manner apply unchanged.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One law record over the shared plan.
@@ -187,7 +200,10 @@ export namespace touch {
     };
   }
 
-  /** Build one reach using its actual girdle posture, material sites and transport clock; a given repetition's period replaces the form's. */
+  /**
+   * Build one reach using its actual girdle posture, material sites and
+   * transport clock; a given repetition's period replaces the form's.
+   */
   function planned(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
     attempt?: touchCrossedSupport.IAttempt,

@@ -12,10 +12,16 @@ import type {
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingBody } from "../striking/StrikingBody";
 
-/** How far above the crown the loop's plane passes, metres (provisional: clear of the hair). */
+/**
+ * How far above the crown the loop's plane passes, metres (provisional: clear
+ * of the hair).
+ */
 const CLEAR: number = 0.06;
 
-/** How far off the chest the loop's front rests, metres: half a pendant's thickness. */
+/**
+ * How far off the chest the loop's front rests, metres: half a pendant's
+ * thickness.
+ */
 const REST: number = 0.003;
 
 /** How finely the front's fall is searched, degrees. */
@@ -28,21 +34,20 @@ const NORMAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 /**
- * The path of a neck loop set over a partner's head (#4015), as frames of
- * the loop, from where the hand holds it to where it is worn.
+ * The path of a neck loop set over a partner's head, as frames of the loop,
+ * from where the hand holds it to where it is worn.
  *
- * The partner's head is read where it is: the crown, the nape, the throat
- * and the sternum regions on the displayed bones. The neck's axis runs from
- * the middle of the nape and the throat up to the crown; the head's forward
- * is the nape-to-throat direction across it. Five frames, each reached on a
+ * The partner's head is read where it is: the crown, the nape, the throat and
+ * the sternum regions on the displayed bones. The neck's axis runs from the
+ * middle of the nape and the throat up to the crown; the head's forward is the
+ * nape-to-throat direction across it. Five frames, each reached on a
  * minimum-jerk share of its own segment, the segments shared out by the
- * distance their pivot travels: the loop as the hands hold it; level above
- * the crown, `CLEAR` over it, its centre on the neck's axis and its front
- * toward the face; level around the neck, centred on the axis; slid back
- * till its back point lies on the nape; turned about the nape's side-to-side
- * axis until its front rests `REST` off the chest plane at the sternum.
- * The first three segments pivot on the loop's centre, the last two on its
- * back point.
+ * distance their pivot travels: the loop as the hands hold it; level above the
+ * crown, `CLEAR` over it, its centre on the neck's axis and its front toward
+ * the face; level around the neck, centred on the axis; slid back till its back
+ * point lies on the nape; turned about the nape's side-to-side axis until its
+ * front rests `REST` off the chest plane at the sternum. The first three
+ * segments pivot on the loop's centre, the last two on its back point.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, the five frames, the segment timing and the pivots.
  * @evidence contracts/development/design.md#principled-representation The loop's rigid frame is the one quantity a two-handed carry needs.
@@ -114,7 +119,6 @@ export namespace placeOverHeadPath {
    *
    * @param props The loop and the partner.
    * @returns The path.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and result.
    * @evidence contracts/development/implementation.md#principled-implementation The neck's axis and forward from the regions; the front's fall by a step search refined by bisection on its signed distance to the chest plane.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The partner's frame, the five keys, the segment shares, then the reader.

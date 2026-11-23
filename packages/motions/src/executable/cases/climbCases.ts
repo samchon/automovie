@@ -18,22 +18,21 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the climbing family (#3238): `climb-ladder`, three rungs
- * of a fixed ladder with 0.3 m spacing (OSHA 1910.23) in the four-beat
- * pattern, from quiet standing before it; the ladder is a fixture prop whose
- * rungs stand 0.35 m ahead of the climber's feet.
+ * Capture cases of the climbing family: `climb-ladder`, three rungs of a fixed
+ * ladder with 0.3 m spacing (OSHA 1910.23) in the four-beat pattern, from quiet
+ * standing before it; the ladder is a fixture prop whose rungs stand 0.35 m
+ * ahead of the climber's feet.
  *
- * It reports foot slip at most 5 mm in the plant windows and no
- * range-of-motion overshoot; each gripping hand's grip socket within 10 mm
- * of its rung's axis through its grip windows (the issue's hand-on-rung
- * bound); and, from `handsOn` on, at least three limbs on the ladder at
- * every frame (Jensen and Holland 2020's three points of control), a hand
- * counting within 15 mm of a rung's axis and a foot with a sole socket within
- * 15 mm of a rung's top or the floor.
+ * It reports foot slip at most 5 mm in the plant windows and no range-of-motion
+ * overshoot; each gripping hand's grip socket within 10 mm of its rung's axis
+ * through its grip windows (the issue's hand-on-rung bound); and, from
+ * `handsOn` on, at least three limbs on the ladder at every frame (Jensen and
+ * Holland 2020's three points of control), a hand counting within 15 mm of a
+ * rung's axis and a foot with a sole socket within 15 mm of a rung's top or the
+ * floor.
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the case and its verdicts with their bounds and sources.
  * @evidence contracts/development/implementation.md#principled-implementation Measures displayed sockets against the ladder the plan resolved.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One block over the shared kit.
@@ -162,7 +161,6 @@ export function climbCases(
  * origin along `+Z`, each facing the climber at `-Z` as `createLadder`'s do.
  *
  * @returns The ladder.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the ladder's rungs, spacing, place and facing.
  * @evidence contracts/development/implementation.md#principled-implementation Each rung a bar affordance one spacing above the last, as the archetype declares them, the prop a fixture.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One list of rungs and one prop.

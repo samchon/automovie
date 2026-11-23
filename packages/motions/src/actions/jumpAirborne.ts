@@ -26,23 +26,32 @@ import type { jumpState } from "./jumpState";
 import type { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 import { walkLeg } from "./walkLeg";
 
-/** How far each free foot lifts above its straight path at mid-flight, hip heights (provisional). */
+/**
+ * How far each free foot lifts above its straight path at mid-flight, hip
+ * heights (provisional).
+ */
 const ARCH: number = 0.1;
 
-/** The least forward gap between the feet that reads as one foot ahead of the other, metres: a nanometre, the walk's root-solve width (`walkReach`), under which the gap is a rounding of side by side. */
+/**
+ * The least forward gap between the feet that reads as one foot ahead of the
+ * other, metres: a nanometre, the walk's root-solve width (`walkReach`), under
+ * which the gap is a rounding of side by side.
+ */
 const PASS_GAP: number = 1e-9;
 
 /**
- * A jump's time in the air: the shape it holds between take-off and
- * touchdown, the knee hint its legs bend toward, and the turns it asks the
- * performance's flight pass for (#3428), with the hook that hands the
- * rotation back (`IHumanActionPlan.airborne`).
- * Authored turns use that pass's staged default; explicit physical mode
- * instead solves angular momentum on the composed shape. This declaration
- * and handback own neither policy nor a conservation verdict.
+ * A jump's time in the air: the shape it holds between take-off and touchdown,
+ * the knee hint its legs bend toward, and the turns it asks the performance's
+ * flight pass for, with the hook that hands the rotation back
+ * (`IHumanActionPlan.airborne`). Authored turns use that pass's staged default;
+ * explicit physical mode instead solves angular momentum on the composed shape.
+ * This declaration and handback own neither policy nor a conservation verdict.
  */
 export namespace jumpAirborne {
-  /** Clinical coordinates varied by this free-flight law. All others are copied from the achieved takeoff pose. */
+  /**
+   * Clinical coordinates varied by this free-flight law. All others are copied
+   * from the achieved takeoff pose.
+   */
   export const TRACKS: readonly AutoMovieHumanoidBone[] = Object.freeze([
     "leftUpperArm",
     "rightUpperArm",
@@ -58,9 +67,7 @@ export namespace jumpAirborne {
     "rightToes",
   ] as const);
 
-  /**
-   * What the airborne shape is drawn from.
-   */
+  /** What the airborne shape is drawn from. */
   export interface IShape {
     /** The body whose hip height scales the existing free-foot arch. */
     body: IAutoMovieMotionHumanBody;
@@ -79,13 +86,16 @@ export namespace jumpAirborne {
   }
 
   /**
-   * The point a leg's knee bends toward: ahead of the knee's rest place on
-   * the body turned to the heading, at a yaw.
+   * The point a leg's knee bends toward: ahead of the knee's rest place on the
+   * body turned to the heading, at a yaw.
    *
    * @param body The body.
    * @param heading The jump's heading, degrees.
-   * @param poleHeadings The finite set of fixed pole headings used by this plan, copied in degrees; other headings retain ordinary point conversion.
-   * @returns A world-metre pole reader of root metres, leg side and pole heading degrees.
+   * @param poleHeadings The finite set of fixed pole headings used by this
+   *   plan, copied in degrees; other headings retain ordinary point
+   *   conversion.
+   * @returns A world-metre pole reader of root metres, leg side and pole
+   *   heading degrees.
    */
   export function knee(
     body: IAutoMovieMotionHumanBody,
@@ -127,12 +137,12 @@ export namespace jumpAirborne {
   }
 
   /**
-   * The airborne posture at a root and a share of the flight: the arms
-   * lowering from the push's height, both forefeet uncurling, and each
-   * foot carried on a minimum-jerk path between achieved endpoint states,
-   * lifted by a tenth of hip height at mid-flight along the existing sine
-   * arch. Endpoint values are shared; world COM and angular C1 are not
-   * established by this shape interpolation.
+   * The airborne posture at a root and a share of the flight: the arms lowering
+   * from the push's height, both forefeet uncurling, and each foot carried on a
+   * minimum-jerk path between achieved endpoint states, lifted by a tenth of
+   * hip height at mid-flight along the existing sine arch. Endpoint values are
+   * shared; world COM and angular C1 are not established by this shape
+   * interpolation.
    *
    * @param shape Fixed achieved endpoints, body dimensions and flight heading.
    * @returns A posture reader of a world-metre root and flight share in [0,1].
@@ -259,11 +269,11 @@ export namespace jumpAirborne {
       !(Vector3.dot(apart, rightward) > 0) ||
       !(Vector3.dot(apartEnd, rightward) > 0)
         ? 0
-      : Math.max(
-          0,
-          2 * body.measure.shankRadius -
-            Vector3.dot(Vector3.lerp(apart, apartEnd, passAt), rightward),
-        );
+        : Math.max(
+            0,
+            2 * body.measure.shankRadius -
+              Vector3.dot(Vector3.lerp(apart, apartEnd, passAt), rightward),
+          );
     const passing = (s: number): IAutoMovieVector3 =>
       passBump === 0
         ? { x: 0, y: 0, z: 0 }
@@ -325,20 +335,25 @@ export namespace jumpAirborne {
   }
 
   /**
-   * One immutable achieved-endpoint construction's reader of its actual targets.
+   * One immutable achieved-endpoint construction's reader of its actual
+   * targets.
    */
   export interface IPrepared {
     /** Original actual world target at a root and normalized flight share. */
     (root: IAutoMovieVector3, u: number): IAutoMovieMotionHumanPosture;
   }
 
-  /**
-   * A flight's declared turns and the rotation the flight pass hands back.
-   */
+  /** A flight's declared turns and the rotation the flight pass hands back. */
   export interface ITurning {
-    /** Takeoff in action-local seconds, reconstructed from the authored flight share and duration. */
+    /**
+     * Takeoff in action-local seconds, reconstructed from the authored flight
+     * share and duration.
+     */
     from: number;
-    /** Touchdown in action-local seconds, reconstructed from the authored flight share and duration. */
+    /**
+     * Touchdown in action-local seconds, reconstructed from the authored flight
+     * share and duration.
+     */
     to: number;
 
     /** The plan's flight members, none for a flight with no turns. */
@@ -351,9 +366,9 @@ export namespace jumpAirborne {
     prepareLanding(): void;
 
     /**
-     * A posture in flight with the rotation handed back, unchanged before
-     * it arrives and outside the flight; at touchdown itself the turn still
-     * holds, so the landing's offset (`landed`) starts from it.
+     * A posture in flight with the rotation handed back, unchanged before it
+     * arrives and outside the flight; at touchdown itself the turn still holds,
+     * so the landing's offset (`landed`) starts from it.
      *
      * @param posture The posture.
      * @param seconds Seconds of the jump.
@@ -366,18 +381,20 @@ export namespace jumpAirborne {
 
     /**
      * A landing posture carrying the flight's touchdown attitude away: the
-     * laws' own rule at a change of motion (Bollo 2018, inertialization).
-     * The turn the flight hands back at touchdown, its residual from the
-     * landing's unturned attitude decays on Bollo's quintic
-     * (`inertializeOffset`) over the landing's absorption, from touchdown
-     * to settled, as a rigid turn about the touchdown centre. The two-foot
-     * contact arrests the free-flight angular rate at the impact.
-     * A posture rotation turns the root and the free goals only, so the
-     * planted feet keep their places and the legs are re-solved onto them.
+     * laws' own rule at a change of motion (Bollo 2018, inertialization). The
+     * turn the flight hands back at touchdown, its residual from the landing's
+     * unturned attitude decays on Bollo's quintic (`inertializeOffset`) over
+     * the landing's absorption, from touchdown to settled, as a rigid turn
+     * about the touchdown centre. The two-foot contact arrests the free-flight
+     * angular rate at the impact. A posture rotation turns the root and the
+     * free goals only, so the planted feet keep their places and the legs are
+     * re-solved onto them.
      *
      * @param posture The landing posture.
      * @param seconds Seconds of the jump.
-     * @returns The posture, turned by the decaying offset, or unchanged outside the absorption, without a handed-back turn or with an admitted turned stance.
+     * @returns The posture, turned by the decaying offset, or unchanged outside
+     *   the absorption, without a handed-back turn or with an admitted turned
+     *   stance.
      */
     landed(
       posture: IAutoMovieMotionHumanPosture,
@@ -386,7 +403,8 @@ export namespace jumpAirborne {
   }
 
   /**
-   * Identify the actual flight request whose ground phase owns a turned landing.
+   * Identify the actual flight request whose ground phase owns a turned
+   * landing.
    *
    * @param flight The plan's original flight request.
    * @returns Whether its ground phase already adopts the terminal yaw.
@@ -401,7 +419,8 @@ export namespace jumpAirborne {
    * The geometry requirement belonging to a native planted touchdown.
    *
    * @param flight The original placed flight request.
-   * @returns The angular target and the exact read-back check for this request, if present.
+   * @returns The angular target and the exact read-back check for this request,
+   *   if present.
    */
   export function touchdown(
     flight: IAutoMovieMotionHumanFlight,
@@ -410,16 +429,17 @@ export namespace jumpAirborne {
   }
 
   /**
-   * A flight's turns as plan members: the somersault signed by its way, a
-   * side salto's somersault frame turned a quarter about the long axis,
-   * and the rotation kept once the pass hands it back.
+   * A flight's turns as plan members: the somersault signed by its way, a side
+   * salto's somersault frame turned a quarter about the long axis, and the
+   * rotation kept once the pass hands it back.
    *
    * @param rotation The requested turns, none when absent.
    * @param takeoff Seconds of the jump at take-off.
    * @param touchdown Seconds of the jump at touchdown.
    * @param duration The jump's duration, seconds.
    * @param settled Seconds of the jump where the landing's absorption ends.
-   * @param touchdownRequirement The native geometry target and check for the returned rotation.
+   * @param touchdownRequirement The native geometry target and check for the
+   *   returned rotation.
    * @returns The turning.
    */
   export function turning(
@@ -562,7 +582,10 @@ const TOUCHDOWNS: WeakMap<
 /** Action-plan members supplied for an authored turning flight. */
 type FlightMember = "flight" | "airborne";
 
-/** The flight's actual touchdown attitude: centre, world axis and angle in degrees. */
+/**
+ * The flight's actual touchdown attitude: centre, world axis and angle in
+ * degrees.
+ */
 interface ITouchdown {
   /** The touchdown centre the turn is about, world metres. */
   about: IAutoMovieVector3;
@@ -581,7 +604,10 @@ const STILL: ITouchdown = {
   angle: 0,
 };
 
-/** One fixed endpoint joint and its clinical difference, prepared once per flight. */
+/**
+ * One fixed endpoint joint and its clinical difference, prepared once per
+ * flight.
+ */
 interface IJointTrack {
   /** The joint being interpolated. */
   bone: AutoMovieHumanoidBone;

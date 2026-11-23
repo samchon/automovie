@@ -18,14 +18,14 @@ import { groupDanceLine } from "./groupDanceLine";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 
 /**
- * Social group dances on one shared beat (#4010): the line dance
- * (`groupDanceLine`), the circle dance (`groupDanceCircle`) and the conga
- * (`groupDanceConga`). Every member runs this law with the same tempo or
- * cue track, so their beats coincide; each member's beats are then moved by
- * one offset drawn from its own seed within `vary`, so steps fall within
- * that band of the shared beat and no two members move alike. Joined hands
- * read the shared beat, not the member's, so both hands of a pair name the
- * same point. The hips ride over the feet, `CROUCH` of the stature low.
+ * Social group dances on one shared beat: the line dance (`groupDanceLine`),
+ * the circle dance (`groupDanceCircle`) and the conga (`groupDanceConga`).
+ * Every member runs this law with the same tempo or cue track, so their beats
+ * coincide; each member's beats are then moved by one offset drawn from its own
+ * seed within `vary`, so steps fall within that band of the shared beat and no
+ * two members move alike. Joined hands read the shared beat, not the member's,
+ * so both hands of a pair name the same point. The hips ride over the feet,
+ * `CROUCH` of the stature low.
  *
  * Events: `beat{k}` on the member's own beats, `relax`.
  *
@@ -55,8 +55,8 @@ export namespace groupDance {
    *
    * @param context The member's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the tempo, the repeats or the variation is not admitted, or the dance's own geometry refuses.
-   *
+   * @throws {HumanRefusal} When the tempo, the repeats or the variation is not
+   *   admitted, or the dance's own geometry refuses.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The shared clock offset by the member's draw, the dance's course, its hips over its feet.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, offset, course, hips, composition.

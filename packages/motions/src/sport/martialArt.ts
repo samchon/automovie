@@ -34,32 +34,31 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { MartialArtStancePhrase } from "./MartialArtStancePhrase";
 
 /**
- * Martial-art forms other than kickboxing (#3252): the karate horse stance
- * (kiba-dachi), alternating straight punches from it (choku-zuki) and the
- * tai chi push in a bow stance.
+ * Martial-art forms other than kickboxing: the karate horse stance
+ * (kiba-dachi), alternating straight punches from it (choku-zuki) and the tai
+ * chi push in a bow stance.
  *
- * - Horse stance: the left foot steps out until the feet stand two
- *   shoulder widths apart (provisional) and the hips sink a fifth of the
- *   thigh (provisional), held, and the foot steps back.
- * - Choku-zuki: each fist leaves a waist-high chamber outside the live
- *   shoulder and passes around the flank before reaching the midline at
- *   chest height. The other fist returns to its chamber (hikite). Upper-arm
- *   and forearm radii provide provisional clearance for the tucked elbow
- *   as it turns. Each punch extends in 0.2 s and stays 0.2 s,
- *   inside the 400 ms a choku-zuki takes (VencesBrito et al. 2011); the
- *   hands alternate.
- * - Tai chi push: the lead foot steps ahead 0.35 statures (provisional)
- *   over 3 s as the hips come half the step forward and sink until both
- *   legs reach their feet; over 3 s more the weight shifts to six tenths of
- *   the step as the palms push from before the chest to an arm's reach
- *   ahead, then shifts back over 3 s, and the foot returns over 3 s: the
- *   slow, continuous form of tai chi (Wu and Hitt 2005).
+ * - Horse stance: the left foot steps out until the feet stand two shoulder
+ *   widths apart (provisional) and the hips sink a fifth of the thigh
+ *   (provisional), held, and the foot steps back.
+ * - Choku-zuki: each fist leaves a waist-high chamber outside the live shoulder
+ *   and passes around the flank before reaching the midline at chest height.
+ *   The other fist returns to its chamber (hikite). Upper-arm and forearm radii
+ *   provide provisional clearance for the tucked elbow as it turns. Each punch
+ *   extends in 0.2 s and stays 0.2 s, inside the 400 ms a choku-zuki takes
+ *   (VencesBrito et al. 2011); the hands alternate.
+ * - Tai chi push: the lead foot steps ahead 0.35 statures (provisional) over 3 s
+ *   as the hips come half the step forward and sink until both legs reach their
+ *   feet; over 3 s more the weight shifts to six tenths of the step as the
+ *   palms push from before the chest to an arm's reach ahead, then shifts back
+ *   over 3 s, and the foot returns over 3 s: the slow, continuous form of tai
+ *   chi (Wu and Hitt 2005).
  *
- * The karate and tai chi stance phrases link their own support transfers
- * and arm carriage on a single clock. The taekwondo and Muay Thai solo
- * resets share that support and recovery clock under their styles' low and
- * high guards. Their distinct pelvis paths and guard sites are authored
- * blocking for screen animation.
+ * The karate and tai chi stance phrases link their own support transfers and
+ * arm carriage on a single clock. The taekwondo and Muay Thai solo resets share
+ * that support and recovery clock under their styles' low and high guards.
+ * Their distinct pelvis paths and guard sites are authored blocking for screen
+ * animation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each technique's geometry, timing with its source, provisional values and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record of root, leg and placed-arm rows on one clock.
@@ -77,7 +76,10 @@ export namespace martialArt {
       martialArt: ["fromRelax", "smooth"],
     });
 
-  /** A punch's extension and its stay, seconds (VencesBrito et al. 2011: the whole technique in 400 ms). */
+  /**
+   * A punch's extension and its stay, seconds (VencesBrito et al. 2011: the
+   * whole technique in 400 ms).
+   */
   export const PUNCH: number = 0.2;
 
   /** The tai chi push's shift, seconds each way (provisional). */
@@ -88,8 +90,8 @@ export namespace martialArt {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number or the hold is negative.
-   *
+   * @throws {HumanRefusal} When the count is not a positive whole number or the
+   *   hold is negative.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation A stance entered by a step and a sink, then the technique's arm rows on named places.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, stance rows, then the technique's rows.

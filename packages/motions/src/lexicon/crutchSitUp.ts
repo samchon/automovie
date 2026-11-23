@@ -21,33 +21,38 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitPath } from "./crutchSitPath";
 
-/** The injured leg held off the floor standing, degrees: the crutch walk's three-point gait's hip and knee flexion. */
+/**
+ * The injured leg held off the floor standing, degrees: the crutch walk's
+ * three-point gait's hip and knee flexion.
+ */
 const STANDING: IAutoMovieHumanLimbReference = {
   upper: [30, 0, 0],
   lower: [80, 0, 0],
 };
 
-/** How far a crutch tip stands beside and ahead of its foot after a rise, metres: the tripod position (Physiopedia, Crutches). */
+/**
+ * How far a crutch tip stands beside and ahead of its foot after a rise,
+ * metres: the tripod position (Physiopedia, Crutches).
+ */
 const TRIPOD: number = 0.15;
 
 /**
- * Rise from a chair with two crutches held in the injured side's hand
- * (#3994), in the prescribed order (Cornell Health and HealthLinkBC, Using
- * crutches), entered as the crutch sit leaves the body.
+ * Rise from a chair with two crutches held in the injured side's hand, in the
+ * prescribed order (Cornell Health and HealthLinkBC, Using crutches), entered
+ * as the crutch sit leaves the body.
  *
- * The rise law stands the body on the sound leg while the sound hand pushes
- * on the chair until the seat is left (`seatOff`) and the injured side's
- * hand brings the crutches back upright side by side before the body by
- * `standing` (`crutchSitKit.gathered`), their tips sliding back on the
- * floor; the injured leg goes from its seated angles to `STANDING`. Then the
- * sound hand takes its crutch back from beside the other (`taken`,
- * `crutchSitPath.grasped`), and both crutches are carried to stand `TRIPOD`
- * beside and ahead of the feet (`planted`).
+ * The rise law stands the body on the sound leg while the sound hand pushes on
+ * the chair until the seat is left (`seatOff`) and the injured side's hand
+ * brings the crutches back upright side by side before the body by `standing`
+ * (`crutchSitKit.gathered`), their tips sliding back on the floor; the injured
+ * leg goes from its seated angles to `STANDING`. Then the sound hand takes its
+ * crutch back from beside the other (`taken`, `crutchSitPath.grasped`), and
+ * both crutches are carried to stand `TRIPOD` beside and ahead of the feet
+ * (`planted`).
  *
  * @param context The crutch sit's context.
  * @param kit Its shared reads.
  * @returns The order's plan before the arms are coursed.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the order, the crutch paths, the reuse of the rise and the leg.
  * @evidence contracts/development/implementation.md#principled-implementation The rise law for the body, the crutches on rigid paths from where the sit left them, and the hands holding them by their held offsets.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Three phases on one clock, then the windows.

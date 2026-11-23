@@ -15,23 +15,22 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the household family (#3256), from quiet standing with
- * the right hand, at a counter 225 mm below the elbow (Li, Chang and Zhang
- * 2024's preferred band of 200 to 250 mm):
+ * Capture cases of the household family, from quiet standing with the right
+ * hand, at a counter 225 mm below the elbow (Li, Chang and Zhang 2024's
+ * preferred band of 200 to 250 mm):
  *
  * - `household-wipe`: three circles wiping the counter;
- * - `household-drawer-wipe`: a composed task, a drawer under the counter
- *   pulled 0.15 m open, which stops its handle short of the thighs, then the
- *   counter wiped.
+ * - `household-drawer-wipe`: a composed task, a drawer under the counter pulled
+ *   0.15 m open, which stops its handle short of the thighs, then the counter
+ *   wiped.
  *
  * Every case reports foot slip at most 5 mm and no range-of-motion overshoot,
- * and that from `strokeStart` to `strokeEnd` of the wipe the palm socket
- * lies within -10 to +10 mm of the counter's top and within 10 mm of the
- * wipe's planned circle (provisional bounds at decision 11's accuracy).
+ * and that from `strokeStart` to `strokeEnd` of the wipe the palm socket lies
+ * within -10 to +10 mm of the counter's top and within 10 mm of the wipe's
+ * planned circle (provisional bounds at decision 11's accuracy).
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the cases and verdicts with their bounds and sources.
  * @evidence contracts/development/implementation.md#principled-implementation Measures the displayed palm against the surface and the planned circle.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over two chains over the shared kit.

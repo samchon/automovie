@@ -17,25 +17,25 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A performance's impulses (#3429) on a simulated window's performers, as
- * the solver's impulses on its grid.
+ * A performance's impulses on a simulated window's performers, as the solver's
+ * impulses on its grid.
  *
- * An impulse at film second `s` lands on the boundary that opens step
- * `k = round((s - from) * rate) + 1`, the engine's convention that step k's
- * impulse is applied once before its first native step
+ * An impulse at film second `s` lands on the boundary that opens step `k =
+ * round((s - from) * rate) + 1`, the engine's convention that step k's impulse
+ * is applied once before its first native step
  * (`IAutoMoviePhysicalSimulationInput.IInput.impulses`). Its point is the
- * site's world point in the displayed pose at that boundary: a region's
- * point (`resolveAutoMovieHumanoidSurfaces.place`) or a bone-local point;
- * it acts on the profile segment that carries the site's bone, the bone's
- * own or its nearest ancestor's.
+ * site's world point in the displayed pose at that boundary: a region's point
+ * (`resolveAutoMovieHumanoidSurfaces.place`) or a bone-local point; it acts on
+ * the profile segment that carries the site's bone, the bone's own or its
+ * nearest ancestor's.
  *
  * @param forces Every force of the performance.
  * @param bodies The simulated performers' bodies, by subject.
- * @param profiles The profiles the window solves, by subject: the bodies' with the hands welded.
+ * @param profiles The profiles the window solves, by subject: the bodies' with
+ *   the hands welded.
  * @param bones Each simulated performer's displayed bones, by step.
  * @param clock The window's first film second, interval count and rate.
  * @returns The solver's impulses, in the performance's order.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the step rule, the point and the segment struck.
  * @evidence contracts/development/implementation.md#principled-implementation The engine applies an impulse at the opening boundary of its step, so the nearest boundary to the authored instant is the step's start; the world point is read on the same displayed bones the targets are sampled from.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter and one placement per impulse.
@@ -109,7 +109,10 @@ export function placeHumanSimulationImpulses(
 
 /** Companion types and helpers of {@link placeHumanSimulationImpulses}. */
 export namespace placeHumanSimulationImpulses {
-  /** A window's grid: its first film second, interval count and intervals per second. */
+  /**
+   * A window's grid: its first film second, interval count and intervals per
+   * second.
+   */
   export interface IClock {
     /** First film second, step zero. */
     from: number;
@@ -122,7 +125,8 @@ export namespace placeHumanSimulationImpulses {
   }
 
   /**
-   * The profile segment carrying a rig bone: its own, or its nearest ancestor's.
+   * The profile segment carrying a rig bone: its own, or its nearest
+   * ancestor's.
    *
    * @param body The body, for its rig's parents.
    * @param profile The profile whose segments carry the bone.

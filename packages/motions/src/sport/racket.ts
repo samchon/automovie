@@ -30,27 +30,27 @@ import { courtStroke } from "./courtStroke";
 import { racketStance } from "./racketStance";
 
 /**
- * Racket stroke dispatch (#3725, #3726) and the original solo racket or
- * golf positions (#3249). The following positions use an implied handle.
+ * Racket stroke dispatch and the original solo racket or golf positions. The
+ * following positions use an implied handle.
  *
  * - Ready position: the feet step in sequence to two shoulder widths, the pelvis
- *   lowers by 4 % of stature and the trunk leans 15 degrees, the racket hand
- *   on the handle at waist height before the body and the other hand a hand
- *   ahead on the throat (provisional places).
+ *   lowers by 4 % of stature and the trunk leans 15 degrees, the racket hand on
+ *   the handle at waist height before the body and the other hand a hand ahead
+ *   on the throat (provisional places).
  * - Split step: from the ready position's width, a small hop of 3 % of the
- *   stature (provisional) in 0.3 s, landing a quarter shoulder width wider
- *   on each side, the step that precedes every stroke (Elliott et al. 1986
- *   place it before the serve's backswing; here before any stroke).
- * - Golf address: the trunk hinges 35 degrees at the hips over slightly
- *   flexed knees (provisional), the two hands together on the grip hanging
- *   `HANG` of the arm below the shoulders, and the waggle moves them a
- *   twentieth of the arm forward and back twice.
+ *   stature (provisional) in 0.3 s, landing a quarter shoulder width wider on
+ *   each side, the step that precedes every stroke (Elliott et al. 1986 place
+ *   it before the serve's backswing; here before any stroke).
+ * - Golf address: the trunk hinges 35 degrees at the hips over slightly flexed
+ *   knees (provisional), the two hands together on the grip hanging `HANG` of
+ *   the arm below the shoulders, and the waggle moves them a twentieth of the
+ *   arm forward and back twice.
  *
  * Each is a phrase: into the position in 0.6 s, the stroke (the hop or the
  * waggle), held, and back in 0.6 s.
  *
- * Court strokes delegate to `courtStroke`, which can read a previously
- * held racket's frame and targets a timed contact.
+ * Court strokes delegate to `courtStroke`, which can read a previously held
+ * racket's frame and targets a timed contact.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each position's geometry, timing, sources and provisional values, and the gaps with their owner.
  * @evidence contracts/development/design.md#principled-representation A law record of crouch, leg, root and placed-arm rows over one phrase.
@@ -70,7 +70,10 @@ export namespace racket {
       run: ["fromRelax", "smooth"],
     });
 
-  /** How far below the shoulders the golfer's upper hand grips, arm lengths (provisional): the elbows a little soft. */
+  /**
+   * How far below the shoulders the golfer's upper hand grips, arm lengths
+   * (provisional): the elbows a little soft.
+   */
   export const HANG: number = 0.8;
 
   /**
@@ -79,7 +82,6 @@ export namespace racket {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each position's crouch, feet and hands on its envelope, the hop or the waggle on the stroke.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, shared rows, then one branch per position.

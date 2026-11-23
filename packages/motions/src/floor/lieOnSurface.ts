@@ -5,9 +5,9 @@ import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionClockPhase,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanLieDown,
@@ -36,22 +36,34 @@ import { lieDownPoses } from "./lieDownPoses";
 /** Seconds of each phase (provisional: `lieDown`'s phase). */
 const PHASE: number = 1.2;
 
-/** The free room beyond the head and beside each shoulder on the surface, metres (provisional). */
+/**
+ * The free room beyond the head and beside each shoulder on the surface, metres
+ * (provisional).
+ */
 const MARGIN: number = 0.05;
 
-/** How far behind the edge the seated hips sit, metres (provisional: the thighs resting over the edge). */
+/**
+ * How far behind the edge the seated hips sit, metres (provisional: the thighs
+ * resting over the edge).
+ */
 const BEHIND: number = 0.15;
 
 /**
- * The seated key on the edge: upright, the thighs level along the seat and
- * each shank leaning forward from upright by as much as brings its ankle to
- * its height over the floor, `acos((hip - ankle) / shank)`, so the soles
- * rest on the floor; a seat higher than the shank and the ankle leaves the
- * shanks upright and the feet hanging.
+ * The seated key on the edge: upright, the thighs level along the seat and each
+ * shank leaning forward from upright by as much as brings its ankle to its
+ * height over the floor, `acos((hip - ankle) / shank)`, so the soles rest on
+ * the floor; a seat higher than the shank and the ankle leaves the shanks
+ * upright and the feet hanging.
  */
-function seatedKey(body: IAutoMovieMotionHumanBody, hip: number, floor: number): ISeatedKey {
-  const reach: number = (hip - floor - body.measure.ankleHeight) / body.measure.shank;
-  const lean: number = reach >= 1 ? 0 : (Math.acos(Math.max(-1, reach)) * 180) / Math.PI;
+function seatedKey(
+  body: IAutoMovieMotionHumanBody,
+  hip: number,
+  floor: number,
+): ISeatedKey {
+  const reach: number =
+    (hip - floor - body.measure.ankleHeight) / body.measure.shank;
+  const lean: number =
+    reach >= 1 ? 0 : (Math.acos(Math.max(-1, reach)) * 180) / Math.PI;
   const knee: number = 90 - lean;
   return {
     pose: {
@@ -83,7 +95,10 @@ interface ISeatedKey {
   planted: boolean;
 }
 
-/** One key of the route: the body's tilt and joints, the hips' world point and the event that names its arrival. */
+/**
+ * One key of the route: the body's tilt and joints, the hips' world point and
+ * the event that names its arrival.
+ */
 interface IKey {
   /** The tilt and the joints. */
   pose: IAutoMovieMotionHumanLieDown.IPose;
@@ -102,17 +117,16 @@ interface IKey {
 }
 
 /**
- * Lie on a raised support (#3987). Entered seated on a bed's or a sofa's
- * long edge, the trunk lowers onto the side that turns toward the head end
- * (the body's left on the edge whose left points there) while the legs
- * swing up onto the surface, then the body rolls onto its back; `rise`
- * reverses the route from lying to sitting on the edge, feet on the floor.
- * The keys are `lieDown`'s side-lying and supine postures (VanSant 1988
- * components, provisional angles) laid along the surface's length, the
- * hips on its midline with the head's room before them. Lying, the root
- * rests the body's lowest collision shape on the surface (`knockdown.rest`
- * raised to it); between the edge and the side the hips travel on a
- * straight line. A surface shorter than the body and `MARGIN`, or
+ * Lie on a raised support. Entered seated on a bed's or a sofa's long edge, the
+ * trunk lowers onto the side that turns toward the head end (the body's left on
+ * the edge whose left points there) while the legs swing up onto the surface,
+ * then the body rolls onto its back; `rise` reverses the route from lying to
+ * sitting on the edge, feet on the floor. The keys are `lieDown`'s side-lying
+ * and supine postures (VanSant 1988 components, provisional angles) laid along
+ * the surface's length, the hips on its midline with the head's room before
+ * them. Lying, the root rests the body's lowest collision shape on the surface
+ * (`knockdown.rest` raised to it); between the edge and the side the hips
+ * travel on a straight line. A surface shorter than the body and `MARGIN`, or
  * narrower than the shoulders and twice `MARGIN`, is refused with the
  * dimension, as is a lie not entered seated.
  *
@@ -150,47 +164,88 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
         });
       const reader: IAutoMovieMotionHumanPropReader = context.prop(p.prop);
       const model: IAutoMovieRigidTransform = reader.frame(context.start);
-      const surface: IAutoMovieAffordance = site(reader, p.surface ?? "surface", "surface");
+      const surface: IAutoMovieAffordance = site(
+        reader,
+        p.surface ?? "surface",
+        "surface",
+      );
       const edge: IAutoMovieAffordance = site(reader, p.edge, "seat");
-      const bed: IAutoMovieRigidTransform = HumanPropFrame.compose(model, frame(surface));
-      const seat: IAutoMovieRigidTransform = HumanPropFrame.compose(model, frame(edge));
+      const bed: IAutoMovieRigidTransform = HumanPropFrame.compose(
+        model,
+        frame(surface),
+      );
+      const seat: IAutoMovieRigidTransform = HumanPropFrame.compose(
+        model,
+        frame(edge),
+      );
       fits(body, surface);
 
       // The head end lies along the surface's -Z; the body lies onto the side that turns toward it.
-      const head: IAutoMovieVector3 = Quaternion.rotateVector(bed.rotation, { x: 0, y: 0, z: -1 });
-      const out: IAutoMovieVector3 = Quaternion.rotateVector(seat.rotation, { x: 0, y: 0, z: 1 });
+      const head: IAutoMovieVector3 = Quaternion.rotateVector(bed.rotation, {
+        x: 0,
+        y: 0,
+        z: -1,
+      });
+      const out: IAutoMovieVector3 = Quaternion.rotateVector(seat.rotation, {
+        x: 0,
+        y: 0,
+        z: 1,
+      });
       const yaw: number = (Math.atan2(out.x, out.z) * 180) / Math.PI;
-      const left: IAutoMovieVector3 = { x: Math.cos((yaw * Math.PI) / 180), y: 0, z: -Math.sin((yaw * Math.PI) / 180) };
-      const side: AutoMovieHumanSide = Vector3.dot(left, head) >= 0 ? "left" : "right";
+      const left: IAutoMovieVector3 = {
+        x: Math.cos((yaw * Math.PI) / 180),
+        y: 0,
+        z: -Math.sin((yaw * Math.PI) / 180),
+      };
+      const side: AutoMovieHumanSide =
+        Vector3.dot(left, head) >= 0 ? "left" : "right";
       const roll: number = side === "left" ? -90 : 90;
-      const offset: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieVector3 = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
-        Quaternion.rotateVector(resolveHumanPosture.heading(posture), body.rest.get("hips")!);
+      const offset: (
+        posture: IAutoMovieMotionHumanPosture,
+      ) => IAutoMovieVector3 = (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieVector3 =>
+        Quaternion.rotateVector(
+          resolveHumanPosture.heading(posture),
+          body.rest.get("hips")!,
+        );
       const reach: number = body.measure.stature - body.rest.get("hips")!.y;
       const lyingHips: IAutoMovieVector3 = Vector3.add(
         bed.position,
         Vector3.scale(head, surface.depth! / 2 - MARGIN - reach),
       );
-      const entryHips: IAutoMovieVector3 = Vector3.add(entry.root, offset(entry));
-      const along: number = Vector3.dot(Vector3.subtract(rise ? entryHips : lyingHips, seat.position), head);
+      const entryHips: IAutoMovieVector3 = Vector3.add(
+        entry.root,
+        offset(entry),
+      );
+      const along: number = Vector3.dot(
+        Vector3.subtract(rise ? entryHips : lyingHips, seat.position),
+        head,
+      );
       const seatedHips: IAutoMovieVector3 = rise
-        ? Vector3.add(
-            Vector3.add(seat.position, Vector3.scale(head, along)),
-            {
-              ...Vector3.scale(out, -BEHIND),
-              y: entryHips.y - bed.position.y,
-            },
-          )
+        ? Vector3.add(Vector3.add(seat.position, Vector3.scale(head, along)), {
+            ...Vector3.scale(out, -BEHIND),
+            y: entryHips.y - bed.position.y,
+          })
         : entryHips;
       const perched: ISeatedKey = seatedKey(body, seatedHips.y, 0);
       const seated: IKey = {
-        pose: rise ? perched.pose : { pitch: entry.pitch, roll: entry.roll, joints: entry.joints },
+        pose: rise
+          ? perched.pose
+          : { pitch: entry.pitch, roll: entry.roll, joints: entry.joints },
         yaw: rise ? yaw : entry.yaw,
         hips: seatedHips,
         lying: false,
         event: "seated",
       };
       const lateral: IKey = {
-        pose: { ...lieDownPoses.POSES[side === "left" ? "lateralLeft" : "lateralRight"], pitch: -2, roll },
+        pose: {
+          ...lieDownPoses.POSES[
+            side === "left" ? "lateralLeft" : "lateralRight"
+          ],
+          pitch: -2,
+          roll,
+        },
         yaw,
         hips: lyingHips,
         lying: true,
@@ -203,9 +258,20 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
         lying: true,
         event: "supine",
       };
-      const position: IAutoMovieMotionHumanLieOnSurface.Position = p.position ?? "supine";
+      const position: IAutoMovieMotionHumanLieOnSurface.Position =
+        p.position ?? "supine";
       const lyingEntry: IKey = rise
-        ? { pose: { pitch: entry.pitch, roll: entry.roll, joints: entry.joints }, yaw: entry.yaw, hips: entryHips, lying: true, event: position }
+        ? {
+            pose: {
+              pitch: entry.pitch,
+              roll: entry.roll,
+              joints: entry.joints,
+            },
+            yaw: entry.yaw,
+            hips: entryHips,
+            lying: true,
+            event: position,
+          }
         : seated;
       const keys: readonly IKey[] = rise
         ? position === "supine"
@@ -216,7 +282,14 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
           : [seated, lateral];
       const phases: IAutoMovieMotionClockPhase[] = [
         { name: rise ? "sitUp" : "lowering", seconds: PHASE },
-        ...keys.slice(1, -1).map((k: IKey): IAutoMovieMotionClockPhase => ({ name: k.event, seconds: PHASE })),
+        ...keys
+          .slice(1, -1)
+          .map(
+            (k: IKey): IAutoMovieMotionClockPhase => ({
+              name: k.event,
+              seconds: PHASE,
+            }),
+          ),
         { name: keys.at(-1)!.event, seconds: 0 },
         { name: "settled", seconds: hold },
       ];
@@ -227,16 +300,37 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
       );
       const progress: ReturnType<typeof AutoMovieMotionClock.prepare>[] = keys
         .slice(1)
-        .map((_k: IKey, i: number): ReturnType<typeof AutoMovieMotionClock.prepare> =>
-          AutoMovieMotionClock.prepare(clock, phases[i]!.name, phases[i + 1]!.name),
+        .map(
+          (
+            _k: IKey,
+            i: number,
+          ): ReturnType<typeof AutoMovieMotionClock.prepare> =>
+            AutoMovieMotionClock.prepare(
+              clock,
+              phases[i]!.name,
+              phases[i + 1]!.name,
+            ),
         );
-      const blends: ((weight: number) => IAutoMovieMotionHumanPosture["joints"])[] = keys
+      const blends: ((
+        weight: number,
+      ) => IAutoMovieMotionHumanPosture["joints"])[] = keys
         .slice(1)
-        .map((k: IKey, i: number): ((weight: number) => IAutoMovieMotionHumanPosture["joints"]) =>
-          prepareHumanShapeBlend(keys[i]!.pose.joints, k.pose.joints),
+        .map(
+          (
+            k: IKey,
+            i: number,
+          ): ((weight: number) => IAutoMovieMotionHumanPosture["joints"]) =>
+            prepareHumanShapeBlend(keys[i]!.pose.joints, k.pose.joints),
         );
-      const rest: ReturnType<typeof knockdown.prepareRest> = knockdown.prepareRest(body);
-      const posed: (index: number, u: number) => IAutoMovieMotionHumanPosture = (index: number, u: number): IAutoMovieMotionHumanPosture => {
+      const rest: ReturnType<typeof knockdown.prepareRest> =
+        knockdown.prepareRest(body);
+      const posed: (
+        index: number,
+        u: number,
+      ) => IAutoMovieMotionHumanPosture = (
+        index: number,
+        u: number,
+      ): IAutoMovieMotionHumanPosture => {
         const a: IKey = keys[index]!;
         const b: IKey = keys[index + 1]!;
         // The whole body turns on the shortest rotation between the keys' own tilts, whatever chart each was written in.
@@ -244,8 +338,16 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
           root: { x: 0, y: 0, z: 0 },
           ...resolveHumanPosture.angles(
             Quaternion.slerp(
-              resolveHumanPosture.heading({ yaw: a.yaw, pitch: a.pose.pitch, roll: a.pose.roll }),
-              resolveHumanPosture.heading({ yaw: b.yaw, pitch: b.pose.pitch, roll: b.pose.roll }),
+              resolveHumanPosture.heading({
+                yaw: a.yaw,
+                pitch: a.pose.pitch,
+                roll: a.pose.roll,
+              }),
+              resolveHumanPosture.heading({
+                yaw: b.yaw,
+                pitch: b.pose.pitch,
+                roll: b.pose.roll,
+              }),
               u,
             ),
           ),
@@ -265,7 +367,9 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
         read: ReturnType<typeof prepareHumanPoseResolution>,
         project: ReturnType<typeof prepareHumanPostureProjection>,
       ): number =>
-        k.lying ? rest(posture, read, project) + bed.position.y : k.hips.y - offset(posture).y;
+        k.lying
+          ? rest(posture, read, project) + bed.position.y
+          : k.hips.y - offset(posture).y;
       const at: (
         seconds: number,
         resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -275,7 +379,8 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
         resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
         projection?: ReturnType<typeof prepareHumanPostureProjection>,
       ): IAutoMovieMotionHumanPosture => {
-        const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(resolution);
         const project: ReturnType<typeof prepareHumanPostureProjection> =
           projection ?? prepareHumanPostureProjection(body);
         let index: number = 0;
@@ -294,12 +399,25 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
           a.lying && b.lying
             ? rest(posture, read, project) + bed.position.y
             : height(a, posed(index, 0), read, project) +
-              (height(b, posed(index, 1), read, project) - height(a, posed(index, 0), read, project)) * u;
-        return { ...posture, root: { x: hips.x - shift.x, y, z: hips.z - shift.z } };
+              (height(b, posed(index, 1), read, project) -
+                height(a, posed(index, 0), read, project)) *
+                u;
+        return {
+          ...posture,
+          root: { x: hips.x - shift.x, y, z: hips.z - shift.z },
+        };
       };
       const duration: number = clock.duration;
       const lying: IAutoMovieMotionHumanPrimitive = {
-        channels: ["root", "trunk", "head", "leftLeg", "rightLeg", "leftArm", "rightArm"],
+        channels: [
+          "root",
+          "trunk",
+          "head",
+          "leftLeg",
+          "rightLeg",
+          "leftArm",
+          "rightArm",
+        ],
         reads: [],
         from: 0,
         to: duration,
@@ -312,14 +430,22 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
         ): IAutoMovieMotionHumanPosture => at(seconds, resolution, projection),
       };
       const turned: number = clock.at(phases[1]!.name) / duration;
-      const support: IAutoMovieMotionHumanContactWindow.Support = { kind: "prop", subject: p.prop };
+      const support: IAutoMovieMotionHumanContactWindow.Support = {
+        kind: "prop",
+        subject: p.prop,
+      };
       // The contact parts have no side or chest; the trunk's window is the back's in every lying position.
       const contacts: IAutoMovieMotionHumanContactWindow[] = rise
         ? [
             { part: "back", kind: "lie", from: 0, to: turned, support },
             { part: "seat", kind: "seat", from: turned, to: 1, support },
-            ...(perched.planted ? (["leftFoot", "rightFoot"] as const) : []).map(
-              (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
+            ...(perched.planted
+              ? (["leftFoot", "rightFoot"] as const)
+              : []
+            ).map(
+              (
+                part: "leftFoot" | "rightFoot",
+              ): IAutoMovieMotionHumanContactWindow => ({
                 part,
                 kind: "plant",
                 from: clock.at(keys.at(-1)!.event) / duration,
@@ -332,13 +458,17 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
             { part: "seat", kind: "seat", from: 0, to: turned, support },
             { part: "back", kind: "lie", from: turned, to: 1, support },
           ];
-      const planned: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-        base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
-        clock,
-        contact: "settled",
-        primitives: [lying],
-      });
-      return { ...planned, base: rise ? { kind: "seated" } : { kind: "lying" } };
+      const planned: IAutoMovieMotionHumanActionPlan =
+        composeAutoMovieMotionHumanAction({
+          base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
+          clock,
+          contact: "settled",
+          primitives: [lying],
+        });
+      return {
+        ...planned,
+        base: rise ? { kind: "seated" } : { kind: "lying" },
+      };
     },
   };
 
@@ -357,7 +487,10 @@ function site(
       axis: kind === "seat" ? "edge" : "surface",
       value: id,
       reason: `the prop declares no ${kind} named ${id}`,
-      fix: kind === "seat" ? "name the bed's leftSide or rightSide edge" : "name the bed's lying surface",
+      fix:
+        kind === "seat"
+          ? "name the bed's leftSide or rightSide edge"
+          : "name the bed's lying surface",
     });
   return found;
 }
@@ -367,7 +500,10 @@ function frame(a: IAutoMovieAffordance): IAutoMovieRigidTransform {
   return { position: a.frame.translation, rotation: a.frame.rotation };
 }
 
-/** Refuse a surface shorter than the body or narrower than its shoulders, with the room each lacks. */
+/**
+ * Refuse a surface shorter than the body or narrower than its shoulders, with
+ * the room each lacks.
+ */
 function fits(
   body: IAutoMovieMotionHumanActionContext["body"],
   surface: IAutoMovieAffordance,
@@ -376,7 +512,10 @@ function fits(
   const width: number = surface.width ?? 0;
   const tall: number = body.measure.stature + MARGIN;
   const broad: number =
-    Vector3.distance(body.rest.get("leftUpperArm")!, body.rest.get("rightUpperArm")!) +
+    Vector3.distance(
+      body.rest.get("leftUpperArm")!,
+      body.rest.get("rightUpperArm")!,
+    ) +
     2 * body.measure.upperArmRadius +
     2 * MARGIN;
   if (length < tall)

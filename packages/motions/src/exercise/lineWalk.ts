@@ -30,8 +30,8 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
-import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanFootSwing } from "../compose/AutoMovieMotionHumanFootSwing";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanToesOnFloor } from "../compose/AutoMovieMotionHumanToesOnFloor";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -43,30 +43,28 @@ import { ExerciseKey } from "./ExerciseKey";
 import { lineWalkPole } from "./lineWalkPole";
 
 /**
- * A walk along a line too narrow for a normal gait (#3875's balance beam,
- * #3997's tightrope). Each step puts a foot one foot's length ahead of the
- * other on the line, heel to toe, turned out `TURN` degrees from it; a
- * stepping foot swings over `SWING` of a `PERIOD`-second step while the
- * other bears, passing the bearing shank on its own side by the two shanks'
- * radii at the crossing; a foot holds the line under its ball and its heel
- * rises about that ball. The hips travel along the line between the feet on
- * minimum-jerk progress and sway across it, `SWAY` of the stature at the
- * stride's period, corrected back over the line at each footfall; the arms
- * are held out to the sides for balance.
+ * A walk along a line too narrow for a normal gait (balance beam, tightrope).
+ * Each step puts a foot one foot's length ahead of the other on the line, heel
+ * to toe, turned out `TURN` degrees from it; a stepping foot swings over
+ * `SWING` of a `PERIOD`-second step while the other bears, passing the bearing
+ * shank on its own side by the two shanks' radii at the crossing; a foot holds
+ * the line under its ball and its heel rises about that ball. The hips travel
+ * along the line between the feet on minimum-jerk progress and sway across it,
+ * `SWAY` of the stature at the stride's period, corrected back over the line at
+ * each footfall; the arms are held out to the sides for balance.
  *
- * The line is the prop's: a beam's `surface` along its depth, a rope's or
- * a bar's `bar` along its length, at its top. Refused: an entry whose feet
- * are not on the line's top, and a stopping point beyond either end of the
- * line.
+ * The line is the prop's: a beam's `surface` along its depth, a rope's or a
+ * bar's `bar` along its length, at its top. Refused: an entry whose feet are
+ * not on the line's top, and a stopping point beyond either end of the line.
  *
- * A rope or wire may sag (`sag`): the footprints follow the parabola of
- * that sag, and a sag too shallow for the span is refused because the
- * tension it needs, `W L / (4 sag)`, exceeds the line's working load `LOAD`.
- * A balancing pole (`pole`, `lineWalkPole`) is held in both hands at its
- * grips, carried with the hips.
+ * A rope or wire may sag (`sag`): the footprints follow the parabola of that
+ * sag, and a sag too shallow for the span is refused because the tension it
+ * needs, `W L / (4 sag)`, exceeds the line's working load `LOAD`. A balancing
+ * pole (`pole`, `lineWalkPole`) is held in both hands at its grips, carried
+ * with the hips.
  *
- * First pass: the sway is kinematic, not a balance controller; the line's
- * sag is static, not deflected under each step.
+ * First pass: the sway is kinematic, not a balance controller; the line's sag
+ * is static, not deflected under each step.
  *
  * Events: `step1` to `stepN` at each footfall, `relax`.
  *
@@ -79,7 +77,10 @@ export namespace lineWalk {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "balanceWalk";
 
-  /** Cancel table: once the last foot is down, into standing or another line walk. */
+  /**
+   * Cancel table: once the last foot is down, into standing or another line
+   * walk.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -95,16 +96,28 @@ export namespace lineWalk {
   /** Each foot's turn out from the line, degrees (provisional). */
   export const TURN: number = 15;
 
-  /** The hips' sway across the line, a share of the stature (provisional, within a few centimetres). */
+  /**
+   * The hips' sway across the line, a share of the stature (provisional, within
+   * a few centimetres).
+   */
   export const SWAY: number = 0.01;
 
-  /** How far the hips walk below their standing height, a share of the stature: the soft knees of a balance walk (provisional). */
+  /**
+   * How far the hips walk below their standing height, a share of the stature:
+   * the soft knees of a balance walk (provisional).
+   */
   export const CROUCH: number = 0.03;
 
-  /** A tightrope's working load, newtons (provisional: a walking wire's rated tension). */
+  /**
+   * A tightrope's working load, newtons (provisional: a walking wire's rated
+   * tension).
+   */
   export const LOAD: number = 15000;
 
-  /** How far an entry foot may stand off the line's top, metres: half a foot's width. */
+  /**
+   * How far an entry foot may stand off the line's top, metres: half a foot's
+   * width.
+   */
   export const ON: number = 0.05;
 
   /**
@@ -112,8 +125,9 @@ export namespace lineWalk {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the prop lacks the affordance, an entry foot is off the line's top, the step count is not a positive whole number, or the stopping point lies beyond the line.
-   *
+   * @throws {HumanRefusal} When the prop lacks the affordance, an entry foot is
+   *   off the line's top, the step count is not a positive whole number, or the
+   *   stopping point lies beyond the line.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and every refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Footprints a foot's length apart on the line, swings as leg arcs, hips between the feet on minimum-jerk progress with a sinusoidal sway, arms keyed out.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Line, footprints, clock, rows, contacts.

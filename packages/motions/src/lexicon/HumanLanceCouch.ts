@@ -36,20 +36,47 @@ import { HumanUnseatPose } from "./HumanUnseatPose";
 type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLanceCouch>;
 
-/** The carry's upper arm from the shoulder in the seat frame, as shares of its length: out to the side and down at about 45 degrees (provisional). */
+/**
+ * The carry's upper arm from the shoulder in the seat frame, as shares of its
+ * length: out to the side and down at about 45 degrees (provisional).
+ */
 const UPPER: Readonly<IAutoMovieVector3> = { x: -0.7, y: -0.7, z: 0 };
 
-/** The carried shaft's direction in the seat frame: along the travel, the point a little down and in, so the butt behind the grip rises clear of the horse's croup and passes outside the rider's arm (provisional). */
+/**
+ * The carried shaft's direction in the seat frame: along the travel, the point
+ * a little down and in, so the butt behind the grip rises clear of the horse's
+ * croup and passes outside the rider's arm (provisional).
+ */
 const LEVEL: Readonly<IAutoMovieVector3> = { x: 0.05, y: -0.2, z: 1 };
 
-/** The step the strike is first sought at, seconds: a film frame at 60 per second. */
+/**
+ * The step the strike is first sought at, seconds: a film frame at 60 per
+ * second.
+ */
 const FRAME: number = 1 / 60;
 
-/** Seconds the arms take from the entry to the couch and the bridle (provisional). */
+/**
+ * Seconds the arms take from the entry to the couch and the bridle
+ * (provisional).
+ */
 const REACH: number = 0.5;
 
 /**
- * A lance couched and lowered to a skill-at-arms target from the saddle (`IAutoMovieMotionHumanLanceCouch`, #3956): carried on the seat contact, the right hand holds the lance by its grip with the upper arm out and down from the shoulder, the shaft along the travel at the grasp's angle to the forearm, and the left holds both reins at their middle. The strike is the first frame at which a carriage lays the lance's point on the target's own point, read in the moving seat frame: the grip one lance length from the target within the arm's reach, the forearm at the grasp's angle to the shaft; over `lower` seconds before it the hand comes down to that carriage and the shaft onto the line to the target by a minimum-jerk path between two carriages laid from the arm's own line (the hand continuing the forearm, the shaft at the grasp's angle to it, the elbow one upper arm from the shoulder), the point meets the target at the strike, the target is set on the lance's point from then, and over `lower` seconds after it the lance comes back to the couch. Register `HumanLanceCouch` to use it.
+ * A lance couched and lowered to a skill-at-arms target from the saddle
+ * (`IAutoMovieMotionHumanLanceCouch`): carried on the seat contact, the right
+ * hand holds the lance by its grip with the upper arm out and down from the
+ * shoulder, the shaft along the travel at the grasp's angle to the forearm, and
+ * the left holds both reins at their middle. The strike is the first frame at
+ * which a carriage lays the lance's point on the target's own point, read in
+ * the moving seat frame: the grip one lance length from the target within the
+ * arm's reach, the forearm at the grasp's angle to the shaft; over `lower`
+ * seconds before it the hand comes down to that carriage and the shaft onto the
+ * line to the target by a minimum-jerk path between two carriages laid from the
+ * arm's own line (the hand continuing the forearm, the shaft at the grasp's
+ * angle to it, the elbow one upper arm from the shoulder), the point meets the
+ * target at the strike, the target is set on the lance's point from then, and
+ * over `lower` seconds after it the lance comes back to the couch. Register
+ * `HumanLanceCouch` to use it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the couch, the strike's instant, the lowering, the carry-off and the bridle hand.
  * @evidence contracts/development/design.md#principled-representation One law; the couch and the lowered station in the seat frame, the line to the target read from its own point.
@@ -361,7 +388,10 @@ export const HumanLanceCouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
     },
   };
 
-/** A mounted arm's carriage of a held lance: the hand's frame and the elbow that lays it with the wrist neutral. */
+/**
+ * A mounted arm's carriage of a held lance: the hand's frame and the elbow that
+ * lays it with the wrist neutral.
+ */
 interface ICarriage {
   /** The hand's grip frame, seat-frame metres and rotation. */
   hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
@@ -375,15 +405,25 @@ interface IArm {
   /** The upper arm's length, metres. */
   upperArm: number;
 
-  /** From the elbow to the grip socket, metres: the forearm and the wrist's distance to the grip. */
+  /**
+   * From the elbow to the grip socket, metres: the forearm and the wrist's
+   * distance to the grip.
+   */
   fore: number;
 
-  /** The hand's own line from the wrist to the grip socket, in the hand's frame, which the tool's axis is read in. */
+  /**
+   * The hand's own line from the wrist to the grip socket, in the hand's frame,
+   * which the tool's axis is read in.
+   */
   line: IAutoMovieVector3;
 }
 
 /**
- * The carriage that holds the lance along a direction with its grip at a station, from the arm's own line: the hand's line continues the forearm, so the shaft keeps the angle to the forearm that the hand's grasp of it holds, and the elbow lies one upper arm from the shoulder, the lower of the two such places.
+ * The carriage that holds the lance along a direction with its grip at a
+ * station, from the arm's own line: the hand's line continues the forearm, so
+ * the shaft keeps the angle to the forearm that the hand's grasp of it holds,
+ * and the elbow lies one upper arm from the shoulder, the lower of the two such
+ * places.
  *
  * @param arm The rider's lance arm.
  * @param shoulder The right shoulder, seat-frame metres.
@@ -391,7 +431,8 @@ interface IArm {
  * @param grip The grip's station, seat-frame metres.
  * @param along The direction the shaft runs, seat frame.
  * @returns The hand's frame and the elbow.
- * @throws {HumanRefusal} On `target` when no elbow one upper arm from the shoulder lays the forearm at the grasp's angle to the shaft.
+ * @throws {HumanRefusal} On `target` when no elbow one upper arm from the
+ *   shoulder lays the forearm at the grasp's angle to the shaft.
  */
 function carriage(
   arm: IArm,
@@ -494,7 +535,11 @@ function carriage(
 }
 
 /**
- * The carry from the arm's own line: the upper arm out and down from the shoulder (`UPPER`), the forearm at the grasp's angle to the shaft, clear of the horse, turned about the shaft to the place whose hand turns least from the hand the rider enters with, so the forearm twists no further than it must; the grip at the forearm's end.
+ * The carry from the arm's own line: the upper arm out and down from the
+ * shoulder (`UPPER`), the forearm at the grasp's angle to the shaft, clear of
+ * the horse, turned about the shaft to the place whose hand turns least from
+ * the hand the rider enters with, so the forearm twists no further than it
+ * must; the grip at the forearm's end.
  *
  * @param arm The rider's lance arm.
  * @param shoulder The right shoulder, seat-frame metres.
@@ -504,7 +549,8 @@ function carriage(
  * @param horse The horse's body, which the carriage keeps clear of.
  * @param reaches Whether the arm's own fit holds a carriage.
  * @returns The hand's frame and the elbow.
- * @throws {HumanRefusal} On `target` when no forearm about the shaft lays the carry.
+ * @throws {HumanRefusal} On `target` when no forearm about the shaft lays the
+ *   carry.
  */
 function hanging(
   arm: IArm,
@@ -573,7 +619,10 @@ function hanging(
   return best;
 }
 
-/** A carriage found, and how far its hand turns from the one it is weighed against, radians. */
+/**
+ * A carriage found, and how far its hand turns from the one it is weighed
+ * against, radians.
+ */
 interface IOption {
   /** The carriage. */
   laid: ICarriage;
@@ -582,10 +631,17 @@ interface IOption {
   turn: number;
 }
 
-/** How many of the least-turning carriages are tried against the arm's own fit (provisional: the fit is the costliest step). */
+/**
+ * How many of the least-turning carriages are tried against the arm's own fit
+ * (provisional: the fit is the costliest step).
+ */
 const TRIES: number = 12;
 
-/** The least-turning carriage the arm's own fit holds within `StrikingRoll.MISS`, of the first `TRIES`, or undefined; the least miss read is kept in `nearestMiss` for a refusal. */
+/**
+ * The least-turning carriage the arm's own fit holds within
+ * `StrikingRoll.MISS`, of the first `TRIES`, or undefined; the least miss read
+ * is kept in `nearestMiss` for a refusal.
+ */
 function pick(
   options: readonly IOption[],
   reaches: (laid: ICarriage) => number,
@@ -605,14 +661,20 @@ function pick(
 /** The least miss the last `pick` read, metres. */
 let nearestMiss: number = Infinity;
 
-/** The directions a strike's grip is sought from the target in: around the target's vertical, in degrees. */
+/**
+ * The directions a strike's grip is sought from the target in: around the
+ * target's vertical, in degrees.
+ */
 const AROUND: number = 15;
 
 /** And above and below the target's level, in degrees. */
 const UPDOWN: number = 10;
 
 /**
- * A carriage that lays the lance's point on a target, if any: the grip one lance length from the target, within the arm's reach, with an elbow that lays the forearm at the grasp's angle to the line to the target; of those found, the one whose hand turns least from the carry's.
+ * A carriage that lays the lance's point on a target, if any: the grip one
+ * lance length from the target, within the arm's reach, with an elbow that lays
+ * the forearm at the grasp's angle to the line to the target; of those found,
+ * the one whose hand turns least from the carry's.
  *
  * @param arm The rider's lance arm.
  * @param shoulder The right shoulder, seat-frame metres.
@@ -692,20 +754,30 @@ function between(
   );
 }
 
-/** The horse's body as a carriage keeps clear of it: its rest shapes, and where the seat lies in its model. */
+/**
+ * The horse's body as a carriage keeps clear of it: its rest shapes, and where
+ * the seat lies in its model.
+ */
 interface IHorseBody {
   /** The horse's physical shapes in its model frame. */
   shapes: readonly IAutoMoviePhysicalShape[];
 
-  /** The seat contact's point in the horse's model frame, metres; the seat frame's axes are the model's. */
+  /**
+   * The seat contact's point in the horse's model frame, metres; the seat
+   * frame's axes are the model's.
+   */
   seat: IAutoMovieVector3;
 }
 
-/** How near the horse's shapes a hand, forearm or elbow may come, metres: half a hand's thickness with the skin (provisional). */
+/**
+ * How near the horse's shapes a hand, forearm or elbow may come, metres: half a
+ * hand's thickness with the skin (provisional).
+ */
 const CLEAR: number = 0.06;
 
 /**
- * Whether a carriage keeps its grip, the middle of its forearm and its elbow clear of the horse's shapes by `CLEAR`.
+ * Whether a carriage keeps its grip, the middle of its forearm and its elbow
+ * clear of the horse's shapes by `CLEAR`.
  *
  * @param horse The horse's body.
  * @param laid The carriage, in the seat frame.
@@ -723,7 +795,11 @@ function clear(horse: IHorseBody, laid: ICarriage): boolean {
   );
 }
 
-/** A point's least signed distance from shapes in their common frame, metres: exact for a sphere, a capsule and a box, and from a hull's bounding sphere about its centroid, which never reads a hull nearer than it is. */
+/**
+ * A point's least signed distance from shapes in their common frame, metres:
+ * exact for a sphere, a capsule and a box, and from a hull's bounding sphere
+ * about its centroid, which never reads a hull nearer than it is.
+ */
 function apart(
   shapes: readonly IAutoMoviePhysicalShape[],
   point: IAutoMovieVector3,

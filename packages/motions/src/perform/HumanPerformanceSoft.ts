@@ -17,32 +17,32 @@ import { HumanPerformanceSoftBoundary } from "./HumanPerformanceSoftBoundary";
 import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
 
 /**
- * A performance's soft props: each solved once from the displayed poses of
- * the people who hold it or whose bodies it lies on, at its domain's own
- * fixed step, and read by film seconds.
+ * A performance's soft props: each solved once from the displayed poses of the
+ * people who hold it or whose bodies it lies on, at its domain's own fixed
+ * step, and read by film seconds.
  *
- * The pass runs after every action is placed. For each step k of the
- * domain's `fixedStepSeconds` from film second 0 to the performance's end,
- * it reads the displayed bones at second k dt and builds that step's
- * boundary: the world point of every moving anchor (an `actor-bone` binding
- * on its person's bone, a `node` binding on a rigid prop of that subject)
- * and the world segment of every body capsule. A hand's grip on the prop
- * (any grip window or hold on it, as `HumanPerformanceRead.grips` lists them)
- * binds the particle nearest the hand's grip socket when the grip closes,
- * read from the solve as it stands then, to that socket for the window, and
- * releases it after, so the particle falls with the velocity the hand gave
- * it. On a cord attached at both ends to a model span, only the interior
- * particles are available to the grip. Two hands on one particle (a handover's shared window) bind it to the
- * hand that closed last, as a rigid prop rides the last grip. The engine
- * solves the whole span once (`simulateSoftBodyWithBoundaries` with an
- * observer that keeps every step), replaying from step 0 once per grip that
- * picks its particle from the solve, so W grips cost W + 1 solves.
+ * The pass runs after every action is placed. For each step k of the domain's
+ * `fixedStepSeconds` from film second 0 to the performance's end, it reads the
+ * displayed bones at second k dt and builds that step's boundary: the world
+ * point of every moving anchor (an `actor-bone` binding on its person's bone, a
+ * `node` binding on a rigid prop of that subject) and the world segment of
+ * every body capsule. A hand's grip on the prop (any grip window or hold on it,
+ * as `HumanPerformanceRead.grips` lists them) binds the particle nearest the
+ * hand's grip socket when the grip closes, read from the solve as it stands
+ * then, to that socket for the window, and releases it after, so the particle
+ * falls with the velocity the hand gave it. On a cord attached at both ends to
+ * a model span, only the interior particles are available to the grip. Two
+ * hands on one particle (a handover's shared window) bind it to the hand that
+ * closed last, as a rigid prop rides the last grip. The engine solves the whole
+ * span once (`simulateSoftBodyWithBoundaries` with an observer that keeps every
+ * step), replaying from step 0 once per grip that picks its particle from the
+ * solve, so W grips cost W + 1 solves.
  *
- * A read at a film second interpolates linearly between the two steps
- * around it, so a seek costs no solve and two frame rates read the same
- * state at a shared second. The coupling is one-way: the cloth never moves
- * the body (tension enters the hand as a load through `load`, read from the
- * compliant solver's multipliers).
+ * A read at a film second interpolates linearly between the two steps around
+ * it, so a seek costs no solve and two frame rates read the same state at a
+ * shared second. The coupling is one-way: the cloth never moves the body
+ * (tension enters the hand as a load through `load`, read from the compliant
+ * solver's multipliers).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States when the pass runs, how each step's boundary is built, how grips choose and release their particles, the solve count, the read's interpolation and the one-way coupling.
  * @evidence contracts/development/design.md#principled-representation A per-performance cache of each soft prop's every step, keyed by the performance's state.
@@ -57,7 +57,6 @@ export namespace HumanPerformanceSoft {
    *
    * @param domain The domain, with any grips' anchors already swapped in.
    * @returns The hand anchors, in the domain's order.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States which anchors count and why.
    * @evidence contracts/development/implementation.md#principled-implementation An anchor bound to a hand bone is that hand's hold, by the binding the domain declares.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter over the anchors.
@@ -93,8 +92,8 @@ export namespace HumanPerformanceSoft {
    * @param subject The soft prop.
    * @param seconds Film seconds, clamped to the performance.
    * @returns World metres, row-major `[x, y, z, ...]`.
-   * @throws {HumanRefusal} When the prop is not soft or its span exceeds its domain's step budget.
-   *
+   * @throws {HumanRefusal} When the prop is not soft or its span exceeds its
+   *   domain's step budget.
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, the clamp and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation Linear interpolation between the two fixed steps around the second, the solve's own states.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One cached solve and one interpolation.
@@ -125,16 +124,16 @@ export namespace HumanPerformanceSoft {
 
   /**
    * The force a soft prop pulls a gripping hand with at a film second: the
-   * step's anchor force from the compliant solver, the step before the
-   * second's (a force is held over its step, not interpolated).
+   * step's anchor force from the compliant solver, the step before the second's
+   * (a force is held over its step, not interpolated).
    *
    * @param state The performance.
    * @param subject The soft prop.
    * @param person The gripping person.
    * @param side The hand.
    * @param seconds Film seconds.
-   * @returns Newtons, world frame; zero when the hand does not hold it or the domain declares no compliance.
-   *
+   * @returns Newtons, world frame; zero when the hand does not hold it or the
+   *   domain declares no compliance.
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, the frame, the step read and the zero cases.
    * @evidence contracts/development/implementation.md#principled-implementation XPBD's constraint force at the anchor, recorded by the engine's observer.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One cached solve and one lookup.
@@ -162,18 +161,17 @@ export namespace HumanPerformanceSoft {
   }
 
   /**
-   * Every soft prop's pull on the hands that grip it, as sustained forces
-   * for the display-time load and balance (#3431, #3451): one record per grip
-   * window on a soft prop, on the gripping person's palm of that side, over
-   * the window, and one per hand the domain itself anchors to (`held`), over
-   * the whole performance, its force the compliant solver's anchor force at the step
-   * before each second (`load`). The coupling is one-way per solve: the cloth
-   * is solved from the displayed body, and the body's lean is then read from
-   * these forces, never fed back into the solve or into a law's plan.
+   * Every soft prop's pull on the hands that grip it, as sustained forces for
+   * the display-time load and balance: one record per grip window on a soft
+   * prop, on the gripping person's palm of that side, over the window, and one
+   * per hand the domain itself anchors to (`held`), over the whole performance,
+   * its force the compliant solver's anchor force at the step before each
+   * second (`load`). The coupling is one-way per solve: the cloth is solved
+   * from the displayed body, and the body's lean is then read from these
+   * forces, never fed back into the solve or into a law's plan.
    *
    * @param state The performance.
    * @returns The forces, in prop and grip order.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States what each record holds, where it acts, its window and the one-way order.
    * @evidence contracts/development/implementation.md#principled-implementation The XPBD anchor force recorded per gripping hand, read back at a film second as a pure function.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record per grip window, its force delegated to `load`.
@@ -250,8 +248,8 @@ export namespace HumanPerformanceSoft {
    * @param state The performance.
    * @param subject The soft prop.
    * @returns The solve.
-   * @throws {HumanRefusal} When the prop is not soft or its span exceeds its domain's step budget.
-   *
+   * @throws {HumanRefusal} When the prop is not soft or its span exceeds its
+   *   domain's step budget.
    * @evidence contracts/development/common.md#meaningful-documentation States the cache and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation Boundaries from the displayed bones at every fixed step, the grips' particles chosen from the solve at their closing step, the engine's one replay with an observer.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Boundaries, then grips in time order, then the final solve.

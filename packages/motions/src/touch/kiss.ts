@@ -12,11 +12,11 @@ import type {
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRise,
+  IAutoMovieMotionHumanTarget,
   IAutoMovieMotionManner,
   IAutoMovieMotionMeeting,
   IAutoMovieMotionMeetingTiming,
   IAutoMovieMotionTarget,
-  IAutoMovieMotionHumanTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -34,8 +34,8 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { kissCanLower } from "./kissCanLower";
 import { kissBody } from "./kissBody";
+import { kissCanLower } from "./kissCanLower";
 import { kissHandClearance } from "./kissHandClearance";
 import { kissHandMeeting } from "./kissHandMeeting";
 import { kissPitch } from "./kissPitch";
@@ -45,31 +45,28 @@ import { kissProjection } from "./kissProjection";
 
 /**
  * A kiss while standing: the lips brought to a partner's region (a cheek, the
- * forehead, the crown, the lips, the back of a hand) by leaning the body
- * from the hips and flexing the neck, the head turned to one side for a
- * cheek or the lips so the noses stay clear (#3284).
+ * forehead, the crown, the lips, the back of a hand) by leaning the body from
+ * the hips and flexing the neck, the head turned to one side for a cheek or the
+ * lips so the noses stay clear.
  *
- * The lean and the neck's flexion are solved at plan time so the mouth
- * region of the leaned posture lands on the target as it stands at the
- * kiss's start: a grid of pitch and flexion at 5 degree steps, then 1 degree
- * steps about the best, then a lean to the side the target lies on, as far
- * as the hips' range lets a body on planted feet lean (`ROLL`), and, when
- * the mouth is still short, a rise onto the toes of up to 35 degrees of
- * heel (provisional). The head turns 30 degrees
- * for a cheek or the lips (provisional), to the right unless `side` says
- * otherwise; Guntürkün 2003 observed a two-to-one rightward bias, which
- * Sedgewick et al. 2019 did not find, so the side is a parameter. The
- * approach is the free-space transport
- * of the mouth's travel, the kiss holds 0.6 s (provisional) and the return
- * takes the approach's time. The feet stay planted where they stand, so no
- * balance is solved: the lean and the rise are the kiss's key poses within
- * their ranges. A difference of more than `NEAR` that the lean, the neck
- * and the toes cannot close is out of reach and refused with what they
- * reach, rather than pressed on into the partner; a step in is not drafted
- * yet.
+ * The lean and the neck's flexion are solved at plan time so the mouth region
+ * of the leaned posture lands on the target as it stands at the kiss's start: a
+ * grid of pitch and flexion at 5 degree steps, then 1 degree steps about the
+ * best, then a lean to the side the target lies on, as far as the hips' range
+ * lets a body on planted feet lean (`ROLL`), and, when the mouth is still
+ * short, a rise onto the toes of up to 35 degrees of heel (provisional). The
+ * head turns 30 degrees for a cheek or the lips (provisional), to the right
+ * unless `side` says otherwise; Guntürkün 2003 observed a two-to-one rightward
+ * bias, which Sedgewick et al. 2019 did not find, so the side is a parameter.
+ * The approach is the free-space transport of the mouth's travel, the kiss
+ * holds 0.6 s (provisional) and the return takes the approach's time. The feet
+ * stay planted where they stand, so no balance is solved: the lean and the rise
+ * are the kiss's key poses within their ranges. A difference of more than
+ * `NEAR` that the lean, the neck and the toes cannot close is out of reach and
+ * refused with what they reach, rather than pressed on into the partner; a step
+ * in is not drafted yet.
  *
- * Events: the phrase instants, with `contact` at `ready` and `part` at
- * `relax`.
+ * Events: the phrase instants, with `contact` at `ready` and `part` at `relax`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the movement, the solve, the sources of the turn side, the provisional values, what is not drafted and the events.
  * @evidence contracts/development/design.md#principled-representation A law record composed of a lean, a head pulse and a held base.
@@ -95,7 +92,12 @@ export namespace kiss {
   /** The kiss's hold, seconds (provisional). */
   export const HOLD: number = 0.6;
 
-  /** The most the body leans to a side, degrees: with both feet planted a side lean from the hips turns one hip into adduction and the other into abduction by the lean, so it is the lesser of the hip's adduction and abduction ranges (`DEFAULT_HUMANOID_ROM`, the upper leg's abduction). */
+  /**
+   * The most the body leans to a side, degrees: with both feet planted a side
+   * lean from the hips turns one hip into adduction and the other into
+   * abduction by the lean, so it is the lesser of the hip's adduction and
+   * abduction ranges (`DEFAULT_HUMANOID_ROM`, the upper leg's abduction).
+   */
   export const ROLL: number = Math.min(
     -(DEFAULT_HUMANOID_ROM.leftUpperLeg?.abduction?.min ?? 0),
     DEFAULT_HUMANOID_ROM.leftUpperLeg?.abduction?.max ?? 0,
@@ -108,17 +110,17 @@ export namespace kiss {
   export const NEAR: number = 0.005;
 
   /**
-   * The lean, the neck flexion and the heel raise that bring the mouth
-   * nearest a point.
+   * The lean, the neck flexion and the heel raise that bring the mouth nearest
+   * a point.
    *
    * @param context The body.
    * @param entry The standing posture.
    * @param stance Both feet as they stand.
    * @param twist The head's twist, degrees.
    * @param at The point, world.
-   * @param seated Whether a seat bears the body: no heel is raised then, the lean from the seat being all.
+   * @param seated Whether a seat bears the body: no heel is raised then, the
+   *   lean from the seat being all.
    * @returns The angles, degrees, and the miss, metres.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the unknowns, the grid and the result's units.
    * @evidence contracts/development/implementation.md#principled-implementation The mouth's distance to the point is minimised one freedom at a time: the forward lean and the neck on a grid, coarse at 5 degrees and refined at 1 degree, then the lean to the side at 1 degree steps, then, only when a miss over `NEAR` remains and a stance bears the body, the least heel raise that closes it; the lean and the neck are fitted again after each.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One miss function, a sagittal grid and two line searches.
@@ -205,14 +207,26 @@ export namespace kiss {
     ).get("hips")!.worldPosition;
     const bowed: IAutoMovieMotionHumanKiss.ISolved = {
       ...neutral,
-      pitch: Math.min(
-        45,
-        Math.max(-10, kissPitch(hip, entry.yaw, start, at)),
-      ),
+      pitch: Math.min(45, Math.max(-10, kissPitch(hip, entry.yaw, start, at))),
     };
     bowed.miss = miss(bowed);
     if (heldHand !== undefined && !seated) {
-      const contact: IAutoMovieMotionHumanKiss.ISolved | undefined = kissPresentedHand(body, entry, stance, hip, at, bowed, heldHand, postureAt, mouth, resolution, NEAR, RAISE, ROLL);
+      const contact: IAutoMovieMotionHumanKiss.ISolved | undefined =
+        kissPresentedHand(
+          body,
+          entry,
+          stance,
+          hip,
+          at,
+          bowed,
+          heldHand,
+          postureAt,
+          mouth,
+          resolution,
+          NEAR,
+          RAISE,
+          ROLL,
+        );
       if (contact !== undefined) return contact;
     }
     if (bowed.miss <= NEAR) return bowed;
@@ -220,21 +234,36 @@ export namespace kiss {
     // Two trunk angles place the mouth's horizontal projection. A standing
     // body can then lower the hips over the same plants to meet a lower face.
     const horizontal: IAutoMovieMotionHumanLean.IAngles | null = kissProjection(
-      entry, hip, start, at,
+      entry,
+      hip,
+      start,
+      at,
     );
     if (
-      horizontal !== null && horizontal.pitch >= -10 && horizontal.pitch <= 45 &&
+      horizontal !== null &&
+      horizontal.pitch >= -10 &&
+      horizontal.pitch <= 45 &&
       Math.abs(horizontal.roll) <= ROLL
     ) {
-      const projected: IAutoMovieMotionHumanKiss.ISolved = { ...neutral, ...horizontal };
+      const projected: IAutoMovieMotionHumanKiss.ISolved = {
+        ...neutral,
+        ...horizontal,
+      };
       const keyed: IAutoMovieMotionHumanPosture = postureAt(projected);
       const landed: IAutoMovieVector3 = mouth(keyed, resolution);
       projected.miss = Vector3.distance(landed, at);
       if (projected.miss <= NEAR) return projected;
       const sink: number = landed.y - at.y;
-      if (!seated && sink > 0 && Math.hypot(landed.x - at.x, landed.z - at.z) <= NEAR &&
-        kissCanLower(body, keyed, stance, sink, resolution)) {
-        const dropped: IAutoMovieMotionHumanKiss.ISolved = { ...projected, sink };
+      if (
+        !seated &&
+        sink > 0 &&
+        Math.hypot(landed.x - at.x, landed.z - at.z) <= NEAR &&
+        kissCanLower(body, keyed, stance, sink, resolution)
+      ) {
+        const dropped: IAutoMovieMotionHumanKiss.ISolved = {
+          ...projected,
+          sink,
+        };
         dropped.miss = miss(dropped);
         if (dropped.miss <= NEAR) return dropped;
       }
@@ -261,7 +290,23 @@ export namespace kiss {
       )!,
     );
     if (heldHand === undefined) return lifted;
-    return kissPresentedHand(body, entry, stance, hip, at, lifted, heldHand, postureAt, mouth, resolution, NEAR, RAISE, ROLL) ?? lifted;
+    return (
+      kissPresentedHand(
+        body,
+        entry,
+        stance,
+        hip,
+        at,
+        lifted,
+        heldHand,
+        postureAt,
+        mouth,
+        resolution,
+        NEAR,
+        RAISE,
+        ROLL,
+      ) ?? lifted
+    );
   }
 
   /**
@@ -269,8 +314,8 @@ export namespace kiss {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative, or when the solved lean, neck and rise leave the mouth more than `NEAR` from the region.
-   *
+   * @throws {HumanRefusal} When the hold is negative, or when the solved lean,
+   *   neck and rise leave the mouth more than `NEAR` from the region.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal; the law's doc gives the solve and the timing.
    * @evidence contracts/development/implementation.md#principled-implementation The lean and the neck solved against the target at the start, the feet planted and no balance solved, then raised and lowered on the phrase envelope with the head's turn.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Target, solve, clock, the body's primitive, the legs' when the heels rise, the head's, composition.
@@ -334,8 +379,13 @@ export namespace kiss {
       p.region.startsWith("cheek") ||
       p.region.startsWith("jaw");
 
-    const surface: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> = meeting === undefined
-      ? context.aim(target, context.start) : AutoMovieMotionMeeting.place(meeting, "contact", entry);
+    const surface: Pick<
+      IAutoMovieMotionHumanTarget.IPlace,
+      "point" | "normal"
+    > =
+      meeting === undefined
+        ? context.aim(target, context.start)
+        : AutoMovieMotionMeeting.place(meeting, "contact", entry);
     const at: IAutoMovieVector3 = surface.point;
     const twist: number = turned ? (p.side === "left" ? TURN : -TURN) : 0;
     const stance: IAutoMovieMotionHumanRise.Stance = {
@@ -372,7 +422,14 @@ export namespace kiss {
       twist,
       at,
       seated,
-      hand !== undefined && meeting === undefined ? { clock, start: context.start, normal: surface.normal, clearance: () => kissHandClearance(context, hand) } : undefined,
+      hand !== undefined && meeting === undefined
+        ? {
+            clock,
+            start: context.start,
+            normal: surface.normal,
+            clearance: () => kissHandClearance(context, hand),
+          }
+        : undefined,
     );
     // A region the lean, the neck and the rise do not bring the mouth to is
     // out of reach: the kiss refuses with what they reach, rather than

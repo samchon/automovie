@@ -25,21 +25,27 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { wardrobeHands } from "./wardrobeHands";
 
-/** The wearer's collar below and before the shoulder line, metres: the `wardrobe` jacket's own collar offset. */
+/**
+ * The wearer's collar below and before the shoulder line, metres: the
+ * `wardrobe` jacket's own collar offset.
+ */
 const COLLAR: IAutoMovieVector3 = { x: 0, y: -0.085, z: 0.1 };
 
-/** How long the hand stays on the jacket once it rests on the shoulders, seconds: a beat to settle it. */
+/**
+ * How long the hand stays on the jacket once it rests on the shoulders,
+ * seconds: a beat to settle it.
+ */
 const SETTLE: number = 0.28;
 
 /**
- * Help a partner into a coat (#4015). The dresser's holding hand carries
- * the jacket's `wear` socket up to the partner's collar, read from the
- * partner's shoulders and heading at the action's start, and holds it there
- * still for the authored span. Meanwhile the partner threads each sleeve
- * with `wardrobe`'s `sleeveIn`, whose openings stay where the held jacket
- * keeps them. Then the hand lets go, the jacket is worn on the partner's
- * chest from that instant, and the hand returns. The jacket thus has one
- * carrier at a time: the dresser's grip, then the partner's chest.
+ * Help a partner into a coat. The dresser's holding hand carries the jacket's
+ * `wear` socket up to the partner's collar, read from the partner's shoulders
+ * and heading at the action's start, and holds it there still for the authored
+ * span. Meanwhile the partner threads each sleeve with `wardrobe`'s `sleeveIn`,
+ * whose openings stay where the held jacket keeps them. Then the hand lets go,
+ * the jacket is worn on the partner's chest from that instant, and the hand
+ * returns. The jacket thus has one carrier at a time: the dresser's grip, then
+ * the partner's chest.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the carry, the still hold, the partner's part, the custody change and when the collar is read.
  * @evidence contracts/development/design.md#principled-representation The jacket's own `wear` socket meets the collar `wardrobe` seats a jacket at, on the partner's own shoulders; custody is a grip window then a wear naming the partner.
@@ -183,7 +189,9 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
           // neither its goal nor the partner.
           posture: (
             t: number,
-            channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+            channels?: Parameters<
+              IAutoMovieMotionHumanActionPlan["posture"]
+            >[1],
           ): IAutoMovieMotionHumanPosture =>
             channels !== undefined && !channels.includes(`${hand}Arm`)
               ? posture(t, channels)
@@ -200,7 +208,10 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
     },
   };
 
-/** The partner's collar: mid-shoulders plus the jacket's collar offset, turned to the partner's heading. */
+/**
+ * The partner's collar: mid-shoulders plus the jacket's collar offset, turned
+ * to the partner's heading.
+ */
 function collar(
   partner: IAutoMovieMotionHumanPerformerReader,
   seconds: number,

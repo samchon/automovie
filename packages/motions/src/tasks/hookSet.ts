@@ -15,20 +15,26 @@ import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { wardrobeHands } from "../dressing/wardrobeHands";
 import { HumanBound } from "../law/HumanBound";
 
-/** How long the set tip is held before the hand eases back, seconds (provisional: a beat to feel the fish). */
+/**
+ * How long the set tip is held before the hand eases back, seconds
+ * (provisional: a beat to feel the fish).
+ */
 const HOLD: number = 0.3;
 
-/** The most a hook set lifts the tip, degrees (provisional: from a rod held low to upright). */
+/**
+ * The most a hook set lifts the tip, degrees (provisional: from a rod held low
+ * to upright).
+ */
 const LIFT: number = 90;
 
 /**
- * Set the hook (#3998). The hand holding the rod turns it about the grip,
- * the tip rising by the authored angle on a minimum-jerk course in the
- * authored time (a sharp lift), about the horizontal axis square to the
- * rod; the grip stays where it is, so the rod turns in the hand's own
- * rotation and the arm follows the hand's goal. The set is held a beat.
- * A rod not held, a lift outside 0 to `LIFT` or a time of no length is
- * refused; a grip the arm cannot keep is refused by the reach check.
+ * Set the hook. The hand holding the rod turns it about the grip, the tip
+ * rising by the authored angle on a minimum-jerk course in the authored time (a
+ * sharp lift), about the horizontal axis square to the rod; the grip stays
+ * where it is, so the rod turns in the hand's own rotation and the arm follows
+ * the hand's goal. The set is held a beat. A rod not held, a lift outside 0 to
+ * `LIFT` or a time of no length is refused; a grip the arm cannot keep is
+ * refused by the reach check.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the turn, its axis, its course, the hold and the refusals.
  * @evidence contracts/development/design.md#principled-representation One hand goal turned about the grip by the lift on one clock.

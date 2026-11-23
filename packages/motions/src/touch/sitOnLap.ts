@@ -18,22 +18,29 @@ import { sit } from "../everyday/sit";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingBody } from "../striking/StrikingBody";
 
-/** How far below the hips a seated partner's knees may lie, as a share of the thigh: a thigh no steeper than 30 degrees from level (provisional). */
+/**
+ * How far below the hips a seated partner's knees may lie, as a share of the
+ * thigh: a thigh no steeper than 30 degrees from level (provisional).
+ */
 const LEVEL: number = 0.5;
 
-/** How far behind the seat's front edge the sit law rests the seat socket, short of the sitter's thigh, metres: `IAutoMovieMotionHumanSeated`'s 0.05 m clearance. */
+/**
+ * How far behind the seat's front edge the sit law rests the seat socket, short
+ * of the sitter's thigh, metres: `IAutoMovieMotionHumanSeated`'s 0.05 m
+ * clearance.
+ */
 const CLEARANCE: number = 0.05;
 
 /**
- * Sit on a seated partner's lap (#4012). The lap is the seated partner's
- * thighs where they are at the start: its height is the top of the two
- * thighs' middles (`thighFrontLeft` and `thighFrontRight`), its heading
- * the partner's hips to knees. The sit law (`sit`) sits the body onto it
- * as onto a seat facing that heading, the seat's front edge set so the
- * sitter's seat socket comes to rest over the thighs' middles; a lap above
- * the sitter's band is got onto as a high seat, the feet hanging. The
- * sit's seat window bears instead on the partner: half on each thigh. A
- * partner whose thighs are not near level is refused as not seated.
+ * Sit on a seated partner's lap. The lap is the seated partner's thighs where
+ * they are at the start: its height is the top of the two thighs' middles
+ * (`thighFrontLeft` and `thighFrontRight`), its heading the partner's hips to
+ * knees. The sit law (`sit`) sits the body onto it as onto a seat facing that
+ * heading, the seat's front edge set so the sitter's seat socket comes to rest
+ * over the thighs' middles; a lap above the sitter's band is got onto as a high
+ * seat, the feet hanging. The sit's seat window bears instead on the partner:
+ * half on each thigh. A partner whose thighs are not near level is refused as
+ * not seated.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States where the lap is read, how the sit is reused, the windows and the refusal.
  * @evidence contracts/development/design.md#principled-representation The sit law over a seat that is the partner's lap, its windows moved onto the partner's thighs.

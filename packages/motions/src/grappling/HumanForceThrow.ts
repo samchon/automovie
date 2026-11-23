@@ -32,13 +32,13 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanForceExchange } from "./HumanForceExchange";
 
 /**
- * The throw of a pulled body whose base has broken (#3439): the swing over
- * the thrower's fulcrum, the release where the centre comes level with it
- * and the flight to the landing, for `HumanForceResponse`'s `thrown`.
+ * The throw of a pulled body whose base has broken: the swing over the
+ * thrower's fulcrum, the release where the centre comes level with it and the
+ * flight to the landing, for `HumanForceResponse`'s `thrown`.
  *
- * First pass: the body is rigid in the pose it had when its base broke,
- * through the swing and the flight; the swing's fulcrum is fixed at the
- * thrower's placed region at that instant.
+ * First pass: the body is rigid in the pose it had when its base broke, through
+ * the swing and the flight; the swing's fulcrum is fixed at the thrower's
+ * placed region at that instant.
  */
 export namespace HumanForceThrow {
   /**
@@ -48,7 +48,9 @@ export namespace HumanForceThrow {
    * @param context The thrown body's context.
    * @param props The state at the broken base.
    * @returns The plan from the action's start.
-   * @throws {HumanRefusal} A `participant` refusal on `fulcrum` with no thrower, fulcrum or placed thrower posture; a `parameter` refusal on `outcome` when the swing stops before the vertical.
+   * @throws {HumanRefusal} A `participant` refusal on `fulcrum` with no
+   *   thrower, fulcrum or placed thrower posture; a `parameter` refusal on
+   *   `outcome` when the swing stops before the vertical.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanForceResponse.IParams>,

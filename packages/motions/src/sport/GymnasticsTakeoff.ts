@@ -15,18 +15,18 @@ import { GymnasticsFlight } from "./GymnasticsFlight";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
 
 /**
- * A take-off at a chosen launch velocity (#3377): the jump's own push-off
- * (`jump`), from the planted foot of the entry, aimed so the centre of mass
- * leaves the floor at the velocity the law asks for.
+ * A take-off at a chosen launch velocity: the jump's own push-off (`jump`),
+ * from the planted foot of the entry, aimed so the centre of mass leaves the
+ * floor at the velocity the law asks for.
  *
  * The jump takes a landing place and an apex, not a velocity: its vertical
- * launch speed is `sqrt(2 g apex)`, and its horizontal one is the distance
- * from its take-off centre to its landing centre over its flight time. The
- * flight time depends only on the apex and the heights, so moving the
- * landing place by the velocity still missing times that time gives the
- * asked velocity on the next plan; the heading moves with the place, so the
- * correction is made three times. The jump's plan is used up to its
- * `takeoff`; what the body does in the air is the caller's.
+ * launch speed is `sqrt(2 g apex)`, and its horizontal one is the distance from
+ * its take-off centre to its landing centre over its flight time. The flight
+ * time depends only on the apex and the heights, so moving the landing place by
+ * the velocity still missing times that time gives the asked velocity on the
+ * next plan; the heading moves with the place, so the correction is made three
+ * times. The jump's plan is used up to its `takeoff`; what the body does in the
+ * air is the caller's.
  */
 export namespace GymnasticsTakeoff {
   /** How many times the landing place is corrected. */
@@ -36,10 +36,12 @@ export namespace GymnasticsTakeoff {
    * Plan a take-off at the velocity a law asks for.
    *
    * @param context The action's context.
-   * @param aim The launch velocity asked, m/s, given the take-off centre, world metres; its vertical part positive.
+   * @param aim The launch velocity asked, m/s, given the take-off centre, world
+   *   metres; its vertical part positive.
    * @param foot The optional authored support foot for the push-off.
    * @returns The take-off.
-   * @throws {HumanRefusal} When the velocity asked does not rise, or the jump refuses its push-off.
+   * @throws {HumanRefusal} When the velocity asked does not rise, or the jump
+   *   refuses its push-off.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -122,8 +124,8 @@ export namespace GymnasticsTakeoff {
 
   /**
    * The push-off's contacts up to the take-off, rescaled to the action that
-   * goes on from it: every window the jump declared before its take-off,
-   * cut there, so the feet bear exactly where the push-off bears them.
+   * goes on from it: every window the jump declared before its take-off, cut
+   * there, so the feet bear exactly where the push-off bears them.
    *
    * @param takeoff The take-off.
    * @param duration The whole action's seconds.

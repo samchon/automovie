@@ -20,11 +20,11 @@ import { HumanPropSweep } from "./HumanPropSweep";
 import { launchPropProjectile } from "./launchPropProjectile";
 
 /**
- * Props that fly: every launch an action publishes (`IHumanActionPlan.launches`)
- * turns its prop into the engine's flight (`projectileAt`) from the launch
- * until the next grip or launch takes custody. Its contacts against people,
- * props and the floor use the engine's one sweep (`projectileFirstContact`).
- * A staged grip records which launch it catches.
+ * Props that fly: every launch an action publishes
+ * (`IHumanActionPlan.launches`) turns its prop into the engine's flight
+ * (`projectileAt`) from the launch until the next grip or launch takes custody.
+ * Its contacts against people, props and the floor use the engine's one sweep
+ * (`projectileFirstContact`). A staged grip records which launch it catches.
  *
  * A launched prop leaves from its displayed frame at the launch second (the
  * hand that held it lets go there) with the launch's velocity; a prop the
@@ -35,21 +35,20 @@ import { launchPropProjectile } from "./launchPropProjectile";
  * flies as its origin's point, so a bottle meets the floor with its base.
  *
  * The flight carries the quadratic drag its model body declares
- * (`IAutoMovieBody.drag`, #3482), drag-free without it. What it meets is the
- * one sweep's (`HumanPropSweep`): every person but the launcher, the props
- * that do not fly and the floor. Flights do not meet each other, and a
- * flying prop is no collider.
- * A spherical launch evaluates its physical centre and radius, and projects
- * that centre back to the original prop frame for display and capture. An
- * optional drag-free aim is solved from the displayed release.
+ * (`IAutoMovieBody.drag`), drag-free without it. What it meets is the one
+ * sweep's (`HumanPropSweep`): every person but the launcher, the props that do
+ * not fly and the floor. Flights do not meet each other, and a flying prop is
+ * no collider. A spherical launch evaluates its physical centre and radius, and
+ * projects that centre back to the original prop frame for display and capture.
+ * An optional drag-free aim is solved from the displayed release.
  *
  * At its first contact the body's flight data decide what follows
- * (`HumanPropOutcome`, #3479): it sticks embedded, passes through, bounces
- * or rolls on; a prop whose data grant none stays where it struck, on the
- * floor, riding a struck prop or a struck person's bone. A bounce or a pass
- * is swept again, contact by contact, until the prop stays, rolls to rest
- * or stops at a staged grip or the end of the film. A flight still in the
- * air at the film's end is unended.
+ * (`HumanPropOutcome`): it sticks embedded, passes through, bounces or rolls
+ * on; a prop whose data grant none stays where it struck, on the floor, riding
+ * a struck prop or a struck person's bone. A bounce or a pass is swept again,
+ * contact by contact, until the prop stays, rolls to rest or stops at a staged
+ * grip or the end of the film. A flight still in the air at the film's end is
+ * unended.
  */
 export namespace HumanPropFlight {
   /**
@@ -57,9 +56,12 @@ export namespace HumanPropFlight {
    *
    * @param self The performance.
    * @param subject The prop.
-   * @param through Optional film second limiting a point-in-time read during placement. Full hit scans omit it, and completed performances always use the final horizon.
+   * @param through Optional film second limiting a point-in-time read during
+   *   placement. Full hit scans omit it, and completed performances always use
+   *   the final horizon.
    * @returns The flights.
-   * @throws {HumanRefusal} When the final flight does not reach a staged interception.
+   * @throws {HumanRefusal} When the final flight does not reach a staged
+   *   interception.
    */
   export function flights(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -135,9 +137,7 @@ export namespace HumanPropFlight {
     return out;
   }
 
-  /**
-   * Find the latest flight still displaying this prop at the given film second.
-   */
+  /** Find the latest flight still displaying this prop at the given film second. */
   export function active(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
@@ -162,7 +162,8 @@ export namespace HumanPropFlight {
   }
 
   /**
-   * Read two frames of one approach, without resweeping the placed flight at the earlier sample.
+   * Read two frames of one approach, without resweeping the placed flight at
+   * the earlier sample.
    */
   export function approach(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -193,14 +194,15 @@ export namespace HumanPropFlight {
   }
 
   /**
-   * A prop's world frame at a film second from its latest flight launched
-   * at or after `since` (the latest grip's start, which a launch after it
-   * ends), or undefined when no such flight has been launched by then.
+   * A prop's world frame at a film second from its latest flight launched at or
+   * after `since` (the latest grip's start, which a launch after it ends), or
+   * undefined when no such flight has been launched by then.
    *
    * @param self The performance.
    * @param subject The prop.
    * @param seconds Film seconds.
-   * @param since Film second before which a launch is overtaken by a later grip.
+   * @param since Film second before which a launch is overtaken by a later
+   *   grip.
    * @returns The frame, or undefined.
    */
   export function frame(
@@ -265,7 +267,10 @@ export namespace HumanPropFlight {
     }
   }
 
-  /** Fly one launch to its first contact and on, by the outcome its body's data give. */
+  /**
+   * Fly one launch to its first contact and on, by the outcome its body's data
+   * give.
+   */
   function fly(
     self: IAutoMovieMotionHumanPerformanceState,
     prop: IAutoMovieMotionHumanProp,

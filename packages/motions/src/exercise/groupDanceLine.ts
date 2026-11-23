@@ -17,16 +17,15 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { ExerciseKey } from "./ExerciseKey";
 
 /**
- * A line dance's eight counts (#4010): a grapevine right (side, behind,
- * side, close) and a grapevine left whose last count closes after a
- * quarter turn to the left on the left foot's ball. The pattern returns the
- * feet to where they stood and the turned frame keeps the member's centre,
- * so every member turns about its own place and the rows keep their spacing;
- * each repeat faces the next wall.
+ * A line dance's eight counts: a grapevine right (side, behind, side, close)
+ * and a grapevine left whose last count closes after a quarter turn to the left
+ * on the left foot's ball. The pattern returns the feet to where they stood and
+ * the turned frame keeps the member's centre, so every member turns about its
+ * own place and the rows keep their spacing; each repeat faces the next wall.
  *
- * Steps are `STEP` of the feet's spacing wide; the crossing foot lands
- * `CROSS` foot lengths behind. A foot travels over `TRAVEL` of a beat,
- * lifted `LIFT` of the stature.
+ * Steps are `STEP` of the feet's spacing wide; the crossing foot lands `CROSS`
+ * foot lengths behind. A foot travels over `TRAVEL` of a beat, lifted `LIFT` of
+ * the stature.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the counts, the turn, why spacing holds, and the sizes.
  * @evidence contracts/development/design.md#principled-representation Foot keys in the member's own floor frame, turned a quarter each repeat.
@@ -57,7 +56,6 @@ export namespace groupDanceLine {
    * @param beats The member's beat clock, its offset already in.
    * @param repeats How many eight-count patterns.
    * @returns The course.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the course.
    * @evidence contracts/development/implementation.md#principled-implementation Each count's footprint in the repeat's frame; the turn pivots the left foot about its ball and the next frame is set where that foot stands.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Frames, counts, turn, hips.

@@ -13,28 +13,27 @@ import type { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
 
 /**
  * One performer of a simulated window as a body of the engine's input: its
- * sampled poses as targets, and at each step which of its segments the
- * solver owns and how strongly they track.
+ * sampled poses as targets, and at each step which of its segments the solver
+ * owns and how strongly they track.
  *
  * The root stays authored throughout: the kinematic laws own where the body
- * stands, steps and balances. A segment becomes physical only where
- * something physical reaches it: from the step an impulse lands on it, its
- * subtree tracks its sampled poses with the profile's bounded joint motors
- * until the window hands back; while it grips a simulated partner, the
- * gripping arm's chain and the hand's subtree track the grip as the
- * solver's collider binding, fitted together with the partner's when both
- * grip each other (a coupled group, #3834). A performer the window
- * releases (a fall, or `released`) is wholly physical with its tracking
- * withdrawn from its release step, a passive body under gravity, contact
- * and its joints' limits. Gravity on a tracked subtree is compensated, as
- * the muscles hold a limb's own weight, so tracking error is the response
- * to what struck it, not sag. When the window hands back, every segment
- * returns to authored motion over the last `handoff` seconds through the
- * engine's continuous return.
+ * stands, steps and balances. A segment becomes physical only where something
+ * physical reaches it: from the step an impulse lands on it, its subtree tracks
+ * its sampled poses with the profile's bounded joint motors until the window
+ * hands back; while it grips a simulated partner, the gripping arm's chain and
+ * the hand's subtree track the grip as the solver's collider binding, fitted
+ * together with the partner's when both grip each other (a coupled group). A
+ * performer the window releases (a fall, or `released`) is wholly physical with
+ * its tracking withdrawn from its release step, a passive body under gravity,
+ * contact and its joints' limits. Gravity on a tracked subtree is compensated,
+ * as the muscles hold a limb's own weight, so tracking error is the response to
+ * what struck it, not sag. When the window hands back, every segment returns to
+ * authored motion over the last `handoff` seconds through the engine's
+ * continuous return.
  *
- * @param props The performer, its solved profile and samples, the mode and the window's schedule.
+ * @param props The performer, its solved profile and samples, the mode and the
+ *   window's schedule.
  * @returns The engine body.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States what stays authored, what becomes physical and when, the release, the gravity compensation and the hand-back.
  * @evidence contracts/development/implementation.md#principled-implementation Kinematic motion with physical response only where a hit lands, blended back to the kinematic motion afterwards: Zordan, Majkowska, Chiu and Fast 2005, "Dynamic response for motion capture animation", ACM TOG 24(3):697-701. Sample k's policy owns the interval before it (`IAutoMoviePhysicalSimulationInput.ITarget`), so an impulse applied at step k's opening boundary meets its subtree already physical.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the step policy from the window's impulses, grips, groups and releases; the window's assembly owns those decisions.
@@ -155,18 +154,32 @@ export function planHumanSimulationBody(
 
 /** Companion types and constants of {@link planHumanSimulationBody}. */
 export namespace planHumanSimulationBody {
-  /** Seconds a physical subtree takes to return to authored motion: the engine's documented default (`IAutoMoviePhysicalSimulationInput.IBody.handoffSeconds`). */
+  /**
+   * Seconds a physical subtree takes to return to authored motion: the engine's
+   * documented default
+   * (`IAutoMoviePhysicalSimulationInput.IBody.handoffSeconds`).
+   */
   export const HANDOFF: number = 0.2;
 
-  /** The engine's default native contact tolerance, metres (`IAutoMoviePhysicalSimulationInput.IInput.contactTolerance`), the residual a binding fit may stop at. */
+  /**
+   * The engine's default native contact tolerance, metres
+   * (`IAutoMoviePhysicalSimulationInput.IInput.contactTolerance`), the residual
+   * a binding fit may stop at.
+   */
   export const CONTACT_TOLERANCE: number = 0.0001;
 
-  /** Bounded geometric updates per binding fit: the engine's admitted maximum (`IAutoMoviePhysicalContactBinding.iterations`). */
+  /**
+   * Bounded geometric updates per binding fit: the engine's admitted maximum
+   * (`IAutoMoviePhysicalContactBinding.iterations`).
+   */
   export const ITERATIONS: number = 32;
 
   /** An impulse already placed on the window's grid. */
   export interface IImpulse {
-    /** The step whose opening boundary it lands on, 1 to the window's interval count. */
+    /**
+     * The step whose opening boundary it lands on, 1 to the window's interval
+     * count.
+     */
     step: number;
 
     /** The struck performer. */
@@ -181,7 +194,10 @@ export namespace planHumanSimulationBody {
     /** The performer, the body's id. */
     subject: string;
 
-    /** The profile the window solves for the performer, its hands welded with their fingers. */
+    /**
+     * The profile the window solves for the performer, its hands welded with
+     * their fingers.
+     */
     profile: IAutoMoviePhysicalProfile;
 
     /** The window's mode. */
@@ -196,7 +212,10 @@ export namespace planHumanSimulationBody {
     /** Every grip of the window. */
     grips: readonly bindHumanSimulationGrips.IGrip[];
 
-    /** Each simulated performer's release step; past the interval count for one never released. */
+    /**
+     * Each simulated performer's release step; past the interval count for one
+     * never released.
+     */
     releases: ReadonlyMap<string, number>;
 
     /** Coupled-group label by step, then by performer. */

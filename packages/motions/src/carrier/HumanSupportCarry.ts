@@ -21,8 +21,8 @@ import { HumanSupportAim } from "./HumanSupportAim";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 
 /**
- * The one owner of goals in a moving support's frame (#3491): a posture planned
- * in the world at an action's start, expressed in the support's frame there and
+ * The one owner of goals in a moving support's frame: a posture planned in the
+ * world at an action's start, expressed in the support's frame there and
  * carried back to the world at every second by the support's rigid motion since
  * then. A stance on a cart's bed, a bow held on its target from a cantering
  * horse and a carbine presented from a moving car all plan once at their start

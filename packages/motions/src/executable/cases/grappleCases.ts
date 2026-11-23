@@ -12,20 +12,18 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the grappling family (#3242): performer `a` takes a
- * clinch grip on performer `b`, who stands 0.55 m away facing it, in the
- * plum (`grapple-plum`) and in the collar and sleeve grip
- * (`grapple-collarSleeve`).
+ * Capture cases of the grappling family: performer `a` takes a clinch grip on
+ * performer `b`, who stands 0.55 m away facing it, in the plum (`grapple-plum`)
+ * and in the collar and sleeve grip (`grapple-collarSleeve`).
  *
  * Every case reports each performer's foot slip at most 5 mm and no
- * range-of-motion overshoot, and that through every grip window each of
- * `a`'s gripping surfaces (the palm in the plum, the grip otherwise) stays
- * within 10 mm of its place on `b`'s displayed region (the issue's M11 grip
- * bound).
+ * range-of-motion overshoot, and that through every grip window each of `a`'s
+ * gripping surfaces (the palm in the plum, the grip otherwise) stays within 10
+ * mm of its place on `b`'s displayed region (the issue's M11 grip bound).
  *
- * @param bodies The sweep bodies, each gripping itself; `m-average` when absent.
+ * @param bodies The sweep bodies, each gripping itself; `m-average` when
+ *   absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the cases and verdicts with their bounds and sources.
  * @evidence contracts/development/implementation.md#principled-implementation Measures displayed sockets against the partner's displayed regions.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over two grips over the shared kit.

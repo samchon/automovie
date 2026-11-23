@@ -44,7 +44,12 @@ interface IKey {
 }
 
 /**
- * Trick-riding figures (`IAutoMovieMotionHumanTrick`, #3950): each figure is a key posture in the seat contact's moving frame whose feet and hands are bound to the trick saddle's own straps, horn and handholds (or a pickup's prop) read where the carrier has them at each second; keys blend by a minimum-jerk share over each transfer and are carried by the seat contact. Every attitude and offset is a provisional stage reading. Register `HumanTrick` to use it.
+ * Trick-riding figures (`IAutoMovieMotionHumanTrick`): each figure is a key
+ * posture in the seat contact's moving frame whose feet and hands are bound to
+ * the trick saddle's own straps, horn and handholds (or a pickup's prop) read
+ * where the carrier has them at each second; keys blend by a minimum-jerk share
+ * over each transfer and are carried by the seat contact. Every attitude and
+ * offset is a provisional stage reading. Register `HumanTrick` to use it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the keys, the bindings, the blend and that the values are provisional.
  * @evidence contracts/development/design.md#principled-representation One law over a closed figure vocabulary and the saddle's named contacts.
@@ -316,7 +321,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   );
 }
 
-/** A posture with its leg goals only: the arms are laid by the act's course, never by goals carried from the entry. */
+/**
+ * A posture with its leg goals only: the arms are laid by the act's course,
+ * never by goals carried from the entry.
+ */
 function legsOnly(
   posture: IAutoMovieMotionHumanPosture,
 ): IAutoMovieMotionHumanPosture {

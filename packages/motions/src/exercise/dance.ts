@@ -32,42 +32,39 @@ import { prepareDanceSteps } from "./prepareDanceSteps";
 import { prepareWaltzBox } from "./prepareWaltzBox";
 
 /**
- * A solo dance step locked to a declared beat (#3253, M23): the bounce, the
- * side-to-side sway, the step-touch and the box step.
+ * A solo dance step locked to a declared beat: the bounce, the side-to-side
+ * sway, the step-touch and the box step.
  *
- * The beat comes from the author's tempo, never from audio: beat `k` falls
- * at `k 60 / bpm` seconds, 120 bpm when absent (people resonate near 120
- * bpm, van Noorden and Moelants 1999; the spontaneous locomotor tempo is
- * near 2 Hz, MacDougall and Moore 2005). Each beat is an event `beat{k}`.
- * Locked to a cue track (`lock`, #3378), the beats are the track's instants
- * instead: the first on the track's first beat at or after the start, the
- * rest at the mean interval of the track's beats, so footfalls land on a
- * score's beats whatever its tempo (a tempo that drifts within the step is
- * followed at its mean, a first pass).
+ * The beat comes from the author's tempo, never from audio: beat `k` falls at
+ * `k 60 / bpm` seconds, 120 bpm when absent (people resonate near 120 bpm, van
+ * Noorden and Moelants 1999; the spontaneous locomotor tempo is near 2 Hz,
+ * MacDougall and Moore 2005). Each beat is an event `beat{k}`. Locked to a cue
+ * track (`lock`), the beats are the track's instants instead: the first on the
+ * track's first beat at or after the start, the rest at the mean interval of
+ * the track's beats, so footfalls land on a score's beats whatever its tempo (a
+ * tempo that drifts within the step is followed at its mean, a first pass).
  *
- * - Bounce: the knees give on every beat, the hips lowest on the beat by 1
- *   % of the stature (provisional; vertical bounce follows the rhythm,
- *   Burger et al. 2013), the feet planted.
- * - Sway: the hips travel side to side over two beats, at each side on a
- *   beat, by half the feet's spacing, the feet planted. They leave the
- *   middle for the first side through the first beat and return to it
- *   after the last, and ride the arc that keeps both legs at their standing
- *   length.
- * - Step-touch: on odd beats one foot steps a shoulder width to its side,
- *   on even beats the other closes beside it; the direction turns every two
- *   beats. Each foot travels over the half beat before its footfall, so
- *   the footfall lands on the beat; the hips follow the feet's mean and
- *   sink until each leg reaches its foot, the travelling one too.
- *
- * - Box step: six footfalls that trace a square and return, one a beat:
- *   the first foot forward, the other to its own side level with it, the
- *   first closed beside it; then the other foot back, the first to its own
- *   side level with it, the other closed. The square's side is a shoulder
- *   width (provisional); the feet and the hips move as in the step-touch.
+ * - Bounce: the knees give on every beat, the hips lowest on the beat by 1 % of
+ *   the stature (provisional; vertical bounce follows the rhythm, Burger et al.
+ *   2013), the feet planted.
+ * - Sway: the hips travel side to side over two beats, at each side on a beat, by
+ *   half the feet's spacing, the feet planted. They leave the middle for the
+ *   first side through the first beat and return to it after the last, and ride
+ *   the arc that keeps both legs at their standing length.
+ * - Step-touch: on odd beats one foot steps a shoulder width to its side, on even
+ *   beats the other closes beside it; the direction turns every two beats. Each
+ *   foot travels over the half beat before its footfall, so the footfall lands
+ *   on the beat; the hips follow the feet's mean and sink until each leg
+ *   reaches its foot, the travelling one too.
+ * - Box step: six footfalls that trace a square and return, one a beat: the first
+ *   foot forward, the other to its own side level with it, the first closed
+ *   beside it; then the other foot back, the first to its own side level with
+ *   it, the other closed. The square's side is a shoulder width (provisional);
+ *   the feet and the hips move as in the step-touch.
  *
  * With `waltz`, the box adds a three-beat lowering and rise and can rotate
- * around an authored floor pivot. A second dancer can share the pivot and
- * cue track and start back on beat one. Held partner contacts are separate.
+ * around an authored floor pivot. A second dancer can share the pivot and cue
+ * track and start back on beat one. Held partner contacts are separate.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the beat rule and its sources, each step's geometry and provisional values, and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record whose steps are root and leg rows on a beat clock.
@@ -97,8 +94,8 @@ export namespace dance {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the tempo is not positive or the beat count is not a positive whole number.
-   *
+   * @throws {HumanRefusal} When the tempo is not positive or the beat count is
+   *   not a positive whole number.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation A beat clock with one instant per beat; each step's root and foot curves are written against the beats.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per step.

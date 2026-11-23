@@ -29,27 +29,27 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 
 /**
- * Toss juggling standing still (#3997).
+ * Toss juggling standing still.
  *
- * The pattern's times follow Shannon's theorem `(F + D) H = (V + D) N` for
- * two hands with the dwell ratio `D / (D + V)` held at `DWELL` (Beek and
- * Lewbel, The Science of Juggling, 1995, report about three quarters in the
- * cascade): the flight `F` is the throw's to its height `h`,
- * `sqrt(8 h / g)` between hands level with each other, so the dwell is
- * `2 k F / (N - 2 k)` and the vacancy `(1 - k) / k` of it.
+ * The pattern's times follow Shannon's theorem `(F + D) H = (V + D) N` for two
+ * hands with the dwell ratio `D / (D + V)` held at `DWELL` (Beek and Lewbel,
+ * The Science of Juggling, 1995, report about three quarters in the cascade):
+ * the flight `F` is the throw's to its height `h`, `sqrt(8 h / g)` between
+ * hands level with each other, so the dwell is `2 k F / (N - 2 k)` and the
+ * vacancy `(1 - k) / k` of it.
  *
- * - Cascade (odd `N`): the hands throw in turn, each from inside (`INSIDE`
- *   of the hands' spacing toward the middle) to the other hand's outside
- *   catch point; a caught ball is carried in a scoop, down `SCOOP` metres
- *   and in, to its throw.
- * - Shower (two balls): the right hand throws high to the left, the left
- *   passes low back to the right in a third of the high flight.
+ * - Cascade (odd `N`): the hands throw in turn, each from inside (`INSIDE` of the
+ *   hands' spacing toward the middle) to the other hand's outside catch point;
+ *   a caught ball is carried in a scoop, down `SCOOP` metres and in, to its
+ *   throw.
+ * - Shower (two balls): the right hand throws high to the left, the left passes
+ *   low back to the right in a third of the high flight.
  *
- * Every throw is a launch aimed at the catching hand's point at the catch,
- * and every hold a grip on the ball from its catch to its throw; a dropped
- * throw (`drops`) has no catch and falls to the floor, and its ball is not
- * thrown again. A vacancy shorter than `VACANCY` leaves the hand no time to
- * get to its catch and is refused with the height that gives it.
+ * Every throw is a launch aimed at the catching hand's point at the catch, and
+ * every hold a grip on the ball from its catch to its throw; a dropped throw
+ * (`drops`) has no catch and falls to the floor, and its ball is not thrown
+ * again. A vacancy shorter than `VACANCY` leaves the hand no time to get to its
+ * catch and is refused with the height that gives it.
  *
  * Events: `throw{n}`, `catch{n}` for each throw's catch, `relax`.
  *
@@ -72,16 +72,25 @@ export namespace juggle {
   /** The dwell ratio, `D / (D + V)`. */
   export const DWELL: number = 0.75;
 
-  /** The shortest vacancy that lets a hand reach its catch, seconds (provisional). */
+  /**
+   * The shortest vacancy that lets a hand reach its catch, seconds
+   * (provisional).
+   */
   export const VACANCY: number = 0.12;
 
-  /** How far a throw leaves inside the hand's point, a share of the hands' spacing. */
+  /**
+   * How far a throw leaves inside the hand's point, a share of the hands'
+   * spacing.
+   */
   export const INSIDE: number = 0.2;
 
   /** The scoop's dip, metres (provisional). */
   export const SCOOP: number = 0.06;
 
-  /** The hands' points before the body: half apart, high and ahead, shares of the stature. */
+  /**
+   * The hands' points before the body: half apart, high and ahead, shares of
+   * the stature.
+   */
   export const HANDS: Readonly<IAutoMovieVector3> = {
     x: 0.11,
     y: 0.58,
@@ -90,8 +99,8 @@ export namespace juggle {
 
   /**
    * Where a hand holds its ball at the start: the ball's centre in world
-   * metres. The first ball rests in the right hand, the second in the left
-   * and a third on top of the first.
+   * metres. The first ball rests in the right hand, the second in the left and
+   * a third on top of the first.
    *
    * @param body The juggler's body.
    * @param root The juggler's root on the floor, world metres.
@@ -99,7 +108,6 @@ export namespace juggle {
    * @param index The ball's place in `balls`, from 0.
    * @param radius The ball's radius, metres.
    * @returns The ball's centre.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the start points.
    * @evidence contracts/development/implementation.md#principled-implementation The hand's point in the juggler's frame raised by the radius, stacked for a third ball.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
@@ -128,8 +136,9 @@ export namespace juggle {
    *
    * @param context The action's context.
    * @returns The plan with its launches.
-   * @throws {HumanRefusal} When a cascade's count is even, a shower's is not two, the height leaves no vacancy for the catch, or the throw count is not a positive whole number.
-   *
+   * @throws {HumanRefusal} When a cascade's count is even, a shower's is not
+   *   two, the height leaves no vacancy for the catch, or the throw count is
+   *   not a positive whole number.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The theorem's times, each throw a launch aimed at its catch, each hand a scoop between its catch and throw points.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, timing, schedule, hands, contacts.
@@ -441,7 +450,10 @@ export namespace juggle {
     kind: Moment;
   }
 
-  /** A hand's point in the juggler's frame, moved in or out by a share of the hands' spacing. */
+  /**
+   * A hand's point in the juggler's frame, moved in or out by a share of the
+   * hands' spacing.
+   */
   function point(
     body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,

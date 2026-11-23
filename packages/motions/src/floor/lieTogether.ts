@@ -38,19 +38,32 @@ import { lieTogetherDrape } from "./lieTogetherDrape";
 import { lieTogetherNeck } from "./lieTogetherNeck";
 import { lieTogetherReach } from "./lieTogetherReach";
 
-/** How far off the partner's skin the resting region lies, metres (provisional: a skin contact). */
+/**
+ * How far off the partner's skin the resting region lies, metres (provisional:
+ * a skin contact).
+ */
 const REST: number = 0.005;
 
 /** The two bones of a folding arm. */
 type ArmBone = "upper" | "lower";
 
-/** The lower arm's fold as the body settles, clinical degrees: the upper arm forward and the elbow bent, the hand up before the face, so the arm a body lies on stays out of the partner (provisional). */
+/**
+ * The lower arm's fold as the body settles, clinical degrees: the upper arm
+ * forward and the elbow bent, the hand up before the face, so the arm a body
+ * lies on stays out of the partner (provisional).
+ */
 const FOLD: Readonly<Record<ArmBone, readonly [number, number, number]>> = {
   upper: [90, 0, 0],
   lower: [140, 0, 0],
 };
 
-/** The lower arm's fold when spooning, clinical degrees: the upper arm raised along the floor above the head and the elbow bent back, the forearm under the head as its pillow, so the arm a spooning body lies on stays behind its own head instead of reaching into the partner it lies behind (the forward fold met the partner's chest 42 mm deep; provisional). */
+/**
+ * The lower arm's fold when spooning, clinical degrees: the upper arm raised
+ * along the floor above the head and the elbow bent back, the forearm under the
+ * head as its pillow, so the arm a spooning body lies on stays behind its own
+ * head instead of reaching into the partner it lies behind (the forward fold
+ * met the partner's chest 42 mm deep; provisional).
+ */
 const PILLOW: Readonly<Record<ArmBone, readonly [number, number, number]>> = {
   upper: [160, 0, 0],
   lower: [100, 0, 0],
@@ -63,29 +76,30 @@ const ALIGNED: number = 25;
 type Limb = keyof IAutoMovieMotionHumanPosture["limbs"];
 
 /**
- * Lie together with a partner (#4012). Both already lie on the support
- * (`lieDown`, `lieOnSurface`, `turnOver`), the performer within its arm's
- * reach (upper arm, forearm and hand) of where it settles; as it settles,
- * the arm on the side it lies on folds up before the face (`FOLD`), or, spooning, under its own head (`PILLOW`), the free arm draped over the partner (`lieTogetherDrape`). Spooning, the performer lies on the same
- * side as the partner, heading within `ALIGNED`, and slides across the
- * support until its chest's sternum region lies `REST` off the partner's
- * upper back; where its hips meet the partner's first, the lumbar spine
- * curls the chest the rest of the way (`lieTogetherCurl`), each midline
- * keeping the height its own lying width gives it. With the head on the chest, it lies on its side beside the
- * partner on the back, its head toward the partner's nearer chest region;
- * it slides toward that region across the support until any part but its
- * head and neck comes `REST` off the partner (`lieTogetherReach`), then the
- * neck's side bend and flexion lay the lower cheek on the partner's surface
- * beneath it, the nearest of the chest it reaches or the shoulder by it, on
- * a coarse grid refined by degrees, a miss over a skin contact refused
- * (`lieTogetherNeck`). The slide is horizontal, so the body stays on
- * the support; it takes the transport time of its distance on a
- * minimum-jerk share, once the arm has folded in the free-space time of its
- * hand's arc. From the start the settled posture is carried
- * rigidly by the bone under the partner's sternum (`carryHumanPosture`), so the
- * contact holds as the partner breathes or shifts. Windows: the body lies
- * on the support throughout, and from the settle the chest bears on the
- * partner's back or the cheek on the partner's chest.
+ * Lie together with a partner. Both already lie on the support (`lieDown`,
+ * `lieOnSurface`, `turnOver`), the performer within its arm's reach (upper arm,
+ * forearm and hand) of where it settles; as it settles, the arm on the side it
+ * lies on folds up before the face (`FOLD`), or, spooning, under its own head
+ * (`PILLOW`), the free arm draped over the partner (`lieTogetherDrape`).
+ * Spooning, the performer lies on the same side as the partner, heading within
+ * `ALIGNED`, and slides across the support until its chest's sternum region
+ * lies `REST` off the partner's upper back; where its hips meet the partner's
+ * first, the lumbar spine curls the chest the rest of the way
+ * (`lieTogetherCurl`), each midline keeping the height its own lying width
+ * gives it. With the head on the chest, it lies on its side beside the partner
+ * on the back, its head toward the partner's nearer chest region; it slides
+ * toward that region across the support until any part but its head and neck
+ * comes `REST` off the partner (`lieTogetherReach`), then the neck's side bend
+ * and flexion lay the lower cheek on the partner's surface beneath it, the
+ * nearest of the chest it reaches or the shoulder by it, on a coarse grid
+ * refined by degrees, a miss over a skin contact refused (`lieTogetherNeck`).
+ * The slide is horizontal, so the body stays on the support; it takes the
+ * transport time of its distance on a minimum-jerk share, once the arm has
+ * folded in the free-space time of its hand's arc. From the start the settled
+ * posture is carried rigidly by the bone under the partner's sternum
+ * (`carryHumanPosture`), so the contact holds as the partner breathes or
+ * shifts. Windows: the body lies on the support throughout, and from the settle
+ * the chest bears on the partner's back or the cheek on the partner's chest.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the entry, the two ways, the slide, the neck solve, the carriage and the windows.
  * @evidence contracts/development/design.md#principled-representation The lying entry posture slid to a region contact and carried by the partner's bone.
@@ -449,14 +463,20 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
             body,
             plan,
             drape,
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, drape.side),
+            rest: AutoMovieMotionHumanArm.angles(
+              context.entry.pose,
+              drape.side,
+            ),
             settle,
             partner: p.partner,
           });
     },
   };
 
-/** The partner's carrying bone's frame at a film second: the sternum region's bone, which breathes and turns with the trunk. */
+/**
+ * The partner's carrying bone's frame at a film second: the sternum region's
+ * bone, which breathes and turns with the trunk.
+ */
 function frame(
   partner: IAutoMovieMotionHumanPerformerReader,
   seconds: number,

@@ -40,37 +40,43 @@ import { ReactionSource } from "./ReactionSource";
  *
  * The collapse is a buckle, not a dive: the knees and hips fold while the
  * pelvis goes back and down behind the feet (as in the stepping-response
- * failures of Maki and McIlroy 1997, where a push too large for one step
- * ends in a fall), the seat meets the floor at 0.45 s, about the free-fall
- * time of the pelvis from its height slowed by the buckling legs, and the
- * trunk rolls back until the back rests on the floor by 1.1 s, the arms
- * trailing. The feet stay where they stood until the seat lands; then the
- * seat stays where it landed and the heels slide out as the legs straighten.
+ * failures of Maki and McIlroy 1997, where a push too large for one step ends
+ * in a fall), the seat meets the floor at 0.45 s, about the free-fall time of
+ * the pelvis from its height slowed by the buckling legs, and the trunk rolls
+ * back until the back rests on the floor by 1.1 s, the arms trailing. The feet
+ * stay where they stood until the seat lands; then the seat stays where it
+ * landed and the heels slide out as the legs straighten.
  *
  * Each pose rests on the floor without penetrating it: the root's height is
  * solved so the lowest point of the body's own collision shapes touches the
- * floor. The seat and the lie are fitted to the body the same way: the knee
- * at the seat is the one that puts the feet on the floor the seat sits on,
- * and the lying arm's extension and elbow are the ones that lay the arm on
- * the floor beside the body, so any stature sits and lies on the floor
- * exactly. The body goes down away from the blow (the `from` target), turned
- * so its back falls toward that direction.
+ * floor. The seat and the lie are fitted to the body the same way: the knee at
+ * the seat is the one that puts the feet on the floor the seat sits on, and the
+ * lying arm's extension and elbow are the ones that lay the arm on the floor
+ * beside the body, so any stature sits and lies on the floor exactly. The body
+ * goes down away from the blow (the `from` target), turned so its back falls
+ * toward that direction.
  *
- * The trunk's recline and the hip's fold at the seat are provisional
- * readings; detailed falls derived from the Euphoria behaviours belong to
- * tier 2 of #3201.
+ * The trunk's recline and the hip's fold at the seat are provisional readings;
+ * detailed falls derived from the Euphoria behaviours belong to tier 2 of the
+ * kickboxing research.
  */
 export namespace knockdown {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "knockdown";
 
-  /** A knockdown's content is a staged fall, so its balance is judged (`IAutoMovieMotionHumanActionLaw.physical`). */
+  /**
+   * A knockdown's content is a staged fall, so its balance is judged
+   * (`IAutoMovieMotionHumanActionLaw.physical`).
+   */
   export const physical: boolean = true;
 
   /** Cancel table: none; a knocked-down performer stays down for the count. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
+  /**
+   * A reaction interrupts whatever the body was doing, at any instant, as a
+   * reflex.
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
@@ -87,8 +93,10 @@ export namespace knockdown {
    *
    * @param body The body.
    * @param posture The posture, its root height ignored.
-   * @param resolution Optional exact FK reader/supplier borrowed from the current synchronous body's planning operation.
-   * @param projection Optional genuine same-body ROM metadata preparation borrowed from that operation; every current joint remains projected.
+   * @param resolution Optional exact FK reader/supplier borrowed from the
+   *   current synchronous body's planning operation.
+   * @param projection Optional genuine same-body ROM metadata preparation
+   *   borrowed from that operation; every current joint remains projected.
    * @returns The root height, metres.
    */
   export function rest(
@@ -103,8 +111,11 @@ export namespace knockdown {
   /**
    * Prepare this body's exact floor rest for a support or floor interval.
    *
-   * @param body The canonical body with unchanged rig, rest geometry and profile throughout the owning plan.
-   * @returns The native floor reader accepting each current posture and optional synchronous FK/ROM loans; root Y is ignored and height is in metres.
+   * @param body The canonical body with unchanged rig, rest geometry and
+   *   profile throughout the owning plan.
+   * @returns The native floor reader accepting each current posture and
+   *   optional synchronous FK/ROM loans; root Y is ignored and height is in
+   *   metres.
    */
   export function prepareRest(
     body: IAutoMovieMotionHumanBody,

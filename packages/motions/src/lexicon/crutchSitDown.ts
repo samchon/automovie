@@ -26,47 +26,54 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitPath } from "./crutchSitPath";
 
-/** The injured leg held off the floor standing, degrees: the crutch walk's three-point gait's hip and knee flexion. */
+/**
+ * The injured leg held off the floor standing, degrees: the crutch walk's
+ * three-point gait's hip and knee flexion.
+ */
 const STANDING: IAutoMovieHumanLimbReference = {
   upper: [30, 0, 0],
   lower: [80, 0, 0],
 };
 
-/** The injured leg held forward off the floor seated, degrees (provisional: the thigh level, the shank 30 degrees forward of vertical). */
+/**
+ * The injured leg held forward off the floor seated, degrees (provisional: the
+ * thigh level, the shank 30 degrees forward of vertical).
+ */
 const SEATED: IAutoMovieHumanLimbReference = {
   upper: [90, 0, 0],
   lower: [60, 0, 0],
 };
 
-/** How far a seated hand rests beside the thigh's side, metres (provisional: a hand's breadth out). */
+/**
+ * How far a seated hand rests beside the thigh's side, metres (provisional: a
+ * hand's breadth out).
+ */
 const BESIDE: number = 0.08;
 
 /**
- * Sit down onto a chair with two crutches (#3994), in the prescribed order
- * (Cornell Health and HealthLinkBC, Using crutches), from standing with the
- * crutches standing on their tips beside the body.
+ * Sit down onto a chair with two crutches, in the prescribed order (Cornell
+ * Health and HealthLinkBC, Using crutches), from standing with the crutches
+ * standing on their tips beside the body.
  *
- * First each hand closes on its crutch's handgrip where it stands
- * (`taken`, `crutchSitPath.grasped`) while the injured leg lifts off the
- * floor to `STANDING`. Then both crutches are gathered into the injured
- * side's hand (`gathered`): both hands carry their crutches to stand upright
- * side by side before the body (`crutchSitKit.gathered`), and the sound
- * crutch is worn on the injured side's hand from then on. Then the sit law
- * lowers the body while the sound hand reaches back for the chair, onto
- * its armrest on the sound side as the sit law places a hand there, or onto
- * the seat beside the hip, as the seat takes the body (`reached`); a
- * standing hand cannot reach an armrest behind the hips, so the reach rides
- * the descent as the sit law's own does. The injured side's hand brings the
- * crutches down to its seated place beside the
- * thigh, the crutches tilting top back as their tips slide forward on the
- * floor to where the crutch's length reaches that place, and the injured
- * leg goes from `STANDING` to `SEATED`.
+ * First each hand closes on its crutch's handgrip where it stands (`taken`,
+ * `crutchSitPath.grasped`) while the injured leg lifts off the floor to
+ * `STANDING`. Then both crutches are gathered into the injured side's hand
+ * (`gathered`): both hands carry their crutches to stand upright side by side
+ * before the body (`crutchSitKit.gathered`), and the sound crutch is worn on
+ * the injured side's hand from then on. Then the sit law lowers the body while
+ * the sound hand reaches back for the chair, onto its armrest on the sound side
+ * as the sit law places a hand there, or onto the seat beside the hip, as the
+ * seat takes the body (`reached`); a standing hand cannot reach an armrest
+ * behind the hips, so the reach rides the descent as the sit law's own does.
+ * The injured side's hand brings the crutches down to its seated place beside
+ * the thigh, the crutches tilting top back as their tips slide forward on the
+ * floor to where the crutch's length reaches that place, and the injured leg
+ * goes from `STANDING` to `SEATED`.
  *
  * @param context The crutch sit's context.
  * @param kit Its shared reads.
  * @returns The order's plan before the arms are coursed.
  * @throws {HumanRefusal} When no seat is named.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the order, the crutch paths, the reuse of the sit, the leg and the refusal.
  * @evidence contracts/development/implementation.md#principled-implementation The sit law for the body, the crutches on rigid paths from their own contacts, and the hands holding them by their grasped offsets.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Four phases on one clock, then the windows.

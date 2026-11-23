@@ -13,19 +13,17 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the ball-strike family (#3244): `ball-kick`, a standing
- * instep kick of a 0.11 m ball lying before the right foot, 0.15 m ahead of
- * the toes.
+ * Capture cases of the ball-strike family: `ball-kick`, a standing instep kick
+ * of a 0.11 m ball lying before the right foot, 0.15 m ahead of the toes.
  *
  * It reports the support foot's slip at most 5 mm and no range-of-motion
  * overshoot; at `stroke` the kicking foot's toes' joint (the instep's middle)
- * within 15 mm of the ball's surface (the issue's foot-within-15-mm bound);
- * and no sole socket of the kicking foot below the floor by more than 10 mm
- * at any frame.
+ * within 15 mm of the ball's surface (the issue's foot-within-15-mm bound); and
+ * no sole socket of the kicking foot below the floor by more than 10 mm at any
+ * frame.
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the case and its verdicts with their bounds and sources.
  * @evidence contracts/development/implementation.md#principled-implementation Measures displayed bones against the ball.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One block over the shared kit.
@@ -94,13 +92,12 @@ export function ballStrikeCases(
 }
 
 /**
- * A ball as a prop: its `grip` at its centre with its diameter as the
- * aperture, the contact `createBall` declares.
+ * A ball as a prop: its `grip` at its centre with its diameter as the aperture,
+ * the contact `createBall` declares.
  *
  * @param centre The ball's centre, world metres.
  * @param radius Its radius, metres.
  * @returns The ball.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the contact.
  * @evidence contracts/development/implementation.md#principled-implementation The `grip` contact `createBall` declares, at the prop's origin.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop literal.

@@ -17,30 +17,36 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Fresh water's density, kg/m^3: the engine's default when the water states none. */
+/**
+ * Fresh water's density, kg/m^3: the engine's default when the water states
+ * none.
+ */
 const FRESH: number = 1000;
 
-/** Drag coefficient of a flat plate across the flow (Hoerner, Fluid-Dynamic Drag, 1965). */
+/**
+ * Drag coefficient of a flat plate across the flow (Hoerner, Fluid-Dynamic
+ * Drag, 1965).
+ */
 const PLATE: number = 1.17;
 
 /**
- * A body the water carries (#3432): the water's forces on every segment
- * (`resolveHydrodynamicForce`) summed over the posed body, the height at
- * which a still body floats, and a glide slowed by drag, integrated at plan
- * time by the engine's integrator.
+ * A body the water carries: the water's forces on every segment
+ * (`resolveHydrodynamicForce`) summed over the posed body, the height at which
+ * a still body floats, and a glide slowed by drag, integrated at plan time by
+ * the engine's integrator.
  *
- * The float is the root height at which the buoyancy of the posed body
- * equals its weight (Archimedes), found by bisection on the root's height:
- * the submerged volume grows monotonically as the body is lowered. The
- * glide is the root's horizontal speed under the summed drag of the body
- * held in its shape, `m dv/dt = -Σ ½ ρ C_d A |v| v`, integrated from its
- * start (`integrateMotionTrajectory`), so it decays as quadratic drag does,
- * `v0 / (1 + k v0 t)` with `k = Σ ½ ρ C_d A / m`.
+ * The float is the root height at which the buoyancy of the posed body equals
+ * its weight (Archimedes), found by bisection on the root's height: the
+ * submerged volume grows monotonically as the body is lowered. The glide is the
+ * root's horizontal speed under the summed drag of the body held in its shape,
+ * `m dv/dt = -Σ ½ ρ C_d A |v| v`, integrated from its start
+ * (`integrateMotionTrajectory`), so it decays as quadratic drag does, `v0 / (1
+ * + k v0 t)` with `k = Σ ½ ρ C_d A / m`.
  *
- * The registered swimImmersed law uses the same segment model for a held
- * supine shape and for an opt-in breaststroke. The stroke uses each segment's
- * own motion relative to still water and constrains travel to the heading at
- * its initial buoyant trim. Free heave and rotation remain outside this model.
+ * The registered swimImmersed law uses the same segment model for a held supine
+ * shape and for an opt-in breaststroke. The stroke uses each segment's own
+ * motion relative to still water and constrains travel to the heading at its
+ * initial buoyant trim. Free heave and rotation remain outside this model.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three readings, the laws behind them and the first pass's limits.
  * @evidence contracts/development/implementation.md#principled-implementation Archimedes' principle summed over the segments for the float, solved by bisection on a monotone function; Newton's second law under the summed quadratic drag for the glide, integrated by the engine's fixed-step integrator.
@@ -123,8 +129,8 @@ export namespace HumanWater {
   }
 
   /**
-   * How far a still body must be lowered so its buoyancy equals its weight:
-   * the root's vertical offset from the posed bones at which it floats.
+   * How far a still body must be lowered so its buoyancy equals its weight: the
+   * root's vertical offset from the posed bones at which it floats.
    *
    * @param body The body.
    * @param bones The posed bones.
@@ -166,8 +172,8 @@ export namespace HumanWater {
   }
 
   /**
-   * A glide: the horizontal speed of a body held in its shape and slowed by
-   * the water's drag, integrated from `v0`.
+   * A glide: the horizontal speed of a body held in its shape and slowed by the
+   * water's drag, integrated from `v0`.
    *
    * @param body The body.
    * @param bones The posed bones, in the water.
@@ -213,16 +219,16 @@ export namespace HumanWater {
    * knots. Interpolate those derivatives and the submerged drag coefficients
    * during integration. With quadratic drag in still water, changing the
    * duration scales all velocities by its inverse and accelerations by its
-   * inverse square. The trajectory therefore stores metres and metres per
-   * unit phase. The model uses the body mass for the translating hip target
-   * and omits longitudinal momentum redistribution from the posed limbs.
+   * inverse square. The trajectory therefore stores metres and metres per unit
+   * phase. The model uses the body mass for the translating hip target and
+   * omits longitudinal momentum redistribution from the posed limbs.
    *
    * @param body The swimming body.
-   * @param bonesAt The resolved stroke skeleton on [0,1], with the hip target fixed and prescribed movement at rest at both endpoints.
+   * @param bonesAt The resolved stroke skeleton on [0,1], with the hip target
+   *   fixed and prescribed movement at rest at both endpoints.
    * @param direction World horizontal heading, unit.
    * @param water The horizontal surface and medium density.
    * @returns Longitudinal trajectory with state [distance, phase velocity].
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the coordinate system, initial conditions, sample inputs, duration scaling and returned state.
    * @evidence contracts/development/implementation.md#principled-implementation Samples collider-equivalent centres and unit-flow drag through the existing segment model, then integrates the heading projection of the sum of quadratic drag under common translation plus each segment's local velocity.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares uniformly timed centres and local derivatives before running one scalar trajectory.

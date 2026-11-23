@@ -26,17 +26,17 @@ import { DanceFootwork } from "./DanceFootwork";
 import { ExerciseKey } from "./ExerciseKey";
 
 /**
- * A walk on stilts (#3997). Each foot stands strapped on its stilt's
- * platform and carries the stilt with it, so the stilts' tips are the only
- * floor contacts; the feet bear on the platforms' height as on a raised
- * floor. The steps are short, `STEP` hip heights, on the stance's own wide
- * base, one every `PERIOD` seconds with the foot in the air over `SWING` of
- * it, lifted `LIFT` metres so the tip clears the floor; the hips ride over
- * the feet and the arms are held a little out for balance. Standing still
- * is stepping in place: a stop at the start steps each foot where it stands.
+ * A walk on stilts. Each foot stands strapped on its stilt's platform and
+ * carries the stilt with it, so the stilts' tips are the only floor contacts;
+ * the feet bear on the platforms' height as on a raised floor. The steps are
+ * short, `STEP` hip heights, on the stance's own wide base, one every `PERIOD`
+ * seconds with the foot in the air over `SWING` of it, lifted `LIFT` metres so
+ * the tip clears the floor; the hips ride over the feet and the arms are held a
+ * little out for balance. Standing still is stepping in place: a stop at the
+ * start steps each foot where it stands.
  *
- * Refused: a stilt with no `foot` or `tip`, and an entry foot not standing
- * on its stilt's platform.
+ * Refused: a stilt with no `foot` or `tip`, and an entry foot not standing on
+ * its stilt's platform.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the contacts, the gait, the stepping in place and the refusals.
  * @evidence contracts/development/design.md#principled-representation Foot keys over the shared footwork, the stilts carried on the feet.
@@ -53,7 +53,10 @@ export namespace stiltWalk {
       stiltWalk: ["fromRelax", "smooth"],
     });
 
-  /** A step, hip heights (provisional: shorter than a walk's on the stilts' longer lever). */
+  /**
+   * A step, hip heights (provisional: shorter than a walk's on the stilts'
+   * longer lever).
+   */
   export const STEP: number = 0.35;
 
   /** Seconds a step (provisional). */
@@ -73,8 +76,8 @@ export namespace stiltWalk {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When a stilt lacks its foot or tip, an entry foot is off its platform, or the step count is not a positive whole number.
-   *
+   * @throws {HumanRefusal} When a stilt lacks its foot or tip, an entry foot is
+   *   off its platform, or the step count is not a positive whole number.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation Footprints a step apart along the way at the platforms' height, each foot keyed through them, the stilts held on the feet throughout.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Stilts, way, keys, composition, the worn stilts.

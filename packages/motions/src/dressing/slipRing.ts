@@ -1,10 +1,10 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieHumanLimbGoal,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -41,10 +41,16 @@ import { poseBones } from "../posture/poseBones";
 import { StrikingBody } from "../striking/StrikingBody";
 import { HumanWornItem } from "./HumanWornItem";
 
-/** Where along the proximal phalanx a ring rests, as a share from its base joint (provisional: a ring sits on the phalanx's proximal third). */
+/**
+ * Where along the proximal phalanx a ring rests, as a share from its base joint
+ * (provisional: a ring sits on the phalanx's proximal third).
+ */
 const SEAT: number = 0.35;
 
-/** How far beyond the fingertip the ring lines up before it slides on, metres (provisional: clear of the fingertip by a ring's width). */
+/**
+ * How far beyond the fingertip the ring lines up before it slides on, metres
+ * (provisional: clear of the fingertip by a ring's width).
+ */
 const LINE_UP: number = 0.015;
 
 /** The step the band's free roll about the finger is searched by, degrees. */
@@ -54,23 +60,23 @@ const ROLL: number = 15;
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /**
- * Slip a ring onto a partner's finger (#4015). The partner's presented hand
- * is read where it is at the action's start, so the partner presents it
- * first (`presentHand`). The dresser's other hand takes the partner's
- * forearm from its own side, its fingers toward the partner's wrist, before
- * the ring hand leaves its rest, and lets go once the ring hand is back at it
- * (Guiard 1987: the non-dominant hand leads and lags). The ring hand brings
- * the ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by
- * `ready`, then slides it along the axis to `SEAT` of the proximal phalanx
- * over the stroke: the ring's `wear` axis lies along the finger, from the
- * fingertip toward the hand, its roll about the finger the one, by `ROLL`
- * steps, that turns the holding hand least from how it holds the ring. From `strokeEnd` the ring is worn on the
- * partner's proximal bone and the ring hand's grip ends, so custody passes
+ * Slip a ring onto a partner's finger. The partner's presented hand is read
+ * where it is at the action's start, so the partner presents it first
+ * (`presentHand`). The dresser's other hand takes the partner's forearm from
+ * its own side, its fingers toward the partner's wrist, before the ring hand
+ * leaves its rest, and lets go once the ring hand is back at it (Guiard 1987:
+ * the non-dominant hand leads and lags). The ring hand brings the ring's hole
+ * onto the finger's axis `LINE_UP` beyond the fingertip by `ready`, then slides
+ * it along the axis to `SEAT` of the proximal phalanx over the stroke: the
+ * ring's `wear` axis lies along the finger, from the fingertip toward the hand,
+ * its roll about the finger the one, by `ROLL` steps, that turns the holding
+ * hand least from how it holds the ring. From `strokeEnd` the ring is worn on
+ * the partner's proximal bone and the ring hand's grip ends, so custody passes
  * without a gap; both hands then return. Both arms are laid in one course
- * (`courseArmGoal` with `with`), the hands excused from each other. A
- * presented hand beyond the standing arms is reached by the least hinge at
- * the hips that brings both wrists within their arms (`HumanTrunkLean`), as
- * `dressPartner` reaches a region, so the dresser keeps its standoff.
+ * (`courseArmGoal` with `with`), the hands excused from each other. A presented
+ * hand beyond the standing arms is reached by the least hinge at the hips that
+ * brings both wrists within their arms (`HumanTrunkLean`), as `dressPartner`
+ * reaches a region, so the dresser keeps its standoff.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States who holds what, the ring's path, the custody change, the timing and the course.
  * @evidence contracts/development/design.md#principled-representation The ring's frame along the partner's finger axis is the plan; the ring hand follows from it and the steadying hand from the partner's forearm.

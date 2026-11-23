@@ -12,24 +12,22 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the lying and crawling family (#3237), each from quiet
- * standing:
+ * Capture cases of the lying and crawling family, each from quiet standing:
  *
- * - `floor-lie-supine`, `floor-lie-prone`, `floor-lie-lateralLeft`: lying
- *   down into the position; no range-of-motion overshoot, no collider below
- *   the floor by more than 10 mm at any frame, and at `settled` the trunk's
- *   colliders within -10 to +15 mm of the floor (the issue's supporting
- *   regions within 15 mm, penetration no worse than -10 mm).
- * - `floor-crawl`: three hands-and-knees cycles; no overshoot; each palm
- *   within -10 to +15 mm of the floor and sliding at most 5 mm through its
- *   plant windows; each shank's colliders within -10 to +15 mm of the floor
- *   at the middle of each knee stance; and the displayed lift-offs of the
- *   left hand and the right knee, and of the right hand and the left knee,
- *   within 10 % of a cycle of each other (the issue's diagonal pattern).
+ * - `floor-lie-supine`, `floor-lie-prone`, `floor-lie-lateralLeft`: lying down
+ *   into the position; no range-of-motion overshoot, no collider below the
+ *   floor by more than 10 mm at any frame, and at `settled` the trunk's
+ *   colliders within -10 to +15 mm of the floor (the issue's supporting regions
+ *   within 15 mm, penetration no worse than -10 mm).
+ * - `floor-crawl`: three hands-and-knees cycles; no overshoot; each palm within
+ *   -10 to +15 mm of the floor and sliding at most 5 mm through its plant
+ *   windows; each shank's colliders within -10 to +15 mm of the floor at the
+ *   middle of each knee stance; and the displayed lift-offs of the left hand
+ *   and the right knee, and of the right hand and the left knee, within 10 % of
+ *   a cycle of each other (the issue's diagonal pattern).
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every case and its verdicts with their bounds and sources.
  * @evidence contracts/development/implementation.md#principled-implementation Measures displayed colliders and sockets against the floor.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two blocks over the shared kit.
@@ -224,7 +222,10 @@ export function floorCases(
   return out;
 }
 
-/** A verdict that a measured range of heights lies within -10 to +15 mm of the floor. */
+/**
+ * A verdict that a measured range of heights lies within -10 to +15 mm of the
+ * floor.
+ */
 function span(
   name: string,
   range: { low: number; high: number },

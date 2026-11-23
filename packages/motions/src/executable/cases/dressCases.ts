@@ -28,29 +28,28 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the dressing family (#3257), from quiet standing, the
- * item first taken up by its `hold` in the right hand from before the body,
- * for its use: worn on its region (`HumanGraspUse.IUse`, line `worn`):
- * `dress-hat` (the hat carried onto the crown, the left palm on the head's
- * surface at the brim's front quarter) and `dress-glasses` (the glasses
- * carried onto the nose's bridge, the left index fingertip at the ear).
+ * Capture cases of the dressing family, from quiet standing, the item first
+ * taken up by its `hold` in the right hand from before the body, for its use:
+ * worn on its region (`HumanGraspUse.IUse`, line `worn`): `dress-hat` (the hat
+ * carried onto the crown, the left palm on the head's surface at the brim's
+ * front quarter) and `dress-glasses` (the glasses carried onto the nose's
+ * bridge, the left index fingertip at the ear).
  *
- * Every case reports foot slip at most 5 mm and no range-of-motion
- * overshoot. Beyond that: at `stroke` the item's `wear` socket within the
- * held-tool bound (`StrikingRoll.MISS`) of its region on the displayed head,
- * and the left hand's surface within the skin's give a hand resting on the
- * body is allowed (`AutoMovieMotionHumanAuditSkin.BUILT`) of its place there; no hand surface inside the head or neck
- * colliders by more than 10 mm through the action (decision 11's
- * penetration bound); and each upper arm's displayed elevation, its angle
- * from the chest's downward axis, at most 121 degrees, the smaller of the
- * functional ranges of daily tasks (flexion 121, abduction 128, Namdari et
+ * Every case reports foot slip at most 5 mm and no range-of-motion overshoot.
+ * Beyond that: at `stroke` the item's `wear` socket within the held-tool bound
+ * (`StrikingRoll.MISS`) of its region on the displayed head, and the left
+ * hand's surface within the skin's give a hand resting on the body is allowed
+ * (`AutoMovieMotionHumanAuditSkin.BUILT`) of its place there; no hand surface
+ * inside the head or neck colliders by more than 10 mm through the action
+ * (decision 11's penetration bound); and each upper arm's displayed elevation,
+ * its angle from the chest's downward axis, at most 121 degrees, the smaller of
+ * the functional ranges of daily tasks (flexion 121, abduction 128, Namdari et
  * al. 2012, the issue's ADL ranges). The elevation is read on the displayed
  * bones, since a joint's clinical flexion and abduction channels alias each
  * other once the arm is raised past the horizontal and turned.
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the cases and verdicts with their bounds and sources.
  * @evidence contracts/development/implementation.md#principled-implementation Measures displayed surfaces against the displayed head.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over two items over the shared kit.
@@ -222,7 +221,10 @@ export function dressCases(
   return out;
 }
 
-/** The wear sockets of the two items, in their own frames, as `createWearable` declares them. */
+/**
+ * The wear sockets of the two items, in their own frames, as `createWearable`
+ * declares them.
+ */
 const WEAR: Readonly<
   Record<IAutoMovieMotionHumanDress.Item, IAutoMovieAffordance["frame"]>
 > = {
@@ -245,16 +247,14 @@ const WEAR: Readonly<
 };
 
 /**
- * An item to put on, shaped as `createWearable` shapes it and lying where
- * the hand takes it: a 0.3 m hat 0.12 m
- * high facing the way it is worn, held at its brim's right side, or 0.14 m
- * spectacles facing the body, held at the bridge, each with its `wear`
- * socket.
+ * An item to put on, shaped as `createWearable` shapes it and lying where the
+ * hand takes it: a 0.3 m hat 0.12 m high facing the way it is worn, held at its
+ * brim's right side, or 0.14 m spectacles facing the body, held at the bridge,
+ * each with its `wear` socket.
  *
  * @param item The item.
  * @param at Where it lies, world metres.
  * @returns The prop.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the shapes, the contacts and how it lies.
  * @evidence contracts/development/implementation.md#principled-implementation `createWearable`'s `hold` and `wear` contacts at its frames, on one box collider a pick-up can grasp.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One collider, two contacts.

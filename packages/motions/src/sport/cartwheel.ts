@@ -29,30 +29,30 @@ import { GymnasticsWheelPlants } from "./GymnasticsWheelPlants";
 import { edgeGymnasticsWheelFeet } from "./edgeGymnasticsWheelFeet";
 
 /**
- * A cartwheel (#3377): the body turns once about its front-to-back axis,
- * sideways, passing from one foot to one hand, the other hand, and the
- * other foot, and stands again a wheel's roll to the side.
+ * A cartwheel: the body turns once about its front-to-back axis, sideways,
+ * passing from one foot to one hand, the other hand, and the other foot, and
+ * stands again a wheel's roll to the side.
  *
  * The body is a wheel of four spokes: the arms raised wide overhead and the
- * legs straddled, held as one rigid shape while it turns. At every angle
- * the spoke that reaches lowest bears, the root's height puts that hand's
- * wrist or that foot's ankle at the height it has when it bears, and the
- * root travels so the bearing joint stays where it came down: a wheel
- * rolling without slipping on its spokes' ends. Nothing is integrated; the
- * turn's angle follows minimum-jerk progress over the cartwheel's seconds.
- * The turn is one axis, the roll, with no pitch and no change of heading.
+ * legs straddled, held as one rigid shape while it turns. At every angle the
+ * spoke that reaches lowest bears, the root's height puts that hand's wrist or
+ * that foot's ankle at the height it has when it bears, and the root travels so
+ * the bearing joint stays where it came down: a wheel rolling without slipping
+ * on its spokes' ends. Nothing is integrated; the turn's angle follows
+ * minimum-jerk progress over the cartwheel's seconds. The turn is one axis, the
+ * roll, with no pitch and no change of heading.
  *
  * Events: `handsDown` (the first hand bears), `inverted` (half the turn),
  * `feetDown` (the first foot bears again).
  *
  * First pass: the body takes the wheel's shape over the first eighth of the
- * turn and leaves it over the last, while it already bears on a foot, so
- * that foot's joint is kept only as well as the changing shape allows; the
- * hands and the feet are carried by the rigid turn and are not laid flat by
- * a solve while carried, but each limb that bears is laid where it came
- * down (`GymnasticsWheelPlants`); no run-up, no lunge into the first hand and no push off the
- * second are shown. A round-off, a handspring and a vault are not this law:
- * they bend the body between their supports or fly between them.
+ * turn and leaves it over the last, while it already bears on a foot, so that
+ * foot's joint is kept only as well as the changing shape allows; the hands and
+ * the feet are carried by the rigid turn and are not laid flat by a solve while
+ * carried, but each limb that bears is laid where it came down
+ * (`GymnasticsWheelPlants`); no run-up, no lunge into the first hand and no
+ * push off the second are shown. A round-off, a handspring and a vault are not
+ * this law: they bend the body between their supports or fly between them.
  */
 export namespace cartwheel {
   /** The action's name. */
@@ -74,8 +74,8 @@ export namespace cartwheel {
   /**
    * The angle over which the body takes the wheel's shape and leaves it,
    * degrees: the quarter turn to the first hand's contact, so the arms reach
-   * overhead as the hand comes down and the straddle opens as the trailing
-   * leg rises, rather than whipping up within the first degrees of the turn
+   * overhead as the hand comes down and the straddle opens as the trailing leg
+   * rises, rather than whipping up within the first degrees of the turn
    * (provisional: no measured share of the turn located).
    */
   export const SHAPE: number = 90;
@@ -173,9 +173,7 @@ export namespace cartwheel {
     const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = (
       sign < 0 ? SPOKES : SPOKES_RIGHT
     ).map(
-      (
-        bone: Spoke,
-      ): IAutoMovieMotionHumanGymnasticsWheel.ISpoke => ({
+      (bone: Spoke): IAutoMovieMotionHumanGymnasticsWheel.ISpoke => ({
         bones: [bone],
         height: bone.endsWith("Hand")
           ? laid
@@ -258,8 +256,12 @@ export namespace cartwheel {
       yaw: standing.yaw,
     };
     // A foot rolled past the ankle's range bears on its forefoot's edge.
-    const borne: IAutoMovieMotionHumanContactWindow[] =
-      edgeGymnasticsWheelFeet(body, contacts, duration, carried);
+    const borne: IAutoMovieMotionHumanContactWindow[] = edgeGymnasticsWheelFeet(
+      body,
+      contacts,
+      duration,
+      carried,
+    );
     const lay: ReturnType<typeof GymnasticsWheelPlants.of> =
       GymnasticsWheelPlants.of(body, borne, duration, carried, {
         first: HumanFrame.point(frame, { x: -sign, y: 0, z: 0 }),

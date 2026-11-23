@@ -23,8 +23,8 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of affectionate and social touch (#3284) between two polygon
- * men of the same body: `a` touches, `b` stands.
+ * Capture cases of affectionate and social touch between two polygon men of the
+ * same body: `a` touches, `b` stands.
  *
  * - `affection-pat-head`, `-tap-shoulder`, `-stroke-arm`, `-cup-cheek`,
  *   `-rub-back`: the touch law on a region of `b` (`b` faces `a` 0.55 m away,
@@ -33,17 +33,15 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * - `affection-high-five`: both performers' high fives.
  *
  * Every case reports foot slip at most 5 mm and no range-of-motion overshoot
- * for both performers. A touch case adds the issue's acceptance: the
- * effector within 10 mm of the region's surface through the contact window
- * (along the normal for a moving kind, as a point for a still one), a pat
- * or a tap coming down exactly `count` times, and `a`'s forearm never
- * deeper than 10 mm into `b`. A kiss case checks the lips within 10 mm of
- * the region at `contact`; the high five the two palms' skins within 15 mm
- * at `meet`.
+ * for both performers. A touch case adds the issue's acceptance: the effector
+ * within 10 mm of the region's surface through the contact window (along the
+ * normal for a moving kind, as a point for a still one), a pat or a tap coming
+ * down exactly `count` times, and `a`'s forearm never deeper than 10 mm into
+ * `b`. A kiss case checks the lips within 10 mm of the region at `contact`; the
+ * high five the two palms' skins within 15 mm at `meet`.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every case, its staging and every verdict with its bound and source.
  * @evidence contracts/development/implementation.md#principled-implementation Runs the real two-person performance and measures the displayed bones through the touch effector's point and the engine's region placement.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One block per law over shared touch verdicts.
@@ -371,7 +369,10 @@ function attempt(
   }
 }
 
-/** The two performers: `a` at the origin heading +Z, `b` ahead facing `a` or turned away. */
+/**
+ * The two performers: `a` at the origin heading +Z, `b` ahead facing `a` or
+ * turned away.
+ */
 function performers(
   body: IAutoMovieMotionHumanBody,
   facing: boolean,

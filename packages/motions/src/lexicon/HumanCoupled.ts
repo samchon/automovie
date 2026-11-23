@@ -11,46 +11,43 @@ import { supportAssist } from "../actions/supportAssist";
 import { getUp } from "../floor/getUp";
 
 /**
- * The two-body compositions of #3440: carries with their lift and set-down,
- * a supported walk, and throws and takedowns, each a mutual record over
- * shipped laws, with no law per hold.
+ * The two-body compositions: carries with their lift and set-down, a supported
+ * walk, and throws and takedowns, each a mutual record over shipped laws, with
+ * no law per hold.
  *
- * - **carry**: the bearer performs `bearing` with the borne person named,
- *   the borne person `borne` on the bearer, so the pair is one coupled
- *   meeting (#3437): a fireman's carry (`overShoulder`), a piggyback, a
- *   cradle, a supported walk (`supported`), a drag, each with the lift into
- *   it and the set-down out of it as the borne body's support sequence.
- * - **throw**: the thrower takes a collar-and-sleeve grip and enters under
- *   the thrown body, its fulcrum lowered to the height of the thrown body's
- *   front (`clinch` with `under`, tsukuri), and the thrown person answers
- *   the pull through it (`perturb`, #3439) with
- *   the author's outcome, turning over the throw's fulcrum on the thrower
- *   when thrown. The pull itself is the performance's force input
- *   (`HumanPerformance.IInput.forces`, sized by
- *   `HumanForceExchange.breaking` or `pull`), since a force starts no
- *   action.
+ * - **carry**: the bearer performs `bearing` with the borne person named, the
+ *   borne person `borne` on the bearer, so the pair is one coupled meeting: a
+ *   fireman's carry (`overShoulder`), a piggyback, a cradle, a supported walk
+ *   (`supported`), a drag, each with the lift into it and the set-down out of
+ *   it as the borne body's support sequence.
+ * - **throw**: the thrower takes a collar-and-sleeve grip and enters under the
+ *   thrown body, its fulcrum lowered to the height of the thrown body's front
+ *   (`clinch` with `under`, tsukuri), and the thrown person answers the pull
+ *   through it (`perturb`) with the author's outcome, turning over the throw's
+ *   fulcrum on the thrower when thrown. The pull itself is the performance's
+ *   force input (`HumanPerformance.IInput.forces`, sized by
+ *   `HumanForceExchange.breaking` or `pull`), since a force starts no action.
  *
- * The fulcrum of each throw is the thrower's region the thrown body turns
- * over in the throw's common description: seoi-nage over the upper back and
- * shoulder, o-goshi over the hip at the lower back, o-soto-gari backward
- * over the reaping thigh, the single-leg takedown over the shoulder driven
- * into the hip.
+ * The fulcrum of each throw is the thrower's region the thrown body turns over
+ * in the throw's common description: seoi-nage over the upper back and
+ * shoulder, o-goshi over the hip at the lower back, o-soto-gari backward over
+ * the reaping thigh, the single-leg takedown over the shoulder driven into the
+ * hip.
  *
- * - **carry** also gives the dance's waist lift and overhead lift
- *   (`waistLift`, `overheadLift`: the lifted body coupled to the lifter,
- *   the overhead one held an arm's length above the shoulders).
- * - **supportWalk**: one person walked between two helpers, each with
- *   `bearing` on its side of a supported walk and the helped person `borne`
- *   on both, one coupled meeting of three roles.
- * - **helpUp**: helping someone up from the floor, both performing
- *   `support` (#3435), the helped hand gripping the helper's palm until the
- *   feet bear alone.
- * - **grappling**: both performers follow one authored grappling scene,
- *   including its lead side, result and clock.
+ * - **carry** also gives the dance's waist lift and overhead lift (`waistLift`,
+ *   `overheadLift`: the lifted body coupled to the lifter, the overhead one
+ *   held an arm's length above the shoulders).
+ * - **supportWalk**: one person walked between two helpers, each with `bearing`
+ *   on its side of a supported walk and the helped person `borne` on both, one
+ *   coupled meeting of three roles.
+ * - **helpUp**: helping someone up from the floor, both performing `support`, the
+ *   helped hand gripping the helper's palm until the feet bear alone.
+ * - **grappling**: both performers follow one authored grappling scene, including
+ *   its lead side, result and clock.
  *
  * Arm wrestling is `HumanSocial.armWrestle` with the author's winner; the
- * loser's trunk turn the winner's torque gives is owed to #3439. A tug of
- * war is #3451's.
+ * loser's trunk turn the winner's torque gives is not planned. A tug of war has
+ * no law.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each record's roles and actions, where the force comes from, the fulcrum table's source and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation Each composition is a mutual record over shipped laws, the vocabulary's form for one thing several people do.
@@ -59,8 +56,8 @@ import { getUp } from "../floor/getUp";
  */
 export namespace HumanCoupled {
   /**
-   * Place both roles of an authored grappling scene on the same clock.
-   * The performance registers the `grapple` law for both roles.
+   * Place both roles of an authored grappling scene on the same clock. The
+   * performance registers the `grapple` law for both roles.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Both actors receive the same scene settings and the other actor's subject.
    *
@@ -86,7 +83,12 @@ export namespace HumanCoupled {
     }),
   };
 
-  /** One person carries another: the bearer `bearing`, the borne `borne`, coupled. It lasts `seconds`, 2 s when absent, lift and set-down inside (`IAutoMovieMotionHumanCoupled.ICarry`, provisional); a rescue, a piggyback, carrying a child or a casualty. */
+  /**
+   * One person carries another: the bearer `bearing`, the borne `borne`,
+   * coupled. It lasts `seconds`, 2 s when absent, lift and set-down inside
+   * (`IAutoMovieMotionHumanCoupled.ICarry`, provisional); a rescue, a
+   * piggyback, carrying a child or a casualty.
+   */
   export const carry: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.ICarry,
     "bearer" | "borne"
@@ -120,13 +122,15 @@ export namespace HumanCoupled {
   };
 
   /**
-   * Help someone up from the floor: both perform `support` (#3435). The
-   * helper, from the squat, grips the helped person's wrist where it lies; the
-   * helped person rises through sitting and squatting to standing with
-   * that hand gripping the helper's palm, which bears on the helper while
-   * the hand holds and lets go once the feet bear alone.
+   * Help someone up from the floor: both perform `support`. The helper, from
+   * the squat, grips the helped person's wrist where it lies; the helped person
+   * rises through sitting and squatting to standing with that hand gripping the
+   * helper's palm, which bears on the helper while the hand holds and lets go
+   * once the feet bear alone.
    *
-   * The helped person rises through sitting and squatting to standing; no timing of its own, the support planner's `support.SECONDS`, 1 s a stance (provisional).
+   * The helped person rises through sitting and squatting to standing; no
+   * timing of its own, the support planner's `support.SECONDS`, 1 s a stance
+   * (provisional).
    */
   export const helpUp: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.IHelpUp,
@@ -198,7 +202,13 @@ export namespace HumanCoupled {
     },
   };
 
-  /** One person walked between two helpers: each helper `bearing` on its side of a supported walk, the helped person `borne` on both. The walk speed is the bearers' own walk's (use the slow pace of `IAutoMovieMotionHumanWalkParams` for a frail person), and the pair lasts `seconds`, 2 s when absent (provisional); helping a frail or injured person walk. */
+  /**
+   * One person walked between two helpers: each helper `bearing` on its side of
+   * a supported walk, the helped person `borne` on both. The walk speed is the
+   * bearers' own walk's (use the slow pace of `IAutoMovieMotionHumanWalkParams`
+   * for a frail person), and the pair lasts `seconds`, 2 s when absent
+   * (provisional); helping a frail or injured person walk.
+   */
   export const supportWalk: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.ISupportWalk,
     "helper" | "second" | "helped"
@@ -244,10 +254,18 @@ export namespace HumanCoupled {
     singleLeg: "shoulderRight",
   };
 
-  /** The thrown body's region that lies on the fulcrum: the front of the trunk, as a hip or a shoulder throw loads it. */
+  /**
+   * The thrown body's region that lies on the fulcrum: the front of the trunk,
+   * as a hip or a shoulder throw loads it.
+   */
   export const ON: AutoMovieHumanoidRegion = "abdomen";
 
-  /** One person throws another: the thrower grips (`clinch`), the thrown answers the pull (`perturb`). Timing is the clinch's and the force input's (`clinch`, `HumanForceExchange`); no timing of its own (provisional); a judo or wrestling throw. */
+  /**
+   * One person throws another: the thrower grips (`clinch`), the thrown answers
+   * the pull (`perturb`). Timing is the clinch's and the force input's
+   * (`clinch`, `HumanForceExchange`); no timing of its own (provisional); a
+   * judo or wrestling throw.
+   */
   export const throwing: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.IThrow,
     "thrower" | "thrown"

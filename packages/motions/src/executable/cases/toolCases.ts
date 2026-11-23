@@ -23,21 +23,20 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the cyclic tool-use family (#3255), four cycles each with
- * the right hand from quiet standing, the tool first taken up from a bench
- * beside the right hand: `tool-hammer` on a nail at bench height, `tool-saw`
- * over a cut line at bench height, `tool-stir` in a pot on a counter,
- * `tool-screwdriver` on a screw in a wall at chest height.
+ * Capture cases of the cyclic tool-use family, four cycles each with the right
+ * hand from quiet standing, the tool first taken up from a bench beside the
+ * right hand: `tool-hammer` on a nail at bench height, `tool-saw` over a cut
+ * line at bench height, `tool-stir` in a pot on a counter, `tool-screwdriver`
+ * on a screw in a wall at chest height.
  *
  * Every case reports foot slip at most 5 mm and no range-of-motion overshoot,
  * and that at every `contact<n>` the tool's working point, read from the
- * displayed grip socket and hand through the tool's offset in the hand,
- * lies within 10 mm of the work point (the issue's tip-meets-work bound, at
- * decision 11's declared accuracy).
+ * displayed grip socket and hand through the tool's offset in the hand, lies
+ * within 10 mm of the work point (the issue's tip-meets-work bound, at decision
+ * 11's declared accuracy).
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the cases and verdicts with their bounds.
  * @evidence contracts/development/implementation.md#principled-implementation The working point is the displayed hand carrying the plan's rigid tool.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over four tools over the shared kit.
@@ -174,16 +173,15 @@ function contact(
 }
 
 /**
- * A one-hand tool shaped as `createTool` shapes it, lying level on a bench
- * with its working end ahead: a 0.3 m handle along its `+Y`, its `grip`
- * taken from `-Z` near the butt and its `face` at the working end (a
- * hammer's on the head's `+Z` side, a saw's teeth along `+Z`, a screwdriver's
- * tip and a spoon's bowl).
+ * A one-hand tool shaped as `createTool` shapes it, lying level on a bench with
+ * its working end ahead: a 0.3 m handle along its `+Y`, its `grip` taken from
+ * `-Z` near the butt and its `face` at the working end (a hammer's on the
+ * head's `+Z` side, a saw's teeth along `+Z`, a screwdriver's tip and a spoon's
+ * bowl).
  *
  * @param kind The work the tool serves.
  * @param at Where its butt lies, world metres.
  * @returns The tool.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the shape, the contacts and how it lies.
  * @evidence contracts/development/implementation.md#principled-implementation The `grip` and `face` contacts `createTool` declares, at its frames, on one handle collider a pick-up can grasp.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One collider, two contacts.
@@ -242,12 +240,11 @@ function held(
 }
 
 /**
- * A pot standing on a counter: a 0.24 m wide, 0.2 m deep vessel whose
- * `inside` floor and `rim` are the contacts `createVessel` declares.
+ * A pot standing on a counter: a 0.24 m wide, 0.2 m deep vessel whose `inside`
+ * floor and `rim` are the contacts `createVessel` declares.
  *
  * @param at Where its base stands, world metres.
  * @returns The pot.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the size and the contacts.
  * @evidence contracts/development/implementation.md#principled-implementation `createVessel`'s `inside` and `rim` contacts at its frames.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two contacts.

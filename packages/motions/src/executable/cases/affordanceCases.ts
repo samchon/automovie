@@ -21,31 +21,29 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the articulated affordances family (#3233), each from
- * quiet standing with the right hand, every part within the 2010 ADA
- * hardware band (865 to 1220 mm, 404.2.7) or at a drawer's height:
+ * Capture cases of the articulated affordances family, each from quiet standing
+ * with the right hand, every part within the 2010 ADA hardware band (865 to
+ * 1220 mm, 404.2.7) or at a drawer's height:
  *
  * - `affordance-button`: a lift button at 1.1 m pressed 5 mm;
  * - `affordance-knob`: a door knob at 0.95 m turned 90 degrees;
- * - `affordance-drawer`: a drawer handle at 0.85 m, 0.5 m ahead, pulled
- *   0.25 m, which a planted performer leans into and straightens from;
- * - `affordance-door`: a door handle at 1.0 m, 0.75 m from its hinge and
- *   0.7 m ahead, pulled open 35 degrees: as far as the leaf swings before
- *   its handle comes within 0.27 m of a performer who does not step back
- *   (the law's stated gap), reached with a lean at the start.
+ * - `affordance-drawer`: a drawer handle at 0.85 m, 0.5 m ahead, pulled 0.25 m,
+ *   which a planted performer leans into and straightens from;
+ * - `affordance-door`: a door handle at 1.0 m, 0.75 m from its hinge and 0.7 m
+ *   ahead, pulled open 35 degrees: as far as the leaf swings before its handle
+ *   comes within 0.27 m of a performer who does not step back (the law's stated
+ *   gap), reached with a lean at the start.
  *
- * Every case reports foot slip at most 5 mm and no range-of-motion
- * overshoot. Beyond that, from `ready` to `relax` the hand's surface (the
- * index fingertip on the button, the grip elsewhere) stays within 10 mm of
- * the part's place as the mechanism moves it (the issue's handle bound; on
- * the knob this is the knob's axis), and the button's tip travels along the
- * button's axis within 2 degrees (the issue's press bound). The knob also
- * reports the hand's roll about its axis against the turn, within 10 degrees
- * (provisional).
+ * Every case reports foot slip at most 5 mm and no range-of-motion overshoot.
+ * Beyond that, from `ready` to `relax` the hand's surface (the index fingertip
+ * on the button, the grip elsewhere) stays within 10 mm of the part's place as
+ * the mechanism moves it (the issue's handle bound; on the knob this is the
+ * knob's axis), and the button's tip travels along the button's axis within 2
+ * degrees (the issue's press bound). The knob also reports the hand's roll
+ * about its axis against the turn, within 10 degrees (provisional).
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every case and its verdicts with their bounds and sources.
  * @evidence contracts/development/implementation.md#principled-implementation Measures displayed sockets against the mechanism's own state.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over four mechanisms over the shared kit.

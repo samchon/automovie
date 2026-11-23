@@ -26,18 +26,17 @@ import { pelvisReachHeight } from "../posture/pelvisReachHeight";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * The footwork every keyed dance law shares (#3991's tap and ballet,
- * #4010's street steps): each foot runs through its keys, dwelling at a
- * key from its arrival to its departure and travelling to the next key
- * between on minimum-jerk progress, lifted by that key's clearance: from
- * one bearing key to another on a half sine of the swing's time, so it lifts
- * before it travels and lands after it stops (`AutoMovieMotionHumanFootSwing`),
- * otherwise on that progress (zero clearance slides it along the floor, as a
- * moonwalk's backslide). A
- * bearing dwell is a contact window: a plant, or a pivot when the key turns
- * the foot as it dwells (a pirouette's demi-pointe). The hips are carried
- * by the caller's world path and heading; the root follows them. A whole
- * course composes into a plan (compose).
+ * The footwork every keyed dance law shares (tap and ballet, street steps):
+ * each foot runs through its keys, dwelling at a key from its arrival to its
+ * departure and travelling to the next key between on minimum-jerk progress,
+ * lifted by that key's clearance: from one bearing key to another on a half
+ * sine of the swing's time, so it lifts before it travels and lands after it
+ * stops (`AutoMovieMotionHumanFootSwing`), otherwise on that progress (zero
+ * clearance slides it along the floor, as a moonwalk's backslide). A bearing
+ * dwell is a contact window: a plant, or a pivot when the key turns the foot as
+ * it dwells (a pirouette's demi-pointe). The hips are carried by the caller's
+ * world path and heading; the root follows them. A whole course composes into a
+ * plan (compose).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the dwell and travel rule, the contacts and the carriage.
  * @evidence contracts/development/design.md#principled-representation Foot keys as data over one leg-placement row per foot and one carriage row.
@@ -45,10 +44,16 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every placement and timing is the caller's; nothing is clamped.
  */
 export namespace DanceFootwork {
-  /** How long either side of a brush its strike touches the floor, seconds (provisional). */
+  /**
+   * How long either side of a brush its strike touches the floor, seconds
+   * (provisional).
+   */
   export const BRUSH: number = 0.03;
 
-  /** One foot's course: its leg row, its bearing windows and its placement reader. */
+  /**
+   * One foot's course: its leg row, its bearing windows and its placement
+   * reader.
+   */
   export interface IFoot {
     /** The leg row placing the foot. */
     primitive: IAutoMovieMotionHumanPrimitive;
@@ -74,7 +79,6 @@ export namespace DanceFootwork {
    * @param duration The action's seconds.
    * @param support What a bearing foot stands on.
    * @returns The leg row, the contacts and the placement reader.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the three outputs.
    * @evidence contracts/development/implementation.md#principled-implementation Dwell at a key, travel to the next on a lifted minimum-jerk arc; a bearing dwell is planted.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Lookup, dwell or travel, contacts.
@@ -215,17 +219,18 @@ export namespace DanceFootwork {
   }
 
   /**
-   * The carriage row: the hips on the caller's world path and heading, the
-   * root back-solved from them, and the caller's joints written over.
+   * The carriage row: the hips on the caller's world path and heading, the root
+   * back-solved from them, and the caller's joints written over.
    *
    * @param body The dancer's body.
    * @param duration The action's seconds.
    * @param hips The hips' world point at an action second.
    * @param yaw The heading at an action second, degrees.
-   * @param joints The joints written at an action second; those of the legs are left to the feet's rows.
-   * @param hands The hands' targets at an action second, if the dance places them.
+   * @param joints The joints written at an action second; those of the legs are
+   *   left to the feet's rows.
+   * @param hands The hands' targets at an action second, if the dance places
+   *   them.
    * @returns The row.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States what the row writes.
    * @evidence contracts/development/implementation.md#principled-implementation The root is the hips less the rest hips turned by the heading, so the hips land where asked.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One write.
@@ -300,7 +305,6 @@ export namespace DanceFootwork {
    * @param course The course.
    * @param support What a bearing foot stands on.
    * @returns The plan.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and what the plan holds.
    * @evidence contracts/development/implementation.md#principled-implementation The feet's rows and the carriage over the entry base.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Feet, carriage, clock, plan.
@@ -362,17 +366,16 @@ export namespace DanceFootwork {
   }
 
   /**
-   * A course's hips set over its feet: the feet's midpoint on the floor
-   * plan at the entry's standing height above the entry's feet, lowered by
-   * a crouch, and lowered further where feet a stride apart would leave a
-   * leg short of its ankle (`pelvisReachHeight`).
+   * A course's hips set over its feet: the feet's midpoint on the floor plan at
+   * the entry's standing height above the entry's feet, lowered by a crouch,
+   * and lowered further where feet a stride apart would leave a leg short of
+   * its ankle (`pelvisReachHeight`).
    *
    * @param body The dancer's body.
    * @param entry The entry state.
    * @param course The course, whose feet are read.
    * @param crouch How far below standing the hips ride, metres.
    * @returns The hips path.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the path.
    * @evidence contracts/development/implementation.md#principled-implementation The feet's placed ankles' midpoint at the entry's hip height over them, capped in closed form where a leg would not reach its ankle (`pelvisReachHeight`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two foot readers and one expression.

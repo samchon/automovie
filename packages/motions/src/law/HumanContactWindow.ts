@@ -30,7 +30,7 @@ export namespace HumanContactWindow {
   /**
    * The ways a part bears, as data. `bear` is a part that carries weight
    * without being a foot's plant: a knee or a shin on the floor, a palm on a
-   * vault, a forearm on a table (#3425).
+   * vault, a forearm on a table.
    */
   export const KINDS = [
     "plant",
@@ -45,10 +45,11 @@ export namespace HumanContactWindow {
   >[];
 
   /**
-   * The surface region each part touches with when a window names no
-   * `region`: a foot's sole, a hand's palm, the seat bones, the upper back,
-   * the outer face of an arm segment, the front of a thigh and a knee, the back of the head and the breastbone. The
-   * one table the audits read a window's contact point from.
+   * The surface region each part touches with when a window names no `region`:
+   * a foot's sole, a hand's palm, the seat bones, the upper back, the outer
+   * face of an arm segment, the front of a thigh and a knee, the back of the
+   * head and the breastbone. The one table the audits read a window's contact
+   * point from.
    */
   export const REGIONS: Readonly<
     Record<IAutoMovieMotionHumanContactWindow["part"], AutoMovieHumanoidRegion>

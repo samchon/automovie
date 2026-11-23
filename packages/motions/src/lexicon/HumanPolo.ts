@@ -46,10 +46,18 @@ const PHASES: Readonly<
   settle: 0.6,
 };
 
-/** How far the arm turns on past the contact in the follow-through, degrees (provisional). */
+/**
+ * How far the arm turns on past the contact in the follow-through, degrees
+ * (provisional).
+ */
 const FINISH: number = 80;
 
-/** How far short of straight up along the trunk the arm stands at the carry and the top of the backswing, degrees: the shoulder's flexion ends at 180 (the AAOS normal range, read through secondary summaries), and the margin keeps the arm off that end (provisional). */
+/**
+ * How far short of straight up along the trunk the arm stands at the carry and
+ * the top of the backswing, degrees: the shoulder's flexion ends at 180 (the
+ * AAOS normal range, read through secondary summaries), and the margin keeps
+ * the arm off that end (provisional).
+ */
 const TOP: number = 20;
 
 /** The body's own up and ahead. */
@@ -58,19 +66,33 @@ const AXES: Readonly<Record<"up" | "ahead", IAutoMovieVector3>> = {
   ahead: { x: 0, y: 0, z: 1 },
 };
 
-/** The wrist's deviation range, degrees: radial 20, ulnar 30 (the AAOS normal ranges, read through secondary summaries). The top of the backswing cocks the wrist to the radial end, the double pendulum's hinge. */
+/**
+ * The wrist's deviation range, degrees: radial 20, ulnar 30 (the AAOS normal
+ * ranges, read through secondary summaries). The top of the backswing cocks the
+ * wrist to the radial end, the double pendulum's hinge.
+ */
 const DEVIATION: Readonly<Record<"radial" | "ulnar", number>> = {
   radial: 20,
   ulnar: 30,
 };
 
-/** The elbow's flexion through the swing, degrees: the arm nearly straight, off its reach singularity (provisional). */
+/**
+ * The elbow's flexion through the swing, degrees: the arm nearly straight, off
+ * its reach singularity (provisional).
+ */
 const ELBOW: number = 15;
 
-/** The trunk's turn toward the swing's side through the stroke, degrees: the shoulders turned so the swinging arm passes beside the trunk rather than behind it (provisional, within the trunk's axial range). */
+/**
+ * The trunk's turn toward the swing's side through the stroke, degrees: the
+ * shoulders turned so the swinging arm passes beside the trunk rather than
+ * behind it (provisional, within the trunk's axial range).
+ */
 const TURN: number = 45;
 
-/** How near the contact the mallet's head is held to the ball's place, seconds: half a frame of a 24 fps film, the instant the film shows. */
+/**
+ * How near the contact the mallet's head is held to the ball's place, seconds:
+ * half a frame of a 24 fps film, the instant the film shows.
+ */
 const HIT: number = 1 / 48;
 
 /** The most a rider leans out of the saddle, degrees (provisional). */
@@ -87,7 +109,15 @@ const RISE: number = 0.1;
 const PITCH: number = 20;
 
 /**
- * A polo stroke from the saddle (`IAutoMovieMotionHumanPolo`, #3955): carried on the saddle, the rider rises in the stirrups and turns the shoulders toward the swing's side; the arm and the held mallet turn as one about the right shoulder in the plane through the ball and the horse's level heading, the mallet at the angle the grip and the wrist's deviation give, from the carry and the cocked top of the backswing, the arm short of straight up along the upright trunk, down through the ball at the contact, the rider leaning out over the side as it comes down, and on to the finish; the ball is launched along the swing at the contact. Register `HumanPolo` to use it.
+ * A polo stroke from the saddle (`IAutoMovieMotionHumanPolo`): carried on the
+ * saddle, the rider rises in the stirrups and turns the shoulders toward the
+ * swing's side; the arm and the held mallet turn as one about the right
+ * shoulder in the plane through the ball and the horse's level heading, the
+ * mallet at the angle the grip and the wrist's deviation give, from the carry
+ * and the cocked top of the backswing, the arm short of straight up along the
+ * upright trunk, down through the ball at the contact, the rider leaning out
+ * over the side as it comes down, and on to the finish; the ball is launched
+ * along the swing at the contact. Register `HumanPolo` to use it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the phases, the swing's geometry, the launch and how it is registered.
  * @evidence contracts/development/design.md#principled-representation One law over the side and stroke literals, a swing as an angle in a plane, and the held mallet's own geometry.

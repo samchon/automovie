@@ -16,31 +16,31 @@ import { HUMAN_DEFENCE_SWAY_BACK } from "../next/presets/HUMAN_DEFENCE_SWAY_BACK
 import { defend } from "../striking/defend";
 
 /**
- * The defences as rows on the grammar (#3362): each named defence is a row
- * of `defend`, the law that owns the defender's role and the outcome shared
- * with the strike it answers, and the brace a row of `brace`, a base
- * adaptation. The composition gives the strike answered (`against`) and,
- * where the scene decides it, the outcome.
+ * The defences as rows on the grammar: each named defence is a row of `defend`,
+ * the law that owns the defender's role and the outcome shared with the strike
+ * it answers, and the brace a row of `brace`, a base adaptation. The
+ * composition gives the strike answered (`against`) and, where the scene
+ * decides it, the outcome.
  *
- * | Row | Law | Fixed |
- * | --- | --- | --- |
- * | `cover`, `handParry`, `elbowBlock`, `highBlock`, `checkKick` | `defend` | the block |
- * | `slip`, `rollUnder`, `swayBack` | `defend` | the evasion |
- * | `braceImpact`, `bracePush` | `brace` | what is braced for |
+ * | Row                                                          | Law      | Fixed              |
+ * | ------------------------------------------------------------ | -------- | ------------------ |
+ * | `cover`, `handParry`, `elbowBlock`, `highBlock`, `checkKick` | `defend` | the block          |
+ * | `slip`, `rollUnder`, `swayBack`                              | `defend` | the evasion        |
+ * | `braceImpact`, `bracePush`                                   | `brace`  | what is braced for |
  *
- * Every `defend` row shares one timing ({@link IAutoMovieMotionHumanDefend}): the
- * defender starts after a reaction time of about 0.3 s less the anticipation the
- * strike's preparation shows, and its limb or head takes 0.30 s at novice to
- * 0.20 s at elite to move, so against a rear straight of 0.310 s a defence is in time
- * only when it anticipates, and a kick or a fast strike is met late by a
- * novice. `slip`, `rollUnder` and `swayBack` fit a punch; `cover`,
- * `elbowBlock` and `highBlock` fit a punch or a kick to the guarded region;
- * `checkKick` fits a kick to the leg. The `brace` rows set the stance for an
- * impact or a push and state no time.
+ * Every `defend` row shares one timing ({@link IAutoMovieMotionHumanDefend}):
+ * the defender starts after a reaction time of about 0.3 s less the
+ * anticipation the strike's preparation shows, and its limb or head takes 0.30
+ * s at novice to 0.20 s at elite to move, so against a rear straight of 0.310 s
+ * a defence is in time only when it anticipates, and a kick or a fast strike is
+ * met late by a novice. `slip`, `rollUnder` and `swayBack` fit a punch;
+ * `cover`, `elbowBlock` and `highBlock` fit a punch or a kick to the guarded
+ * region; `checkKick` fits a kick to the leg. The `brace` rows set the stance
+ * for an impact or a push and state no time.
  *
  * `handParry`, `rollUnder` and `swayBack` are named apart from the blade's
- * `parry`, the regrasp's `roll` and the drill's `sway`, so a name a
- * performance registers is one row.
+ * `parry`, the regrasp's `roll` and the drill's `sway`, so a name a performance
+ * registers is one row.
  *
  * Each `defend` row fixes the kind of the preset of the same name in
  * `AutoMovieMotionHumanDefence` (`COVER`, `SLIP` and the rest), so the values

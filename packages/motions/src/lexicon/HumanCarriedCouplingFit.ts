@@ -41,11 +41,11 @@ type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /**
- * The key pose of a coupled carry placed on its bearer (#3437): the
- * bearer's stance and the borne legs changed least from the upright bearer
- * and the carry's own legs so every hold's wrist goal lies within its arm, the borne
- * resting region exactly on the bearer's, its turn about that point fitted
- * to the row's hold places. `HumanCarriedCoupling` builds the coupling on it.
+ * The key pose of a coupled carry placed on its bearer: the bearer's stance and
+ * the borne legs changed least from the upright bearer and the carry's own legs
+ * so every hold's wrist goal lies within its arm, the borne resting region
+ * exactly on the bearer's, its turn about that point fitted to the row's hold
+ * places. `HumanCarriedCoupling` builds the coupling on it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is fitted, what is placed, how and for whom.
  * @evidence contracts/development/design.md#principled-representation The stance and the legs as five angles a least-change program fits, and a rigid placement as a turn and a point map, Wahba's problem's answer.
@@ -54,7 +54,8 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
  */
 export namespace HumanCarriedCouplingFit {
   /**
-   * The successful registration and the same two bone maps it used to judge reach.
+   * The successful registration and the same two bone maps it used to judge
+   * reach.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which frames the bone maps hold and why the fit and maps belong together.
    * @evidence contracts/development/design.md#principled-representation A rigid placement plus the untranslated bones it maps between. The placement carries the borne key pose onto the bearer.
@@ -73,18 +74,20 @@ export namespace HumanCarriedCouplingFit {
   }
 
   /**
-   * Place the borne body's key pose on the bearer while keeping the grips reachable.
+   * Place the borne body's key pose on the bearer while keeping the grips
+   * reachable.
    *
    * @param bearer The bearer's body.
    * @param borne The borne body.
    * @param row The carry's key and hold geometry.
    * @param held The borne region each bearer hand holds, left then right.
-   * @param planted The additional height fixed by a second bearer standing on the common floor.
+   * @param planted The additional height fixed by a second bearer standing on
+   *   the common floor.
    * @param bends Whether the bearer may leave upright to reach the grips.
-   * @param grips An optional pair of actual grips, left then right, when the row's nominal regions cannot be reached.
+   * @param grips An optional pair of actual grips, left then right, when the
+   *   row's nominal regions cannot be reached.
    * @returns The placement within the bearer's origin frame.
    * @throws {HumanRefusal} When no stance within the ranges reaches the grips.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the reach premise, optional nearer grips and placement frame.
    * @evidence contracts/development/implementation.md#principled-implementation Uses the same fixed-contact registration and reach test as `read`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the solver, then reads its placement.
@@ -105,20 +108,26 @@ export namespace HumanCarriedCouplingFit {
   }
 
   /**
-   * Register the carried region on the bearer at the authored key. If any
-   * wrist cannot reach its grip, find the least change to the bearer's stance
-   * and borne legs that preserves the resting contact and reaches every grip.
+   * Register the carried region on the bearer at the authored key. If any wrist
+   * cannot reach its grip, find the least change to the bearer's stance and
+   * borne legs that preserves the resting contact and reaches every grip.
    *
    * @param bearer The bearer's body.
    * @param borne The borne body.
    * @param row The carry's row.
    * @param held The borne region each bearer hand holds, left then right.
-   * @param planted The additional height fixed by a second bearer standing on the common floor.
-   * @param bends Whether the bearer may leave upright: not when a second helper shares the body, whose contacts a bend of the first would carry away.
-   * @param grips The borne region each hand grips where the bearer takes a nearer grip than the row describes (`HumanCarriedCoupling.NEARER`), left then right: the arms must reach these, while the turn stays fitted to the described holds, so a grip never turns the borne body; the described holds when absent.
+   * @param planted The additional height fixed by a second bearer standing on
+   *   the common floor.
+   * @param bends Whether the bearer may leave upright: not when a second helper
+   *   shares the body, whose contacts a bend of the first would carry away.
+   * @param grips The borne region each hand grips where the bearer takes a
+   *   nearer grip than the row describes (`HumanCarriedCoupling.NEARER`), left
+   *   then right: the arms must reach these, while the turn stays fitted to the
+   *   described holds, so a grip never turns the borne body; the described
+   *   holds when absent.
    * @returns The placement with the bones used to judge its reach.
-   * @throws {HumanRefusal} A `reach` refusal on `carry` when no stance and legs within their ranges bring every held region within its arm.
-   *
+   * @throws {HumanRefusal} A `reach` refusal on `carry` when no stance and legs
+   *   within their ranges bring every held region within its arm.
    * @evidence contracts/development/common.md#meaningful-documentation States what is fitted, what is held exactly, the inputs and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The stance and the legs: the least range-weighted change from upright and the carry's own subject to each held region's gap past its arm being none, by the l1 exact penalty's trust-region sequential convex optimisation with a steered penalty (Nocedal and Wright's Algorithm 4.1 schedule), each model the quadratic program of the change with the gaps linearised by central differences, one-sided at a range's end; it settles at the square root of machine epsilon of the arm. The turn about the resting point is Wahba's problem over the hold directions, solved by Horn's absolute orientation (`fitRigidMeshTransform`) on each direction and its mirror about the resting point, so both clouds' centroids are the resting points and only the turn is fitted. With fewer than two holds the key pose's own axes join the directions, so its heading is kept where no hold decides it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the authored key first; prepare the trust-region search only if the key violates a reach or angle constraint.
@@ -464,16 +473,30 @@ export namespace HumanCarriedCouplingFit {
   /** The signed reachable distance of one bearing wrist, in metres. */
   export const gap: typeof HumanCarriedGripGaps.gap = HumanCarriedGripGaps.gap;
 
-  /** The trunk's forward inclination at full forward bending, degrees: about 70 of hip flexion and 40 of lumbar flexion (Esola et al. 1996, Spine 21:71, the measure `HumanTrunk.RHYTHM` shares). */
+  /**
+   * The trunk's forward inclination at full forward bending, degrees: about 70
+   * of hip flexion and 40 of lumbar flexion (Esola et al. 1996, Spine 21:71,
+   * the measure `HumanTrunk.RHYTHM` shares).
+   */
   const BENT: number = 110;
 
-  /** A step is taken where the merit falls by more than this share of the model's prediction: Nocedal and Wright's Algorithm 4.1 asks for one in [0, 1/4). */
+  /**
+   * A step is taken where the merit falls by more than this share of the
+   * model's prediction: Nocedal and Wright's Algorithm 4.1 asks for one in [0,
+   * 1/4).
+   */
   const ACCEPTED: number = 0.1;
 
-  /** The ratio below which the region shrinks: Nocedal and Wright's Algorithm 4.1. */
+  /**
+   * The ratio below which the region shrinks: Nocedal and Wright's Algorithm
+   * 4.1.
+   */
   const POOR: number = 1 / 4;
 
-  /** The ratio above which a step at the region's edge grows it: Nocedal and Wright's Algorithm 4.1. */
+  /**
+   * The ratio above which a step at the region's edge grows it: Nocedal and
+   * Wright's Algorithm 4.1.
+   */
   const GOOD: number = 3 / 4;
 
   /** The region's factor where it shrinks: Nocedal and Wright's Algorithm 4.1. */
@@ -482,7 +505,10 @@ export namespace HumanCarriedCouplingFit {
   /** The region's factor where it grows: Nocedal and Wright's Algorithm 4.1. */
   const EXPAND: number = 2;
 
-  /** A stance and legs' reading: the change, the summed and the worst gap past the arms, and each gap, metres. */
+  /**
+   * A stance and legs' reading: the change, the summed and the worst gap past
+   * the arms, and each gap, metres.
+   */
   interface IReading extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
     read: IRead;
     worst: number;

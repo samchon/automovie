@@ -24,10 +24,10 @@ import { HumanHand } from "../posture/HumanHand";
 import { crutchSitPath } from "./crutchSitPath";
 
 /**
- * What the crutch sit's two orders share (#3994): the sides, the crutches
- * and their staged frames, the hand goal that holds a crutch on a frame, the
- * writing of the arms and the injured leg over the body's posture, and the
- * order's result the law courses.
+ * What the crutch sit's two orders share: the sides, the crutches and their
+ * staged frames, the hand goal that holds a crutch on a frame, the writing of
+ * the arms and the injured leg over the body's posture, and the order's result
+ * the law courses.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace gathers for the two orders.
  * @evidence contracts/development/design.md#principled-representation One kit read from the context, so both orders read the same crutches, goals and leg.
@@ -50,7 +50,10 @@ export namespace crutchSitKit {
     /** The posture the act starts from. */
     entry: IAutoMovieMotionHumanPosture;
 
-    /** The injured side, whose leg is held off the floor and whose hand holds both crutches seated. */
+    /**
+     * The injured side, whose leg is held off the floor and whose hand holds
+     * both crutches seated.
+     */
     injured: AutoMovieHumanSide;
 
     /** The sound side. */
@@ -75,7 +78,10 @@ export namespace crutchSitKit {
       frame: IAutoMovieRigidTransform,
     ) => IAutoMovieHumanLimbGoal;
 
-    /** The posture with both arms' goals and the injured leg's angles written over it. */
+    /**
+     * The posture with both arms' goals and the injured leg's angles written
+     * over it.
+     */
     write: (
       posture: IAutoMovieMotionHumanPosture,
       arms: Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>,
@@ -126,7 +132,6 @@ export namespace crutchSitKit {
    * @param context The crutch sit's context.
    * @returns The kit.
    * @throws {HumanRefusal} When a crutch declares no grip or no tip.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, result and refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The crutches' own contacts and frames, and the hand goal inverting the rigid held offset.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of closures.
@@ -210,25 +215,30 @@ export namespace crutchSitKit {
     };
   }
 
-  /** How far apart the two crutches stand in one hand, metres (provisional: two shafts side by side). */
+  /**
+   * How far apart the two crutches stand in one hand, metres (provisional: two
+   * shafts side by side).
+   */
   export const SPACING: number = 0.035;
 
-  /** How far ahead of the chest's front the gathered crutches stand, metres (provisional: the underarm pad's half length and a hand's breadth clear of the chest). */
+  /**
+   * How far ahead of the chest's front the gathered crutches stand, metres
+   * (provisional: the underarm pad's half length and a hand's breadth clear of
+   * the chest).
+   */
   export const AHEAD: number = 0.2;
 
   /**
-   * A crutch's upright frame where both crutches are gathered into the
-   * injured side's hand, before a body standing on a posture: on the floor
-   * `AHEAD` before the chest's front, the injured side's crutch half the
-   * hip's half width toward the injured side, the sound side's crutch
-   * `SPACING` inside it, so the sound hand reaches in front of the body and
-   * never across it.
+   * A crutch's upright frame where both crutches are gathered into the injured
+   * side's hand, before a body standing on a posture: on the floor `AHEAD`
+   * before the chest's front, the injured side's crutch half the hip's half
+   * width toward the injured side, the sound side's crutch `SPACING` inside it,
+   * so the sound hand reaches in front of the body and never across it.
    *
    * @param kit The kit.
    * @param posture The standing posture, its root and heading.
    * @param side The crutch's side.
    * @returns The crutch's world frame, upright.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the place, its parts and the result.
    * @evidence contracts/development/implementation.md#principled-implementation The tip's floor place from the body's measure in the posture's frame, the crutch upright and turned to the heading (`crutchSitPath.slid`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One place and one frame.
@@ -268,7 +278,6 @@ export namespace crutchSitKit {
    * @param from The angles left.
    * @param to The angles reached.
    * @returns The angles.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and result.
    * @evidence contracts/development/implementation.md#principled-implementation Each angle on one minimum-jerk share.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation.
@@ -304,7 +313,6 @@ export namespace crutchSitKit {
    * @param b The goal reached.
    * @param share The share, clamped to 0 to 1.
    * @returns The goal.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and result.
    * @evidence contracts/development/implementation.md#principled-implementation Point and bend lerped and rotation slerped on one share.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation.
@@ -337,7 +345,6 @@ export namespace crutchSitKit {
    * @param yaw The heading, degrees about +Y.
    * @param side The side.
    * @returns The unit vector.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and result.
    * @evidence contracts/development/implementation.md#principled-implementation The heading's left, +X at yaw 0, mirrored for the right.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One vector.
@@ -360,7 +367,6 @@ export namespace crutchSitKit {
    *
    * @param yaw The heading, degrees about +Y.
    * @returns The unit vector.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and result.
    * @evidence contracts/development/implementation.md#principled-implementation +Z at yaw 0, turned about +Y.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One vector.

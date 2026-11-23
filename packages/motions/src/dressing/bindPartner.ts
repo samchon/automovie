@@ -16,15 +16,14 @@ import { armPhrase } from "../everyday/armPhrase";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * Bind another performer with a held restraint (#3974, #4002). The binder's
- * hand carries the restraint to the partner's region by the arm phrase that
- * visits a target, the fingers down and the palm turned in (the thumb ahead,
- * clear of the binder's own hips), and the
- * restraint is worn on the bone under the region from the phrase's stroke
- * with the link: the partner's other region's bone, or a scene target, and
- * the slack. The performance then keeps the bound parts
- * where they were when the restraint went on (`HumanPerformanceBonds`)
- * until a later grip takes it off.
+ * Bind another performer with a held restraint. The binder's hand carries the
+ * restraint to the partner's region by the arm phrase that visits a target, the
+ * fingers down and the palm turned in (the thumb ahead, clear of the binder's
+ * own hips), and the restraint is worn on the bone under the region from the
+ * phrase's stroke with the link: the partner's other region's bone, or a scene
+ * target, and the slack. The performance then keeps the bound parts where they
+ * were when the restraint went on (`HumanPerformanceBonds`) until a later grip
+ * takes it off.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the arm phrase reused, the facing, when custody passes, what the link names and who enforces it.
  * @evidence contracts/development/implementation.md#principled-implementation The partner's region resolves to the bone under it; the restraint is worn there from the phrase's stroke, where the hand's grip on it ends, so custody passes without a gap or an overlap.

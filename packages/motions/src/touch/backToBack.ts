@@ -32,34 +32,39 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { StrikingBody } from "../striking/StrikingBody";
 import { kissBody } from "./kissBody";
 
-/** The most a seated trunk leans back, degrees: the normal thoracolumbar extension, 25 degrees (Physiopedia, Range of Motion Normative Values, https://www.physio-pedia.com/Range_of_Motion_Normative_Values), as `headRestAim.SEATED` bounds its side lean. */
+/**
+ * The most a seated trunk leans back, degrees: the normal thoracolumbar
+ * extension, 25 degrees (Physiopedia, Range of Motion Normative Values,
+ * https://www.physio-pedia.com/Range_of_Motion_Normative_Values), as
+ * `headRestAim.SEATED` bounds its side lean.
+ */
 const BACK: number = 25;
 
-/** How near the upper back comes to the meeting point, metres (provisional: a skin contact, as `headRest`'s). */
+/**
+ * How near the upper back comes to the meeting point, metres (provisional: a
+ * skin contact, as `headRest`'s).
+ */
 const NEAR: number = 0.01;
 
 /** How far apart the two leans may begin or end, seconds: one 24 Hz frame. */
 const TOGETHER: number = 1 / 24;
 
 /**
- * Lean back against a seated partner's back (#4012). Each of the two reads
- * its own and the other's upper back on the displayed bodies at the start
- * and leans its trunk back
- * from the hips over the seat (the kiss's lean, `kissBody`, seated) by the
- * least pitch that moves its own upper back (by the lean model's change from
- * upright) to half a skin contact short of the upright plane halfway between
- * the two across the floor, each back at its own height, so the two backs
- * rest a skin contact apart and neither presses into the other; the neck
+ * Lean back against a seated partner's back. Each of the two reads its own and
+ * the other's upper back on the displayed bodies at the start and leans its
+ * trunk back from the hips over the seat (the kiss's lean, `kissBody`, seated)
+ * by the least pitch that moves its own upper back (by the lean model's change
+ * from upright) to half a skin contact short of the upright plane halfway
+ * between the two across the floor, each back at its own height, so the two
+ * backs rest a skin contact apart and neither presses into the other; the neck
  * flexes by the lean so the head stays upright and does not pass that plane
- * first.
- * The trunk's weight leans onto the partner: the window's load is the
- * trunk's share of the body's mass times the tangent of the lean
- * (moments about the hips with the contact taken at the trunk's mass
- * centre, provisional). A standing performer, or a meeting point beyond
- * `BACK`, is refused. Given the partner's own lean (`with`), the two must
- * lean and sit up together within a frame: one that sits up or leaves
- * while the other still leans is refused, naming who would be left
- * leaning on nothing.
+ * first. The trunk's weight leans onto the partner: the window's load is the
+ * trunk's share of the body's mass times the tangent of the lean (moments about
+ * the hips with the contact taken at the trunk's mass centre, provisional). A
+ * standing performer, or a meeting point beyond `BACK`, is refused. Given the
+ * partner's own lean (`with`), the two must lean and sit up together within a
+ * frame: one that sits up or leaves while the other still leans is refused,
+ * naming who would be left leaning on nothing.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the meeting point, the lean, the load, the refusals and the mutual check.
  * @evidence contracts/development/design.md#principled-representation The kiss's seated lean model, the halfway point of the two backs and a loaded back window on the partner.
@@ -320,7 +325,10 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
     },
   };
 
-/** The share of the body's weight the leaning trunk lays on the partner: the trunk's mass share times the tangent of the lean. */
+/**
+ * The share of the body's weight the leaning trunk lays on the partner: the
+ * trunk's mass share times the tangent of the lean.
+ */
 function load(body: IAutoMovieMotionHumanBody, pitch: number): number {
   const model: IAutoMovieResolveCenterOfMass.IModel =
     resolveAutoMovieCenterOfMass(body.skeleton, body.profile);

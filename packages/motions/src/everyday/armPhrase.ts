@@ -37,48 +37,45 @@ import { poseBones } from "../posture/poseBones";
 import { armPhraseFacing } from "./armPhraseFacing";
 
 /**
- * One arm phrase on a target: the hand visits a place, strokes along a path
- * or oscillates about a pose, on the standard instants of a phrase (Kendon
- * 1980's preparation, stroke, hold and retraction as BML's `ready`,
- * `strokeStart`, `stroke`, `strokeEnd` and `relax`). It is the law the
- * upper-body lexicon's rows are written over (#3361): a wave, a tap, a hand
- * at rest on the hip, a wipe across a table are each this law with its
- * phrase, its target and its hand fixed (`HumanUpperRows`), so they share one
- * plan, one set of refusals and one timing.
+ * One arm phrase on a target: the hand visits a place, strokes along a path or
+ * oscillates about a pose, on the standard instants of a phrase (Kendon 1980's
+ * preparation, stroke, hold and retraction as BML's `ready`, `strokeStart`,
+ * `stroke`, `strokeEnd` and `relax`). It is the law the upper-body lexicon's
+ * rows are written over: a wave, a tap, a hand at rest on the hip, a wipe
+ * across a table are each this law with its phrase, its target and its hand
+ * fixed (`HumanUpperRows`), so they share one plan, one set of refusals and one
+ * timing.
  *
  * The phrase moves the hand from where the entry pose holds it (its surface's
  * place in the performer's frame) to the target and back, by the vocabulary's
  * own arm phrases (`AutoMovieMotionHumanArmPhrase`: `visit`, `stroke`,
  * `oscillate`), and the composition keeps every other part as the carrier or
- * the entry state has it (`AutoMovieMotionHumanBase.under`). The target is
- * any `AutoMovieMotionTarget`, read where it is at the phrase's start: a
- * region of one's own body or another's, a prop's point, a point in the
- * performer's frame. An `offset` moves the target's point in the
- * performer's frame (out, up, forward) by shares of the arm's length (upper
- * arm, forearm and hand), so one row fits every body. The hand faces against
- * the target's normal with its fingers up, unless `facing` names it. A
- * phrase that names a `held` prop keeps the hand's grip on it over its whole
- * span and leaves it held, so a hammer, a spoon or a hat moves with the
- * hand; a hand that does not hold it at entry is refused. Such a phrase may
- * name one of the held prop's own points as its working `point` (a cup's
- * lip, a fork's face): that point, not the hand's surface, is brought to the
- * target, the hand's surface placed short of it by the point's lever from
- * the surface in the hand's frame, which the grip keeps fixed, and the hand
- * turned so the point faces into the target, unless `facing` names the
- * turn. Both hands may
- * perform one phrase on one clock (a clap, palms rubbed together), each
- * hand's offset mirrored by its side, so two hands sent to one median target
- * meet there; such a phrase holds no prop.
+ * the entry state has it (`AutoMovieMotionHumanBase.under`). The target is any
+ * `AutoMovieMotionTarget`, read where it is at the phrase's start: a region of
+ * one's own body or another's, a prop's point, a point in the performer's
+ * frame. An `offset` moves the target's point in the performer's frame (out,
+ * up, forward) by shares of the arm's length (upper arm, forearm and hand), so
+ * one row fits every body. The hand faces against the target's normal with its
+ * fingers up, unless `facing` names it. A phrase that names a `held` prop keeps
+ * the hand's grip on it over its whole span and leaves it held, so a hammer, a
+ * spoon or a hat moves with the hand; a hand that does not hold it at entry is
+ * refused. Such a phrase may name one of the held prop's own points as its
+ * working `point` (a cup's lip, a fork's face): that point, not the hand's
+ * surface, is brought to the target, the hand's surface placed short of it by
+ * the point's lever from the surface in the hand's frame, which the grip keeps
+ * fixed, and the hand turned so the point faces into the target, unless
+ * `facing` names the turn. Both hands may perform one phrase on one clock (a
+ * clap, palms rubbed together), each hand's offset mirrored by its side, so two
+ * hands sent to one median target meet there; such a phrase holds no prop.
  *
  * Timing: the preparation is a travel of the distance from the hand to the
  * phrase's first goal (a stroke's start, otherwise the target) and the
  * retraction one of the distance back from its last, the target
- * (`AutoMovieMotionHumanTiming.transport`); a
- * visit's stroke is instant and its hold the named `hold` pause (a beat when
- * absent); a stroke takes one travel of its path's length; an oscillation
- * takes `cycles` beats. The manner's tempo scales every phase and its extent
- * and curvature reach the phrase (`AutoMovieMotionManner.of`). Events: the
- * phrase's instants.
+ * (`AutoMovieMotionHumanTiming.transport`); a visit's stroke is instant and its
+ * hold the named `hold` pause (a beat when absent); a stroke takes one travel
+ * of its path's length; an oscillation takes `cycles` beats. The manner's tempo
+ * scales every phase and its extent and curvature reach the phrase
+ * (`AutoMovieMotionManner.of`). Events: the phrase's instants.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three phrases, what is moved and kept, the target's frame and offset, the facing, every phase's timing and its owner, and the events.
  * @evidence contracts/development/design.md#principled-representation A law record whose parameters name a phrase, a target and a hand, with a pure plan composed from the vocabulary's phrase primitives.
@@ -108,7 +105,9 @@ export namespace armPhrase {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When a held prop is named that the hand does not hold at entry or with both hands, when a working point is named without a held prop, or when the held prop has no such point.
+   * @throws {HumanRefusal} When a held prop is named that the hand does not
+   *   hold at entry or with both hands, when a working point is named without a
+   *   held prop, or when the held prop has no such point.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanArmPhrase.IParams>,
@@ -459,7 +458,10 @@ export namespace armPhrase {
   }
 }
 
-/** One arm's geometry in a phrase: its origin, its place, its offset in the performer's frame and its target at a point. */
+/**
+ * One arm's geometry in a phrase: its origin, its place, its offset in the
+ * performer's frame and its target at a point.
+ */
 interface IArm {
   /** The arm. */
   side: AutoMovieHumanSide;
@@ -467,10 +469,16 @@ interface IArm {
   /** The hand's place before and after. */
   origin: IAutoMovieMotionHumanArmTarget.IOrigin;
 
-  /** The working point's place (the surface's, or a held prop's point), world metres. */
+  /**
+   * The working point's place (the surface's, or a held prop's point), world
+   * metres.
+   */
   place: IAutoMovieVector3;
 
-  /** A stroke's start from its place, world metres; zero for a visit or an oscillation. */
+  /**
+   * A stroke's start from its place, world metres; zero for a visit or an
+   * oscillation.
+   */
   from: IAutoMovieVector3;
 
   /** An oscillation's swing to one side of its place, world metres. */
@@ -479,17 +487,30 @@ interface IArm {
   /** The target that brings the working point to a point. */
   target: (point: IAutoMovieVector3) => IAutoMovieMotionHumanArmTarget.ITarget;
 
-  /** The distance from the surface's place before the phrase to its first goal, metres. */
+  /**
+   * The distance from the surface's place before the phrase to its first goal,
+   * metres.
+   */
   prepare: number;
 
-  /** The distance from the surface's last goal back to its place before the phrase, metres. */
+  /**
+   * The distance from the surface's last goal back to its place before the
+   * phrase, metres.
+   */
   retract: number;
 }
 
-/** An oscillation's swing when none is given, a share of the arm's length to each side (provisional: a wave's sweep, read from no measured source). */
+/**
+ * An oscillation's swing when none is given, a share of the arm's length to
+ * each side (provisional: a wave's sweep, read from no measured source).
+ */
 const SWING: number = 0.1;
 
-/** The outward share of the upper arm the elbow's hanging hint is widened by (provisional: a tenth, enough to keep the elbow off the flank, read from no measured source). */
+/**
+ * The outward share of the upper arm the elbow's hanging hint is widened by
+ * (provisional: a tenth, enough to keep the elbow off the flank, read from no
+ * measured source).
+ */
 const HANG_OUT: number = 0.1;
 
 /** No offset. */

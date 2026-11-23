@@ -17,27 +17,26 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the standing exercises (#3245), three repetitions each
- * from quiet standing.
+ * Capture cases of the standing exercises, three repetitions each from quiet
+ * standing.
  *
  * Every case reports foot slip at most 5 mm and no range-of-motion overshoot
  * (decision 11) and the exact count the issue asks for: the hips' (squat,
  * lunge), the raised ankle's (high knees) or the wrists' (jumping jack)
  * excursions counted on the 48 Hz grid. Beyond that:
  *
- * - `exercise-squat` (parallel): the thigh within 5 degrees of the declared
- *   angle from the horizontal at every `bottom`, and both feet within 5 mm
- *   of the floor while planted;
+ * - `exercise-squat` (parallel): the thigh within 5 degrees of the declared angle
+ *   from the horizontal at every `bottom`, and both feet within 5 mm of the
+ *   floor while planted;
  * - `exercise-lunge`: the trailing knee within 15 cm of the floor at every
- *   `bottom` (the back knee nearly touches the floor), and the lead ankle
- *   back within 5 mm of its stance at the end;
- * - `exercise-highKnees`: the raised thigh within 15 degrees of the
- *   horizontal at every `bottom`;
+ *   `bottom` (the back knee nearly touches the floor), and the lead ankle back
+ *   within 5 mm of its stance at the end;
+ * - `exercise-highKnees`: the raised thigh within 15 degrees of the horizontal at
+ *   every `bottom`;
  * - `exercise-jumpingJack`: both wrists above the crown at every `bottom`.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
  * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per exercise and body, one verdict block per exercise.

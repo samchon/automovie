@@ -19,14 +19,17 @@ import { poseBones } from "../posture/poseBones";
 /** World up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** How high a carried crutch's tip lifts as it is moved, metres (provisional, as the crutch walk's). */
+/**
+ * How high a carried crutch's tip lifts as it is moved, metres (provisional, as
+ * the crutch walk's).
+ */
 const LIFT: number = 0.04;
 
 /**
- * The geometry of sitting and rising with two crutches held in one hand
- * (#3994): the crutches' grip and tip, a crutch's frame tilted with its tip
- * on the floor, a carried crutch's lifted path, a hand's grip socket, and a
- * crutch's offset in the grip frame of the hand that holds it.
+ * The geometry of sitting and rising with two crutches held in one hand : the
+ * crutches' grip and tip, a crutch's frame tilted with its tip on the floor, a
+ * carried crutch's lifted path, a hand's grip socket, and a crutch's offset in
+ * the grip frame of the hand that holds it.
  *
  * A crutch stands on its tip, its shaft along its own `+Y`; the grip lies
  * `length` above the tip.
@@ -63,7 +66,6 @@ export namespace crutchSitPath {
    * @param affordances Its contacts.
    * @returns The crutch.
    * @throws {HumanRefusal} When it declares no grip or no tip.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, result and refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The two contacts' translations and their distance.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two lookups and one distance.
@@ -96,16 +98,15 @@ export namespace crutchSitPath {
   }
 
   /**
-   * A crutch's frame with its tip on a point and its shaft toward another,
-   * its handgrip turned toward a heading: the frame of a crutch tilting as
-   * its tip slides along the floor.
+   * A crutch's frame with its tip on a point and its shaft toward another, its
+   * handgrip turned toward a heading: the frame of a crutch tilting as its tip
+   * slides along the floor.
    *
    * @param c The crutch.
    * @param tip The tip, world metres.
    * @param toward A point the shaft points to from the tip, world metres.
    * @param forward The level heading the handgrip's axis turns to, world.
    * @returns The crutch's world frame.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, frames and result.
    * @evidence contracts/development/implementation.md#principled-implementation The rotation turning the shaft's `+Y` onto the tip-to-point direction and its `+Z` toward the heading (`HumanHand.align`), placed so the tip stays on its point.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation and one placement.
@@ -138,7 +139,6 @@ export namespace crutchSitPath {
    * @param to The frame it reaches.
    * @param share The share of the move, 0 to 1.
    * @returns The world frame.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the lift and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Position and rotation on one minimum-jerk share, the lift a minimum-jerk bump.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation.
@@ -170,7 +170,6 @@ export namespace crutchSitPath {
    * @param pose The pose.
    * @param side The hand.
    * @returns The grip socket's world point.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and result.
    * @evidence contracts/development/implementation.md#principled-implementation The grip socket read by `HumanHand.frame` on the pose's bones.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose read.
@@ -210,7 +209,6 @@ export namespace crutchSitPath {
    * @param prop The crutch's subject.
    * @param affordances Its contacts.
    * @returns The crutch in the hand's grip frame.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the grasp, the frames and the result.
    * @evidence contracts/development/implementation.md#principled-implementation The inverse of the hand's rigid frame applied to the crutch's: the offset `AutoMovieMotionHumanHeld` keeps while the grip holds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation and one inverse transform.
@@ -247,7 +245,8 @@ export namespace crutchSitPath {
   }
 
   /**
-   * A prop's offset in the grip frame of a hand, from a pose and the prop's world frame: the offset it keeps once the hand takes it there.
+   * A prop's offset in the grip frame of a hand, from a pose and the prop's
+   * world frame: the offset it keeps once the hand takes it there.
    *
    * @param body The body.
    * @param pose The pose.
@@ -256,7 +255,6 @@ export namespace crutchSitPath {
    * @param frame The prop's world frame.
    * @param affordances The prop's contacts.
    * @returns The prop in the hand's grip frame.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, frames and result.
    * @evidence contracts/development/implementation.md#principled-implementation The grip frame is the grip socket's point with the hand bone's rotation, as `AutoMovieMotionHumanHeld` reads a held prop.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose read and one inverse transform.

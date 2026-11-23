@@ -21,7 +21,10 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/** Seconds a fist takes to come onto its grip before the window and to leave it after (provisional: the workout's setup beat). */
+/**
+ * Seconds a fist takes to come onto its grip before the window and to leave it
+ * after (provisional: the workout's setup beat).
+ */
 const REACH: number = 0.25;
 
 /** One fist laid on its grip over the plan's windows. */
@@ -44,23 +47,23 @@ interface IFist {
 }
 
 /**
- * A workout's writer whose fists are hung on two grips, as still rings are
- * hung (#3875's rings): the hanging kinds keep the two fists' middle on the
- * support's middle, which leaves each fist off its own grip by however far
- * the arms' spread differs from the grips'. Here each fist is laid on its
- * own grip while the plan declares that hand's grip window, turned as the
- * keyed arm holds it and with the keyed elbow's side (its pole out along
- * the olecranon, `AutoMovieMotionHumanElbowPole`), so a hang and a dip
- * keep their own grips; over `REACH` seconds before the window and after it
- * the fist moves from where the keyed arm holds it to the grip and back. A
- * support of one grip leaves the writer as it is.
+ * A workout's writer whose fists are hung on two grips, as still rings are hung
+ * (rings): the hanging kinds keep the two fists' middle on the support's
+ * middle, which leaves each fist off its own grip by however far the arms'
+ * spread differs from the grips'. Here each fist is laid on its own grip while
+ * the plan declares that hand's grip window, turned as the keyed arm holds it
+ * and with the keyed elbow's side (its pole out along the olecranon,
+ * `AutoMovieMotionHumanElbowPole`), so a hang and a dip keep their own grips;
+ * over `REACH` seconds before the window and after it the fist moves from where
+ * the keyed arm holds it to the grip and back. A support of one grip leaves the
+ * writer as it is.
  *
  * @param write The workout's keyed writer.
  * @param context The action's context; its `on` names the support.
- * @param contacts The plan's contact windows, read for the hands' grips on the support.
+ * @param contacts The plan's contact windows, read for the hands' grips on the
+ *   support.
  * @param duration The action's seconds.
  * @returns The writer with the fists laid on their grips.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the gap it closes, where each fist goes, its attitude, the blends and the single-grip case.
  * @evidence contracts/development/implementation.md#principled-implementation Each grip's world point with the keyed fist's attitude and elbow, laid by the arm goal over its window with minimum-jerk blends from the keyed hand.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Grips, windows, one wrapper.

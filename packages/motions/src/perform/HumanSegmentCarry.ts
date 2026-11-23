@@ -26,14 +26,13 @@ export namespace HumanSegmentCarry {
    * Select the original active holds that ride a carrier at this film second.
    * Earlier riding holds retain priority through their takeover fade.
    *
-   * A hold rides only once its carry can be captured: its capture instant,
-   * the later of its start and its source action's end, must have passed, or
-   * be now with that source ending before the carrier does. A carry is
-   * captured from its source action's last pose, so a hold that a later
-   * action takes at the carrier's boundary would make that capture evaluate
-   * the later action, whose own carries capture the first hold again: with a
-   * prop in each hand the two captures re-entered each other without bound
-   * (#4023).
+   * A hold rides only once its carry can be captured: its capture instant, the
+   * later of its start and its source action's end, must have passed, or be now
+   * with that source ending before the carrier does. A carry is captured from
+   * its source action's last pose, so a hold that a later action takes at the
+   * carrier's boundary would make that capture evaluate the later action, whose
+   * own carries capture the first hold again: with a prop in each hand the two
+   * captures re-entered each other without bound.
    */
   export function borne(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -76,16 +75,18 @@ export namespace HumanSegmentCarry {
   }
 
   /**
-   * The arm goals that carry held props: each holding hand rides the chest
-   * with the offset it had when its action ended, the trunk-relative goal of
-   * a carried object, attached to the chest (`on`) so the resolver carries
-   * it into the world by the chest of whichever pose it fits, the
-   * evaluation's and the planted refit's after the displayed clamp alike.
+   * The arm goals that carry held props: each holding hand rides the chest with
+   * the offset it had when its action ended, the trunk-relative goal of a
+   * carried object, attached to the chest (`on`) so the resolver carries it
+   * into the world by the chest of whichever pose it fits, the evaluation's and
+   * the planted refit's after the displayed clamp alike.
    *
    * @param person The person.
    * @param holds The holds to carry.
-   * @param resolution Optional exact FK reader or lazy supplier from this same synchronous person's evaluation; never stored in the hold or result.
-   * @param prepared Optional same-body parent preparation, borrowed by the first actual source-pose capture and never retained in h.carry.
+   * @param resolution Optional exact FK reader or lazy supplier from this same
+   *   synchronous person's evaluation; never stored in the hold or result.
+   * @param prepared Optional same-body parent preparation, borrowed by the
+   *   first actual source-pose capture and never retained in h.carry.
    * @returns Each holding arm with its goal.
    */
   export function carries(
@@ -132,7 +133,10 @@ export namespace HumanSegmentCarry {
     return poseBones(person.performer.body, pose, resolution?.(), requested);
   }
 
-  /** A holding arm relative to the chest at the end of the action that took hold. */
+  /**
+   * A holding arm relative to the chest at the end of the action that took
+   * hold.
+   */
   function capture(
     person: IAutoMovieMotionHumanSegment.IPerson,
     held: IAutoMovieMotionHumanSegment.IHeld,

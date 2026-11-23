@@ -11,16 +11,16 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Forces on a performer as input to a performance (#3429): an impulse at an
- * instant (a blow, a shove, a hit) or a force sustained over a span (a load,
- * a pull, a braking support), each acting on a region or a point of a bone.
+ * Forces on a performer as input to a performance: an impulse at an instant (a
+ * blow, a shove, a hit) or a force sustained over a span (a load, a pull, a
+ * braking support), each acting on a region or a point of a bone.
  *
- * Forces only inform the reactions a composition places, as layers never
- * start actions: a law reads the forces on its performer in its span
- * through its context (`IHumanActionContext.forces`), and the balance
- * outcome of an impulse is the engine's (`resolveAutoMovieBalanceOutcome`).
- * A hit becomes an impulse here and only here (`ofHit`), so a melee stop, a
- * projectile and a blast reach the body the same way.
+ * Forces only inform the reactions a composition places, as layers never start
+ * actions: a law reads the forces on its performer in its span through its
+ * context (`IHumanActionContext.forces`), and the balance outcome of an impulse
+ * is the engine's (`resolveAutoMovieBalanceOutcome`). A hit becomes an impulse
+ * here and only here (`ofHit`), so a melee stop, a projectile and a blast reach
+ * the body the same way.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two kinds of force, their units and frames, who reads them and the one conversion of a hit.
  * @evidence contracts/development/design.md#principled-representation Impulses in newton seconds at an instant and forces in newtons over a span, world frame, discriminated by kind, each on a region or a bone's point.
@@ -29,21 +29,21 @@ import type {
  */
 export namespace HumanForce {
   /**
-   * The impulse a hit delivers to the struck person, the only conversion of
-   * a hit record into a force (P1, #3480).
+   * The impulse a hit delivers to the struck person, the only conversion of a
+   * hit record into a force (P1).
    *
-   * A record carrying its own `impulse` (a blast) is taken unchanged. A
-   * record with the striker's velocity after contact (`exit`, zero for a
-   * stick) delivers the momentum the striker lost, `mass (velocity -
-   * exit)`. Otherwise the two-mass normal impulse of the engine's
-   * `resolveImpact` is taken across the struck surface's outward `normal`,
-   * the receiver as one body and the striker as the other, with no
-   * restitution, the least the contact can deliver, since the record names
-   * none.
+   * A record carrying its own `impulse` (a blast) is taken unchanged. A record
+   * with the striker's velocity after contact (`exit`, zero for a stick)
+   * delivers the momentum the striker lost, `mass (velocity - exit)`. Otherwise
+   * the two-mass normal impulse of the engine's `resolveImpact` is taken across
+   * the struck surface's outward `normal`, the receiver as one body and the
+   * striker as the other, with no restitution, the least the contact can
+   * deliver, since the record names none.
    *
    * @param hit The hit record.
    * @param receiver The struck person's mass and velocity.
-   * @returns The impulse on the struck person, or null for a record that names no person, no velocity or no mass.
+   * @returns The impulse on the struck person, or null for a record that names
+   *   no person, no velocity or no mass.
    */
   export function ofHit(
     hit: IAutoMovieInteractionEvent,
@@ -84,8 +84,8 @@ export namespace HumanForce {
   }
 
   /**
-   * The forces on a person within a span: impulses at an instant inside it
-   * and sustained forces that overlap it.
+   * The forces on a person within a span: impulses at an instant inside it and
+   * sustained forces that overlap it.
    *
    * @param forces Every force of the performance.
    * @param subject The person.

@@ -13,27 +13,25 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the load-carriage family (#3258): a 2.5 m walk ahead
- * carrying a load of 15 % of the body's mass in each way: `carry-oneHand`
- * (right hand), `carry-twoHands`, `carry-hip` (left hip) and `carry-push`.
+ * Capture cases of the load-carriage family: a 2.5 m walk ahead carrying a load
+ * of 15 % of the body's mass in each way: `carry-oneHand` (right hand),
+ * `carry-twoHands`, `carry-hip` (left hip) and `carry-push`.
  *
- * Every case reports foot slip at most 5 mm and no range-of-motion
- * overshoot, and that each step is at most 0.45 of the stature (the
- * handoff's carry verdict; Grieve and Gear 1966). Beyond that:
+ * Every case reports foot slip at most 5 mm and no range-of-motion overshoot,
+ * and that each step is at most 0.45 of the stature (the handoff's carry
+ * verdict; Grieve and Gear 1966). Beyond that:
  *
- * - the trunk leans the way the load asks: the chest's offset from the
- *   hips, averaged over the walk's second stride so the gait's own sway
- *   cancels, against its offset at the start, moves away
- *   from a one-hand or hip load, back behind a front box and forward over a
- *   pushed handle;
- * - for the two-handed holds, the distance between the two hands' surfaces
- *   varies by at most 1 mm once the hold is taken (a rigid load, the issue's
- *   object-within-1-mm bound), and each surface stays within 10 mm of its
- *   hold place.
+ * - The trunk leans the way the load asks: the chest's offset from the hips,
+ *   averaged over the walk's second stride so the gait's own sway cancels,
+ *   against its offset at the start, moves away from a one-hand or hip load,
+ *   back behind a front box and forward over a pushed handle;
+ * - For the two-handed holds, the distance between the two hands' surfaces varies
+ *   by at most 1 mm once the hold is taken (a rigid load, the issue's
+ *   object-within-1-mm bound), and each surface stays within 10 mm of its hold
+ *   place.
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the cases and verdicts with their bounds and sources.
  * @evidence contracts/development/implementation.md#principled-implementation Measures displayed bones and sockets.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over four ways of carrying over the shared kit.

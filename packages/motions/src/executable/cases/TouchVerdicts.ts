@@ -22,10 +22,10 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
 
 /**
- * Measures of a touch on displayed poses, shared by the touch families'
- * capture cases (#3234, #3284, #3285): where an effector is against the
- * region it touches, how far the acting forearm enters the rest of the body,
- * and how many times the effector comes down on the region.
+ * Measures of a touch on displayed poses, shared by the touch families' capture
+ * cases: where an effector is against the region it touches, how far the acting
+ * forearm enters the rest of the body, and how many times the effector comes
+ * down on the region.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each measure reads and on which poses.
  * @evidence contracts/development/implementation.md#principled-implementation Every measure reads the performance's displayed bones: the effector through the touch generator's own point, the region through the engine's surface placement and the colliders through `HumanColliders.placed`.
@@ -154,8 +154,8 @@ export namespace TouchVerdicts {
   }
 
   /**
-   * The verdict that an effector stays within a limit of its place on a
-   * region at every given instant.
+   * The verdict that an effector stays within a limit of its place on a region
+   * at every given instant.
    *
    * @param name The check's name.
    * @param measure The miss at a film second, metres.
@@ -187,17 +187,18 @@ export namespace TouchVerdicts {
 
   /**
    * The deepest the acting forearm enters the colliders of a body, metres
-   * (negative inside), over the 24 Hz grid of a window: the displayed
-   * forearm collider's surface points and its axis against every segment but
-   * the acting arm's own. The collider is read as drawn, so a wrist that
-   * lies on the surface its palm is laid on reads the wrist's own thickness
-   * and not a uniform radius.
+   * (negative inside), over the 24 Hz grid of a window: the displayed forearm
+   * collider's surface points and its axis against every segment but the acting
+   * arm's own. The collider is read as drawn, so a wrist that lies on the
+   * surface its palm is laid on reads the wrist's own thickness and not a
+   * uniform radius.
    *
    * @param performance The performance.
    * @param subject The acting performer.
    * @param body Their body.
    * @param side The acting arm.
-   * @param other The body entered and its subject (the performer's own, or a partner's).
+   * @param other The body entered and its subject (the performer's own, or a
+   *   partner's).
    * @param from Film seconds.
    * @param to Film seconds.
    * @returns The least gap, metres, and its second.
@@ -261,10 +262,10 @@ export namespace TouchVerdicts {
   }
 
   /**
-   * How many times an effector comes down on its region in a window: the
-   * local minima of its miss on a 96 Hz grid that lie within a limit. The
-   * window's first sample is where the effector already lies, not a coming
-   * down, and is not counted.
+   * How many times an effector comes down on its region in a window: the local
+   * minima of its miss on a 96 Hz grid that lie within a limit. The window's
+   * first sample is where the effector already lies, not a coming down, and is
+   * not counted.
    *
    * @param measure The miss at a film second, metres.
    * @param from Film seconds.
@@ -365,7 +366,11 @@ export namespace TouchVerdicts {
   }
 }
 
-/** Surface points of a collider shape in its own frame: a hull's vertices, a box's corners, and the six axis ends of a sphere or of each end and the middle of a capsule. */
+/**
+ * Surface points of a collider shape in its own frame: a hull's vertices, a
+ * box's corners, and the six axis ends of a sphere or of each end and the
+ * middle of a capsule.
+ */
 const skin = (shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] => {
   if (shape.kind === "hull") return shape.points;
   if (shape.kind === "box") {

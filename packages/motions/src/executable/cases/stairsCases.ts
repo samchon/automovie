@@ -14,24 +14,22 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the stairs family (#3213): a four-tread flight of 170 mm
- * risers and 280 mm treads (2010 ADA 504.2), climbed up step over step, down
- * step over step, and up step by step, each from quiet standing before the
- * first nosing.
+ * Capture cases of the stairs family: a four-tread flight of 170 mm risers and
+ * 280 mm treads (2010 ADA 504.2), climbed up step over step, down step over
+ * step, and up step by step, each from quiet standing before the first nosing.
  *
  * Every case reports foot slip at most 5 mm and no range-of-motion overshoot.
  * Beyond that, on the displayed sole sockets (heel, ball, toe) against the
  * flight's surface:
  *
- * - every swinging foot's sockets clear each nosing line they pass over by at
+ * - Every swinging foot's sockets clear each nosing line they pass over by at
  *   least 20 mm (the issue's provisional toe clearance);
- * - no socket ever lies more than 10 mm under the floor, a tread or a riser's
- *   top (decision 11);
- * - a planted foot's lowest socket stays within 5 mm of the surface under it.
+ * - No socket ever lies more than 10 mm under the floor, a tread or a riser's top
+ *   (decision 11);
+ * - A planted foot's lowest socket stays within 5 mm of the surface under it.
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every case and its verdicts with their bounds and sources.
  * @evidence contracts/development/implementation.md#principled-implementation Measures displayed sockets against the flight's own surface function.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over three flights over the shared kit.

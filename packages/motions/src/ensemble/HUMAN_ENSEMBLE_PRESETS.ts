@@ -1,18 +1,16 @@
 import type { IAutoMovieMotionHumanEnsemblePreset } from "@automovie/interface";
 
 /**
- * Named groups as distributions of their members' attributes and
- * proficiency, so an elite battalion and a militia are one composition under
- * two names.
+ * Named groups as distributions of their members' attributes and proficiency,
+ * so an elite battalion and a militia are one composition under two names.
  *
- * Every value here is provisional: no study measuring the spread of
- * discipline, fatigue or morale across a unit was located (the crowd index
- * #3452 carries the search). The rows order the groups as the period sources
- * and the crowd literature describe them: drilled regulars steadier and more
- * uniform than militia, a rabble the least disciplined and the most varied,
- * and civilians undrilled but calm. The scene tests assert relations between
- * the rows (elite narrower than militia, rabble wider than civilians), never
- * the rows' own numbers.
+ * Every value here is provisional: no study measuring the spread of discipline,
+ * fatigue or morale across a unit was located. The rows order the groups as the
+ * period sources and the crowd literature describe them: drilled regulars
+ * steadier and more uniform than militia, a rabble the least disciplined and
+ * the most varied, and civilians undrilled but calm. The scene tests assert
+ * relations between the rows (elite narrower than militia, rabble wider than
+ * civilians), never the rows' own numbers.
  */
 export const HUMAN_ENSEMBLE_PRESETS: Readonly<
   Record<

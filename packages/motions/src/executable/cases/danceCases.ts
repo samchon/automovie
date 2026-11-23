@@ -16,24 +16,22 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the solo dance steps (#3253), eight beats at 120 bpm
- * from quiet standing.
+ * Capture cases of the solo dance steps, eight beats at 120 bpm from quiet
+ * standing.
  *
- * Every case reports foot slip at most 5 mm and no range-of-motion
- * overshoot. The issue's acceptance, that footfalls and accents land within
- * one frame (1/24 s) of the beat, is read on a 96 Hz grid as:
+ * Every case reports foot slip at most 5 mm and no range-of-motion overshoot.
+ * The issue's acceptance, that footfalls and accents land within one frame
+ * (1/24 s) of the beat, is read on a 96 Hz grid as:
  *
- * - `dance-bounce`: the hips' lowest point of each beat within one frame of
- *   it;
+ * - `dance-bounce`: the hips' lowest point of each beat within one frame of it;
  * - `dance-sway`: the hips' sideways extremes within one frame of beats;
- * - `dance-stepTouch`: each footfall (the first instant the ankle is within
- *   2 mm of where it comes to rest) within one frame of its beat, and a
- *   footfall on every beat;
+ * - `dance-stepTouch`: each footfall (the first instant the ankle is within 2 mm
+ *   of where it comes to rest) within one frame of its beat, and a footfall on
+ *   every beat;
  * - `dance-boxStep`: the same two readings of its footfalls.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
  * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and times the displayed bones against the authored beats.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per step, one timing measure per step.

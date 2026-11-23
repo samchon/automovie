@@ -1,19 +1,19 @@
 import type { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
 
 /**
- * The coupled groups of a simulated window at each step (#3834): performers
- * who grip each other while both still track are fitted together against
- * one snapshot, each connected set of such pairs one group.
+ * The coupled groups of a simulated window at each step: performers who grip
+ * each other while both still track are fitted together against one snapshot,
+ * each connected set of such pairs one group.
  *
  * A one-way grip is no group: its receiver is read where the solver put it,
- * which the engine's individual fit already does. The label names the
- * group's members, so a step's group is the same string wherever it holds.
+ * which the engine's individual fit already does. The label names the group's
+ * members, so a step's group is the same string wherever it holds.
  *
  * @param grips Every grip of the window.
- * @param releases Each simulated performer's release step; past the interval count for one never released.
+ * @param releases Each simulated performer's release step; past the interval
+ *   count for one never released.
  * @param end The last step the solver may own a segment.
  * @returns Each step's labels by performer; a step without a group is absent.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States who is grouped, why a one-way grip is not, and the label.
  * @evidence contracts/development/implementation.md#principled-implementation The engine admits a group only with reciprocal adjustable receivers (`preparePhysicalCoupledTargetSchedule`), so a group is a connected set of mutual grips between tracking bodies, found by union-find.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Per step: the active grips, their mutual pairs joined, the sets labelled.

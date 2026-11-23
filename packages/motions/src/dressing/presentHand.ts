@@ -25,18 +25,21 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
-/** How far out from the midline the presented hand comes, as a share of the shoulder's half width (provisional: the forearm turned in, the hand before the body's middle, where either of a partner's hands takes it). */
+/**
+ * How far out from the midline the presented hand comes, as a share of the
+ * shoulder's half width (provisional: the forearm turned in, the hand before
+ * the body's middle, where either of a partner's hands takes it).
+ */
 const INWARD: number = 0.3;
 
 /**
- * Present a hand to a partner (#4015). The palm goes, palm down and fingers
- * forward, to the place the arm reaches with the upper arm hanging and the
- * forearm level ahead: `INWARD` of the shoulder's half width out from the
- * midline, the upper arm's length below
- * it, the forearm and half the hand ahead of it, all from the body's own
- * measure; it stays the authored seconds and returns. The arm is laid as
- * one course (`courseArmGoal`). Events: `ready` once presented, `relax` as
- * it starts back.
+ * Present a hand to a partner. The palm goes, palm down and fingers forward, to
+ * the place the arm reaches with the upper arm hanging and the forearm level
+ * ahead: `INWARD` of the shoulder's half width out from the midline, the upper
+ * arm's length below it, the forearm and half the hand ahead of it, all from
+ * the body's own measure; it stays the authored seconds and returns. The arm is
+ * laid as one course (`courseArmGoal`). Events: `ready` once presented, `relax`
+ * as it starts back.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the place, the hand's turn, the timing, the course and the events.
  * @evidence contracts/development/design.md#principled-representation A visit of the arm phrase to a place in the performer's own frame, laid as one course.

@@ -18,22 +18,21 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the baseball positions (#3248) from quiet standing.
+ * Capture cases of the baseball positions from quiet standing.
  *
  * Every case reports foot slip at most 5 mm (the issue's planted-foot bound)
  * and no range-of-motion overshoot, and each planted foot within 5 mm of the
  * floor. Beyond that, mid-hold:
  *
- * - `baseball-catcherCrouch`: the glove palm at least half an arm ahead of
- *   the chest;
+ * - `baseball-catcherCrouch`: the glove palm at least half an arm ahead of the
+ *   chest;
  * - `baseball-groundBall`: the glove palm within 10 cm of the floor;
- * - `baseball-battingStance`: the two fists within a hand's length of each
- *   other at the right shoulder's height, within 10 cm, and the feet at
- *   least three half shoulder widths apart.
+ * - `baseball-battingStance`: the two fists within a hand's length of each other
+ *   at the right shoulder's height, within 10 cm, and the feet at least three
+ *   half shoulder widths apart.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
  * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per position, one verdict block per position.

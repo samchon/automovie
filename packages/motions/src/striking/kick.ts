@@ -33,33 +33,33 @@ import { StrikingWeaponTable } from "./StrikingWeaponTable";
  * brought onto the target, through a chamber, and recoiled to the replant.
  *
  * Effector goals, not keyed angles: the ankle travels on superposed
- * minimum-jerk units from its plant through the chamber to the contact and
- * back through a re-chamber, the knee's bend hint and the foot's rotation
- * riding along, and the engine's limb fit solves the leg. The contact is
- * decided on the fitted figure ({@link KickGeometry}): the two-segment solve
- * ({@link StrikingReach}) puts the lower shin (seven tenths of the way from
- * the knee) or the ball of the foot on the target point with the knee
- * between 5 and 40 degrees of flexion (35 for the push kick), and the body's
- * carriage ({@link KickCarriage}) leans the least that lets the fitted leg
- * hold that solve inside the hip's range of motion. A target nearer than the
- * band is met higher up the shin, as a jammed kick lands; one beyond it,
- * after a step-up of the support foot by up to half a stance, is missed at
- * the fitted leg's own reach. The chamber is the contact's leg with the knee
- * folded ({@link KickChamber}).
+ * minimum-jerk units from its plant through the chamber to the contact and back
+ * through a re-chamber, the knee's bend hint and the foot's rotation riding
+ * along, and the engine's limb fit solves the leg. The contact is decided on
+ * the fitted figure ({@link KickGeometry}): the two-segment solve
+ * ({@link StrikingReach}) puts the lower shin (seven tenths of the way from the
+ * knee) or the ball of the foot on the target point with the knee between 5 and
+ * 40 degrees of flexion (35 for the push kick), and the body's carriage
+ * ({@link KickCarriage}) leans the least that lets the fitted leg hold that
+ * solve inside the hip's range of motion. A target nearer than the band is met
+ * higher up the shin, as a jammed kick lands; one beyond it, after a step-up of
+ * the support foot by up to half a stance, is missed at the fitted leg's own
+ * reach. The chamber is the contact's leg with the knee folded
+ * ({@link KickChamber}).
  *
  * Both gloves keep their guard (the kick-guard decision of the kickboxing
- * research of #3201).
+ * research).
  *
  * Timing (Gavagan and Sayers 2017): preparation 0.074 s, chamber 14 % and
  * extension 11 % of the 1.02 s execution, recoil 0.65 s; the round kick lands
  * at 0.55 of its peak foot speed. Skill scales chamber and recoil by 1.4 to 1
  * and the strike phase by 1.06 to 1, and the chamber's fold and the pelvis's
- * turn by its range share ({@link StrikingSkill}). Every phase applies to
- * low, body and high kicks alike, an approximation the source states (it
- * timed head kicks).
+ * turn by its range share ({@link StrikingSkill}). Every phase applies to low,
+ * body and high kicks alike, an approximation the source states (it timed head
+ * kicks).
  *
- * A round kick may be redirected before its chamber key into another round
- * kick ({@link KickRedirect}).
+ * A round kick may be redirected before its chamber key into another round kick
+ * ({@link KickRedirect}).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the effector-goal method, where the contact is decided, the body's carriage, the timing with sources and the redirect; `KickForm` states which values are provisional.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table admitting only the redirect, parameters with closed technique and leg unions, and a pure plan of postures in world metres and seconds with capsule weapons.
@@ -80,7 +80,6 @@ export namespace kick {
    *
    * @param params The parameters.
    * @returns Lead or rear.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation The parameter's own documentation states the defaults this resolves.
    * @evidence contracts/development/implementation.md#principled-implementation The declared leg, else the rear for a round kick and the lead for a push kick.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
@@ -100,8 +99,10 @@ export namespace kick {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When a redirect's source is not a planned kick, when either kick of a redirect is not a round kick, when the plan is read back while it is being built, or when a feint's share lies outside (0, 1) or past the chamber's share.
-   *
+   * @throws {Error} When a redirect's source is not a planned kick, when either
+   *   kick of a redirect is not a round kick, when the plan is read back while
+   *   it is being built, or when a feint's share lies outside (0, 1) or past
+   *   the chamber's share.
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
    * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units carry the ankle through the chamber to the contact goal decided on the fitted figure; the performance's joint contact resolution stops the leg's capsules, after which the chain retraces its approach.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing first, the geometry built on first use (or continued from the source for a redirect), and every posture, contact window, weapon and record read from it.
@@ -385,7 +386,10 @@ export namespace kick {
     return source;
   }
 
-  /** A fresh kick's timing (Gavagan and Sayers 2017 phases, scaled and jittered by skill). */
+  /**
+   * A fresh kick's timing (Gavagan and Sayers 2017 phases, scaled and jittered
+   * by skill).
+   */
   function measure(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
   ): IAutoMovieMotionHumanKickGeometry.ITiming {

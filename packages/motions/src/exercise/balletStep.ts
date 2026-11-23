@@ -21,16 +21,15 @@ import { dance } from "./dance";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 
 /**
- * Classical ballet on the dance law's beat clock (#3991): a position of the
- * feet with a plié or a relevé (`balletPositions`), a pirouette from fourth
+ * Classical ballet on the dance law's beat clock: a position of the feet with a
+ * plié or a relevé (`balletPositions`), a pirouette from fourth
  * (`balletPirouette`) and a grand jeté (`balletJete`).
  *
  * Each step reads the dancer's hips: a turnout beyond the hip's external
- * rotation (`AutoMovieMotionHumanRange.limit`) is refused with that limit,
- * and a jeté's split beyond the leading hip's flexion and the other's
- * extension is refused with their sum. The turnout is `TURNOUT` degrees
- * when absent, a trained dancer's hip share of a working turnout
- * (provisional).
+ * rotation (`AutoMovieMotionHumanRange.limit`) is refused with that limit, and
+ * a jeté's split beyond the leading hip's flexion and the other's extension is
+ * refused with their sum. The turnout is `TURNOUT` degrees when absent, a
+ * trained dancer's hip share of a working turnout (provisional).
  *
  * Not yet: the battement tendu, the développé and the attitude, and a jeté
  * prepared by its own run.
@@ -44,7 +43,10 @@ export namespace balletStep {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "balletStep";
 
-  /** Cancel table: from its relaxing instant, into standing, another ballet step or a dance. */
+  /**
+   * Cancel table: from its relaxing instant, into standing, another ballet step
+   * or a dance.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -61,8 +63,10 @@ export namespace balletStep {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the turnout exceeds the hip's external rotation, the split exceeds the hips' flexion and extension, the position is not one to five, the turns are not one or two, or the tempo or beat count is not admitted.
-   *
+   * @throws {HumanRefusal} When the turnout exceeds the hip's external
+   *   rotation, the split exceeds the hips' flexion and extension, the position
+   *   is not one to five, the turns are not one or two, or the tempo or beat
+   *   count is not admitted.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and every refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Range checks against the body's table, then the kind's course composed by the shared footwork.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, clock, course, composition.

@@ -16,16 +16,16 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { catchObject } from "./catchObject";
 
 /**
- * The registered, physical-prop variant of the catch law. Compose the
- * anchored launch first through the proposed catch time, then use
- * `registered("stageCatch", { from, ball })` on the catcher. A portable
- * drag-free prop must reach the base law's interception point on its
- * actual flight before this law gives its grip custody of the prop. An
- * authored `intercept` reads that flight at release plus its seconds,
- * including any intervening rebound, and uses the same arm planner.
- * The interception second is the flight's provisional planning horizon, so
- * a long pass is caught after the thrower's action has ended. Final flight
- * admission checks that the launch survives and its frame matches the grip.
+ * The registered, physical-prop variant of the catch law. Compose the anchored
+ * launch first through the proposed catch time, then use
+ * `registered("stageCatch", { partner, ball })` on the catcher. A portable
+ * drag-free prop must reach the base law's interception point on its actual
+ * flight before this law gives its grip custody of the prop. An authored
+ * `intercept` reads that flight at release plus its seconds, including any
+ * intervening rebound, and uses the same arm planner. The interception second
+ * is the flight's provisional planning horizon, so a long pass is caught after
+ * the thrower's action has ended. Final flight admission checks that the launch
+ * survives and its frame matches the grip.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the registered use, the planning horizon, supported prop and authoritative catch instant.
  * @evidence contracts/development/design.md#principled-representation The base catch owns arm goals and timing. A hold publishes the borrowed launch identity and frame check at the interception the base plan names.
@@ -39,8 +39,10 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
   plan: (
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IStageParams>,
   ): IAutoMovieMotionHumanCatchObject.IPlan => {
-    const { ball, partner: from }: IAutoMovieMotionHumanCatchObject.IStageParams =
-      context.params;
+    const {
+      ball,
+      partner: from,
+    }: IAutoMovieMotionHumanCatchObject.IStageParams = context.params;
     const source: IAutoMovieMotionHumanPlacedAction = context.action(from);
     const launches: readonly IAutoMovieMotionPropLaunch[] =
       source.plan.launches?.filter(

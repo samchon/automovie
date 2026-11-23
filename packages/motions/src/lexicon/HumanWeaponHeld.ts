@@ -21,14 +21,14 @@ import { StrikingHeld } from "../striking/StrikingHeld";
 
 /**
  * How a presented weapon is held, read once per plan: the weapon as the
- * shooting hand holds it, whether it is a long gun (a prop with a
- * `foreEnd`), and where the support hand takes it, beside the shooting hand
- * on a handgun and on the fore-end of a long gun, nearer when the support
- * arm cannot reach the fore-end's middle. The support arm reaches as far as
- * it is long: the upper arm and the forearm straight, and the grip's own
- * distance from the wrist, as the present of a long arm holds it with the
- * left arm extended under the piece ("the left hand at the swell", the 1764
- * Manual Exercise); the arm's fit then holds it within its own range.
+ * shooting hand holds it, whether it is a long gun (a prop with a `foreEnd`),
+ * and where the support hand takes it, beside the shooting hand on a handgun
+ * and on the fore-end of a long gun, nearer when the support arm cannot reach
+ * the fore-end's middle. The support arm reaches as far as it is long: the
+ * upper arm and the forearm straight, and the grip's own distance from the
+ * wrist, as the present of a long arm holds it with the left arm extended under
+ * the piece ("the left hand at the swell", the 1764 Manual Exercise); the arm's
+ * fit then holds it within its own range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, the long-gun rule, the support hand's places and its reach with the drill's posture.
  * @evidence contracts/development/design.md#principled-representation The held tool, the support hand's offset in the tool's frame and the arm's length.
@@ -36,12 +36,18 @@ import { StrikingHeld } from "../striking/StrikingHeld";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No firearm kind is named: a long gun is a prop with a fore-end; the reach is the body's own, never a share of it.
  */
 export namespace HumanWeaponHeld {
-  /** The hand a weapon action holds the weapon in: the right when the parameters name none. */
+  /**
+   * The hand a weapon action holds the weapon in: the right when the parameters
+   * name none.
+   */
   export const hand = (
     p: IAutoMovieMotionHumanWeaponPresent.IWield,
   ): AutoMovieHumanSide => p.hand ?? "right";
 
-  /** How the hand holds the weapon at an action's start, by the points it is read at (`StrikingHeld.of`). */
+  /**
+   * How the hand holds the weapon at an action's start, by the points it is
+   * read at (`StrikingHeld.of`).
+   */
   export const held =
     (
       context: Pick<
@@ -66,7 +72,10 @@ export namespace HumanWeaponHeld {
    * refused in one hand, and the support hand's place.
    *
    * @param context The action's parameters, props and body.
-   * @param read How the weapon is held, by the points it is read at: as the hand holds it at the action's start (`held`), or as a grip not yet taken would hold it (`IHumanActionLaw.IGrip.tool`), for a grasp the action is asked to judge.
+   * @param read How the weapon is held, by the points it is read at: as the
+   *   hand holds it at the action's start (`held`), or as a grip not yet taken
+   *   would hold it (`IHumanActionLaw.IGrip.tool`), for a grasp the action is
+   *   asked to judge.
    * @returns The setup.
    * @throws {HumanRefusal} When a long gun is asked in one hand.
    */
@@ -161,9 +170,9 @@ export namespace HumanWeaponHeld {
   };
 
   /**
-   * The support hand's hold for a pose: a long gun's fore-end is a handle
-   * with a length, so a hand whose arm cannot reach its middle takes it
-   * nearer, up to half that length back; beyond that the pose is refused.
+   * The support hand's hold for a pose: a long gun's fore-end is a handle with
+   * a length, so a hand whose arm cannot reach its middle takes it nearer, up
+   * to half that length back; beyond that the pose is refused.
    *
    * @param context The action's context.
    * @param s The setup.
@@ -234,11 +243,11 @@ export namespace HumanWeaponHeld {
   };
 
   /**
-   * The least step along a line from a point that brings it within a
-   * distance of a centre: 0 when it already is, the smaller root of
-   * `|d + s u|^2 = r^2` ahead of it otherwise, with `d` the point's offset
-   * from the centre and `u` the line's unit direction; undefined when the
-   * line never comes that near ahead.
+   * The least step along a line from a point that brings it within a distance
+   * of a centre: 0 when it already is, the smaller root of `|d + s u|^2 = r^2`
+   * ahead of it otherwise, with `d` the point's offset from the centre and `u`
+   * the line's unit direction; undefined when the line never comes that near
+   * ahead.
    *
    * @param d The point's offset from the centre, metres.
    * @param u The line's unit direction.
@@ -260,12 +269,11 @@ export namespace HumanWeaponHeld {
   };
 
   /**
-   * A presenting plan over a carrier (#3491): carried by the support it is
-   * entered on (`HumanSupportCarry`), claiming the trunk's turn and the
-   * holding arms and hands, so it runs over a stand, a ride or a stance on a
-   * moving floor; a plan that carries the body itself is returned as made.
-   * An aimed weapon keeps its line on the target at every second
-   * (`HumanSupportAim`).
+   * A presenting plan over a carrier: carried by the support it is entered on
+   * (`HumanSupportCarry`), claiming the trunk's turn and the holding arms and
+   * hands, so it runs over a stand, a ride or a stance on a moving floor; a
+   * plan that carries the body itself is returned as made. An aimed weapon
+   * keeps its line on the target at every second (`HumanSupportAim`).
    */
   export const carried = (
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>,

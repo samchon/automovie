@@ -7,12 +7,12 @@ import { KickboxingRing } from "./KickboxingRing";
 
 /**
  * The knockdown procedure's clock and corner (GLORY Rules 5.05.B.2 to 5 and
- * Appendix 3.D, as inspected in the kickboxing research of #3201): the
- * standing fighter goes to the farthest neutral corner and faces the centre
- * before the count starts; the count is one number per elapsed second from
- * that start, readiness is assessed at eight, and an uninterrupted ten ends
- * the contest by knockout. One number per second is the research's
- * implementation of the ten-count, not a timing the rulebook quotes.
+ * Appendix 3.D, as inspected in the kickboxing research): the standing fighter
+ * goes to the farthest neutral corner and faces the centre before the count
+ * starts; the count is one number per elapsed second from that start, readiness
+ * is assessed at eight, and an uninterrupted ten ends the contest by knockout.
+ * One number per second is the research's implementation of the ten-count, not
+ * a timing the rulebook quotes.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the procedure with its rule numbers and which timing is the research's own reading.
  * @evidence contracts/development/design.md#principled-representation The count as film seconds from its start and the corner as a floor point of the ring.
@@ -29,11 +29,11 @@ export namespace KnockdownCount {
   /**
    * The second a number lands.
    *
-   * @param start Film second the count starts (the standing fighter in the corner).
+   * @param start Film second the count starts (the standing fighter in the
+   *   corner).
    * @param number A whole number from one to ten.
    * @returns Film seconds.
    * @throws {Error} When the number is not one to ten.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the timebase, the domain and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation One number per elapsed second from the count's start, the research's reading of the ten-count.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One check and one sum.
@@ -55,7 +55,6 @@ export namespace KnockdownCount {
    * @param fallen The fallen fighter's floor point, world metres.
    * @param margin How far inside the ropes the standing fighter waits, metres.
    * @returns The corner's floor point, world metres.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the choice, the margin and the units.
    * @evidence contracts/development/implementation.md#principled-implementation The farther of the two neutral corners by horizontal distance from the fallen fighter, ties to the first.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two ring corner queries and one comparison.
@@ -79,8 +78,9 @@ export namespace KnockdownCount {
       "neutralB",
       margin,
     );
-    const d: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
-      Math.hypot(p.x - fallen.x, p.z - fallen.z);
+    const d: (p: IAutoMovieVector3) => number = (
+      p: IAutoMovieVector3,
+    ): number => Math.hypot(p.x - fallen.x, p.z - fallen.z);
     return d(a) >= d(b) ? a : b;
   }
 }

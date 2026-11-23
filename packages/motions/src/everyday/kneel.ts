@@ -42,37 +42,37 @@ import { prepareKneelFoot } from "./prepareKneelFoot";
 import { prepareKneelPhases } from "./prepareKneelPhases";
 
 /**
- * Kneeling from standing: on one knee (half kneel), on both knees upright,
- * or sitting back on the heels, held, then rising the way it went down.
+ * Kneeling from standing: on one knee (half kneel), on both knees upright, or
+ * sitting back on the heels, held, then rising the way it went down.
  *
  * The goals are floor points, solved by {@link kneelKeys}. The kneeling leg
- * steps back onto its tucked toes while the hips travel along the heading
- * from where they stand to where the step key puts them as the foot travels,
- * so they trail the foot and arrive after it lands; with the balance option
- * (`IAutoMovieMotionHumanBalance`) they run instead a course that
- * keeps the extrapolated centre of mass between the feet
- * (the extrapolated-centre course; Hof, Gazendam and Sinke 2005), going
- * to the middle between the two feet. Through the
- * step the hips ride as high as the less extended leg reaches its foot, the
- * reach going from the standing leg's to `REACH` of its length, a reverse
- * lunge, and the pelvis tips forward by what keeps the leg behind inside the
- * hip's extension range (`kneelKeys.lean`). Then the hips lower until the knee touches the floor straight under
- * its hip joint with the thigh upright, the shin lying back along the floor
- * to the foot. For both knees the front leg then swings back and its knee
- * lands beside the first, and for sitting back the hips turn about the knees
- * toward the heels until the knees flex `kneelKeys.SIT` degrees. Pollard,
- * Porter and Redfern (2011, J Appl Biomech 27:233) give the four kneeling
- * postures. The hands rest on the thighs as the body settles.
+ * steps back onto its tucked toes while the hips travel along the heading from
+ * where they stand to where the step key puts them as the foot travels, so they
+ * trail the foot and arrive after it lands; with the balance option
+ * (`IAutoMovieMotionHumanBalance`) they run instead a course that keeps the
+ * extrapolated centre of mass between the feet (the extrapolated-centre course;
+ * Hof, Gazendam and Sinke 2005), going to the middle between the two feet.
+ * Through the step the hips ride as high as the less extended leg reaches its
+ * foot, the reach going from the standing leg's to `REACH` of its length, a
+ * reverse lunge, and the pelvis tips forward by what keeps the leg behind
+ * inside the hip's extension range (`kneelKeys.lean`). Then the hips lower
+ * until the knee touches the floor straight under its hip joint with the thigh
+ * upright, the shin lying back along the floor to the foot. For both knees the
+ * front leg then swings back and its knee lands beside the first, and for
+ * sitting back the hips turn about the knees toward the heels until the knees
+ * flex `kneelKeys.SIT` degrees. Pollard, Porter and Redfern (2011, J Appl
+ * Biomech 27:233) give the four kneeling postures. The hands rest on the thighs
+ * as the body settles.
  *
- * Each phase moves on minimum-jerk progress; its length is provisional,
- * scaled by the square root of the hip height (Alexander 1984) and by the
- * manner's tempo. The root is lowered wherever a planted leg could not reach
- * its foot. Each foot plants while it keeps its floor point, and each knee
- * on the floor bears there (a `bear` window on its lower leg, at the knee)
- * from the key it comes down in until it leaves, both on the floor the feet
- * stand on. Events: `stepBack` at the start, `kneeContact`, `secondKnee` for
- * both knees, `seatOnHeels` for sitting back, `settled`, and when it rises
- * `kneeOff` and `stood`.
+ * Each phase moves on minimum-jerk progress; its length is provisional, scaled
+ * by the square root of the hip height (Alexander 1984) and by the manner's
+ * tempo. The root is lowered wherever a planted leg could not reach its foot.
+ * Each foot plants while it keeps its floor point, and each knee on the floor
+ * bears there (a `bear` window on its lower leg, at the knee) from the key it
+ * comes down in until it leaves, both on the floor the feet stand on. Events:
+ * `stepBack` at the start, `kneeContact`, `secondKnee` for both knees,
+ * `seatOnHeels` for sitting back, `settled`, and when it rises `kneeOff` and
+ * `stood`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goals, how every place follows from the body, the sources, the timing and the events, with provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record composed of one body row over key states and two hand rows on one clock.
@@ -86,7 +86,10 @@ export namespace kneel {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "kneel";
 
-  /** Cancel table: the body stands, crouches or handles a low thing once it has settled. */
+  /**
+   * Cancel table: the body stands, crouches or handles a low thing once it has
+   * settled.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -122,18 +125,32 @@ export namespace kneel {
     ],
   };
 
-  /** How far of its full length the stepping leg extends to reach its foot behind (provisional). */
+  /**
+   * How far of its full length the stepping leg extends to reach its foot
+   * behind (provisional).
+   */
   export const REACH: number = 0.98;
 
-  /** Seconds over which a lifted foot's toe-down turn eases in from and out to its plants (provisional, as the medium walk's). */
+  /**
+   * Seconds over which a lifted foot's toe-down turn eases in from and out to
+   * its plants (provisional, as the medium walk's).
+   */
   const EASE: number = 0.1;
 
-  /** Seconds of each phase for the reference hip height (`walkRoot.REFERENCE_HIP`), scaled to a body by the square root of its own hip height (dynamic similarity); the phases themselves have no located measurement. */
+  /**
+   * Seconds of each phase for the reference hip height
+   * (`walkRoot.REFERENCE_HIP`), scaled to a body by the square root of its own
+   * hip height (dynamic similarity); the phases themselves have no located
+   * measurement.
+   */
   export const PHASES: Readonly<
     Record<"step" | "lower" | "second" | "sit", number>
   > = { step: 0.7, lower: 1.0, second: 0.9, sit: 0.8 };
 
-  /** The swinging ankle's greatest rise over its straight path, as a share of the shank (provisional). */
+  /**
+   * The swinging ankle's greatest rise over its straight path, as a share of
+   * the shank (provisional).
+   */
   export const CLEARANCE: number = 0.15;
 
   /**
@@ -142,7 +159,6 @@ export namespace kneel {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the plan and its refusal; the namespace gives the law.
    * @evidence contracts/development/implementation.md#principled-implementation Key states joined by minimum-jerk phases; on its feet the hips follow the balance course and the legs' reach, sitting back they turn about the knees; a foot whose toes' joint does not move pivots on it, one that moves swings on an arc.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Key states, a phase list, one body row and two hand rows.
@@ -612,7 +628,7 @@ export namespace kneel {
       k,
     );
     // A kneel that rises leaves the body standing; one that stays down
-    // leaves it kneeling (#3363: a base transition declares the base it
+    // leaves it kneeling (a base transition declares the base it
     // ends in).
     const course: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({

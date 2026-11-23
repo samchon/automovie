@@ -38,10 +38,13 @@ import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { HumanSkill } from "../skill/HumanSkill";
 
-/** Midpoint of the outward and inward tap means, seconds. Trudeau et al. (2012), doi:10.1177/0018720811423660, measured 0.28 s and 0.30 s. */
+/**
+ * Midpoint of the outward and inward tap means, seconds. Trudeau et al. (2012),
+ * doi:10.1177/0018720811423660, measured 0.28 s and 0.30 s.
+ */
 const TAP_INTERVAL: number = (0.28 + 0.3) / 2;
 
-/** Maximum fingertip error, metres, from the keyed-contact specification in issue #3446. */
+/** Maximum fingertip error, metres, from the keyed-contact specification. */
 const CONTACT_BOUND: number = 0.002;
 
 /** One sampled configuration of the three thumb joints. */
@@ -57,19 +60,19 @@ interface IKnot {
  * Plan keyed presses by the free thumb of the hand that holds a prop.
  *
  * The carrier keeps the existing rigid hold and finger joints. Each press is
- * fitted once in the holding hand's frame, so the contact moves with the
- * prop as the carrier moves. The thumb returns through its entrance
- * configuration between contacts. This release path assumes the grip leaves
- * the thumb free and its entrance configuration clear of the pressing sites.
- * A site without authored or mechanical travel is pressed on its surface.
- * Omitted times use the average thumb-tap interval of Trudeau et al. (2012),
- * varied by the action's seeded proficiency. Authored times are seconds from
- * the overlay's start. The first press must follow the overlay's entrance fade.
+ * fitted once in the holding hand's frame, so the contact moves with the prop
+ * as the carrier moves. The thumb returns through its entrance configuration
+ * between contacts. This release path assumes the grip leaves the thumb free
+ * and its entrance configuration clear of the pressing sites. A site without
+ * authored or mechanical travel is pressed on its surface. Omitted times use
+ * the average thumb-tap interval of Trudeau et al. (2012), varied by the
+ * action's seeded proficiency. Authored times are seconds from the overlay's
+ * start. The first press must follow the overlay's entrance fade.
  *
  * @param context The overlay's entry, held prop and ordered contact sites.
  * @returns A thumb-only plan with one press event per site.
- * @throws {HumanRefusal} When the hand is empty, a site or thumb is absent, the sequence is invalid, or a site is outside the thumb's usable reach.
- *
+ * @throws {HumanRefusal} When the hand is empty, a site or thumb is absent, the
+ *   sequence is invalid, or a site is outside the thumb's usable reach.
  * @evidence contracts/development/common.md#meaningful-documentation Gives the ownership split, contact frame, release premise, timing and refusals.
  * @evidence contracts/development/implementation.md#principled-implementation Rigid carriage preserves hand-local contact geometry. Each thumb fit uses the engine's clamped inverse kinematics on the original three-joint chain. Minimum-jerk joint blends have zero velocity and acceleration at their knots.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the hold, builds the isolated rig, fits the ordered contacts, then evaluates the sampled joint path.
@@ -311,7 +314,10 @@ export function manipulateHeld(
   };
 }
 
-/** Read the samples in rig order, with absent joints using their rest articulation. */
+/**
+ * Read the samples in rig order, with absent joints using their rest
+ * articulation.
+ */
 function anglesOf(
   bones: readonly AutoMovieHumanoidBone[],
   joints: readonly IAutoMovieJointPose[],

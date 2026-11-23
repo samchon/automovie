@@ -16,9 +16,9 @@ import type {
 import { HumanChainHostage } from "./HumanChainHostage";
 
 /**
- * The chain methods of a fight and of what a force does to a body: the
- * guard and its footwork, the strikes, the clinch, the defences, and the
- * reactions to a threat, a push or a blow.
+ * The chain methods of a fight and of what a force does to a body: the guard
+ * and its footwork, the strikes, the clinch, the defences, and the reactions to
+ * a threat, a push or a blow.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the family and documents each method.
  * @evidence contracts/development/design.md#principled-representation One method per action of the family, each `act` under the action's name.
@@ -113,8 +113,7 @@ export class HumanChainStriking extends HumanChainHostage {
   }
 
   /**
-   * Defend against one placed strike: a cover, parry, block, check or
-   * evasion.
+   * Defend against one placed strike: a cover, parry, block, check or evasion.
    *
    * @param params The attack answered and the defence.
    * @param anchor An optional anchor id.
@@ -184,8 +183,8 @@ export class HumanChainStriking extends HumanChainHostage {
   }
 
   /**
-   * Respond to the impulses on the body: absorb, step or fall as the
-   * impulse decides, or as the author fixes (#3430).
+   * Respond to the impulses on the body: absorb, step or fall as the impulse
+   * decides, or as the author fixes.
    *
    * @param params The outcome; decided by the impulse when absent.
    * @param anchor An optional anchor id.

@@ -25,20 +25,20 @@ import { ExerciseKey } from "./ExerciseKey";
 import { balletPositions } from "./balletPositions";
 
 /**
- * A pirouette from fourth (#3991). The dancer takes fourth in plié by the
- * first beat, the supporting foot in front and the working foot behind, and
- * holds the plié on both feet over the next beat; over `RISE` of a beat the supporting foot rises onto its ball
- * (`balletPositions.RELEVE`), the hips come over that ball, and the working
- * foot draws up to retiré, its toes before the supporting knee. The body
- * then turns about the supporting ball, one beat a turn, on minimum-jerk
- * progress: away from the supporting leg en dehors, toward it en dedans.
- * The working foot closes back into fourth behind as the supporting heel
- * lowers into plié, and the legs straighten over the next beat, as far as
+ * A pirouette from fourth. The dancer takes fourth in plié by the first beat,
+ * the supporting foot in front and the working foot behind, and holds the plié
+ * on both feet over the next beat; over `RISE` of a beat the supporting foot
+ * rises onto its ball (`balletPositions.RELEVE`), the hips come over that ball,
+ * and the working foot draws up to retiré, its toes before the supporting knee.
+ * The body then turns about the supporting ball, one beat a turn, on
+ * minimum-jerk progress: away from the supporting leg en dehors, toward it en
+ * dedans. The working foot closes back into fourth behind as the supporting
+ * heel lowers into plié, and the legs straighten over the next beat, as far as
  * both reach their feet in fourth.
  *
- * The supporting foot pivots about its ball throughout, so it does not
- * slide; the retiré foot turns with the body (Laws, Physics and the Art of
- * Dance, 2002, for the support over the ball).
+ * The supporting foot pivots about its ball throughout, so it does not slide;
+ * the retiré foot turns with the body (Laws, Physics and the Art of Dance,
+ * 2002, for the support over the ball).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the phases, the turn's direction and timing, and the support with its source.
  * @evidence contracts/development/design.md#principled-representation A course of foot keys and a hips path over the beat clock.
@@ -49,14 +49,19 @@ export namespace balletPirouette {
   /** The rise to demi-pointe and the landing, a share of a beat (provisional). */
   export const RISE: number = 0.4;
 
-  /** The retiré's turnout, degrees: the side of the heading the knee bends toward (provisional). */
+  /**
+   * The retiré's turnout, degrees: the side of the heading the knee bends
+   * toward (provisional).
+   */
   export const TURNOUT: number = 45;
-
 
   /** The retiré's pointed foot, degrees of plantar flexion (provisional). */
   export const POINT: number = 45;
 
-  /** How far before the standing knee the retiré's toe rests, a share of the stature (provisional). */
+  /**
+   * How far before the standing knee the retiré's toe rests, a share of the
+   * stature (provisional).
+   */
   export const TOUCH: number = 0.06;
 
   /**
@@ -66,7 +71,6 @@ export namespace balletPirouette {
    * @param beats The beat clock.
    * @param turnout Each foot's turn out, degrees.
    * @returns The course.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the course.
    * @evidence contracts/development/implementation.md#principled-implementation Fourth's placements, the supporting foot held about its ball through a rise and a turn, the retiré placed at the supporting knee, the hips blended between the plié over the feet and the stance over the ball.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Instants, turn, supporting hold, working keys, hips.
@@ -182,21 +186,29 @@ export namespace balletPirouette {
     );
     const top: number = Math.min(
       standing.y,
-      ...(["left", "right"] as const).map((side: AutoMovieHumanSide): number => {
-        const offset: IAutoMovieVector3 = HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw: yaw(end) },
-          Vector3.subtract(
-            body.rest.get(side === "left" ? "leftUpperLeg" : "rightUpperLeg")!,
-            body.rest.get("hips")!,
-          ),
-        );
-        const ankle: IAutoMovieVector3 = fourth[side].ankle;
-        const across: number = Math.hypot(
-          plie(1).x + offset.x - ankle.x,
-          plie(1).z + offset.z - ankle.z,
-        );
-        return ankle.y + Math.sqrt(Math.max(0, reach * reach - across * across)) - offset.y;
-      }),
+      ...(["left", "right"] as const).map(
+        (side: AutoMovieHumanSide): number => {
+          const offset: IAutoMovieVector3 = HumanFrame.point(
+            { origin: { x: 0, y: 0, z: 0 }, yaw: yaw(end) },
+            Vector3.subtract(
+              body.rest.get(
+                side === "left" ? "leftUpperLeg" : "rightUpperLeg",
+              )!,
+              body.rest.get("hips")!,
+            ),
+          );
+          const ankle: IAutoMovieVector3 = fourth[side].ankle;
+          const across: number = Math.hypot(
+            plie(1).x + offset.x - ankle.x,
+            plie(1).z + offset.z - ankle.z,
+          );
+          return (
+            ankle.y +
+            Math.sqrt(Math.max(0, reach * reach - across * across)) -
+            offset.y
+          );
+        },
+      ),
     );
     const hips: (t: number) => IAutoMovieVector3 = (
       t: number,
@@ -328,7 +340,7 @@ export namespace balletPirouette {
           // turns about its toe, which stays on the point.
           contact: HumanFoot.offset(body, working, "toe"),
           bend: pole,
-        });        // Held in the hips' frame on the risen stance.
+        }); // Held in the hips' frame on the risen stance.
         return {
           ankle: HumanFrame.local(frame, best.ankle),
           rotation: Quaternion.multiply(

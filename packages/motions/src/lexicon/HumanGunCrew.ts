@@ -11,24 +11,23 @@ import { HumanChain } from "../HumanChain";
 import { HumanGunDrill } from "./HumanGunDrill";
 
 /**
- * One field gun's crew serving one load and fire (#3489): the duties of the
- * National Park Service's drill for the 12-pounder Napoleon, each role's
- * rows (`HumanGunDrill`) in its own chain, every duty synced to the end of
- * the one before it in the drill's order (#3340), so the crew interlocks as
- * the drill says: the vent covered before the sponge goes in, the charge
- * passed (No. 5 handing it over as No. 2 receives it), placed and rammed, the vent pricked, the gun laid, the primer
- * hooked, the crew clear of the wheels and the muzzle, and the lanyard
- * pulled on the gunner's command, a cue track instant and no motion. The
- * charge and the primer are set on the gun's own sockets (`muzzle`, `vent`),
- * so they ride the tube as the gun is laid.
+ * One field gun's crew serving one load and fire: the duties of the National
+ * Park Service's drill for the 12-pounder Napoleon, each role's rows
+ * (`HumanGunDrill`) in its own chain, every duty synced to the end of the one
+ * before it in the drill's order, so the crew interlocks as the drill says: the
+ * vent covered before the sponge goes in, the charge passed (No. 5 handing it
+ * over as No. 2 receives it), placed and rammed, the vent pricked, the gun
+ * laid, the primer hooked, the crew clear of the wheels and the muzzle, and the
+ * lanyard pulled on the gunner's command, a cue track instant and no motion.
+ * The charge and the primer are set on the gun's own sockets (`muzzle`,
+ * `vent`), so they ride the tube as the gun is laid.
  *
- * Roles are performers with their own bodies and seeds; nothing here is
- * written for a body. Each duty's duration is its law's, provisional, so the
- * cycle's rate (3 to 4 rounds a minute for a well-drilled crew, NPS) is a
- * measurement of the composed crew, not an input. The NPS page says its
- * drill was altered for the crew's safety; the 1864 Instruction for Field
- * Artillery is located but not read, and where it departs is recorded on
- * #3489.
+ * Roles are performers with their own bodies and seeds; nothing here is written
+ * for a body. Each duty's duration is its law's, provisional, so the cycle's
+ * rate (3 to 4 rounds a minute for a well-drilled crew, NPS) is a measurement
+ * of the composed crew, not an input. The NPS page says its drill was altered
+ * for the crew's safety; the 1864 Instruction for Field Artillery is located
+ * but not read.
  *
  * The film blocking entry point composes crew arrival and gaze on an authored
  * cue. It uses the scene's marks and performers' ordinary walking and gaze.
@@ -62,14 +61,15 @@ export namespace HumanGunCrew {
   }
 
   /**
-   * Compose a cue-timed arrival and gaze for each performer in a digital
-   * crew scene. The walk ends on the named event plus the role's offset. Gaze
-   * starts at arrival. The scene separately authors any held prop or effect.
+   * Compose a cue-timed arrival and gaze for each performer in a digital crew
+   * scene. The walk ends on the named event plus the role's offset. Gaze starts
+   * at arrival. The scene separately authors any held prop or effect.
    *
-   * @param cue The performance cue-track id, event and optional zero-based occurrence.
+   * @param cue The performance cue-track id, event and optional zero-based
+   *   occurrence.
    * @param stations The staged performers and their authored station marks.
-   * @returns Parallel performer chains in station order. An empty cast yields an empty parallel composition.
-   *
+   * @returns Parallel performer chains in station order. An empty cast yields
+   *   an empty parallel composition.
    * @evidence contracts/development/common.md#meaningful-documentation States the named cue, arrival offset, next gaze action, output order and ownership of props and effects.
    * @evidence contracts/development/implementation.md#principled-implementation End alignment uses each ordinary walk's solved duration, so different actors and marks can reach stations at the same cue without sharing a gait duration.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One walk and gaze chain per performer, with the timing, support and body mechanics delegated to the scheduler and existing actions.

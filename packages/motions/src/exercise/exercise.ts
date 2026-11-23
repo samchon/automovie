@@ -31,9 +31,9 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { exerciseLunge } from "./exerciseLunge";
 
 /**
- * A standing bodyweight exercise counted in repetitions (#3245, M24): the
- * squat, the forward lunge, high knees and the jumping jack (ACSM's
- * Guidelines for Exercise Testing and Prescription, 11th ed.).
+ * A standing bodyweight exercise counted in repetitions: the squat, the forward
+ * lunge, high knees and the jumping jack (ACSM's Guidelines for Exercise
+ * Testing and Prescription, 11th ed.).
  *
  * Every repetition has four spans: `eccentricStart` (lowering, or opening),
  * `bottom` (the pause at the bottom), `concentricStart` (rising, or closing)
@@ -42,31 +42,31 @@ import { exerciseLunge } from "./exerciseLunge";
  * when absent, the common 2-0-1 tempo; provisional).
  *
  * - Squat: the hips sink and the trunk pitches over the planted feet
- *   (`AutoMovieMotionHumanTrunk.crouch`), the hip shift solved for balance.
- *   The depth names the thigh's angle from the horizontal at the bottom:
- *   `quarter` 60, `half` 45, `parallel` 0 degrees; the hips' drop follows
- *   from the thigh and shank lengths with the shank leaning forward up to 35
- *   degrees (provisional, the ankle's working dorsiflexion), and the trunk
- *   pitches 15, 25 or 40 degrees (provisional).
- * - Lunge: the hips come down until the lead thigh is level over an upright
- *   shank and travel forward until the trailing thigh hangs under its hip,
- *   that leg's shank level behind it on a foot stood on its toes with the
- *   ankle at its dorsiflexion range; the lead foot steps out to stand a thigh
- *   ahead of the hips there, and steps back.
- * - High knees: one knee rises per repetition, alternating, the ankle under
- *   a thigh raised to the horizontal ahead of the hip, the hips carried over
- *   the standing foot.
- * - Jumping jack: the feet jump apart to 1.5 half shoulder widths each side
- *   of the midline (provisional) with the arms raised overhead, and back; a hop of
- *   4 cm (provisional) lifts the body in each jump, the feet free while
- *   they travel.
+ *   (`AutoMovieMotionHumanTrunk.crouch`), the hip shift solved for balance. The
+ *   depth names the thigh's angle from the horizontal at the bottom: `quarter`
+ *   60, `half` 45, `parallel` 0 degrees; the hips' drop follows from the thigh
+ *   and shank lengths with the shank leaning forward up to 35 degrees
+ *   (provisional, the ankle's working dorsiflexion), and the trunk pitches 15,
+ *   25 or 40 degrees (provisional).
+ * - Lunge: the hips come down until the lead thigh is level over an upright shank
+ *   and travel forward until the trailing thigh hangs under its hip, that leg's
+ *   shank level behind it on a foot stood on its toes with the ankle at its
+ *   dorsiflexion range; the lead foot steps out to stand a thigh ahead of the
+ *   hips there, and steps back.
+ * - High knees: one knee rises per repetition, alternating, the ankle under a
+ *   thigh raised to the horizontal ahead of the hip, the hips carried over the
+ *   standing foot.
+ * - Jumping jack: the feet jump apart to 1.5 half shoulder widths each side of
+ *   the midline (provisional) with the arms raised overhead, and back; a hop of
+ *   4 cm (provisional) lifts the body in each jump, the feet free while they
+ *   travel.
  *
- * Events: the numbered repetition instants. A cut at a repetition's `top`
- * into standing or another exercise is legal.
+ * Events: the numbered repetition instants. A cut at a repetition's `top` into
+ * standing or another exercise is legal.
  *
- * Not drafted: floor exercises (push-up, plank, sit-up, glute bridge,
- * mountain climber, burpee), loaded lifts, machines and skipping rope; they
- * need hand and back supports on the floor.
+ * Not drafted: floor exercises (push-up, plank, sit-up, glute bridge, mountain
+ * climber, burpee), loaded lifts, machines and skipping rope; they need hand
+ * and back supports on the floor.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the exercises, the repetition structure, each one's geometry and its provisional values, the events and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record whose exercises are rows of crouch, leg and arm primitives over a repetition clock.
@@ -112,7 +112,6 @@ export namespace exercise {
    * @param m The body's measure.
    * @param depth The depth.
    * @returns Metres.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the geometry and the unit.
    * @evidence contracts/development/implementation.md#principled-implementation The standing leg's length less the hip's height over the ankle with the thigh at its angle and the shank leaning at most `SHANK`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two angles and one difference.
@@ -140,8 +139,8 @@ export namespace exercise {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number or a tempo span is negative.
-   *
+   * @throws {HumanRefusal} When the count is not a positive whole number or a
+   *   tempo span is negative.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation One repetition clock; per repetition a crouch, a step, a lift or a jump over its four spans.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per kind.

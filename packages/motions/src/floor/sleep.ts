@@ -8,7 +8,11 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmConnect } from "../posture/HumanArmConnect";
 import { turnOver } from "./turnOver";
 
-/** The share of time in bed spent in each lying position, Skarpsno et al. 2017 (BMJ Open 7:e015618): side 54.1 %, back 37.5 %, front 7.3 %; the side split evenly. */
+/**
+ * The share of time in bed spent in each lying position, Skarpsno et al. 2017
+ * (BMJ Open 7:e015618): side 54.1 %, back 37.5 %, front 7.3 %; the side split
+ * evenly.
+ */
 const PREVALENCE: Readonly<
   Record<IAutoMovieMotionHumanTurnOver.Position, number>
 > = {
@@ -19,18 +23,18 @@ const PREVALENCE: Readonly<
 };
 
 /**
- * Sleep with seeded position changes (#3987): over a long lie, the lying
- * performer turns over `changes` times into positions drawn by how much of
- * the night people spend in each (Skarpsno et al. 2017), never the one it
- * lies in, at seeded instants spread over the sleep; between, it holds
- * still. De Koninck et al. 1992 count such shifts through the night; a
- * film sleep compresses them into its seconds.
+ * Sleep with seeded position changes: over a long lie, the lying performer
+ * turns over `changes` times into positions drawn by how much of the night
+ * people spend in each (Skarpsno et al. 2017), never the one it lies in, at
+ * seeded instants spread over the sleep; between, it holds still. De Koninck et
+ * al. 1992 count such shifts through the night; a film sleep compresses them
+ * into its seconds.
  *
  * @param chain The lying performer's chain.
  * @param params The sleep's length, changes, seed and support.
  * @returns The chain with the turns appended.
- * @throws {HumanRefusal} When the changes are not a whole count of one or more, or the sleep is too short to hold between them.
- *
+ * @throws {HumanRefusal} When the changes are not a whole count of one or more,
+ *   or the sleep is too short to hold between them.
  * @evidence contracts/development/common.md#meaningful-documentation States the draw, its source, the timing and the refusals.
  * @evidence contracts/development/implementation.md#principled-implementation Positions drawn by their sourced prevalence excluding the current one; the holds are seeded shares of the time the turns leave.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One seeded generator, one loop appending turns.

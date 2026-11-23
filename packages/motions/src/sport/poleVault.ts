@@ -42,48 +42,47 @@ import { prepareGymnasticsPlacement } from "./prepareGymnasticsPlacement";
 import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
 
 /**
- * A pole vault (#3377): out of a run, the hand that holds the pole plants
- * its end on the floor ahead at the take-off, the body swings over the
- * planted end with the pole, lets go as the pole stands upright, and flies
- * on to come down lying on the landing surface.
+ * A pole vault: out of a run, the hand that holds the pole plants its end on
+ * the floor ahead at the take-off, the body swings over the planted end with
+ * the pole, lets go as the pole stands upright, and flies on to come down lying
+ * on the landing surface.
  *
- * The pole is a held prop (`AutoMovieMotionHumanHeld`): taken up before,
- * in one hand or two (a vaulter's top hand and lower hand), and rigid in
- * them. Its planted end is the prop's `tip` affordance, or the one named.
+ * The pole is a held prop (`AutoMovieMotionHumanHeld`): taken up before, in one
+ * hand or two (a vaulter's top hand and lower hand), and rigid in them. Its
+ * planted end is the prop's `tip` affordance, or the one named.
  *
- * 1. Take-off: the jump's push-off (`GymnasticsTakeoff`) at the run's speed,
- *    kept, rising at `ANGLE`. Over it the hands carry the pole on from the
- *    run's drop (`plants`, `walkPoleCarriage`) to the plant: the top arm
- *    straight, raised until its forearm meets the pole at the grip's own
- *    neutral angle (`walkPoleFrame.plant`), no higher than lets the pole
- *    lean `LEAN` from upright, and the pole's end slides along the planting line,
- *    from where the run left it to the planted point on the floor ahead
- *    along the run, at the pole's length from that grip, each hand placed
- *    by its hold (`walkPoleFrame`): the end comes down onto the plant from
- *    above and never passes through the floor, as a vaulter's tip falls onto
- *    the box as the top hand rises overhead (Coaches Insider, "Pole carry
- *    and drop").
- * 2. Swing, about one axis, the body's left one through the planted end:
- *    body and pole turn as one rigid pendulum. At the plant the centre's
- *    velocity across the pendulum's radius is kept, as the angular momentum
- *    about the planted end is, and the part along the radius is lost to the
- *    plant; the turn then follows the energy of a point mass on a rigid
- *    massless pole, ω² = ω₀² + (2g/R)(cos θ₀ − cos θ), integrated once into a
- *    table of time by angle. The hand lets go when the pole stands upright.
- *    A run too slow to bring it upright is refused with the speed needed.
- * 3. Flight: the centre on the parabola of its velocity at the release, the
- *    body keeping the swing's rate, until its lowest shape meets the
- *    landing surface; then it lies there (`GymnasticsMat`), on its back or
- *    its front as its turn brought it.
+ * 1. Take-off: the jump's push-off (`GymnasticsTakeoff`) at the run's speed, kept,
+ *    rising at `ANGLE`. Over it the hands carry the pole on from the run's drop
+ *    (`plants`, `walkPoleCarriage`) to the plant: the top arm straight, raised
+ *    until its forearm meets the pole at the grip's own neutral angle
+ *    (`walkPoleFrame.plant`), no higher than lets the pole lean `LEAN` from
+ *    upright, and the pole's end slides along the planting line, from where the
+ *    run left it to the planted point on the floor ahead along the run, at the
+ *    pole's length from that grip, each hand placed by its hold
+ *    (`walkPoleFrame`): the end comes down onto the plant from above and never
+ *    passes through the floor, as a vaulter's tip falls onto the box as the top
+ *    hand rises overhead (Coaches Insider, "Pole carry and drop").
+ * 2. Swing, about one axis, the body's left one through the planted end: body and
+ *    pole turn as one rigid pendulum. At the plant the centre's velocity across
+ *    the pendulum's radius is kept, as the angular momentum about the planted
+ *    end is, and the part along the radius is lost to the plant; the turn then
+ *    follows the energy of a point mass on a rigid massless pole, ω² = ω₀² +
+ *    (2g/R)(cos θ₀ − cos θ), integrated once into a table of time by angle. The
+ *    hand lets go when the pole stands upright. A run too slow to bring it
+ *    upright is refused with the speed needed.
+ * 3. Flight: the centre on the parabola of its velocity at the release, the body
+ *    keeping the swing's rate, until its lowest shape meets the landing
+ *    surface; then it lies there (`GymnasticsMat`), on its back or its front as
+ *    its turn brought it.
  *
  * First pass: the pole does not bend and the body does not swing about the
- * hands, so there is no inversion, no pull and turn and no push off the
- * pole, which a bending pole and a body that rocks back over its hands
- * give a vaulter (the multi-axis case is #3416); the pole's own mass and
- * the body's inertia about its centre are left out of the pendulum; a hand
- * that does not hold the pole keeps the jump's arm swing; the released pole flies from the
- * velocity of its origin in the swing (`launches`) rather than pivoting on
- * in the box.
+ * hands, so there is no inversion, no pull and turn and no push off the pole,
+ * which a bending pole and a body that rocks back over its hands give a vaulter
+ * (a multi-axis flight is not planned); the pole's own mass and the body's
+ * inertia about its centre are left out of the pendulum; a hand that does not
+ * hold the pole keeps the jump's arm swing; the released pole flies from the
+ * velocity of its origin in the swing (`launches`) rather than pivoting on in
+ * the box.
  *
  * Events: `takeoff` (the plant), `release`, `touchdown`, `settled`, `relax`.
  */
@@ -102,28 +101,50 @@ export namespace poleVault {
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
   };
 
-  /** The take-off's rise above the horizontal, degrees (Linthorne and Weetman 2012, J. Sports Sci. Med. 11: about 20 degrees at an athlete's competition run-up of 8.4 m/s). */
+  /**
+   * The take-off's rise above the horizontal, degrees (Linthorne and Weetman
+   * 2012, J. Sports Sci. Med. 11: about 20 degrees at an athlete's competition
+   * run-up of 8.4 m/s).
+   */
   export const ANGLE: number = 20;
 
-  /** The least lean of the pole from upright at the plant, degrees (provisional). */
+  /**
+   * The least lean of the pole from upright at the plant, degrees
+   * (provisional).
+   */
   export const LEAN: number = 20;
 
   /** The least run-up speed a vault is planned from, m/s (provisional). */
   export const RUN: number = 1;
 
-  /** The most times the plant's wrist goal is corrected by the solved end's height. */
+  /**
+   * The most times the plant's wrist goal is corrected by the solved end's
+   * height.
+   */
   const PLANT: number = 4;
 
   /** The number of steps the swing's table is integrated in. */
   const STEPS: number = 200;
 
-  /** The centre's height at the take-off, share of the stature: 1.24 m of a 1.855 m vaulter (Frontiers in Sports and Active Living 2022, 10.3389/fspor.2022.835659, men's take-off CM height and upper grip at 121.3 % of stature). */
+  /**
+   * The centre's height at the take-off, share of the stature: 1.24 m of a
+   * 1.855 m vaulter (Frontiers in Sports and Active Living 2022,
+   * 10.3389/fspor.2022.835659, men's take-off CM height and upper grip at 121.3
+   * % of stature).
+   */
   const CENTRE_HIGH: number = 1.24 / 1.855;
 
-  /** How far the centre stands behind the top hand at the take-off, share of the stature: the take-off foot 0.14 m behind the upper hand, the centre over it (the same study). */
+  /**
+   * How far the centre stands behind the top hand at the take-off, share of the
+   * stature: the take-off foot 0.14 m behind the upper hand, the centre over it
+   * (the same study).
+   */
   const CENTRE_BEHIND: number = 0.14 / 1.855;
 
-  /** The halvings the grip's bisection takes: a pole's length to well under a millimetre. */
+  /**
+   * The halvings the grip's bisection takes: a pole's length to well under a
+   * millimetre.
+   */
   const SPLITS: number = 24;
 
   /**
@@ -131,7 +152,9 @@ export namespace poleVault {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When no hand holds the pole, the run is slower than `RUN`, the pole cannot reach the floor, the run cannot bring the pole upright, or the body is not above the landing surface at the release.
+   * @throws {HumanRefusal} When no hand holds the pole, the run is slower than
+   *   `RUN`, the pole cannot reach the floor, the run cannot bring the pole
+   *   upright, or the body is not above the landing surface at the release.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPoleVault.IParams>,
@@ -598,9 +621,9 @@ export namespace poleVault {
   }
 
   /**
-   * What a vault plants as it is entered: the pole, by its planted end, at
-   * no less than `LEAN` from upright, so the run cut into the vault lowers
-   * it over its last strides (`walkPoleCarriage`).
+   * What a vault plants as it is entered: the pole, by its planted end, at no
+   * less than `LEAN` from upright, so the run cut into the vault lowers it over
+   * its last strides (`walkPoleCarriage`).
    *
    * @param params The vault's parameters.
    * @returns The plant.
@@ -612,30 +635,31 @@ export namespace poleVault {
   }
 
   /**
-   * The farthest from the planted end the top hand can grip a rigid pole
-   * and still swing it upright from a run at `speed`: a rigid pole stands
-   * only as far as the run's energy carries the body over the planted end,
-   * so a slower run grips lower, as coaches set a beginner's grip from the
-   * approach speed.
+   * The farthest from the planted end the top hand can grip a rigid pole and
+   * still swing it upright from a run at `speed`: a rigid pole stands only as
+   * far as the run's energy carries the body over the planted end, so a slower
+   * run grips lower, as coaches set a beginner's grip from the approach speed.
    *
    * Each grip ℓ is planted as the vault plants (`walkPoleFrame.plant`, the
-   * straight top arm at the body's power-grip angle, `walkPoleFrame.power`), and its swing
-   * judged by the vault's own pendulum: the centre at the take-off 0.668
-   * of the stature high and 0.0755 of it behind the top hand (Frontiers in
-   * Sports and Active Living 2022, 10.3389/fspor.2022.835659: take-off CM
-   * height 1.24 m and the take-off foot 0.14 m behind the upper hand in
-   * men, whose upper grip 2.25 m is 121.3 % of stature, 1.855 m), the run's
-   * speed kept and rising at `ANGLE`, ω₀ = (v_f r_y − v_y r_f) / r², and the
-   * pole upright if ω₀² > (2g / r)(cos β − cos β₀) at its highest β. That
-   * holds for every grip up to one and for none past it, so the grip is
-   * found by bisection on that monotone condition.
+   * straight top arm at the body's power-grip angle, `walkPoleFrame.power`),
+   * and its swing judged by the vault's own pendulum: the centre at the
+   * take-off 0.668 of the stature high and 0.0755 of it behind the top hand
+   * (Frontiers in Sports and Active Living 2022, 10.3389/fspor.2022.835659:
+   * take-off CM height 1.24 m and the take-off foot 0.14 m behind the upper
+   * hand in men, whose upper grip 2.25 m is 121.3 % of stature, 1.855 m), the
+   * run's speed kept and rising at `ANGLE`, ω₀ = (v_f r_y − v_y r_f) / r², and
+   * the pole upright if ω₀² > (2g / r)(cos β − cos β₀) at its highest β. That
+   * holds for every grip up to one and for none past it, so the grip is found
+   * by bisection on that monotone condition.
    *
    * @param body The vaulter's body.
    * @param side The top hand.
    * @param speed The run's speed, m/s (`run.speed`).
    * @param length The pole's whole length, metres: the farthest grip.
-   * @returns The grip's distance from the planted end, metres; the whole length when that already swings upright.
-   * @throws {HumanRefusal} When no grip that plants swings upright at that speed.
+   * @returns The grip's distance from the planted end, metres; the whole length
+   *   when that already swings upright.
+   * @throws {HumanRefusal} When no grip that plants swings upright at that
+   *   speed.
    */
   export function grip(
     body: IAutoMovieMotionHumanBody,
@@ -677,7 +701,8 @@ export namespace poleVault {
       return (
         omega > 0 &&
         omega * omega >
-          ((2 * AutoMovieGravity.STANDARD) / r) * (Math.cos(top) - Math.cos(beta))
+          ((2 * AutoMovieGravity.STANDARD) / r) *
+            (Math.cos(top) - Math.cos(beta))
       );
     };
     if (swings(length)) return length;
@@ -715,10 +740,10 @@ interface ITakeoffFrame {
 }
 
 /**
- * The point of the segment from `from` along `slide` at `length` from
- * `grip`, the farther along it of the two where the sphere about the grip
- * meets the segment's line, clamped to the segment; undefined when the
- * sphere misses the line.
+ * The point of the segment from `from` along `slide` at `length` from `grip`,
+ * the farther along it of the two where the sphere about the grip meets the
+ * segment's line, clamped to the segment; undefined when the sphere misses the
+ * line.
  */
 function onLine(
   from: IAutoMovieVector3,

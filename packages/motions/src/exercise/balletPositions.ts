@@ -18,23 +18,23 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 
 /**
- * Ballet's five positions of the feet and what the legs do in them
- * (#3991). Each foot turns out by the turnout from the dancer's heading;
- * the heels stand, in foot lengths (provisional readings of Vaganova's
- * Basic Principles of Classical Ballet):
+ * Ballet's five positions of the feet and what the legs do in them. Each foot
+ * turns out by the turnout from the dancer's heading; the heels stand, in foot
+ * lengths (provisional readings of Vaganova's Basic Principles of Classical
+ * Ballet):
  *
- * - first: together, `HEEL` apart;
- * - second: `SECOND` apart side by side;
- * - third: the working foot's heel against the middle of the other's
- *   inner edge, a foot's width (`WIDTH`) ahead;
- * - fourth: the working heel in line with the other's toes, `FOURTH` ahead;
- * - fifth: the working heel at the other's toes, a foot's width ahead.
+ * - First: together, `HEEL` apart;
+ * - Second: `SECOND` apart side by side;
+ * - Third: the working foot's heel against the middle of the other's inner edge,
+ *   a foot's width (`WIDTH`) ahead;
+ * - Fourth: the working heel in line with the other's toes, `FOURTH` ahead;
+ * - Fifth: the working heel at the other's toes, a foot's width ahead.
  *
- * A plié bends the knees `PLIE` degrees over the toes, the heels down; a
- * relevé rises onto the balls of the feet, the heels up `RELEVE` degrees,
- * the metatarsal heads staying where they stand. The feet move into the
- * position before the first beat, the working foot first; the legs then
- * go down or up on even beats and back on odd ones.
+ * A plié bends the knees `PLIE` degrees over the toes, the heels down; a relevé
+ * rises onto the balls of the feet, the heels up `RELEVE` degrees, the
+ * metatarsal heads staying where they stand. The feet move into the position
+ * before the first beat, the working foot first; the legs then go down or up on
+ * even beats and back on odd ones.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each position's relation with its source, the plié and relevé and their timing.
  * @evidence contracts/development/design.md#principled-representation Placements in the dancer's floor frame, keyed on the beat clock.
@@ -42,13 +42,19 @@ import { ExerciseKey } from "./ExerciseKey";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is a share of the body's foot length or legs.
  */
 export namespace balletPositions {
-  /** First position's heel spacing, foot lengths: heels together, their centres a heel's width apart. */
+  /**
+   * First position's heel spacing, foot lengths: heels together, their centres
+   * a heel's width apart.
+   */
   export const HEEL: number = 0.3;
 
   /** Second position's heel spacing, foot lengths. */
   export const SECOND: number = 1.5;
 
-  /** A foot's width, foot lengths: how far ahead the front heel of third and fifth stands. */
+  /**
+   * A foot's width, foot lengths: how far ahead the front heel of third and
+   * fifth stands.
+   */
   export const WIDTH: number = 0.35;
 
   /** Fourth position's forward spacing, foot lengths. */
@@ -57,7 +63,10 @@ export namespace balletPositions {
   /** A demi-plié's knee flexion, degrees (provisional). */
   export const PLIE: number = 70;
 
-  /** A relevé's heel lift, degrees of the foot's pitch about the balls (provisional demi-pointe). */
+  /**
+   * A relevé's heel lift, degrees of the foot's pitch about the balls
+   * (provisional demi-pointe).
+   */
   export const RELEVE: number = 40;
 
   /**
@@ -68,7 +77,6 @@ export namespace balletPositions {
    * @param turnout Each foot's turn out, degrees.
    * @param front The working foot, in front in third, fourth and fifth.
    * @returns Each foot's flat placement.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the placements.
    * @evidence contracts/development/implementation.md#principled-implementation Heel points in the floor frame at the entry's feet's midpoint, each foot pivoted flat about its heel to its turned-out heading.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Frame, heels, centring, placements.
@@ -128,7 +136,6 @@ export namespace balletPositions {
    * @param share How far risen, 0 flat to 1 on demi-pointe.
    * @param turn Degrees turned about the ball since it rose.
    * @returns The placement, the ball where it stood.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the pivot.
    * @evidence contracts/development/implementation.md#principled-implementation The foot pivots about its ball, so the metatarsal heads stay down.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pivot.
@@ -162,7 +169,6 @@ export namespace balletPositions {
    *
    * @param body The dancer's body.
    * @returns Metres.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the closed form.
    * @evidence contracts/development/implementation.md#principled-implementation The law of cosines over the thigh and the shank.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
@@ -184,7 +190,6 @@ export namespace balletPositions {
    * @param body The dancer's body.
    * @param entry The entry posture.
    * @returns World metres.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the read.
    * @evidence contracts/development/implementation.md#principled-implementation The root plus the rest hips turned by the heading.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
@@ -207,14 +212,13 @@ export namespace balletPositions {
   }
 
   /**
-   * The course of a position: into it before the first beat, then the
-   * movement on alternate beats.
+   * The course of a position: into it before the first beat, then the movement
+   * on alternate beats.
    *
    * @param context The action's context.
    * @param beats The beat clock, one beat more than the movement's.
    * @param turnout Each foot's turn out, degrees.
    * @returns The course.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the course's phases.
    * @evidence contracts/development/implementation.md#principled-implementation Feet keyed into the position, the movement a minimum-jerk share between beats moving the hips and, in a relevé, the feet about their balls.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Placements, movement share, keys, hips.
@@ -338,12 +342,18 @@ export namespace balletPositions {
     return course;
   }
 
-  /** A foot's turn from the heading, degrees: outward, so positive for the left foot. */
+  /**
+   * A foot's turn from the heading, degrees: outward, so positive for the left
+   * foot.
+   */
   function out(side: AutoMovieHumanSide, turnout: number): number {
     return side === "left" ? turnout : -turnout;
   }
 
-  /** The heels' points in the dancer's floor frame (x to the left, z ahead), foot lengths scaled to metres. */
+  /**
+   * The heels' points in the dancer's floor frame (x to the left, z ahead),
+   * foot lengths scaled to metres.
+   */
   function relations(
     position: number,
     turnout: number,

@@ -26,23 +26,23 @@ import { dance } from "./dance";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 
 /**
- * Street grooves on the dance law's beat clock (#4010).
+ * Street grooves on the dance law's beat clock.
  *
  * - Rock: the knees give `BOUNCE` of the stature on every beat; the chest
- *   isolates `CHEST` degrees side to side and the head `HEAD` degrees the
- *   other way, one side a beat; each popping hit drives the forearms to a
- *   struck pose that peaks exactly on its subdivision, rising over `RISE`
- *   of a beat on a sharp ease-in and released over the half beat after.
- * - Moonwalk: one foot stands on its ball, the heel up `HEEL` degrees,
- *   while the other slides back flat along the floor, never lifting, from
- *   `STEP` foot lengths ahead of the standing foot to as far behind; on the
- *   beat the slid foot rises onto its ball and the standing heel drops, so
- *   the roles change every beat and the dancer travels backward while
- *   seeming to step forward. The hips ride over the feet's midpoint.
+ *   isolates `CHEST` degrees side to side and the head `HEAD` degrees the other
+ *   way, one side a beat; each popping hit drives the forearms to a struck pose
+ *   that peaks exactly on its subdivision, rising over `RISE` of a beat on a
+ *   sharp ease-in and released over the half beat after.
+ * - Moonwalk: one foot stands on its ball, the heel up `HEEL` degrees, while the
+ *   other slides back flat along the floor, never lifting, from `STEP` foot
+ *   lengths ahead of the standing foot to as far behind; on the beat the slid
+ *   foot rises onto its ball and the standing heel drops, so the roles change
+ *   every beat and the dancer travels backward while seeming to step forward.
+ *   The hips ride over the feet's midpoint.
  *
- * Every instant of a member strays from the beat by an offset drawn once
- * from its seed within `vary`, so a crowd keeps the beat without moving
- * cloned (Burger et al. 2013 measured such individual timing in groove).
+ * Every instant of a member strays from the beat by an offset drawn once from
+ * its seed within `vary`, so a crowd keeps the beat without moving cloned
+ * (Burger et al. 2013 measured such individual timing in groove).
  *
  * Events: `beat{k}`, the rock's `hit{n}`, the moonwalk's `slide{k}`, `relax`.
  *
@@ -76,13 +76,19 @@ export namespace streetDance {
   /** A hit's rise, a share of a beat: short, so it stops sharp (provisional). */
   export const RISE: number = 0.15;
 
-  /** How low the hips ride in the moonwalk, a share of the stature: enough for the sliding leg to reach the floor behind (provisional). */
+  /**
+   * How low the hips ride in the moonwalk, a share of the stature: enough for
+   * the sliding leg to reach the floor behind (provisional).
+   */
   export const CROUCH: number = 0.025;
 
   /** The moonwalk's standing heel lift, degrees about the ball (provisional). */
   export const HEEL: number = 35;
 
-  /** The moonwalk's slide, foot lengths ahead of and behind the standing foot (provisional). */
+  /**
+   * The moonwalk's slide, foot lengths ahead of and behind the standing foot
+   * (provisional).
+   */
   export const STEP: number = 0.5;
 
   /**
@@ -90,8 +96,8 @@ export namespace streetDance {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the tempo, the beat count or the variation is not admitted.
-   *
+   * @throws {HumanRefusal} When the tempo, the beat count or the variation is
+   *   not admitted.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The rock's bounce, isolations and hits as functions of the beat clock; the moonwalk as foot keys whose slides have no clearance.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, offset, then one branch per groove.

@@ -34,7 +34,11 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
 
-/** The swinging wrist's circle overhead, metres, the hand turning mostly at the wrist; the throw's reach-out time, seconds; the dally's radius round the horn, metres, and seconds per turn (provisional stage readings). */
+/**
+ * The swinging wrist's circle overhead, metres, the hand turning mostly at the
+ * wrist; the throw's reach-out time, seconds; the dally's radius round the
+ * horn, metres, and seconds per turn (provisional stage readings).
+ */
 const SWING: Readonly<Record<"radius" | "throw" | "wrap" | "turn", number>> = {
   radius: 0.15,
   throw: 0.25,
@@ -42,7 +46,11 @@ const SWING: Readonly<Record<"radius" | "throw" | "wrap" | "turn", number>> = {
   turn: 0.5,
 };
 
-/** The elbow's flexion through the swing, degrees: the roper's raised elbow bent off the straight arm's reach singularity, which sets the wrist's distance from the shoulder (provisional). */
+/**
+ * The elbow's flexion through the swing, degrees: the roper's raised elbow bent
+ * off the straight arm's reach singularity, which sets the wrist's distance
+ * from the shoulder (provisional).
+ */
 const ELBOW: number = 60;
 
 /** The farthest a loop is thrown, metres (provisional). */
@@ -61,7 +69,14 @@ const HAND: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /**
- * Rope from the saddle (`IAutoMovieMotionHumanLasso`, #3952): carried on the saddle, the rider's wrist circles over the right shoulder, one turn per stride of the horse's own stride cue (or per second); the hand takes the turn its arm strains least in, and the held lariat goes where the hand holds it (`StrikingHeld`); at the release the wrist reaches out toward the target and the lariat is launched so its loop's centre flies the projectile that meets the target's contact at the catch; with a dally the hand then circles the horn its turns and holds there. Register `HumanLasso` to use it.
+ * Rope from the saddle (`IAutoMovieMotionHumanLasso`): carried on the saddle,
+ * the rider's wrist circles over the right shoulder, one turn per stride of the
+ * horse's own stride cue (or per second); the hand takes the turn its arm
+ * strains least in, and the held lariat goes where the hand holds it
+ * (`StrikingHeld`); at the release the wrist reaches out toward the target and
+ * the lariat is launched so its loop's centre flies the projectile that meets
+ * the target's contact at the catch; with a dally the hand then circles the
+ * horn its turns and holds there. Register `HumanLasso` to use it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the swing and its timing, the throw, the catch and the dally.
  * @evidence contracts/development/design.md#principled-representation One law; the swing as a phase locked to the stride, the throw as a closed-form launch.

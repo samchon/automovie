@@ -18,17 +18,16 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { ExerciseKey } from "./ExerciseKey";
 
 /**
- * A circle dance (#4010): the members stand evenly round a centre facing
- * it, hands joined with their neighbours in a low V, and side-step round
- * it, the right foot out on odd beats and the left closing on even ones,
- * so the circle rotates `STEP` of the feet's spacing a step pair.
+ * A circle dance: the members stand evenly round a centre facing it, hands
+ * joined with their neighbours in a low V, and side-step round it, the right
+ * foot out on odd beats and the left closing on even ones, so the circle
+ * rotates `STEP` of the feet's spacing a step pair.
  *
- * The joined hands meet at the chord's midpoint between neighbours at the
- * mean of both members' hand heights (`HAND` of the stature), read from the
- * shared circle and the neighbours' bodies rather than from either one's
- * steps, so both hands name the same point on every frame. A circle too
- * wide for the arms to meet across is refused with the widest radius they
- * reach.
+ * The joined hands meet at the chord's midpoint between neighbours at the mean
+ * of both members' hand heights (`HAND` of the stature), read from the shared
+ * circle and the neighbours' bodies rather than from either one's steps, so
+ * both hands name the same point on every frame. A circle too wide for the arms
+ * to meet across is refused with the widest radius they reach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stepping, the rotation, the joined hands' point and the refusal.
  * @evidence contracts/development/design.md#principled-representation Foot keys on the circle and hand targets from its shared geometry.
@@ -39,7 +38,10 @@ export namespace groupDanceCircle {
   /** A side step, a share of the feet's spacing (provisional). */
   export const STEP: number = 1;
 
-  /** The joined hands' height, a share of the stature: a low V hold (provisional). */
+  /**
+   * The joined hands' height, a share of the stature: a low V hold
+   * (provisional).
+   */
   export const HAND: number = 0.5;
 
   /** A travelling foot's lift, a share of the stature (provisional). */
@@ -55,8 +57,8 @@ export namespace groupDanceCircle {
    * @param beats The member's beat clock, its offset already in.
    * @param shared The shared beat clock, without the member's offset.
    * @returns The course.
-   * @throws {HumanRefusal} When the centre or the count is missing, or the neighbours' hands cannot meet.
-   *
+   * @throws {HumanRefusal} When the centre or the count is missing, or the
+   *   neighbours' hands cannot meet.
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the course and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation Footprints on the circle at each station's angle; hand targets at the chord's midpoint on the shared clock.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Circle, refusal, keys, hands.

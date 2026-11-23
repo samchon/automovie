@@ -32,28 +32,28 @@ import { prepareDanceBeats } from "./prepareDanceBeats";
 import { tapDanceSteps } from "./tapDanceSteps";
 
 /**
- * Tap dance on the dance law's beat clock (#3991). Each step is a table of
- * strikes in quarter beats from its first beat (`tapDanceSteps.STEPS`): which foot (the
- * leading one or the other), how it is set down (on the ball with the heel
- * up `PITCH` degrees, on the heel with the toes up, or flat), where (in
- * place, or `REACH` foot lengths ahead or behind where it stood), whether it
- * then bears, and the part that sounds, if any. A brush passes through its
- * strike without bearing.
+ * Tap dance on the dance law's beat clock. Each step is a table of strikes in
+ * quarter beats from its first beat (`tapDanceSteps.STEPS`): which foot (the
+ * leading one or the other), how it is set down (on the ball with the heel up
+ * `PITCH` degrees, on the heel with the toes up, or flat), where (in place, or
+ * `REACH` foot lengths ahead or behind where it stood), whether it then bears,
+ * and the part that sounds, if any. A brush passes through its strike without
+ * bearing.
  *
  * - Shuffle: the ball brushes forward on the "and" and back on the beat.
  * - Flap: a forward brush, then the ball steps down ahead and takes the weight.
  * - Ball change: weight to the ball behind, then back onto the other foot.
  * - Heel drop: up onto the ball, the heel dropped on the beat.
  * - Cramp roll: ball, ball, heel, heel, one a quarter beat.
- * - Time step (single): a shuffle, a hop on the other foot, a step, a flap
- *   and a step.
+ * - Time step (single): a shuffle, a hop on the other foot, a step, a flap and a
+ *   step.
  *
- * A foot travels to a strike over at most `TRAVEL` of a beat, lifted
- * `LIFT` of the stature. The hips ride over the feet's midpoint, `CROUCH`
- * of the stature low on soft knees, no lower than a flat step's shank
- * allows its unloaded ankle as it lands; while no foot bears (the hop) they fly
- * the ballistic arc whose flight time that span is. Repeats alternate the
- * leading foot, each starting where the last left the feet.
+ * A foot travels to a strike over at most `TRAVEL` of a beat, lifted `LIFT` of
+ * the stature. The hips ride over the feet's midpoint, `CROUCH` of the stature
+ * low on soft knees, no lower than a flat step's shank allows its unloaded
+ * ankle as it lands; while no foot bears (the hop) they fly the ballistic arc
+ * whose flight time that span is. Repeats alternate the leading foot, each
+ * starting where the last left the feet.
  *
  * Events: `beat{k}`, each sounding strike's `strike{n}{Side}{Part}`, `relax`.
  *
@@ -66,7 +66,10 @@ export namespace tapDance {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "tapDance";
 
-  /** Cancel table: from the last beat, into standing, another tap step or a dance. */
+  /**
+   * Cancel table: from the last beat, into standing, another tap step or a
+   * dance.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -78,7 +81,10 @@ export namespace tapDance {
   /** The foot's pitch on its ball or its heel, degrees (provisional). */
   export const PITCH: number = 20;
 
-  /** How far a brush or a step reaches ahead or behind, foot lengths (provisional). */
+  /**
+   * How far a brush or a step reaches ahead or behind, foot lengths
+   * (provisional).
+   */
   export const REACH: number = 0.4;
 
   /** The longest travel into a strike, a share of a beat. */
@@ -95,8 +101,8 @@ export namespace tapDance {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the tempo is not positive, the repeat count is not a positive whole number, or the locked track has too few beats.
-   *
+   * @throws {HumanRefusal} When the tempo is not positive, the repeat count is
+   *   not a positive whole number, or the locked track has too few beats.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation Strikes placed on the beat's quarter subdivisions; each foot keyed through them; the hips over the feet with a ballistic flight where none bears.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, keys per foot, flights, carriage, contacts.
@@ -280,7 +286,10 @@ export namespace tapDance {
       support,
     );
   }
-  /** A flat step that takes the weight: when it lands and where its ankle is set. */
+  /**
+   * A flat step that takes the weight: when it lands and where its ankle is
+   * set.
+   */
   interface IFlat {
     /** Action seconds it lands. */
     at: number;
@@ -299,13 +308,13 @@ export namespace tapDance {
   }
 
   /**
-   * The deepest crouch below straight legs at which a foot set down flat
-   * keeps its shank within the unloaded ankle's dorsal range, less the
-   * walk's margin (`ANKLE_DORSIFLEXION.unloaded − walkLeg.ANKLE`), with the
-   * hip `ahead` of the ankle along the heading: the knee `s` from the ankle
-   * at that lean φ, the hip `t` from the knee, so the hip stands
-   * `H = s·cos φ + √(t² − (ahead − s·sin φ)²)` above the ankle at least
-   * (law of cosines on the leg's two segments).
+   * The deepest crouch below straight legs at which a foot set down flat keeps
+   * its shank within the unloaded ankle's dorsal range, less the walk's margin
+   * (`ANKLE_DORSIFLEXION.unloaded − walkLeg.ANKLE`), with the hip `ahead` of
+   * the ankle along the heading: the knee `s` from the ankle at that lean φ,
+   * the hip `t` from the knee, so the hip stands `H = s·cos φ + √(t² − (ahead −
+   * s·sin φ)²)` above the ankle at least (law of cosines on the leg's two
+   * segments).
    */
   function flat(body: IAutoMovieMotionHumanBody, ahead: number): number {
     const t: number = body.measure.thigh;

@@ -39,43 +39,45 @@ import { climbLadderHands } from "./climbLadderHands";
 import { climbLadderHolds } from "./climbLadderHolds";
 import { planLadderAccess } from "./planLadderAccess";
 
-/** How far below the shoulder the hands' first rung is sought, upper-arm lengths (provisional: a grip with the elbow part bent rather than a straight overhead reach). */
+/**
+ * How far below the shoulder the hands' first rung is sought, upper-arm lengths
+ * (provisional: a grip with the elbow part bent rather than a straight overhead
+ * reach).
+ */
 const GRIP_DROP: number = 0.5;
 
 /**
- * Climbing a vertical fixed ladder from the floor before it, in the
- * four-beat ipsilateral pattern: right hand, right foot, left hand, left
- * foot, one limb moving at a time, so three limbs always hold the ladder
- * (Jensen and Holland 2020, Int J Environ Res Public Health 17:2897).
+ * Climbing a vertical fixed ladder from the floor before it, in the four-beat
+ * ipsilateral pattern: right hand, right foot, left hand, left foot, one limb
+ * moving at a time, so three limbs always hold the ladder (Jensen and Holland
+ * 2020, Int J Environ Res Public Health 17:2897).
  *
  * The goals are rungs: the ladder is a prop of the scene, a fixture
  * (`IHumanProp.fixed`) that the hands grip and never carry, and its rungs are
- * its own `rung1` upward (`createLadder`'s affordances), read where the
- * ladder stands at the action's start. The rungs' spacing must lie in OSHA
+ * its own `rung1` upward (`createLadder`'s affordances), read where the ladder
+ * stands at the action's start. The rungs' spacing must lie in OSHA
  * 1910.23(b)(2)'s 25 to 36 cm and their line be upright; the climber stands
- * before the ladder, facing it within `FACING` degrees, the toes within
- * `NEAR` of the rungs and between the rails. A ladder that is no fixture,
- * leans, has too few rungs above the hands, or one the climber stands away
- * from, is refused. Each foot stands with its ball on a rung's top,
- * and each hand grips a rung (Jensen and Holland found rungs used in 59 of
- * 80 tasks) at the rung nearest half an upper arm below the shoulder's
- * height above the feet (`GRIP_DROP`, provisional). Each foot's rungs take
- * the settled stance's heading, while the feet leave the floor from where
- * the entry put them. First
- * both hands reach their rungs, then every beat moves one limb up one rung:
- * a foot on a minimum-jerk arc that clears the rung below by `CLEARANCE`, a
- * hand on a minimum-jerk path. The pelvis stays `BACK` leg lengths behind
- * the rungs and rises with the feet, lowered wherever a planted leg could
- * not reach. Each beat takes `BEAT` seconds (provisional), scaled by the
- * manner's tempo. Events: `handsOn`, then per beat `<limb>Release<n>` and
- * `<limb>Contact<n>`, the limb one of `rightHand`, `rightFoot`, `leftHand`,
- * `leftFoot`.
+ * before the ladder, facing it within `FACING` degrees, the toes within `NEAR`
+ * of the rungs and between the rails. A ladder that is no fixture, leans, has
+ * too few rungs above the hands, or one the climber stands away from, is
+ * refused. Each foot stands with its ball on a rung's top, and each hand grips
+ * a rung (Jensen and Holland found rungs used in 59 of 80 tasks) at the rung
+ * nearest half an upper arm below the shoulder's height above the feet
+ * (`GRIP_DROP`, provisional). Each foot's rungs take the settled stance's
+ * heading, while the feet leave the floor from where the entry put them. First
+ * both hands reach their rungs, then every beat moves one limb up one rung: a
+ * foot on a minimum-jerk arc that clears the rung below by `CLEARANCE`, a hand
+ * on a minimum-jerk path. The pelvis stays `BACK` leg lengths behind the rungs
+ * and rises with the feet, lowered wherever a planted leg could not reach. Each
+ * beat takes `BEAT` seconds (provisional), scaled by the manner's tempo.
+ * Events: `handsOn`, then per beat `<limb>Release<n>` and `<limb>Contact<n>`,
+ * the limb one of `rightHand`, `rightFoot`, `leftHand`, `leftFoot`.
  *
  * A named `landing` hands the whole floor-to-landing route, up or down, to
  * `planLadderAccess`, which stages it over the shared support law.
  *
  * Not yet: the two-beat patterns, and hanging, traversing, mantling and
- * vaulting (the rest of #3238).
+ * vaulting (not yet staged).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the pattern with its source, the ladder's geometry and band, the holds, the timing, the events and what is missing.
  * @evidence contracts/development/design.md#principled-representation A law record of one whole-body row over a beat schedule on one clock.
@@ -92,16 +94,25 @@ export namespace climbLadder {
   /** One beat's seconds (provisional). */
   export const BEAT: number = 0.8;
 
-  /** How far a swinging foot clears its path's straight line, metres (provisional). */
+  /**
+   * How far a swinging foot clears its path's straight line, metres
+   * (provisional).
+   */
   export const CLEARANCE: number = 0.06;
 
   /** How far the hip joints stay behind the rungs, in leg lengths (provisional). */
   export const BACK: number = 0.35;
 
-  /** The most the climber's heading may differ from facing the ladder, degrees (provisional). */
+  /**
+   * The most the climber's heading may differ from facing the ladder, degrees
+   * (provisional).
+   */
   export const FACING: number = 30;
 
-  /** The farthest the toes may stand from the rungs, metres (provisional): a step from the ladder. */
+  /**
+   * The farthest the toes may stand from the rungs, metres (provisional): a
+   * step from the ladder.
+   */
   export const NEAR: number = 0.5;
 
   /** The beat order of the four-beat ipsilateral pattern. */
@@ -123,8 +134,10 @@ export namespace climbLadder {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the ladder is no fixture, leans, spaces its rungs outside the OSHA band or has too few above the hands, the climber does not stand before it facing it, or the rung count is not a positive integer.
-   *
+   * @throws {HumanRefusal} When the ladder is no fixture, leans, spaces its
+   *   rungs outside the OSHA band or has too few above the hands, the climber
+   *   does not stand before it facing it, or the rung count is not a positive
+   *   integer.
    * @evidence contracts/development/common.md#meaningful-documentation The namespace gives the four-beat pattern, rung geometry, timing and refusals; this entry prepares the fixed supports and limb clocks.
    * @evidence contracts/development/implementation.md#principled-implementation Preserves each original minimum-jerk limb move and rung contact, the pelvis height and lowering, and initial hand reach from the entry arms.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Body/ladder admission precedes fixed footprint/handhold preparation and per-limb beat arrays; separate support and arm primitives let root/leg demand omit arm work.
@@ -363,7 +376,10 @@ export namespace climbLadder {
       write: (lowered, seconds, _before, resolution, projection) =>
         armsAt(lowered, seconds, resolution, projection, level),
     };
-    /** Write the current grip goals and carry the entering arm angles through the first reach. */
+    /**
+     * Write the current grip goals and carry the entering arm angles through
+     * the first reach.
+     */
     function armsAt(
       lowered: IAutoMovieMotionHumanPosture,
       seconds: number,

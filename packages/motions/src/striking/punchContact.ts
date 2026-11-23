@@ -32,21 +32,25 @@ import { punchReach } from "./punchReach";
 import { punchSurface } from "./punchSurface";
 
 /**
- * A punch at its contact: the line to the target, the trunk's turn, the
- * fist's rotation, the tracked aim, the step-in and the arm's solution.
+ * A punch at its contact: the line to the target, the trunk's turn, the fist's
+ * rotation, the tracked aim, the step-in and the arm's solution.
  *
- * Techniques (IBA coaching manual pp. 42 to 45 and the kickboxing research
- * of #3201): `straight` lands nearly extended along the line, palm down;
+ * Techniques (IBA coaching manual pp. 42 to 45 and the kickboxing research of
+ * the research): `straight` lands nearly extended along the line, palm down;
  * `hook` lands with the elbow near a right angle, arriving across the line,
- * palm down; `uppercut` rises from below, palm toward the puncher. A body
- * punch lowers the shoulder through the knees so the fist meets a low target
- * from about its own level. When the arm's band falls short, the lead foot
- * steps in by up to one stance length, never past the room in front of the
- * arms ({@link StrikingRoom}) and never toward a target that no place on the
- * line brings within the band.
+ * palm down; `uppercut` rises from below, palm toward the puncher. A body punch
+ * lowers the shoulder through the knees so the fist meets a low target from
+ * about its own level. When the arm's band falls short, the lead foot steps in
+ * by up to one stance length, never past the room in front of the arms
+ * ({@link StrikingRoom}) and never toward a target that no place on the line
+ * brings within the band.
  */
 export namespace punchContact {
-  /** Elbow flexion band at contact by technique, degrees (IBA drawings read; hook and uppercut near a right angle; the palm heel as the straight, the backfist nearly extended and the hammerfist bent, provisional). */
+  /**
+   * Elbow flexion band at contact by technique, degrees (IBA drawings read;
+   * hook and uppercut near a right angle; the palm heel as the straight, the
+   * backfist nearly extended and the hammerfist bent, provisional).
+   */
   export const FLEXION: Readonly<
     Record<
       IAutoMovieMotionHumanPunch.IParams["technique"],
@@ -88,9 +92,7 @@ export namespace punchContact {
     verticalFist: { lead: 0, rear: 10 },
   };
 
-  /**
-   * A punch solved at its contact.
-   */
+  /** A punch solved at its contact. */
   export interface IContact {
     /** The point aimed at when the punch is launched. */
     first: IAutoMovieVector3;
@@ -119,7 +121,11 @@ export namespace punchContact {
     /** The online tracker of the target. */
     tracker: IAutoMovieMotionHumanStrikingAim.ITracker;
 
-    /** The displayed entry bone map: complete by default, or the explicit requested outputs. The punch geometry requests all six arm joints for its launch wrist/elbow and both complete arm sweeps. */
+    /**
+     * The displayed entry bone map: complete by default, or the explicit
+     * requested outputs. The punch geometry requests all six arm joints for its
+     * launch wrist/elbow and both complete arm sweeps.
+     */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
     /** The lead foot's step along the line, metres. */
@@ -137,12 +143,15 @@ export namespace punchContact {
     /** The elbow's hint point at contact, on the launch plan. */
     hint: IAutoMovieVector3;
 
-    /** The reach on the launch plan, whose step, shoulder, arm and hint the members above repeat. */
+    /**
+     * The reach on the launch plan, whose step, shoulder, arm and hint the
+     * members above repeat.
+     */
     launched: punchReach.IReach;
 
     /**
-     * The tracker's corrections arrived by a film second, each carried into
-     * the step, the wrist at contact and the elbow's hint.
+     * The tracker's corrections arrived by a film second, each carried into the
+     * step, the wrist at contact and the elbow's hint.
      */
     corrected(seconds: number): readonly punchReach.ICorrection[];
   }
@@ -150,10 +159,13 @@ export namespace punchContact {
   /**
    * Solve a punch at its contact.
    *
-   * @param context The action's context, whose body keeps its topology and skeleton unchanged.
+   * @param context The action's context, whose body keeps its topology and
+   *   skeleton unchanged.
    * @param timing The punch's timing.
-   * @param tangent The varied point within a person's region, when the punch varies.
-   * @param launch What the punch reads of its own entry alone (`punchLaunch`), made once for the plan.
+   * @param tangent The varied point within a person's region, when the punch
+   *   varies.
+   * @param launch What the punch reads of its own entry alone (`punchLaunch`),
+   *   made once for the plan.
    * @returns The contact's solution.
    */
   export function solve(

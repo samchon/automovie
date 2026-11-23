@@ -210,7 +210,7 @@ export namespace walk {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkParams>,
   ): IAutoMovieMotionHumanActionPlan {
     // On a moving support the walk planned on it as it stood at the start
-    // is carried by its motion, the feet planted on it (#3491).
+    // is carried by its motion, the feet planted on it.
     const on: IAutoMovieMotionHumanWalkParams["on"] = context.params.on;
     const gait: IAutoMovieMotionHumanWalkGait = walking(
       FROUDE[context.params.pace ?? "normal"],

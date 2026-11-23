@@ -41,26 +41,26 @@ import { poseBones } from "../posture/poseBones";
 import { useTool } from "./useTool";
 
 /**
- * Wiping a table, counter or other level surface with the flat palm in
- * circles, standing before it: a household task (#3256) that the composed
- * laws lacked, the palm's circling stroke on a work surface.
+ * Wiping a table, counter or other level surface with the flat palm in circles,
+ * standing before it: a household task that the composed laws lacked, the
+ * palm's circling stroke on a work surface.
  *
- * The goal is the palm flat on the surface, circling its centre with a
- * radius of a quarter of the forearm (provisional) `cycles` times. The hand
- * comes to the surface in the aimed movement time (McIntosh et al. 2018),
- * circles at a tool stroke's hand speed (`useTool.STROKE_SPEED`) with the palm on the
+ * The goal is the palm flat on the surface, circling its centre with a radius
+ * of a quarter of the forearm (provisional) `cycles` times. The hand comes to
+ * the surface in the aimed movement time (McIntosh et al. 2018), circles at a
+ * tool stroke's hand speed (`useTool.STROKE_SPEED`) with the palm on the
  * surface throughout, and returns. A patch whose far side lies beyond the
- * standing arm is leaned into (`AutoMovieMotionHumanLeanInto`): the trunk
- * tips about the hips by the least pitch that keeps the wrist within the
- * reach of an elbow kept at `ELBOW` degrees (`reach`); one still out of reach at the lean's limit is
- * refused, since it is walked up to first. The preferred working height lies
- * 200 to 250 mm below the elbow (Li, Chang and Zhang 2024, Sensors 24:7056);
- * the law accepts any reachable height and the author places the surface.
- * Events: the phrase's `ready` (palm down), `strokeStart`, `strokeEnd`,
- * `relax` (palm lifted).
+ * standing arm is leaned into (`AutoMovieMotionHumanLeanInto`): the trunk tips
+ * about the hips by the least pitch that keeps the wrist within the reach of an
+ * elbow kept at `ELBOW` degrees (`reach`); one still out of reach at the lean's
+ * limit is refused, since it is walked up to first. The preferred working
+ * height lies 200 to 250 mm below the elbow (Li, Chang and Zhang 2024, Sensors
+ * 24:7056); the law accepts any reachable height and the author places the
+ * surface. Events: the phrase's `ready` (palm down), `strokeStart`,
+ * `strokeEnd`, `relax` (palm lifted).
  *
- * Not yet: leaning on the counter with the free hand (Iwakiri et al. 2007),
- * a held cloth as a prop, and the task sequences (dishwashing, laundry, bed
+ * Not yet: leaning on the counter with the free hand (Iwakiri et al. 2007), a
+ * held cloth as a prop, and the task sequences (dishwashing, laundry, bed
  * making) that chain this with the grasp, affordance and bend laws.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the stroke, the refusal, the working height's source, the events and what is missing.
@@ -100,13 +100,16 @@ export namespace wipe {
     ],
   };
 
-  /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
+  /**
+   * May be performed over a carrier, such as seated or while another action
+   * carries the body: it claims only the parts it moves.
+   */
   export const overlay: boolean = true;
 
   /**
-   * The least flexion the elbow keeps on the surface, degrees: the lower end
-   * of the functional elbow arc of Morrey, Askew and Chao 1981 (J Bone Joint
-   * Surg Am 63:872, 30 to 130 degrees), so the elbow never locks straight.
+   * The least flexion the elbow keeps on the surface, degrees: the lower end of
+   * the functional elbow arc of Morrey, Askew and Chao 1981 (J Bone Joint Surg
+   * Am 63:872, 30 to 130 degrees), so the elbow never locks straight.
    */
   export const ELBOW: number = 30;
 
@@ -134,7 +137,6 @@ export namespace wipe {
    * @param cycles The circle count.
    * @param progress The stroke's progress in [0, 1].
    * @returns World metres.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's frame and unit and the returned world point.
    * @evidence contracts/development/implementation.md#principled-implementation The phase `2 pi cycles progress` on a circle of the radius about the centre, starting at its point nearest the performer, in the heading's floor frame.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One local circle (`localCircle`) and one floor-frame transform.
@@ -161,8 +163,8 @@ export namespace wipe {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the cycle count is not a positive integer, or the patch lies beyond reach.
-   *
+   * @throws {HumanRefusal} When the cycle count is not a positive integer, or
+   *   the patch lies beyond reach.
    * @evidence contracts/development/common.md#meaningful-documentation States the refusals and the plan; the namespace gives the goal, the stroke, the lean, the timing and the sources.
    * @evidence contracts/development/implementation.md#principled-implementation The palm's goal is its place on the circle at the stroke's progress, laid flat with the fingers ahead; a patch beyond the standing arm is leaned into by the least pitch that keeps the wrist within `REACH` (`AutoMovieMotionHumanLeanInto`), checked at plan time over one whole circle; the reach takes the aimed movement time of the hand's way to the circle's start, onto the patch the circle covers (McIntosh et al. 2018).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Circle and palm geometry, the lean with its refusal, the entry hand, the clock, then the lean and the planted stroke.
@@ -365,7 +367,10 @@ export namespace wipe {
   }
 }
 
-/** The circle about the centre in the heading's floor frame: starting at its point nearest the performer, `cycles` turns over the progress. */
+/**
+ * The circle about the centre in the heading's floor frame: starting at its
+ * point nearest the performer, `cycles` turns over the progress.
+ */
 function localCircle(
   radius: number,
   cycles: number,

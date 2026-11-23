@@ -24,21 +24,21 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 
 /**
- * The one reader of the frame a body's base rests on (#3491, P6): the
- * ground, a prop it sits or stands on (a saddle, a cart's bed, a deck), or a
- * performer's region it is borne on, with that frame's velocity and
- * acceleration at a second. Every consumer reads it here: a presented weapon
- * aimed in the support's frame, a launch inheriting the support's velocity,
- * the rider's inertial load (#3431), a borne person (#3437).
+ * The one reader of the frame a body's base rests on: the ground, a prop it
+ * sits or stands on (a saddle, a cart's bed, a deck), or a performer's region
+ * it is borne on, with that frame's velocity and acceleration at a second.
+ * Every consumer reads it here: a presented weapon aimed in the support's
+ * frame, a launch inheriting the support's velocity, the rider's inertial load,
+ * a borne person.
  *
  * The support is the bearing contact the action is entered on
- * (`IHumanEntryState.supports`): the seat or the feet, not a gripping hand,
- * the first one on a prop or a person, the ground when every one is on the
- * ground. The velocity and the acceleration are the central differences of
- * the support's origin at the engine's plan-time step
- * (`integrateMotionTrajectory.STEP`, #3424). A performer's region is read
- * only at and before the second evaluated (#3437's contract), so its
- * differences are backward ones over the same step.
+ * (`IHumanEntryState.supports`): the seat or the feet, not a gripping hand, the
+ * first one on a prop or a person, the ground when every one is on the ground.
+ * The velocity and the acceleration are the central differences of the
+ * support's origin at the engine's plan-time step
+ * (`integrateMotionTrajectory.STEP`). A performer's region is read only at and
+ * before the second evaluated (contract), so its differences are backward ones
+ * over the same step.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the support is, who reads it, how it is chosen and how its derivatives are taken, with the performer exception.
  * @evidence contracts/development/design.md#principled-representation A support is a rigid world frame with the first two time derivatives of its origin.
@@ -46,10 +46,9 @@ import { poseBones } from "../posture/poseBones";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The frame is the prop's or the bone's own displayed one; nothing is extrapolated from the entry.
  */
 export namespace HumanSupportFrame {
-
   /**
-   * The support the action is entered on: the first bearing contact on a
-   * prop or a person, else the ground.
+   * The support the action is entered on: the first bearing contact on a prop
+   * or a person, else the ground.
    *
    * @param context The action's context.
    * @returns The support.
@@ -69,8 +68,8 @@ export namespace HumanSupportFrame {
   }
 
   /**
-   * The frame an entry part already bears on. Continuing a plant keeps
-   * that frame; a part with no declared contact starts on the ground.
+   * The frame an entry part already bears on. Continuing a plant keeps that
+   * frame; a part with no declared contact starts on the ground.
    *
    * @param context The displayed entry's contacts.
    * @param part The contact part being continued.
@@ -89,14 +88,15 @@ export namespace HumanSupportFrame {
   ): IAutoMovieMotionHumanContactWindow.Support {
     return (
       context.entry.supports.find(
-        (support: IAutoMovieMotionHumanEntryState.ISupport): boolean => support.part === part,
+        (support: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+          support.part === part,
       )?.support ?? { kind: "ground" }
     );
   }
   /**
    * The floor actually touched by the planted entry feet, read from their
-   * displayed sole sockets. A foot on a footrest of the seat sat on is not
-   * on a floor; with no foot on one the ground is the default.
+   * displayed sole sockets. A foot on a footrest of the seat sat on is not on a
+   * floor; with no foot on one the ground is the default.
    *
    * @param body The body.
    * @param entry The displayed entry.
@@ -109,7 +109,10 @@ export namespace HumanSupportFrame {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses HumanFoot.sockets as the surface datum.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function floor(body: IAutoMovieMotionHumanBody, entry: IAutoMovieMotionHumanEntryState): number {
+  export function floor(
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanEntryState,
+  ): number {
     // A foot on a footrest of the seat sat on stands on the seat, not on a
     // floor: a bar stool's rail or a scooter's deck is part of what is sat
     // on, and the seat's height is still measured from the floor under it.
@@ -136,15 +139,16 @@ export namespace HumanSupportFrame {
     );
   }
   /**
-   * Refuse stepping from the ground onto a moving prop faster than the gait
-   * can match (#3491): getting on is a step at a matched speed, so a support
-   * that moves faster at the action's start than the gait's own speed cannot
-   * be boarded. A body already on that prop is not boarding.
+   * Refuse stepping from the ground onto a moving prop faster than the gait can
+   * match: getting on is a step at a matched speed, so a support that moves
+   * faster at the action's start than the gait's own speed cannot be boarded. A
+   * body already on that prop is not boarding.
    *
    * @param context The action's context.
    * @param prop The prop stepped onto.
    * @param speed The gait's speed, m/s.
-   * @throws {HumanRefusal} A `base` refusal on `on` with the speeds and the fix.
+   * @throws {HumanRefusal} A `base` refusal on `on` with the speeds and the
+   *   fix.
    */
   export function board(
     context: Pick<
@@ -175,15 +179,20 @@ export namespace HumanSupportFrame {
    *
    * @param context The action's context.
    * @param seconds Film seconds.
-   * @param named A support named outright, such as the prop a walk is to step onto; the one the action is entered on when absent.
+   * @param named A support named outright, such as the prop a walk is to step
+   *   onto; the one the action is entered on when absent.
    * @returns The frame.
    */
   export function at(
-    context: Pick<IAutoMovieMotionHumanActionContext, "entry" | "prop" | "performer">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "entry" | "prop" | "performer"
+    >,
     seconds: number,
     named?: IAutoMovieMotionHumanContactWindow.Support,
   ): IAutoMovieMotionHumanSupportFrame.IFrame {
-    const support: IAutoMovieMotionHumanContactWindow.Support = named ?? of(context);
+    const support: IAutoMovieMotionHumanContactWindow.Support =
+      named ?? of(context);
     if (support.kind === "ground")
       return {
         support,

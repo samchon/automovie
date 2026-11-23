@@ -40,7 +40,10 @@ interface IPush {
   speed: number;
 }
 
-/** Each fall's push, in the carrier's frame with `+X` toward the falling side (provisional stage readings). */
+/**
+ * Each fall's push, in the carrier's frame with `+X` toward the falling side
+ * (provisional stage readings).
+ */
 const PUSHES: Readonly<Record<IAutoMovieMotionHumanUnseat.Fall, IPush>> = {
   back: { direction: { x: 0, y: 0.3, z: -1 }, speed: 1.5 },
   side: { direction: { x: 1, y: 0.4, z: 0 }, speed: 1.5 },
@@ -55,7 +58,15 @@ const PUSHES: Readonly<Record<IAutoMovieMotionHumanUnseat.Fall, IPush>> = {
 const STEP: number = 1 / 240;
 
 /**
- * A rider leaving a moving saddle (`IAutoMovieMotionHumanUnseat`, #3941): carried on the saddle until the release, then flying from the saddle's own velocity with the fall's push built over `HumanUnseatFlight.TAKE` (no jump in velocity), turning onto the back as the knockdown's fitted lie (`KnockdownFloor`) with the head along the fall and the falling side's hand reaching the floor first, and sliding to a stop; or dragged on the floor behind a foot held in its stirrup until a breakaway stirrup frees it; or stepping clear onto the feet; or slumping over the neck, held by the saddle and a hand in the mane, or sliding off. Register `HumanUnseat` to use it.
+ * A rider leaving a moving saddle (`IAutoMovieMotionHumanUnseat`): carried on
+ * the saddle until the release, then flying from the saddle's own velocity with
+ * the fall's push built over `HumanUnseatFlight.TAKE` (no jump in velocity),
+ * turning onto the back as the knockdown's fitted lie (`KnockdownFloor`) with
+ * the head along the fall and the falling side's hand reaching the floor first,
+ * and sliding to a stop; or dragged on the floor behind a foot held in its
+ * stirrup until a breakaway stirrup frees it; or stepping clear onto the feet;
+ * or slumping over the neck, held by the saddle and a hand in the mane, or
+ * sliding off. Register `HumanUnseat` to use it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States every fall, its phases and how it is registered.
  * @evidence contracts/development/design.md#principled-representation One law over a closed fall vocabulary, the carrier's moving contact and a closed-form flight.
@@ -67,7 +78,8 @@ export const HumanUnseat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanUn
     name: "unseat",
     interrupts: {},
     /**
-     * Admit the fall, find the release, solve the flight or the drag once, then sample.
+     * Admit the fall, find the release, solve the flight or the drag once, then
+     * sample.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: a non-seated entry, a bad instant, speed or time, a release outside the act, a drag without its stirrup and a fall that would pass through the carrier.
      * @evidence contracts/development/implementation.md#principled-implementation Before the release the entry posture is carried by the carrier's contact (`HumanMountedFrame.move`); the release velocity is the carried root's central difference; the flight is `HumanUnseatFlight`'s closed form; the shape blends from the carried posture to the lie by the minimum-jerk share of the flight; the falling hand's way to the floor is one planned arm course in the world (courseArmGoal), clear of the trunk and the thighs, leaving from the seat's arm at the release instant and reaching the floor by the touch; its palm, not its wrist, lies on the floor (the goal's point is the wrist's), palm down at the heading about the vertical nearest the fingers-out one that the lying arm meets (`AutoMovieMotionHumanArmReach`, Tolani et al. 2000), since a flat palm bears alike at any heading.
@@ -321,7 +333,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     side,
     "palm",
   ).point;
-  const onFloor = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => ({
+  const onFloor = (
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieVector3 => ({
     ...posture.limbs[`${side}Arm`]!.point,
     y: 0,
   });
@@ -435,8 +449,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   });
   return {
     ...coursed,
-    posture: (...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>) =>
-      args[0] < leave ? goals.posture(...args) : coursed.posture(...args),
+    posture: (
+      ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+    ) => (args[0] < leave ? goals.posture(...args) : coursed.posture(...args)),
   };
 }
 /** A contact window over shares of the act, on the carrier or the ground. */

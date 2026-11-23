@@ -26,28 +26,27 @@ import { AthleticsRunUp } from "./AthleticsRunUp";
 import { AthleticsSwing } from "./AthleticsSwing";
 
 /**
- * A hurdle clearance out of a run (#3870). The run is cut at the take-off
- * foot's footfall (`AthleticsRunUp`); that foot pushes off about its toes'
- * joint over the rest of the run's own stance, while the root goes on a
- * cubic Hermite path from the entry to the root the run planned at that
- * toe-off, a reach the run's legs already meet; the root then flies the drag-free parabola that lands
- * the lead foot `LANDING` metres beyond the bar at the run's horizontal
- * speed. The lead leg swings from where the run left it over the bar to its
- * landing, the trail leg from the take-off over the bar out to its side and
- * forward for the next stride (`AthleticsSwing`), each passing `CLEAR` over
- * the bar at its swing's middle, and the trunk dips forward by `DIP` at the
- * crossing. The lead foot lands flat and bears;
- * a run cut there takes the stride on.
+ * A hurdle clearance out of a run. The run is cut at the take-off foot's
+ * footfall (`AthleticsRunUp`); that foot pushes off about its toes' joint over
+ * the rest of the run's own stance, while the root goes on a cubic Hermite path
+ * from the entry to the root the run planned at that toe-off, a reach the run's
+ * legs already meet; the root then flies the drag-free parabola that lands the
+ * lead foot `LANDING` metres beyond the bar at the run's horizontal speed. The
+ * lead leg swings from where the run left it over the bar to its landing, the
+ * trail leg from the take-off over the bar out to its side and forward for the
+ * next stride (`AthleticsSwing`), each passing `CLEAR` over the bar at its
+ * swing's middle, and the trunk dips forward by `DIP` at the crossing. The lead
+ * foot lands flat and bears; a run cut there takes the stride on.
  *
- * Refused: a take-off outside `TAKEOFF` metres before the bar (an
- * unsuitable approach), and a flight whose hips pass the bar's plane lower
- * than its top plus `CLEAR`.
+ * Refused: a take-off outside `TAKEOFF` metres before the bar (an unsuitable
+ * approach), and a flight whose hips pass the bar's plane lower than its top
+ * plus `CLEAR`.
  *
- * First pass: the root stands in for the centre of mass on the parabola;
- * the arms keep the run's entry angles; the lead foot lands flat, not on its
+ * First pass: the root stands in for the centre of mass on the parabola; the
+ * arms keep the run's entry angles; the lead foot lands flat, not on its
  * forefoot as a run's stance does, because the run that takes the stride on
- * starts from its entry feet flattened; the take-off foot keeps the run's
- * own stance placement, not a measured push.
+ * starts from its entry feet flattened; the take-off foot keeps the run's own
+ * stance placement, not a measured push.
  *
  * Events: `takeoff`, `clear` (the hips over the bar's plane), `touchdown`.
  *
@@ -60,7 +59,10 @@ export namespace hurdleClear {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "hurdle";
 
-  /** Cancel table: from the lead foot's touchdown, into the run that takes the stride on, or a stand. */
+  /**
+   * Cancel table: from the lead foot's touchdown, into the run that takes the
+   * stride on, or a stand.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     run: [
       { window: ["touchdown", 1], kind: "inertialize", entry: 0, blend: 0.1 },
@@ -75,37 +77,68 @@ export namespace hurdleClear {
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /** The take-off foot's distance before the bar, metres: 1.8 to 2.4 around the 2.0 to 2.2 measured for men's 110 m hurdles (McDonald and Dapena 1991, Med Sci Sports Exerc 23:1392); the band is provisional. */
+  /**
+   * The take-off foot's distance before the bar, metres: 1.8 to 2.4 around the
+   * 2.0 to 2.2 measured for men's 110 m hurdles (McDonald and Dapena 1991, Med
+   * Sci Sports Exerc 23:1392); the band is provisional.
+   */
   export const TAKEOFF: readonly [number, number] = [1.8, 2.4];
 
-  /** The lead foot's landing beyond the bar, metres: about 1.1 (McDonald and Dapena 1991; provisional). */
+  /**
+   * The lead foot's landing beyond the bar, metres: about 1.1 (McDonald and
+   * Dapena 1991; provisional).
+   */
   export const LANDING: number = 1.1;
 
-  /** The margin each swinging ankle and the hips keep over the bar's top, metres (provisional). */
+  /**
+   * The margin each swinging ankle and the hips keep over the bar's top, metres
+   * (provisional).
+   */
   export const CLEAR: number = 0.05;
 
   /** The trunk's forward dip at the crossing, degrees (provisional). */
   export const DIP: number = 25;
 
-  /** The lead foot's toes drawn up as its heel leads over the bar, degrees of pitch (provisional). */
+  /**
+   * The lead foot's toes drawn up as its heel leads over the bar, degrees of
+   * pitch (provisional).
+   */
   export const LEAD: number = 15;
 
-  /** The trail foot's turn out from the run's heading as its flat sole passes over the bar, degrees (provisional). */
+  /**
+   * The trail foot's turn out from the run's heading as its flat sole passes
+   * over the bar, degrees (provisional).
+   */
   export const TURN: number = 70;
 
-  /** The take-off leg's hip-to-ankle reach at toe-off, a share of the leg's length: a knee near 165 degrees (McLean 1994; provisional). */
+  /**
+   * The take-off leg's hip-to-ankle reach at toe-off, a share of the leg's
+   * length: a knee near 165 degrees (McLean 1994; provisional).
+   */
   export const REACH: number = 0.98;
 
-  /** The landing leg's hip-to-ankle reach at touchdown, a share of the leg's length: a knee flexed for the landing (provisional). */
+  /**
+   * The landing leg's hip-to-ankle reach at touchdown, a share of the leg's
+   * length: a knee flexed for the landing (provisional).
+   */
   export const LAND: number = 0.9;
 
-  /** How far the hips have passed the bar when the trail foot crosses it, metres (provisional). */
+  /**
+   * How far the hips have passed the bar when the trail foot crosses it, metres
+   * (provisional).
+   */
   export const TUCK: number = 0.2;
 
-  /** The tucked trail foot's reach out to its side, a share of the leg's length (provisional). */
+  /**
+   * The tucked trail foot's reach out to its side, a share of the leg's length
+   * (provisional).
+   */
   export const OUT: number = 0.15;
 
-  /** Seconds the lead foot bears after its touchdown before the run takes the stride on (provisional). */
+  /**
+   * Seconds the lead foot bears after its touchdown before the run takes the
+   * stride on (provisional).
+   */
   export const SETTLE: number = 0.04;
 
   /**
@@ -113,8 +146,9 @@ export namespace hurdleClear {
    *
    * @param context The action's context, entered from a run.
    * @returns The plan.
-   * @throws {HumanRefusal} When the entry is no run cut at a footfall, the hurdle declares no bar, the take-off lies outside `TAKEOFF`, or the hips pass the bar lower than its top plus `CLEAR`.
-   *
+   * @throws {HumanRefusal} When the entry is no run cut at a footfall, the
+   *   hurdle declares no bar, the take-off lies outside `TAKEOFF`, or the hips
+   *   pass the bar lower than its top plus `CLEAR`.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and every refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A cubic Hermite root over the stance, a drag-free parabola over the flight timed by the run's horizontal speed, Bezier swings with exact bar points, and a forefoot landing.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Approach and bar, places, root path, clock, rows, contacts.

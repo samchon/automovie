@@ -38,32 +38,40 @@ import { StrikingBody } from "../striking/StrikingBody";
 import { headRestAim } from "./headRestAim";
 import { kissBody } from "./kissBody";
 
-/** How far the hand on the partner's side slides down its thigh toward the knee, metres (provisional: about a hand's length). */
+/**
+ * How far the hand on the partner's side slides down its thigh toward the knee,
+ * metres (provisional: about a hand's length).
+ */
 const SLIDE: number = 0.12;
 
-/** The miss under which the head rests on the region, metres (provisional: a skin contact). */
+/**
+ * The miss under which the head rests on the region, metres (provisional: a
+ * skin contact).
+ */
 const NEAR: number = 0.01;
 
-/** The part of the head and neck's weight a resting head lays on the partner (provisional: the other half is held by the neck's own muscles). */
+/**
+ * The part of the head and neck's weight a resting head lays on the partner
+ * (provisional: the other half is held by the neck's own muscles).
+ */
 const RESTING: number = 0.5;
 
 /**
- * Rest the head on a partner (#4012). The resting head's own region, the
- * temple on the side the partner's region lies unless named, is brought to
- * the partner's region. The body leans from the hips as a kiss does
- * (`kissBody`, seated or on planted feet), the neck flexes and the head
- * bends to the side (`headRestAim`): solved once against the region where
- * the performer sees it at the start, then corrected at every second
- * against the region where it is felt, a held limb's feedback delay before
- * (`HumanPerception.HELD`, as `touchHold.felt` reads a partner under the
- * hand), so the head follows the partner's shoulder as the partner
- * breathes or turns. The head goes down in the free transport time of its
- * travel, rests the authored span on a `head` window on the partner's
- * region loaded with half the weight of the head and neck segments in the
- * body's own mass model, and comes up in the same time. A region the lean, the
- * neck and the side bend cannot bring the head to within `NEAR` is refused
- * with the miss and the angles, so a much shorter partner's shoulder is out
- * of reach standing.
+ * Rest the head on a partner. The resting head's own region, the temple on the
+ * side the partner's region lies unless named, is brought to the partner's
+ * region. The body leans from the hips as a kiss does (`kissBody`, seated or on
+ * planted feet), the neck flexes and the head bends to the side
+ * (`headRestAim`): solved once against the region where the performer sees it
+ * at the start, then corrected at every second against the region where it is
+ * felt, a held limb's feedback delay before (`HumanPerception.HELD`, as
+ * `touchHold.felt` reads a partner under the hand), so the head follows the
+ * partner's shoulder as the partner breathes or turns. The head goes down in
+ * the free transport time of its travel, rests the authored span on a `head`
+ * window on the partner's region loaded with half the weight of the head and
+ * neck segments in the body's own mass model, and comes up in the same time. A
+ * region the lean, the neck and the side bend cannot bring the head to within
+ * `NEAR` is refused with the miss and the angles, so a much shorter partner's
+ * shoulder is out of reach standing.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the regions, the solve, the per-second correction, the timing, the window and the refusal.
  * @evidence contracts/development/design.md#principled-representation A law over the kiss's lean model with its own region and a side bend, and a head contact window on the partner's region.
@@ -287,7 +295,10 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
     },
   };
 
-/** The share of the body's weight a resting head lays on the partner: `RESTING` of the head and neck segments' share of the body's own mass model. */
+/**
+ * The share of the body's weight a resting head lays on the partner: `RESTING`
+ * of the head and neck segments' share of the body's own mass model.
+ */
 function load(body: IAutoMovieMotionHumanActionContext["body"]): number {
   const model: IAutoMovieResolveCenterOfMass.IModel =
     resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
@@ -304,7 +315,10 @@ function load(body: IAutoMovieMotionHumanActionContext["body"]): number {
   return (RESTING * head) / model.mass;
 }
 
-/** The aim at each second: the plan's solution corrected onto the partner's region where it is felt, a held limb's feedback delay before. */
+/**
+ * The aim at each second: the plan's solution corrected onto the partner's
+ * region where it is felt, a held limb's feedback delay before.
+ */
 function following(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeadRest>,
   p: IAutoMovieMotionHumanHeadRest,

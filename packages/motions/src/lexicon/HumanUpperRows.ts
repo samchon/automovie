@@ -46,33 +46,32 @@ import { HUMAN_GESTURE_PHRASE_WIPE_ACROSS } from "../next/presets/HUMAN_GESTURE_
 import { HUMAN_GESTURE_PHRASE_WIPE_MOUTH_ACROSS } from "../next/presets/HUMAN_GESTURE_PHRASE_WIPE_MOUTH_ACROSS";
 
 /**
- * The upper-body acts re-expressed as rows over the arm's phrases (#3361):
- * each row is `armPhrase` with its phrase, its hand and the shape of its
- * target fixed, so a gesture, a touch, a hand at rest, a hand to the face
- * and a wipe share one plan, one timing and one set of refusals, and each
- * accepts any base, carrier, side and manner the phrase law does. The rows
- * of the older laws (`gesture`, `touch`, `rest`, `handToFace`, `wipe`) stay
- * until these rows pass their verdicts; the target a touch or a wipe needs,
- * and the prop a tool row holds (`held`), are left open.
+ * The upper-body acts re-expressed as rows over the arm's phrases: each row is
+ * `armPhrase` with its phrase, its hand and the shape of its target fixed, so a
+ * gesture, a touch, a hand at rest, a hand to the face and a wipe share one
+ * plan, one timing and one set of refusals, and each accepts any base, carrier,
+ * side and manner the phrase law does. The rows of the older laws (`gesture`,
+ * `touch`, `rest`, `handToFace`, `wipe`) stay until these rows pass their
+ * verdicts; the target a touch or a wipe needs, and the prop a tool row holds
+ * (`held`), are left open.
  *
  * A row is written for the right hand: the region of a side it fixes
  * (`hipRight`) is read on the acting hand's own side (`mirror`), so the same
  * row puts the left hand on the left hip.
  *
- * Every offset is a share of the arm's length (upper arm, forearm and hand)
- * in the performer's frame, so a row fits any body; the shares are
- * provisional, set from each act's description with no measured source
- * read.
+ * Every offset is a share of the arm's length (upper arm, forearm and hand) in
+ * the performer's frame, so a row fits any body; the shares are provisional,
+ * set from each act's description with no measured source read.
  *
  * Duration of every row (the phrase's timing, {@link armPhrase}): the hand
- * reaches its place in the free-space time of its travel and returns in as
- * long again, `0.25 + 0.5 D` seconds for `D` metres, about 0.5 s for a
- * 0.5 m reach ({@link AutoMovieMotionHumanTiming.transport}). A visit (a
- * hand on the hip, a phone to the ear, a hat on) holds the place for a beat,
- * 0.4 s, unless `hold` names another pause ({@link AutoMovieMotionHumanTiming.PAUSES}).
- * An oscillation (a wave, a rub, a scratch, a stir) lasts 2 beats, 0.8 s,
- * unless `cycles` says more. `manner.pace` and the Effort `time` factor
- * scale every phase. All of these are provisional.
+ * reaches its place in the free-space time of its travel and returns in as long
+ * again, `0.25 + 0.5 D` seconds for `D` metres, about 0.5 s for a 0.5 m reach
+ * ({@link AutoMovieMotionHumanTiming.transport}). A visit (a hand on the hip, a
+ * phone to the ear, a hat on) holds the place for a beat, 0.4 s, unless `hold`
+ * names another pause ({@link AutoMovieMotionHumanTiming.PAUSES}). An
+ * oscillation (a wave, a rub, a scratch, a stir) lasts 2 beats, 0.8 s, unless
+ * `cycles` says more. `manner.pace` and the Effort `time` factor scale every
+ * phase. All of these are provisional.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each row fixes, what it leaves open, the offsets' unit and their provisional status.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of `armPhrase` (`HumanActionRow`): data over one phrase law built from the vocabulary's arm phrases.
@@ -80,15 +79,24 @@ import { HUMAN_GESTURE_PHRASE_WIPE_MOUTH_ACROSS } from "../next/presets/HUMAN_GE
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; every place is body-relative.
  */
 export namespace HumanUpperRows {
-  /** The phrase law itself, for a production that states its own phrase, target and hand. */
+  /**
+   * The phrase law itself, for a production that states its own phrase, target
+   * and hand.
+   */
   export const phrase = armPhrase;
 
-  /** A wave: the open hand oscillates out and in, raised beside the head, palm forward. */
+  /**
+   * A wave: the open hand oscillates out and in, raised beside the head, palm
+   * forward.
+   */
   export const waveHand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["waveHand"]
   > = HumanActionRow.of("waveHand", armPhrase, HUMAN_GESTURE_PHRASE_WAVE_HAND);
 
-  /** A raised hand: the open hand visits a place above the shoulder, palm forward, and holds it. */
+  /**
+   * A raised hand: the open hand visits a place above the shoulder, palm
+   * forward, and holds it.
+   */
   export const raiseHandHigh: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["raiseHandHigh"]
   > = HumanActionRow.of(
@@ -102,7 +110,10 @@ export namespace HumanUpperRows {
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["stopHand"]
   > = HumanActionRow.of("stopHand", armPhrase, HUMAN_GESTURE_PHRASE_STOP_HAND);
 
-  /** A point: the forefinger's tip visits a place on the target's line, the hand pointing. */
+  /**
+   * A point: the forefinger's tip visits a place on the target's line, the hand
+   * pointing.
+   */
   export const pointAt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["pointAt"]
   > = HumanActionRow.of("pointAt", armPhrase, HUMAN_GESTURE_PHRASE_POINT_AT);
@@ -167,7 +178,10 @@ export namespace HumanUpperRows {
     HUMAN_GESTURE_PHRASE_WIPE_ACROSS,
   );
 
-  /** Hammering: the fist that holds the hammer strikes down and back on the target, up and down. */
+  /**
+   * Hammering: the fist that holds the hammer strikes down and back on the
+   * target, up and down.
+   */
   export const hammerStrokes: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["hammerStrokes"]
   > = HumanActionRow.of(
@@ -208,7 +222,10 @@ export namespace HumanUpperRows {
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["palmUp"]
   > = HumanActionRow.of("palmUp", armPhrase, HUMAN_GESTURE_PHRASE_PALM_UP);
 
-  /** Pushing up one's glasses: the forefinger's tip visits the bridge of the nose. */
+  /**
+   * Pushing up one's glasses: the forefinger's tip visits the bridge of the
+   * nose.
+   */
   export const glassesUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["glassesUp"]
   > = HumanActionRow.of(
@@ -262,7 +279,10 @@ export namespace HumanUpperRows {
     HUMAN_GESTURE_PHRASE_PHONE_TO_EAR,
   );
 
-  /** Brushing the teeth: the hand that holds the brush oscillates before the mouth. */
+  /**
+   * Brushing the teeth: the hand that holds the brush oscillates before the
+   * mouth.
+   */
   export const teethBrushing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["teethBrushing"]
   > = HumanActionRow.of(
@@ -289,7 +309,10 @@ export namespace HumanUpperRows {
     HUMAN_GESTURE_PHRASE_CLAP_HANDS,
   );
 
-  /** Rubbing the hands: both palms together ahead of the chest, sliding up and down. */
+  /**
+   * Rubbing the hands: both palms together ahead of the chest, sliding up and
+   * down.
+   */
   export const rubPalms: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["rubPalms"]
   > = HumanActionRow.of("rubPalms", armPhrase, HUMAN_GESTURE_PHRASE_RUB_PALMS);
@@ -303,7 +326,10 @@ export namespace HumanUpperRows {
     HUMAN_GESTURE_PHRASE_HANDS_TOGETHER_FRONT,
   );
 
-  /** A cheer: both open hands visit places above and beside the head, palms forward, for a beat. */
+  /**
+   * A cheer: both open hands visit places above and beside the head, palms
+   * forward, for a beat.
+   */
   export const cheerHands: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["cheerHands"]
   > = HumanActionRow.of(
@@ -312,7 +338,10 @@ export namespace HumanUpperRows {
     HUMAN_GESTURE_PHRASE_CHEER_HANDS,
   );
 
-  /** A beckon: the open hand held out ahead, palm up, draws in toward the chest and out again. */
+  /**
+   * A beckon: the open hand held out ahead, palm up, draws in toward the chest
+   * and out again.
+   */
   export const beckonHand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["beckonHand"]
   > = HumanActionRow.of(
@@ -321,7 +350,11 @@ export namespace HumanUpperRows {
     HUMAN_GESTURE_PHRASE_BECKON_HAND,
   );
 
-  /** Folding the arms: each hand visits the far arm before the chest, the forearms folded, and stays (the phrase that reaches `HumanStance.armsCrossed`, which holds the rest itself). */
+  /**
+   * Folding the arms: each hand visits the far arm before the chest, the
+   * forearms folded, and stays (the phrase that reaches
+   * `HumanStance.armsCrossed`, which holds the rest itself).
+   */
   export const foldArms: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["foldArms"]
   > = HumanActionRow.of("foldArms", armPhrase, HUMAN_GESTURE_PHRASE_FOLD_ARMS);
@@ -335,7 +368,10 @@ export namespace HumanUpperRows {
     HUMAN_GESTURE_PHRASE_HANDS_CLASPED_BEHIND,
   );
 
-  /** An arm at rest at the side: the relaxed hand visits a place beside the thigh, palm in, and stays. */
+  /**
+   * An arm at rest at the side: the relaxed hand visits a place beside the
+   * thigh, palm in, and stays.
+   */
   export const armAtSide: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["armAtSide"]
   > = HumanActionRow.of(
@@ -363,7 +399,10 @@ export namespace HumanUpperRows {
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["holdOn"]
   > = HumanActionRow.of("holdOn", armPhrase, HUMAN_GESTURE_PHRASE_HOLD_ON);
 
-  /** Drinking: the hand that holds a vessel brings its lip to the mouth and holds it there; the vessel is named as `held`. */
+  /**
+   * Drinking: the hand that holds a vessel brings its lip to the mouth and
+   * holds it there; the vessel is named as `held`.
+   */
   export const drinkFrom: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["drinkFrom"]
   > = HumanActionRow.of(
@@ -372,7 +411,10 @@ export namespace HumanUpperRows {
     HUMAN_GESTURE_PHRASE_DRINK_FROM,
   );
 
-  /** Eating: the hand that holds a utensil brings the point it names (a fork's `face`) to the mouth for a beat; the utensil is named as `held`. */
+  /**
+   * Eating: the hand that holds a utensil brings the point it names (a fork's
+   * `face`) to the mouth for a beat; the utensil is named as `held`.
+   */
   export const eatWith: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["eatWith"]
   > = HumanActionRow.of("eatWith", armPhrase, HUMAN_GESTURE_PHRASE_EAT_WITH);

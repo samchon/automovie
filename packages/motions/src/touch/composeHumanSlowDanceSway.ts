@@ -7,19 +7,18 @@ import { shiftStandingWeight } from "../everyday/shiftStandingWeight";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * Stage a slow dance's sway on planted feet (#4012): the weight goes over
- * one foot and back, then over the other and back, `count` times, each half
- * of a sway a beat long, as a couple in a slow dance hold sways to the
- * music. Each shift is `shiftStandingWeight` toward the performer's left,
- * then right, by `by` metres with its return, so the law's own plant and
- * balance checks stand. A partner resting a cheek on this performer's
- * (`headRest`) follows the sway by its felt correction.
+ * Stage a slow dance's sway on planted feet: the weight goes over one foot and
+ * back, then over the other and back, `count` times, each half of a sway a beat
+ * long, as a couple in a slow dance hold sways to the music. Each shift is
+ * `shiftStandingWeight` toward the performer's left, then right, by `by` metres
+ * with its return, so the law's own plant and balance checks stand. A partner
+ * resting a cheek on this performer's (`headRest`) follows the sway by its felt
+ * correction.
  *
  * @param chain The swaying performer's chain.
  * @param params How far the pelvis goes, the beat and how many sways.
  * @returns The same kind of chain with the shifts appended.
  * @throws {HumanRefusal} When the count is not a whole number of one or more.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the movement, its timing, the law it reuses and how a partner follows it.
  * @evidence contracts/development/implementation.md#principled-implementation Each half sway is one planted weight shift and its return on the beat.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Appends two shifts per sway through the chain operator.

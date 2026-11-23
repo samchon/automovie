@@ -11,22 +11,22 @@ import type {
 import { HumanInteractionMesh } from "../posture/HumanInteractionMesh";
 
 /**
- * A two-person hold's key pose adapted to any pair of bodies (#3438): the
- * joints of both bodies at the key pose, the target bodies' bone lengths and
- * the hold's contacts go through the interaction mesh
- * (`HumanInteractionMesh`, Ho, Komura and Tai 2010), and each
- * body's adapted joints become its limb goals (each wrist and ankle on its
- * adapted joint, bent toward its adapted elbow or knee) and its root's
- * shift, which the existing limb fits (`resolveHumanPosture`) resolve.
+ * A two-person hold's key pose adapted to any pair of bodies: the joints of
+ * both bodies at the key pose, the target bodies' bone lengths and the hold's
+ * contacts go through the interaction mesh (`HumanInteractionMesh`, Ho, Komura
+ * and Tai 2010), and each body's adapted joints become its limb goals (each
+ * wrist and ankle on its adapted joint, bent toward its adapted elbow or knee)
+ * and its root's shift, which the existing limb fits (`resolveHumanPosture`)
+ * resolve.
  *
- * The key pose is a coupled solve of the hold on two reference bodies
- * (#3437), never authored per hold; a contact keeps the offset between its
- * two joints that the key pose has, so a hand on a back stays a hand's
- * thickness off the spine joint.
+ * The key pose is a coupled solve of the hold on two reference bodies, never
+ * authored per hold; a contact keeps the offset between its two joints that the
+ * key pose has, so a hand on a back stays a hand's thickness off the spine
+ * joint.
  *
- * First pass: a contact's offset is kept as the key pose has it, not scaled
- * to the target bodies' surfaces; the trunk's joint angles are not refitted
- * to the adapted spine, only shifted with the hips.
+ * First pass: a contact's offset is kept as the key pose has it, not scaled to
+ * the target bodies' surfaces; the trunk's joint angles are not refitted to the
+ * adapted spine, only shifted with the hips.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is adapted, how the result is used, where the key pose comes from and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation The hold as joints and contacts of two bodies, the interaction mesh's input, and the result as each body's root shift and limb goals, the posture's own inputs.
@@ -42,7 +42,6 @@ export namespace HumanHoldMesh {
    * @param contacts The hold's contacts.
    * @returns Each target body's adapted pose.
    * @throws {Error} When a contact or a bone names a joint the key pose lacks.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, their order, the result and the error.
    * @evidence contracts/development/implementation.md#principled-implementation Every key joint of both bodies is a mesh point; every parent-child pair is a bone at the target body's rest length; every contact keeps its key offset; the interaction mesh minimizes its Laplacian deformation under those, and each limb's goal is read off its adapted end and middle joints.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Points, bones, contacts, one adaptation, then the goals per body.

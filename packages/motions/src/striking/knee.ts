@@ -43,38 +43,38 @@ import { StrikingWeapon } from "./StrikingWeapon";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
 
 /**
- * A knee strike: the knee driven up and forward onto the target while the
- * hands hold the opponent's head or neck (the clinch) or stay at the guard.
+ * A knee strike: the knee driven up and forward onto the target while the hands
+ * hold the opponent's head or neck (the clinch) or stay at the guard.
  *
  * The knee is the weapon, and the thigh carries it on a circle about the hip
- * ({@link KneeReach}). The hips square to the thigh's heading, the support
- * foot pivoting on its ball with them; the pelvis travels along the line
- * until the knee's front is on the target, lowered as far as the planted
- * support leg needs to keep its foot, and the knee is solved from the hip
- * that carriage leaves it. A target outside the thigh's range or the pelvis's
- * travel is the declared miss at maximum reach (`short`), and one closer than
- * the hips can withdraw is `jammed`: the knee lands where it first meets the
- * body.
+ * ({@link KneeReach}). The hips square to the thigh's heading, the support foot
+ * pivoting on its ball with them; the pelvis travels along the line until the
+ * knee's front is on the target, lowered as far as the planted support leg
+ * needs to keep its foot, and the knee is solved from the hip that carriage
+ * leaves it. A target outside the thigh's range or the pelvis's travel is the
+ * declared miss at maximum reach (`short`), and one closer than the hips can
+ * withdraw is `jammed`: the knee lands where it first meets the body.
  *
- * The knee is lifted, then the hips are driven in
- * ({@link KneeForm.LIFT_SHARE}): the thigh swings about the hip from where
- * the stance had it to its solved elevation on an early clock, the pelvis
- * travels on a late one, and the way back mirrors it. The shank folds under
- * the knee and the toes point down along it ({@link KneeForm.FLEXION},
- * {@link KneeForm.PLANTAR}), so the foot trails behind the knee instead of
- * leading it into the opponent's legs. The trunk leans back slightly to keep
- * the centre of mass over the pivoting support foot.
+ * The knee is lifted, then the hips are driven in ({@link KneeForm.LIFT_SHARE}):
+ * the thigh swings about the hip from where the stance had it to its solved
+ * elevation on an early clock, the pelvis travels on a late one, and the way
+ * back mirrors it. The shank folds under the knee and the toes point down along
+ * it ({@link KneeForm.FLEXION}, {@link KneeForm.PLANTAR}), so the foot trails
+ * behind the knee instead of leading it into the opponent's legs. The trunk
+ * leans back slightly to keep the centre of mass over the pivoting support
+ * foot.
  *
  * The thigh, shank and foot are contact capsules on the shown leg
- * ({@link StrikingWeapon}); first contact stops the knee for its dwell, then
- * it gives way before the met body ({@link StrikingRide}) and retraces its approach.
+ * ({@link StrikingWeapon}); first contact stops the knee for its dwell, then it
+ * gives way before the met body ({@link StrikingRide}) and retraces its
+ * approach.
  *
- * Timing (kickboxing research of #3201): the knee rises through the round
- * kick's chamber only, so it lands at the chamber key (preparation 0.074 s
- * plus 14 % of the 1.02 s execution) and recoils over the kick's 0.65 s;
- * skill scales them like the kick's. With a person target, the hands reach
- * either side of the other's nape for the clinch; GLORY allows one knee per
- * clinch, which the kickboxing rules check.
+ * Timing (kickboxing research): the knee rises through the round kick's chamber
+ * only, so it lands at the chamber key (preparation 0.074 s plus 14 % of the
+ * 1.02 s execution) and recoils over the kick's 0.65 s; skill scales them like
+ * the kick's. With a person target, the hands reach either side of the other's
+ * nape for the clinch; GLORY allows one knee per clinch, which the kickboxing
+ * rules check.
  */
 export namespace knee {
   /** The action's name. */
@@ -83,13 +83,11 @@ export namespace knee {
   /** Cancel table: none; a knee runs to its replant. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-
   /**
    * Plan a knee strike.
    *
    * @param context The action's context.
    * @returns The plan.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States knee drive, support pivot, early lift/late travel, original clinch/guard, planted windows, live capsules and stopped withdrawal; the namespace states the original physical limits.
    * @evidence contracts/development/implementation.md#principled-implementation KneeGeometry solves the original target and settles the hip's carriage to the limb solver's tolerance. Actual postures retain the original minimum-jerk thigh/shank interpolation, support lowering/pivot, nape goals, planted phases and one-sided stopped ride.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The law owns clocks, contacts, free/shown courses and stop lifecycle; the synchronous geometry owner holds the original numeric key construction and is still built lazily/reset on settle.
@@ -115,8 +113,12 @@ export namespace knee {
     const span: number = impact - prep;
     const recoil: number = duration - impact;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
-    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(body, { lead });
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...entry.joints,
+      ...StrikingStance.joints(entry.joints),
+    };
+    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> =
+      StrikingStance.prepareGuard(body, { lead });
     const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -133,13 +135,14 @@ export namespace knee {
       drive: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IAutoMovieMotionHumanPosture => {
-      const supportFoot: IAutoMovieMotionHumanFoot.IPlacement = StrikingTarget.pivot(
-        body,
-        support,
-        feet[support],
-        turn * whole,
-        KneeForm.HEEL_RAISE * whole,
-      );
+      const supportFoot: IAutoMovieMotionHumanFoot.IPlacement =
+        StrikingTarget.pivot(
+          body,
+          support,
+          feet[support],
+          turn * whole,
+          KneeForm.HEEL_RAISE * whole,
+        );
       return resolveHumanPosture.lower(
         body,
         {
@@ -156,7 +159,8 @@ export namespace knee {
             { left: side !== "left", right: side !== "right" },
           ),
         },
-        resolveHumanPosture.KNEE, resolution,
+        resolveHumanPosture.KNEE,
+        resolution,
       );
     };
 
@@ -214,8 +218,15 @@ export namespace knee {
 
     // The knee on its free course at a clock second (as if it met nothing),
     // the clinching hands reading the other's nape at the film second.
-    const free = (clock: number, seconds: number, arms: boolean = true, source?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMovieMotionHumanPosture => {
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+    const free = (
+      clock: number,
+      seconds: number,
+      arms: boolean = true,
+      source?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture => {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution(source);
       const t: number = Math.min(duration, Math.max(0, clock));
       const g: KneeGeometry.IGeometry = geometry();
 
@@ -224,14 +235,21 @@ export namespace knee {
       const lift: number = KneeForm.LIFT_SHARE * span;
       const lower: number = KneeForm.LIFT_SHARE * recoil;
       const whole: number =
-        minimumJerk.share((t - prep) / span) - minimumJerk.share((t - impact) / recoil);
+        minimumJerk.share((t - prep) / span) -
+        minimumJerk.share((t - impact) / recoil);
       const rise: number =
         minimumJerk.share((t - prep) / lift) -
         minimumJerk.share((t - (duration - lower)) / lower);
       const drive: number =
         minimumJerk.share((t - (impact - lift)) / lift) -
         minimumJerk.share((t - impact) / lower);
-      const posture: IAutoMovieMotionHumanPosture = carriage(g.thrust, g.turn, whole, drive, resolution);
+      const posture: IAutoMovieMotionHumanPosture = carriage(
+        g.thrust,
+        g.turn,
+        whole,
+        drive,
+        resolution,
+      );
 
       // The thigh swung about the hip the carriage leaves, the shank folding
       // under it, and the stance's slack given back as the leg lifts.
@@ -249,9 +267,12 @@ export namespace knee {
         ),
         Vector3.scale(g.slack, 1 - rise),
       );
-      const hands: ReturnType<typeof StrikingStance.guard> = arms ? guardAt(posture, resolution, projection) : {};
+      const hands: ReturnType<typeof StrikingStance.guard> = arms
+        ? guardAt(posture, resolution, projection)
+        : {};
       if (arms && p.at.kind === "person") {
-        const other: IAutoMovieMotionHumanPerformerReader = (partner ??= context.performer(p.at.subject));
+        const other: IAutoMovieMotionHumanPerformerReader = (partner ??=
+          context.performer(p.at.subject));
         const nape: IAutoMovieVector3 = other
           // The clinching hands hold the nape, so they follow it by touch,
           // a held limb's feedback delay behind (`HumanPerception.HELD`).
@@ -298,9 +319,25 @@ export namespace knee {
     // The shown leg as capsules tapered between the girths at its joints,
     // fitted on the knee's free course (`StrikingWeapon.leg`): the thigh, the
     // shank and the foot.
-    const course: StrikingWeapon.Course = (at: number, channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2], projection?: Parameters<StrikingWeapon.Course>[3]): IAutoMovieMotionHumanPosture =>
-      free(at - t0, at, channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand")), resolution, projection?.());
-    const frames: ReturnType<typeof StrikingWeapon.frames> = StrikingWeapon.frames(context.body, leg);
+    const course: StrikingWeapon.Course = (
+      at: number,
+      channels?: Parameters<StrikingWeapon.Course>[1],
+      resolution?: Parameters<StrikingWeapon.Course>[2],
+      projection?: Parameters<StrikingWeapon.Course>[3],
+    ): IAutoMovieMotionHumanPosture =>
+      free(
+        at - t0,
+        at,
+        channels === undefined ||
+          channels.some(
+            (channel: AutoMovieMotionHumanChannel): boolean =>
+              channel.endsWith("Arm") || channel.endsWith("Hand"),
+          ),
+        resolution,
+        projection?.(),
+      );
+    const frames: ReturnType<typeof StrikingWeapon.frames> =
+      StrikingWeapon.frames(context.body, leg);
     const chain: StrikingWeapon.IChain = {
       ids: ["thigh", "shin", "foot"],
       limb: leg,
@@ -318,8 +355,20 @@ export namespace knee {
           frames,
         ),
       read: StrikingWeaponTable.reader(
-        (seconds: number, near: Parameters<typeof StrikingWeapon.leg>[4], kept: NonNullable<Parameters<typeof StrikingWeapon.leg>[5]>): IAutoMovieVector3[] =>
-          StrikingWeapon.leg(context.body, course, side, seconds, near, kept, frames),
+        (
+          seconds: number,
+          near: Parameters<typeof StrikingWeapon.leg>[4],
+          kept: NonNullable<Parameters<typeof StrikingWeapon.leg>[5]>,
+        ): IAutoMovieVector3[] =>
+          StrikingWeapon.leg(
+            context.body,
+            course,
+            side,
+            seconds,
+            near,
+            kept,
+            frames,
+          ),
       ),
       on: (): object => shown,
     };
@@ -349,26 +398,42 @@ export namespace knee {
     // where the leg's free course puts it at the planned impact, with the
     // solve's own status; the performer's own displayed bones read the
     // entry's (`StrikingWeapon`).
-    const record: () => IAutoMovieMotionHumanStrikingRecord.IRecord = (): IAutoMovieMotionHumanStrikingRecord.IRecord => {
-      const g: KneeGeometry.IGeometry = geometry();
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-      const frame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, side === "left" ? "kneeLeft" : "kneeRight");
-      const bones: ReturnType<typeof poseBones> = poseBones(
-        body,
-        resolveHumanPosture.seeded(body, free(impact, t0 + impact, true, resolution, projection), undefined, undefined, resolution, undefined, projection).pose,
-        resolution(), new Set<AutoMovieHumanoidBone>([frame.bone]),
-      );
-      const reached: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
-      return {
-        limb: side === "left" ? "leftFoot" : "rightFoot",
-        offset: { x: 0, y: 0, z: 0 },
-        planned: g.target,
-        reached,
-        status: g.status,
-        stop,
+    const record: () => IAutoMovieMotionHumanStrikingRecord.IRecord =
+      (): IAutoMovieMotionHumanStrikingRecord.IRecord => {
+        const g: KneeGeometry.IGeometry = geometry();
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution();
+        const projection: ReturnType<typeof prepareHumanPostureProjection> =
+          prepareHumanPostureProjection(body);
+        const frame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(
+          body,
+          side === "left" ? "kneeLeft" : "kneeRight",
+        );
+        const bones: ReturnType<typeof poseBones> = poseBones(
+          body,
+          resolveHumanPosture.seeded(
+            body,
+            free(impact, t0 + impact, true, resolution, projection),
+            undefined,
+            undefined,
+            resolution,
+            undefined,
+            projection,
+          ).pose,
+          resolution(),
+          new Set<AutoMovieHumanoidBone>([frame.bone]),
+        );
+        const reached: IAutoMovieVector3 =
+          resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
+        return {
+          limb: side === "left" ? "leftFoot" : "rightFoot",
+          offset: { x: 0, y: 0, z: 0 },
+          planned: g.target,
+          reached,
+          status: g.status,
+          stop,
+        };
       };
-    };
     return {
       duration,
       events,
@@ -394,10 +459,16 @@ export namespace knee {
             },
           }
         : {}),
-      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const at: number | undefined = stop(t0 + t);
-        if (at === undefined || t <= at - t0) return free(t, t0 + t, true, source, projection);
+        if (at === undefined || t <= at - t0)
+          return free(t, t0 + t, true, source, projection);
 
         // Held for the dwell, then the free course played back from the stop
         // to the start on a minimum-jerk clock: the way in was clear of the
@@ -416,4 +487,6 @@ export namespace knee {
 }
 
 /** Clinch contact reads only the partner's neck and its required FK ancestry. */
-const NECK: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(["neck"]);
+const NECK: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
+  ["neck"],
+);

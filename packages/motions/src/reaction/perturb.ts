@@ -47,54 +47,63 @@ import { stagger } from "./stagger";
 import { staggerBounds } from "./staggerBounds";
 
 /**
- * One perturbation law whose response follows from the forces on its
- * performer (#3430): the body absorbs an impulse within its base, catches
- * it with capture steps, or falls, as the engine's balance outcome decides
- * from the impulse, the body's mass and its support
- * (`resolveAutoMovieBalanceOutcome`), or as the author fixes the outcome.
+ * One perturbation law whose response follows from the forces on its performer:
+ * the body absorbs an impulse within its base, catches it with capture steps,
+ * or falls, as the engine's balance outcome decides from the impulse, the
+ * body's mass and its support (`resolveAutoMovieBalanceOutcome`), or as the
+ * author fixes the outcome.
  *
  * The impulse is the sum of the impulses on the performer
  * (`IHumanActionContext.forces`) from one pendulum time constant `1 / ω0`
- * before the action's start, the span within which the body has not yet
- * moved by more than its own response, to the start. Its outcome:
+ * before the action's start, the span within which the body has not yet moved
+ * by more than its own response, to the start. Its outcome:
  *
- * - **absorb**: the hips travel along the push and come back over the feet
- *   as a critically damped pendulum at the body's own frequency, `x(t) = v
- *   t exp(-ω0 t)` with `v` the centre's speed after the impulse, its peak
- *   `v / (e ω0)` at `t = 1 / ω0`; the feet stay planted.
- * - **step**: `stagger`'s capture step at the centre's speed after the
- *   impulse, from the side the impulse comes from (Hof, Gazendam and Sinke
- *   2005; the step's landing from Maki and McIlroy 1997, as `stagger`
- *   cites).
- * - **fall**: the way the impulse pushes in the body's frame: a push from
- *   behind a forward `collapse`, one from a side a sideways `collapse` away
- *   from it, and one from ahead the `knockdown`, from the side it comes from.
+ * - **absorb**: the hips travel along the push and come back over the feet as a
+ *   critically damped pendulum at the body's own frequency, `x(t) = v t exp(-ω0
+ *   t)` with `v` the centre's speed after the impulse, its peak `v / (e ω0)` at
+ *   `t = 1 / ω0`; the feet stay planted.
+ * - **step**: `stagger`'s capture step at the centre's speed after the impulse,
+ *   from the side the impulse comes from (Hof, Gazendam and Sinke 2005; the
+ *   step's landing from Maki and McIlroy 1997, as `stagger` cites).
+ * - **fall**: the way the impulse pushes in the body's frame: a push from behind
+ *   a forward `collapse`, one from a side a sideways `collapse` away from it,
+ *   and one from ahead the `knockdown`, from the side it comes from.
  *
- * An author's outcome the impulse cannot produce is refused with the
- * impulse range that would produce it, never clamped; with no impulse on
- * the performer the outcome is an absorb of nothing, a still stance.
+ * An author's outcome the impulse cannot produce is refused with the impulse
+ * range that would produce it, never clamped; with no impulse on the performer
+ * the outcome is an absorb of nothing, a still stance.
  *
- * First pass: the step outcome lays one capture step, `stagger`'s; the
- * engine's outcome may ask for more, which this law refuses naming the fall
- * instead until the multi-step plan lands (A folds `stagger` into this
- * law's step). The absorb shows no trunk motion beyond the hips' travel;
- * the ankle and hip strategies (Horak and Nashner 1986) are not yet split.
+ * First pass: the step outcome lays one capture step, `stagger`'s; the engine's
+ * outcome may ask for more, which this law refuses naming the fall instead
+ * until the multi-step plan lands (A folds `stagger` into this law's step). The
+ * absorb shows no trunk motion beyond the hips' travel; the ankle and hip
+ * strategies (Horak and Nashner 1986) are not yet split.
  */
 export namespace perturb {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "perturb";
 
-  /** A perturbation's content is the body's physical answer to a force (a shove, a pull, a throw), so its balance is judged (`IAutoMovieMotionHumanActionLaw.physical`). */
+  /**
+   * A perturbation's content is the body's physical answer to a force (a shove,
+   * a pull, a throw), so its balance is judged
+   * (`IAutoMovieMotionHumanActionLaw.physical`).
+   */
   export const physical: boolean = true;
 
-  /** Cancel table: a perturbation flows into a guard or a knockdown, as a stagger does. */
+  /**
+   * Cancel table: a perturbation flows into a guard or a knockdown, as a
+   * stagger does.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       guard: ["fromStroke", "smooth"],
       knockdown: ["anytime", "quick"],
     });
 
-  /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
+  /**
+   * A reaction interrupts whatever the body was doing, at any instant, as a
+   * reflex.
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
@@ -104,7 +113,8 @@ export namespace perturb {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the author's outcome is not what the impulse can produce, or the impulse needs more than one capture step.
+   * @throws {HumanRefusal} When the author's outcome is not what the impulse
+   *   can produce, or the impulse needs more than one capture step.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPerturb.IParams>,
@@ -238,7 +248,7 @@ export namespace perturb {
       IAutoMovieMotionHumanPerturb.IParams["outcome"]
     > = context.params.outcome ?? "auto";
 
-    // The two-body outcomes are the two-body response's (#3439), which
+    // The two-body outcomes are the two-body response's, which
     // answers them before this law plans its own.
     if (
       requested === "resist" ||
@@ -309,11 +319,12 @@ export namespace perturb {
   }
 
   /**
-   * The absorb: the hips carried along the push and back over the feet by
-   * the critically damped pendulum at the body's frequency, the feet planted.
+   * The absorb: the hips carried along the push and back over the feet by the
+   * critically damped pendulum at the body's frequency, the feet planted.
    *
    * @param context The action's context.
-   * @param outcome The engine's outcome, for the centre's velocity after the impulse.
+   * @param outcome The engine's outcome, for the centre's velocity after the
+   *   impulse.
    * @param push The push's horizontal direction, world.
    * @returns The plan.
    */
@@ -404,11 +415,11 @@ export namespace perturb {
   }
 
   /**
-   * The absorb's settling time in pendulum time constants: the root of
-   * τ - ln τ = 5 past the peak at τ = 1, where the critically damped
-   * travel τ e^(1 - τ) of the peak has fallen to e^-4. Newton's method on
-   * the convex g(τ) = τ - ln τ - 5 from τ = 7, right of the root, decreases
-   * monotonically onto it; eight steps reach the double's precision.
+   * The absorb's settling time in pendulum time constants: the root of τ - ln τ
+   * = 5 past the peak at τ = 1, where the critically damped travel τ e^(1 - τ)
+   * of the peak has fallen to e^-4. Newton's method on the convex g(τ) = τ - ln
+   * τ - 5 from τ = 7, right of the root, decreases monotonically onto it; eight
+   * steps reach the double's precision.
    */
   const SETTLED: number = ((): number => {
     let tau: number = 7;

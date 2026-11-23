@@ -21,15 +21,14 @@ import { StrikingSkill } from "../striking/StrikingSkill";
 
 /**
  * The clock of a blade's attack, shared by the cut and the thrust: every
- * movement of the hand is one minimum-jerk unit (Flash and Hogan 1985) at
- * the attack's peak speed, whose duration is 1.875 times its path over that
- * speed; the setting from the entry hold to the path's start and the return
- * from the follow-through to the entry hold are slowed by the recovery
- * skill's factor (`StrikingSkill.recovery`, Vagner et al. 2023: the chamber
- * and the recovery absorb a novice's longer strike), and the clock is
- * stretched by the manner's tempo (#3549), the law's own at the neutral
- * manner. The blade turns back at once; a held pose is a guard's or the
- * author's.
+ * movement of the hand is one minimum-jerk unit (Flash and Hogan 1985) at the
+ * attack's peak speed, whose duration is 1.875 times its path over that speed;
+ * the setting from the entry hold to the path's start and the return from the
+ * follow-through to the entry hold are slowed by the recovery skill's factor
+ * (`StrikingSkill.recovery`, Vagner et al. 2023: the chamber and the recovery
+ * absorb a novice's longer strike), and the clock is stretched by the manner's
+ * tempo, the law's own at the neutral manner. The blade turns back at once; a
+ * held pose is a guard's or the author's.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each phase is timed from, which skill factor slows which and how the manner stretches it.
  * @evidence contracts/development/design.md#principled-representation One function of the hand's three paths (the setting, the attack and the return), the peak speed and the follow-through.
@@ -95,12 +94,12 @@ export namespace HumanSwordTiming {
   ): number => StrikingHeld.strayed(tool, from, to, 0);
 
   /**
-   * How far the arm travels as it sets from the entry hold to the path's
-   * start, metres: the greater of the tool's travel (`travel`) and the
-   * elbow's, read once on the two fitted arms, the entry's as it stands and
-   * the start's on the entry's body with its elbow hinted from the landing's
-   * carried with the hand, so a setting that swings the elbow from the
-   * hold's arm to the landing's takes as long as the arm needs.
+   * How far the arm travels as it sets from the entry hold to the path's start,
+   * metres: the greater of the tool's travel (`travel`) and the elbow's, read
+   * once on the two fitted arms, the entry's as it stands and the start's on
+   * the entry's body with its elbow hinted from the landing's carried with the
+   * hand, so a setting that swings the elbow from the hold's arm to the
+   * landing's takes as long as the arm needs.
    */
   export const setting = (
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
@@ -150,6 +149,10 @@ export namespace HumanSwordTiming {
     );
   };
 
-  /** A minimum-jerk unit's peak speed over its mean speed, `30/16`: the profile `30 u^2 (1 - u)^2` at its middle (Flash and Hogan 1985), so a unit of a path at a peak speed lasts this times the path over the speed. */
+  /**
+   * A minimum-jerk unit's peak speed over its mean speed, `30/16`: the profile
+   * `30 u^2 (1 - u)^2` at its middle (Flash and Hogan 1985), so a unit of a
+   * path at a peak speed lasts this times the path over the speed.
+   */
   export const UNIT: number = 1.875;
 }

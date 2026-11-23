@@ -31,31 +31,30 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * A handstand kicked up from standing, held and stepped down (#3251).
+ * A handstand kicked up from standing, held and stepped down.
  *
- * The hands are placed on the floor a shoulder width apart, as far ahead of
- * the feet as the standing legs let the hips go with the trunk pitched 120
- * degrees over the hands (provisional). Over the first half of the entry
- * the body folds forward and the hands come down under the shoulders, which
- * stand the arms' reach above the wrists; over the second the trunk swings
- * about the shoulders, which stay where they are, and the legs follow
- * straight until the body stands inverted with the hips over the shoulders
- * and the shoulders over the base of the hands. The exit is the entry
- * reversed: over its first half the legs swing back down about the
- * shoulders while the hands still bear, until the feet stand where they
- * left the floor, and over its second the trunk unfolds over the feet. The
- * entry and the exit take 1.5 s each (provisional) and the hold is the
- * author's. Balance in the hold is by the wrists first (Kerwin and
+ * The hands are placed on the floor a shoulder width apart, as far ahead of the
+ * feet as the standing legs let the hips go with the trunk pitched 120 degrees
+ * over the hands (provisional). Over the first half of the entry the body folds
+ * forward and the hands come down under the shoulders, which stand the arms'
+ * reach above the wrists; over the second the trunk swings about the shoulders,
+ * which stay where they are, and the legs follow straight until the body stands
+ * inverted with the hips over the shoulders and the shoulders over the base of
+ * the hands. The exit is the entry reversed: over its first half the legs swing
+ * back down about the shoulders while the hands still bear, until the feet
+ * stand where they left the floor, and over its second the trunk unfolds over
+ * the feet. The entry and the exit take 1.5 s each (provisional) and the hold
+ * is the author's. Balance in the hold is by the wrists first (Kerwin and
  * Trewartha 2001); no sway is drafted yet.
  *
- * Events: `handsDown` at the entry's middle, `inverted` (`ready`), `release`
- * at the exit's middle, when the feet bear again and the hands leave the
- * floor, with the phrase instants.
+ * Events: `handsDown` at the entry's middle, `inverted` (`ready`), `release` at
+ * the exit's middle, when the feet bear again and the hands leave the floor,
+ * with the phrase instants.
  *
  * Other laws plan the floor rolls, the cartwheel (`cartwheel`), the salto
- * (`salto`), the round-off (`roundOff`), the handspring (`handspring`) and
- * the vault (`vault`). Not drafted: bars and rings, which need swings about
- * a bar support.
+ * (`salto`), the round-off (`roundOff`), the handspring (`handspring`) and the
+ * vault (`vault`). Not drafted: bars and rings, which need swings about a bar
+ * support.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the placement, the entry's two halves, the inverted pose, the timing, the source of the balance and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record of a root row, leg rows and placed arms over one phrase.
@@ -72,13 +71,22 @@ export namespace gymnastics {
       stand: ["fromRelax", "smooth"],
     });
 
-  /** The trunk's pitch when the hands touch down, degrees (provisional): the hips above the shoulders, the legs still standing. */
+  /**
+   * The trunk's pitch when the hands touch down, degrees (provisional): the
+   * hips above the shoulders, the legs still standing.
+   */
   export const DOWN: number = 120;
 
-  /** The share of the straight leg's length from the ankle to the hip when the hands touch down (provisional). */
+  /**
+   * The share of the straight leg's length from the ankle to the hip when the
+   * hands touch down (provisional).
+   */
   export const LEG: number = 0.95;
 
-  /** The share of the straight arm's length the shoulders stand above the wrists (provisional): the elbows a little soft. */
+  /**
+   * The share of the straight arm's length the shoulders stand above the wrists
+   * (provisional): the elbows a little soft.
+   */
   export const REACH: number = 0.98;
 
   /** The entry's and the exit's seconds (provisional). */
@@ -90,7 +98,6 @@ export namespace gymnastics {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The hips carry the root while the feet stand and the shoulders pivot it while the hands bear, so neither support slides; the shoulders' height is the arms' reach above the laid hands' wrists; the feet stay planted for the first half and then ride the straight legs of the pitched body.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, root row, arm rows, leg rows.

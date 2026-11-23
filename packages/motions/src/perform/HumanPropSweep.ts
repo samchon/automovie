@@ -21,19 +21,19 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropCatchHands } from "./HumanPropCatchHands";
 
 /**
- * The one sweep of a flying prop (`HumanPropFlight`): its flight from a
- * film second against every person but the launcher, read on their displayed
- * bones at each second and passed over while a bound around their root
- * shows them out of reach (the bounding-sphere reject of #3379), the props
- * that do not fly but those the launcher holds or wears as the flight starts
- * (they go with the launcher) and, through its fitted approach, those a later
- * launch that ends the flight holds (a bat striking the incoming ball), and
- * the floor, through the engine's one resolver
- * (`projectileFirstContact`). The step keeps the prop from crossing the
- * thinnest collider it may meet in one step, finger bones aside: a finger is
- * the stated blind spot. A pass leaves the body it passes through behind.
- * A bounce separately names its resolved collider for the engine's physical
- * departure certificate; that collider stays eligible for later entry.
+ * The one sweep of a flying prop (`HumanPropFlight`): its flight from a film
+ * second against every person but the launcher, read on their displayed bones
+ * at each second and passed over while a bound around their root shows them out
+ * of reach (the bounding-sphere reject), the props that do not fly but those
+ * the launcher holds or wears as the flight starts (they go with the launcher)
+ * and, through its fitted approach, those a later launch that ends the flight
+ * holds (a bat striking the incoming ball), and the floor, through the engine's
+ * one resolver (`projectileFirstContact`). The step keeps the prop from
+ * crossing the thinnest collider it may meet in one step, finger bones aside: a
+ * finger is the stated blind spot. A pass leaves the body it passes through
+ * behind. A bounce separately names its resolved collider for the engine's
+ * physical departure certificate; that collider stays eligible for later
+ * entry.
  */
 export namespace HumanPropSweep {
   /**
@@ -47,11 +47,20 @@ export namespace HumanPropSweep {
    * @param projectile The flight.
    * @param horizon Seconds after its zero the film still runs.
    * @param leave A collider's id to leave out: the body a pass goes through.
-   * @param departing The collider whose existing support or rebound contact the projectile is leaving. Only the engine's certificate can defer its initial contact and it continues to check later entry.
-   * @param radius An opt-in spherical radius in metres. Its supplied projectile travels by its centre. Absent, use the prop's point or tip.
-   * @param captureHands Gripping hands owned by a staged capture during their final approach. The remaining body surfaces continue to participate.
-   * @param handback The later launch that ends this flight, when one does. The props its performer holds at that launch are left out from the start of the launching action, whose own fit owns the meeting, to the end of the sweep, and the hands that hold or touch them through that action's approach.
-   * @returns The first meeting, or null when it meets nothing before the horizon.
+   * @param departing The collider whose existing support or rebound contact the
+   *   projectile is leaving. Only the engine's certificate can defer its
+   *   initial contact and it continues to check later entry.
+   * @param radius An opt-in spherical radius in metres. Its supplied projectile
+   *   travels by its centre. Absent, use the prop's point or tip.
+   * @param captureHands Gripping hands owned by a staged capture during their
+   *   final approach. The remaining body surfaces continue to participate.
+   * @param handback The later launch that ends this flight, when one does. The
+   *   props its performer holds at that launch are left out from the start of
+   *   the launching action, whose own fit owns the meeting, to the end of the
+   *   sweep, and the hands that hold or touch them through that action's
+   *   approach.
+   * @returns The first meeting, or null when it meets nothing before the
+   *   horizon.
    */
   export function sweep(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -263,8 +272,8 @@ export namespace HumanPropSweep {
   }
 
   /**
-   * The later launch that ends a flight, as the sweep leaves out the props
-   * its performer holds at that launch.
+   * The later launch that ends a flight, as the sweep leaves out the props its
+   * performer holds at that launch.
    */
   export interface IHandback {
     /** The performer whose later launch ends the flight. */
@@ -273,16 +282,23 @@ export namespace HumanPropSweep {
     /** The film second of that launch, where its own fit meets the prop. */
     at: number;
 
-    /** The film second the launching action starts, from which its fit owns the approach. */
+    /**
+     * The film second the launching action starts, from which its fit owns the
+     * approach.
+     */
     from: number;
 
-    /** The launcher's hands that meet the prop at that launch (`IAutoMovieMotionPropLaunch.touching`); none for a launch made with a held instrument, whose holding hands the sweep reads from the grips. */
+    /**
+     * The launcher's hands that meet the prop at that launch
+     * (`IAutoMovieMotionPropLaunch.touching`); none for a launch made with a
+     * held instrument, whose holding hands the sweep reads from the grips.
+     */
     hands: readonly AutoMovieHumanSide[];
   }
 
   /**
-   * A collider present only before a flight second: from it on, the
-   * handback's fitted approach owns the meeting, so the collider is absent.
+   * A collider present only before a flight second: from it on, the handback's
+   * fitted approach owns the meeting, so the collider is absent.
    */
   function until(
     collider: IAutoMovieProjectileFirstContact.ICollider,
@@ -349,8 +365,8 @@ export namespace HumanPropSweep {
   /**
    * The thinnest collider a flight may meet, metres: the least diameter of a
    * round shape or least full extent of a box among the people but the
-   * launcher, finger bones aside, and the props that do not fly; a hull is
-   * not counted.
+   * launcher, finger bones aside, and the props that do not fly; a hull is not
+   * counted.
    */
   function thinnest(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -373,7 +389,10 @@ export namespace HumanPropSweep {
     return Number.isFinite(least) ? least : Number.MAX_VALUE;
   }
 
-  /** A shape's least thickness, metres: a round shape's diameter, a box's least full extent; a hull is not counted. */
+  /**
+   * A shape's least thickness, metres: a round shape's diameter, a box's least
+   * full extent; a hull is not counted.
+   */
   function size(shape: IAutoMoviePhysicalShape): number {
     return shape.kind === "sphere" || shape.kind === "capsule"
       ? 2 * shape.radius

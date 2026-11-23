@@ -17,21 +17,20 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of swimming (#3254) on a water plane at 1.2 m, drawn as a
- * thin box, three cycles each.
+ * Capture cases of swimming on a water plane at 1.2 m, drawn as a thin box,
+ * three cycles each.
  *
  * Every case reports no range-of-motion overshoot. Beyond that (the M25
  * acceptance):
  *
  * - `swim-treadWater`: the mouth above the plane throughout;
- * - `swim-frontCrawl`: each hand entering ahead of its shoulder by at least
- *   0.3 of the arm along the swim, the mouth above the plane at each
- *   `breath`, and the cycle periodic: the right wrist's place relative to
- *   the hips the same within 10 mm at each cycle's start.
+ * - `swim-frontCrawl`: each hand entering ahead of its shoulder by at least 0.3
+ *   of the arm along the swim, the mouth above the plane at each `breath`, and
+ *   the cycle periodic: the right wrist's place relative to the hips the same
+ *   within 10 mm at each cycle's start.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every case and every verdict with its bound and source.
  * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures displayed bones and the mouth region against the plane.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per stroke, one verdict block per stroke.

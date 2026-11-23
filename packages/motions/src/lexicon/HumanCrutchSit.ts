@@ -14,22 +14,22 @@ import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitUp } from "./crutchSitUp";
 
 /**
- * Sit down onto a chair with two crutches, or rise from it (#3994), in the
- * prescribed order (Cornell Health and HealthLinkBC, Using crutches).
+ * Sit down onto a chair with two crutches, or rise from it, in the prescribed
+ * order (Cornell Health and HealthLinkBC, Using crutches).
  *
  * Sitting (`crutchSitDown`): the hands take the standing crutches' grips
- * (`taken`) as the injured leg lifts off the floor; both crutches are
- * gathered into the injured side's hand (`gathered`); the sound hand
- * reaches back to the chair's armrest or seat (`reached`); and the sit law
- * lowers the body while the crutches tilt on their planted tips. Rising
- * (`crutchSitUp`): the rise law stands the body on the sound leg while the
- * sound hand pushes on the chair and the crutches come back upright; the
- * sound hand takes its crutch back (`taken`), and both are planted in the
- * tripod (`planted`). The injured leg is held off the floor throughout.
+ * (`taken`) as the injured leg lifts off the floor; both crutches are gathered
+ * into the injured side's hand (`gathered`); the sound hand reaches back to the
+ * chair's armrest or seat (`reached`); and the sit law lowers the body while
+ * the crutches tilt on their planted tips. Rising (`crutchSitUp`): the rise law
+ * stands the body on the sound leg while the sound hand pushes on the chair and
+ * the crutches come back upright; the sound hand takes its crutch back
+ * (`taken`), and both are planted in the tripod (`planted`). The injured leg is
+ * held off the floor throughout.
  *
- * Both arms are laid as one course (`courseArmGoal`) from the second the
- * hands hold the crutches. The crutches are held, never leaned on: the
- * hands carry them by grip windows, a wear and holds.
+ * Both arms are laid as one course (`courseArmGoal`) from the second the hands
+ * hold the crutches. The crutches are held, never leaned on: the hands carry
+ * them by grip windows, a wear and holds.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both orders, their source, the course and the custody.
  * @evidence contracts/development/design.md#principled-representation The sit and rise laws for the body, with the arms and the injured leg written over them and the crutches carried.

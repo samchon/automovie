@@ -19,33 +19,31 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Props with mass and friction moved by the hands' force (#3433): a prop
- * on the floor slides under Newton's second law and Coulomb friction, a
- * hinged prop turns under its torque, and the pushing body leans so its
- * weight balances the reaction of the force it applies.
+ * Props with mass and friction moved by the hands' force: a prop on the floor
+ * slides under Newton's second law and Coulomb friction, a hinged prop turns
+ * under its torque, and the pushing body leans so its weight balances the
+ * reaction of the force it applies.
  *
- * - **Slide.** A prop of mass `m` at rest stays while the applied
- *   horizontal force is within the static friction `μs m g`; once moving it
- *   accelerates at `(F - μk m g) / m` against its motion (Coulomb's law),
- *   until it stops, where the static friction holds it again. Its position
- *   and speed are integrated at plan time by the engine's integrator, each
- *   stop located inside its step and the integration restarted there, so
- *   playback and seek read the same path.
- * - **Hinge.** A door of moment of inertia `I` about its hinge turns at
- *   `θ'' = τ / I` under the torque applied at its handle.
- * - **Lean.** A body pushing horizontally with a force `F` at the height
- *   `y` of its hands leans until its weight's moment about its feet,
- *   `M g h sin θ`, balances the push's reaction, `F y` (static moment
- *   balance).
+ * - **Slide.** A prop of mass `m` at rest stays while the applied horizontal
+ *   force is within the static friction `μs m g`; once moving it accelerates at
+ *   `(F - μk m g) / m` against its motion (Coulomb's law), until it stops,
+ *   where the static friction holds it again. Its position and speed are
+ *   integrated at plan time by the engine's integrator, each stop located
+ *   inside its step and the integration restarted there, so playback and seek
+ *   read the same path.
+ * - **Hinge.** A door of moment of inertia `I` about its hinge turns at `θ'' = τ
+ *   / I` under the torque applied at its handle.
+ * - **Lean.** A body pushing horizontally with a force `F` at the height `y` of
+ *   its hands leans until its weight's moment about its feet, `M g h sin θ`,
+ *   balances the push's reaction, `F y` (static moment balance).
  *
  * The prop's mass and its static and kinetic friction are its model's
- * (`IAutoMovieBody`), read by the caller; this module reads coefficients
- * only. First pass: rolling resistance is the kinetic coefficient the
- * producer gives; the push's force profile comes from the caller, since no
- * pushing-strength study has been read for it. `slideProp` offers the
- * trajectory as the frame of a prop in a performance. `hingeProp` supplies
- * an articulation track. The film authors each drive independently of the
- * poses that follow the prop.
+ * (`IAutoMovieBody`), read by the caller; this module reads coefficients only.
+ * First pass: rolling resistance is the kinetic coefficient the producer gives;
+ * the push's force profile comes from the caller, since no pushing-strength
+ * study has been read for it. `slideProp` offers the trajectory as the frame of
+ * a prop in a performance. `hingeProp` supplies an articulation track. The film
+ * authors each drive independently of the poses that follow the prop.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three laws, their premises, where the coefficients come from and the first pass's limits.
  * @evidence contracts/development/implementation.md#principled-implementation Newton's second law under Coulomb friction with its static threshold and its stop located as the switching point of a discontinuous right-hand side, the hinge's rotational form of it, and static moment balance for the lean; the slide and the hinge are integrated by the engine's fixed-step integrator.
@@ -57,14 +55,15 @@ import type {
  */
 export namespace HumanPropDynamics {
   /**
-   * Give a prop a hinge track under an authored torque (#3433). The drive
-   * starts at zero angle and speed. The performance holds its final angle.
+   * Give a prop a hinge track under an authored torque. The drive starts at
+   * zero angle and speed. The performance holds its final angle.
    *
    * @param prop A prop with a named hinge and an articulation pose reader.
-   * @param drive The hinge id, scheduled start, duration, inertia and local torque.
+   * @param drive The hinge id, scheduled start, duration, inertia and local
+   *   torque.
    * @returns A shallow copy of the prop with the appended articulation track.
-   * @throws {Error} An inadmissible hinge, drive value, integration knot or requested sample.
-   *
+   * @throws {Error} An inadmissible hinge, drive value, integration knot or
+   *   requested sample.
    * @evidence contracts/development/common.md#meaningful-documentation States the starting and held states, authored input, track result and failures.
    * @evidence contracts/development/implementation.md#principled-implementation Integrate angular acceleration equal to torque divided by inertia on the track clock, from zero angle and speed in radians. Convert travel to degrees for the prop's named articulation and use engine admission at each knot and requested sample.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the drive, integrate once, and attach a reader using the established prop track scheduler.
@@ -144,16 +143,17 @@ export namespace HumanPropDynamics {
   }
 
   /**
-   * Give a rigid prop a straight ground slide in a performance (#3433).
-   * The supplied force is sampled at plan time. The prop starts at rest,
-   * keeps its orientation and holds each boundary placement outside the
-   * drive's film interval. Its local affordances travel with its frame.
+   * Give a rigid prop a straight ground slide in a performance. The supplied
+   * force is sampled at plan time. The prop starts at rest, keeps its
+   * orientation and holds each boundary placement outside the drive's film
+   * interval. Its local affordances travel with its frame.
    *
    * @param prop The rigid prop at its starting frame with body contact data.
    * @param drive The horizontal direction, force in newtons and film interval.
    * @returns A shallow copy of the prop with an authored `motion` reader.
-   * @throws {Error} When the prop already has an incompatible placement source or lacks admissible body contact data, or when the drive has an invalid direction, interval or sampled force.
-   *
+   * @throws {Error} When the prop already has an incompatible placement source
+   *   or lacks admissible body contact data, or when the drive has an invalid
+   *   direction, interval or sampled force.
    * @evidence contracts/development/common.md#meaningful-documentation States the source of mass and contact coefficients, film-clock boundaries, preserved orientation and how the returned prop plugs into normal performance placement.
    * @evidence contracts/development/implementation.md#principled-implementation The Coulomb trajectory gives displacement along a horizontal unit vector from the prop's original world translation. The engine's body admission validates the contact coefficients before planning.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the prop and direction, plan the slide once, and read its distance as a world offset.
@@ -252,20 +252,20 @@ export namespace HumanPropDynamics {
   /**
    * A slide's distance and speed along the push.
    *
-   * Coulomb's law switches at rest: a sliding prop decelerates at the
-   * kinetic friction until its speed reaches zero, and is then held by the
-   * static friction for as long as the push stays within it. A fixed step
-   * that straddles the stop would carry the kinetic deceleration past it,
-   * so the stop is located inside its step and the integration restarted
-   * there at rest: the switching point of a discontinuous right-hand side
-   * (Hairer, Nørsett and Wanner, Solving Ordinary Differential Equations I,
-   * section II.6, located, not yet read). The stop is the root of one
-   * sliding step's speed from the step's start, found by bisection down to
-   * the resolution of a double.
+   * Coulomb's law switches at rest: a sliding prop decelerates at the kinetic
+   * friction until its speed reaches zero, and is then held by the static
+   * friction for as long as the push stays within it. A fixed step that
+   * straddles the stop would carry the kinetic deceleration past it, so the
+   * stop is located inside its step and the integration restarted there at
+   * rest: the switching point of a discontinuous right-hand side (Hairer,
+   * Nørsett and Wanner, Solving Ordinary Differential Equations I, section
+   * II.6, located, not yet read). The stop is the root of one sliding step's
+   * speed from the step's start, found by bisection down to the resolution of a
+   * double.
    *
    * @param props The prop and the force.
-   * @returns The trajectory of `[distance, speed]`, the integrator's step
-   *   its first piece's and its knots those of all its pieces.
+   * @returns The trajectory of `[distance, speed]`, the integrator's step its
+   *   first piece's and its knots those of all its pieces.
    */
   export function slide(
     props: IAutoMovieMotionHumanPropDynamics.ISlide,
@@ -403,8 +403,8 @@ export namespace HumanPropDynamics {
   }
 
   /**
-   * The lean that balances a horizontal push's reaction, degrees forward,
-   * or null when the body's weight cannot balance it.
+   * The lean that balances a horizontal push's reaction, degrees forward, or
+   * null when the body's weight cannot balance it.
    *
    * @param mass The body's mass, kilograms.
    * @param height Its centre-of-mass height, metres.

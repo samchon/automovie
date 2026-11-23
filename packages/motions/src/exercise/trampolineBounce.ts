@@ -33,25 +33,24 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 
 /**
- * Bouncing on a trampoline (#4006).
+ * Bouncing on a trampoline.
  *
- * The bed is a non-linear spring, `F = K1 x + K3 x^3` (Jaques, The mechanics
- * of the contact phase in trampolining, 2008, finds the trampoline acts as
- * such a spring; `K1` and `K3` are provisional until that relation is read).
- * At each contact the bed deflects until it has taken the jumper's energy,
- * `m g (h + x) = K1 x^2 / 2 + K3 x^4 / 4` for a fall from `h` above the bed,
- * and returns it less a share (`KEEP` of the energy), the legs adding
- * `PUSH` metres of apex a contact. So the apexes build from a standing push
- * toward the authored apex and hold it; an apex beyond the height the push
- * can sustain, `PUSH / (1 - KEEP)`, is refused with it. The feet ride the bed
- * down and up on a quarter sine each way, matching the touchdown and take-off
- * speeds; the flights are ballistic between. At each apex the body takes the
- * asked shape and opens again by the landing; the arms swing up through the
- * flight. The last landing is killed: the bed absorbs it and the jumper
- * stands at rest.
+ * The bed is a non-linear spring, `F = K1 x + K3 x^3` (Jaques, The mechanics of
+ * the contact phase in trampolining, 2008, finds the trampoline acts as such a
+ * spring; `K1` and `K3` are provisional until that relation is read). At each
+ * contact the bed deflects until it has taken the jumper's energy, `m g (h + x)
+ * = K1 x^2 / 2 + K3 x^4 / 4` for a fall from `h` above the bed, and returns it
+ * less a share (`KEEP` of the energy), the legs adding `PUSH` metres of apex a
+ * contact. So the apexes build from a standing push toward the authored apex
+ * and hold it; an apex beyond the height the push can sustain, `PUSH / (1 -
+ * KEEP)`, is refused with it. The feet ride the bed down and up on a quarter
+ * sine each way, matching the touchdown and take-off speeds; the flights are
+ * ballistic between. At each apex the body takes the asked shape and opens
+ * again by the landing; the arms swing up through the flight. The last landing
+ * is killed: the bed absorbs it and the jumper stands at rest.
  *
- * Not yet: the seat, front and back drops, salti between bounces, and the
- * bed's deflection published as an articulation for the renderer.
+ * Not yet: the seat, front and back drops, salti between bounces, and the bed's
+ * deflection published as an articulation for the renderer.
  *
  * Events: `takeoff{k}`, `apex{k}`, `touchdown{k}`, `relax`.
  *
@@ -89,7 +88,10 @@ export namespace trampolineBounce {
   /** The knees' give at the bed's lowest, a share of the stature (provisional). */
   export const GIVE: number = 0.03;
 
-  /** The shapes held at the apex: hip flexion, knee flexion and leg spread, degrees (provisional). */
+  /**
+   * The shapes held at the apex: hip flexion, knee flexion and leg spread,
+   * degrees (provisional).
+   */
   export const SHAPES: Readonly<
     Record<
       IAutoMovieMotionHumanTrampoline.Shape,
@@ -108,7 +110,6 @@ export namespace trampolineBounce {
    * @param mass The jumper's mass, kilograms.
    * @param fall The height fallen from above the bed, metres.
    * @returns Metres.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the balance solved.
    * @evidence contracts/development/implementation.md#principled-implementation Newton's method on the monotone quartic from a linear guess.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
@@ -136,8 +137,9 @@ export namespace trampolineBounce {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the bed is missing, the jumper is not on it, the count is not a positive whole number, or the apex exceeds what the push sustains.
-   *
+   * @throws {HumanRefusal} When the bed is missing, the jumper is not on it,
+   *   the count is not a positive whole number, or the apex exceeds what the
+   *   push sustains.
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The apex sequence from the energy kept and the push; each contact's deflection from the balance; quarter-sine contacts matching the ballistic speeds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Bed, apexes, phases, one writer, contacts.
@@ -361,7 +363,10 @@ export namespace trampolineBounce {
     });
   }
 
-  /** A foot's placement in the air: from the bed's place toward where the shape's joints carry it, by how far the shape has come in. */
+  /**
+   * A foot's placement in the air: from the bed's place toward where the
+   * shape's joints carry it, by how far the shape has come in.
+   */
   function toward(
     body: IAutoMovieMotionHumanBody,
     bed: IAutoMovieMotionHumanFoot.IPlacement,

@@ -23,27 +23,26 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * Capture cases of the throw and catch family (#3232): performer `a` throws
- * to performer `b` standing facing it, overarm over 6 m, underarm over 4 m
- * and a toss over 2.5 m, aimed at the place ahead of `b` where its catch
- * meets the path; `b` catches with two hands.
+ * Capture cases of the throw and catch family: performer `a` throws to
+ * performer `b` standing facing it, overarm over 6 m, underarm over 4 m and a
+ * toss over 2.5 m, aimed at the place ahead of `b` where its catch meets the
+ * path; `b` catches with two hands.
  *
  * Every case reports each performer's foot slip at most 5 mm and no
  * range-of-motion overshoot. Beyond that:
  *
- * - the drag-free path launched from `a`'s displayed grip socket at
- *   `release`, with the socket's displayed velocity (a central difference
- *   over 1/240 s), passes within 10 mm of the target (decision 11's
- *   declared accuracy);
- * - the displayed release speed is within 10 % of the planned launch speed
+ * - The drag-free path launched from `a`'s displayed grip socket at `release`,
+ *   with the socket's displayed velocity (a central difference over 1/240 s),
+ *   passes within 10 mm of the target (decision 11's declared accuracy);
+ * - The displayed release speed is within 10 % of the planned launch speed
  *   (provisional);
- * - at `contact` each of `b`'s palm sockets is within 15 mm of the object's
+ * - At `contact` each of `b`'s palm sockets is within 15 mm of the object's
  *   surface (the issue's hand-meets-object bound), and stays within it until
  *   `held`.
  *
- * @param bodies The sweep bodies, each throwing to and catching from itself; `m-average` when absent.
+ * @param bodies The sweep bodies, each throwing to and catching from itself;
+ *   `m-average` when absent.
  * @returns The cases.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every case and its verdicts with their bounds and sources.
  * @evidence contracts/development/implementation.md#principled-implementation Measures displayed sockets against the planned path.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over three styles over the shared kit.

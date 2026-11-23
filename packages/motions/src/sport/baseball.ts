@@ -41,34 +41,33 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 
 /**
- * Baseball and softball positions without the bat's swing or the pitch
- * (#3248): the catcher's crouch, fielding a ground ball, and the batting
- * stance with its load. The glove hand is the left; no glove or bat is held.
+ * Baseball and softball positions without the bat's swing or the pitch : the
+ * catcher's crouch, fielding a ground ball, and the batting stance with its
+ * load. The glove hand is the left; no glove or bat is held.
  *
- * - Catcher's crouch: the hips sink to a half squat
- *   (`exercise.drop`, provisional for a catcher) with the trunk pitched 20
- *   degrees, the glove presented palm forward 0.6 of the arm ahead of the
- *   crouched chest and the protected throwing fist behind the right leg
- *   (Baseball Canada, Playing Catcher, part 1, https://baseball.ca/?alias=playing-catcher-part-1&lang=english).
- * - Ground ball: a squat to parallel thighs with the trunk inclined, the
- *   spine taking what the folded hips leave the pelvis
+ * - Catcher's crouch: the hips sink to a half squat (`exercise.drop`, provisional
+ *   for a catcher) with the trunk pitched 20 degrees, the glove presented palm
+ *   forward 0.6 of the arm ahead of the crouched chest and the protected
+ *   throwing fist behind the right leg (Baseball Canada, Playing Catcher, part
+ *   1, https://baseball.ca/?alias=playing-catcher-part-1&lang=english).
+ * - Ground ball: a squat to parallel thighs with the trunk inclined, the spine
+ *   taking what the folded hips leave the pelvis
  *   (`AutoMovieMotionHumanTrunk.sunk`), until the shoulders stand where the
- *   reaching arm takes the glove, which stands on its fingertips on the
- *   floor 0.3 of the arm ahead of them, open forward and up, the throwing
- *   hand above it to cover the ball (provisional places).
- * - Batting stance: the left foot steps out to two shoulder widths, the
- *   knees give 3 % of the stature, both fists stacked on the implied bat's
- *   handle `HANDS` of the arm ahead of the right shoulder; the load at the stroke draws the hands a
- *   tenth of the arm back (provisional; the load precedes the stride,
- *   Welch et al. 1995).
+ *   reaching arm takes the glove, which stands on its fingertips on the floor
+ *   0.3 of the arm ahead of them, open forward and up, the throwing hand above
+ *   it to cover the ball (provisional places).
+ * - Batting stance: the left foot steps out to two shoulder widths, the knees
+ *   give 3 % of the stature, both fists stacked on the implied bat's handle
+ *   `HANDS` of the arm ahead of the right shoulder; the load at the stroke
+ *   draws the hands a tenth of the arm back (provisional; the load precedes the
+ *   stride, Welch et al. 1995).
  *
- * Each is a phrase: into the position in 0.8 s, held, and back to standing
- * in 0.8 s (provisional).
+ * Each is a phrase: into the position in 0.8 s, held, and back to standing in
+ * 0.8 s (provisional).
  *
- * Not drafted: the swing, the bunt and the check swing (the implement
- * strike owner's, #3244, whose file does not exist yet), the pitch (a row
- * of the throw law), the windmill pitch, the catcher's throw and base
- * running slides.
+ * Not drafted: the swing, the bunt and the check swing (the implement strike
+ * owner's, whose file does not exist yet), the pitch (a row of the throw law),
+ * the windmill pitch, the catcher's throw and base running slides.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each position's geometry, timing, sources and provisional values, and the gaps with their owners.
  * @evidence contracts/development/design.md#principled-representation A law record of crouch, leg and placed-arm rows over one phrase.
@@ -87,19 +86,34 @@ export namespace baseball {
       run: ["fromRelax", "quick"],
     });
 
-  /** How far ahead of the chest the catcher presents the glove, arm lengths (provisional). */
+  /**
+   * How far ahead of the chest the catcher presents the glove, arm lengths
+   * (provisional).
+   */
   export const PRESENT: number = 0.6;
 
-  /** How far ahead of the shoulders the fielder's glove meets the floor, arm lengths (provisional). */
+  /**
+   * How far ahead of the shoulders the fielder's glove meets the floor, arm
+   * lengths (provisional).
+   */
   export const AHEAD: number = 0.3;
 
-  /** The share of the straight arm's length from the fielder's shoulder to the glove's wrist (provisional): the elbow a little soft. */
+  /**
+   * The share of the straight arm's length from the fielder's shoulder to the
+   * glove's wrist (provisional): the elbow a little soft.
+   */
   export const REACH: number = 0.95;
 
-  /** The most a fielder's trunk inclines, degrees: the top of the search for the ground ball's inclination. */
+  /**
+   * The most a fielder's trunk inclines, degrees: the top of the search for the
+   * ground ball's inclination.
+   */
   export const INCLINED: number = 130;
 
-  /** How far ahead of the right shoulder the batter's fists hold the handle, arm lengths (provisional): the elbows fold no closer than their flexion range. */
+  /**
+   * How far ahead of the right shoulder the batter's fists hold the handle, arm
+   * lengths (provisional): the elbows fold no closer than their flexion range.
+   */
   export const HANDS: number = 0.45;
 
   /**
@@ -108,7 +122,6 @@ export namespace baseball {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each position's crouch, step and arm places on its envelope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per position.
@@ -547,7 +560,10 @@ export namespace baseball {
   }
 }
 
-/** Optional same-person exact FK source used only during an actual current place observation. */
+/**
+ * Optional same-person exact FK source used only during an actual current place
+ * observation.
+ */
 type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
 /** Only the two shoulder origins determine the glove's point and reach. */

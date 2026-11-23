@@ -17,17 +17,17 @@ import { StrikingSkill } from "../striking/StrikingSkill";
 import { HumanSword } from "./HumanSword";
 
 /**
- * The guards of blade work: the blade taken from where the hand holds it to
- * a named guard and kept there.
+ * The guards of blade work: the blade taken from where the hand holds it to a
+ * named guard and kept there.
  *
- * A guard is named by where the hilt is held, the tradition-neutral names
- * of the swordplay campaign (#3202, decision 8). Its pose is a row of
- * `GUARDS`: the hilt's place from the blade hand's shoulder in arm lengths,
- * the way the blade points and the way its true edge faces, so one row fits
- * every body and every blade. The guard takes at least 0.5 s to set
- * (provisional) and is held `seconds`, 1 s by default
- * (`IAutoMovieMotionHumanSwordGuard.IParams.seconds`). The action ends in the guard: what follows is
- * entered from it.
+ * A guard is named by where the hilt is held, the tradition-neutral names of
+ * the swordplay campaign (decision 8). Its pose is a row of `GUARDS`: the
+ * hilt's place from the blade hand's shoulder in arm lengths, the way the blade
+ * points and the way its true edge faces, so one row fits every body and every
+ * blade. The guard takes at least 0.5 s to set (provisional) and is held
+ * `seconds`, 1 s by default
+ * (`IAutoMovieMotionHumanSwordGuard.IParams.seconds`). The action ends in the
+ * guard: what follows is entered from it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a guard is, how it is named, what a row holds and how the action ends.
  * @evidence contracts/development/design.md#principled-representation One law record over the held-tool stroke planner and a table of poses in the performer's own measures.
@@ -36,11 +36,11 @@ import { HumanSword } from "./HumanSword";
  */
 export namespace HumanSwordGuard {
   /**
-   * Each guard: the hilt's place from the blade hand's shoulder in arm
-   * lengths, the way the blade points and the way its true edge faces. All
-   * provisional, after the figures of Ringeck's gloss of Liechtenauer (vom
-   * Tag at the shoulder and overhead, Ochs, Pflug, Alber, Nebenhut) and of
-   * the hanging guard.
+   * Each guard: the hilt's place from the blade hand's shoulder in arm lengths,
+   * the way the blade points and the way its true edge faces. All provisional,
+   * after the figures of Ringeck's gloss of Liechtenauer (vom Tag at the
+   * shoulder and overhead, Ochs, Pflug, Alber, Nebenhut) and of the hanging
+   * guard.
    */
   export const GUARDS: Readonly<
     Record<
@@ -90,7 +90,8 @@ export namespace HumanSwordGuard {
   };
 
   /**
-   * Take a guard and hold it: the hilt reaches the guard's place after the setting time (`stroke`) and stays to the end.
+   * Take a guard and hold it: the hilt reaches the guard's place after the
+   * setting time (`stroke`) and stays to the end.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when the guard is reached and that it is kept.
    * @evidence contracts/development/implementation.md#principled-implementation The guard's row gives the hilt's place in arm lengths from the blade hand's shoulder and the blade's two directions in the performer's frame; the hand frame that holds the blade so is carried from the entry hold on the clock's minimum-jerk progress.
