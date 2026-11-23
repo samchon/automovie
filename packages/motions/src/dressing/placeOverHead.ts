@@ -438,4 +438,32 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
       const worn: number = clock.at("strokeEnd") / clock.duration;
       return {
         ...coursed,
-       
+        contacts: [
+          ...coursed.contacts,
+          {
+            part: side === "left" ? "leftHand" : "rightHand",
+            kind: "grip",
+            from: 0,
+            to: worn,
+            support: { kind: "prop", subject: p.prop },
+          },
+          {
+            part: other === "left" ? "leftHand" : "rightHand",
+            kind: "grip",
+            from: clock.at("ready") / clock.duration,
+            to: worn,
+            support: { kind: "prop", subject: p.prop, carries: false },
+          },
+        ],
+        wears: [
+          ...(coursed.wears ?? []),
+          {
+            prop: p.prop,
+            bone: partner.body.surfaces.regions.sternum.bone,
+            from: worn,
+            wearer: p.partner,
+          },
+        ],
+      };
+    },
+  };
