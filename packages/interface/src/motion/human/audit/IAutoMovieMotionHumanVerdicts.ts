@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanPerformance } from "../perform/IAutoMovieMotionHumanPerformance";
+
 /**
  * The verdict report of a performance: every physical bound that holds for any
  * human motion whatever it means to do, read on the film a composition gives,
@@ -35,11 +37,21 @@
  * - `unloaded`: a foot no plant on the ground holds dorsiflexes no further than
  *   an ankle bearing no weight does (`ANKLE_DORSIFLEXION.unloaded`), within
  *   `ROM_TOLERANCE`.
- * - `turn`: no bone spins more than 5 turns a second between frames.
+ * - `turn`: no bone snaps by more than 5 degrees, the turn left once an
+ *   interval is halved until a smooth turn is gone
+ *   (`AutoMovieMotionHumanAuditSpin.SNAP`).
  * - `partner`: two people do not pass more than 10 mm into each other.
  *
  * A performer who swims or climbs a ladder is not carried by the floor, so the
  * floor, plant and balance bounds are left unread for that performer.
+ *
+ * Each reading is in its bound's own unit, the one its audit owner states:
+ *
+ * - metres: `tangle`, `floor`, `slip`, `lift`, `jump`, `reversal`, `balance`,
+ *   `afloat`, `statics` and `partner`;
+ * - metres per second: `speed`, `skate` and `loose`;
+ * - degrees: `range`, `unloaded` and `turn`;
+ * - none: `timing`, whose finding reads zero.
  */
 export namespace IAutoMovieMotionHumanVerdicts {
   /** A bound that does not hold. */
@@ -62,10 +74,10 @@ export namespace IAutoMovieMotionHumanVerdicts {
      */
     instance: number;
 
-    /** The reading; for `timing`, 0. */
+    /** The reading in the bound's own unit (units above); for `timing`, 0. */
     value: number;
 
-    /** The limit it exceeds; for `timing`, 0. */
+    /** The limit it exceeds, in the same unit; for `timing`, 0. */
     limit: number;
 
     /** The film second of the reading. */
@@ -109,4 +121,34 @@ export namespace IAutoMovieMotionHumanVerdicts {
     /** End of the judged interval, in performance seconds. */
     to: number;
   };
-}
+
+  /**
+   * One performer of a verdict report as a film names it: the subject the
+   * report's findings carry, the film's entity path of that performer and
+   * whether the floor carries the body.
+   */
+  export interface IPerformer {
+    /** The performer's subject, as the report names it. */
+    subject: string;
+
+    /** The film's canonical entity path of the performer. */
+    path: string;
+
+    /**
+     * Whether the performer swims or climbs a ladder, so the floor, plant and
+     * balance bounds were left unread for them.
+     */
+    airborne: boolean;
+  }
+
+  /**
+   * A performance a film offers to be read, with the entity path of each of its
+   * performers.
+   */
+  export interface ISource {
+    /** The film's human performance. */
+    performance: IAutoMovieMotionHumanPerformance;
+
+    /** The film's canonical entity path of each performer, by subject. */
+    paths: Readonly<Record<string, string>>;
+  }}

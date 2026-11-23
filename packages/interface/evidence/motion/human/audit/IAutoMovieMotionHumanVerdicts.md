@@ -51,3 +51,39 @@ Runtime boundary references: audit/HumanVerdicts.ts (HumanVerdicts.of, span).
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 The admitted fields and units are declared here directly; runtime handling remains in HumanVerdicts.of.
+
+# src/motion/human/audit/IAutoMovieMotionHumanVerdicts.ts#IAutoMovieMotionHumanVerdicts.IPerformer
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+subject: The performer's subject, as the report names it. path: The film's canonical entity path of the performer. airborne: Whether the performer swims or climbs a ladder, so the floor, plant and balance bounds were left unread for them.
+
+## @evidence contracts/development/design.md#principled-representation
+
+One row per performer joining the report's subject to the film's path and to the airborne fact the coverage needs.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Runtime boundary references: audit/HumanVerdictInspection.ts (HumanVerdictInspection.of, performers).
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+Shares the report's subject identity; the mapper owns the admission of unknown subjects.
+
+# src/motion/human/audit/IAutoMovieMotionHumanVerdicts.ts#IAutoMovieMotionHumanVerdicts.ISource
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+performance: The film's human performance. paths: The film's canonical entity path of each performer, by subject.
+
+## @evidence contracts/development/design.md#principled-representation
+
+What a film must supply for its performance's verdicts to be inspected: the performance and where each performer lives in the film.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Runtime boundary references: audit/HumanVerdictInspection.ts (HumanVerdictInspection.read, source); template IFilmProduction.humanPerformance.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+Shares the performance type unchanged; a missing path is refused by the reader.

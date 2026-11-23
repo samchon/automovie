@@ -26,7 +26,8 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * that foot (`AutoMovieMotionHumanAuditMotion.feet`; where none is, in water
  * or on a saddle, no step is read for a skate), and a socket on the
  * floor is at rest while its horizontal speed is no more than {@link SPEED}.
- * Each step between two grid instants is then read twice:
+ * Each step between two grid instants is then read twice, `skate` and `loose`
+ * in metres per second and `afloat` in metres:
  *
  * - `skate`: outside every window declared on the foot, a socket on the
  *   floor at both ends of the step travels horizontally: a foot dragged or

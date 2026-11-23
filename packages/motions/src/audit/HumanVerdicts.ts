@@ -69,16 +69,21 @@ import { solvedHumanAuditSpans } from "./solvedHumanAuditSpans";
  * - `unloaded`: a foot no plant holds dorsiflexes no further than an ankle
  *   bearing no weight does (`ANKLE_DORSIFLEXION.unloaded`), within
  *   `ROM_TOLERANCE`.
- * - `turn`: no bone spins more than 5 turns a second between frames.
+ * - `turn`: no bone snaps by more than 5 degrees, the turn left once an interval
+ *   is halved until a smooth turn is gone
+ *   (`AutoMovieMotionHumanAuditSpin.SNAP`).
  * - `partner`: two people do not pass more than 10 mm into each other.
  *
  * A performer who swims or climbs a ladder is not carried by the floor, so the
- * floor, plant and balance bounds are left unread for that performer. Inside a
- * window solved through the engine (`HumanPerformance.simulate`), the parts the
- * solver owns are judged by the solver's contacts instead of their declared
- * plants, its owned feet take no unloaded bound and a body whose root it owns
- * takes no balance judgement (`solvedHumanAuditSpans`); every check of the
- * displayed bones still reads it.
+ * floor, plant and balance bounds are left unread for that performer. Each
+ * reading is in its bound's own unit: metres, except metres per second for
+ * `speed`, `skate` and `loose`, degrees for `range`, `unloaded` and `turn`, and
+ * none for `timing`. Inside a window solved through the engine
+ * (`HumanPerformance.simulate`), the parts the solver owns are judged by the
+ * solver's contacts instead of their declared plants, its owned feet take no
+ * unloaded bound and a body whose root it owns takes no balance judgement
+ * (`solvedHumanAuditSpans`); every check of the displayed bones still reads
+ * it.
  */
 export namespace HumanVerdicts {
   /**
@@ -90,6 +95,21 @@ export namespace HumanVerdicts {
 
   /** The actions whose body the floor does not carry. */
   export const AIRBORNE: readonly string[] = ["swim", "climbLadder"];
+
+  /**
+   * Whether an action of one performer carries a body the floor does not: the
+   * performer whose floor, plant and balance bounds `of` leaves unread.
+   *
+   * @param performance The performance.
+   * @param subject The performer.
+   * @returns Whether the performer swims or climbs a ladder.
+   */
+  export function airborne(
+    performance: IAutoMovieMotionHumanPerformance,
+    subject: string,
+  ): boolean {
+    return isAirborne(performance.segments(subject));
+  }
 
   /**
    * Read every bound on a performance, or on one span of its film.
@@ -190,9 +210,7 @@ export namespace HumanVerdicts {
     for (const person of people) {
       const who: string = person.subject;
       const spans = performance.segments(who);
-      const airborne: boolean = spans.some((s): boolean =>
-        AIRBORNE.includes(s.law.family ?? s.name),
-      );
+      const airborne: boolean = isAirborne(spans);
       for (const fault of AutoMovieMotionHumanAuditTiming.faults(spans))
         findings.push({
           check: "timing",
@@ -343,6 +361,14 @@ export namespace HumanVerdicts {
       .join("; ");
   }
 }
+
+/** Whether any action of a chain is one the floor does not carry. */
+const isAirborne = (
+  spans: ReturnType<IAutoMovieMotionHumanPerformance["segments"]>,
+): boolean =>
+  spans.some((s): boolean =>
+    HumanVerdicts.AIRBORNE.includes(s.law.family ?? s.name),
+  );
 
 /**
  * A motion's span from `from` to `to` as a motion of its own: its seconds start

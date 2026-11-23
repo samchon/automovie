@@ -17,17 +17,24 @@ import { clampProductionSeconds } from "./clampProductionSeconds";
 import { films } from "./composition/films";
 import { inspectFilmProduction } from "./inspectFilmProduction";
 import { markFilmProduction } from "./markFilmProduction";
+import { readFilmVerdicts } from "./readFilmVerdicts";
 
 /**
- * The production's films as subjects, one per registered film under the film's name: what the draw-only page `automovie capture --module src/subjects.ts` and `automovie render --module src/subjects.ts` build over this module offers, and what `automovie inspect` shows.
+ * The production's films as subjects, one per registered film under the film's
+ * name: what the draw-only page `automovie capture --module src/subjects.ts`
+ * and `automovie render --module src/subjects.ts` build over this module
+ * offers, and what `automovie inspect` shows.
  *
- * Each film is created as the Viewer creates it, at its delivery raster (1280 × 720 when it states none), seeked through its own `seek` at a second clamped to its running time, and marked by `markFilmProduction`, so a capture, a delivered frame and the Viewer show the same state.
+ * Each film is created as the Viewer creates it, at its delivery raster (1280 ×
+ * 720 when it states none), seeked through its own `seek` at a second clamped
+ * to its running time, and marked by `markFilmProduction`, so a capture, a
+ * delivered frame and the Viewer show the same state.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each subject is, who draws it, and how its raster, seek and marks are taken.
  * @evidence contracts/development/implementation.md#principled-implementation Maps the film registry, placement and shared marks onto the draw contract, and binds optional soft surfaces after placement at the same clamped second.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One mapping per film.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No film is named; the props are not read, since films need none.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the registered films; a film is created only when its subject is.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the registered films; a film is created only when its subject is, and its verdict reader reads the whole performance once, at the first capture or delivery sample.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A mapping made once per page.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The subject's dispose releases the film, and the render adapter independently releases any soft prop meshes it mounts.
  */
@@ -44,6 +51,10 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
               ReturnType<typeof preparePhysicalGeometry>
             > = await preparePhysicalGeometry();
             const production: IFilmProduction = await film.create();
+            // One reader per mount: a capture or delivery run reads the whole
+            // performance once, and the viewer never asks.
+            const verdicts: ReturnType<typeof readFilmVerdicts> =
+              readFilmVerdicts(production);
             const subject: IAutoMovieDrawScene = {
               scene: production.scene,
               camera: production.camera,
@@ -77,6 +88,7 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
                   production,
                   geometry,
                   fps: film.fps,
+                  ...(verdicts === undefined ? {} : { verdicts }),
                   sample,
                 }),
               marks: (seconds: number): IAutoMovieMark[] =>

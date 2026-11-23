@@ -17,6 +17,7 @@ export * from "./law/HumanRefusal";
 export * from "./perform/HumanPerformance";
 export * from "./perform/compileHumanPerformanceContinuation";
 export * from "./audit/HumanSignature";
+export * from "./audit/HumanVerdictInspection";
 export * from "./audit/HumanVerdicts";
 export * from "./HUMAN_GRAMMAR";
 export * from "./next";

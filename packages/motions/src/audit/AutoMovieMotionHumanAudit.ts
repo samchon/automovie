@@ -27,6 +27,7 @@ import { AutoMovieMotionHumanAuditTangle } from "./AutoMovieMotionHumanAuditTang
  * - `balance`: while both feet alone bear the body, its extrapolated centre
  *   of mass stays over them.
  *
+ * Each reading and limit is in metres, except `speed` in metres per second.
  * Each check has a limit; a reading above its limit is a finding. A limit of
  * `null` leaves the check unread, for an action a check does not apply to (a
  * fall is meant to lose its balance). What an action intends (which hand
