@@ -14,7 +14,7 @@ No species case, undeclared-speed clamp, independent proximal translation, dista
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Builds S phase rows per assembly, one more per jump candidate. A sample uses binary phase searches, existing clock reads, four constant-size reach intersections and closed-form IK solves, two B-bone FK passes and O(P+A+V) emission.
+Builds S phase rows per assembly, one more per jump candidate. A sample uses binary phase searches, existing clock reads, four constant-size reach intersections and closed-form IK solves, two B-bone FK passes and O(P+A+V) emission, the model posed only when its archetype is read; a contact a body bone carries is read from one body FK and one contact move, with no limb solve or emission (`QuadrupedRidePose.IPrepared.frame`).
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

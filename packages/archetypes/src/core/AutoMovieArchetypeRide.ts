@@ -108,6 +108,18 @@ export namespace AutoMovieArchetypeRide {
      * the course's own by a lean or a bob.
      */
     placement: IAutoMovieTransform;
+
+    /**
+     * One contact's frame in the archetype's space at this pose, read from what
+     * carries it alone, without posing the whole model; undefined, or absent,
+     * where only the posed `archetype` places it. A ride's `frame` reads it
+     * first, so a carried reader's seat or stirrup does not pose a whole
+     * horse.
+     *
+     * @param id The contact's id, one the archetype declares.
+     * @returns The frame, or undefined.
+     */
+    frame?(id: Id): IAutoMovieTransform | undefined;
   }
 
   /** A ride. */
@@ -178,7 +190,11 @@ export namespace AutoMovieArchetypeRide {
         archetype,
         placement: state.placement,
       };
-      return { ...sample, course: state };
+      return {
+        archetype: sample.archetype,
+        placement: sample.placement,
+        course: state,
+      };
     }
     const ride: IRide<Id, D> = {
       plan,
@@ -188,11 +204,21 @@ export namespace AutoMovieArchetypeRide {
           p.seconds - q.seconds,
       ),
       at,
+      // A contact's frame reads only what carries it where the poser can
+      // place it alone; otherwise the posed model's own contact.
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
-        const sample: ISample<Id, D> = at(seconds);
+        const state: AutoMovieArchetypeCourse.IState = plan.at(seconds);
+        const sample: IPose<Id, D> | undefined = pose?.(state, seconds);
+        if (sample === undefined)
+          return AutoMovieArchetypeFrame.compose(
+            state.placement,
+            archetype.affordance(id).frame,
+          );
+        // An id the archetype lacks is refused before any demand path reads it.
+        archetype.affordance(id);
         return AutoMovieArchetypeFrame.compose(
           sample.placement,
-          sample.archetype.affordance(id).frame,
+          sample.frame?.(id) ?? sample.archetype.affordance(id).frame,
         );
       },
     };
@@ -268,22 +294,9 @@ export namespace AutoMovieArchetypeRide {
       options,
     );
     const front: ArchetypeTowing.IFront<Id> | null = geometry.front;
-    const hitchAt = (
-      seconds: number,
-      witness?: ArchetypeRideWitness.Witness,
-    ): IAutoMovieVector3 => {
-      const read:
-        | ArchetypeRideWitness.Reader<LeaderId, LeaderDimension>
-        | undefined =
-        witness === undefined ? undefined : ArchetypeRideWitness.of(leader);
-      if (read === undefined || witness === undefined)
-        return leader.frame(hitch, seconds).translation;
-      const sample: ISample<LeaderId, LeaderDimension> = read(seconds, witness);
-      return AutoMovieArchetypeFrame.compose(
-        sample.placement,
-        sample.archetype.affordance(hitch).frame,
-      ).translation;
-    };
+    // The hitch is one contact of the leader, read by itself on every route.
+    const hitchAt = (seconds: number): IAutoMovieVector3 =>
+      leader.frame(hitch, seconds).translation;
     const groundAt: (seconds: number) => number = (seconds: number): number =>
       leader.plan.at(seconds).placement.translation.y;
     const end: number = Math.max(leader.duration, 1e-3);
@@ -295,19 +308,17 @@ export namespace AutoMovieArchetypeRide {
 
     // The headings, radians about +Y: the first link's turning toward the hitch at its sideways speed over its reach; a second link's toward the pivot at the pivot's sideways speed over the body's length.
     const heading: IAutoMovieIntegrateMotionTrajectory.ITrajectory = (() => {
-      const stage = ArchetypeRideWitness.stages(leader);
       return integrateMotionTrajectory({
         f: (
           t: number,
           x: readonly number[],
         ): IAutoMovieIntegrateMotionTrajectory.IRate => {
-          const probes = stage(t);
-          const ahead: IAutoMovieVector3 = hitchAt(t + 5e-4, probes?.ahead);
-          const behind: IAutoMovieVector3 = hitchAt(t - 5e-4, probes?.behind);
+          const ahead: IAutoMovieVector3 = hitchAt(t + 5e-4);
+          const behind: IAutoMovieVector3 = hitchAt(t - 5e-4);
           const vx: number = (ahead.x - behind.x) / 1e-3;
           const vz: number = (ahead.z - behind.z) / 1e-3;
           const theta: number = x[0]!;
-          const centre: IAutoMovieVector3 = hitchAt(t, probes?.centre);
+          const centre: IAutoMovieVector3 = hitchAt(t);
           const reach: number = geometry.height(
             centre.y,
             geometry.ground(centre, theta, groundAt(t)),
@@ -388,7 +399,7 @@ export namespace AutoMovieArchetypeRide {
       const state: readonly number[] = heading.at(seconds).x;
       const theta: number = state[0]!;
       const phi: number = front === null ? theta : state[1]!;
-      const point: IAutoMovieVector3 = hitchAt(seconds, witness);
+      const point: IAutoMovieVector3 = hitchAt(seconds);
       const posed: AutoMovieArchetype<Id, Dimension> =
         options.pose?.(sample.course) ?? trailer;
       const solved: ReturnType<typeof geometry.pose> = geometry.pose(

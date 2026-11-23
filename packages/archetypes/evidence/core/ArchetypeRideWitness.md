@@ -106,36 +106,6 @@ The exact registered object supplies its matching typed reader.
 
 The lookup keeps no observation.
 
-# src/core/ArchetypeRideWitness.ts#ArchetypeRideWitness.stages
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Explains the ahead, behind and centre roles and strict time boundary.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Only genuine native inputs can open a scope, and a new binary64 time replaces all three roles.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-Three named roles and one exact time check.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-No retained slope, advanced state, approximate time or opaque observer enters the scope.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Constant work and space per solver stage.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-Exactly repeated times retain the same three witnesses.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-The enclosing synchronous integration owns the last three roles.
-
 # src/core/ArchetypeRideWitness.ts#ArchetypeRideWitness.Witness
 
 ## @evidence contracts/development/common.md#meaningful-documentation

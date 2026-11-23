@@ -88,35 +88,6 @@ export namespace ArchetypeRideWitness {
   }
 
   /**
-   * Open role-separated witnesses for contiguous reads at one exact solver
-   * time.
-   */
-  export function stages<Id extends string, D extends string>(
-    ride: AutoMovieArchetypeRide.IRide<Id, D>,
-  ): (second: number) => IProbes | undefined {
-    if (of(ride) === undefined) return () => undefined;
-    let previous: number | undefined;
-    let probes: IProbes | undefined;
-    return (second: number): IProbes | undefined => {
-      if (!Object.is(previous, second)) {
-        previous = second;
-        probes = {
-          ahead: new Witness(true),
-          behind: new Witness(true),
-          centre: new Witness(true),
-        };
-      }
-      return probes;
-    };
-  }
-
-  interface IProbes {
-    readonly ahead: Witness;
-    readonly behind: Witness;
-    readonly centre: Witness;
-  }
-
-  /**
    * One private successful geometry result for one producer in a synchronous
    * operation.
    */

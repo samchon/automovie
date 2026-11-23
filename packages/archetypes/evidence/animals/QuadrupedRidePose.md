@@ -64,6 +64,36 @@ Reuses prepared source chains, oriented terminal solvers, scalar clearances, car
 
 Current targets, ranges and solved points are call-local; the prepared owner retains only its bounded source data and no completed pose history or external resource.
 
+# src/animals/QuadrupedRidePose.ts#QuadrupedRidePose.IPrepared.frame
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Inputs are the same goals, nod and root preference as `sample` and a contact id; the frame is in model space, undefined for a contact a limb, a shoulder blade or a held line places.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The same settled root range, chosen root and pelvis turn as `sample`, the body's frames lowered from them, and the contact moved by its carrier bone's motion from neutral exactly as the emission moves it.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One settle, one root choice, one body FK and one contact move.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A contact whose chain needs a limb solve, a blade turn or a held line's axis is left to `sample`; impossible goals refuse as `sample` refuses.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Skips the four limb solves, the limb FK and the whole model's emission: one O(B) body FK and one contact move beyond the shared settle.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Shares `sample`'s settle stage, the prepared rig reader and the carrier deltas the emission uses.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The settled targets and frames are call-local; the prepared table of body-carried contacts is fixed at preparation.
+
 # src/animals/QuadrupedRidePose.ts#QuadrupedRidePose.prepare
 
 ## @evidence contracts/development/common.md#meaningful-documentation

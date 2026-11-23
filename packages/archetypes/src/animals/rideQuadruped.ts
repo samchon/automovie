@@ -507,25 +507,37 @@ export function rideQuadruped<Affordance extends string, D extends string>(
             timing.duty,
           ) +
         (lame?.nod ?? 0);
-      let archetype: AutoMovieArchetype<Affordance, Dimension>;
-      try {
-        archetype = pose.sample(
-          {
-            leftFore: goals.get("leftFore")!,
-            rightFore: goals.get("rightFore")!,
-            leftHind: goals.get("leftHind")!,
-            rightHind: goals.get("rightHind")!,
-          },
-          nod,
-          -sink,
-          witness,
-        );
-      } catch (error) {
-        throw refuseQuadrupedReach(species.archetype, seconds, error);
-      }
-      archetype = terrain.tail(archetype, placement);
-      if (!trial) ground?.verify(archetype, placement);
-      return { archetype, placement: AutoMovieArchetypeFrame.copy(placement) };
+      const aims: Readonly<
+        Record<AutoMovieArchetypeQuadrupedBody.Limb, QuadrupedRidePose.IGoal>
+      > = {
+        leftFore: goals.get("leftFore")!,
+        rightFore: goals.get("rightFore")!,
+        leftHind: goals.get("leftHind")!,
+        rightHind: goals.get("rightHind")!,
+      };
+      return {
+        // The whole model is posed only when it is read: a contact's frame
+        // reads its carrier's chain alone (`QuadrupedRidePose.IPrepared.frame`).
+        get archetype(): AutoMovieArchetype<Affordance, Dimension> {
+          let archetype: AutoMovieArchetype<Affordance, Dimension>;
+          try {
+            archetype = pose.sample(aims, nod, -sink, witness);
+          } catch (error) {
+            throw refuseQuadrupedReach(species.archetype, seconds, error);
+          }
+          archetype = terrain.tail(archetype, placement);
+          if (!trial) ground?.verify(archetype, placement);
+          return archetype;
+        },
+        placement: AutoMovieArchetypeFrame.copy(placement),
+        frame: (id: Affordance): IAutoMovieTransform | undefined => {
+          try {
+            return pose.frame(aims, nod, -sink, id);
+          } catch (error) {
+            throw refuseQuadrupedReach(species.archetype, seconds, error);
+          }
+        },
+      };
     };
     return { clock, strides, posed, instants };
   }
