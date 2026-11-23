@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeRide.ts#AutoMovieArchetypeRide
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a ride publishes and to whom, and where its instants come from.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A function of film seconds returning plain data, so a consumer samples it at its own instants and nothing is baked at one rate.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record and one constructor, shared by every vehicle and animal of this package (#3368's moving supports).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No vehicle is named here: what moves with the course is a function its producer's ride supplies.
-
 # src/core/AutoMovieArchetypeRide.ts#AutoMovieArchetypeRide.ISample
 
 ## @evidence contracts/development/common.md#meaningful-documentation
