@@ -11,7 +11,6 @@ import type {
 
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { HumanGrip } from "../handling/HumanGrip";
-import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
@@ -184,15 +183,35 @@ export namespace HumanArmFrame {
     const shapes: IAutoMovieMotionHumanArmGeometry.IShape[] = [];
     const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
       HumanColliders.placed(body, resolved);
-    for (const segment of [
-      ...HumanArmClearance.obstacles(
-        body,
-        resolved,
-        alone ? [side === "left" ? "right" : "left"] : [],
-        placed,
-      ),
-      ...others,
-    ]) {
+    // The arm's probes are read against every segment of the body the tangle
+    // audit reads them against: all but the arm's own, and the other arm's
+    // where it is solved too. A narrower set (the fit's trunk and thighs,
+    // `HumanArmClearance.obstacles`) let a planned course lay a thumb in a
+    // shank the audit then refused (a small body's hand passing its knee
+    // as it sits onto a chair).
+    const opposite: "left" | "right" = side === "left" ? "right" : "left";
+    const read: IAutoMovieMotionHumanColliders.IPlaced[] = placed.filter(
+      (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean => {
+        const group: string = AutoMovieMotionHumanAuditTangleModel.group(
+          segment.bone,
+        );
+        if (
+          segment.bone === bones.upper ||
+          segment.bone === bones.lower ||
+          group === bones.hand
+        )
+          return false;
+        return (
+          alone ||
+          !(
+            segment.bone === `${opposite}UpperArm` ||
+            segment.bone === `${opposite}LowerArm` ||
+            group === `${opposite}Hand`
+          )
+        );
+      },
+    );
+    for (const segment of [...read, ...others]) {
       const part: number = parts.get(segment) ?? own.get(segment.bone) ?? -1;
       for (const shape of segment.shapes)
         shapes.push(S.bounded(segment.bone, part, segment.pose, shape));
