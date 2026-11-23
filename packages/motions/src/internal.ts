@@ -70,6 +70,7 @@ export * from "./law/HumanInterruptRow";
 export * from "./perform/HumanPerformanceTether";
 export * from "./law/HumanPerception";
 export * from "./perform/HumanSegment";
+export * from "./posture/HumanAuditModel";
 export * from "./posture/HumanColliders";
 export * from "./posture/HumanFoot";
 export * from "./posture/HumanHand";
