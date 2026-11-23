@@ -47,19 +47,46 @@ const frame: (
   move: IAutoMovieCameraAction["move"],
   start: number,
   duration?: number | "auto",
+  framing?: IAutoMovieCameraAction["framing"],
 ) => IAutoMovieCameraAction = (
   move: IAutoMovieCameraAction["move"],
   start: number,
   duration: number | "auto" = "auto",
+  framing: IAutoMovieCameraAction["framing"] = "medium",
 ): IAutoMovieCameraAction => ({
   verb: "frame",
   actor: "cam",
   start,
   duration,
-  framing: "medium",
+  framing,
   move,
   on: { kind: "point", point: { x: 0, y: 0, z: 0 } },
 });
+
+/**
+ * Framed distance and aim height of {@link SUBJECT} per framing under the
+ * 90-degree lens: the framing's height fraction of the 2 m subject over the
+ * unit half-angle tangent, and its aim fraction of the height.
+ */
+const FRAMED: Record<
+  IAutoMovieCameraAction["framing"],
+  { distance: number; aimY: number }
+> = {
+  wide: { distance: 4, aimY: 1 },
+  full: { distance: 1.15, aimY: 1 },
+  medium: { distance: 0.62, aimY: 1.44 },
+  close: { distance: 0.28, aimY: 1.7 },
+};
+
+/** Distance from the camera to one framing's aim at one instant. */
+function reachOf(
+  clip: IAutoMovieClip,
+  t: number,
+  framing: IAutoMovieCameraAction["framing"],
+): number {
+  const p: IAutoMovieVector3 = at(clip, t);
+  return Math.hypot(p.x, p.y - FRAMED[framing].aimY, p.z);
+}
 
 /** Quadratic ease in and out, written from its definition. */
 function easeInOut(p: number): number {
@@ -130,9 +157,19 @@ function compile(
  * 5. `orbit` at `"auto"` followed by `static` swings monotonically and holds the
  *    full 45 degrees.
  * 6. `static` at `"auto"` followed by `push-in` holds the framed distance, then
- *    dollies in from it to 0.64 times it without backing off first.
+ *    dollies in from it to the push-in's own end of 0.8 times it without
+ *    backing off first.
  * 7. A push-in that ends at 1.5 s before a static at 2 s re-frames back out across
  *    the authored gap, so a reversal remains available when written.
+ * 8. `static` wide followed by `push-in` close starts the dolly where the wide
+ *    hold stands, never backs away from the close aim, and ends framed close at
+ *    0.8 times the close distance.
+ * 9. `static` wide followed by `static` close keeps the wide pose up to 1e-5 s
+ *    before the boundary and shows the close framing from the boundary on, a
+ *    step rather than a ramp over the wide hold.
+ * 10. A chain of `"auto"` entries, static wide, push-in medium, orbit close and
+ *     static full, reaches every entry's own framing: wide during the first,
+ *     0.8 times medium, close and full at the ends of the others.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Compiles camera clips through compileCameraMove and plays them through bakedTransformFromClipsAt at delivered frame instants, asserting per-frame travel, distance to the aim, swing angle and follow position.
  * @evidence contracts/development/testing.md#independent-expectations Expected travel comes from the grammar's closed form, the 1.25 to 0.8 dolly of the 0.62 m framed distance, the 45-degree swing and the one-distance truck, through the quadratic ease written from its definition; the follow oracle is the authored subject path. Monotone distance and angle follow from the requirement that a reversal happens only when written.
@@ -275,10 +312,10 @@ export function test_film_camera_move_continuity(): void {
     [],
   );
   TestValidator.predicate(
-    "the hold stays framed and the push-in ends at 0.64 of it",
+    "the hold stays framed and the push-in ends at 0.8 of it",
     nclose(reach(holdPush, 1), D) &&
       nclose(reach(holdPush, 2), D) &&
-      nclose(reach(holdPush, 4), D * 0.64),
+      nclose(reach(holdPush, 4), D * 0.8),
   );
 
   // 7. An authored gap still re-frames outward.
@@ -291,5 +328,74 @@ export function test_film_camera_move_continuity(): void {
     nclose(reach(gap, 1.5), D * 0.8) &&
       nclose(reach(gap, 1.75), D * 0.9) &&
       nclose(reach(gap, 2), D),
+  );
+
+  // 8. A wide hold, then a push-in framed close.
+  const widePush: IAutoMovieClip = compile([
+    { action: frame("static", 0, "auto", "wide") },
+    { action: frame("push-in", 2, "auto", "close") },
+  ]);
+  const wideStand: IAutoMovieVector3 = at(widePush, 1);
+  TestValidator.predicate(
+    "the close push-in starts where the wide hold stands",
+    nclose(reachOf(widePush, 1, "wide"), FRAMED.wide.distance) &&
+      [2 - 1 / 30, 2].every((t: number): boolean =>
+        nclose(
+          Math.hypot(
+            at(widePush, t).x - wideStand.x,
+            at(widePush, t).y - wideStand.y,
+            at(widePush, t).z - wideStand.z,
+          ),
+          0,
+        ),
+      ),
+  );
+  TestValidator.equals(
+    "the close push-in never backs away from the close aim",
+    shot.filter(
+      (t: number, k: number): boolean =>
+        t > 2 &&
+        reachOf(widePush, t, "close") >
+          reachOf(widePush, shot[k - 1]!, "close") + 1e-12,
+    ),
+    [],
+  );
+  TestValidator.predicate(
+    "the close push-in ends framed close",
+    nclose(reachOf(widePush, 4, "close"), FRAMED.close.distance * 0.8),
+  );
+
+  // 9. A wide hold, then a close hold, steps at the boundary.
+  const wideClose: IAutoMovieClip = compile([
+    { action: frame("static", 0, "auto", "wide") },
+    { action: frame("static", 2, "auto", "close") },
+  ]);
+  TestValidator.predicate(
+    "the wide pose holds up to the boundary",
+    [0, 1, 2 - 1 / 30, 2 - 1e-5].every((t: number): boolean =>
+      nclose(reachOf(wideClose, t, "wide"), FRAMED.wide.distance),
+    ),
+  );
+  TestValidator.predicate(
+    "the close framing holds from the boundary on",
+    [2, 2 + 1 / 30, 3, 4].every((t: number): boolean =>
+      nclose(reachOf(wideClose, t, "close"), FRAMED.close.distance),
+    ),
+  );
+
+  // 10. A chain of auto entries reaches every framing.
+  const chain: IAutoMovieClip = compile([
+    { action: frame("static", 0, "auto", "wide") },
+    { action: frame("push-in", 1, "auto", "medium") },
+    { action: frame("orbit", 2, "auto", "close") },
+    { action: frame("static", 3, "auto", "full") },
+  ]);
+  TestValidator.predicate(
+    "every entry of an auto chain reaches its own framing",
+    nclose(reachOf(chain, 0.5, "wide"), FRAMED.wide.distance) &&
+      nclose(reachOf(chain, 2, "medium"), FRAMED.medium.distance * 0.8) &&
+      nclose(reachOf(chain, 3 - 1e-5, "close"), FRAMED.close.distance) &&
+      nclose(reachOf(chain, 3, "full"), FRAMED.full.distance) &&
+      nclose(reachOf(chain, 4, "full"), FRAMED.full.distance),
   );
 }
