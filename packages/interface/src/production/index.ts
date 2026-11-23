@@ -178,6 +178,7 @@ export type { IAutoMovieProductionPngPicture } from "./IAutoMovieProductionPngPi
 export type { IAutoMovieProductionRenderFrame } from "./IAutoMovieProductionRenderFrame";
 export type { IAutoMovieProductionRenderLayer } from "./IAutoMovieProductionRenderLayer";
 export type { IAutoMovieProductionRenderLayersForPass } from "./IAutoMovieProductionRenderLayersForPass";
+export type { IAutoMovieProductionRoomTone } from "./IAutoMovieProductionRoomTone";
 export type { IAutoMovieProductionSoundAnalysis } from "./IAutoMovieProductionSoundAnalysis";
 export type { IAutoMovieProductionSoundCue } from "./IAutoMovieProductionSoundCue";
 export type { IAutoMovieProductionSoundEvent } from "./IAutoMovieProductionSoundEvent";

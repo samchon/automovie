@@ -18,14 +18,16 @@ import { deriveAutoMovieSeed } from "../random/deriveAutoMovieSeed";
 import { analyzeProductionSound } from "./analyzeProductionSound";
 import { applyAutoMovieInteriorAcousticResponse } from "./applyAutoMovieInteriorAcousticResponse";
 import { levelProductionDialogueLine } from "./levelProductionDialogueLine";
+import { mixProductionRoomTone } from "./mixProductionRoomTone";
 import { productionScoreDuckingEnvelope } from "./productionScoreDuckingEnvelope";
 import { productionSoundEventTone } from "./productionSoundEventTone";
 import { resolveProductionLoudness } from "./resolveProductionLoudness";
 
 /**
  * Mix semantic events, authored cue trims and supplied dialogue into a fresh
- * stereo mix. When enabled, score ducking attenuates the music bus around the
- * placed dialogue with adopted PCM.
+ * stereo mix, with the plan's room-tone beds generated on the ambience bus
+ * (`mixProductionRoomTone`). When enabled, score ducking attenuates the music
+ * bus around the placed dialogue with adopted PCM.
  *
  * Loudness follows the production's intent, or EBU R 128 without one
  * (`resolveProductionLoudness`): each dialogue line is levelled to the dialogue
@@ -112,6 +114,7 @@ export const renderProductionSound: (
         cue.bus === "music" ? scoreEnvelope : undefined,
       ),
   );
+  mixProductionRoomTone(pcm, props.plan);
   const lines: IAutoMovieRenderedProductionSound.ILoudness["lines"] = [];
   for (const line of props.plan.dialogue) {
     const source: Float32Array<ArrayBufferLike> | undefined =

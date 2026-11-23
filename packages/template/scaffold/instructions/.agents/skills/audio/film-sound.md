@@ -18,7 +18,7 @@ Test it on the production's own takes, shouts and breaths included, and have the
 
 ## One bed and one score per scene
 
-Keep per-clip generated audio for close effects. Run one ambience bed across scene cuts, ducking or replacing take ambience and filling gaps with room tone. Keep the screenplay's score on a separate track.
+Keep per-clip generated audio for close effects. Run one ambience bed across scene cuts, ducking or replacing take ambience and filling gaps with room tone. A direct 3D film without a room-tone recording declares seeded `roomTone` beds in its [sound list](soundtrack.md#sound-list); a bed at −50 dBFS or louder keeps the pauses between lines out of the delivery's silence check, and beds that meet on one frame crossfade. Keep the screenplay's score on a separate track.
 
 ## Loudness
 

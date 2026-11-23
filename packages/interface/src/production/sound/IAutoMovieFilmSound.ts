@@ -1,4 +1,5 @@
 import type { IAutoMovieFilmTimeline } from "../IAutoMovieFilmTimeline";
+import type { IAutoMovieProductionRoomTone } from "../IAutoMovieProductionRoomTone";
 import type { IAutoMovieProductionSoundPlan } from "../IAutoMovieProductionSoundPlan";
 import type { IAutoMovieDialogueSpeakerBinding } from "./IAutoMovieDialogueSpeakerBinding";
 
@@ -28,6 +29,13 @@ export interface IAutoMovieFilmSound {
 
   /** Speaker-to-actor bindings that move each speaking actor's mouth. */
   speakers: IAutoMovieDialogueSpeakerBinding[];
+
+  /**
+   * Optional seeded room-tone beds on the ambience bus, the continuous noise
+   * floor of a dialogue scene with no recording to supply one; omission adds
+   * none.
+   */
+  roomTone?: IAutoMovieProductionRoomTone[];
 
   /**
    * Optional attenuation of music cues under each spoken line; omission leaves

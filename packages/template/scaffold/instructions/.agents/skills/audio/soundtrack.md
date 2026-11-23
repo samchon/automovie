@@ -13,7 +13,8 @@ Declare a direct 3D film's adopted sound as its production's `sound` member (`IA
 - each spoken line's id, text, language, speaker, start frame, WAVE file and receipt;
 - each cue placed on the film clock with its trim, gain, fades, bus and WAVE file;
 - the binding of each speaker to the actor whose mouth moves;
-- the score ducking under dialogue, when the film wants it.
+- the score ducking under dialogue, when the film wants it;
+- room-tone beds (`roomTone`) for a dialogue scene with no ambience recording, each with its frame interval, RMS level in dBFS, spectral tilt in dB per octave and seed.
 
 Paths are relative to the production root. Line ids and cue ids are each unique within the film. A line plays at its own length from its start frame, so leave room before the next line and the film's end.
 

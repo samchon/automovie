@@ -2,15 +2,15 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States who declares it, who mixes it, how paths resolve, which ids must be unique and why, and that it excludes a delivery soundtrack path.
+States who declares it, who mixes it, what the room-tone beds supply, how paths resolve, which ids must be unique and why, and that it excludes a delivery soundtrack path.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-A film's adopted sound as data: lines on the film-frame clock with their byte and receipt paths, cues in the timeline's own placement shape, speaker bindings and the plan's ducking policy. Id uniqueness, the exclusion of a delivery soundtrack and file existence are runtime refusals of the render route.
+A film's adopted sound as data: lines on the film-frame clock with their byte and receipt paths, cues in the timeline's own placement shape, speaker bindings, the plan's ducking policy and optional room-tone beds in the plan's own type. Id uniqueness, the exclusion of a delivery soundtrack and file existence are runtime refusals of the render route.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Interface owns it; the scaffold's `IFilmProduction` declares it, the draw scene and subject description carry it, and render's `mixAutoMovieFilmSound` consumes every member. Cues and bindings reuse the timeline track type and `IAutoMovieDialogueSpeakerBinding` from their owners.
+Interface owns it; the scaffold's `IFilmProduction` declares it, the draw scene and subject description carry it, and render's `mixAutoMovieFilmSound` consumes every member, copying the room-tone beds into the plan. Cues and bindings reuse the timeline track type and `IAutoMovieDialogueSpeakerBinding` from their owners.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
