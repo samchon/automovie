@@ -74,3 +74,5 @@ export * from "./generation/frame/AutoMovieHumanFeatureTemplate";
 export * from "./generation/frame/AutoMovieHumanFeatureLaws";
 export * from "./generation/conic/AutoMovieHumanNativeSiteSection";
 export * from "./generation/conic/AutoMovieHumanGrooveFade";
+export * from "./generation/conic/AutoMovieHumanEmptyProbes";
+export * from "./generation/f1/AutoMovieHumanF1EmptyProbes";

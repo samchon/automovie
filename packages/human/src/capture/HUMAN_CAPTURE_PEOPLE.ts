@@ -1,6 +1,8 @@
 import type { IAutoMovieHumanF1 } from "@automovie/interface";
 
+import { AutoMovieHumanEmptyProbes } from "../generation/conic/AutoMovieHumanEmptyProbes";
 import { AutoMovieHumanF1 } from "../generation/f1/AutoMovieHumanF1";
+import { AutoMovieHumanF1EmptyProbes } from "../generation/f1/AutoMovieHumanF1EmptyProbes";
 
 /**
  * Every person the package defines, as the capture subjects offer them: the person's authored families, how its surface is generated, and the poses it can be drawn in.
@@ -19,6 +21,9 @@ export const HUMAN_CAPTURE_PEOPLE: Readonly<
 
       /** The poses the person can be drawn in, the canonical one first. */
       readonly poses: readonly string[];
+
+      /** List the points the person's skin must leave empty, millimetres in the figure's frame, each placed or with its reason. */
+      readonly probes: () => AutoMovieHumanEmptyProbes.IProbe[];
     }
   >
 > = {
@@ -26,5 +31,7 @@ export const HUMAN_CAPTURE_PEOPLE: Readonly<
     members: AutoMovieHumanF1.FAMILIES,
     create: (): IAutoMovieHumanF1.IPiece[] => AutoMovieHumanF1.create(),
     poses: ["reference"],
+    probes: (): AutoMovieHumanEmptyProbes.IProbe[] =>
+      AutoMovieHumanEmptyProbes.list(AutoMovieHumanF1EmptyProbes),
   },
 };
