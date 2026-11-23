@@ -3,7 +3,13 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 /**
  * Resolve an imported joint name to the humanoid slot its rig convention means.
  *
- * The name is lowercased, a leading `mixamorig` prefix (with or without its colon) is removed, and whitespace, `_`, `.`, `:`, `|` and `-` are dropped, so `mixamorig:LeftUpLeg`, `Left_UpLeg` and `leftUpLeg` all read as `leftupleg`. The table covers the supported Blender-style names (`Spine`, `LeftUpLeg`), Mixamo, VRM-style slot names (`leftUpperArm`), and Unreal mannequin spine chains (`spine_01` to `spine_03`). Fingers, eyes and jaw have no alias, so a hand rig maps only to its hand slot.
+ * The name is lowercased, a leading `mixamorig` prefix (with or without its
+ * colon) is removed, and whitespace, `_`, `.`, `:`, `|` and `-` are dropped, so
+ * `mixamorig:LeftUpLeg`, `Left_UpLeg` and `leftUpLeg` all read as `leftupleg`.
+ * The table covers the supported Blender-style names (`Spine`, `LeftUpLeg`),
+ * Mixamo, VRM-style slot names (`leftUpperArm`), and Unreal mannequin spine
+ * chains (`spine_01` to `spine_03`). Fingers, eyes and jaw have no alias, so a
+ * hand rig maps only to its hand slot.
  *
  * @param name Joint node name exactly as the source declares it.
  * @returns The slot, or `undefined` when no convention in the table names it.

@@ -13,9 +13,7 @@ const externalUri: (value: unknown, path: string) => string | null = (
   return value.startsWith("data:") ? null : value;
 };
 
-/**
- * Collect exact sidecar URI identities without decoding their payloads.
- */
+/** Collect exact sidecar URI identities without decoding their payloads. */
 export const collectExternalResources: (
   buffers: unknown[],
   images: unknown[],

@@ -1,7 +1,10 @@
 /**
  * Read a finite numeric tuple with a glTF default when omitted.
  *
- * Undefined copies the caller's fallback without validating it; motion-node callers supply finite three- or four-component glTF defaults. Present arrays must have the same length and finite numeric entries, or throw with the field/index path. Both branches return a fresh array.
+ * Undefined copies the caller's fallback without validating it; motion-node
+ * callers supply finite three- or four-component glTF defaults. Present arrays
+ * must have the same length and finite numeric entries, or throw with the
+ * field/index path. Both branches return a fresh array.
  */
 export const finiteTuple: (
   value: unknown,

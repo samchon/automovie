@@ -7,9 +7,7 @@ const GLB_JSON_CHUNK: number = 0x4e4f534a;
 
 const GLB_BIN_CHUNK: number = 0x004e4942;
 
-/**
- * Decode one GLB 2.0 container's mandatory JSON and optional BIN chunk.
- */
+/** Decode one GLB 2.0 container's mandatory JSON and optional BIN chunk. */
 export const decodeGlb: (
   bytes: Uint8Array,
   vrmExtension: boolean,

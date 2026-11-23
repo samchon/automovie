@@ -1,6 +1,4 @@
-/**
- * Require a non-null non-array JSON record at its owning path.
- */
+/** Require a non-null non-array JSON record at its owning path. */
 export const object: (
   value: unknown,
   path: string,

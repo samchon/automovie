@@ -1,5 +1,6 @@
 /**
- * Read the case-insensitive suffix of the final project-relative path component.
+ * Read the case-insensitive suffix of the final project-relative path
+ * component.
  */
 export const fileExtension: (value: string) => string = (
   value: string,

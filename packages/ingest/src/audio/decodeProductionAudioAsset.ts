@@ -1,19 +1,55 @@
 import type { IAutoMovieDecodedProductionAudioAsset } from "@automovie/interface";
 
 /**
- * Decode one complete supported RIFF/WAVE file into finite mono samples at a requested rate.
+ * Decode one complete supported RIFF/WAVE file into finite mono samples at a
+ * requested rate.
  *
- * The parser walks the RIFF chunks by id, requires the declared RIFF extent, `nBlockAlign`, and `nAvgBytesPerSec` to agree with the format fields, and refuses a duplicate `fmt ` or `data` chunk, an odd chunk without its pad byte, and terminal bytes too short for a chunk header. An extensible header follows the Microsoft WAVEFORMATEXTENSIBLE contract (https://learn.microsoft.com/en-us/windows/win32/api/mmreg/ns-mmreg-waveformatextensible): "The cbSize member must be at least 22", `wValidBitsPerSample` "can be any value not exceeding the container size", "the channels specified in dwChannelMask must be present in the prescribed order (from least significant bit up)" with SPEAKER_FRONT_LEFT `0x1`, SPEAKER_FRONT_RIGHT `0x2`, and SPEAKER_FRONT_CENTER `0x4`, and "the number of bits set in dwChannelMask should be the same as the number of channels". The SubFormat is admitted only when every byte after its leading 16-bit tag equals the `xxxxxxxx-0000-0010-8000-00aa00389b71` template that Ksmedia.h's `IS_VALID_WAVEFORMATEX_GUID` compares (https://learn.microsoft.com/en-us/windows-hardware/drivers/audio/converting-between-format-tags-and-subformat-guids), so a vendor GUID whose low word happens to read as PCM is not decoded as PCM.
+ * The parser walks the RIFF chunks by id, requires the declared RIFF extent,
+ * `nBlockAlign`, and `nAvgBytesPerSec` to agree with the format fields, and
+ * refuses a duplicate `fmt ` or `data` chunk, an odd chunk without its pad
+ * byte, and terminal bytes too short for a chunk header. An extensible header
+ * follows the Microsoft WAVEFORMATEXTENSIBLE contract
+ * (https://learn.microsoft.com/en-us/windows/win32/api/mmreg/ns-mmreg-waveformatextensible):
+ * "The cbSize member must be at least 22", `wValidBitsPerSample` "can be any
+ * value not exceeding the container size", "the channels specified in
+ * dwChannelMask must be present in the prescribed order (from least significant
+ * bit up)" with SPEAKER_FRONT_LEFT `0x1`, SPEAKER_FRONT_RIGHT `0x2`, and
+ * SPEAKER_FRONT_CENTER `0x4`, and "the number of bits set in dwChannelMask
+ * should be the same as the number of channels". The SubFormat is admitted only
+ * when every byte after its leading 16-bit tag equals the
+ * `xxxxxxxx-0000-0010-8000-00aa00389b71` template that Ksmedia.h's
+ * `IS_VALID_WAVEFORMATEX_GUID` compares
+ * (https://learn.microsoft.com/en-us/windows-hardware/drivers/audio/converting-between-format-tags-and-subformat-guids),
+ * so a vendor GUID whose low word happens to read as PCM is not decoded as
+ * PCM.
  *
- * The supported subset is deliberately narrow: 16-bit PCM in a 16-bit container, 32-bit IEEE float in a 32-bit container, mono front-center, and stereo front-left/front-right. A legal declaration outside it, such as 20 valid bits in a 24-bit container or a front-left/front-center pair, is refused as unsupported by field rather than misread as the nearest supported layout. Every decoded sample is checked finite before the mono fold and before any resampling, so a NaN or infinity in one channel refuses the whole asset at its frame and channel instead of averaging into a plausible number.
+ * The supported subset is deliberately narrow: 16-bit PCM in a 16-bit
+ * container, 32-bit IEEE float in a 32-bit container, mono front-center, and
+ * stereo front-left/front-right. A legal declaration outside it, such as 20
+ * valid bits in a 24-bit container or a front-left/front-center pair, is
+ * refused as unsupported by field rather than misread as the nearest supported
+ * layout. Every decoded sample is checked finite before the mono fold and
+ * before any resampling, so a NaN or infinity in one channel refuses the whole
+ * asset at its frame and channel instead of averaging into a plausible number.
  *
- * PCM codes scale by 1/32768, so -32768 reads as exactly -1 and 32767 just under 1. Stereo folds to the mean of its two channels. A source at another rate is resampled by linear interpolation between neighboring source samples, holding the last sample past the end, to `round(frames * rate / sourceRate)` samples, which may round to zero for a short source and a low target rate. No low-pass filter runs first, so downsampling a source with content above the target Nyquist frequency aliases it.
+ * PCM codes scale by 1/32768, so -32768 reads as exactly -1 and 32767 just
+ * under 1. Stereo folds to the mean of its two channels. A source at another
+ * rate is resampled by linear interpolation between neighboring source samples,
+ * holding the last sample past the end, to `round(frames * rate / sourceRate)`
+ * samples, which may round to zero for a short source and a low target rate. No
+ * low-pass filter runs first, so downsampling a source with content above the
+ * target Nyquist frequency aliases it.
  *
- * Field admission refusals throw `Audio asset "<path>" [<reason>] <message>`, where the reason names the field, such as `riff-size`, `block-align`, or `unsupported-wave-layout`. Buffer size follows source frames and the requested rate ratio; this function imposes no product memory budget, so platform allocation errors may propagate outside that refusal format.
+ * Field admission refusals throw `Audio asset "<path>" [<reason>] <message>`,
+ * where the reason names the field, such as `riff-size`, `block-align`, or
+ * `unsupported-wave-layout`. Buffer size follows source frames and the
+ * requested rate ratio; this function imposes no product memory budget, so
+ * platform allocation errors may propagate outside that refusal format.
  *
  * @param props.path Asset path, used only in refusal messages.
  * @param props.bytes Complete file bytes; they are only read.
- * @param props.sampleRate Output rate in samples per second; a positive safe integer.
+ * @param props.sampleRate Output rate in samples per second; a positive safe
+ *   integer.
  * @returns The source facts as declared and new mono samples the caller owns.
  */
 export const decodeProductionAudioAsset: (
@@ -349,7 +385,11 @@ const SUBFORMAT_TAIL: Uint8Array = Uint8Array.from([
   0x71,
 ]);
 
-/** Throw the decoder's refusal. The explicit function type on the constant is what lets TypeScript narrow after a statement call, so callers need no non-null assertion. */
+/**
+ * Throw the decoder's refusal. The explicit function type on the constant is
+ * what lets TypeScript narrow after a statement call, so callers need no
+ * non-null assertion.
+ */
 const fail: (asset: string, reason: string, message: string) => never = (
   asset: string,
   reason: string,
@@ -395,7 +435,10 @@ const asciiTag: (bytes: Uint8Array, offset: number) => string = (
 const leadingHex: (bytes: Uint8Array) => string = (bytes: Uint8Array): string =>
   `0x${hexBytes(bytes, 0, 4)}`;
 
-/** Canonical GUID text: the first three fields are little-endian in the file, the last two are byte strings. */
+/**
+ * Canonical GUID text: the first three fields are little-endian in the file,
+ * the last two are byte strings.
+ */
 const waveGuid: (bytes: Uint8Array) => string = (bytes: Uint8Array): string =>
   `${hexBytes(bytes, 3, -1)}-${hexBytes(bytes, 5, 3)}-${hexBytes(bytes, 7, 5)}-${hexBytes(bytes, 8, 10)}-${hexBytes(bytes, 10, 16)}`;
 

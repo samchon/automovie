@@ -1,6 +1,4 @@
-/**
- * Decode strict UTF-8 JSON and refuse duplicate decoded member names.
- */
+/** Decode strict UTF-8 JSON and refuse duplicate decoded member names. */
 export const decodeJson: (bytes: Uint8Array) => unknown = (
   bytes: Uint8Array,
 ): unknown => {
@@ -21,7 +19,15 @@ export const decodeJson: (bytes: Uint8Array) => unknown = (
 /**
  * Refuse decoded-equivalent member names before last-wins JSON can hide one.
  *
- * The scan runs only over text `JSON.parse` has already accepted, so it needs no syntax checks: one pass keeps a stack of open containers, with a name set for each object, and treats the string after `{` or after `,` inside an object as a member name. A name containing an escape is decoded through `JSON.parse`, so an escaped spelling collides with its plain spelling. The stack replaces recursion, so nesting depth never becomes call-stack depth. It lives here rather than reusing the production package's structured JSON ingress because production sits above ingest in the dependency graph; importing its ingress would reverse that package dependency.
+ * The scan runs only over text `JSON.parse` has already accepted, so it needs
+ * no syntax checks: one pass keeps a stack of open containers, with a name set
+ * for each object, and treats the string after `{` or after `,` inside an
+ * object as a member name. A name containing an escape is decoded through
+ * `JSON.parse`, so an escaped spelling collides with its plain spelling. The
+ * stack replaces recursion, so nesting depth never becomes call-stack depth. It
+ * lives here rather than reusing the production package's structured JSON
+ * ingress because production sits above ingest in the dependency graph;
+ * importing its ingress would reverse that package dependency.
  */
 const assertUniqueJsonObjectMembers: (text: string) => void = (
   text: string,

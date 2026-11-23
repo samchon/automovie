@@ -6,9 +6,15 @@ import { object } from "./object";
 import { requiredArray } from "./requiredArray";
 
 /**
- * Check complete mesh/skin bindings and collect joints actually receiving positive weights.
+ * Check complete mesh/skin bindings and collect joints actually receiving
+ * positive weights.
  *
- * Matched VEC4 joints/weights and POSITION counts drive each vertex read. Negative components throw before a finite positive sum establishes weighted coverage. This pass reads only JOINTS_0/WEIGHTS_0; it does not enforce weight-sum normalization, uniqueness of nonzero influences or complete coverage of additional joint sets, and does not establish anatomical validity.
+ * Matched VEC4 joints/weights and POSITION counts drive each vertex read.
+ * Negative components throw before a finite positive sum establishes weighted
+ * coverage. This pass reads only JOINTS_0/WEIGHTS_0; it does not enforce
+ * weight-sum normalization, uniqueness of nonzero influences or complete
+ * coverage of additional joint sets, and does not establish anatomical
+ * validity.
  */
 export const validateHumanoidSkinning: (props: {
   nodes: unknown[];

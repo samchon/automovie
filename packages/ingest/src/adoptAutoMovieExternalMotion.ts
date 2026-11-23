@@ -22,11 +22,29 @@ import { compareCodeUnits } from "./internal/compareCodeUnits";
 import { composeLocalTransform } from "./internal/composeLocalTransform";
 
 /**
- * Select one inspected take and validate the author's native or retarget decision without fetching bytes, choosing a provider or inferring a rig.
+ * Select one inspected take and validate the author's native or retarget
+ * decision without fetching bytes, choosing a provider or inferring a rig.
  *
- * The inspection must come from the `gltf-motion-v1` profile under the glTF meter, right-handed, Y-up interpretation, and the source must repeat its path and byte length with a lowercase SHA-256 digest. Every track of the selected take must target a mapped node, translation only on the node mapped to `hips`, and never scale or weights, because humanoid motion carries neither. Each mapped bone's parent and rest in the declared source rig must equal what the inspected hierarchy implies: the nearest mapped ancestor and the node's local TRS composed through every unmapped helper between them. The comparison is exact, so an author computes the rest from the inspected transforms rather than retyping rounded values. The first violation throws with the field it concerns.
+ * The inspection must come from the `gltf-motion-v1` profile under the glTF
+ * meter, right-handed, Y-up interpretation, and the source must repeat its path
+ * and byte length with a lowercase SHA-256 digest. Every track of the selected
+ * take must target a mapped node, translation only on the node mapped to
+ * `hips`, and never scale or weights, because humanoid motion carries neither.
+ * Each mapped bone's parent and rest in the declared source rig must equal what
+ * the inspected hierarchy implies: the nearest mapped ancestor and the node's
+ * local TRS composed through every unmapped helper between them. The comparison
+ * is exact, so an author computes the rest from the inspected transforms rather
+ * than retyping rounded values. The first violation throws with the field it
+ * concerns.
  *
- * The caller supplies an unmodified inspector result and binds the digest to the resident bytes; adoption checks digest spelling, not a hash. Rig admission here requires a non-blank id, unique bone names and `hips`, but basis comparisons cover only mapped bones and do not validate constraints or unmapped rests. Helper TRS composition follows fixed floating-point arithmetic and drops shear when a helper's non-uniform scale does not commute with a child rotation; exact agreement proves agreement with that representation, not exact affine geometry.
+ * The caller supplies an unmodified inspector result and binds the digest to
+ * the resident bytes; adoption checks digest spelling, not a hash. Rig
+ * admission here requires a non-blank id, unique bone names and `hips`, but
+ * basis comparisons cover only mapped bones and do not validate constraints or
+ * unmapped rests. Helper TRS composition follows fixed floating-point
+ * arithmetic and drops shear when a helper's non-uniform scale does not commute
+ * with a child rotation; exact agreement proves agreement with that
+ * representation, not exact affine geometry.
  *
  * @param props.inspection Inspection of the exact source bytes.
  * @param props.source Manifest identity of those bytes.
@@ -234,7 +252,11 @@ const validateMotionBinding: (props: {
   };
 };
 
-/** The parent and rest a mapped node implies: walk to the nearest mapped ancestor, then fold every unmapped helper's TRS into the node's own, nearest helper first. A node without a mapped ancestor keeps its local TRS. */
+/**
+ * The parent and rest a mapped node implies: walk to the nearest mapped
+ * ancestor, then fold every unmapped helper's TRS into the node's own, nearest
+ * helper first. A node without a mapped ancestor keeps its local TRS.
+ */
 const inspectedBoneBasis: (
   node: IAutoMovieExternalMotionNodeInspection,
   nodes: Map<string, IAutoMovieExternalMotionNodeInspection>,

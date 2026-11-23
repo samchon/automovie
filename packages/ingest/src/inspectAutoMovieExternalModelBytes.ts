@@ -37,14 +37,34 @@ import { isAutoMovieExternalModelIngestProfile } from "./isAutoMovieExternalMode
 /**
  * Parse and validate exact external model bytes before compilation.
  *
- * The container is chosen by the path suffix: `.gltf` is UTF-8 JSON, `.glb` and `.vrm` are GLB 2.0 with one JSON chunk and at most one BIN chunk. JSON that is not strict UTF-8, does not parse, or repeats a member name after escape decoding is refused, because a last-wins duplicate could hide the value another loader reads. The document must declare asset version 2.0 and a forest of nodes; node mesh/skin/child links, scene roots, skin joints, primitive POSITION/indices and buffer/accessor references read here must resolve; buffers, buffer views, accessors, sparse ranges and images must fit their declared and resident bytes; and every non-data buffer sidecar must come back from `resolveResource` with the declared length, while URI images require nonempty bytes. The selected profile then adds its own requirements, as {@link AutoMovieExternalModelIngestProfile} lists. This is a fixed-profile admission gate, not a complete glTF validator: material/texture links and unconsumed attributes are left to host loaders, sparse payload contents and image media formats are not decoded here, and the skin/motion owners state their additional restrictions. The inspector never guesses a profile or repairs input: the first violation throws with the JSON path it concerns.
+ * The container is chosen by the path suffix: `.gltf` is UTF-8 JSON, `.glb` and
+ * `.vrm` are GLB 2.0 with one JSON chunk and at most one BIN chunk. JSON that
+ * is not strict UTF-8, does not parse, or repeats a member name after escape
+ * decoding is refused, because a last-wins duplicate could hide the value
+ * another loader reads. The document must declare asset version 2.0 and a
+ * forest of nodes; node mesh/skin/child links, scene roots, skin joints,
+ * primitive POSITION/indices and buffer/accessor references read here must
+ * resolve; buffers, buffer views, accessors, sparse ranges and images must fit
+ * their declared and resident bytes; and every non-data buffer sidecar must
+ * come back from `resolveResource` with the declared length, while URI images
+ * require nonempty bytes. The selected profile then adds its own requirements,
+ * as {@link AutoMovieExternalModelIngestProfile} lists. This is a fixed-profile
+ * admission gate, not a complete glTF validator: material/texture links and
+ * unconsumed attributes are left to host loaders, sparse payload contents and
+ * image media formats are not decoded here, and the skin/motion owners state
+ * their additional restrictions. The inspector never guesses a profile or
+ * repairs input: the first violation throws with the JSON path it concerns.
  *
- * Under `vrm-humanoid-v1`, `VRMC_vrm` is read with VRM 1.0 bone names, so a 1.0-beta file that still writes thumbs the VRM 0.x way is read as 1.0.
+ * Under `vrm-humanoid-v1`, `VRMC_vrm` is read with VRM 1.0 bone names, so a
+ * 1.0-beta file that still writes thumbs the VRM 0.x way is read as 1.0.
  *
- * @param props.path Project-relative source path; its suffix selects the container.
+ * @param props.path Project-relative source path; its suffix selects the
+ *   container.
  * @param props.bytes Resident container bytes; they are only read.
  * @param props.profile Caller-selected profile, refused unless supported.
- * @param props.resolveResource Returns a sidecar's bytes for a URI, or `null` when unavailable; it is called once per external buffer and image URI entry, with caller-owned cost and effects.
+ * @param props.resolveResource Returns a sidecar's bytes for a URI, or `null`
+ *   when unavailable; it is called once per external buffer and image URI
+ *   entry, with caller-owned cost and effects.
  * @returns New facts that hold no reference to the input bytes.
  */
 export const inspectAutoMovieExternalModelBytes: (

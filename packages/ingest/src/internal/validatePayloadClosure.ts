@@ -6,7 +6,14 @@ import { object } from "./object";
 /**
  * Bind every declared glTF buffer and image to its exact resident payload.
  *
- * The caller has admitted declared counts, lengths, views and URI shapes. Only buffer zero in a GLB/VRM container may borrow BIN, with at most three pad bytes; URI buffers require exact declared lengths, and views must fit declared and resident extents. Each external URI entry invokes the caller resolver independently, without network access here; data URIs decode locally and URI images need nonempty bytes. Returned buffer references live with the synchronous inspector, while image formats and sparse contents remain uninspected.
+ * The caller has admitted declared counts, lengths, views and URI shapes. Only
+ * buffer zero in a GLB/VRM container may borrow BIN, with at most three pad
+ * bytes; URI buffers require exact declared lengths, and views must fit
+ * declared and resident extents. Each external URI entry invokes the caller
+ * resolver independently, without network access here; data URIs decode locally
+ * and URI images need nonempty bytes. Returned buffer references live with the
+ * synchronous inspector, while image formats and sparse contents remain
+ * uninspected.
  */
 export const validatePayloadClosure: (props: {
   format: "gltf" | "glb" | "vrm";

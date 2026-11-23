@@ -1,6 +1,4 @@
-/**
- * Recognize a safe integer inside a zero-based inventory.
- */
+/** Recognize a safe integer inside a zero-based inventory. */
 export const validNodeIndex: (value: unknown, length: number) => boolean = (
   value: unknown,
   length: number,

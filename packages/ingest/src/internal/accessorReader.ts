@@ -7,7 +7,11 @@ import { object } from "./object";
 /**
  * Resolve one admitted accessor's resident component reader.
  *
- * The caller has already checked buffer indices, dense ranges and vector/scalar layout. Sparse storage and formats other than unsigned byte, unsigned short or FLOAT throw with the supplied role. Element and component indices are caller-owned bounds; the closure borrows the payload and decodes little-endian components, scaling normalized integers by 255 or 65535.
+ * The caller has already checked buffer indices, dense ranges and vector/scalar
+ * layout. Sparse storage and formats other than unsigned byte, unsigned short
+ * or FLOAT throw with the supplied role. Element and component indices are
+ * caller-owned bounds; the closure borrows the payload and decodes
+ * little-endian components, scaling normalized integers by 255 or 65535.
  */
 export const accessorReader: (
   source: IAccessorSource,

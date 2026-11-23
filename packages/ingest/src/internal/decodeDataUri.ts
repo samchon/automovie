@@ -1,7 +1,10 @@
 /**
  * Decode an RFC 2397 data URI into exact payload octets.
  *
- * Canonical base64 spelling includes zero unused padding bits under RFC 4648 section 3.5 (https://www.rfc-editor.org/rfc/rfc4648.html#section-3.5); complete percent-octet escapes determine bytes, and literal Unicode chunks are encoded as UTF-8.
+ * Canonical base64 spelling includes zero unused padding bits under RFC 4648
+ * section 3.5 (https://www.rfc-editor.org/rfc/rfc4648.html#section-3.5);
+ * complete percent-octet escapes determine bytes, and literal Unicode chunks
+ * are encoded as UTF-8.
  */
 export const decodeDataUri: (uri: string, path: string) => Uint8Array = (
   uri: string,
