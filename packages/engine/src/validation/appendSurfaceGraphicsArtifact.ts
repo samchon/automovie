@@ -22,8 +22,8 @@ import { validateObjectArtifact } from "./validateObjectArtifact";
  * an articulation, because a graphic is parented to the prop's built object and
  * would not follow the articulated part. An omitted registry is the structural
  * shot artifact boundary. When `fonts` is supplied, every text layer must name
- * one of its ids; when `cameras` is supplied, every feed layer must name one
- * of\n * its ids other than the shot's own camera.
+ * one of its ids; when `cameras` is supplied, every feed layer must name one of
+ * its ids other than the shot's own camera.
  */
 export function appendSurfaceGraphicsArtifact(
   tracks: unknown,

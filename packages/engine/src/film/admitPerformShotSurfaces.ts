@@ -20,8 +20,8 @@ import { appendSurfaceGraphicsArtifact } from "../validation/appendSurfaceGraphi
  * show pictures on a `surface` affordance. Both are checked with the models the
  * props supply, so a target must resolve on the prop's registered model, and a
  * text layer must name a font source the props list; the font sources are
- * admitted from what their records state. With `cameras`, a feed layer must\n *
- * name one of the staged cameras; the live camera is chosen later, so the\n *
+ * admitted from what their records state. With `cameras`, a feed layer must
+ * name one of the staged cameras; the live camera is chosen later, so the
  * shot's own camera is refused by the assembled artifact's check. Findings join
  * `out`; when any finding exists, including one an earlier gate recorded, both
  * lists come back absent so no partially admitted track reaches the artifact.

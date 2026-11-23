@@ -269,11 +269,16 @@ export async function prepareAutoMovieSurfaceGraphics(
             perspective.aspect = feed.target.width / feed.target.height;
             perspective.updateProjectionMatrix();
           }
-          renderer.setRenderTarget(feed.target);
-          renderer.render(scene, view);
-          if (perspective !== null) {
-            perspective.aspect = aspect!;
-            perspective.updateProjectionMatrix();
+
+          // The camera gets its own aspect back even when the draw throws.
+          try {
+            renderer.setRenderTarget(feed.target);
+            renderer.render(scene, view);
+          } finally {
+            if (perspective !== null) {
+              perspective.aspect = aspect!;
+              perspective.updateProjectionMatrix();
+            }
           }
         }
       } finally {

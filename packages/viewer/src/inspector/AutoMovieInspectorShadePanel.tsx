@@ -15,6 +15,7 @@ const SHADES: Record<AutoMovieInspectionShade, true> = {
   outline: true,
   pose: true,
   albedo: true,
+  graphics: true,
   clay: true,
   faces: true,
 };

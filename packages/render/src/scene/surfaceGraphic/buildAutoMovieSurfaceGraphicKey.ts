@@ -25,9 +25,8 @@ import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraph
  * maps the whole image onto the box. Aspects are taken in metres on the face,
  * from the image's pixel width and height. A text layer draws its triangulated
  * glyphs, set by `createAutoMovieSurfaceGraphicText` from the decoded font
- * `font` returns, in its colour. A feed layer shows the texture `feed`
- * returns,\n * the camera's picture with its first row at the bottom, under the
- * emission.
+ * `font` returns, in its colour. A feed layer shows the texture `feed` returns,
+ * the camera's picture with its first row at the bottom, under the emission.
  *
  * Every geometry and material made is pushed to `owned` as it is made, so the
  * caller releases them even when a later layer throws.

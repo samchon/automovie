@@ -1,4 +1,7 @@
-import type { IAutoMovieRasterImage } from "@automovie/interface";
+import type {
+  IAutoMovieGuidePassOutput,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
 import {
   decodeAutoMovieRasterPng,
   encodeAutoMovieRasterPng,
@@ -24,22 +27,24 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/testing.md#execution-ownership In-memory planning and PNG bytes; no browser.
  */
 export async function test_capture_graphics_plate_png(): Promise<void> {
-  const outputs: { pass: string }[] = planGuidePassOutputs({
+  const outputs: IAutoMovieGuidePassOutput[] = planGuidePassOutputs({
+    frameDir: "frames",
+    frameCount: 2,
     passes: ["beauty", "graphics"],
-    frames: 2,
-  } as Parameters<typeof planGuidePassOutputs>[0]) as { pass: string }[];
+  });
   TestValidator.predicate(
     "the plan lists the graphics pass",
     outputs.some(
-      (output: { pass: string }): boolean => output.pass === "graphics",
+      (output: IAutoMovieGuidePassOutput): boolean =>
+        output.pass === "graphics",
     ),
   );
 
   const plate: IAutoMovieRasterImage = {
     width: 2,
     height: 1,
-    pixels: new Uint8Array([255, 0, 0, 255, 0, 0, 0, 0]),
-  } as IAutoMovieRasterImage;
+    pixels: new Uint8ClampedArray([255, 0, 0, 255, 0, 0, 0, 0]),
+  };
   const bytes: Uint8Array = await encodeAutoMovieRasterPng(plate, {
     alpha: true,
   });

@@ -1,4 +1,4 @@
-import { createDevice } from "@automovie/archetypes";
+import { createLaptop } from "@automovie/archetypes";
 import { validateShotArtifact } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -45,10 +45,7 @@ import { renderFixtureNode } from "../internal/renderFixtureNode";
  * @evidence contracts/development/testing.md#execution-ownership The renderer is an in-memory double passed through the preparer's own seam; no GPU.
  */
 export async function test_render_surface_feed(): Promise<void> {
-  const laptop: IAutoMovieModel = createDevice({
-    id: "laptop",
-    kind: "laptop",
-  });
+  const laptop: IAutoMovieModel = createLaptop({ id: "laptop" });
   const screen: IAutoMovieAffordance = laptop.affordances!.find(
     (entry: IAutoMovieAffordance): boolean => entry.id === "screen",
   )!;

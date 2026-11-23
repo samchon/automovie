@@ -78,7 +78,6 @@ export function createSignPost(
   builder.affordance({
     id: "face",
     kind: "surface",
-    direction: "normal",
     frame: AutoMovieArchetypeFrame.facing(
       v(0, centre.y, centre.z + BLANK_THICKNESS / 2),
       v(0, 0, 1),

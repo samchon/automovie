@@ -175,7 +175,10 @@ export function syntheticTrueTypeFont(
   if (options.omit !== undefined) delete tables[options.omit];
 
   // Directory sorted by tag, tables 4-byte aligned after it.
-  const tags: string[] = Object.keys(tables).sort();
+  const tags: string[] = Object.keys(tables).sort(
+    (left: string, right: string): number =>
+      left < right ? -1 : left > right ? 1 : 0,
+  );
   const header: number = 12 + tags.length * 16;
   const body: number[] = [];
   const records: number[] = [];

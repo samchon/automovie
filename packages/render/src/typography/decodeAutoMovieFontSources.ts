@@ -56,11 +56,14 @@ export async function decodeAutoMovieFontSources(props: {
         throw new Error(
           `Embedded font "${source.id}" data is not padded standard base64`,
         );
-      bytes = Uint8Array.from(atob(source.data), (character: string): number =>
-        character.charCodeAt(0),
+      // Decoded into a buffer of its own, which `digest` takes as a source.
+      const decoded: Uint8Array<ArrayBuffer> = Uint8Array.from(
+        atob(source.data),
+        (character: string): number => character.charCodeAt(0),
       );
+      bytes = decoded;
       const hash: Uint8Array = new Uint8Array(
-        await globalThis.crypto.subtle.digest("SHA-256", bytes),
+        await globalThis.crypto.subtle.digest("SHA-256", decoded),
       );
       const digest: string = `sha256:${Array.from(
         hash,

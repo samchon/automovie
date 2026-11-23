@@ -142,7 +142,7 @@ function at(
       return span.reader.i8(offset, what);
     case "u16":
       return span.reader.u16(offset, what);
-    default:
+    case "i16":
       return span.reader.i16(offset, what);
   }
 }
@@ -320,7 +320,8 @@ function composite(
     const fixed: (index: number) => number = (index: number): number =>
       at(span, cursor + index * 2, 2, "i16") / 16384;
     if ((flags & WE_HAVE_A_SCALE) !== 0) {
-      a = d = fixed(0);
+      a = fixed(0);
+      d = a;
       cursor += 2;
     } else if ((flags & WE_HAVE_AN_X_AND_Y_SCALE) !== 0) {
       a = fixed(0);
