@@ -6,7 +6,7 @@ Producers allocate owned identities from the instance id and return all position
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Reuses canonical stage, model, prop, architecture and world records. Omitted populations contribute no records. Anchors give the other modules places to attach without parsing geometry.
+Reuses canonical stage, model, prop, architecture and world records. Omitted populations contribute no records. Anchors give the other modules places to attach without parsing geometry. Wall mounts carry the one fact a support check cannot recover from the staged boxes: which wall a furnishing relation hung a piece on.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -14,4 +14,4 @@ A module owns its records, including all internal references. The composer retai
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the world frame and owned identities, the local anchor paths, optional population semantics, and the object clip clock.
+States the world frame and owned identities, the local anchor paths, optional population semantics, the object clip clock and the wall mounts a furnishing producer returns.

@@ -3,6 +3,7 @@ export * from "./createEnvironment";
 export * from "./environmentModel";
 export * from "./furnishings/createCafeKit";
 export * from "./furnishings/createEnvironmentProp";
+export * from "./furnishings/createFurnishedRoom";
 export * from "./furnishings/createGymKit";
 export * from "./lifts/createLift";
 export * from "./rides";

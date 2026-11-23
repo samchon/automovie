@@ -6,9 +6,11 @@ import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieSubjectContribution } from "../production/IAutoMovieSubjectContribution";
 import type { IAutoMovieSpace } from "../scene/IAutoMovieSpace";
+import type { IAutoMovieWallMount } from "./IAutoMovieWallMount";
 
 /**
- * A placed module's portable stage and world records, with named attachment frames.
+ * A placed module's portable stage and world records, with named attachment
+ * frames.
  */
 export interface IAutoMovieEnvironmentContribution extends Pick<
   IAutoMovieSubjectContribution,
@@ -39,4 +41,10 @@ export interface IAutoMovieEnvironmentContribution extends Pick<
 
   /** Object clips over the shot clock, targeting the staged nodes. */
   objectMotions?: readonly IAutoMovieClip[];
+
+  /**
+   * Set pieces a furnishing `wall` relation placed, each with its wall's inner
+   * face.
+   */
+  mounts?: readonly IAutoMovieWallMount[];
 }
