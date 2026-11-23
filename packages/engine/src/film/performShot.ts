@@ -231,6 +231,7 @@ export function performShot(
     staged.scene.nodes,
     performance.duration,
     out,
+    context.cameraIds,
   );
   const flames: IAutoMovieShot["flames"] = admitPerformShotFlames(
     props,

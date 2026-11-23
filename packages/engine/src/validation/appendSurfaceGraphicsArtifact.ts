@@ -22,7 +22,8 @@ import { validateObjectArtifact } from "./validateObjectArtifact";
  * an articulation, because a graphic is parented to the prop's built object and
  * would not follow the articulated part. An omitted registry is the structural
  * shot artifact boundary. When `fonts` is supplied, every text layer must name
- * one of its ids.
+ * one of its ids; when `cameras` is supplied, every feed layer must name one
+ * of\n * its ids other than the shot's own camera.
  */
 export function appendSurfaceGraphicsArtifact(
   tracks: unknown,
@@ -31,6 +32,13 @@ export function appendSurfaceGraphicsArtifact(
   collector: IAutoMovieViolationCollector,
   models?: readonly IAutoMovieModel[],
   fonts?: ReadonlySet<string>,
+  cameras?: {
+    /** Ids of the scene's cameras. */
+    ids: ReadonlySet<string>;
+
+    /** The shot's own camera, when known. */
+    shot?: string;
+  },
 ): void {
   const root: string = "$input.surfaceGraphics";
   if (
@@ -170,7 +178,15 @@ export function appendSurfaceGraphicsArtifact(
         key.graphic,
         `${keyPath}.graphic`,
         collector,
-        { fonts },
+        {
+          fonts,
+          ...(cameras === undefined
+            ? {}
+            : {
+                cameras: cameras.ids,
+                ...(cameras.shot === undefined ? {} : { camera: cameras.shot }),
+              }),
+        },
       );
     }
   }

@@ -114,6 +114,14 @@ export interface IAutoMovieDrawScene {
   ) => IAutoMovieInspectionDiagnostics;
 
   /**
+   * Optional work on the page's renderer before each picture is drawn, after
+   * `seek` and any inspection, such as drawing surface feeds into their render
+   * targets with `IAutoMovieSurfaceGraphicsObject.renderFeeds`. It must leave
+   * the renderer's render target as it found it.
+   */
+  beforeDraw?: (renderer: THREE.WebGLRenderer, seconds: number) => void;
+
+  /**
    * Put every object and the delivery camera at a second; objects may be
    * replaced. The returned promise resolves once the subject is ready,
    * including its textures. The draw host binds inspection after this

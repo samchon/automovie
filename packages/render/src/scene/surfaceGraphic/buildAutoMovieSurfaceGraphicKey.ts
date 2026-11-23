@@ -25,7 +25,9 @@ import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraph
  * maps the whole image onto the box. Aspects are taken in metres on the face,
  * from the image's pixel width and height. A text layer draws its triangulated
  * glyphs, set by `createAutoMovieSurfaceGraphicText` from the decoded font
- * `font` returns, in its colour.
+ * `font` returns, in its colour. A feed layer shows the texture `feed`
+ * returns,\n * the camera's picture with its first row at the bottom, under the
+ * emission.
  *
  * Every geometry and material made is pushed to `owned` as it is made, so the
  * caller releases them even when a later layer throws.
@@ -45,6 +47,12 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
 
   /** The decoded font a text layer's font id names. */
   font: (id: string) => IAutoMovieFont;
+
+  /** The colour texture of a feed layer's own render target. */
+  feed: (layer: IAutoMovieSurfaceGraphicLayer.IFeed) => THREE.Texture;
+
+  /** Receives each feed layer's mesh, in layer order. */
+  feeds?: THREE.Mesh[];
 
   /** Receives every geometry and material made. */
   owned: { dispose(): void }[];
@@ -95,7 +103,25 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
                 ),
                 owned,
               )
-            : imageMesh(layer, props);
+            : layer.kind === "feed"
+              ? mesh(
+                  // A render target's first row is the picture's bottom, so
+                  // the window runs v from 1 at the top to 0 at the bottom.
+                  createAutoMovieSurfaceGraphicQuad(width, depth, layer, {
+                    u0: 0,
+                    v0: 1,
+                    u1: 1,
+                    v1: 0,
+                  }),
+                  createAutoMovieSurfaceGraphicMaterial(
+                    graphic.emission,
+                    { r: 1, g: 1, b: 1, a: null },
+                    props.feed(layer),
+                  ),
+                  owned,
+                )
+              : imageMesh(layer, props);
+      if (layer.kind === "feed") props.feeds?.push(drawn);
       drawn.renderOrder = 2 + index;
       group.add(drawn);
     },

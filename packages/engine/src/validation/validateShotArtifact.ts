@@ -224,6 +224,15 @@ export const validateShotArtifact: (
         .map((source: Record<string, unknown>): unknown => source.id)
         .filter((id: unknown): id is string => typeof id === "string"),
     ),
+    {
+      ids: new Set(
+        sceneCameras
+          .filter(isRecord)
+          .map((camera: Record<string, unknown>): unknown => camera.id)
+          .filter((id: unknown): id is string => typeof id === "string"),
+      ),
+      ...(typeof shot.camera === "string" ? { shot: shot.camera } : {}),
+    },
   );
   appendShotMetadataArtifact(
     shot,

@@ -372,6 +372,8 @@ export function installAutoMovieDraw(
               ? undefined
               : diagnostics,
           render: (): void => {
+            // A subject's own render-target work, such as surface feeds, comes first.
+            scene.beforeDraw?.(renderer, call.seconds);
             // Only the beauty shade has a camera response; structural passes never ask for optics.
             if (call.request.shade !== "beauty") {
               renderer.render(scene.scene, resolved.camera);

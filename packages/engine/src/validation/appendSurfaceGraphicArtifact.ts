@@ -19,9 +19,8 @@ const FITS: ReadonlySet<unknown> = new Set(["contain", "cover", "stretch"]);
  * most one, so every layer stays on its face. A `rect` needs a valid colour; an
  * `image` needs a nonblank asset id and a known `fit`; a `text` needs a font id
  * among `context.fonts` when given, nonempty text, a positive size and a valid
- * colour. Whether the image
- * resolves to a carried or a registered project image is texture closure's
- * check, because only it holds the asset ledger.
+ * colour. Whether the image resolves to a carried or a registered project image
+ * is texture closure's check, because only it holds the asset ledger.
  */
 export function appendSurfaceGraphicArtifact(
   graphic: unknown,
@@ -29,10 +28,19 @@ export function appendSurfaceGraphicArtifact(
   collector: IAutoMovieViolationCollector,
   context: {
     /**
-     * Ids of the shot's font sources; absent, a text layer's font id is
-     * checked for shape only.
+     * Ids of the shot's font sources; absent, a text layer's font id is checked
+     * for shape only.
      */
     fonts?: ReadonlySet<string>;
+
+    /**
+     * Ids of the scene's cameras; absent, a feed layer's camera is checked for
+     * shape only.
+     */
+    cameras?: ReadonlySet<string>;
+
+    /** The shot's own camera, which no feed may show. */
+    camera?: string;
   } = {},
 ): void {
   if (
@@ -107,11 +115,13 @@ export function appendSurfaceGraphicArtifact(
         );
     } else if (layer.kind === "text")
       appendTextLayer(layer, layerPath, context.fonts, collector);
+    else if (layer.kind === "feed")
+      appendFeedLayer(layer, layerPath, context, collector);
     else
       collector.push(
         "type",
         `${layerPath}.kind`,
-        'surface graphic layer kind must be "rect", "image" or "text"',
+        'surface graphic layer kind must be "rect", "image", "text" or "feed"',
         layer.kind,
       );
   }
@@ -121,8 +131,8 @@ export function appendSurfaceGraphicArtifact(
 const ALIGNS: ReadonlySet<unknown> = new Set(["start", "center", "end"]);
 
 /**
- * Check one text layer's own fields: a font id the shot lists, nonempty text,
- * a positive em size in face heights, a valid colour, and an optional known
+ * Check one text layer's own fields: a font id the shot lists, nonempty text, a
+ * positive em size in face heights, a valid colour, and an optional known
  * alignment and positive line height. Whether the font maps every code point
  * and the text fits its box is the layout's check, because only the decoded
  * font knows.
@@ -133,7 +143,12 @@ function appendTextLayer(
   fonts: ReadonlySet<string> | undefined,
   collector: IAutoMovieViolationCollector,
 ): void {
-  validateNonEmptyId(layer.font, `${path}.font`, "text layer font", collector.items);
+  validateNonEmptyId(
+    layer.font,
+    `${path}.font`,
+    "text layer font",
+    collector.items,
+  );
   if (
     typeof layer.font === "string" &&
     fonts !== undefined &&
@@ -209,4 +224,50 @@ function appendBox(
         extent,
       );
   }
+}
+
+/**
+ * Check one feed layer: a camera the scene stages other than the shot's own,
+ * and an integer height in pixels from 1 to 2048.
+ */
+function appendFeedLayer(
+  layer: Record<string, unknown>,
+  path: string,
+  context: { cameras?: ReadonlySet<string>; camera?: string },
+  collector: IAutoMovieViolationCollector,
+): void {
+  validateNonEmptyId(
+    layer.camera,
+    `${path}.camera`,
+    "feed camera",
+    collector.items,
+  );
+  if (typeof layer.camera === "string") {
+    if (context.cameras !== undefined && !context.cameras.has(layer.camera))
+      collector.push(
+        "type",
+        `${path}.camera`,
+        "feed camera must name a camera the scene stages",
+        layer.camera,
+      );
+    else if (layer.camera === context.camera)
+      collector.push(
+        "type",
+        `${path}.camera`,
+        "feed camera must not be the shot's own camera",
+        layer.camera,
+      );
+  }
+  if (
+    typeof layer.pixels !== "number" ||
+    !Number.isSafeInteger(layer.pixels) ||
+    layer.pixels < 1 ||
+    layer.pixels > 2048
+  )
+    collector.push(
+      "range",
+      `${path}.pixels`,
+      "feed pixels must be an integer from 1 to 2048",
+      layer.pixels,
+    );
 }

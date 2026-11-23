@@ -87,3 +87,21 @@ Read by the engine layer check, which resolves the font id, and by the render te
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 No fallback font, glyph substitution or clipping field: an unmapped code point or overflow is refused by the layout.
+
+# src/cinematics/IAutoMovieSurfaceGraphicLayer.ts#IAutoMovieSurfaceGraphicLayer.IFeed
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the camera reference, the target height and width rule, when the feed is drawn, the one-level-deep rule and the refusals.
+
+## @evidence contracts/development/design.md#principled-representation
+
+A camera id and a pixel height; the width follows the box's metric aspect on the face, so the feed never stretches.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Read by the engine feed check, which resolves the camera, and by the render preparer, which owns the render target.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+No recursion depth or refresh rate field: a feed is drawn every frame, one level deep.

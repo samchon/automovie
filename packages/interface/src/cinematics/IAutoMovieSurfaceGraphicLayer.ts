@@ -6,14 +6,17 @@ import type { IAutoMovieColor } from "../color/IAutoMovieColor";
  * The box is in face fractions: `x` and `y` measure from the face's top-left
  * corner, `x` toward the reader's right and `y` toward the face's bottom, and
  * `width` and `height` extend the box the same ways. Each is finite, `x` and
- * `y` are at least 0, `width` and `height` are positive, and `x + width` and `y
- * + height` are at most 1. The face's right and top come from the surface's
- * reading frame, so a layout is never mirrored or flipped.
+ * `y` are at least 0, `width` and `height` are positive, and `x + width` and
+ * `y
+ *
+ * - Height` are at most 1. The face's right and top come from the surface's
+ *   reading frame, so a layout is never mirrored or flipped.
  */
 export type IAutoMovieSurfaceGraphicLayer =
   | IAutoMovieSurfaceGraphicLayer.IRect
   | IAutoMovieSurfaceGraphicLayer.IImage
-  | IAutoMovieSurfaceGraphicLayer.IText;
+  | IAutoMovieSurfaceGraphicLayer.IText
+  | IAutoMovieSurfaceGraphicLayer.IFeed;
 
 /** The closed layer kinds a surface graphic draws. */
 export namespace IAutoMovieSurfaceGraphicLayer {
@@ -98,9 +101,32 @@ export namespace IAutoMovieSurfaceGraphicLayer {
     align?: "start" | "center" | "end";
 
     /**
-     * Line pitch as a positive multiple of the font's ascender minus
-     * descender plus line gap; default 1.
+     * Line pitch as a positive multiple of the font's ascender minus descender
+     * plus line gap; default 1.
      */
     lineHeight?: number;
+  }
+
+  /**
+   * Another staged camera's live view shown in the box, as a CCTV monitor, a
+   * camera's rear screen or a video call shows one.
+   *
+   * Before each frame `render` draws the scene at the same scene time from
+   * `camera` into the layer's own colour target, `pixels` high and as wide as
+   * the box's aspect on the face, and shows it under the graphic's emission. A
+   * feed's own render draws every feed layer as its graphic's background, so a
+   * screen never shows a view of itself and the feed stays one level deep.
+   * `engine` admission refuses a camera the scene does not stage, the shot's
+   * own camera, and a `pixels` value that is not an integer from 1 to 2048.
+   */
+  export interface IFeed extends IBox {
+    /** Discriminant. */
+    kind: "feed";
+
+    /** Id of a camera in the shot's scene other than the shot's own camera. */
+    camera: string;
+
+    /** The feed's height in pixels, an integer from 1 to 2048. */
+    pixels: number;
   }
 }

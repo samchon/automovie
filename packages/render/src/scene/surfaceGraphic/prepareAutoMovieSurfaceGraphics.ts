@@ -12,13 +12,14 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import { decodeAutoMovieFontSources } from "../../typography/decodeAutoMovieFontSources.js";
+import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import { decodeAutoMovieImage } from "../decodeAutoMovieImage.js";
 import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "./AUTOMOVIE_SURFACE_GRAPHIC_KEY.js";
 import type { IAutoMovieSurfaceGraphicsObject } from "./IAutoMovieSurfaceGraphicsObject.js";
 import type { IPrepareAutoMovieSurfaceGraphicsProps } from "./IPrepareAutoMovieSurfaceGraphicsProps.js";
 import { buildAutoMovieSurfaceGraphicKey } from "./buildAutoMovieSurfaceGraphicKey.js";
+import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
 
 /**
  * Lift of every graphic above its surface along the frame's `+Y`, metres: half
@@ -40,14 +41,14 @@ const LIFT: number = 0.0005;
  * graphics.
  *
  * The shot's font sources decode here first, all of them, so a source the
- * decoder refuses rejects with its diagnostic before anything is built; a
- * text layer then sets its glyphs from the decoded font it names. Images
- * decode here too, once per distinct image: an id the node's model carries
- * decodes from its PNG bytes, any other id loads through `loadImage`. Every
- * texture is decoded as sRGB and sampled with the first image row at the face's
- * top. A node without a mounted object, a surface that is not a sized `surface`
- * affordance of its model, or an image that resolves nowhere rejects naming the
- * track, after releasing everything already made.
+ * decoder refuses rejects with its diagnostic before anything is built; a text
+ * layer then sets its glyphs from the decoded font it names. Images decode here
+ * too, once per distinct image: an id the node's model carries decodes from its
+ * PNG bytes, any other id loads through `loadImage`. Every texture is decoded
+ * as sRGB and sampled with the first image row at the face's top. A node
+ * without a mounted object, a surface that is not a sized `surface` affordance
+ * of its model, or an image that resolves nowhere rejects naming the track,
+ * after releasing everything already made.
  */
 export async function prepareAutoMovieSurfaceGraphics(
   props: IPrepareAutoMovieSurfaceGraphicsProps,
@@ -72,10 +73,15 @@ export async function prepareAutoMovieSurfaceGraphics(
   const textures: Map<string, THREE.Texture> = new Map();
   const roots: THREE.Group[] = [];
   const keyGroups: THREE.Group[][] = [];
+  const feeds: IFeed[] = [];
   const release: () => void = (): void => {
     for (const root of roots) root.removeFromParent();
     for (const resource of owned) resource.dispose();
     for (const texture of textures.values()) texture.dispose();
+    for (const feed of feeds) {
+      feed.target.dispose();
+      feed.standIn.dispose();
+    }
   };
 
   try {
@@ -135,8 +141,46 @@ export async function prepareAutoMovieSurfaceGraphics(
       root.add(lifted);
       const groups: THREE.Group[] = track.keys.map(
         (key: IAutoMovieSurfaceGraphicTrack["keys"][number]): THREE.Group => {
+          const made: IFeed[] = [];
+          const meshes: THREE.Mesh[] = [];
           const group: THREE.Group = buildAutoMovieSurfaceGraphicKey({
             graphic: key.graphic,
+            feed: (
+              layer: IAutoMovieSurfaceGraphicLayer.IFeed,
+            ): THREE.Texture => {
+              // As wide as the box's aspect on the face, `pixels` high.
+              const height: number = layer.pixels;
+              const width: number = Math.max(
+                1,
+                Math.round(
+                  (height * layer.width * surface.width!) /
+                    (layer.height * surface.depth!),
+                ),
+              );
+              const target: THREE.WebGLRenderTarget =
+                new THREE.WebGLRenderTarget(width, height);
+              const standIn: THREE.Material =
+                key.graphic.background === null
+                  ? new THREE.MeshBasicMaterial({
+                      colorWrite: false,
+                      depthWrite: false,
+                      transparent: true,
+                    })
+                  : createAutoMovieSurfaceGraphicMaterial(
+                      key.graphic.emission,
+                      key.graphic.background,
+                    );
+              made.push({
+                target,
+                standIn,
+                camera: layer.camera,
+                mesh: null!,
+                group: null!,
+              });
+              feeds.push(made[made.length - 1]!);
+              return target.texture;
+            },
+            feeds: meshes,
             width: surface.width!,
             depth: surface.depth!,
             image: (asset: string): THREE.Texture =>
@@ -150,6 +194,10 @@ export async function prepareAutoMovieSurfaceGraphics(
               return font;
             },
             owned,
+          });
+          made.forEach((feed: IFeed, index: number): void => {
+            feed.mesh = meshes[index]!;
+            feed.group = group;
           });
           group.visible = false;
           lifted.add(group);
@@ -185,6 +233,55 @@ export async function prepareAutoMovieSurfaceGraphics(
           });
         },
       );
+    },
+    renderFeeds: (
+      renderer: THREE.WebGLRenderer,
+      scene: THREE.Scene,
+      camera: (id: string) => THREE.Camera | undefined,
+    ): void => {
+      const shown: IFeed[] = feeds.filter(
+        (feed: IFeed): boolean =>
+          feed.group.visible && feed.group.parent?.parent?.visible === true,
+      );
+      if (shown.length === 0) return;
+
+      // Every feed draws as its background inside a feed, so no screen shows
+      // a view of itself and the feed stays one level deep.
+      const materials: THREE.Material[] = feeds.map(
+        (feed: IFeed): THREE.Material => feed.mesh.material as THREE.Material,
+      );
+      for (const feed of feeds) feed.mesh.material = feed.standIn;
+      const previous: THREE.WebGLRenderTarget | null =
+        renderer.getRenderTarget();
+      try {
+        for (const feed of shown) {
+          const view: THREE.Camera | undefined = camera(feed.camera);
+          if (view === undefined)
+            throw new Error(
+              `Surface feed camera "${feed.camera}" is not built`,
+            );
+          const perspective: THREE.PerspectiveCamera | null =
+            (view as THREE.PerspectiveCamera).isPerspectiveCamera === true
+              ? (view as THREE.PerspectiveCamera)
+              : null;
+          const aspect: number | undefined = perspective?.aspect;
+          if (perspective !== null) {
+            perspective.aspect = feed.target.width / feed.target.height;
+            perspective.updateProjectionMatrix();
+          }
+          renderer.setRenderTarget(feed.target);
+          renderer.render(scene, view);
+          if (perspective !== null) {
+            perspective.aspect = aspect!;
+            perspective.updateProjectionMatrix();
+          }
+        }
+      } finally {
+        renderer.setRenderTarget(previous);
+        feeds.forEach((feed: IFeed, index: number): void => {
+          feed.mesh.material = materials[index]!;
+        });
+      }
     },
     dispose: (): void => {
       if (disposed) return;
@@ -232,4 +329,22 @@ async function prepareImage(
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.flipY = false;
   texture.needsUpdate = true;
+}
+
+/** One feed layer's render target, its stand-in material and its mounted mesh. */
+interface IFeed {
+  /** The target the camera's view is drawn into. */
+  target: THREE.WebGLRenderTarget;
+
+  /** The graphic's background, shown in place of the feed inside any feed. */
+  standIn: THREE.Material;
+
+  /** Id of the camera the feed shows. */
+  camera: string;
+
+  /** The feed layer's mesh. */
+  mesh: THREE.Mesh;
+
+  /** The key group holding the mesh, visible while its key is in force. */
+  group: THREE.Group;
 }

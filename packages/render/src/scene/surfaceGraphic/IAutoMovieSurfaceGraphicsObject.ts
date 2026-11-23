@@ -22,8 +22,22 @@ export interface IAutoMovieSurfaceGraphicsObject {
   apply(seconds: number): void;
 
   /**
-   * Detach every root and release the geometries, materials and textures the
-   * graphics own. Calling it again does nothing.
+   * Draw every shown feed layer's camera view into its own render target, at
+   * the scene's current placement; call it after `apply` and the scene's own
+   * placement, before drawing the frame. Inside a feed every feed layer draws
+   * as its graphic's background, so a screen never shows itself. The renderer's
+   * render target is restored, and a camera `camera` cannot resolve throws.
+   * Does nothing when no feed is shown.
+   */
+  renderFeeds(
+    renderer: THREE.WebGLRenderer,
+    scene: THREE.Scene,
+    camera: (id: string) => THREE.Camera | undefined,
+  ): void;
+
+  /**
+   * Detach every root and release the geometries, materials, textures and feed
+   * render targets the graphics own. Calling it again does nothing.
    */
   dispose(): void;
 }

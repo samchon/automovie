@@ -8,8 +8,8 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { appendPracticalSurfacesArtifact } from "../validation/appendPracticalSurfacesArtifact";
 import { validateAutoMovieFontSources } from "../typography/validateAutoMovieFontSources";
+import { appendPracticalSurfacesArtifact } from "../validation/appendPracticalSurfacesArtifact";
 import { appendSurfaceGraphicsArtifact } from "../validation/appendSurfaceGraphicsArtifact";
 
 /**
@@ -18,12 +18,14 @@ import { appendSurfaceGraphicsArtifact } from "../validation/appendSurfaceGraphi
  *
  * Practical surface tracks switch a part's material; surface graphic tracks
  * show pictures on a `surface` affordance. Both are checked with the models the
- * props supply, so a target must resolve on the prop's registered model, and
- * a text layer must name a font source the props list; the font sources are
- * admitted from what their records state.
- * Findings join `out`; when any finding exists, including one an earlier gate
- * recorded, both lists come back absent so no partially admitted track reaches
- * the artifact. Absent inputs stay absent.
+ * props supply, so a target must resolve on the prop's registered model, and a
+ * text layer must name a font source the props list; the font sources are
+ * admitted from what their records state. With `cameras`, a feed layer must\n *
+ * name one of the staged cameras; the live camera is chosen later, so the\n *
+ * shot's own camera is refused by the assembled artifact's check. Findings join
+ * `out`; when any finding exists, including one an earlier gate recorded, both
+ * lists come back absent so no partially admitted track reaches the artifact.
+ * Absent inputs stay absent.
  */
 export function admitPerformShotSurfaces(
   props: Pick<
@@ -33,6 +35,7 @@ export function admitPerformShotSurfaces(
   nodes: readonly IAutoMovieSceneNode[],
   duration: number,
   out: IAutoMovieViolationCollector,
+  cameras?: ReadonlySet<string>,
 ): Pick<IAutoMovieShot, "practicalSurfaces" | "surfaceGraphics" | "fonts"> {
   validateAutoMovieFontSources(props.fonts, "$input.fonts", out);
   appendPracticalSurfacesArtifact(
@@ -49,8 +52,11 @@ export function admitPerformShotSurfaces(
     out,
     props.models ?? [],
     new Set(
-      (props.fonts ?? []).map((source: IAutoMovieFontSource): string => source.id),
+      (props.fonts ?? []).map(
+        (source: IAutoMovieFontSource): string => source.id,
+      ),
     ),
+    cameras === undefined ? undefined : { ids: cameras },
   );
   if (out.items.length > 0) return {};
 
