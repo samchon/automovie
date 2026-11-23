@@ -10,9 +10,10 @@
  * A row is keyed by `entry`, because a sequence can play one shot in two
  * entries. `liveFrames` names the entry whose timeline is sampled at each
  * frame, which `playbackCursor` picks as the highest entry whose `start` is at
- * or before the frame's instant: an entry that opens with a dissolve is live
- * from the dissolve's first frame, while the picture there is still mostly the
- * outgoing shot.
+ * or before the frame's instant: an entry that opens with a transition is live
+ * from the transition's first frame, while the picture there is still mostly
+ * the outgoing shot, and only the outgoing shot fading out during the first
+ * half of a fade.
  */
 export interface IAutoMovieDeliveredCutEntry {
   /** Index of this entry in the sequence's `shots`. */

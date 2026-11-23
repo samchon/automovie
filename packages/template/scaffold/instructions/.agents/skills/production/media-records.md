@@ -46,7 +46,7 @@ Use the film's [acceptance record](../review/delivery-review.md#acceptance-recor
 
 Every render attempt installs its `render-report.json` in its output folder, but a blocked or failed attempt keeps the previous video there. Trust a report, and every record it vouches for, only when its `status` is `published` and its `source.sha256` equals the SHA-256 of the video file beside it. Trust `controls/record.json` only when its `filmSha256` equals the same digest too. When a check fails, render again before using the files.
 
-A trusted report's `cut` lists each sequence entry with the output frames it is live in, `liveFrames` as `[first, endExclusive)`. An entry that opens with a dissolve is live from the dissolve's first frame, so its first frames still show mostly the previous shot.
+A trusted report's `cut` lists each sequence entry with the output frames it is live in, `liveFrames` as `[first, endExclusive)`. An entry that opens with a transition is live from the transition's first frame, so its first frames still show mostly the previous shot, and only the previous shot fading out during the first half of a fade.
 
 ## Records
 

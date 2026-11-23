@@ -14,4 +14,4 @@ The row is keyed by `entry`, not by `shot`, since a shot can play in two entries
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is copied from the playback entry, how `liveFrames` is computed and on which grid, why rows are keyed by entry, what an empty range means, that the ranges tile the frames, and that a dissolve's first frames belong to the incoming entry while showing mostly the outgoing shot.
+States what is copied from the playback entry, how `liveFrames` is computed and on which grid, why rows are keyed by entry, what an empty range means, that the ranges tile the frames, and that a transition's first frames belong to the incoming entry while showing mostly the outgoing shot, or only it in a fade's first half.
