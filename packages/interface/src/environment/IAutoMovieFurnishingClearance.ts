@@ -16,6 +16,13 @@ export interface IAutoMovieFurnishingClearance {
    */
   readonly side?: "front" | "left" | "right";
 
+  /**
+   * Name the clearance's label `<role>/clear/<name>` and its refusals use,
+   * unique among the piece's clearances, such as the work aisle a kit cites.
+   * The default is the side.
+   */
+  readonly name?: string;
+
   /** Distance in metres from the face out to the rectangle's far edge. */
   readonly depth: number;
 

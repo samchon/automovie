@@ -39,12 +39,15 @@ interface IRun {
  * Each piece's measured rest box is turned and placed by its relation, then
  * claimed against the room and the blocked rectangles: `keepClear` areas,
  * overridden grid roles, earlier pieces and their clearances. Its own clearance
- * rectangles are then checked against the room and every blocked rectangle and
- * blocked in turn, so later pieces and grid groups stay out. A layout override
- * of a piece's role places it at the override instead. A `wall` piece's origin
- * is solved in the wall's run coordinates `(u, v)`: its box starts at the
- * offset, or `gap` past its `after` piece's box, along the run, which is the
- * piece's local +X, and its back face rests on the wall at `v = 0`.
+ * rectangles are then checked against the room and every blocked box and
+ * keep-out, and blocked in turn, so later pieces and grid groups stay out.
+ * Clearances may share floor with one another, as the work aisle in front of
+ * neighbouring counters does. A clearance is labelled `<role>/clear/<name>`,
+ * its name defaulting to its side. A layout override of a piece's role places
+ * it at the override instead. A `wall` piece's origin is solved in the wall's
+ * run coordinates `(u, v)`: its box starts at the offset, or `gap` past its
+ * `after` piece's box, along the run, which is the piece's local +X, and its
+ * back face rests on the wall at `v = 0`.
  *
  * @param props The occurrence id, room, aisle, overrides, pieces and the
  *   rectangles already blocked, which this call extends.
@@ -66,6 +69,7 @@ export function resolveFurnishingPieces(
   const headings: Map<string, number> = new Map();
   const runs: Map<string, IRun> = new Map();
   const walls: Map<string, AutoMovieFurnishingWall> = new Map();
+  const clearances: Set<string> = new Set();
 
   // Name why a relation's reference to another role cannot be read yet.
   const earlier = (
@@ -197,7 +201,7 @@ export function resolveFurnishingPieces(
     FurnishingRect.claim(id, role, placement, room, blocked);
     placed.set(role, placement);
     headings.set(role, heading);
-    reserve(id, role, piece, placement, aisle, room, blocked);
+    reserve(id, role, piece, placement, aisle, room, blocked, clearances);
   }
   return { placed, walls };
 }
@@ -234,15 +238,17 @@ function reserve(
   aisle: number,
   room: FurnishingRect.IRect,
   blocked: Map<string, FurnishingRect.IRect>,
+  clearances: Set<string>,
 ): void {
   const { min, max } = piece.bounds;
-  const sides: Set<string> = new Set();
+  const names: Set<string> = new Set();
   for (const clear of piece.clear ?? []) {
     const side: "front" | "left" | "right" = clear.side ?? "front";
-    const label: string = `${role}/clear/${side}`;
-    if (sides.has(side))
-      throw new Error(`${id} ${role} clear names the ${side} side twice`);
-    sides.add(side);
+    const name: string = clear.name ?? side;
+    const label: string = `${role}/clear/${name}`;
+    if (names.has(name))
+      throw new Error(`${id} ${role} names clearance "${name}" twice`);
+    names.add(name);
     const front: boolean = side === "front";
     const face: number = front ? max.x - min.x : max.z - min.z;
     const span: number = clear.width ?? Math.max(face, aisle);
@@ -251,7 +257,7 @@ function reserve(
       !(Number.isFinite(span) && span > 0)
     )
       throw new Error(
-        `${id} ${role} clear ${side} needs a positive finite depth and width`,
+        `${id} ${role} ${name} clearance needs a positive finite depth and width`,
       );
     const centre: number = front ? (min.x + max.x) / 2 : (min.z + max.z) / 2;
     const local: FurnishingRect.IRect = front
@@ -273,11 +279,21 @@ function reserve(
       placement.z,
     );
     if (!FurnishingRect.within(rect, room))
-      throw new Error(`${id} ${role} clear ${side} is outside the usable room`);
+      throw new Error(
+        `${id} ${role} ${name} clearance is outside the usable room`,
+      );
+
+    // Clearances may share floor with one another; only boxes and keep-outs
+    // must stay out.
     for (const [other, box] of blocked)
-      if (other !== role && FurnishingRect.overlaps(rect, box))
-        throw new Error(`${id} ${other} blocks ${role} clear ${side}`);
+      if (
+        other !== role &&
+        !clearances.has(other) &&
+        FurnishingRect.overlaps(rect, box)
+      )
+        throw new Error(`${id} ${other} blocks ${role} ${name} clearance`);
     blocked.set(label, rect);
+    clearances.add(label);
   }
 }
 

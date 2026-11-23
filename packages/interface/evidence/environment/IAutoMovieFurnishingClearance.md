@@ -10,8 +10,8 @@ The furnishing producer reserves these for each related piece. A front clearance
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The back face is excluded because a wall or another piece stands there. Width defaults to the face length or the aisle, the counter approach's rule, so no clearance is narrower than a walking width unless the author says so.
+The back face is excluded because a wall or another piece stands there. Width defaults to the face length or the aisle, the counter approach's rule, so no clearance is narrower than a walking width unless the author says so. The optional name only labels the rectangle, so a kit's refusal can name the cited clearance it reserves; it changes no geometry.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the side convention as seen from in front of the piece, the depth and width in metres, the width default and what must stay out of the rectangle.
+States the side convention as seen from in front of the piece, the label name and its default, the depth and width in metres, the width default and what must stay out of the rectangle.

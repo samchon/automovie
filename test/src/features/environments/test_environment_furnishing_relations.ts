@@ -383,7 +383,7 @@ export function test_environment_furnishing_relations(): void {
                 clear: [{ depth: 1.0 }],
               },
             }),
-          ["home/room sofa clear front", "outside the usable room"],
+          ["home/room sofa front clearance", "outside the usable room"],
         ),
     ],
     [

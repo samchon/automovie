@@ -75,7 +75,7 @@ const park = createEnvironment({
 });
 ```
 
-Add buildings, furnished rooms and rides as named items. Resolve a motion target through the item's named frame, such as a door's threshold or a chair's seat. Spread `park.stage` into the shot's stage and `park.runtime` into the runtime passed to `compileDefinedShot`. The shot retains its own camera, cast and choreography.
+Add buildings, furnished rooms and rides as named items. Furnish a room with a kit: `createCafeKit`, `createGymKit`, `createLivingRoomKit`, `createBedroomKit`, `createKitchenKit` or `createOfficeKit`. Each kit's JSDoc names its roles and the clearances it reserves, with their sources. For any other room, `createFurnishedRoom` places pieces against a wall, after an earlier piece along the same wall, facing an earlier piece, or at a position, and keeps floor clear in front of or beside each one. Resolve a motion target through the item's named frame, such as a door's threshold or a chair's seat. Spread `park.stage` into the shot's stage and `park.runtime` into the runtime passed to `compileDefinedShot`. The shot retains its own camera, cast and choreography.
 
 In the production's set source, resize a room by editing its `[x, z, width, depth]` rectangle in local metres. Move a named entrance with its `offset` in metres along the selected wall. An action can target the `seat` affordance on the placed prop `park/cafe/table-1/chair-near`. If an attachment target is missing, check the item, level and local name against `park.anchors`. If a bridge between named openings is refused, align the span perpendicular to both walls and fit its width to the narrower clear opening.
 
