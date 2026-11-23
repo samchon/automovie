@@ -9,12 +9,13 @@ import { AutoMoviePhysicalJointChart } from "./AutoMoviePhysicalJointChart";
 /**
  * Admit a relative joint rotation to the joint's chart. A joint declaring a
  * sequential chart (`order`) is admitted in it (`AutoMoviePhysicalJointChart`):
- * each Tait-Bryan angle clamped into its free axis's range, a locked one
- * held at zero. Otherwise the solver's independent twist coordinates, 2 atan(q.axis / w) per free axis:
- * with positive quaternion w, each free coordinate is 2 atan(q.axis / w);
- * locked coordinates require a zero numerator. This projects that coordinate
- * box, rather than claiming a nearest rotation in geodesic distance. At a
- * half turn the finite Rodrigues representation stops within 1e-12 radians.
+ * each Tait-Bryan angle clamped into its free axis's range, a locked one held
+ * at zero. Otherwise the solver's independent twist coordinates, 2 atan(q.axis
+ * / w) per free axis: with positive quaternion w, each free coordinate is 2
+ * atan(q.axis / w); locked coordinates require a zero numerator. This projects
+ * that coordinate box, rather than claiming a nearest rotation in geodesic
+ * distance. At a half turn the finite Rodrigues representation stops within
+ * 1e-12 radians.
  */
 export function projectPhysicalJointRotation(
   joint: IAutoMoviePhysicalJoint,
@@ -35,7 +36,7 @@ export function projectPhysicalJointRotation(
     const order: IAutoMoviePhysicalJointAxis["axis"][] = joint.order;
     return AutoMoviePhysicalJointChart.compose(
       order,
-      AutoMoviePhysicalJointChart.angles(order, {
+      AutoMoviePhysicalJointChart.nearest(joint, {
         x: rotation.x / norm,
         y: rotation.y / norm,
         z: rotation.z / norm,

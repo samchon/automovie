@@ -135,3 +135,39 @@ A pure reading of its arguments.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns fresh vectors; retains nothing.
+
+# src/physics/AutoMoviePhysicalJointChart.ts#AutoMoviePhysicalJointChart.IJoint
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what a chart reading needs of a joint and when the chart is absent.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The free axes' ranges in radians and the chart's composition order, the two fields `IAutoMoviePhysicalJoint` declares for them, so a physical joint and a geometry joint with a chart are both read.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Read by `nearest` and by `measurePhysicalJointLimits`; nothing else is required of a joint.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+No field is copied or restated: the axis type and the order type are the interface's own.
+
+# src/physics/AutoMoviePhysicalJointChart.ts#AutoMoviePhysicalJointChart.IRange
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the free axis and its range's unit.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The axis and its inclusive range in radians, picked from `IAutoMoviePhysicalJointAxis`.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+The three members the chart's branch choice reads; motor and channel fields stay with the physical axis.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+A `Pick` of the interface's own axis record, not a restated one.

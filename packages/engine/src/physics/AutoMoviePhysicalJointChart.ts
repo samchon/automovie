@@ -7,14 +7,14 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 
 /**
- * A joint's sequential chart: the relative rotation as an intrinsic
- * Tait-Bryan composition `q = R_i(a) R_j(b) R_k(c)` about three distinct
- * joint-frame axes in a declared order, each angle the coordinate of its
- * axis. The decomposition is Shoemake's (1994, "Euler Angle Conversion",
- * Graphics Gems IV): with `M` the rotation's matrix and `s` +1 for a cyclic
- * order and -1 otherwise, `sin b = s M[i][k]`, `a = atan2(-s M[j][k],
- * M[k][k])` and `c = atan2(-s M[i][j], M[i][i])`; at `cos b = 0` the first
- * and last axes align and the whole turn is given to the first.
+ * A joint's sequential chart: the relative rotation as an intrinsic Tait-Bryan
+ * composition `q = R_i(a) R_j(b) R_k(c)` about three distinct joint-frame axes
+ * in a declared order, each angle the coordinate of its axis. The decomposition
+ * is Shoemake's (1994, "Euler Angle Conversion", Graphics Gems IV): with `M`
+ * the rotation's matrix and `s` +1 for a cyclic order and -1 otherwise, `sin b
+ * = s M[i][k]`, `a = atan2(-s M[j][k], M[k][k])` and `c = atan2(-s M[i][j],
+ * M[i][i])`; at `cos b = 0` the first and last axes align and the whole turn is
+ * given to the first.
  */
 export namespace AutoMoviePhysicalJointChart {
   /**
@@ -46,6 +46,44 @@ export namespace AutoMoviePhysicalJointChart {
   }
 
   /**
+   * A joint's angles of a rotation, of the chart's two triples that give it
+   * (`(a, b, c)` and `(a + pi, pi - b, c + pi)`, each wrapped into a turn about
+   * zero), the one nearest the joint's ranges: the least summed distance of
+   * each angle from its free axis's range, or from zero for a locked axis. A
+   * middle angle past a quarter turn, which the extraction folds back, is then
+   * read as the rig composes it.
+   *
+   * @param joint The joint's chart and free axes.
+   * @param rotation A unit quaternion.
+   * @returns The angles, in the chart's order, radians.
+   * @throws {Error} When the joint declares no chart.
+   */
+  export function nearest(
+    joint: AutoMoviePhysicalJointChart.IJoint,
+    rotation: IAutoMovieQuaternion,
+  ): number[] {
+    if (joint.order === undefined)
+      throw new Error("A joint without a chart has no chart angles");
+    const order: readonly IAutoMoviePhysicalJointAxis["axis"][] = joint.order;
+    const first: number[] = angles(order, rotation);
+    const second: number[] = [
+      wrap(first[0]! + Math.PI),
+      wrap(Math.PI - first[1]!),
+      wrap(first[2]! + Math.PI),
+    ];
+    const distance = (values: readonly number[]): number =>
+      values.reduce((sum: number, value: number, at: number): number => {
+        const range: IRange | undefined = joint.axes.find(
+          (candidate: IRange): boolean => candidate.axis === order[at],
+        );
+        const low: number = range?.minimum ?? 0;
+        const high: number = range?.maximum ?? 0;
+        return sum + Math.max(0, low - value, value - high);
+      }, 0);
+    return distance(second) < distance(first) ? second : first;
+  }
+
+  /**
    * The rotation of three angles in the order's chart.
    *
    * @param order Three distinct joint-frame axes, in composition order.
@@ -69,8 +107,8 @@ export namespace AutoMoviePhysicalJointChart {
 
   /**
    * The unit vectors of the chart's axes at a rotation, in the joint frame:
-   * each axis turned by the rotations composed before it, the joint's
-   * motion subspace at that configuration.
+   * each axis turned by the rotations composed before it, the joint's motion
+   * subspace at that configuration.
    *
    * @param order Three distinct joint-frame axes, in composition order.
    * @param values The rotation's angles, as `angles` reads them.
@@ -89,6 +127,31 @@ export namespace AutoMoviePhysicalJointChart {
       },
     );
     return result;
+  }
+
+  /**
+   * What a chart reading needs of a joint: its free axes' ranges and its chart,
+   * when it declares one (`IAutoMoviePhysicalJoint`).
+   */
+  export interface IJoint {
+    /** The free axes and their ranges, radians. */
+    axes: readonly IRange[];
+
+    /** The chart's composition order; none for a joint without a chart. */
+    order?: readonly IAutoMoviePhysicalJointAxis["axis"][];
+  }
+
+  /** A free axis and its range, radians. */
+  export type IRange = Pick<
+    IAutoMoviePhysicalJointAxis,
+    "axis" | "minimum" | "maximum"
+  >;
+
+  /** An angle wrapped into (-pi, pi]. */
+  function wrap(angle: number): number {
+    const turn: number = 2 * Math.PI;
+    const value: number = angle - turn * Math.round(angle / turn);
+    return value <= -Math.PI ? value + turn : value;
   }
 
   /** The rotation by an angle about a joint-frame axis. */
@@ -130,7 +193,9 @@ export namespace AutoMoviePhysicalJointChart {
   }
 
   /** The joint-frame unit axes. */
-  const UNIT: Readonly<Record<IAutoMoviePhysicalJointAxis["axis"], IAutoMovieVector3>> = {
+  const UNIT: Readonly<
+    Record<IAutoMoviePhysicalJointAxis["axis"], IAutoMovieVector3>
+  > = {
     x: { x: 1, y: 0, z: 0 },
     y: { x: 0, y: 1, z: 0 },
     z: { x: 0, y: 0, z: 1 },
