@@ -198,7 +198,14 @@ export namespace AutoMovieMotionHumanArmPlanned {
    */
   export const reaching: typeof AutoMovieMotionHumanArmObservation.reaching =
     AutoMovieMotionHumanArmObservation.reaching;
-  /** One instant of a hold to check: the arms holding there and the second. */
+  /**
+   * One instant of a hold to check: the arms holding there and the second.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the instant a hold is checked at and what each member holds.
+   * @evidence contracts/development/design.md#principled-representation The arms' planned carries, each with its goal on its hold, at one second of the plan's own clock.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two members `still` reads, the carries owned by IAutoMovieMotionHumanArmPlanned.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's planned-carry type; no member serves one law or a test.
+   */
   export interface IStill {
     /** The arms, each with its goal on its hold at the second. */
     carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[];
