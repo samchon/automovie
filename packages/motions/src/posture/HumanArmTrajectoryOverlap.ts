@@ -27,7 +27,10 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh pair maps; the corner clusters and shape owners are kept in weak maps keyed by the frame's own lists, released with them.
  */
 export namespace HumanArmTrajectoryOverlap {
-  /** An arm's deepest probe in a collider shape of the other arm, read the same way. */
+  /**
+   * An arm's deepest probe in a collider shape of the other arm, read the same
+   * way.
+   */
   export interface ICrossing {
     /** The arm whose probe it is. */
     a: number;
@@ -45,13 +48,20 @@ export namespace HumanArmTrajectoryOverlap {
     rested: boolean;
   }
 
-  /** A corner of the body or an external segment (`HumanArmGeometry.IFrame.body`) inside a collider shape of the arm, read the same way. */
+  /**
+   * A corner of the body or an external segment
+   * (`HumanArmGeometry.IFrame.body`) inside a collider shape of the arm, read
+   * the same way.
+   */
   export interface IEmbedded {
     /** The corner's index in the frame's body corners. */
     corner: number;
     /** The arm's shape, placed. */
     shape: IAutoMovieMotionHumanArmGeometry.IShape;
-    /** The shape's index among the arm's colliders (`HumanArmGeometry.colliders`). */
+    /**
+     * The shape's index among the arm's colliders
+     * (`HumanArmGeometry.colliders`).
+     */
     index: number;
     /** The arm's segment the shape rides on. */
     owner: "upper" | "lower" | "hand";
@@ -64,14 +74,16 @@ export namespace HumanArmTrajectoryOverlap {
   }
 
   /**
-   * Each arm's deepest collider probe against each of the other arm's
-   * collider shapes at a waypoint, by the probe's segment and the shape.
+   * Each arm's deepest collider probe against each of the other arm's collider
+   * shapes at a waypoint, by the probe's segment and the shape.
    *
    * @param c The context.
    * @param k The waypoint.
    * @param first The first arm placed there.
    * @param second The second arm placed there.
-   * @param cut How far short of its bound a pair may be left unread, millimetres (`HumanArmTrajectoryPairs.CUT` where the reading's users need no more); every pair in reach is read when absent.
+   * @param cut How far short of its bound a pair may be left unread,
+   *   millimetres (`HumanArmTrajectoryPairs.CUT` where the reading's users need
+   *   no more); every pair in reach is read when absent.
    * @returns The pairs by arm, segment and shape.
    */
   export function crossing(
@@ -206,15 +218,18 @@ export namespace HumanArmTrajectoryOverlap {
 
   /**
    * Each body or external part's deepest corner inside each of the arm's own
-   * collider shapes at a waypoint, the reverse of the forward pair reading.
-   * The tangle audit reads every pair both ways and takes the deeper; only
-   * own-body parts sharing a joint are excluded.
+   * collider shapes at a waypoint, the reverse of the forward pair reading. The
+   * tangle audit reads every pair both ways and takes the deeper; only own-body
+   * parts sharing a joint are excluded.
    *
    * @param c The context.
    * @param a The arm.
    * @param k The waypoint.
    * @param placed The arm placed there.
-   * @param cut How far short of its bound a pair may be left unread, millimetres (`HumanArmTrajectoryPairs.CUT` where the reading's users need no more; negative, how little past it, for a reader that refuses only past a slack); every pair in reach is read when absent.
+   * @param cut How far short of its bound a pair may be left unread,
+   *   millimetres (`HumanArmTrajectoryPairs.CUT` where the reading's users need
+   *   no more; negative, how little past it, for a reader that refuses only
+   *   past a slack); every pair in reach is read when absent.
    * @returns The pairs by body part and arm shape.
    */
   export function embedded(
@@ -250,86 +265,81 @@ export namespace HumanArmTrajectoryOverlap {
       corner: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number],
       i: number,
     ): void => {
-        const close: Record<"upper" | "lower" | "hand", boolean> = {
-          upper:
-            Vector3.length(Vector3.subtract(corner.point, centres.upper)) -
-              frame.bounds.upper.radius <
-            T.REACH,
-          lower:
-            Vector3.length(Vector3.subtract(corner.point, centres.lower)) -
-              frame.bounds.lower.radius <
-            T.REACH,
-          hand:
-            Vector3.length(Vector3.subtract(corner.point, centres.hand)) -
-              frame.bounds.hand.radius <
-            T.REACH,
-        };
-        if (!close.upper && !close.lower && !close.hand) return;
-        mine.forEach(
-          (shape: IAutoMovieMotionHumanArmGeometry.IShape, j: number): void => {
-            if (!close[owners[j]!]) return;
-            const apart: number =
-              Vector3.length(Vector3.subtract(corner.point, shape.centre)) -
-              shape.radius;
-            if (apart >= T.REACH) return;
-            if (frame.related[corner.part]?.[shape.part] === true) return;
-            // What the hand rests on lies on the hand: the goal's contact.
-            if (owners[j] === "hand" && frame.resting.has(corner.part)) return;
-            const key: number = corner.part * mine.length + j;
-            const known: IEmbedded | undefined = out.get(key);
-            const allowance: number = c.inside(a, k, i, j);
+      const close: Record<"upper" | "lower" | "hand", boolean> = {
+        upper:
+          Vector3.length(Vector3.subtract(corner.point, centres.upper)) -
+            frame.bounds.upper.radius <
+          T.REACH,
+        lower:
+          Vector3.length(Vector3.subtract(corner.point, centres.lower)) -
+            frame.bounds.lower.radius <
+          T.REACH,
+        hand:
+          Vector3.length(Vector3.subtract(corner.point, centres.hand)) -
+            frame.bounds.hand.radius <
+          T.REACH,
+      };
+      if (!close.upper && !close.lower && !close.hand) return;
+      mine.forEach(
+        (shape: IAutoMovieMotionHumanArmGeometry.IShape, j: number): void => {
+          if (!close[owners[j]!]) return;
+          const apart: number =
+            Vector3.length(Vector3.subtract(corner.point, shape.centre)) -
+            shape.radius;
+          if (apart >= T.REACH) return;
+          if (frame.related[corner.part]?.[shape.part] === true) return;
+          const key: number = corner.part * mine.length + j;
+          const known: IEmbedded | undefined = out.get(key);
+          const allowance: number = c.inside(a, k, i, j);
 
-            // Bounded as `deepest`: a corner the bounding sphere shows no
-            // deeper than the pair's deepest so far is not read exactly.
-            if (
-              known !== undefined &&
-              1000 * (allowance - apart) <= known.short
-            )
-              return;
-            const own: "upperArm" | "lowerArm" | "hand" =
-              owners[j] === "upper"
-                ? "upperArm"
-                : owners[j] === "lower"
-                  ? "lowerArm"
-                  : "hand";
-            if (
-              1000 * (allowance - apart) < -cut &&
-              !c.lying(a, k, own, corner.bone)
-            ) {
-              if (known === undefined)
-                out.set(key, {
-                  corner: i,
-                  shape,
-                  index: j,
-                  owner: owners[j]!,
-                  bone: corner.bone,
-                  short: 1000 * (allowance - apart),
-                  rested: false,
-                });
-              return;
-            }
-            const short: number =
-              1000 *
-              (allowance -
-                physicalShapeSegmentDistance(
-                  shape.pose,
-                  shape.shape,
-                  corner.point,
-                  corner.point,
-                ));
-            if (known === undefined || short > known.short) {
+          // Bounded as `deepest`: a corner the bounding sphere shows no
+          // deeper than the pair's deepest so far is not read exactly.
+          if (known !== undefined && 1000 * (allowance - apart) <= known.short)
+            return;
+          const own: "upperArm" | "lowerArm" | "hand" =
+            owners[j] === "upper"
+              ? "upperArm"
+              : owners[j] === "lower"
+                ? "lowerArm"
+                : "hand";
+          if (
+            1000 * (allowance - apart) < -cut &&
+            !c.lying(a, k, own, corner.bone)
+          ) {
+            if (known === undefined)
               out.set(key, {
                 corner: i,
                 shape,
                 index: j,
                 owner: owners[j]!,
                 bone: corner.bone,
-                short,
-                rested: c.lying(a, k, own, corner.bone),
+                short: 1000 * (allowance - apart),
+                rested: false,
               });
-            }
-          },
-        );
+            return;
+          }
+          const short: number =
+            1000 *
+            (allowance -
+              physicalShapeSegmentDistance(
+                shape.pose,
+                shape.shape,
+                corner.point,
+                corner.point,
+              ));
+          if (known === undefined || short > known.short) {
+            out.set(key, {
+              corner: i,
+              shape,
+              index: j,
+              owner: owners[j]!,
+              bone: corner.bone,
+              short,
+              rested: c.lying(a, k, own, corner.bone),
+            });
+          }
+        },
+      );
     };
 
     // A part's corners all lie within its cluster's sphere, so a cluster
@@ -353,9 +363,13 @@ export namespace HumanArmTrajectoryOverlap {
 }
 
 /** The segment of the arm a collider shape rides on. */
-type Owner = IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number]["owner"];
+type Owner =
+  IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number]["owner"];
 
-/** A run of consecutive body corners of one part (`HumanArmGeometry.IFrame.body`) and the sphere about them. */
+/**
+ * A run of consecutive body corners of one part
+ * (`HumanArmGeometry.IFrame.body`) and the sphere about them.
+ */
 interface ICluster {
   /** The run's first corner's index. */
   start: number;
@@ -371,9 +385,9 @@ interface ICluster {
 }
 
 /**
- * The runs of a frame's body corners that share a part, each with the
- * sphere about its corners: fixed with the frame, built once per corner
- * list and kept while the list is held.
+ * The runs of a frame's body corners that share a part, each with the sphere
+ * about its corners: fixed with the frame, built once per corner list and kept
+ * while the list is held.
  */
 function clusters(
   body: IAutoMovieMotionHumanArmGeometry.IFrame["body"],
@@ -404,7 +418,11 @@ function clusters(
   return out;
 }
 
-/** Whether any corner of a cluster can lie within the reach of a segment's sphere (`embedded`'s per-corner screen), with a slack far above the rounding of the distances. */
+/**
+ * Whether any corner of a cluster can lie within the reach of a segment's
+ * sphere (`embedded`'s per-corner screen), with a slack far above the rounding
+ * of the distances.
+ */
 function reaches(
   cluster: ICluster,
   centre: IAutoMovieVector3,
@@ -416,7 +434,10 @@ function reaches(
   );
 }
 
-/** Each collider shape's segment, in the order `HumanArmShapes.colliders` places the shapes: fixed with the frame, built once per collider list. */
+/**
+ * Each collider shape's segment, in the order `HumanArmShapes.colliders` places
+ * the shapes: fixed with the frame, built once per collider list.
+ */
 function shapeOwners(
   colliders: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"],
 ): readonly Owner[] {
@@ -430,17 +451,26 @@ function shapeOwners(
   return known;
 }
 
-/** The clusters of each frame's body corners, kept while the corner list is held. */
+/**
+ * The clusters of each frame's body corners, kept while the corner list is
+ * held.
+ */
 const CLUSTERS: WeakMap<
   IAutoMovieMotionHumanArmGeometry.IFrame["body"],
   readonly ICluster[]
 > = new WeakMap();
 
-/** The shapes' segments of each frame's collider list, kept while the list is held. */
+/**
+ * The shapes' segments of each frame's collider list, kept while the list is
+ * held.
+ */
 const OWNERS: WeakMap<
   IAutoMovieMotionHumanArmGeometry.IFrame["colliders"],
   Owner[]
 > = new WeakMap();
 
-/** The slack of a cluster's screen over its corners', metres: far below the pairs' reach, far above the rounding of a distance in metres. */
+/**
+ * The slack of a cluster's screen over its corners', metres: far below the
+ * pairs' reach, far above the rounding of a distance in metres.
+ */
 const MARGIN: number = 1e-9;

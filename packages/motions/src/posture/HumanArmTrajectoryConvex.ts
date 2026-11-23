@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, physicalShapeNearest, physicalShapeNormal } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  physicalShapeNearest,
+  physicalShapeNormal,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanQuadraticProgram,
@@ -8,11 +13,12 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmShapes as S } from "./HumanArmShapes";
+import { HumanArmSweepGradient } from "./HumanArmSweepGradient";
+import type { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
 import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
-import { HumanArmSweepGradient } from "./HumanArmSweepGradient";
 import { HumanArmTrajectoryRanges } from "./HumanArmTrajectoryRanges";
 import { HumanArmTrajectorySmooth } from "./HumanArmTrajectorySmooth";
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
@@ -21,28 +27,32 @@ import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
 /**
  * The convex subproblem of an arms' trajectory about an iterate
- * (`HumanArmTrajectoryModel`), TrajOpt's: the objective's quadratic model
- * and each constraint linearised by the Jacobians of the probes, the
- * contact and the hand's rotation (`HumanArmTrajectoryJacobians`): each
- * coordinate's segment twists, every point moving with its segment as a
- * rigid body (Schulman et al. 2014, a pair's distance linearised along its
- * normal on the point Jacobian).
+ * (`HumanArmTrajectoryModel`), TrajOpt's: the objective's quadratic model and
+ * each constraint linearised by the Jacobians of the probes, the contact and
+ * the hand's rotation (`HumanArmTrajectoryJacobians`): each coordinate's
+ * segment twists, every point moving with its segment as a rigid body (Schulman
+ * et al. 2014, a pair's distance linearised along its normal on the point
+ * Jacobian).
  */
 export namespace HumanArmTrajectoryConvex {
   /**
    * The convex subproblem about an iterate: the objective's quadratic model
-   * (exact in the accelerations, Gauss-Newton in the steps and the
-   * rotation) and each constraint linearised, as soft l1 rows of weight
-   * `mu`, the domain ranges too (only the trust region is hard). A pair that cannot come within its bound by what
-   * the trust region lets its probe move is left out.
+   * (exact in the accelerations, Gauss-Newton in the steps and the rotation)
+   * and each constraint linearised, as soft l1 rows of weight `mu`, the domain
+   * ranges too (only the trust region is hard). A pair that cannot come within
+   * its bound by what the trust region lets its probe move is left out.
    *
    * @param c The context.
    * @param x Each arm's coordinates at each waypoint.
    * @param at0 The iterate's evaluation.
    * @param mu The penalty's weight.
-   * @param radius How far a coordinate may move, coordinate units: the trust region, which bounds the active set.
-   * @param smooth The context's exact quadratic terms (`HumanArmTrajectorySmooth.of` of this context), built once by the caller.
-   * @returns The subproblem in the inner waypoints' free coordinates, waypoint by waypoint.
+   * @param radius How far a coordinate may move, coordinate units: the trust
+   *   region, which bounds the active set.
+   * @param smooth The context's exact quadratic terms
+   *   (`HumanArmTrajectorySmooth.of` of this context), built once by the
+   *   caller.
+   * @returns The subproblem in the inner waypoints' free coordinates, waypoint
+   *   by waypoint.
    */
   export function convexify(
     c: M.IContext,
@@ -114,8 +124,10 @@ export namespace HumanArmTrajectoryConvex {
         // (`HumanArmTrajectoryTravel`): the later point's share of a step's
         // gradient is its world Jacobian, the earlier point's that Jacobian
         // turned by the bases' relative turn.
-        const before: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
-        const after: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k + 1]!;
+        const before: IAutoMovieMotionHumanArmGeometry.IFrame =
+          c.frames[a]![k]!;
+        const after: IAutoMovieMotionHumanArmGeometry.IFrame =
+          c.frames[a]![k + 1]!;
         const turn: IAutoMovieQuaternion = V.back(before, after);
         for (const probe of c.still ? [] : new Set([...T.PATH, ...T.SPEED])) {
           const d: IAutoMovieVector3 = Vector3.scale(
@@ -173,9 +185,14 @@ export namespace HumanArmTrajectoryConvex {
         // frame at this waypoint, and its gradient is carried back by the
         // same turn.
         for (const sweep of at.swept[a]![k] ?? []) {
-          const { probe, shape, to: pb }: HumanArmTrajectorySweep.ISwept = sweep;
+          const {
+            probe,
+            shape,
+            to: pb,
+          }: HumanArmTrajectorySweep.ISwept = sweep;
           const [pa, r] = at.placed[a]![k]!.probes[probe]!;
-          const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
+          const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
+            c.frames[a]![k]!;
           const d0: number = 1000 * sweep.clear;
           const lower: number = 1000 * sweep.lower;
           if (d0 - lower > Math.min(T.CHECK, reach(a, k) + reach(a, k + 1) + 2))
@@ -184,7 +201,11 @@ export namespace HumanArmTrajectoryConvex {
           // Each end's own distance, read once for the pair that stays.
           const first: number = S.gap(frame, shape, pa, pa);
           const second: number = S.gap(frame, shape, pb, pb);
-          if (first - r > lower / 1000 && second - r > lower / 1000 && d0 > lower)
+          if (
+            first - r > lower / 1000 &&
+            second - r > lower / 1000 &&
+            d0 > lower
+          )
             continue;
 
           // The swept distance's gradient in each end, exact: the distance
@@ -193,8 +214,10 @@ export namespace HumanArmTrajectoryConvex {
           // along the shape's outward normal there, which the two ends carry
           // in the shares of that point's place between them (TrajOpt's
           // continuous-time gradient, Schulman et al. 2014, section IV-C).
-          const s0: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
-          const near: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(s0.pose, s0.shape, pa, pb);
+          const s0: IAutoMovieMotionHumanArmGeometry.IShape =
+            frame.shapes[shape]!;
+          const near: IAutoMoviePhysicalShapeNearest.IResult =
+            physicalShapeNearest(s0.pose, s0.shape, pa, pb);
           const span: IAutoMovieVector3 = Vector3.subtract(pb, pa);
           const u: number = Math.min(
             1,
@@ -230,7 +253,8 @@ export namespace HumanArmTrajectoryConvex {
       for (let k: number = 1; k < n; ++k) {
         if (!inner(k)) continue;
         const site: M.ISite | undefined = c.sites[a]![k];
-        const placedK: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[a]![k]!;
+        const placedK: IAutoMovieMotionHumanArmGeometry.IPlaced =
+          at.placed[a]![k]!;
         if (site !== undefined) {
           const at: P.ILocated = P.located(c, at0.placed, a, k, site);
           const contact0: IAutoMovieVector3 = P.pad(placedK, site.contact);
@@ -331,17 +355,63 @@ export namespace HumanArmTrajectoryConvex {
           }
         }
         // One row per segment and shape, its deepest probe's (TrajOpt's
-        // per-link pair, its distance at the closest points).
+        // per-link pair, its distance at the closest points), or, where the
+        // probe's swept segment to a neighbouring waypoint comes nearer the
+        // shape, that segment's distance, which moves with the probe at both
+        // of its ends by the sweep's gradient (`HumanArmTrajectoryHalfStep`,
+        // TrajOpt's continuous-time term).
         for (const pair of (
           at.pairs[a]?.[k]?.deepest ?? P.deepest(c, a, k, placedK)
         ).values()) {
-          if (-pair.short > Math.min(T.CHECK, reach(a, k) + 2)) continue;
-          const g: IAutoMovieVector3 = S.normal(
-            c.frames[a]![k]!,
-            pair.shape,
-            placedK.probes[pair.probe]![0],
-          );
-          const v: ILinear = along(a, k, jac[a]![k]!.probe(pair.probe), g);
+          const sweep: HumanArmTrajectoryHalfStep.ISwept | undefined =
+            pair.swept;
+          if (
+            -pair.short >
+            Math.min(
+              T.CHECK,
+              reach(a, k) +
+                (sweep === undefined
+                  ? 0
+                  : Math.max(
+                      0,
+                      ...sweep.there.map(
+                        (g: HumanArmTrajectoryHalfStep.IGradient): number =>
+                          reach(a, g.other),
+                      ),
+                    )) +
+                2,
+            )
+          )
+            continue;
+          const v: ILinear =
+            sweep === undefined
+              ? along(
+                  a,
+                  k,
+                  jac[a]![k]!.probe(pair.probe),
+                  S.normal(
+                    c.frames[a]![k]!,
+                    pair.shape,
+                    placedK.probes[pair.probe]![0],
+                  ),
+                )
+              : join(
+                  along(a, k, jac[a]![k]!.probe(pair.probe), sweep.here),
+                  ...sweep.there
+                    .filter(
+                      (g: HumanArmTrajectoryHalfStep.IGradient): boolean =>
+                        inner(g.other),
+                    )
+                    .map(
+                      (g: HumanArmTrajectoryHalfStep.IGradient): ILinear =>
+                        along(
+                          a,
+                          g.other,
+                          jac[a]![g.other]!.probe(pair.probe),
+                          g.direction,
+                        ),
+                    ),
+                );
           rows.push({
             key: `c|${a}|${k}|${pair.probe}|${pair.shape}`,
             index: v.idx,

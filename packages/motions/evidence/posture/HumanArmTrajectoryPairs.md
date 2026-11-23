@@ -20,7 +20,7 @@ Keeps collider identity, reference depths, declared rests, grasp contacts and th
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines probe/shape indices, signed millimetre shortfall and the declared-rest flag.
+Defines probe/shape indices, signed millimetre shortfall, the declared-rest flag and the swept segment a shortfall is read on.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -28,7 +28,7 @@ One deepest actual collider probe per audit-part/shape pair; current geometry su
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The merit, refusal and convex rows consume these four fields from deepest without another geometry representation.
+The merit, refusal and convex rows consume these fields from deepest; the swept reading carries its own gradient for the convex row.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -182,11 +182,11 @@ Returns fresh tangents and retains neither the normal nor state.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines indexed deepest pairs, millimetre cut and own-part/joint exclusions.
+Defines indexed deepest pairs, millimetre cut, own-part/joint exclusions and the optional neighbouring placements the swept reading uses.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Bounding spheres conservatively select actual probes; original reference allowances and shape gaps select each pair's deepest admissible reading.
+Bounding spheres, first of each audit part's probes (`HumanArmPartScreen`) and then of each probe, conservatively select actual probes; reference allowances and shape gaps select each pair's deepest admissible reading, read at the waypoint and over the probe's swept segments to its neighbours with the played cubic's stray toward the shape (`HumanArmTrajectoryHalfStep`), TrajOpt's continuous-time term (Schulman et al. 2014). Every probe the tangle audit reads is read, the hand's against what it rests on included.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -194,11 +194,11 @@ Each probe's complete sphere pass precedes the unchanged exact-query loop; a pri
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Preserves reach, CUT, exclusions, first-winner ties, rest/reference callbacks and exact query order; no pair receives a new allowance.
+Preserves reach, CUT, exclusions, first-winner ties, rest/reference callbacks and exact query order; every bound used to leave a probe unread is widened by the probe's longest swept segment, so the skip stays conservative.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-P probes traverse their screened shape lists and required exact queries. One O(S) numeric buffer for S shapes removes repeated selected-pair norms and difference vectors; fresh index lists and branch-and-bound remain.
+Plan-time cost class, once per waypoint read by the solve: Q audit parts are screened against the segment screen's shapes (O(Q S)), then P probes against their part's shapes only, with exact queries only where the branch-and-bound admits them and at most two segment queries per pair the unit-slope bound does not clear. Nothing is read per displayed frame.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

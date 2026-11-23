@@ -36,39 +36,50 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { HumanWornItem } from "./HumanWornItem";
+import { placeOverHeadPartner } from "./placeOverHeadPartner";
 import { placeOverHeadPath } from "./placeOverHeadPath";
 
-/** How far the presented loop's nearest edge stands off the chest, metres (provisional: a hand's breadth). */
+/**
+ * How far the presented loop's nearest edge stands off the chest, metres
+ * (provisional: a hand's breadth).
+ */
 const PRESENT: number = 0.1;
 
-/** How far below the shoulders the loop is presented, metres (provisional: at the chest). */
+/**
+ * How far below the shoulders the loop is presented, metres (provisional: at
+ * the chest).
+ */
 const BELOW: number = 0.2;
 
-/** How many even pieces of the loop's path the hip hinge is solved at the ends of, once per plan (provisional: the path's few key frames, each piece a fraction of the descent over the head). */
+/**
+ * How many even pieces of the loop's path the hip hinge is solved at the ends
+ * of, once per plan (provisional: the path's few key frames, each piece a
+ * fraction of the descent over the head).
+ */
 const HINGES: number = 8;
 
 /** The handle names a neck loop declares. */
 type Handle = "holdLeft" | "holdRight";
 
 /**
- * Set a neck loop over a partner's head (#4015). The loop's path is
- * `placeOverHeadPath`'s, read on the partner's displayed body at the
- * action's start, so a partner who bows, kneels or sits first is met where
- * they are. The hand that holds the loop at entry first presents it level
- * before the chest (its nearest edge `PRESENT` off the chest, `BELOW` the
- * shoulders), turned as it
- * will go over the head, and the other hand closes on the loop's other
- * handle there by `ready`, without carrying it. Both hands carry it along
- * the path over the stroke; at `strokeEnd` it is worn on the partner's upper chest (the sternum region's bone) and both grips end,
- * and the hands return. Both arms are laid in one course (`courseArmGoal`
- * with `with`). Before any of it, the loop's inner half-breadth is checked
- * against the partner's head radius, and the hands' highest places, above
- * the crown, against the arm's reach from each shoulder: a loop too narrow
- * for the head, or a crown the arms cannot clear (a standing tall partner),
- * is refused with the measure, so the partner bows or kneels. Down past the
- * crown to a seated partner's nape and chest the dresser hinges at the hips
- * by the least angle that keeps both wrists within their arms along the
- * path (`HumanTrunkLean`), as `dressPartner` reaches a kneeling crown.
+ * Set a neck loop over a partner's head. The loop's path is
+ * `placeOverHeadPath`'s, read on the partner's displayed body at the action's
+ * start, so a partner who bows, kneels or sits first is met where they are. The
+ * hand that holds the loop at entry first presents it level before the chest
+ * (its nearest edge `PRESENT` off the chest, `BELOW` the shoulders), turned as
+ * it will go over the head, and the other hand closes on the loop's other
+ * handle there by `ready`, without carrying it. Both hands carry it along the
+ * path over the stroke; at `strokeEnd` it is worn on the partner's upper chest
+ * (the sternum region's bone) and both grips end, and the hands return. Both
+ * arms are laid in one course (`courseArmGoal` with `with`). Before any of it,
+ * the loop's inner half-breadth is checked against the partner's head radius,
+ * and the hands' highest places, above the crown, against the arm's reach from
+ * each shoulder: a loop too narrow for the head, or a crown the arms cannot
+ * clear (a standing tall partner), is refused with the measure, so the partner
+ * bows or kneels. Down past the crown to a seated partner's nape and chest the
+ * dresser hinges at the hips by the least angle that keeps both wrists within
+ * their arms along the path (`HumanTrunkLean`), as `dressPartner` reaches a
+ * kneeling crown.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the path's owner, who carries the loop, the custody change, the course and both refusals.
  * @evidence contracts/development/design.md#principled-representation The loop's rigid frame along its path is the plan; both hands follow from it.
@@ -230,7 +241,8 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
           HumanTrunkLean.least(context, [
             {
               side: arm,
-              point: AutoMovieMotionHumanArmTarget.goal(body, arm, target).point,
+              point: AutoMovieMotionHumanArmTarget.goal(body, arm, target)
+                .point,
               rotation: target.rotation,
             },
           ]);
@@ -378,7 +390,9 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
           ]);
         },
       );
-      const hinged: (progress: number) => number = (progress: number): number => {
+      const hinged: (progress: number) => number = (
+        progress: number,
+      ): number => {
         const x: number = Math.min(HINGES, Math.max(0, progress * HINGES));
         const k: number = Math.min(HINGES - 1, Math.floor(x));
         return keyed[k]! + (keyed[k + 1]! - keyed[k]!) * (x - k);
@@ -420,9 +434,17 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
                 ),
             }
           : plan;
+      // The partner's body is both arms' obstacle, the shoulders the hands
+      // lower the loop onto their rests, read at every planned second.
+      const cleared: IAutoMovieMotionHumanActionPlan = placeOverHeadPartner(
+        body,
+        leaned,
+        partner,
+        context.start,
+      );
       const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
         body,
-        plan: leaned,
+        plan: cleared,
         side,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span,

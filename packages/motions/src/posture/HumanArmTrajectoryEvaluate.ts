@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import type { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryMaterialSweep } from "./HumanArmTrajectoryMaterialSweep";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -22,17 +23,28 @@ import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
  * waypoints (`kept`, a laid course's detour round, which lays a transport's
  * inner waypoints again and leaves every other as it was) takes the earlier
  * reading's arm placement, pairs and crossings at every waypoint it does not
- * name, and its sweeps over every interval both of whose ends it does not
- * name: each is a function of the context and the coordinates at its own
- * waypoints alone, so they are the same values. Every term is then summed by
- * the same loop in the same order, so the objective, the violation and the
- * worst term are the ones a reading of the whole iterate gives, bit for bit.
+ * name, and its sweeps over every interval both of whose ends it does not name:
+ * each is a function of the context and the coordinates at its own waypoints
+ * alone, so they are the same values. Every term is then summed by the same
+ * loop in the same order, so the objective, the violation and the worst term
+ * are the ones a reading of the whole iterate gives, bit for bit.
  *
  * @param c The context.
  * @param x Each arm's coordinates at each waypoint.
- * @param kept An earlier reading of the same context and the waypoints whose coordinates changed since it (`laid[k]` true), every other waypoint's coordinates being those that reading read; absent, every waypoint is read.
- * @param contact The waypoints whose clearance pairs (the probes' deepest, the body's corners embedded, the two arms' crossings) are read, `contact[k]` true: an optimiser's rounds read them at its knots, the sweeps between consecutive waypoints keeping the continuous check, and the converged path is read whole; absent, every waypoint's are read. The arms' collider probes, which only these pairs read, are placed only at the waypoints read, so a reading with `contact` serves its optimiser's rounds and no verdict: verdicts read a whole reading, whose placements are all complete.
- * @returns The arms placed, the objective, the summed violation and the worst one past its slack, with the pairs, sweeps and crossings the reading found and the waypoints that take part in a violation past the tolerance.
+ * @param kept An earlier reading of the same context and the waypoints whose
+ *   coordinates changed since it (`laid[k]` true), every other waypoint's
+ *   coordinates being those that reading read; absent, every waypoint is read.
+ * @param contact The waypoints whose clearance pairs (the probes' deepest, the
+ *   body's corners embedded, the two arms' crossings) are read, `contact[k]`
+ *   true: an optimiser's rounds read them at its knots, the sweeps between
+ *   consecutive waypoints keeping the continuous check, and the converged path
+ *   is read whole; absent, every waypoint's are read. The arms' collider
+ *   probes, which only these pairs read, are placed only at the waypoints read,
+ *   so a reading with `contact` serves its optimiser's rounds and no verdict:
+ *   verdicts read a whole reading, whose placements are all complete.
+ * @returns The arms placed, the objective, the summed violation and the worst
+ *   one past its slack, with the pairs, sweeps and crossings the reading found
+ *   and the waypoints that take part in a violation past the tolerance.
  */
 export function HumanArmTrajectoryEvaluate(
   c: M.IContext,
@@ -274,12 +286,29 @@ export function HumanArmTrajectoryEvaluate(
       }
       // Only the pairs the merit and the convex model can use are read
       // exactly (`HumanArmTrajectoryPairs.CUT`).
+      // A probe's pairs read half its step to each neighbouring waypoint
+      // too (`HumanArmTrajectoryHalfStep`), so they are the earlier
+      // reading's only where the neighbours are the earlier ones as well.
       const known: M.IEvaluation["pairs"][number][number] | undefined = same(k)
         ? kept!.reading.pairs[a]![k]
         : undefined;
+      // A still configuration's waypoints are its ends and its one instant,
+      // not a motion's frames: nothing moves between them.
+      const around: HumanArmTrajectoryHalfStep.IAround = c.still
+        ? {}
+        : {
+            ...(k > 0 && reads(k - 1) ? { before: placed[a]![k - 1]! } : {}),
+            ...(k + 1 < n && reads(k + 1) ? { after: placed[a]![k + 1]! } : {}),
+          };
       const deepest: Map<number, P.IPair> =
-        known?.deepest ??
-        (reads(k) ? P.deepest(c, a, k, placed[a]![k]!, P.CUT) : new Map());
+        (same(k - 1) || k === 0) && (same(k + 1) || k + 1 === n)
+          ? (known?.deepest ??
+            (reads(k)
+              ? P.deepest(c, a, k, placed[a]![k]!, P.CUT, around)
+              : new Map()))
+          : reads(k)
+            ? P.deepest(c, a, k, placed[a]![k]!, P.CUT, around)
+            : new Map();
       const embedded: Map<number, P.IEmbedded> =
         known?.embedded ??
         (reads(k) ? P.embedded(c, a, k, placed[a]![k]!, P.CUT) : new Map());
@@ -375,7 +404,10 @@ export function HumanArmTrajectoryEvaluate(
   };
 }
 
-/** Whether an earlier placement serves a reading: it holds the collider probes where the reading reads pairs. */
+/**
+ * Whether an earlier placement serves a reading: it holds the collider probes
+ * where the reading reads pairs.
+ */
 function surfaced(
   placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
   pairs: boolean,
@@ -383,7 +415,10 @@ function surfaced(
   return !pairs || placed.probes.length > G.SURFACE;
 }
 
-/** The strongest reading other than a site's at one waypoint: its excess, millimetres or coordinate units, and its words. */
+/**
+ * The strongest reading other than a site's at one waypoint: its excess,
+ * millimetres or coordinate units, and its words.
+ */
 interface IBearing {
   /** The excess past its slack. */
   value: number;

@@ -19,21 +19,28 @@ import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
 
 /**
- * What an arm is read against at one instant (`HumanArmGeometry.IFrame`),
- * built from a base: the shoulder's parent, the fingertip, the shapes of the
- * body and of another body in the arm's way, and the arm's own colliders and
- * their probes (the tangle audit's corners) in the frame of the segment each
- * rides on.
+ * What an arm is read against at one instant (`HumanArmGeometry.IFrame`), built
+ * from a base: the shoulder's parent, the fingertip, the shapes of the body and
+ * of another body in the arm's way, and the arm's own colliders and their
+ * probes (the tangle audit's corners and bone points) in the frame of the
+ * segment each rides on.
  */
 export namespace HumanArmFrame {
   /**
    * The frame of a base.
    *
    * @param setup The arm.
-   * @param base The pose and another body's colliders, the arms of the problem left out of what they hold.
-   * @param alone Whether the arm is solved alone, so the other arm is in its way; two arms solved together read each other through their own colliders.
-   * @param prepared Optional exact FK reader, or its lazy factory, shared only across arms of this same base's synchronous frame construction, then released. A factory is called only when a frame is missing; neither form is stored in a frame or cache.
-   * @returns The frame, the same record for the same base, arm and solve, which a refined trajectory and its finer reading share.
+   * @param base The pose and another body's colliders, the arms of the problem
+   *   left out of what they hold.
+   * @param alone Whether the arm is solved alone, so the other arm is in its
+   *   way; two arms solved together read each other through their own
+   *   colliders.
+   * @param prepared Optional exact FK reader, or its lazy factory, shared only
+   *   across arms of this same base's synchronous frame construction, then
+   *   released. A factory is called only when a frame is missing; neither form
+   *   is stored in a frame or cache.
+   * @returns The frame, the same record for the same base, arm and solve, which
+   *   a refined trajectory and its finer reading share.
    */
   export function of(
     setup: IAutoMovieMotionHumanArmGeometry.ISetup,
@@ -288,9 +295,12 @@ export namespace HumanArmFrame {
           },
           shapes: segment.shapes,
         });
+        // Every probe the audit reads the segment by: its colliders' corners
+        // and the points along its bone, which alone catch a limb crossing
+        // another between their corners (`AutoMovieMotionHumanAuditTangleModel.reference`).
         const part: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number] =
           model.parts[i]!;
-        for (let corner: number = 0; corner < part.surface; corner++) {
+        for (let corner: number = 0; corner < part.probes.length; corner++) {
           const probe: IAutoMovieVector3 = part.probes[corner]!;
           segments.push(i);
           indices.push(corner);
@@ -347,7 +357,7 @@ export namespace HumanArmFrame {
         around + MARGIN
       )
         continue;
-      for (let corner: number = 0; corner < part.surface; corner++) {
+      for (let corner: number = 0; corner < part.probes.length; corner++) {
         const probe: IAutoMovieVector3 = part.probes[corner]!;
         corners.push({
           point: Vector3.add(
@@ -428,10 +438,18 @@ export namespace HumanArmFrame {
   }
 }
 
-/** How near a body's corner must come to a segment of the arm to be read against it, metres: the pairs' reach (`HumanArmTrajectoryTerms.REACH`). */
+/**
+ * How near a body's corner must come to a segment of the arm to be read against
+ * it, metres: the pairs' reach (`HumanArmTrajectoryTerms.REACH`).
+ */
 const NEAR: number = HumanArmTrajectoryTerms.REACH;
 
-/** The slack a segment's sphere test keeps over the corner filter, metres: far below any probe's spacing, far above the rounding of a rotated probe's length, so the test leaves out only segments none of whose corners the filter keeps. */
+/**
+ * The slack a segment's sphere test keeps over the corner filter, metres: far
+ * below any probe's spacing, far above the rounding of a rotated probe's
+ * length, so the test leaves out only segments none of whose corners the filter
+ * keeps.
+ */
 const MARGIN: number = 1e-9;
 
 /** A sphere about points: their mean and the farthest one's distance. */
@@ -456,7 +474,10 @@ function sphere(points: readonly IAutoMovieVector3[]): {
   return { centre, radius };
 }
 
-/** The frames built, by base and then by arm and solve, kept while the base is held. */
+/**
+ * The frames built, by base and then by arm and solve, kept while the base is
+ * held.
+ */
 const FRAMES: WeakMap<
   G.IBase,
   Map<string, IAutoMovieMotionHumanArmGeometry.IFrame>
