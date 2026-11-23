@@ -2,9 +2,7 @@ import type { EvidenceMetadataRewriteOwnership } from "./EvidenceMetadataRewrite
 import type { IEvidenceMetadataRenderedSample } from "./IEvidenceMetadataRenderedSample";
 import type { IEvidenceMetadataRewriteFile } from "./IEvidenceMetadataRewriteFile";
 
-/**
- * Reproducible result of one successful evidence-metadata rewrite check.
- */
+/** Reproducible result of one successful evidence-metadata rewrite check. */
 export interface IEvidenceMetadataRewriteReport {
   /** Exact mutable metadata region this report proved. */
   ownership: EvidenceMetadataRewriteOwnership;

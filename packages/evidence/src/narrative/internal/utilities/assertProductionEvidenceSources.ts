@@ -7,7 +7,8 @@ import { constructionStage } from "../constructionStage";
 import { productionLayers } from "../productionLayers";
 
 /**
- * Checks supported narrative routes and stage option shapes before graph creation.
+ * Checks supported narrative routes and stage option shapes before graph
+ * creation.
  */
 export function assertProductionEvidenceSources(
   props: IProductionConfigProps,

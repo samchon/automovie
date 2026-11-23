@@ -4,13 +4,20 @@ import type { IProductionConstruction } from "./narrative/IProductionConstructio
 import type { NarrativeScope } from "./narrative/NarrativeScope";
 
 /**
- * Opts into narrative evidence using native claims and selected authored stages.
+ * Opts into narrative evidence using native claims and selected authored
+ * stages.
  */
 export interface IAutoMovieNarrativeProps {
-  /** Long retains four layers; short writes its brief canon, then the screenplay, with no treatments, scripts or outline. */
+  /**
+   * Long retains four layers; short writes its brief canon, then the
+   * screenplay, with no treatments, scripts or outline.
+   */
   mode: "long" | "short";
 
-  /** Unspecified layers are disabled drafts; an omitted outline follows settings. */
+  /**
+   * Unspecified layers are disabled drafts; an omitted outline follows
+   * settings.
+   */
   construction?: Partial<IProductionConstruction>;
 
   /** Defaults to the complete work; a pilot must identify its exact first part. */

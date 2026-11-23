@@ -7,8 +7,9 @@ import { BODY_ROOT } from "../utilities/BODY_ROOT";
 import { referenceLocation } from "../utilities/referenceLocation";
 
 /**
- * Creates one H2 reference per canon file of settings, in any supported layout, or of a short's brief.
- * The outline is not canon and is never an inherited settings dependency.
+ * Creates one H2 reference per canon file of settings, in any supported layout,
+ * or of a short's brief. The outline is not canon and is never an inherited
+ * settings dependency.
  */
 export function createSettingReferences(
   location: string,

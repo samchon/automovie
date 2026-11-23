@@ -3,9 +3,7 @@ import { occurrenceOffsets } from "./occurrenceOffsets";
 import { occurrences } from "./occurrences";
 import { textLocation } from "./textLocation";
 
-/**
- * Returns all replacement alarms confirmed against ancestor text.
- */
+/** Returns all replacement alarms confirmed against ancestor text. */
 export function replacementSafety(
   file: string,
   side: string,

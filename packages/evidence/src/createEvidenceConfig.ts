@@ -18,12 +18,12 @@ import { createProductionConfig } from "./narrative/createProductionConfig";
  *
  * The shared skills tree is resolved once: its absolute directory goes to the
  * narrative factories, which keep production-owned work and language contracts
- * under `<location>/docs/contracts`, and its root relative to `location` goes to the default
- * engineering, development and research claims. Caller-supplied `claims` are
- * added after the defaults as written, so they name their own root. A short
- * narrative includes its studies by default once one exists.
- * Film composition validates its catalog inputs before building claims.
- * On a story route the production's entity types cite their subject records.
+ * under `<location>/docs/contracts`, and its root relative to `location` goes
+ * to the default engineering, development and research claims. Caller-supplied
+ * `claims` are added after the defaults as written, so they name their own
+ * root. A short narrative includes its studies by default once one exists. Film
+ * composition validates its catalog inputs before building claims. On a story
+ * route the production's entity types cite their subject records.
  */
 export function createEvidenceConfig(
   props: IAutoMovieEvidenceConfigProps,

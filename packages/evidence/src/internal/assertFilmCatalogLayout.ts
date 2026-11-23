@@ -4,10 +4,10 @@ import path from "node:path";
 import { hasMatchingFile } from "./hasMatchingFile";
 
 /**
- * Check the catalog inputs when a production submits a programmed film or
- * scene to composition Evidence. A starter or an isolated catalog can be
- * developed before any film exists. The director verifies registration,
- * playback and the scope of each case at the handoff.
+ * Check the catalog inputs when a production submits a programmed film or scene
+ * to composition Evidence. A starter or an isolated catalog can be developed
+ * before any film exists. The director verifies registration, playback and the
+ * scope of each case at the handoff.
  *
  * @param location Absolute production directory.
  * @throws Error listing every missing catalog input.

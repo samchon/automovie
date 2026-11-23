@@ -4,9 +4,7 @@ import type { AuthoredLayer } from "./AuthoredLayer";
 import type { NarrativeScope } from "./NarrativeScope";
 import type { ProductionStage } from "./ProductionStage";
 
-/**
- * Describes one contract this work adopted, and the layers that answer it.
- */
+/** Describes one contract this work adopted, and the layers that answer it. */
 export interface IPackageContractProps {
   /**
    * Names the contract as its hosts cite it, such as
@@ -45,9 +43,9 @@ export interface IPackageContractProps {
    * Chooses whether every selected host answers every target independently.
    *
    * Keep `false` for an ordinary distributed relationship whose actual hosts
-   * cover the targets between them. A whole-population comparison instead
-   * uses `createPackagePopulationContract`, which the layer's documents answer
-   * once at file level.
+   * cover the targets between them. A whole-population comparison instead uses
+   * `createPackagePopulationContract`, which the layer's documents answer once
+   * at file level.
    *
    * @default true
    */

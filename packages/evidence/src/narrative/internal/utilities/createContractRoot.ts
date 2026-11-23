@@ -7,15 +7,17 @@ import { createContractDirectory } from "./createContractDirectory";
  *
  * Bundled references such as `principles/screenplay.md` start at the skills
  * tree's `contracts/story`. Production-owned `language/...` and `work/...`
- * references start at `docs/contracts`. Each citation works the same way in
- * a workspace and in a standalone production.
+ * references start at `docs/contracts`. Each citation works the same way in a
+ * workspace and in a standalone production.
  *
  * The same local Markdown bytes are both pre-draft instructions and later
  * evidence targets. Config constructs the graph but owns no document mirror.
  *
- * @param contracts The production location and optional shared tree; read, not retained.
+ * @param contracts The production location and optional shared tree; read, not
+ *   retained.
  * @param scope The contract family the reference addresses.
- * @returns The `/`-separated root relative to the production's configuration directory.
+ * @returns The `/`-separated root relative to the production's configuration
+ *   directory.
  */
 export function createContractRoot(
   contracts: IContractLocation,

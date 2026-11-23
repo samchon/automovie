@@ -2,20 +2,21 @@
  * Production-specific development contracts a commissioned film turns on.
  *
  * Each stage selects the exported declarations of its source folders against
- * one checklist under `contracts/development/` of the shared skills tree, answered in
- * their doc comments: entities in `src/entities/` answer `entities.md`, laws,
- * interactions and consequences in `src/laws/`, `src/interactions/` and
- * `src/consequences/` answer `behaviors.md`, a law naming the study it
- * follows in its answer, and scenes and films in `src/composition/` answer `composition.md`, scenes
- * citing the screenplay scene file or the sections and beats of it they
- * realize and films citing the scene files they order. An omitted stage stays
- * `"disabled"`, so ordinary coding and narrative-only work owe none of them.
+ * one checklist under `contracts/development/` of the shared skills tree,
+ * answered in their doc comments: entities in `src/entities/` answer
+ * `entities.md`, laws, interactions and consequences in `src/laws/`,
+ * `src/interactions/` and `src/consequences/` answer `behaviors.md`, a law
+ * naming the study it follows in its answer, and scenes and films in
+ * `src/composition/` answer `composition.md`, scenes citing the screenplay
+ * scene file or the sections and beats of it they realize and films citing the
+ * scene files they order. An omitted stage stays `"disabled"`, so ordinary
+ * coding and narrative-only work owe none of them.
  */
 export interface IAutoMovieDevelopmentProps {
   /**
    * Types, classes, functions and methods under `src/entities/` answer
-   * `contracts/development/entities.md`. Submitting entities or composition
-   * on a narrative route also connects entity types to its subject records.
+   * `contracts/development/entities.md`. Submitting entities or composition on
+   * a narrative route also connects entity types to its subject records.
    */
   entities?: "disabled" | "evidence";
 
@@ -28,12 +29,12 @@ export interface IAutoMovieDevelopmentProps {
 
   /**
    * Functions and methods under `src/composition/scenes/` answer
-   * `contracts/development/composition.md` and cite a screenplay scene file
-   * or its sections and beats, every section and beat of which must be cited;
+   * `contracts/development/composition.md` and cite a screenplay scene file or
+   * its sections and beats, every section and beat of which must be cited;
    * those under `src/composition/films/` answer it and cite the scene files
    * they order, every one of which must belong to a film. Catalog sources
-   * answer the composition checklist alone. Submitting programmed film or
-   * scene sources requires the catalog film, case sources and acceptance record.
+   * answer the composition checklist alone. Submitting programmed film or scene
+   * sources requires the catalog film, case sources and acceptance record.
    */
   composition?: "disabled" | "evidence";
 }

@@ -6,9 +6,7 @@ import { flatFingerprintStart } from "./flatFingerprintStart";
 import { isDeclaration } from "./isDeclaration";
 import { withoutEnding } from "./withoutEnding";
 
-/**
- * Recognizes a pure evidence block, retaining each heading reason's boundary.
- */
+/** Recognizes a pure evidence block, retaining each heading reason's boundary. */
 export function evidenceSections(
   lines: string[],
   start: number,

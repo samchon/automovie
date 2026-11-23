@@ -14,19 +14,19 @@ import { validateSettingsOutline } from "../validateSettingsOutline";
  *
  * The two installed outline contracts opt a package into this topology. A
  * legacy installation keeps its optional, stage-free part coverage until an
- * explicit contract migration. The part principles and the arrangement obligations
- * follow `construction.index` (the settings stage when omitted) and the
- * file-to-entry claim follows the settings stage. Activating either stage
+ * explicit contract migration. The part principles and the arrangement
+ * obligations follow `construction.index` (the settings stage when omitted) and
+ * the file-to-entry claim follows the settings stage. Activating either stage
  * validates the layout.
  *
  * Three claims answer three different questions, so none reads another's
  * population. Each outline part H2 answers every part principle for itself, the
  * outline file answers each arrangement obligation once, and every settings
  * file cites exactly one outline entry, so a missing, duplicated or invented
- * file fails the build. The general canon claims never read `index.md`,
- * and the outline never answers a canon principle.
+ * file fails the build. The general canon claims never read `index.md`, and the
+ * outline never answers a canon principle.
  *
- * @param completeSubmission explicitly requests layout validation even while
+ * @param completeSubmission Explicitly requests layout validation even while
  *   both stages are `disabled`.
  */
 export function createOutlineClaims(

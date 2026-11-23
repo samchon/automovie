@@ -5,11 +5,13 @@ import { readSettingsFiles } from "./readSettingsFiles";
 import { settingsEntryAnchor } from "./settingsEntryAnchor";
 
 /**
- * Checks that the outline describes the classified canon, in domain or numbered folders, in its actual order.
+ * Checks that the outline describes the classified canon, in domain or numbered
+ * folders, in its actual order.
  *
- * Entry anchors encode the relative file path and entry labels equal the H1. This checks
- * the authored layout, not evidence rows: the graph owns citation cardinality
- * and the semantic reviewer owns whether grouping and explanations work.
+ * Entry anchors encode the relative file path and entry labels equal the H1.
+ * This checks the authored layout, not evidence rows: the graph owns citation
+ * cardinality and the semantic reviewer owns whether grouping and explanations
+ * work.
  */
 export function validateSettingsOutline(location: string): void {
   const root: string = path.join(location, "docs/body/settings");
@@ -85,18 +87,31 @@ export function validateSettingsOutline(location: string): void {
 }
 
 /**
- * Reads structural ATX headings while keeping comments and fenced examples inert.
+ * Reads structural ATX headings while keeping comments and fenced examples
+ * inert.
  *
  * A leading byte order mark is dropped first, as the binder does when it trims
  * a file, so both readers accept the same authored bytes.
  *
- * Principled implementation: A line-state parser masks HTML comments and compatible fences before recognizing ATX headings; stripping an initial BOM keeps its first-heading interpretation aligned with authored binder trimming.
- * Clear and simple design: The local parser exists for outline structure only, returning heading captures without rewriting the source or replacing graph evidence extraction.
- * Prohibited implementation shortcuts: BOM and fenced/comment examples follow supported Markdown input rules for every document; no title or expected outline entry is injected.
- * Meaningful documentation: The prose explains example/comment inertness and the leading BOM premise; returned regexp groups retain heading depth and raw title for the validator.
- * Efficient algorithms: Line splitting and forward state scans visit Markdown text; accumulated visible fragments and regexp captures consume space proportional to input/headings. Repeated string concatenation relies on runtime string handling and claims no measured linear speedup.
- * Reuse equivalent work: One pass handles comments and fences together for a document; the pure parser coordinates no cross-request work or filesystem effects.
- * Bound retention and release resources: Line, visible-text and capture arrays are local or caller-owned at return; no persistent state, descriptor or task is retained.
+ * Principled implementation: A line-state parser masks HTML comments and
+ * compatible fences before recognizing ATX headings; stripping an initial BOM
+ * keeps its first-heading interpretation aligned with authored binder trimming.
+ * Clear and simple design: The local parser exists for outline structure only,
+ * returning heading captures without rewriting the source or replacing graph
+ * evidence extraction. Prohibited implementation shortcuts: BOM and
+ * fenced/comment examples follow supported Markdown input rules for every
+ * document; no title or expected outline entry is injected. Meaningful
+ * documentation: The prose explains example/comment inertness and the leading
+ * BOM premise; returned regexp groups retain heading depth and raw title for
+ * the validator. Efficient algorithms: Line splitting and forward state scans
+ * visit Markdown text; accumulated visible fragments and regexp captures
+ * consume space proportional to input/headings. Repeated string concatenation
+ * relies on runtime string handling and claims no measured linear speedup.
+ * Reuse equivalent work: One pass handles comments and fences together for a
+ * document; the pure parser coordinates no cross-request work or filesystem
+ * effects. Bound retention and release resources: Line, visible-text and
+ * capture arrays are local or caller-owned at return; no persistent state,
+ * descriptor or task is retained.
  */
 function headings(markdown: string): RegExpExecArray[] {
   let comment: boolean = false;

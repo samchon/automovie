@@ -1,8 +1,6 @@
 import type { IMetadataFragment } from "./IMetadataFragment";
 
-/**
- * Compares ordered metadata text and its authored-byte insertion anchors.
- */
+/** Compares ordered metadata text and its authored-byte insertion anchors. */
 export function sameMetadata(
   before: IMetadataFragment[],
   after: IMetadataFragment[],

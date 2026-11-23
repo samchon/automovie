@@ -7,8 +7,8 @@ import type { ProductionStage } from "./ProductionStage";
  *
  * A work owns contracts the shared config cannot state for it: a scale target,
  * a language-specific text floor, an episode-end standard. Each is a checklist
- * its selected hosts answer item by item, and the wiring is the same every
- * time — only the document, the hosts, and when the claim is off differ.
+ * its selected hosts answer item by item, and the wiring is the same every time
+ * — only the document, the hosts, and when the claim is off differ.
  */
 export interface IPackageChecklistClaimProps {
   /** Names the claim in diagnostics. State what the hosts must reach. */

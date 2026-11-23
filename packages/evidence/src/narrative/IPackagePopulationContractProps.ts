@@ -2,9 +2,7 @@ import type { AuthoredLayer } from "./AuthoredLayer";
 import type { NarrativeScope } from "./NarrativeScope";
 import type { ProductionStage } from "./ProductionStage";
 
-/**
- * Describes one work-specific duty answered once per complete layer.
- */
+/** Describes one work-specific duty answered once per complete layer. */
 export interface IPackagePopulationContractProps {
   /** One tracked work-contract document containing population H2 duties. */
   document: string;

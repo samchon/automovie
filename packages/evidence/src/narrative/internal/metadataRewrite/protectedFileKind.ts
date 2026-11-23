@@ -3,9 +3,7 @@ import path from "node:path";
 
 import { isNodeError } from "./isNodeError";
 
-/**
- * Identifies missing paths, regular files, and paths that must not be followed.
- */
+/** Identifies missing paths, regular files, and paths that must not be followed. */
 export function protectedFileKind(root: string, file: string): string {
   let target: string = root;
   const parts: string[] = file.split("/");

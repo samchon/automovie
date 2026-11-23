@@ -18,10 +18,9 @@ import { hasStoryContract } from "../utilities/hasStoryContract";
  *
  * An obligation asks one question about the whole layer, so the layer's own
  * authored documents answer it once, at file level, through their detached
- * construction evidence. Each item has exactly one answering document.
- * An obligation is never a per-H2 checklist, because
- * repeating a population question on every unit turns one comparison into a
- * restatement per unit.
+ * construction evidence. Each item has exactly one answering document. An
+ * obligation is never a per-H2 checklist, because repeating a population
+ * question on every unit turns one comparison into a restatement per unit.
  *
  * Screenplay expression is answered here alongside the other screenplay duties.
  */

@@ -10,7 +10,8 @@ import { layerFiles } from "./layerFiles";
 /**
  * Selects the installed language's construction principles for one layer.
  *
- * Language-specific screenplay questions follow the same unit scope as the shared ones.
+ * Language-specific screenplay questions follow the same unit scope as the
+ * shared ones.
  */
 export function createLanguagePrincipleReferences(props: {
   location: string;

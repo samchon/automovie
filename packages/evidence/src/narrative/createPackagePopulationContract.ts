@@ -15,9 +15,9 @@ import { createUnitFiles } from "./internal/utilities/createUnitFiles";
  * Creates one population obligation claim per selected layer.
  *
  * The layer's own documents answer each duty once, at file level, through
- * detached construction evidence. Each duty has exactly one answering
- * document. A duty is never repeated per H2, because a population question
- * restated on every unit is no longer one comparison.
+ * detached construction evidence. Each duty has exactly one answering document.
+ * A duty is never repeated per H2, because a population question restated on
+ * every unit is no longer one comparison.
  */
 export function createPackagePopulationContract(
   props: IPackagePopulationContractProps,
