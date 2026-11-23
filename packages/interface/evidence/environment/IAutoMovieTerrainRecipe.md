@@ -38,19 +38,19 @@ Names axis order, frame and units.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Three closed variants select a constant, planar grade or bounded waves. Stored heights and wavelength are metres, with grades in metres of rise per metre in their local axis.
+Four closed variants select a constant, planar grade, bounded periodic waves or bounded seeded fractal noise. Stored heights, amplitudes and wavelengths are metres, grades are metres of rise per metre in their local axis, and the noise's octave count and roughness are dimensionless.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Preserves constant and plane rules without allocating a lattice when no grade constraints exist. Rolling ground needs amplitude and wavelength to express spatial size independently of extent.
+Preserves constant and plane rules without allocating a lattice when no grade constraints exist. Rolling ground needs amplitude and wavelength to express spatial size independently of extent. Noise ground adds only the octave count and roughness, the two inputs of the engine's fractal sum, so an outdoor set gets ground that does not repeat while pads and paths stay with the recipe.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-No shape-dependent parameter is shared across meaningless variants. The producer checks finite values, positive wavelength and representable sampling.
+No shape-dependent parameter is shared across meaningless variants: octaves and roughness exist only on the noise variant. The producer checks finite values, positive amplitude and wavelength, the integer octave range 1 to 8, roughness in (0, 1) and representable sampling.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines variants, local height datum, grade axes, amplitude, wavelength and omitted height.
+Defines variants, local height datum, grade axes, amplitude, wavelength, the noise seed and sampling, octave and roughness ranges and defaults, and omitted height.
 
 # src/environment/IAutoMovieTerrainRecipe.ts#IAutoMovieTerrainRecipe.IPad
 

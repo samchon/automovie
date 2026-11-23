@@ -1,5 +1,6 @@
 import {
   Quaternion,
+  createAutoMovieFractalNoise2,
   createAutoMovieRandom,
   deriveAutoMovieSeed,
   footprintContains,
@@ -40,6 +41,33 @@ const MESH_TOLERANCE: number = 0.01;
 
 /** A placed grade path ready to check against the approved ground lattice. */
 type IPath = ReturnType<typeof prepareTerrainGrades>["paths"][number];
+
+/**
+ * The base relief before grades: an analytic rule or a sampler with its first
+ * bake pitch.
+ */
+interface ITerrainBase {
+  /**
+   * The analytic rule of level or planar relief; undefined when the relief must
+   * be baked.
+   */
+  rule: IAutoMovieHeightRule | undefined;
+
+  /**
+   * The first bake pitch in metres the relief alone needs; infinite for an
+   * analytic rule.
+   */
+  pitch: number;
+
+  /** The base height in world metres at a world plan point. */
+  sample: (point: { x: number; z: number }) => number;
+
+  /**
+   * What the author can change when the bake's sample budget refuses this
+   * relief.
+   */
+  advice?: string;
+}
 
 /**
  * Create a world-aligned terrain module with named placement and route frames.
@@ -232,7 +260,10 @@ export function createTerrain(
   };
 }
 
-/** Select the authoritative height and choose sufficient sampling density for relief and local grades. */
+/**
+ * Select the authoritative height and choose sufficient sampling density for
+ * relief and local grades.
+ */
 function terrainHeight(
   context: IAutoMovieEnvironmentModule.IContext,
   recipe: IAutoMovieTerrainRecipe,
@@ -255,6 +286,7 @@ function terrainHeight(
     pitch,
     tolerance,
     grades.height,
+    base.advice,
   );
 }
 
@@ -262,11 +294,7 @@ function terrainHeight(
 function terrainBase(
   context: IAutoMovieEnvironmentModule.IContext,
   recipe: IAutoMovieTerrainRecipe,
-): {
-  rule: IAutoMovieHeightRule | undefined;
-  pitch: number;
-  sample: (point: { x: number; z: number }) => number;
-} {
+): ITerrainBase {
   const origin: IAutoMovieVector3 = context.frame.translation;
   const relief: IAutoMovieTerrainRecipe.Relief = recipe.relief ?? {
     kind: "level",
@@ -303,6 +331,7 @@ function terrainBase(
           Math.cos(frequency * (z - origin.z) + phaseZ),
     };
   }
+  if (relief.kind === "noise") return noiseBase(context, relief, base);
   const rule: IAutoMovieHeightRule =
     relief.kind === "level"
       ? { kind: "constant", value: base }
@@ -321,7 +350,60 @@ function terrainBase(
   };
 }
 
-/** Split only holed footprints because compact world surfaces carry one outer ring each. */
+/**
+ * Fractal gradient-noise relief: `base + amplitude * noise(p / wavelength)`
+ * over local plan coordinates, so it never leaves the mean plus or minus the
+ * amplitude, and the same environment seed reproduces it.
+ */
+function noiseBase(
+  context: IAutoMovieEnvironmentModule.IContext,
+  relief: Extract<IAutoMovieTerrainRecipe.Relief, { kind: "noise" }>,
+  base: number,
+): ITerrainBase {
+  const origin: IAutoMovieVector3 = context.frame.translation;
+  const { amplitude, wavelength }: { amplitude: number; wavelength: number } =
+    relief;
+  const octaves: number = relief.octaves ?? 4;
+  const roughness: number = relief.roughness ?? 0.5;
+  if (!(Number.isFinite(amplitude) && amplitude > 0))
+    throw new Error(
+      `Terrain "${context.id}" requires a positive finite noise amplitude: ${amplitude}.`,
+    );
+  if (!(Number.isFinite(wavelength) && wavelength > 0))
+    throw new Error(
+      `Terrain "${context.id}" requires a positive finite noise wavelength: ${wavelength}.`,
+    );
+  if (!(Number.isInteger(octaves) && octaves >= 1 && octaves <= 8))
+    throw new Error(
+      `Terrain "${context.id}" requires noise octaves to be an integer from 1 to 8: ${octaves}.`,
+    );
+  if (!(roughness > 0 && roughness < 1))
+    throw new Error(
+      `Terrain "${context.id}" requires noise roughness strictly between 0 and 1: ${roughness}.`,
+    );
+  const noise: (x: number, y: number) => number = createAutoMovieFractalNoise2(
+    deriveAutoMovieSeed(context.seed ?? "0000000000000000", "terrain"),
+    octaves,
+    roughness,
+  );
+  const finest: number = wavelength / 2 ** (octaves - 1);
+  return {
+    rule: undefined,
+    // Eight samples per finest wavelength, the rolling relief's rule, before
+    // the cell error check refines the lattice.
+    pitch: finest / 8,
+    sample: ({ x, z }: { x: number; z: number }): number =>
+      base +
+      amplitude *
+        noise((x - origin.x) / wavelength, (z - origin.z) / wavelength),
+    advice: `Its noise relief's finest wavelength is ${finest} m: fewer octaves coarsen the first lattice, and a larger meshTolerance stops its refinement sooner.`,
+  };
+}
+
+/**
+ * Split only holed footprints because compact world surfaces carry one outer
+ * ring each.
+ */
 function worldPieces(
   surface: IAutoMovieSurface,
   walkable: boolean,

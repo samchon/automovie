@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Place the parcel by world translation, bake only nonlinear or locally graded heights, and validate the exact footprints with the stage validator. World pieces reuse the stage's hole decomposition and accepted height rule. The stage draws the same color-enabled patch whose support the ground solver reads.
+Place the parcel by world translation, bake only nonlinear or locally graded heights, and validate the exact footprints with the stage validator. Noise relief is the engine's fractal gradient noise at local plan coordinates over the wavelength, seeded as rolling relief is, scaled by the amplitude about the mean so it stays within it; its first bake pitch is one eighth of the finest octave's wavelength, the rolling rule, and the grading code reads it as any other base sampler. World pieces reuse the stage's hole decomposition and accepted height rule. The stage draws the same color-enabled patch whose support the ground solver reads.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -10,7 +10,7 @@ Grade preparation, lattice baking, surface publication and vegetation realizatio
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Reject nonfinite or collapsed bounds, terrain rotations, invalid rings, inaccessible features and unsatisfied route heights or slopes. Heightfield sampling and triangle error policies remain in the bake owner.
+Reject nonfinite or collapsed bounds, terrain rotations, invalid rings, inaccessible features, out-of-range noise parameters by name and unsatisfied route heights or slopes. A noise relief passes the bake its finest wavelength and the two fields that lower the lattice, so a budget refusal says what to change. Heightfield sampling and triangle error policies remain in the bake owner.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
