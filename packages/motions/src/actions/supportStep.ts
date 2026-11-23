@@ -244,13 +244,15 @@ export function supportStep(props: supportStep.IProps): number {
     push({
       posture: supportKey.solved(
         body,
-        // Until the stepping limb sets down, the body bears only on the
-        // supports it keeps from the stance it leaves, so every key of the
-        // swing keeps that stance's posture: in single support the centre of
+        // The lift shifts the body onto the supports it keeps. Until the
+        // stepping limb sets down those supports alone bear, so each later
+        // key of the swing prefers the body as the key before it bore and
+        // only the stepping limb travels: in single support the centre of
         // mass stays over the base of support that bears (Winter 1995, Gait
-        // Posture 3:193). Taking the arriving stance's posture mid-swing swung
-        // the trunk back toward the middle in the air and out again to land.
-        props.preference(props.leaving, start, oldPlace),
+        // Posture 3:193). Preferring a stance's own posture mid-swing swung
+        // the trunk back toward the middle in the air (f-small's wall step,
+        // 0.11 m of eye out and back within 0.1 s).
+        l === 0 ? props.preference(props.leaving, start, oldPlace) : start,
         start,
         kept,
         oldPlace,

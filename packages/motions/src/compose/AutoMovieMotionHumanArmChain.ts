@@ -110,12 +110,26 @@ export namespace AutoMovieMotionHumanArmChain {
       }
       return { arms, near: next };
     };
+    // An instant whose posture, goals included, is the one before it keeps
+    // that instant's fit: the refinement a continued fit runs never returns
+    // its seed exactly (the golden-section search's last probes, within the
+    // swivel's resolution of the optimum: Kiefer 1953), so re-fitting an
+    // unchanged goal stepped a held arm between two swivels a resolution
+    // apart every frame (the overhead stretch's hold, 0.0004 degrees each
+    // way). An IK seeded by the frame before solves nothing for a target
+    // that has not moved, so a hold stays still.
+    let previous: string | undefined;
     const instant = (k: number): IInstant => {
       while (course.length <= k) {
         const j: number = course.length;
+        const at: IAutoMovieMotionHumanPosture = posture(times[j]!);
+        const key: string = JSON.stringify(at);
         course.push(
-          fit(posture(times[j]!), j === 0 ? {} : course[j - 1]!.near),
+          j > 0 && key === previous
+            ? course[j - 1]!
+            : fit(at, j === 0 ? {} : course[j - 1]!.near),
         );
+        previous = key;
       }
       return course[k]!;
     };
