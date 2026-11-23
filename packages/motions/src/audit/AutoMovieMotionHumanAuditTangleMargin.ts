@@ -7,6 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanLinkCertificate } from "../posture/HumanLinkCertificate";
 import { AutoMovieMotionHumanAuditTangleModel as M } from "./AutoMovieMotionHumanAuditTangleModel";
 import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
 
@@ -35,8 +36,10 @@ import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotion
  * its origin moved plus its extent (`IPart.extent`) times the chord of the
  * angle it turned (a rigid motion moves a point `x` from the origin by the
  * origin's move plus `(R2 - R1) x`, whose length is at most `2 sin(angle / 2)
+ *
  * |x|`); summed over the steps between two instants it bounds how far any of
- * its points moved between them, by the triangle inequality. The poses are the
+ *
+ * Its points moved between them, by the triangle inequality. The poses are the
  * motion's own on its grid, read anyway by the audit, so the bound is measured,
  * never estimated.
  */
@@ -122,6 +125,21 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
         // A pair's key is built only where some pair is skipped or pressed.
         if (skip.size !== 0 && skip.has(key(placed[i]!.bone, placed[j]!.bone)))
           continue;
+
+        // Two segments their link pair's certificate shows apart hold no
+        // probe of either inside the other, and none enters while the two
+        // travel less than that clearance (`HumanLinkCertificate.clearance`), so
+        // it is the pair's margin as the spheres' gap is.
+        const clear: number = HumanLinkCertificate.clearance(
+          placed[i]!,
+          m.parts[i]!,
+          placed[j]!,
+          m.parts[j]!,
+        );
+        if (clear > 0) {
+          read?.heard(index, clear, true, 0);
+          continue;
+        }
         const forward: { excess: number; base: number } = own(
           m,
           placed,
@@ -160,8 +178,9 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
    *
    * A caller that certifies pairs across the instants of a motion
    * (`AutoMovieMotionHumanAuditPartner`) passes `read`: a pair whose index (`i
-   * * other's parts + j`) is not `due` is not read, and every pair read is
-   * `heard` as `within` hears it, its base being `across`'s.
+   *
+   * - Other's parts + j`) is not `due`is not read, and every pair read
+   *   is`heard`as`within`hears it, its base being`across`'s.
    *
    * @param m The model of the body whose probes are read.
    * @param mine Its placed segments.
@@ -213,6 +232,16 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
         const apart: number = Vector3.distance(near[i]!, far[j]!);
         if (apart >= reach) {
           read?.heard(index, apart - reach, true, 0);
+          continue;
+        }
+        const clear: number = HumanLinkCertificate.clearance(
+          mine[i]!,
+          m.parts[i]!,
+          theirs[j]!,
+          o.parts[j]!,
+        );
+        if (clear > 0) {
+          read?.heard(index, clear, true, 0);
           continue;
         }
         const reading: { depth: number; base: number } = across(

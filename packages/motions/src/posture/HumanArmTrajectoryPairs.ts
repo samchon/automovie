@@ -1,6 +1,7 @@
 import {
   Quaternion,
   Vector3,
+  physicalShapeGjk,
   physicalShapeNormal,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
@@ -10,21 +11,23 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmGeometry as G } from "./HumanArmGeometry";
-import { HumanArmPartScreen } from "./HumanArmPartScreen";
+import type { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapeBox } from "./HumanArmShapeBox";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
+import { HumanArmTrajectoryLinks } from "./HumanArmTrajectoryLinks";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryOverlap } from "./HumanArmTrajectoryOverlap";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
+import { HumanAuditModel } from "./HumanAuditModel";
 
 /**
  * What the arm trajectory reads at one waypoint (`HumanArmTrajectoryModel`):
  * each segment's deepest collider probe against the body and another body, the
  * body's corners against the arm's own colliders (the audit reads every pair
  * both ways), each arm's against the other arm, each site's current placement,
- * and the small rotation readings the objective and its model share.
+ * and the small rotation readings the objective and its model share. The course
+ * between read waypoints is the sweeps' (`HumanArmTrajectorySweep`).
  */
 export namespace HumanArmTrajectoryPairs {
   /**
@@ -43,14 +46,6 @@ export namespace HumanArmTrajectoryPairs {
 
     /** Whether the pair is a declared rest (`HumanArmTrajectoryModel.IRest`). */
     rested: boolean;
-
-    /**
-     * The probe's swept segment to a neighbouring waypoint, where it comes
-     * nearer the shape than the probe at the waypoint and `short` is its
-     * reading (`HumanArmTrajectoryHalfStep.swept`); none where the waypoint's
-     * own reading is the nearer.
-     */
-    swept?: HumanArmTrajectoryHalfStep.ISwept;
   }
 
   /** The moving-arm pair owned by HumanArmTrajectoryOverlap. */
@@ -133,11 +128,11 @@ export namespace HumanArmTrajectoryPairs {
    * reading of a pair further short than its active set (`T.CHECK`) uses it,
    * the merit counting only a pair past its bound (or a declared rest, read
    * whatever its distance) and the convex model only a pair within the active
-   * set. A shape's bounding sphere bounds its distance from below, so a probe
-   * the sphere shows further short than this is left unread, its pair keeping
-   * that bound until a probe read exactly passes it: the pair keeps its first
-   * place among the pairs, and its depth is past every user's reach whichever
-   * value it keeps.
+   * set. The link pair's certificate, a shape's bounding sphere and its hull's
+   * box bound its distance from below, so a probe they show further short than
+   * this is left unread, its pair keeping that bound until a probe read exactly
+   * passes it: the pair keeps its first place among the pairs, and its depth is
+   * past every user's reach whichever value it keeps.
    */
   export const CUT: number = T.CHECK;
 
@@ -147,6 +142,17 @@ export namespace HumanArmTrajectoryPairs {
    * and the shape, a pair the audit does not read (one part, or two that share
    * a joint) left out.
    *
+   * Each part is read against a shape first as one link pair
+   * (`HumanArmTrajectoryLinks`, `HumanAuditModel.certify`): one GJK between its
+   * solids and the shape. A pair it certifies clear by more than the cut is
+   * left unread with that bound, its probes never read. The pairs left are read
+   * probe by probe, each probe's distance bounded first by the shape's bounding
+   * sphere and the hull's box, and read exactly only where those bounds could
+   * not settle it (branch and bound). This is the discrete reading at the
+   * waypoint, trajopt's per-timestep contact; the course between waypoints is
+   * read by the sweeps (`HumanArmTrajectorySweep.links`), each frame step its
+   * own reading, so every reading has its own row.
+   *
    * @param c The context.
    * @param a The arm.
    * @param k The waypoint.
@@ -155,10 +161,6 @@ export namespace HumanArmTrajectoryPairs {
    *   millimetres (`CUT` where the reading's users need no more; negative, how
    *   little past it, for a reader that refuses only past a slack); every pair
    *   in reach is read when absent.
-   * @param beside The arm at the neighbouring waypoints: each pair is then read
-   *   over the probe's swept segments to them as well, relative to the shape,
-   *   so its bound holds between the waypoints (`HumanArmTrajectoryHalfStep`);
-   *   the waypoint alone when absent.
    * @returns The pairs by part and shape.
    */
   export function deepest(
@@ -167,148 +169,80 @@ export namespace HumanArmTrajectoryPairs {
     k: number,
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     cut: number = Infinity,
-    beside?: HumanArmTrajectoryHalfStep.IAround,
   ): Map<number, IPair> {
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
     const out: Map<number, IPair> = new Map();
+    const floor: number = cut / 1000;
+    const certifies: boolean = Number.isFinite(floor);
+    const queries: ReturnType<typeof S.prepareGap>[] = [];
+    for (const link of HumanArmTrajectoryLinks.of(c, a, k, placed)) {
+      for (const shape of c.reachable[a]![k]!) {
+        const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
+        if (frame.related[link.part]?.[s.part] === true) continue;
 
-    // How far each probe and each shape travels to the neighbouring
-    // waypoints (`HumanArmTrajectoryHalfStep.travel`): the screens reach
-    // that much farther, so a fast probe meets every shape its swept
-    // segment can, and a pair is read over its neighbours only where the
-    // shape's sphere, less both travels, cannot show it clear.
-    const moving: HumanArmTrajectoryHalfStep.ITravel | undefined =
-      beside === undefined
-        ? undefined
-        : HumanArmTrajectoryHalfStep.travel(c, a, k, placed, beside);
-    let widest: number = 0;
-    if (moving !== undefined) {
-      for (const v of moving.probes) widest = Math.max(widest, v);
-      let shapeMost: number = 0;
-      for (const v of moving.shapes) shapeMost = Math.max(shapeMost, v);
-      widest = HumanArmTrajectoryHalfStep.SWEPT * (widest + shapeMost);
-    }
-    const screened: S.IScreen = S.screen(
-      frame,
-      placed,
-      T.REACH + widest,
-      c.reachable[a]![k]!,
-    );
-    // Each audit part reads only the shapes its own probes' sphere can
-    // reach (`HumanArmPartScreen`), not every shape its segment's can.
-    const parts: Map<number, S.IScreen> = HumanArmPartScreen(
-      frame,
-      placed,
-      T.REACH + widest,
-      screened,
-    );
-    const gaps: number[] = [];
-    let queries: ReturnType<typeof S.prepareGap>[] | undefined;
-    placed.probes.forEach(
-      ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
-        if (probe < G.SURFACE) return;
+        // The part's screen: its probes' sphere against the shape's.
+        if (
+          Vector3.distance(link.centre, s.centre) - link.radius - s.radius >=
+          T.REACH
+        )
+          continue;
 
-        // A probe whose segment's screen holds no shape has none near it.
-        if (screened[frame.owners[probe - G.SURFACE]!].length === 0) return;
-        const part: number = frame.segments[probe - G.SURFACE]!;
-        for (const shape of S.nearby(
-          frame,
-          placed,
-          probe,
-          T.REACH + widest,
-          parts.get(part)!,
-          gaps,
-        )) {
-          const other: number = frame.shapes[shape]!.part;
-          if (frame.related[part]?.[other] === true) continue;
+        // A part of -1 is the arm's own segment's; one number keys the pair.
+        const key: number = (link.part + 1) * frame.shapes.length + shape;
+        const rested: boolean = c.rested(a, k, link.probes[0]!, s.bone);
 
-          // A part of -1 is the arm's own segment's; one number keys the pair.
-          const key: number = (part + 1) * frame.shapes.length + shape;
+        // The link pair's certificate: every allowance is no more than zero,
+        // so a bound past the cut leaves every probe of the pair beyond it.
+        if (certifies && !rested && link.solids.length !== 0) {
+          const least: number = HumanAuditModel.certify(
+            link.solids,
+            link.offset,
+            physicalShapeGjk.solid(s.pose, s.shape),
+            floor,
+          );
+          if (least > floor) {
+            out.set(key, {
+              probe: link.probes[0]!,
+              shape,
+              short: -1000 * least,
+              rested: false,
+            });
+            continue;
+          }
+        }
+        for (const probe of link.probes) {
+          const [p, r]: readonly [IAutoMovieVector3, number] =
+            placed.probes[probe]!;
           const known: IPair | undefined = out.get(key);
           const allowance: number = c.allowed(a, k, probe, shape);
 
-          // The pair's swept segments are no longer than the probe's and
-          // the shape's travels summed, L, so they come no nearer than L,
-          // and the played cubic's stray toward the shape adds at most an
-          // eighth of the second difference, itself at most 2 L: every bound
-          // below holds over the interval with SWEPT L taken off.
-          const travel: number =
-            moving === undefined
-              ? 0
-              : HumanArmTrajectoryHalfStep.SWEPT *
-                (moving.probes[probe]! + moving.shapes[shape]!);
-
-          // The shape's bounding sphere bounds its distance from below, so a
-          // probe it shows no deeper than the pair's deepest so far is not
-          // read exactly: it could not replace it (branch and bound).
+          // Two closed-form lower bounds on the probe's distance to the
+          // shape, the tighter kept: the shape's bounding sphere and the
+          // hull's box. A probe they show no deeper than the pair's deepest
+          // so far is not read exactly: it could not replace it (branch and
+          // bound).
           const bound: number =
-            1000 * (allowance - (gaps[shape]! - r - travel));
-          if (known !== undefined && bound <= known.short) continue;
-          // The hull's box bounds the distance tighter than its sphere: a
-          // probe the box shows no deeper than the pair's deepest so far
-          // could not replace it either.
-          if (
-            known !== undefined &&
             1000 *
-              (allowance -
-                (HumanArmShapeBox(frame.shapes[shape]!, p) - r - travel)) <=
-              known.short
-          )
-            continue;
-          if (
-            bound < -cut &&
-            !c.rested(a, k, probe, frame.shapes[shape]!.bone)
-          ) {
+            (allowance -
+              (Math.max(
+                Vector3.distance(p, s.centre) - s.radius,
+                HumanArmShapeBox(s, p),
+              ) -
+                r));
+          if (known !== undefined && bound <= known.short) continue;
+          if (bound < -cut && !rested) {
             if (known === undefined)
               out.set(key, { probe, shape, short: bound, rested: false });
             continue;
           }
-          let query: ReturnType<typeof S.prepareGap> | undefined =
-            queries?.[shape];
-          if (query === undefined) {
-            query = S.prepareGap(frame, shape);
-            if (queries === undefined) queries = [];
-            queries[shape] = query;
-          }
-          const gap: number = query(p, p) - r;
-
-          // Only a pair the cheap bounds could not clear reads its
-          // neighbours (`HumanArmTrajectoryHalfStep`), carried into the
-          // shape's frame, and its swept segments exactly.
-          const around: HumanArmTrajectoryHalfStep.INeighbour[] =
-            beside === undefined || gap - allowance >= travel
-              ? []
-              : HumanArmTrajectoryHalfStep.neighbours(
-                  c,
-                  a,
-                  k,
-                  shape,
-                  probe,
-                  placed,
-                  beside,
-                );
-          const sweep: HumanArmTrajectoryHalfStep.ISwept | undefined =
-            HumanArmTrajectoryHalfStep.swept(
-              frame.shapes[shape]!,
-              p,
-              around,
-              gap - allowance,
-            );
-          const nearer: HumanArmTrajectoryHalfStep.ISwept | undefined =
-            sweep !== undefined && sweep.gap - r < gap ? sweep : undefined;
-          const short: number =
-            1000 * (allowance - (nearer === undefined ? gap : nearer.gap - r));
+          const query: ReturnType<typeof S.prepareGap> = (queries[shape] ??=
+            S.prepareGap(frame, shape));
+          const short: number = 1000 * (allowance - (query(p, p) - r));
           if (known === undefined || short > known.short)
-            out.set(key, {
-              probe,
-              shape,
-              short,
-              rested: c.rested(a, k, probe, frame.shapes[shape]!.bone),
-              ...(nearer === undefined ? {} : { swept: nearer }),
-            });
+            out.set(key, { probe, shape, short, rested });
         }
-      },
-    );
+      }
+    }
     return out;
   }
 

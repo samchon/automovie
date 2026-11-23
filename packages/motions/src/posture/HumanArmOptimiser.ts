@@ -48,11 +48,11 @@ export namespace HumanArmOptimiser {
    *   When it holds more instants than `context`, the waypoints are knots:
    *   every evaluation and linearisation is the grid's, on the knots'
    *   interpolant, and the steps are the knots' (`HumanArmTrajectoryKnots`),
-   *   the rounds reading the clearance pairs at the knots' instants alone and
-   *   the motion terms and the sweeps on every instant; absent, or for a still
+   *   the clearance read at the knots' instants and over the intervals between
+   *   them, the motion terms on every instant; absent, or for a still
    *   configuration, the waypoints are read themselves.
-   * @returns The last iterate at the waypoints, its evaluation (the grid's in
-   *   full where a grid was read) and the penalty it was reached at.
+   * @returns The last iterate at the waypoints, its evaluation, which admits or
+   *   refuses the path played, and the penalty it was reached at.
    */
   export function optimise(
     context: M.IContext,
@@ -74,11 +74,13 @@ export namespace HumanArmOptimiser {
     const spread = (x: number[][][]): number[][][] =>
       grid === undefined ? x : Knots.read(context.times, grid.times, x);
 
-    // The clearance pairs, the costliest of the model's readings, are read
-    // at the knots' own instants by the rounds, the swept spheres between
-    // every two frames keeping the continuous check and every motion term
-    // read on every frame, so the path optimised is the one played; the
-    // converged path is then read whole, which the caller admits by.
+    // The clearance, the costliest of the model's readings, is read at the
+    // knots' own instants, each pair and axis sphere over its swept chords
+    // to the neighbouring knots widened by the played course's measured
+    // stray from them (`HumanArmTrajectoryEvaluate`), and every motion term
+    // on every frame, so the reading admits the path played at every instant
+    // and no finer reading follows: the solve's last reading is the
+    // admission (trajopt reads its timesteps and the casts between them).
     const contact: boolean[] | undefined =
       grid === undefined
         ? undefined
@@ -108,6 +110,8 @@ export namespace HumanArmOptimiser {
       ? read.times.map((_time: number, i: number): boolean => M.inner(read, i))
       : undefined;
     let fixed: Parameters<typeof M.evaluate>[2];
+    // Each iterate is read once; its reading is the record the merit and the
+    // convex model both take (`HumanSequentialConvex`), read again by neither.
     const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<
       number[][][],
       M.IEvaluation
@@ -135,8 +139,8 @@ export namespace HumanArmOptimiser {
         // A new linearisation has other rows: no earlier point starts it.
         session.point = undefined;
 
-        // The pairs that can enter the subproblem are read one growth of the
-        // region beyond it.
+        // The rows are the iterate's own reading's pairs, those within one
+        // growth of the region of their bound: nothing is read again.
         const built: IAutoMovieMotionHumanQuadraticProgram.IProblem =
           HumanArmTrajectoryConvex.convexify(
             read,
@@ -317,10 +321,7 @@ export namespace HumanArmOptimiser {
     );
     return {
       x: solved.x,
-      evaluation:
-        contact === undefined
-          ? solved.evaluation
-          : M.evaluate(read, spread(solved.x)),
+      evaluation: solved.evaluation,
       penalty: solved.penalty,
     };
   }

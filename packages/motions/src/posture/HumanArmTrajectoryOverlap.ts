@@ -1,6 +1,7 @@
 import {
   Quaternion,
   Vector3,
+  physicalShapeGjk,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
@@ -8,10 +9,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
+import { HumanArmShapeBox } from "./HumanArmShapeBox";
 import { HumanArmShapes as S } from "./HumanArmShapes";
+import { HumanArmTrajectoryLinks } from "./HumanArmTrajectoryLinks";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
+import { HumanAuditModel } from "./HumanAuditModel";
 
 /**
  * Collision pairs against moving arm colliders: the two solved arms against
@@ -69,6 +73,11 @@ export namespace HumanArmTrajectoryOverlap {
    * Each arm's deepest collider probe against each of the other arm's collider
    * shapes at a waypoint, by the probe's segment and the shape.
    *
+   * Each audit part of an arm is read against a shape of the other first as one
+   * link pair (`HumanAuditModel.certify`); a pair certified clear past the cut
+   * is left unread with that bound, and the pairs left are read probe by probe,
+   * each bounded first as `HumanArmTrajectoryPairs.deepest` bounds its probes.
+   *
    * @param c The context.
    * @param k The waypoint.
    * @param first The first arm placed there.
@@ -87,6 +96,8 @@ export namespace HumanArmTrajectoryOverlap {
   ): Map<string, ICrossing> {
     const out: Map<string, ICrossing> = new Map();
     const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = [first, second];
+    const floor: number = cut / 1000;
+    const certifies: boolean = Number.isFinite(floor);
     for (let a: number = 0; a < 2; ++a) {
       const theirs: IAutoMovieMotionHumanArmGeometry.IShape[] = S.colliders(
         c.frames[1 - a]![k]!,
@@ -95,11 +106,12 @@ export namespace HumanArmTrajectoryOverlap {
       const owners: readonly Owner[] = shapeOwners(
         c.frames[1 - a]![k]!.colliders,
       );
+      const solids: (physicalShapeGjk.ISolid | undefined)[] = [];
 
       // Each segment's sphere is screened against each shape before its probes.
       const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
       const own: IAutoMovieMotionHumanArmGeometry.IPlaced = placed[a]!;
-      const centres: Record<"upper" | "lower" | "hand", IAutoMovieVector3> = {
+      const centres: Record<Owner, IAutoMovieVector3> = {
         upper: Vector3.add(
           own.shoulder,
           Quaternion.rotateVector(own.upper, frame.bounds.upper.centre),
@@ -113,7 +125,7 @@ export namespace HumanArmTrajectoryOverlap {
           Quaternion.rotateVector(own.hand, frame.bounds.hand.centre),
         ),
       };
-      const near = (owner: "upper" | "lower" | "hand"): boolean[] =>
+      const near = (owner: Owner): boolean[] =>
         theirs.map(
           (shape: IAutoMovieMotionHumanArmGeometry.IShape): boolean =>
             Vector3.length(Vector3.subtract(centres[owner], shape.centre)) -
@@ -121,58 +133,80 @@ export namespace HumanArmTrajectoryOverlap {
               frame.bounds[owner].radius <
             T.REACH,
         );
-      const screened: Record<"upper" | "lower" | "hand", boolean[]> = {
+      const screened: Record<Owner, boolean[]> = {
         upper: near("upper"),
         lower: near("lower"),
         hand: near("hand"),
       };
-      own.probes.forEach(
-        ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
-          if (probe < G.SURFACE) return;
-          const segment: M.Segment = S.segment(frame, probe);
-          const mine: boolean[] = screened[frame.owners[probe - G.SURFACE]!];
-          theirs.forEach(
-            (
-              shape: IAutoMovieMotionHumanArmGeometry.IShape,
-              i: number,
-            ): void => {
-              if (!mine[i]) return;
-              // The two arms' segments on one grasped object meet by design
-              // on the hold, and keep that depth only by the reach's share as
-              // the hands close on it and part from it.
-              const grip: number | undefined = c.grasped(
-                a,
-                k,
-                segment,
-                owners[i] === "upper"
-                  ? "upperArm"
-                  : owners[i] === "lower"
-                    ? "lowerArm"
-                    : "hand",
-                i,
+      for (const link of HumanArmTrajectoryLinks.of(c, a, k, own)) {
+        const mine: boolean[] = screened[link.owner];
+        const segment: M.Segment = S.segment(frame, link.probes[0]!);
+        theirs.forEach(
+          (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
+            if (!mine[i]) return;
+            // The two arms' segments on one grasped object meet by design
+            // on the hold, and keep that depth only by the reach's share as
+            // the hands close on it and part from it.
+            const grip: number | undefined = c.grasped(
+              a,
+              k,
+              segment,
+              owners[i] === "upper"
+                ? "upperArm"
+                : owners[i] === "lower"
+                  ? "lowerArm"
+                  : "hand",
+              i,
+            );
+            if (grip === Infinity) return;
+            const key: string = `${a}|${segment}|${i}`;
+            const rested: boolean = c.rested(a, k, link.probes[0]!, shape.bone);
+
+            // The link pair's certificate: every allowance is no more than
+            // zero, so a bound past the cut leaves every probe beyond it.
+            if (certifies && !rested && link.solids.length !== 0) {
+              const solid: physicalShapeGjk.ISolid = (solids[i] ??=
+                physicalShapeGjk.solid(shape.pose, shape.shape));
+              const least: number = HumanAuditModel.certify(
+                link.solids,
+                link.offset,
+                solid,
+                floor,
               );
-              if (grip === Infinity) return;
+              if (least > floor) {
+                if (!out.has(key))
+                  out.set(key, {
+                    a,
+                    probe: link.probes[0]!,
+                    shape,
+                    owner: owners[i]!,
+                    bone: shape.bone,
+                    short: -1000 * least,
+                    rested: false,
+                  });
+                return;
+              }
+            }
+            for (const probe of link.probes) {
+              const [p, r]: readonly [IAutoMovieVector3, number] =
+                own.probes[probe]!;
               const apart: number =
                 Vector3.length(Vector3.subtract(p, shape.centre)) -
                 shape.radius -
                 r;
-              if (apart >= T.REACH) return;
-              const key: string = `${a}|${segment}|${i}`;
+              if (apart >= T.REACH) continue;
               const known: ICrossing | undefined = out.get(key);
               const allowance: number =
                 c.between(a, k, probe, i, shape.bone) - (grip ?? 0);
 
-              // Bounded as `deepest`: a probe the bounding sphere shows no
+              // Bounded as `deepest`: the bounding sphere and the hull's box
+              // bound the distance from below, and a probe they show no
               // deeper than the pair's deepest so far is not read exactly.
-              if (
-                known !== undefined &&
-                1000 * (allowance - apart) <= known.short
-              )
-                return;
-              if (
-                1000 * (allowance - apart) < -cut &&
-                !c.rested(a, k, probe, shape.bone)
-              ) {
+              const bound: number =
+                1000 *
+                (allowance - Math.max(apart, HumanArmShapeBox(shape, p) - r));
+              if (known !== undefined && bound <= known.short) continue;
+              if (bound < -cut && !rested) {
                 if (known === undefined)
                   out.set(key, {
                     a,
@@ -180,16 +214,18 @@ export namespace HumanArmTrajectoryOverlap {
                     shape,
                     owner: owners[i]!,
                     bone: shape.bone,
-                    short: 1000 * (allowance - apart),
+                    short: bound,
                     rested: false,
                   });
-                return;
+                continue;
               }
-              const short: number =
-                1000 *
-                (allowance -
-                  (physicalShapeSegmentDistance(shape.pose, shape.shape, p, p) -
-                    r));
+              const distance: number = physicalShapeSegmentDistance(
+                shape.pose,
+                shape.shape,
+                p,
+                p,
+              );
+              const short: number = 1000 * (allowance - (distance - r));
               if (known === undefined || short > known.short)
                 out.set(key, {
                   a,
@@ -198,12 +234,12 @@ export namespace HumanArmTrajectoryOverlap {
                   owner: owners[i]!,
                   bone: shape.bone,
                   short,
-                  rested: c.rested(a, k, probe, shape.bone),
+                  rested,
                 });
-            },
-          );
-        },
-      );
+            }
+          },
+        );
+      }
     }
     return out;
   }
@@ -213,6 +249,11 @@ export namespace HumanArmTrajectoryOverlap {
    * collider shapes at a waypoint, the reverse of the forward pair reading. The
    * tangle audit reads every pair both ways and takes the deeper; only own-body
    * parts sharing a joint are excluded.
+   *
+   * An own-body part is read against an arm shape first as one link pair
+   * (`HumanAuditModel.certify`); a pair certified clear past the cut is left
+   * unread with that bound, and only the pairs left read their corners, each
+   * bounded first as `HumanArmTrajectoryPairs.deepest` bounds its probes.
    *
    * @param c The context.
    * @param a The arm.
@@ -238,8 +279,13 @@ export namespace HumanArmTrajectoryOverlap {
       placed,
     );
     const owners: readonly Owner[] = shapeOwners(frame.colliders);
+    const model: AutoMovieMotionHumanAuditTangleModel.IModel =
+      AutoMovieMotionHumanAuditTangleModel.model(c.setups[a]!.body);
+    const floor: number = cut / 1000;
+    const certifies: boolean = Number.isFinite(floor);
+    const solids: (physicalShapeGjk.ISolid | undefined)[] = [];
     // Each segment's sphere screens the corners before its shapes.
-    const centres: Record<"upper" | "lower" | "hand", IAutoMovieVector3> = {
+    const centres: Record<Owner, IAutoMovieVector3> = {
       upper: Vector3.add(
         placed.shoulder,
         Quaternion.rotateVector(placed.upper, frame.bounds.upper.centre),
@@ -253,11 +299,19 @@ export namespace HumanArmTrajectoryOverlap {
         Quaternion.rotateVector(placed.hand, frame.bounds.hand.centre),
       ),
     };
+    // Each own-body part's certificate against each arm shape, read once
+    // for the cluster of its corners: the bound, or none where it cannot
+    // be read (a rest, or a part that is no segment of the body).
+    let certified: Map<number, number> = new Map();
+    let part: number = -1;
+    // The current cluster's part's shapes as convex solids, made on their
+    // first read for the cluster.
+    let body: physicalShapeGjk.ISolid[] | undefined;
     const visit = (
       corner: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number],
       i: number,
     ): void => {
-      const close: Record<"upper" | "lower" | "hand", boolean> = {
+      const close: Record<Owner, boolean> = {
         upper:
           Vector3.length(Vector3.subtract(corner.point, centres.upper)) -
             frame.bounds.upper.radius <
@@ -281,23 +335,82 @@ export namespace HumanArmTrajectoryOverlap {
           if (apart >= T.REACH) return;
           if (frame.related[corner.part]?.[shape.part] === true) return;
           const key: number = corner.part * mine.length + j;
-          const known: IEmbedded | undefined = out.get(key);
-          const allowance: number = c.inside(a, k, i, j);
-
-          // Bounded as `deepest`: a corner the bounding sphere shows no
-          // deeper than the pair's deepest so far is not read exactly.
-          if (known !== undefined && 1000 * (allowance - apart) <= known.short)
-            return;
           const own: "upperArm" | "lowerArm" | "hand" =
             owners[j] === "upper"
               ? "upperArm"
               : owners[j] === "lower"
                 ? "lowerArm"
                 : "hand";
+          const rested: boolean = c.lying(a, k, own, corner.bone);
+
+          // The link pair's certificate: every allowance is no more than
+          // zero, so a bound past the cut leaves every corner beyond it.
           if (
-            1000 * (allowance - apart) < -cut &&
-            !c.lying(a, k, own, corner.bone)
+            certifies &&
+            !rested &&
+            corner.part < model.parts.length &&
+            !certified.has(j)
           ) {
+            body ??= frame.shapes
+              .filter(
+                (s: IAutoMovieMotionHumanArmGeometry.IShape): boolean =>
+                  s.part === corner.part,
+              )
+              .map(
+                (
+                  s: IAutoMovieMotionHumanArmGeometry.IShape,
+                ): physicalShapeGjk.ISolid =>
+                  physicalShapeGjk.solid(s.pose, s.shape),
+              );
+            certified.set(
+              j,
+              body.length === 0
+                ? -Infinity
+                : Math.min(
+                    ...body.map((solid: physicalShapeGjk.ISolid): number =>
+                      HumanAuditModel.certify(
+                        [
+                          (solids[j] ??= physicalShapeGjk.solid(
+                            shape.pose,
+                            shape.shape,
+                          )),
+                        ],
+                        model.parts[corner.part]!.offset,
+                        solid,
+                        floor,
+                      ),
+                    ),
+                  ),
+            );
+          }
+          const least: number | undefined = rested
+            ? undefined
+            : certified.get(j);
+          if (least !== undefined && least > floor) {
+            if (!out.has(key))
+              out.set(key, {
+                corner: i,
+                shape,
+                index: j,
+                owner: owners[j]!,
+                bone: corner.bone,
+                short: -1000 * least,
+                rested: false,
+              });
+            return;
+          }
+          const known: IEmbedded | undefined = out.get(key);
+          const allowance: number = c.inside(a, k, i, j);
+
+          // Bounded as `deepest`: the bounding sphere and the hull's box
+          // bound the distance from below, and a corner they show no deeper
+          // than the pair's deepest so far is not read exactly.
+          const bound: number =
+            1000 *
+            (allowance -
+              Math.max(apart, HumanArmShapeBox(shape, corner.point)));
+          if (known !== undefined && bound <= known.short) return;
+          if (bound < -cut && !rested) {
             if (known === undefined)
               out.set(key, {
                 corner: i,
@@ -305,20 +418,18 @@ export namespace HumanArmTrajectoryOverlap {
                 index: j,
                 owner: owners[j]!,
                 bone: corner.bone,
-                short: 1000 * (allowance - apart),
+                short: bound,
                 rested: false,
               });
             return;
           }
-          const short: number =
-            1000 *
-            (allowance -
-              physicalShapeSegmentDistance(
-                shape.pose,
-                shape.shape,
-                corner.point,
-                corner.point,
-              ));
+          const distance: number = physicalShapeSegmentDistance(
+            shape.pose,
+            shape.shape,
+            corner.point,
+            corner.point,
+          );
+          const short: number = 1000 * (allowance - distance);
           if (known === undefined || short > known.short) {
             out.set(key, {
               corner: i,
@@ -327,7 +438,7 @@ export namespace HumanArmTrajectoryOverlap {
               owner: owners[j]!,
               bone: corner.bone,
               short,
-              rested: c.lying(a, k, own, corner.bone),
+              rested,
             });
           }
         },
@@ -347,8 +458,14 @@ export namespace HumanArmTrajectoryOverlap {
         !reaches(cluster, centres.hand, frame.bounds.hand.radius)
       )
         continue;
-      for (let i: number = cluster.start; i < cluster.end; ++i)
+      for (let i: number = cluster.start; i < cluster.end; ++i) {
+        if (frame.body[i]!.part !== part) {
+          part = frame.body[i]!.part;
+          certified = new Map();
+          body = undefined;
+        }
         visit(frame.body[i]!, i);
+      }
     }
     return out;
   }

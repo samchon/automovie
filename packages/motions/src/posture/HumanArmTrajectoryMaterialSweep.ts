@@ -8,6 +8,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmShapeBox } from "./HumanArmShapeBox";
 import { HumanArmShapes as S } from "./HumanArmShapes";
+import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
@@ -23,8 +24,9 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * @param c The original course's setup, samples and authored body reader.
  * @param a The moving arm in the canonical problem.
  * @param k The first waypoint of the free interval.
+ * @param n Its last waypoint, the next one read.
  * @param from The arm placed at that waypoint.
- * @param to The arm placed at the next waypoint.
+ * @param to The arm placed at its last waypoint.
  * @param contacts The existing corner-pair readings for this arm.
  * @param coordinates The clinical waypoints used by playback's cubic.
  * @returns Confirmed encounters with their relative-chord correction rows.
@@ -33,6 +35,7 @@ export function HumanArmTrajectoryMaterialSweep(
   c: M.IContext,
   a: number,
   k: number,
+  n: number,
   from: IAutoMovieMotionHumanArmGeometry.IPlaced,
   to: IAutoMovieMotionHumanArmGeometry.IPlaced,
   contacts: M.IEvaluation["pairs"][number],
@@ -45,11 +48,11 @@ export function HumanArmTrajectoryMaterialSweep(
     material === undefined ||
     support < 0 ||
     c.sites[a]![k] !== undefined ||
-    c.sites[a]![k + 1] !== undefined
+    c.sites[a]![n] !== undefined
   )
     return [];
   const active: Map<number, P.IPair> = new Map();
-  for (const j of [k, k + 1])
+  for (const j of [k, n])
     for (const [key, pair] of contacts[j]?.deepest ?? []) {
       if (
         frame.shapes[pair.shape]!.part !== support ||
@@ -59,7 +62,7 @@ export function HumanArmTrajectoryMaterialSweep(
         continue;
       if (
         frame.resting.has(frame.shapes[pair.shape]!.part) &&
-        c.frames[a]![k + 1]!.resting.has(frame.shapes[pair.shape]!.part)
+        c.frames[a]![n]!.resting.has(frame.shapes[pair.shape]!.part)
       )
         continue;
       active.set(key, pair);
@@ -70,10 +73,10 @@ export function HumanArmTrajectoryMaterialSweep(
     const part: number = frame.segments[pair.probe - G.SURFACE]!;
     const shape = frame.shapes[pair.shape]!;
     const first: number = contacts[k]?.deepest.get(key)?.short ?? Infinity;
-    const last: number = contacts[k + 1]?.deepest.get(key)?.short ?? Infinity;
+    const last: number = contacts[n]?.deepest.get(key)?.short ?? Infinity;
     if (first > T.SKIN + T.TOLERANCE || last > T.SKIN + T.TOLERANCE) continue;
     let worst: number = T.TOLERANCE;
-    let witness: HumanArmTrajectorySweep.ISwept | undefined;
+    let witness: Omit<HumanArmTrajectorySweep.ISwept, "near"> | undefined;
     let gap: ReturnType<typeof S.prepareGap> | undefined;
     // HumanArmFrame appends all material corners of each collider together.
     let start: number = pair.probe - G.SURFACE;
@@ -81,7 +84,15 @@ export function HumanArmTrajectoryMaterialSweep(
     for (let index: number = start; frame.segments[index] === part; ++index) {
       const probe: number = G.SURFACE + index;
       const [point, radius] = from.probes[probe]!;
-      const moved = P.relative(c, a, k, pair.shape, to.probes[probe]![0]);
+      const moved: ReturnType<typeof HumanArmTrajectoryHalfStep.carry> =
+        HumanArmTrajectoryHalfStep.carry(
+          c,
+          a,
+          k,
+          n,
+          pair.shape,
+          to.probes[probe]![0],
+        );
       const travel: number = Vector3.distance(point, moved.point);
       if (
         travel === 0 ||
@@ -91,7 +102,7 @@ export function HumanArmTrajectoryMaterialSweep(
       const lower: number =
         Math.min(
           c.allowed(a, k, probe, pair.shape),
-          c.allowed(a, k + 1, probe, pair.shape),
+          c.allowed(a, n, probe, pair.shape),
         ) -
         T.SKIN / 1000;
       const centre: IAutoMovieVector3 = Vector3.lerp(point, moved.point, 0.5);
@@ -109,6 +120,10 @@ export function HumanArmTrajectoryMaterialSweep(
         witness = {
           probe,
           shape: pair.shape,
+          from: k,
+          start: point,
+          first: { x: 0, y: 0, z: 0, w: 1 },
+          other: n,
           to: moved.point,
           turn: moved.turn,
           clear,
@@ -130,7 +145,7 @@ export function HumanArmTrajectoryMaterialSweep(
       Vector3.dot(Vector3.subtract(nearest.at, startPoint), travel) /
       Vector3.dot(travel, travel);
     if (!(u > 0 && u < 1)) continue;
-    const seconds: number = c.times[k]! + u * (c.times[k + 1]! - c.times[k]!);
+    const seconds: number = c.times[k]! + u * (c.times[n]! - c.times[k]!);
     const actual: IAutoMovieMotionHumanArmGeometry.IFrame = material.frame(
       a,
       seconds,
@@ -144,7 +159,8 @@ export function HumanArmTrajectoryMaterialSweep(
     );
     const point: IAutoMovieVector3 = arm.probes[witness.probe]![0];
     const clear: number = S.gap(actual, witness.shape, point, point) - radius;
-    if (1000 * (witness.lower - clear) > T.TOLERANCE) result.push(witness);
+    if (1000 * (witness.lower - clear) > T.TOLERANCE)
+      result.push({ ...witness, near: nearest });
   }
   return result;
 }

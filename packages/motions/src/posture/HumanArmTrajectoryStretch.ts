@@ -2,7 +2,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmRefine } from "./HumanArmRefine";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
-import { HumanArmTrajectoryAdmission as Admission } from "./HumanArmTrajectoryAdmission";
+import type { HumanArmTrajectoryAdmission as Admission } from "./HumanArmTrajectoryAdmission";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
@@ -13,12 +13,12 @@ import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
 /**
  * One stretch of an arm course solved by trajectory optimisation alone:
  * TrajOpt's penalty sequential convex optimisation on a few knots (Schulman et
- * al. 2014, Algorithm 1, `HumanArmOptimiser`), its played interpolant read on
- * the frame grid and every failing interval split and solved again from itself
- * (Schulman et al. 2013, section V), with no other start tried. It is the solve
- * `planHumanArmTrajectory` runs on a whole span, on a stretch its laid course
- * fails, and the solve a caller runs on a stretch of its own course where the
- * arm's closed-form fit loses its admissible swivel (`plan`).
+ * al. 2014, Algorithm 1, `HumanArmOptimiser`), whose own reading of the knots
+ * and the intervals between them admits or refuses the path played, knots added
+ * only where the course between them fails, with no other start tried. It is
+ * the solve `planHumanArmTrajectory` runs on a stretch its laid course fails or
+ * on a whole span, and the solve a caller runs on a stretch of its own course
+ * where the arm's closed-form fit loses its admissible swivel (`plan`).
  */
 export namespace HumanArmTrajectoryStretch {
   /** A problem read on given waypoints' seconds. */
@@ -121,21 +121,25 @@ export namespace HumanArmTrajectoryStretch {
   }
 
   /**
-   * The knots' trajectory solved from a seed and refined where its played
-   * interpolant fails the frame-grid reading.
+   * The knots' trajectory solved from a seed, and solved again only where the
+   * knots are too few for the course between them.
    *
    * The knots stay few, TrajOpt's few timesteps: a moving site is held at every
    * frame through the knots' interpolant, which the optimiser reads and
-   * linearises on the whole grid (`HumanArmTrajectoryKnots`). Where the
-   * converged path fails its frame-grid reading between two knots, that
-   * interval and its neighbours are split and the path solved again from itself
-   * at the penalty it reached (Schulman et al. 2013, section V), until the
-   * reading admits it, the affected intervals are already frames, or the
-   * refinement stops paying: at most `REFINEMENTS` passes, each cutting the
-   * worst miss by `PROGRESS` of what it was. A hand that misses its site or a
-   * task point at a knot whose two intervals are already single frames misses
-   * it with every freedom a path can have there, so such a path is returned as
-   * it stands.
+   * linearises on the whole grid (`HumanArmTrajectoryKnots`), and the clearance
+   * is read at the knots and through every frame between them
+   * (`HumanArmTrajectoryEvaluate`), so the solve's own last reading admits or
+   * refuses the path played at every instant. Where that reading fails on the
+   * course between knots (a swept reading), the knots lack the freedom to route
+   * the course there: each interval one of whose sweeps fails is split at its
+   * middle frame, and the path is solved on, warm, from its own solution
+   * carried onto the knots (`HumanArmRefine.hermite`) at the penalty it
+   * reached, every other interval as it was (trajopt subdivides only the
+   * interval its longest valid segment exceeds; Schulman et al. 2013, section
+   * V). A failure at the knots themselves is the problem's, and no knot is
+   * added for it. Each pass halves the intervals it splits and an interval of
+   * one frame is never split, so the passes are at most the base-two logarithm
+   * of the longest interval's frames.
    *
    * @param grid The grid.
    * @param from The knots the seed stands on.
@@ -152,43 +156,23 @@ export namespace HumanArmTrajectoryStretch {
     let at: IKnots = from;
     let solved: ReturnType<typeof HumanArmOptimiser.optimise> =
       HumanArmOptimiser.optimise(at.context, seed, penalty, grid.fine);
-    let passes: number = 0;
-    let previous: number = Infinity;
     while (
       solved.evaluation.worst.value > M.TOLERANCE &&
-      at.context.n < grid.fine.n &&
-      passes < REFINEMENTS &&
-      solved.evaluation.worst.value < previous * (1 - PROGRESS)
+      solved.evaluation.worst.term === "swept" &&
+      !at.context.still &&
+      grid.fine.n > at.context.n
     ) {
-      previous = solved.evaluation.worst.value;
-      ++passes;
       const knots: number[] = at.knots;
-      const framed: ReadonlySet<number> = new Set(
-        knots.filter(
-          (g: number, i: number): boolean =>
-            (i === 0 || g - knots[i - 1]! <= 1) &&
-            (i === knots.length - 1 || knots[i + 1]! - g <= 1),
-        ),
-      );
-      if (
-        (solved.evaluation.worst.term === "site" ||
-          solved.evaluation.worst.term === "limit") &&
-        solved.evaluation.failing.some(
-          (failed: boolean, g: number): boolean => failed && framed.has(g),
-        )
-      )
-        break;
-      // A frame depends on its bracket and the adjacent Hermite slopes:
-      // every such interval of every failed frame is opened in one pass.
+      // Each interval one of whose sweeps fails past the tolerance: the
+      // reading keeps an interval's sweeps by its first knot. One of a single
+      // frame cannot be split.
       const affected: Set<number> = new Set();
-      let bracket: number = 0;
-      solved.evaluation.failing.forEach((failed: boolean, g: number): void => {
-        while (bracket + 2 < knots.length && knots[bracket + 1]! <= g)
-          ++bracket;
-        if (!failed) return;
-        for (const i of [bracket - 1, bracket, bracket + 1])
-          if (i >= 0 && i + 1 < knots.length && knots[i + 1]! - knots[i]! >= 2)
-            affected.add(i);
+      knots.forEach((g: number, i: number): void => {
+        if (i + 1 >= knots.length || knots[i + 1]! - g < 2) return;
+        for (const arm of solved.evaluation.swept)
+          for (const sweep of arm[g] ?? [])
+            if (1000 * (sweep.lower - sweep.clear) > M.TOLERANCE)
+              affected.add(i);
       });
       if (affected.size === 0) break;
       const next: IKnots = on(grid, HumanArmRefine.split(knots, [...affected]));
@@ -206,16 +190,15 @@ export namespace HumanArmTrajectoryStretch {
         grid.fine,
       );
     }
-    const played: Admission.IReading =
-      !at.context.still && grid.fine.n > at.context.n
-        ? {
-            x: Knots.read(at.context.times, grid.fine.times, solved.x),
-            evaluation: solved.evaluation,
-          }
-        : Admission.read(at.context, grid.fine, solved.x);
+    const played: Admission.IReading = {
+      x:
+        !at.context.still && grid.fine.n > at.context.n
+          ? Knots.read(at.context.times, grid.fine.times, solved.x)
+          : solved.x,
+      evaluation: solved.evaluation,
+    };
     return { ...at, ...solved, played };
   }
-
   /**
    * Whether a solve's played trajectory is admitted on the frame grid.
    *
@@ -228,11 +211,12 @@ export namespace HumanArmTrajectoryStretch {
 
   /**
    * The refusal of a solve its frame-grid reading does not admit, in the plan's
-   * own reading: a path too fast for the speed bound is met by the same path
-   * over a longer span (Hollerbach 1984, "Dynamic scaling of manipulator
-   * trajectories"), so a `duration` refusal names the span its fastest probe's
-   * speed over the bound needs, read at the knots and on the frame grid, and
-   * the solution it was reached at is told.
+   * own reading. A path that breaks anything but its speed (`placement`) is
+   * refused for that: no longer span meets it. A path that breaks only its
+   * speed is met by the same path over a longer span (Hollerbach 1984, "Dynamic
+   * scaling of manipulator trajectories"), so its `duration` refusal names the
+   * span its fastest probe's speed over the bound needs, read at the knots and
+   * on the frame grid, and the solution it was reached at is told.
    *
    * @param grid The grid.
    * @param last The unadmitted solve.
@@ -246,36 +230,44 @@ export namespace HumanArmTrajectoryStretch {
   ): HumanRefusal {
     const at: readonly number[] = last.context.times;
     const n: number = last.context.n;
-    const worst: M.IEvaluation["worst"] =
+    const span: number = at[n - 1]! - at[0]!;
+    const reading: M.IEvaluation =
       last.evaluation.worst.value > M.TOLERANCE
-        ? last.evaluation.worst
-        : last.played.evaluation.worst;
-    if (worst.axis === "duration")
-      told.state = { times: [...at], x: last.x, penalty: last.penalty };
+        ? last.evaluation
+        : last.played.evaluation;
+    const worst: M.IWorst =
+      reading.placement.value > M.TOLERANCE ? reading.placement : reading.worst;
+    const arms: string = last.problem.arms
+      .map((a: HumanArmTrajectory.IArm): string => a.side)
+      .join(" and ");
+    if (worst.axis !== "duration")
+      return new HumanRefusal({
+        kind: "reach",
+        axis: worst.axis,
+        value: worst.value,
+        feasible: null,
+        reason: `no path of the ${arms} arm over the action keeps the hand on its site, the arm clear and its speed within the law's own pace: ${worst.what}`,
+        fix: "put the hand on a site its arm reaches with the body clear",
+      });
+    told.state = { times: [...at], x: last.x, penalty: last.penalty };
     return new HumanRefusal({
       kind: "reach",
-      axis: worst.axis,
-      value: worst.axis === "duration" ? at[n - 1]! - at[0]! : worst.value,
-      feasible:
-        worst.axis === "duration"
-          ? {
-              kind: "range",
-              minimum: Pace.duration(
-                (at[n - 1]! - at[0]!) *
-                  Math.max(
-                    Pace.slower(last.context, last.x),
-                    Pace.slower(grid.fine, last.played.x),
-                  ),
-              ),
-              maximum: null,
-              unit: "s",
-            }
-          : null,
-      reason: `no path of the ${last.problem.arms.map((a: HumanArmTrajectory.IArm): string => a.side).join(" and ")} arm over the action keeps the hand on its site, the arm clear and its speed within the law's own pace: ${worst.what}`,
-      fix:
-        worst.axis === "duration"
-          ? "give the action more time"
-          : "put the hand on a site its arm reaches with the body clear",
+      axis: "duration",
+      value: span,
+      feasible: {
+        kind: "range",
+        minimum: Pace.duration(
+          span *
+            Math.max(
+              Pace.slower(last.context, last.x),
+              Pace.slower(grid.fine, last.played.x),
+            ),
+        ),
+        maximum: null,
+        unit: "s",
+      },
+      reason: `no path of the ${arms} arm over the action keeps the hand on its site, the arm clear and its speed within the law's own pace: ${worst.what}`,
+      fix: "give the action more time",
     });
   }
 
@@ -371,17 +363,3 @@ export namespace HumanArmTrajectoryStretch {
     throw flip ? Mirror.refusal(refusal) : refusal;
   }
 }
-
-/**
- * The most refinement passes a stretch takes over its frame grid's failing
- * intervals: four halvings bring a knot interval of sixteen frames to single
- * frames (provisional).
- */
-const REFINEMENTS: number = 4;
-
-/**
- * The share of the worst miss a refinement pass must cut to earn the next one;
- * a pass that cuts less has stopped paying, and the course is read as it stands
- * (provisional).
- */
-const PROGRESS: number = 0.1;

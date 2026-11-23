@@ -4,16 +4,17 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 /**
  * The reading of an arms' trajectory as it is played back: the knots'
  * interpolant (`HumanArmRefine.hermite`, the one playback reads) placed at
- * every instant of the frame grid and read there by the trajectory model's own
- * evaluation (`HumanArmTrajectoryModel.evaluate`), with every site, allowance
- * and base of that instant. What the film shows lies between the knots, so the
- * grid's reading, not the knots', decides whether a trajectory is admitted.
+ * every instant of the frame grid and read by the trajectory model's own
+ * evaluation (`HumanArmTrajectoryModel.evaluate`) as the optimiser reads its
+ * iterates: every motion term at every grid instant, with every site, allowance
+ * and base of that instant, and the clearance at the knots and over the
+ * intervals between them, widened by the played course's stray, which admits
+ * the path at every instant between.
  *
  * The optimiser reads the same thing at every iterate
  * (`HumanArmTrajectoryKnots`), so a trajectory it returns carries this reading
  * already; this entry reads a trajectory that did not come from an optimisation
- * on that grid: an earlier plan's solution tried as it stands, or knots that
- * are the grid's own instants.
+ * on that grid: an earlier plan's solution tried as it stands.
  */
 export namespace HumanArmTrajectoryAdmission {
   /** A trajectory read on the frame grid. */
@@ -46,6 +47,15 @@ export namespace HumanArmTrajectoryAdmission {
         return fine.times.map((t: number): number[] => curve(t).coordinates);
       },
     );
-    return { x: at, evaluation: M.evaluate(fine, at) };
+    const knots: Set<number> = new Set(c.times);
+    return {
+      x: at,
+      evaluation: M.evaluate(
+        fine,
+        at,
+        undefined,
+        fine.times.map((t: number): boolean => knots.has(t)),
+      ),
+    };
   }
 }

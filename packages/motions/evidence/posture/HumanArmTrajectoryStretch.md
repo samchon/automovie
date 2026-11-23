@@ -116,27 +116,27 @@ Retains nothing.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the solve, the refinement, its bound and its early end.
+States the solve, what it reads, when an interval is split and the passes' bound.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-TrajOpt's penalty SCP on knots with the continuous check's interval refinement.
+TrajOpt's penalty SCP on knots, whose reading of the knots and the course between them through every frame played is the admission; where the course between knots fails, the knots lack freedom there, so the intervals whose sweeps fail are split and the path solved on, warm, from its own solution at the penalty reached (trajopt subdivides only an interval past its longest valid segment; Schulman et al. 2013, section V).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One optimisation, then one bounded split-and-solve loop.
+One optimisation, then splits of the intervals a swept miss lies in, read from the evaluation's own sweeps, each pass continuing the last.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The played reading is the frame-grid admission's; no start but the seed is tried.
+No retry or second start; no knot is added for a miss at the knots themselves, and no tuned pass count or progress share stops it: an interval of one frame is never split.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Cost class: one penalty SCP over the knots' variables, read on the stretch's frame grid, at most `REFINEMENTS` more solves, each splitting only failing intervals; linear in the stretch's frames per evaluation.
+Cost class: one penalty SCP over the knots' variables per pass, each reading linear in the stretch's frames; each pass halves the intervals it splits, so the passes are at most the base-two logarithm of the longest interval's frames, and none follows a solve that meets its reading or misses at its knots.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-A refinement carries the path on its own interpolant and solves from it at the penalty reached.
+A split pass carries the path on its own interpolant and solves from it at the penalty reached; the solve's last evaluation is the played reading, never read again.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -150,7 +150,7 @@ States what is named and when the solution is told.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Hollerbach's time scaling for a speed-bound miss; the worst term otherwise.
+A path that breaks anything but its speed is refused for that term (`placement`), since no longer span meets it; a path that breaks only its speed is refused for time by Hollerbach's scaling.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -158,7 +158,7 @@ One worst term, one refusal.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The worst of the knots' and the played reading's misses is named.
+The worst of the knots' and the played reading's misses is named, its geometric term before its speed.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

@@ -64,8 +64,7 @@ export namespace HumanArmSeed {
    *   context, already solved for this problem (`held`); solved here when
    *   absent.
    * @returns The seed.
-   * @throws {HumanRefusal} When no start gives a feasible hold, or no path
-   *   joins the rest arms to it.
+   * @throws {HumanRefusal} When no start gives a feasible hold.
    */
   export function seed(
     problem: IProblem,
@@ -99,7 +98,6 @@ export namespace HumanArmSeed {
       to: number[][],
       passes: readonly number[],
     ): number[][] => {
-      const k: number = passes[passes.length - 1]!;
       const shares: number[] = passes.map((j: number, i: number): number =>
         i === 0
           ? 0
@@ -115,9 +113,11 @@ export namespace HumanArmSeed {
         });
         return passes[best]!;
       };
+      const start: number[] = [...from.flat(), 0];
+      const goal: number[] = [...to.flat(), 1];
       const found: number[][] | null = HumanArmConnect.connect({
-        start: [...from.flat(), 0],
-        goal: [...to.flat(), 1],
+        start,
+        goal,
         sample: (random: () => number): number[] => [
           ...space.sample(random),
           random(),
@@ -133,29 +133,13 @@ export namespace HumanArmSeed {
         extent: space.extent,
         rising: dims,
       });
-      if (found === null) {
-        // Name the end that cannot be joined: an end that is itself invalid
-        // is the cause, not the path between them.
-        const start: { value: number; what: string } = M.invalid(
-          context,
-          passes[0]!,
-          from,
-        );
-        const end: { value: number; what: string } = M.invalid(context, k, to);
-        const worst: { value: number; what: string; at: number } =
-          end.value > start.value
-            ? { ...end, at: times[k]! }
-            : { ...start, at: times[passes[0]!]! };
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "region",
-          value: worst.value,
-          feasible: null,
-          reason: `no clear path of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm joins its rest to its hold at ${times[k]!.toFixed(3)} s: ${worst.value > M.TOLERANCE ? `at ${worst.at.toFixed(3)} s ${worst.what}` : "both ends are valid"}`,
-          fix: "put the hand on a site its arm reaches with the body clear",
-        });
-      }
-      return found;
+      // A sampling planner that spends its budget without joining the two
+      // ends has found no path, not shown that none exists (OMPL reports a
+      // timeout, not infeasibility): the reach is then the straight
+      // interpolation in the arms' joint space between them, the start
+      // TrajOpt itself takes (Schulman et al. 2014), and only the solved
+      // trajectory's own reading refuses.
+      return found ?? [start, goal];
     };
     const span: (a: number, b: number) => number[] = (
       a: number,

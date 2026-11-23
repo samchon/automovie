@@ -24,7 +24,7 @@ States the contexts, the coordinates and the result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The played interpolant is evaluated by the one model the optimiser's iterates are, on the grid's own context, so the reading is the admission the optimiser itself applies.
+The played interpolant is evaluated by the one model the optimiser's iterates are, on the grid's own context with the knots as its read waypoints, so the reading is the admission the optimiser itself applies.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -32,7 +32,7 @@ One interpolation an arm and grid instant, then one evaluation.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Every term the model refuses by is read at every grid instant.
+Every motion term the model refuses by is read at every grid instant, and the clearance at the knots and over the intervals between them through every grid frame.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

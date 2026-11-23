@@ -2,15 +2,15 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines probe/shape indices, signed millimetre shortfall, the declared-rest flag and the swept segment a shortfall is read on.
+Defines probe/shape indices, signed millimetre shortfall and the declared-rest flag.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-One deepest actual collider probe per audit-part/shape pair; current geometry supplies bounded indices and the context supplies physical allowances.
+One deepest actual collider probe per audit-part/shape pair at a waypoint; current geometry supplies bounded indices and the context supplies physical allowances. The course between waypoints is the sweeps' record (`HumanArmTrajectorySweep.ISwept`), not a field here.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The merit, refusal and convex rows consume these fields from deepest; the swept reading carries its own gradient for the convex row.
+The merit, refusal and convex rows consume these fields from deepest.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -164,31 +164,31 @@ Returns fresh tangents and retains neither the normal nor state.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines indexed deepest pairs, millimetre cut, own-part/joint exclusions and the optional neighbouring placements the swept reading uses.
+Defines indexed deepest pairs, the millimetre cut, own-part and joint exclusions and the link-pair certificate read first.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Bounding spheres, first of each audit part's probes (`HumanArmPartScreen`) and then of each probe, conservatively select actual probes; reference allowances and shape gaps select each pair's deepest admissible reading, read at the waypoint and over the probe's swept segments to its neighbours with the played cubic's stray toward the shape (`HumanArmTrajectoryHalfStep`), TrajOpt's continuous-time term (Schulman et al. 2014). Every probe the tangle audit reads is read, the hand's against what it rests on included.
+Each audit part is read against a shape first as one link pair: a GJK lower bound between the part's own shapes and the shape (`HumanAuditModel.certify`), trajopt's link-pair reading at a timestep; two convex solids' distance bounds every probe depth between them, so a pair it certifies past the cut has no probe within reach. The pairs left read their probes, the deepest admissible kept. This is the waypoint's discrete reading, whose row moves the waypoint itself; the course between waypoints is read by the sweeps, one per frame step (`HumanArmTrajectorySweep.links`). Every probe the tangle audit reads is read, the hand's against what it rests on included.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Each probe's complete sphere pass precedes the unchanged exact-query loop; a private buffer transfers completed sphere distances and selected shapes lazily acquire opaque fixed-geometry readers.
+Part by part, shape by shape: the part's screen, its certificate, then its probes under branch and bound.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Preserves reach, CUT, exclusions, first-winner ties, rest/reference callbacks and exact query order; every screen and bound used to leave a probe unread is widened by `HumanArmTrajectoryHalfStep.SWEPT` times the probe's and the shape's travel to the neighbouring waypoints, the farthest the swept reading's chord and the played cubic's stray can bring the pair nearer, so the skip stays conservative for that reading.
+Preserves reach, CUT, exclusions, first-winner ties, rest/reference callbacks and exact query order; every allowance is no more than zero, so a certified bound past the cut leaves every probe beyond it; a rested pair is never certified.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Plan-time cost class, once per waypoint read by the solve: one travel bound per probe and shape (O(P + S)), Q audit parts screened against the segment screen's shapes (O(Q S)), then P probes against their part's shapes only, with exact queries only where the branch-and-bound admits them; a pair's neighbours are carried into the shape's frame and its swept segments read (at most two segment queries) only where its exact gap less its allowance is within its travel bound. Nothing is read per displayed frame.
+Plan-time cost class, once per read waypoint of an iterate: a screen per part and shape, one GJK per part and shape left by the screen, and probes read exactly only in the pairs no certificate clears, each first bounded by the shape's sphere and the hull's box. Nothing is read per displayed frame.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-nearby supplies the same candidate probe's actual sphere gap. A prepared engine reader shares only each selected shape's unchanged frame geometry; every exact distance and original allowance/rest query still runs in order, and callbacks leave geometry/probes unchanged.
+The evaluation that calls it keeps its result for the iterate's merit and convex model, and for a later reading of the same coordinates at the waypoint; within the call, each shape's exact reader is made once.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Numeric gaps and at most one opaque reader per queried frame shape die with this candidate read. The reader array is created only after an actual exact query is selected; returned map entries contain only scalar indices/shortfalls, never scratch or a retained query reader.
+Solids, readers and scratch die with the call; returned map entries hold only indices and shortfalls.
 
 # src/posture/HumanArmTrajectoryPairs.ts#HumanArmTrajectoryPairs.located
 

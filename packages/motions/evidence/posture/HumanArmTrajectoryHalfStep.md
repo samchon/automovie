@@ -1,80 +1,44 @@
-# src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.IAround
+# src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.IStep
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States each member and when it is absent.
+States each member.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The arm's placements, borrowed.
+A frame's waypoint index and the arm placed there, borrowed.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-What `neighbours` reads.
+What a course is read through.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 None.
 
-# src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.INeighbour
+# src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.INear
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States each member, its frame and its unit.
+States each member, its order and what it covers.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The neighbour's index, the carried place, the turn and the length of the swept segment.
+The next read waypoint, the arm there and at every frame on the way, and the arm's strays within the frame steps.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-What `swept` and the convex rows read.
+What `travel`, the casts and the sweeps read.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-None.
-
-# src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.ISwept
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each member, its frame and its unit.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A signed distance and two gradient directions.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-What the pair reading and its convex rows read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
-# src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.IGradient
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each member and its frame.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A waypoint index and a world direction.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-What the convex rows read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
+The frames are the evaluation's own placements, borrowed, never placed again.
 
 # src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.ITravel
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what each member bounds and why it bounds a pair's swept segment.
+States what each member bounds and why it bounds a pair's carried course.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -82,11 +46,41 @@ Two arrays of metres, by probe index and by shape index.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-What the pair reading's cheap bound reads before any neighbour.
+What the sweeps' screens read before any cast.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 None.
+
+# src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.point
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the inputs, the result and the two cases.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+A collider probe rides its segment rigidly: its segment's origin plus the segment's rotation of its offset in the frame, as the arm's placement places it.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The placed probe where there is one, one rigid transform otherwise.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The offset is the frame's own, the one the placement reads.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Constant work, no collider placement of the whole arm at a frame between read waypoints.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure reading of its arguments.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns a fresh vector or the placed one.
 
 # src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.travel
 
@@ -96,19 +90,19 @@ States the inputs and the result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A rigid body's point moves no farther than its centre's step plus its distance from the centre times the chord of the body's turn, 2 sin(angle / 2) (the triangle inequality on a rigid motion); a probe's step is read directly.
+A rigid body's point moves no farther than its centre's step plus its distance from the centre times the chord of the body's turn, 2 sin(angle / 2) (the triangle inequality on a rigid motion); a probe's place at every frame on the way is read directly.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One pass over the probes, one over the shapes, per neighbour.
+One pass over the probes and one over the shapes, per frame on the way.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A shape that is not the same segment at the neighbour is read as still, as `neighbours` reads it, so the bound covers every swept segment `neighbours` gives.
+A shape that is not the same segment at a frame is read as still, as `carry` carries it, so the bound covers every course a sweep reads.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in probes plus shapes per waypoint, once per pair reading, so no pair reads its neighbours unless this bound fails.
+Linear in probes plus shapes per frame of the interval, once per interval reading, so no pair reads a course unless this bound fails.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
@@ -118,27 +112,27 @@ A pure reading of its arguments.
 
 Returns two fresh arrays.
 
-# src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.neighbours
+# src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.sphere
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the inputs and the result.
+States the bound and why it holds.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Each neighbour's place carried by the same collider's placement at `k` times the inverse of its placement there (`HumanArmShapes.relative`).
+The shape lies in its bounding sphere, so a segment's distance to it is at least the segment's distance to the centre less the radius, read at the segment's point nearest the centre in closed form.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Two neighbours, each carried once.
+One projection.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A shape that is not the same segment at both waypoints is read as still.
+The sphere is the shape's declared bounding sphere.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Two rigid transforms per pair.
+Constant work in place of an exact query.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
@@ -146,37 +140,7 @@ A pure reading of its arguments.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-Returns fresh records and retains nothing.
-
-# src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.swept
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the inputs and the result.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-The engine's segment distance and nearest point, and the envelope theorem's gradient at the nearest point carried to the ends by its share of the segment (`HumanArmSweepGradient`, as the axis spheres' sweeps take it).
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-A bound, then one exact reading per segment left.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-A segment is left unread only where the unit-slope bound proves it clear.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-At most two segment queries per pair, none for a pair its room already clears.
-
-## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
-
-A pure reading of its arguments.
-
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
-
-Returns a fresh record and retains nothing.
+Returns a number.
 
 # src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.relative
 
@@ -187,6 +151,36 @@ States the inputs, the result and the still case.
 ## @evidence contracts/development/implementation.md#principled-implementation
 
 The matching collider's placement at `from` times the inverse of its placement at `from + 1` (`HumanArmShapes.relative`).
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One delegation to `carry`.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A collider that is not the same segment at both is read as still, never matched by place.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Constant work.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure reading of its arguments.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns a fresh record and retains nothing.
+
+# src/posture/HumanArmTrajectoryHalfStep.ts#HumanArmTrajectoryHalfStep.carry
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the inputs, the result and the still case.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The matching collider's placement at `here` times the inverse of its placement at `there` (`HumanArmShapes.relative`).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines the carrying bone, ordered shape/axis probes, surface prefix and metre-valued local sphere.
+Defines the carrying bone, ordered shape/axis probes, surface prefix, metre-valued local sphere, extent and the probes' offset outside the shapes.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Actual collider corners and along-bone points share one segment-local frame and its conservative bounding sphere.
+Actual collider corners and along-bone points share one segment-local frame, its conservative bounding sphere, and the probes' measured offset outside the segment's own shapes, which a link pair's certificate subtracts.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

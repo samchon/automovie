@@ -10,6 +10,7 @@ import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryMaterialSweep } from "./HumanArmTrajectoryMaterialSweep";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
+import { HumanArmTrajectoryStray } from "./HumanArmTrajectoryStray";
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
@@ -19,29 +20,38 @@ import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
  * The objective and the constraints' violations of an arms' trajectory at an
  * iterate (`HumanArmTrajectoryModel.evaluate`, which states the terms).
  *
+ * The motion terms (the accelerations, the steps and their speeds, the sites
+ * and the task points) are read at every waypoint. The clearance is read at the
+ * read waypoints (`contact`, an optimiser's knots, or every waypoint), each
+ * pair at the waypoint (`HumanArmTrajectoryPairs.deepest`), and over each
+ * interval to the next read waypoint every probe's course through every frame
+ * between, each frame step its own sweep (`HumanArmTrajectorySweep`: the axis
+ * spheres as capsules, the collider probes under their parts' cast hulls, less
+ * the course's stray from its chords): a reading that admits the trajectory
+ * there admits it at every instant between, so no finer reading follows
+ * (trajopt reads its timesteps and the casts between them, each subdivided cast
+ * its own contact, and nothing finer).
+ *
  * A reading of an iterate that differs from an earlier one's only at some
- * waypoints (`kept`, a laid course's detour round, which lays a transport's
- * inner waypoints again and leaves every other as it was) takes the earlier
- * reading's arm placement, pairs and crossings at every waypoint it does not
- * name, and its sweeps over every interval both of whose ends it does not name:
- * each is a function of the context and the coordinates at its own waypoints
- * alone, so they are the same values. Every term is then summed by the same
- * loop in the same order, so the objective, the violation and the worst term
- * are the ones a reading of the whole iterate gives, bit for bit.
+ * waypoints (`kept`: a laid course's detour round, or an optimiser's trial that
+ * leaves some knots as they were) takes the earlier reading's arm placement at
+ * every waypoint it does not name, its pairs and crossings at every read
+ * waypoint it does not name, and its sweeps over every read interval whose
+ * window (the interval's waypoints and the waypoints about them, which the
+ * strays read) it does not name: each is a function of the context and the
+ * coordinates in its window alone, so they are the same values. Every term is
+ * then summed by the same loop in the same order, so the objective, the
+ * violation and the worst term are the ones a reading of the whole iterate
+ * gives, bit for bit.
  *
  * @param c The context.
  * @param x Each arm's coordinates at each waypoint.
  * @param kept An earlier reading of the same context and the waypoints whose
  *   coordinates changed since it (`laid[k]` true), every other waypoint's
  *   coordinates being those that reading read; absent, every waypoint is read.
- * @param contact The waypoints whose clearance pairs (the probes' deepest, the
- *   body's corners embedded, the two arms' crossings) are read, `contact[k]`
- *   true: an optimiser's rounds read them at its knots, the sweeps between
- *   consecutive waypoints keeping the continuous check, and the converged path
- *   is read whole; absent, every waypoint's are read. The arms' collider
- *   probes, which only these pairs read, are placed only at the waypoints read,
- *   so a reading with `contact` serves its optimiser's rounds and no verdict:
- *   verdicts read a whole reading, whose placements are all complete.
+ * @param contact The waypoints the clearance is read at, `contact[k]` true: an
+ *   optimiser's knots; absent, every waypoint. The arms' collider probes, which
+ *   only the clearance pairs read, are placed only at those waypoints.
  * @returns The arms placed, the objective, the summed violation and the worst
  *   one past its slack, with the pairs, sweeps and crossings the reading found
  *   and the waypoints that take part in a violation past the tolerance.
@@ -52,21 +62,32 @@ export function HumanArmTrajectoryEvaluate(
   kept?: { reading: M.IEvaluation; laid: readonly boolean[] },
   contact?: readonly boolean[],
 ): M.IEvaluation {
-  // Whether a waypoint's clearance pairs are read.
+  // Whether a waypoint's clearance is read.
   const reads = (k: number): boolean =>
     contact === undefined || contact[k] === true;
   // Whether a waypoint's reading is the earlier one's.
   const same = (k: number): boolean =>
     kept !== undefined && kept.laid[k] !== true;
-  // A material encounter also depends on the neighbours defining the two
-  // Hermite tangents. The ordinary swept spheres only depend on the ends.
-  const sameInterval = (a: number, k: number): boolean =>
-    same(k) &&
-    same(k + 1) &&
-    ((c.material?.parts[a] ?? -1) < 0 || (same(k - 1) && same(k + 2)));
-  // The collider probes are read by the clearance pairs alone, so they are
-  // placed only where the pairs are read; the speed, path and sweep terms
-  // read the axis probes and a site the chain, which every waypoint places.
+  // Whether every waypoint of a window is the earlier reading's.
+  const unchanged = (from: number, to: number): boolean => {
+    if (kept === undefined) return false;
+    for (let g: number = Math.max(0, from); g <= Math.min(c.n - 1, to); ++g)
+      if (!same(g)) return false;
+    return true;
+  };
+  // Each read waypoint's next read waypoint.
+  const following: number[] = new Array<number>(c.n).fill(-1);
+  {
+    let last: number = -1;
+    for (let k: number = 0; k < c.n; ++k) {
+      if (!reads(k)) continue;
+      if (last >= 0) following[last] = k;
+      last = k;
+    }
+  }
+  // Every waypoint places the arm with its collider probes: the pairs read
+  // them at the read waypoints and the sweeps their courses through every
+  // waypoint between, whose rows take the Jacobians there.
   const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[][] = x.map(
     (
       arm: readonly (readonly number[])[],
@@ -77,20 +98,63 @@ export function HumanArmTrajectoryEvaluate(
           v: readonly number[],
           k: number,
         ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
-          same(k) && surfaced(kept!.reading.placed[a]![k]!, reads(k))
+          same(k) && surfaced(kept!.reading.placed[a]![k]!, true)
             ? kept!.reading.placed[a]![k]!
-            : G.placed(c.setups[a]!, c.frames[a]![k]!, v, reads(k)),
+            : G.placed(c.setups[a]!, c.frames[a]![k]!, v, true),
       ),
   );
+  // Whether a read interval's sweeps are the earlier reading's: they depend
+  // on its waypoints and the waypoints about them, which its strays and its
+  // second differences read; a material encounter also on the pairs at its
+  // two ends.
+  const sameInterval = (a: number, k: number): boolean =>
+    unchanged(k - 1, following[k]! + 1) &&
+    ((c.material?.parts[a] ?? -1) < 0 || (same(k) && same(following[k]!)));
+  // Each arm's segments' strays over each read interval, by its first
+  // waypoint (`HumanArmTrajectoryStray`), read once for every reader.
+  const strays: Map<number, HumanArmTrajectoryStray.IArm>[] = x.map(
+    (): Map<number, HumanArmTrajectoryStray.IArm> => new Map(),
+  );
+  const strayOf = (a: number, k: number): HumanArmTrajectoryStray.IArm => {
+    let found: HumanArmTrajectoryStray.IArm | undefined = strays[a]!.get(k);
+    if (found === undefined)
+      strays[a]!.set(
+        k,
+        (found = HumanArmTrajectoryStray.arm(c, placed[a]!, k, following[k]!)),
+      );
+    return found;
+  };
+  // The arm on the way from read waypoint `k` to its neighbour `n`: every
+  // frame between and the neighbour, the course's swept readings read it by.
+  const nearOf = (
+    a: number,
+    k: number,
+    n: number,
+  ): HumanArmTrajectoryHalfStep.INear => {
+    const path: HumanArmTrajectoryHalfStep.IStep[] = [];
+    const step: number = n > k ? 1 : -1;
+    for (let g: number = k + step; ; g += step) {
+      path.push({ at: g, placed: placed[a]![g]! });
+      if (g === n) break;
+    }
+    return {
+      at: n,
+      placed: placed[a]![n]!,
+      path,
+      stray: strayOf(a, Math.min(k, n)),
+    };
+  };
   let objective: number = 0;
   let violation: number = 0;
-  let worst: M.IEvaluation["worst"] = {
+  let worst: M.IWorst = {
     value: 0,
     what: "",
     axis: "region",
     at: 0,
     term: "",
   };
+  // The worst of every term but the speed (`M.IEvaluation.placement`).
+  let placement: M.IWorst = worst;
   // A clearance miss refuses past its allowance, which keeps a margin below
   // the audit's own skin (`HumanArmTrajectoryTerms.SKIN`).
   // The waypoint the loop below reads, where a violation noted is placed.
@@ -103,8 +167,9 @@ export function HumanArmTrajectoryEvaluate(
   );
   const crossing: M.IEvaluation["crossing"] = [];
   const failing: boolean[] = new Array<boolean>(c.n).fill(false);
-  // Whether the violation noted is read over the interval `here` starts.
-  let interval: boolean = false;
+  // The last waypoint of the interval `here` starts that the violation noted
+  // is read over; -1 for a reading at `here` alone.
+  let interval: number = -1;
   // A term's refusal axis: a speed asks for time, a task point names its
   // target, every other term the region.
   const note = (
@@ -133,21 +198,21 @@ export function HumanArmTrajectoryEvaluate(
       bearing.set(here, { value: v - slack, what });
     if (v - slack > M.TOLERANCE) {
       failing[here] = true;
-      if (interval) failing[here + 1] = true;
+      if (interval >= 0) failing[interval] = true;
     }
-    if (v - slack > worst.value)
-      worst = {
-        value: v - slack,
-        what: what(),
-        at: here,
-        term,
-        axis:
-          term === "speed"
-            ? "duration"
-            : term === "limit"
-              ? "target"
-              : "region",
-      };
+    const over: boolean = v - slack > worst.value;
+    const placing: boolean = term !== "speed" && v - slack > placement.value;
+    if (!over && !placing) return;
+    const noted: M.IWorst = {
+      value: v - slack,
+      what: what(),
+      at: here,
+      term,
+      axis:
+        term === "speed" ? "duration" : term === "limit" ? "target" : "region",
+    };
+    if (over) worst = noted;
+    if (placing) placement = noted;
   };
   const bearing: Map<number, IBearing> = new Map();
   const n: number = c.n;
@@ -179,7 +244,7 @@ export function HumanArmTrajectoryEvaluate(
         }
     for (let k: number = 0; k + 1 < n; ++k) {
       here = k;
-      interval = true;
+      interval = k + 1;
       // A probe's travel is read against the arm's own base, so a carried
       // body's travel is never charged to the arm (`HumanArmTrajectoryTravel`).
       const travel = (p: number): number =>
@@ -206,29 +271,41 @@ export function HumanArmTrajectoryEvaluate(
             `probe ${p} moves ${(step / dt / 1000).toFixed(2)} m/s at ${times[k]!.toFixed(3)} s`,
         );
       }
-      const sweeps: HumanArmTrajectorySweep.ISwept[] = c.still
-        ? []
-        : sameInterval(a, k)
-          ? kept!.reading.swept[a]![k]!
-          : HumanArmTrajectorySweep.of(
-              c,
-              a,
-              k,
-              placed[a]![k]!,
-              placed[a]![k + 1]!,
-            );
+      // The axis spheres and the collider probes swept from a read waypoint
+      // to the next.
+      const next: number = following[k]!;
+      const sweeps: HumanArmTrajectorySweep.ISwept[] =
+        c.still || !reads(k) || next < 0
+          ? []
+          : sameInterval(a, k)
+            ? kept!.reading.swept[a]![k]!
+            : ((): HumanArmTrajectorySweep.ISwept[] => {
+                const near: HumanArmTrajectoryHalfStep.INear = nearOf(
+                  a,
+                  k,
+                  next,
+                );
+                return [
+                  ...HumanArmTrajectorySweep.of(c, a, k, placed[a]![k]!, near),
+                  ...HumanArmTrajectorySweep.links(c, a, k, placed[a]!, near),
+                ];
+              })();
       swept[a]![k] = sweeps;
       for (const sweep of sweeps) {
         const short: number = 1000 * (sweep.lower - sweep.clear);
+        // Placed over the course's nearest step.
+        here = sweep.from;
+        interval = sweep.other;
         note(
           short,
           "swept",
           () =>
-            `${nameArmTrajectoryPair(c, a, k, sweep.probe, sweep.shape)} swept ${short.toFixed(1)} mm deep after ${times[k]!.toFixed(3)} s`,
+            `${nameArmTrajectoryPair(c, a, k, sweep.probe, sweep.shape)} swept ${short.toFixed(1)} mm deep after ${times[sweep.from]!.toFixed(3)} s`,
         );
       }
+      here = k;
     }
-    interval = false;
+    interval = -1;
     for (let k: number = 1; k < n; ++k) {
       if (!M.inner(c, k)) continue;
       here = k;
@@ -285,30 +362,15 @@ export function HumanArmTrajectoryEvaluate(
         }
       }
       // Only the pairs the merit and the convex model can use are read
-      // exactly (`HumanArmTrajectoryPairs.CUT`).
-      // A probe's pairs read half its step to each neighbouring waypoint
-      // too (`HumanArmTrajectoryHalfStep`), so they are the earlier
-      // reading's only where the neighbours are the earlier ones as well.
+      // exactly (`HumanArmTrajectoryPairs.CUT`). A waypoint's pairs are a
+      // function of its own placement, so they are the earlier reading's
+      // wherever the waypoint is.
       const known: M.IEvaluation["pairs"][number][number] | undefined = same(k)
         ? kept!.reading.pairs[a]![k]
         : undefined;
-      // A still configuration's waypoints are its ends and its one instant,
-      // not a motion's frames: nothing moves between them.
-      const around: HumanArmTrajectoryHalfStep.IAround = c.still
-        ? {}
-        : {
-            ...(k > 0 && reads(k - 1) ? { before: placed[a]![k - 1]! } : {}),
-            ...(k + 1 < n && reads(k + 1) ? { after: placed[a]![k + 1]! } : {}),
-          };
-      const deepest: Map<number, P.IPair> =
-        (same(k - 1) || k === 0) && (same(k + 1) || k + 1 === n)
-          ? (known?.deepest ??
-            (reads(k)
-              ? P.deepest(c, a, k, placed[a]![k]!, P.CUT, around)
-              : new Map()))
-          : reads(k)
-            ? P.deepest(c, a, k, placed[a]![k]!, P.CUT, around)
-            : new Map();
+      const deepest: Map<number, P.IPair> = !reads(k)
+        ? new Map()
+        : (known?.deepest ?? P.deepest(c, a, k, placed[a]![k]!, P.CUT));
       const embedded: Map<number, P.IEmbedded> =
         known?.embedded ??
         (reads(k) ? P.embedded(c, a, k, placed[a]![k]!, P.CUT) : new Map());
@@ -337,19 +399,21 @@ export function HumanArmTrajectoryEvaluate(
     }
     if (!c.still && (c.material?.parts[a] ?? -1) >= 0) {
       for (let k: number = 0; k + 1 < n; ++k) {
-        if (sameInterval(a, k)) continue;
+        const next: number = following[k]!;
+        if (!reads(k) || next < 0 || sameInterval(a, k)) continue;
         const material: HumanArmTrajectorySweep.ISwept[] =
           HumanArmTrajectoryMaterialSweep(
             c,
             a,
             k,
+            next,
             placed[a]![k]!,
-            placed[a]![k + 1]!,
+            placed[a]![next]!,
             pairs[a]!,
             x[a]!,
           );
         here = k;
-        interval = true;
+        interval = next;
         for (const sweep of material) {
           swept[a]![k]!.push(sweep);
           const short: number = 1000 * (sweep.lower - sweep.clear);
@@ -361,7 +425,7 @@ export function HumanArmTrajectoryEvaluate(
           );
         }
       }
-      interval = false;
+      interval = -1;
     }
   });
   if (x.length === 2)
@@ -386,17 +450,19 @@ export function HumanArmTrajectoryEvaluate(
     }
   // A missed site or task point names what kept the hand off it: an
   // obstacle, a speed or another arm, as read at the same waypoint.
-  const holding: IBearing | undefined =
-    worst.term === "site" || worst.term === "limit"
-      ? bearing.get(worst.at)
-      : undefined;
-  if (holding !== undefined)
-    worst = { ...worst, what: `${worst.what}, held off by ${holding.what()}` };
+  const held = (w: M.IWorst): M.IWorst => {
+    const by: IBearing | undefined =
+      w.term === "site" || w.term === "limit" ? bearing.get(w.at) : undefined;
+    return by === undefined
+      ? w
+      : { ...w, what: `${w.what}, held off by ${by.what()}` };
+  };
   return {
     placed,
     objective,
     violation,
-    worst,
+    worst: held(worst),
+    placement: held(placement),
     pairs,
     swept,
     crossing,

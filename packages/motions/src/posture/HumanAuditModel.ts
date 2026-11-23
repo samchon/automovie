@@ -10,6 +10,7 @@ import type {
 import { AutoMovieMotionHumanAuditTangleModel as M } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 import { HumanColliders } from "./HumanColliders";
+import { HumanLinkCertificate } from "./HumanLinkCertificate";
 
 /**
  * What the tangle and partner audits read a body by, as one provider every
@@ -97,4 +98,12 @@ export namespace HumanAuditModel {
       externals,
     };
   }
+
+  /**
+   * A lower bound on the signed distance from every probe of a segment to a
+   * convex shape, the link pair's certificate (`HumanLinkCertificate.certify`),
+   * read before any probe.
+   */
+  export const certify: typeof HumanLinkCertificate.certify =
+    HumanLinkCertificate.certify;
 }

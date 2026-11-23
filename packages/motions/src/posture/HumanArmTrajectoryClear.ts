@@ -130,9 +130,7 @@ export namespace HumanArmTrajectoryClear {
     let waypoint: number = -1;
     let excess: number = M.TOLERANCE;
     let deepest: number = 0;
-    let swept:
-      | { sweep: HumanArmTrajectorySweep.ISwept; later: boolean }
-      | undefined;
+    let swept: ISweptRow | undefined;
     {
       const a: number = arm;
       for (let k: number = from; k < to; ++k) {
@@ -149,14 +147,17 @@ export namespace HumanArmTrajectoryClear {
               waypoint = k;
               swept = undefined;
             }
+        // A sweep of the interval from waypoint `k` spans its own frame step
+        // (`from` to `other`), read in the shape's frame at `k`; its row is
+        // made at the step's later end where that lies inside the transport.
         for (const sweep of at.swept[a]?.[k] ?? []) {
           const short: number = 1000 * (sweep.lower - sweep.clear);
           if (short <= excess) continue;
-          const later: boolean = k + 1 < to;
+          const later: boolean = sweep.other < to;
           excess = short;
           deepest = short;
-          waypoint = later ? k + 1 : k;
-          swept = { sweep, later };
+          waypoint = later ? sweep.other : sweep.from;
+          swept = { sweep, later, read: k };
         }
       }
     }
@@ -180,18 +181,19 @@ export namespace HumanArmTrajectoryClear {
     const rows: { coef: number[]; gain: number }[] = [];
 
     // A sweep's row at its inner end: the shape's normal at that end of the
-    // swept sphere, in that waypoint's frame, on the end's own Jacobian.
+    // swept probe, read in the shape's frame at the interval's first
+    // waypoint, where the sweep's ends are carried, and turned back into
+    // that end's own frame, on the end's own Jacobian.
     if (swept !== undefined) {
-      const { sweep, later } = swept;
+      const { sweep, later, read } = swept;
       const start: IAutoMovieMotionHumanArmGeometry.IFrame =
-        c.frames[arm]![later ? waypoint - 1 : waypoint]!;
-      const end: IAutoMovieVector3 = later
-        ? sweep.to
-        : at.placed[arm]![waypoint]!.probes[sweep.probe]![0];
+        c.frames[arm]![read]!;
+      const end: IAutoMovieVector3 = later ? sweep.to : sweep.start;
       const normal: IAutoMovieVector3 = S.normal(start, sweep.shape, end);
-      const g: IAutoMovieVector3 = later
-        ? Quaternion.rotateVector(Quaternion.inverse(sweep.turn), normal)
-        : normal;
+      const g: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.inverse(later ? sweep.turn : sweep.first),
+        normal,
+      );
       rows.push({
         coef: jac
           .probe(sweep.probe)
@@ -344,4 +346,16 @@ function solve(a: number[][], b: number[]): number[] | undefined {
     out[r] = s / m[r]![r]!;
   }
   return out;
+}
+
+/** The deepest sweep of a transport and where its row is made. */
+interface ISweptRow {
+  /** The sweep. */
+  sweep: HumanArmTrajectorySweep.ISwept;
+
+  /** Whether its row is made at its step's later end, other. */
+  later: boolean;
+
+  /** The waypoint whose interval it was read over, its shape's frame. */
+  read: number;
 }

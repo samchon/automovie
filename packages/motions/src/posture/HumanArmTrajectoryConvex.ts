@@ -1,20 +1,13 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalShapeNearest,
-  physicalShapeNormal,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeNormal } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanQuadraticProgram,
-  IAutoMoviePhysicalShapeNearest,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmSweepGradient } from "./HumanArmSweepGradient";
-import type { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
 import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -180,31 +173,31 @@ export namespace HumanArmTrajectoryConvex {
               });
           }
         }
-        // Swept spheres, as the iterate's reading found them
-        // (`HumanArmTrajectorySweep`): the far end is already in the shape's
-        // frame at this waypoint, and its gradient is carried back by the
-        // same turn.
+        // Swept probes, axis spheres and collider probes alike, as the
+        // iterate's reading found them (`HumanArmTrajectorySweep`): each
+        // frame step's, both its ends already in the shape's frame at this
+        // waypoint, each end's gradient carried back by its own turn.
         for (const sweep of at.swept[a]![k] ?? []) {
           const {
             probe,
             shape,
             to: pb,
+            near,
           }: HumanArmTrajectorySweep.ISwept = sweep;
-          const [pa, r] = at.placed[a]![k]!.probes[probe]!;
+          const pa: IAutoMovieVector3 = sweep.start;
           const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
             c.frames[a]![k]!;
+          const start: number = sweep.from;
+          const other: number = sweep.other;
           const d0: number = 1000 * sweep.clear;
           const lower: number = 1000 * sweep.lower;
-          if (d0 - lower > Math.min(T.CHECK, reach(a, k) + reach(a, k + 1) + 2))
-            continue;
-
-          // Each end's own distance, read once for the pair that stays.
-          const first: number = S.gap(frame, shape, pa, pa);
-          const second: number = S.gap(frame, shape, pb, pb);
+          // A step clear of its allowance gives no row: each of its ends lies
+          // no nearer the shape than the step does, the step's distance the
+          // least over its points.
           if (
-            first - r > lower / 1000 &&
-            second - r > lower / 1000 &&
-            d0 > lower
+            d0 > lower ||
+            d0 - lower >
+              Math.min(T.CHECK, reach(a, start) + reach(a, other) + 2)
           )
             continue;
 
@@ -216,8 +209,6 @@ export namespace HumanArmTrajectoryConvex {
           // continuous-time gradient, Schulman et al. 2014, section IV-C).
           const s0: IAutoMovieMotionHumanArmGeometry.IShape =
             frame.shapes[shape]!;
-          const near: IAutoMoviePhysicalShapeNearest.IResult =
-            physicalShapeNearest(s0.pose, s0.shape, pa, pb);
           const span: IAutoMovieVector3 = Vector3.subtract(pb, pa);
           const u: number = Math.min(
             1,
@@ -228,20 +219,25 @@ export namespace HumanArmTrajectoryConvex {
             ),
           );
           const g: IAutoMovieVector3 = HumanArmSweepGradient(s0, near, span, u);
-          const ga: IAutoMovieVector3 = Vector3.scale(g, 1 - u);
+          const ga: IAutoMovieVector3 = Quaternion.rotateVector(
+            Quaternion.inverse(sweep.first),
+            Vector3.scale(g, 1 - u),
+          );
           const gb: IAutoMovieVector3 = Quaternion.rotateVector(
             Quaternion.inverse(sweep.turn),
             Vector3.scale(g, u),
           );
           const s: ILinear = join(
-            ...(inner(k) ? [along(a, k, jac[a]![k]!.probe(probe), ga)] : []),
-            ...(inner(k + 1)
-              ? [along(a, k + 1, jac[a]![k + 1]!.probe(probe), gb)]
+            ...(inner(start)
+              ? [along(a, start, jac[a]![start]!.probe(probe), ga)]
+              : []),
+            ...(inner(other)
+              ? [along(a, other, jac[a]![other]!.probe(probe), gb)]
               : []),
           );
           if (s.idx.length > 0)
             rows.push({
-              key: `w|${a}|${k}|${probe}|${shape}`,
+              key: `w|${a}|${start}|${probe}|${shape}`,
               index: s.idx,
               coef: s.coef,
               l: lower - d0,
@@ -354,64 +350,24 @@ export namespace HumanArmTrajectoryConvex {
             }
           }
         }
-        // One row per segment and shape, its deepest probe's (TrajOpt's
-        // per-link pair, its distance at the closest points), or, where the
-        // probe's swept segment to a neighbouring waypoint comes nearer the
-        // shape, that segment's distance, which moves with the probe at both
-        // of its ends by the sweep's gradient (`HumanArmTrajectoryHalfStep`,
-        // TrajOpt's continuous-time term).
+        // One row per segment and shape, its deepest probe's at the
+        // waypoint (TrajOpt's per-link pair at a timestep, its distance at
+        // the closest points); the course between waypoints is the sweeps'
+        // rows above, one per frame step.
         for (const pair of (
-          at.pairs[a]?.[k]?.deepest ?? P.deepest(c, a, k, placedK, P.CUT)
+          at.pairs[a]?.[k]?.deepest ?? new Map<number, P.IPair>()
         ).values()) {
-          const sweep: HumanArmTrajectoryHalfStep.ISwept | undefined =
-            pair.swept;
-          if (
-            -pair.short >
-            Math.min(
-              T.CHECK,
-              reach(a, k) +
-                (sweep === undefined
-                  ? 0
-                  : Math.max(
-                      0,
-                      ...sweep.there.map(
-                        (g: HumanArmTrajectoryHalfStep.IGradient): number =>
-                          reach(a, g.other),
-                      ),
-                    )) +
-                2,
-            )
-          )
-            continue;
-          const v: ILinear =
-            sweep === undefined
-              ? along(
-                  a,
-                  k,
-                  jac[a]![k]!.probe(pair.probe),
-                  S.normal(
-                    c.frames[a]![k]!,
-                    pair.shape,
-                    placedK.probes[pair.probe]![0],
-                  ),
-                )
-              : join(
-                  along(a, k, jac[a]![k]!.probe(pair.probe), sweep.here),
-                  ...sweep.there
-                    .filter(
-                      (g: HumanArmTrajectoryHalfStep.IGradient): boolean =>
-                        inner(g.other),
-                    )
-                    .map(
-                      (g: HumanArmTrajectoryHalfStep.IGradient): ILinear =>
-                        along(
-                          a,
-                          g.other,
-                          jac[a]![g.other]!.probe(pair.probe),
-                          g.direction,
-                        ),
-                    ),
-                );
+          if (-pair.short > Math.min(T.CHECK, reach(a, k) + 2)) continue;
+          const v: ILinear = along(
+            a,
+            k,
+            jac[a]![k]!.probe(pair.probe),
+            S.normal(
+              c.frames[a]![k]!,
+              pair.shape,
+              placedK.probes[pair.probe]![0],
+            ),
+          );
           rows.push({
             key: `c|${a}|${k}|${pair.probe}|${pair.shape}`,
             index: v.idx,
@@ -426,7 +382,7 @@ export namespace HumanArmTrajectoryConvex {
         // so the corner's distance falls by the shape's motion along its
         // outward normal there.
         for (const pair of (
-          at.pairs[a]?.[k]?.embedded ?? P.embedded(c, a, k, placedK, P.CUT)
+          at.pairs[a]?.[k]?.embedded ?? new Map<number, P.IEmbedded>()
         ).values()) {
           if (-pair.short > Math.min(T.CHECK, reach(a, k) + 2)) continue;
           const p: IAutoMovieVector3 =
@@ -457,10 +413,7 @@ export namespace HumanArmTrajectoryConvex {
     if (x.length === 2)
       for (let k: number = 1; k < n; ++k)
         for (const pair of inner(k)
-          ? (
-              at.crossing[k] ??
-              P.crossing(c, k, at.placed[0]![k]!, at.placed[1]![k]!, P.CUT)
-            ).values()
+          ? (at.crossing[k] ?? new Map<string, P.ICrossing>()).values()
           : []) {
           if (-pair.short > Math.min(T.CHECK, reach(0, k) + reach(1, k) + 2))
             continue;

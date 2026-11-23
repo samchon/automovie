@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Identifies the candidate chord, the actual native event and the row admitted by both.
+Identifies the candidate chord between two neighbouring read waypoints, the actual native event and the row admitted by both.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -22,7 +22,7 @@ Only free intervals and the named own support participate; endpoint margin, rela
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Uses the existing waypoint pairs and placed arms, the native Hermite interpolator, the authored base reader and the existing convex row formulation.
+Uses the existing waypoint pairs and placed arms, the native Hermite interpolator, the authored base reader and the existing convex row formulation; the chord's nearest-point reading that places the encounter rides on the returned sweep, so the convex row reads no shape again.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

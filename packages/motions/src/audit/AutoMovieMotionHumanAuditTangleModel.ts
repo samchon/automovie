@@ -1,4 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  physicalShapeSegmentDistance,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -6,6 +10,7 @@ import type {
   IAutoMovieMotionHumanColliders,
   IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -64,6 +69,14 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
      * angle, which bounds how fast a reading against it moves.
      */
     extent: number;
+
+    /**
+     * How far any of its probes lies outside its own shapes, metres: zero for
+     * corners on a shape's surface and points of the bone inside a shape. A
+     * link pair's certificate (`HumanLinkCertificate`) bounds every probe by
+     * its shapes' distance less this.
+     */
+    offset: number;
   }
 
   /** What is derived once per body. */
@@ -196,6 +209,18 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
             ) + ball.radius,
           );
         }
+        // The farthest a probe lies outside the segment's own shapes, read in
+        // the segment's frame by the shapes' exact distance.
+        let offset: number = 0;
+        for (const probe of probes) {
+          let near: number = Infinity;
+          for (const shape of p.shapes)
+            near = Math.min(
+              near,
+              physicalShapeSegmentDistance(ORIGIN, shape, probe, probe),
+            );
+          if (near < Infinity) offset = Math.max(offset, near);
+        }
         return {
           bone: p.bone,
           shapes: p.shapes,
@@ -204,6 +229,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
           centre,
           radius,
           extent,
+          offset,
         };
       },
     );
@@ -430,3 +456,9 @@ const MODELS: WeakMap<
 
 /** The fingers' part of a bone name. */
 const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/u;
+
+/** The identity pose: a segment's own frame. */
+const ORIGIN: IAutoMovieRigidTransform = {
+  position: { x: 0, y: 0, z: 0 },
+  rotation: { x: 0, y: 0, z: 0, w: 1 },
+};

@@ -103,6 +103,7 @@ export * from "./physicalInertiaTensor";
 export * from "./physicalPrincipalAxes";
 export * from "./physicalRecoverySupportGoals";
 export * from "./physicalShapeBounds";
+export * from "./physicalShapeGjk";
 export * from "./physicalShapeNearest";
 export * from "./physicalShapeNormal";
 export * from "./physicalShapeContactManifold";

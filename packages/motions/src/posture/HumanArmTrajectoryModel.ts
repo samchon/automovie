@@ -299,6 +299,29 @@ export namespace HumanArmTrajectoryModel {
     reachable: readonly (readonly number[])[][];
   }
 
+  /**
+   * A reading's worst violation past its slack: its excess, what it is, the
+   * refusal's axis, the waypoint it is read at (an interval's first, for a step
+   * or a sweep) and the term it breaks: `speed`, `swept`, `site`, `lift`,
+   * `limit`, `probe`, `embedded` or `crossing`, empty when none does.
+   */
+  export interface IWorst {
+    /** The excess past the slack: millimetres, or coordinate units. */
+    value: number;
+
+    /** Its words, for a refusal. */
+    what: string;
+
+    /** The refusal's axis: `duration`, `target` or `region`. */
+    axis: string;
+
+    /** The waypoint it is read at. */
+    at: number;
+
+    /** The term it breaks; empty when none does. */
+    term: string;
+  }
+
   /** An iterate's reading. */
   export interface IEvaluation {
     /** Each arm placed at each waypoint. */
@@ -307,19 +330,16 @@ export namespace HumanArmTrajectoryModel {
     objective: number;
     /** The constraints' violations summed, millimetres. */
     violation: number;
+    /** The worst violation past its slack (`IWorst`). */
+    worst: IWorst;
+
     /**
-     * The worst violation past its slack, what it is, the refusal's axis, the
-     * waypoint it is read at (an interval's first, for a step or a sweep) and
-     * the term it breaks: `speed`, `swept`, `site`, `lift`, `limit`, `probe`,
-     * `embedded` or `crossing`, empty when none does.
+     * The worst violation past its slack of every term but the speed: what the
+     * path itself breaks, whatever its pace. A path whose `placement` is within
+     * the tolerance fails at most its speed, which the same path over a longer
+     * span meets (Hollerbach 1984).
      */
-    worst: {
-      value: number;
-      what: string;
-      axis: string;
-      at: number;
-      term: string;
-    };
+    placement: IWorst;
     /**
      * Each arm's deepest probe pairs (`HumanArmTrajectoryPairs.deepest`) and
      * the body's corners in it (`embedded`) at each inner waypoint, as the
@@ -331,8 +351,9 @@ export namespace HumanArmTrajectoryModel {
       embedded: Map<number, P.IEmbedded>;
     }[][];
     /**
-     * Each arm's axis spheres' sweeps over each interval, by its first waypoint
-     * (`HumanArmTrajectorySweep.of`), as the reading found them; none for a
+     * Each arm's probes' sweeps over each interval, by its first waypoint: the
+     * axis spheres' (`HumanArmTrajectorySweep.of`) and the collider probes'
+     * (`HumanArmTrajectorySweep.links`), as the reading found them; none for a
      * still configuration.
      */
     swept: HumanArmTrajectorySweep.ISwept[][][];

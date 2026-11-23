@@ -6,7 +6,7 @@ States the pose, the skips and allowances, the pair index, the gate and listener
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The model's structural and reference rules and both probe directions give the excess depth, with conservative spheres rejecting distant pairs; the base is `own`'s reading of the same depths.
+The model's structural and reference rules and both probe directions give the excess depth, with conservative spheres rejecting distant pairs and the link pair's certificate (`HumanLinkCertificate.clearance`) the pairs whose shapes stand apart: two convex solids' distance bounds every probe depth between them, so such a pair holds no probe inside the other and that clearance is its margin; the base is `own`'s reading of the same depths.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -18,7 +18,7 @@ Keeps related-pair skips, the sphere comparison, direction order, reference dept
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-S parts require O(S*S) broad comparisons and two depth readings per pair within reach that is due; each segment read in is prepared once for the pose, and a pair's key is built only where some pair is skipped or pressed.
+S parts require O(S*S) broad comparisons, a few GJKs per pair within reach that is due, and two depth readings only for a pair whose shapes the certificate cannot show apart; each segment read in is prepared once for the pose, and a pair's key is built only where some pair is skipped or pressed.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -36,7 +36,7 @@ States both placements, the pair index, the gate and listener and the directed r
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Two bodies share no joint and no rest pose, so the directed probe depths are read in full; the base is `across`'s reading of the same depths.
+Two bodies share no joint and no rest pose, so the directed probe depths are read in full where the link pair's certificate (`HumanLinkCertificate.clearance`) cannot show the two segments' shapes apart; a pair it shows apart holds no probe inside the other, and that clearance is its margin; the base is `across`'s reading of the same depths.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -48,7 +48,7 @@ Keeps full external depth, part order, the sphere screen and the nanometre thres
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-For S and T parts, O(S*T) broad comparisons and one depth reading per pair within reach that is due, each of the other body's segments prepared once for the pose.
+For S and T parts, O(S*T) broad comparisons, a few GJKs per pair within reach that is due, and one depth reading only where the certificate leaves the pair; each of the other body's segments prepared once for the pose.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

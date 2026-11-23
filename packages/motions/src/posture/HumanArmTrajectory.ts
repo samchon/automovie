@@ -21,15 +21,15 @@ import { planHumanArmTrajectory } from "./planHumanArmTrajectory";
  * region (TrajOpt's Algorithm 1, `HumanArmOptimiser`) from a laid course or
  * from a seed whose hold is solved by inverse kinematics and whose reach and
  * return are a sampling planner's clear paths (`HumanArmSeed`). The knots are
- * few, and the trajectory played back between them is admitted on the frame
- * grid by the model's own evaluation (`HumanArmTrajectoryAdmission`), the knots
- * refined where that reading fails. Two arms that move over one span are one
- * problem, their probes kept clear of each other as they both move: planning
- * one after the other is incomplete where their paths are coupled (Erdmann and
- * Lozano-Perez 1987, Algorithmica 2:477). A problem whose first arm is the left
- * is solved as its mirror image (`HumanArmTrajectoryMirror`), so mirrored
- * scenes give mirrored paths. A problem still infeasible at the last penalty is
- * refused.
+ * few, and the trajectory played back between them is admitted by the model's
+ * own reading of the knots and of every frame between them, the solve's own
+ * last reading (`HumanArmTrajectoryEvaluate`). Two arms that move over one span
+ * are one problem, their probes kept clear of each other as they both move:
+ * planning one after the other is incomplete where their paths are coupled
+ * (Erdmann and Lozano-Perez 1987, Algorithmica 2:477). A problem whose first
+ * arm is the left is solved as its mirror image (`HumanArmTrajectoryMirror`),
+ * so mirrored scenes give mirrored paths. A problem still infeasible at the
+ * last penalty is refused.
  */
 export namespace HumanArmTrajectory {
   /** The hand on its site at a hold waypoint (`M.ISite`). */
@@ -133,13 +133,11 @@ export namespace HumanArmTrajectory {
    * A refused course's hold whose hand pose its law prescribes is tracked frame
    * by frame on the swivel first, and needs no solve. The knots stay few, a
    * moving site held at every frame through their interpolant. The trajectory
-   * is then optimised on the knots, its interpolant read on the frame grid
-   * (`HumanArmTrajectoryAdmission.read`), and every interval the reading fails
-   * in, and those about a knot the solve itself could not meet its constraints
-   * at, split and the trajectory solved again from itself at the penalty it
-   * reached, until the reading admits it or no failing interval is two frames
-   * long: the check-and-refine loop of a continuous collision check, on every
-   * term of the model.
+   * is then optimised on the knots, its clearance read at the knots and through
+   * every frame between them, so its own last reading admits or refuses the
+   * path played; only an interval whose course fails between clear knots is
+   * split and the path solved again from itself, never to reach a miss at the
+   * knots themselves.
    *
    * @param read The problem on given waypoints' seconds.
    * @param times The first knots' seconds, ascending, each taken to the frame
@@ -148,18 +146,17 @@ export namespace HumanArmTrajectory {
    *   admission there is the knots' own evaluation.
    * @param course A laid course the model refused (`admitted`): where its
    *   reading is given, only the stretches about the instants it fails at are
-   *   optimised, each from the course and between two of its instants held
-   *   fixed, the rest of the course kept; where that is refused, or the course
-   *   carries no reading (a stretch cut from one), the whole span is solved
-   *   from it at the knots; the sampling planner's seed (`HumanArmSeed`) on a
-   *   grid of thirtieths of a second when absent, and after a course with a
-   *   reading when it leads to no admitted trajectory.
+   *   optimised, each once, from the course and between two of its instants
+   *   held fixed, the rest of the course kept, and a stretch refused refuses
+   *   the span; where the course carries no reading (a stretch cut from one),
+   *   the whole span is solved once from it at the knots; the sampling
+   *   planner's seed (`HumanArmSeed`) on a grid of thirtieths of a second when
+   *   absent.
    * @param warm An earlier solution of this action on this span's seconds
    *   (`ISolved.state`, retimed by the caller where the span changed): tried
-   *   first as it stands and returned where the model admits it at its knots
-   *   and on the frame grid, the optimiser's start at its penalty where not,
-   *   and dropped for the course and the planner's seed where that ends
-   *   unadmitted. Any state is safe to give: nothing of it is trusted.
+   *   first as it stands and returned where the model admits it, and the one
+   *   solve's start at its penalty where no course was read. Any state is safe
+   *   to give: nothing of it is trusted.
    * @param stretches Whether the span is its law's own, lengthened by a replan
    *   at a slower tempo; a laid course refused only for its speed is then
    *   handed back for the span it needs before any optimisation. False for a
