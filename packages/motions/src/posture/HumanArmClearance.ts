@@ -35,7 +35,7 @@ import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
  * the colliders of the trunk, the neck and the head at the elbow, tapering to
  * the wrist's own clearance at the wrist, where the palm lies on the surface
  * the hand was sent to. The limb fit, which places the legs before the arms,
- * judges the thighs too (`obstacles`); a caller that poses only the trunk
+ * judges the whole legs too (`obstacles`); a caller that poses only the trunk
  * judges the trunk alone (`trunk`).
  *
  * An arm that is not fitted to a goal but carried in joint space between two
@@ -76,18 +76,19 @@ export namespace HumanArmClearance {
 
   /**
    * The colliders a forearm may not enter in a pose whose legs are placed:
-   * the trunk's, both thighs' and those of any arm already placed.
+   * the trunk's, both whole legs' and those of any arm already placed, the
+   * segments the tangle audit reads the arm against.
    *
    * @param body The body.
    * @param bones Its posed bones, world frame, the legs where the pose puts them.
    * @param arms The arms already placed whose upper arm, forearm and hand count; none when absent.
    * @param placed An existing placement of this exact body and bone reading in the same unchanged synchronous evaluation; computed here when absent.
-   * @returns The placed segments of `trunk`, of the two upper legs and of the named arms.
+   * @returns The placed segments of `trunk`, of the two legs and of the named arms.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which segments are returned and what the pose must already hold.
-   * @evidence contracts/development/implementation.md#principled-implementation A hand sent to a thigh, or past one, bends its elbow away from the thigh as it does from the ribs; the limb fit places the legs before the arms, so the thighs stand where the posture puts them. Two forearms sent across each other (a self-hug, a hand on the other forearm) lie one over the other, so the arm placed second keeps clear of the first.
+   * @evidence contracts/development/implementation.md#principled-implementation A hand sent to a leg, or past one, bends its elbow away from it as it does from the ribs; the limb fit places the legs before the arms, so the legs stand where the posture puts them. Two forearms sent across each other (a self-hug, a hand on the other forearm) lie one over the other, so the arm placed second keeps clear of the first.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement when needed, followed by the same selection filter.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shanks and feet are left out: a forearm reaches them only with the hand, which the taper leaves to its goal; an arm not yet placed is left out, since where it will be is not known.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The set is the audit's own segments, not a narrower one the fit could pass and the audit refuse; an arm not yet placed is left out, since where it will be is not known.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the profile's segments.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The frame builder can supply its exact same-evaluation placement, while four fixed HumanArmObstacleBones subsets share canonical membership with scoped source FK; actual profile geometry and original placement order remain current.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh filtered array borrowing its actual placed segments; stores no placement, pose or body beyond the call.
