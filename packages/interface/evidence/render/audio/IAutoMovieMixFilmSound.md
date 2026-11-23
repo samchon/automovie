@@ -38,7 +38,7 @@ No file system type appears; the host callback keeps render free of `node:` impo
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the WAVE format, the digest form, that the plan, analysis and loudness record describe the master, and the order of the lines.
+States the WAVE format, the digest form, that the plan, analysis and loudness record describe the master, the order of the lines and their lip-sync entries.
 
 ## @evidence contracts/development/design.md#principled-representation
 

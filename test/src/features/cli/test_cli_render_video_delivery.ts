@@ -1,5 +1,7 @@
 import type {
   IAutoMovieDeliveryContentAudit,
+  IAutoMovieDialogueLipSync,
+  IAutoMovieDrawnVideoResult,
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
 import {
@@ -44,11 +46,14 @@ import { writeDeliveryMp4Header } from "../internal/writeDeliveryMp4Header";
  * 7. A file whose `colr` box declares limited range is blocked with
  *    `unsupported-video-profile.color`, its report records the field with its
  *    expected and observed values, and the previous conforming film stays.
+ * 8. A report with one failed lip-sync line blocks publication; a report with one
+ *    inconclusive line and one envelope-driven line publishes and lists both,
+ *    the second as unmeasured.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the receipt, timing and release behavior verified by each case.
  * @evidence contracts/development/testing.md#behavioral-verification Uses normal CLI operations with Render's real composer and validators, with a fake draw session and FFmpeg process boundary, and a real MP4 movie box for the audio timing.
  * @evidence contracts/development/testing.md#independent-expectations Four 250-tick frames put the first black frame at 0.25 seconds. Each published digest is Node's SHA-256 of the bytes the fixture encoder wrote. A 48 kHz track skipping 24,000 priming samples and editing to 1000 ms presents 48,000 of 72,000 decoded samples, leaving 24,000 of padding; a 750 ms edit presents 36,000, a quarter second short. The conforming header carries the profile the types declare: a 4 fps clock in a movie and track timescale of 4, the 2 by 2 raster, the unity matrix and `nclx` 1, 13, 1, full range; limited range is the one changed field of the refused file.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises absence, explicit content intent, mixed scene and delivery blockers, allowed silence, codec padding against a short container, missing audio, an encoder failure, a report installation failure and a limited-range colour box. Every probe field is owned by test_cli_delivery_video_probe and the audio profile by test_render_delivery_audio_profile.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exercises absence, explicit content intent, mixed scene and delivery blockers, allowed silence, codec padding against a short container, missing audio, an encoder failure, a report installation failure, a limited-range colour box, and a failed against an inconclusive and an unmeasured lip-sync line; the lag itself belongs to test_engine_lip_sync_lag. Every probe field is owned by test_cli_delivery_video_probe and the audio profile by test_render_delivery_audio_profile.
  * @evidence contracts/development/testing.md#execution-ownership Owns its isolated temporary directory and calls no FFmpeg, browser or device.
  */
 export async function test_cli_render_video_delivery(): Promise<void> {
@@ -403,11 +408,115 @@ export async function test_cli_render_video_delivery(): Promise<void> {
       ],
       [true, true, ["film.mp4", "render-report.json"]],
     );
+
+    // 8. Lip-sync entries reach the report; only a failed verdict blocks.
+    await fs.rm(report, { recursive: true });
+    encodedBytes = silent();
+    const lipSyncFixture = (
+      lipSync: IAutoMovieDialogueLipSync[],
+    ): Parameters<typeof renderAutoMovieVideo>[0] => ({
+      ...fixture,
+      host: {
+        ...fixture.host,
+        render: {
+          ...fixture.host.render,
+          // The host's own drawing, with the mixed sound record a sound list
+          // would have produced handed to the encoder.
+          renderAutoMovieDrawnVideo: (props) =>
+            renderAutoMovieDrawnVideo({
+              ...props,
+              encode: (args, drawn) =>
+                props.encode(args, { ...drawn, sound: soundRecord(lipSync) }),
+            }),
+        },
+      },
+    });
+    const measured = (
+      verdict: "pass" | "fail" | "inconclusive",
+      lagFrames: number,
+    ): IAutoMovieDialogueLipSync => ({
+      line: verdict,
+      actor: "ann",
+      status: "measured",
+      lagFrames,
+      lagMilliseconds: lagFrames * 250,
+      correlation: verdict === "inconclusive" ? 0.1 : 0.9,
+      verdict,
+    });
+    const lateMessage = await renderAutoMovieVideo(
+      lipSyncFixture([measured("fail", 1)]),
+      run,
+    ).then(
+      () => "published",
+      (error: Error) => error.message,
+    );
+    const late = await readReport();
+    const unmeasured: IAutoMovieDialogueLipSync = {
+      line: "hum",
+      actor: "ann",
+      status: "unmeasured",
+      reason: "envelope-jaw",
+    };
+    await renderAutoMovieVideo(
+      lipSyncFixture([measured("inconclusive", 0), unmeasured]),
+      run,
+    );
+    const listed = await readReport();
+    TestValidator.equals(
+      "a failed lip-sync line blocks; inconclusive and unmeasured lines publish",
+      [
+        lateMessage.includes("lip-sync fail"),
+        late.status,
+        listed.status,
+        listed.sound.lipSync.map((entry: IAutoMovieDialogueLipSync): string =>
+          entry.status === "measured" ? entry.verdict : entry.reason,
+        ),
+      ],
+      [true, "blocked", "published", ["inconclusive", "envelope-jaw"]],
+    );
   } finally {
     await fs.rm(root, { recursive: true });
   }
 }
 
+/**
+ * The mixed sound record of a silent one-second film with the given lip-sync
+ * entries.
+ */
+function soundRecord(
+  lipSync: IAutoMovieDialogueLipSync[],
+): NonNullable<IAutoMovieDrawnVideoResult["sound"]> {
+  return {
+    file: "soundtrack.wav",
+    sha256: "sha256:" + "0".repeat(64),
+    receipts: [],
+    analysis: {
+      version: 2,
+      sampleRate: 48_000,
+      sampleFrames: 48_000,
+      runtimeSeconds: 1,
+      integratedLoudness: null,
+      truePeakDbtp: null,
+      samplePeak: 0,
+      clippingSamples: 0,
+      longestSilenceSeconds: 1,
+      eventAlignment: [],
+    },
+    loudness: {
+      intent: {
+        integratedLufs: -23,
+        toleranceLu: 0.5,
+        maximumTruePeakDbtp: -1,
+      },
+      source: "ebu-r128-default",
+      dialogueLufs: -23,
+      ceilingDbtp: -2,
+      lines: [],
+      master: { mixLufs: null, gainDb: 0, limiterGainDb: 0 },
+    },
+    lipSync,
+  };
+}
 /** Scene diagnostics with a fault starting at the second frame. */
 function diagnostics(seconds: number): IAutoMovieInspectionDiagnostics {
   return {

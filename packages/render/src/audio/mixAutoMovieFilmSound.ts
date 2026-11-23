@@ -21,6 +21,7 @@ import type {
 } from "@automovie/interface";
 
 import { encodeAutoMovieWavPcm16 } from "./encodeAutoMovieWavPcm16.js";
+import { measureAutoMovieDialogueLipSync } from "./measureAutoMovieDialogueLipSync.js";
 
 /** The mixer's fixed rate; every adopted file is decoded to it. */
 const SAMPLE_RATE = 48_000 as const;
@@ -39,7 +40,8 @@ const SAMPLE_RATE = 48_000 as const;
  * `masterProductionSound` brings the mix to the integrated target under the
  * true-peak ceiling and refuses it when it misses the tolerance. The master is
  * encoded as a 48 kHz stereo 16-bit WAVE file, so the same list and bytes give
- * the same soundtrack bytes.
+ * the same soundtrack bytes. Each line's lip-sync lag is then measured from the
+ * mouth values its speaker would be given (`measureAutoMovieDialogueLipSync`).
  *
  * It refuses, before reading any file, a line id or cue id that repeats; it
  * refuses a file `read` cannot supply, naming the path, so a wrong path never
@@ -47,8 +49,8 @@ const SAMPLE_RATE = 48_000 as const;
  * planning and mixing, including a speech span past the film's last frame.
  *
  * @param props The sound list, the film clock and the file reader.
- * @returns The WAVE bytes and digest, the plan, the master's analysis and each
- *   admitted line.
+ * @returns The WAVE bytes and digest, the plan, the master's analysis, each
+ *   admitted line and each line's lip-sync entry.
  */
 export async function mixAutoMovieFilmSound(
   props: IAutoMovieMixFilmSound.IProps,
@@ -212,22 +214,28 @@ export async function mixAutoMovieFilmSound(
     right[frame] = rendered.pcm[frame * 2 + 1]!;
   }
   const wav: Uint8Array = encodeAutoMovieWavPcm16(left, right, SAMPLE_RATE);
+  const lines: IAutoMovieMixFilmSound.ILine[] = admitted.map(
+    (
+      entry: IAutoMovieAdmitProductionTtsReceipt.IResult,
+      index: number,
+    ): IAutoMovieMixFilmSound.ILine => ({
+      line: dialogue[index]!,
+      receipt: entry.receipt,
+      samples: entry.audio.samples,
+    }),
+  );
   return {
     wav,
     sha256: digestAutoMovieBytes(wav),
     plan,
     analysis: rendered.analysis,
     loudness: rendered.loudness,
-    lines: admitted.map(
-      (
-        entry: IAutoMovieAdmitProductionTtsReceipt.IResult,
-        index: number,
-      ): IAutoMovieMixFilmSound.ILine => ({
-        line: dialogue[index]!,
-        receipt: entry.receipt,
-        samples: entry.audio.samples,
-      }),
-    ),
+    lines,
+    lipSync: measureAutoMovieDialogueLipSync({
+      lines,
+      speakers: sound.speakers,
+      plan,
+    }),
   };
 }
 

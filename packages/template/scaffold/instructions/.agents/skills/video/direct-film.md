@@ -40,7 +40,7 @@ Use the representation's supported face, expressions and mouth shapes for script
 
 Take accepted speech from [audio acquisition](../audio/acquisition.md). Record the speech model's IPA phoneme chunks in each line's receipt as `phonemeChunks`; the render times each phoneme as an equal share of its chunk and moves the bound speaker's mouth with coarticulated visemes. For finer timing, record a forced aligner's one-phoneme chunks instead and name the aligner in the receipt's `aligner`. A line without chunks opens its speaker's jaw from its own loudness.
 
-On stills, check that each shape the installed face performs lands on the frames of its sound, with the mouth closed where the line closes the lips. Ask the user to watch and listen to the sync as a whole, because stills cannot show it.
+On stills, check that each shape the installed face performs lands on the frames of its sound, with the mouth closed where the line closes the lips. `render-report.json` lists each phoneme-driven line's lip-sync lag and verdict; a line whose sound leads the mouth by more than 45 ms or trails it by more than 125 ms blocks the render, so correct its phoneme chunks or start frame. Ask the user to watch and listen to the sync as a whole, because neither stills nor the lag measure show whether a line is bound to the right actor.
 
 ## Renderer
 

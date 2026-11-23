@@ -1,5 +1,6 @@
 import type { IAutoMovieProductionSoundAnalysis } from "../../production/IAutoMovieProductionSoundAnalysis.js";
 import type { IAutoMovieRenderedProductionSound } from "../../production/sound/IAutoMovieRenderedProductionSound.js";
+import type { IAutoMovieDialogueLipSync } from "../audio/IAutoMovieDialogueLipSync.js";
 import type { IAutoMovieControlRecord } from "../delivery/IAutoMovieControlRecord.js";
 import type { IAutoMovieDeliveredCutEntry } from "../delivery/IAutoMovieDeliveredCutEntry.js";
 import type { IAutoMovieDeliveryContentAudit } from "../delivery/IAutoMovieDeliveryContentAudit.js";
@@ -79,5 +80,11 @@ export namespace IAutoMovieDrawnVideoResult {
      * audit checks the decoded file against `loudness.intent`.
      */
     loudness: IAutoMovieRenderedProductionSound.ILoudness;
+
+    /**
+     * Each adopted line's lip-sync entry in list order; a "fail" verdict blocks
+     * publication.
+     */
+    lipSync: IAutoMovieDialogueLipSync[];
   }
 }

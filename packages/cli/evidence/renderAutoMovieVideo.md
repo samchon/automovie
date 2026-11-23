@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents the transparent layer's folder, file, missing audio, skipped black check and sample check, the control channels staged and published with the film and their record's binding to the film digest, the measured sources, the loudness targets the decoded audio must meet and where they come from, paths and refusal behavior.
+Documents the transparent layer's folder, file, missing audio, skipped black check and sample check, the control channels staged and published with the film and their record's binding to the film digest, the measured sources, the loudness targets the decoded audio must meet and where they come from, the lip-sync verdict that blocks, paths and refusal behavior.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

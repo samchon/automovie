@@ -13,6 +13,7 @@ export type { IAutoMovieJoinDialogueVisemes } from "./IAutoMovieJoinDialogueVise
 export type { IAutoMovieLoudnessIntent } from "./IAutoMovieLoudnessIntent";
 export type { IAutoMovieLoudnessMeter } from "./IAutoMovieLoudnessMeter";
 export type { IAutoMovieMasterProductionSound } from "./IAutoMovieMasterProductionSound";
+export type { IAutoMovieMeasureLipSyncLag } from "./IAutoMovieMeasureLipSyncLag";
 export type { IAutoMovieProductionPhonemesToVisemes } from "./IAutoMovieProductionPhonemesToVisemes";
 export type { IAutoMovieProductionSoundRaster } from "./IAutoMovieProductionSoundRaster";
 export type { IAutoMovieRenderedProductionSound } from "./IAutoMovieRenderedProductionSound";

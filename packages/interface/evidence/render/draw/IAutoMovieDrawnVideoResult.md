@@ -20,7 +20,7 @@ Successful sequential beauty capture and encoding receipts. renderAutoMovieDrawn
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the soundtrack file, the digest form, the per-line receipt digests in list order, that the analysis precedes 16-bit quantization, and the loudness record the delivery audit checks against.
+States the soundtrack file, the digest form, the per-line receipt digests in list order, that the analysis precedes 16-bit quantization, the loudness record the delivery audit checks against, and the lip-sync entries whose failed verdict blocks publication.
 
 ## @evidence contracts/development/design.md#principled-representation
 

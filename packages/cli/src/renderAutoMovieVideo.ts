@@ -1,6 +1,7 @@
 import type {
   IAutoMovieControlRecord,
   IAutoMovieDeliveryContentAudit,
+  IAutoMovieDialogueLipSync,
   IAutoMovieDrawnVideoResult,
 } from "@automovie/interface";
 import type * as Render from "@automovie/render";
@@ -120,7 +121,8 @@ const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
  * Every measurable audit runs on the drawn frames or the exact staged encoded
  * bytes. The decoded audio's integrated loudness and true peak, measured by the
  * production render's BS.1770-5 meter, must meet the targets the sound-list mix
- * applied or, for a supplied soundtrack, the declared loudness intent. The
+ * applied or, for a supplied soundtrack, the declared loudness intent, and a
+ * phoneme-driven line whose lip-sync lag fails the report's verdict blocks. The
  * encoded file must also carry its declared picture profile and, with a
  * soundtrack, the AAC profile, or no audio track without one
  * (`auditAutoMovieDeliveryProfile`); a mismatch blocks like a blocking audit
@@ -371,6 +373,17 @@ export async function renderAutoMovieVideo(
         ...attempt.profile.map(
           (finding: IAutoMovieDeliveryProfileFinding): string =>
             `unsupported-${finding.media}-profile.${finding.field}: expected ${finding.expected}, observed ${finding.observed}`,
+        ),
+        // A phoneme-driven line whose sound and mouth part by more than the
+        // detectability window blocks; unmeasured and inconclusive lines are
+        // only reported.
+        ...(attempt.sound?.lipSync ?? []).flatMap(
+          (entry: IAutoMovieDialogueLipSync): string[] =>
+            entry.status === "measured" && entry.verdict === "fail"
+              ? [
+                  `lip-sync ${entry.line}: the sound is ${entry.lagMilliseconds.toFixed(1)} ms after the mouth, outside -45 to +125 ms`,
+                ]
+              : [],
         ),
       ];
       if (failures.length > 0) {

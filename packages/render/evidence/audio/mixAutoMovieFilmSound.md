@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-The comment states which files are read and through what, which package admits and decodes them, how the plan places lines and cues and carries room-tone beds, which mixer runs, how lines are levelled and the master meets the loudness targets, the WAVE output and determinism, and every refusal with when it happens.
+The comment states which files are read and through what, which package admits and decodes them, how the plan places lines and cues and carries room-tone beds, which mixer runs, how lines are levelled and the master meets the loudness targets, the WAVE output and determinism, the lip-sync entries, and every refusal with when it happens.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

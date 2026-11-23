@@ -195,6 +195,7 @@ export async function renderAutoMovieDrawnVideo(props: {
       ),
       analysis: mixed.analysis,
       loudness: mixed.loudness,
+      lipSync: mixed.lipSync,
     };
   }
 

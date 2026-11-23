@@ -5,6 +5,7 @@ import type { IAutoMovieProductionTtsReceipt } from "../../production/IAutoMovie
 import type { IAutoMovieFilmSound } from "../../production/sound/IAutoMovieFilmSound.js";
 import type { IAutoMovieLoudnessIntent } from "../../production/sound/IAutoMovieLoudnessIntent.js";
 import type { IAutoMovieRenderedProductionSound } from "../../production/sound/IAutoMovieRenderedProductionSound.js";
+import type { IAutoMovieDialogueLipSync } from "./IAutoMovieDialogueLipSync.js";
 
 /**
  * Inputs and result of mixing a film's sound list into its delivered
@@ -64,6 +65,9 @@ export namespace IAutoMovieMixFilmSound {
      * samples at 48 kHz.
      */
     lines: IAutoMovieMixFilmSound.ILine[];
+
+    /** Each line's lip-sync entry, in list order. */
+    lipSync: IAutoMovieDialogueLipSync[];
   }
 
   /** One adopted line as the mix placed it. */
