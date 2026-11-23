@@ -35,15 +35,15 @@ The pipeline keeps one film's files in these folders of `media/automovie/<film>/
 | Folder | Holds |
 | --- | --- |
 | `frames/accepted/<revision>/` | The sheets of an accepted delivery, moved from its capture |
-| `controls/` | The motion hint's control channels |
 | `videos/` | Renders and their reports |
+| `videos/controls/` | The control channels `pnpm run render --passes` draws, with their `record.json` |
 | `audios/` | Audio made for the user to hear |
 
 Use the film's [acceptance record](../review/delivery-review.md#acceptance-record) to establish the current verdict on a revision.
 
 ### Render reports
 
-Every render attempt installs its `render-report.json` in its output folder, but a blocked or failed attempt keeps the previous video there. Trust a report, and every record it vouches for, only when its `status` is `published` and its `source.sha256` equals the SHA-256 of the video file beside it. When the check fails, render again before using the files.
+Every render attempt installs its `render-report.json` in its output folder, but a blocked or failed attempt keeps the previous video there. Trust a report, and every record it vouches for, only when its `status` is `published` and its `source.sha256` equals the SHA-256 of the video file beside it. Trust `controls/record.json` only when its `filmSha256` equals the same digest too. When a check fails, render again before using the files.
 
 A trusted report's `cut` lists each sequence entry with the output frames it is live in, `liveFrames` as `[first, endExclusive)`. An entry that opens with a dissolve is live from the dissolve's first frame, so its first frames still show mostly the previous shot.
 
@@ -54,6 +54,8 @@ Record the following in `media/manifest.json` or the generation request:
 - where the file came from: the source URL and creator, or the generation request;
 - its license, attribution and usage terms;
 - its content digest.
+
+For control channels, record the SHA-256 of `videos/controls/record.json`. That digest seals every frame digest the record lists, so a request conditioned on hundreds of frames lists one file.
 
 Record the license terms for code, weights, body models, data, territory and service plan. Record provider, model, version, settings, prompt, input digests, job ID and seed if exposed.
 

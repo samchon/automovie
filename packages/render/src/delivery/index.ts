@@ -1,3 +1,4 @@
+export * from "./admitAutoMovieControlPasses.js";
 export * from "./assertProductionAacProfile.js";
 export * from "./assertProductionPngPicture.js";
 export * from "./assertProductionVideoProfile.js";

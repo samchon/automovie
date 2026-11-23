@@ -6,7 +6,7 @@ States who calls it, when the subject and renderer are made, every step of a dra
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-WebGL's `readPixels` on the default framebuffer, read before the task ends, returns what the page shows; the inspection, the view grammar and the camera resolution are the inspection core's, so a still and the page draw the same scene through the same code. A beauty draw of a subject with optics goes through AutoMovieFilmResponseStage, the stage the inspector also draws with, so a delivered frame and a paused Viewer frame share one camera response; structural passes never ask for optics. Framing on all the run's seconds keeps one camera per view, as `.agents/skills/visual-debugging/capture.md` asks for a view a later round compares.
+WebGL's `readPixels` on the default framebuffer, read before the task ends, returns what the page shows; the inspection, the view grammar and the camera resolution are the inspection core's, so a still and the page draw the same scene through the same code. A beauty draw of a subject with optics goes through AutoMovieFilmResponseStage, the stage the inspector also draws with, so a delivered frame and a paused Viewer frame share one camera response; structural passes never ask for optics. A mask draw reports the palette `autoMovieSemanticMaskOf` finds on the scene, the same lookup `applyRenderMode` chose it by, so the host records the convention the pixels were painted with. Framing on all the run's seconds keeps one camera per view, as `.agents/skills/visual-debugging/capture.md` asks for a view a later round compares.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -6,7 +6,7 @@ States how options are read, the order of the checks, what does the work, what i
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Every rule is the render package's or `renderAutoMovieVideo`'s; the command loads the production's packages and reports.
+Every rule is the render package's or `renderAutoMovieVideo`'s, including the control-pass admission, `admitAutoMovieControlPasses`, applied before the host opens; the command loads the production's packages and reports.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

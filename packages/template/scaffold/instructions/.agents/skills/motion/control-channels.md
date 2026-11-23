@@ -34,6 +34,6 @@ Compare each rendered channel with the adapter's annotator on the same hint fram
 
 ## Handoff
 
-Keep controls, mappings, palettes, sidecars and digests under [media records](../production/media-records.md). Keep viewing encodes separate to preserve numeric depth and mask colors.
+Render the channels with `pnpm run render --subject <film> --passes <passes>`, which draws them at every frame through the film's camera into `videos/controls/` with a `record.json` of each pass's convention and every frame file's SHA-256. Use them only under the [render report check](../production/media-records.md#render-reports); on a mismatch, render again. Keep mappings, palettes and sidecars under [media records](../production/media-records.md). Keep viewing encodes separate to preserve numeric depth and mask colors.
 
 Inspect matched frames across the whole sequence under [capture times](../visual-debugging/capture.md#times). Check the receiver's input path. Report observed limits to [assembly](../production/assembly.md) or [generation](../video/generation.md). Without a commissioned generator, report compatibility as unverified.

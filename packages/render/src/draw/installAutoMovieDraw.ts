@@ -18,6 +18,7 @@ import { AutoMovieFilmResponseStage } from "../scene/filmResponse/AutoMovieFilmR
 import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
 import type { IAutoMovieInspectionPath } from "../scene/inspection/IAutoMovieInspectionPath.js";
 import { listAutoMovieInspectionPaths } from "../scene/inspection/listAutoMovieInspectionPaths.js";
+import { autoMovieSemanticMaskOf } from "../scene/semanticMask/index.js";
 import { markAutoMovieInspectionTrails } from "../scene/inspection/markAutoMovieInspectionTrails.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
 import { planAutoMovieInspectionTrailTimes } from "../scene/inspection/planAutoMovieInspectionTrailTimes.js";
@@ -345,6 +346,12 @@ export function installAutoMovieDraw(
           ...diagnosticLegend,
         ],
         ...(diagnostics === undefined ? {} : { diagnostics }),
+
+        // The mask pass chose its palette from the scene's attachment, which
+        // the host cannot see, so the page reports what it painted with.
+        ...(call.request.shade === "mask"
+          ? { semanticMask: autoMovieSemanticMaskOf(scene.scene)?.mask ?? null }
+          : {}),
         camera: resolved.record,
         resolved: resolveAutoMovieCapturePatterns({
           paths: [

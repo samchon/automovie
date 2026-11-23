@@ -42,6 +42,8 @@ pnpm exec automovie capture --file media/automovie/<film>/videos/film.mp4 --from
 
 The render writes `media/automovie/<film>/videos/film.mp4`, or into `--out <dir>`, with `render-report.json` beside it. Export requires a whole number of frames. The report's hashes describe the drawn frames, and [delivery review]({{skills}}/review/delivery-review.md) judges the film.
 
+`--passes depth,mask` also draws those guide passes at every frame through the film's camera and writes them, never encoded, into `controls/` beside the film, with `record.json` naming each pass's convention and every frame file's SHA-256. It takes the guide passes other than `beauty`, each once. A blocked or failed render keeps the previous film and `controls/`, so use them only under the [render report check]({{skills}}/production/media-records.md#render-reports).
+
 ## Production diagnostics
 
 Every host inspects the placed film through `src/inspectFilmProduction.ts`: the inspector on each painted picture, the capture on each drawn still and the render on every delivered frame. It judges the evaluated pose whoever produced it, a native action, raw authored keyframes or a physical performance, so one fault is reported the same way from each. Extend it per film through `IFilmProduction.inspectionLayers`, `inspectionChecks`, `inspectionCamera` and `inspectPlaced`.

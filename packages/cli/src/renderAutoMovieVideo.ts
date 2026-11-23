@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieControlRecord,
   IAutoMovieDeliveryContentAudit,
   IAutoMovieDrawnVideoResult,
 } from "@automovie/interface";
@@ -9,8 +10,10 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import type { AutoMovieCaptureHost } from "./AutoMovieCaptureHost";
+import { AutoMovieRenderOutputReservation } from "./AutoMovieRenderOutputReservation";
 import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfileFinding";
 import { auditAutoMovieDeliveryProfile } from "./auditAutoMovieDeliveryProfile";
+import { publishAutoMovieRenderAttempt } from "./publishAutoMovieRenderAttempt";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
 import { runAutoMovieDeliveryDecode } from "./runAutoMovieDeliveryDecode";
 import { runAutoMovieDeliveryReferenceDecode } from "./runAutoMovieDeliveryReferenceDecode";
@@ -115,6 +118,12 @@ const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
  * already drawn. If the approved film or its report cannot be installed, the
  * former film is put back, so the film and report on disk always come from the
  * same attempt.
+ *
+ * With `passes`, every frame is also drawn in those guide passes and written
+ * under `<out>/controls/` with `record.json`, whose `filmSha256` is the
+ * report's `source.sha256`; the folder is staged and installed in the same
+ * publish step as the film, so a blocked or failed attempt keeps the former
+ * `controls/` with the former film.
  */
 export async function renderAutoMovieVideo(
   props: {
@@ -130,9 +139,19 @@ export async function renderAutoMovieVideo(
     out?: string;
     /** FFmpeg executable. */
     ffmpeg: string;
+    /**
+     * Guide passes other than `beauty` drawn at every frame into
+     * `<out>/controls/`; absent or empty draws the film alone.
+     */
+    passes?: readonly string[];
   },
   run: typeof runAutoMovieFfmpeg = runAutoMovieFfmpeg,
-): Promise<{ video: string; report: string; frames: number }> {
+): Promise<{
+  video: string;
+  report: string;
+  frames: number;
+  controls: string | null;
+}> {
   const session = await props.host.session({
     subject: props.subject,
     props: props.props,
@@ -151,7 +170,11 @@ export async function renderAutoMovieVideo(
   try {
     await fs.mkdir(out, { recursive: true });
     staging = await fs.mkdtemp(path.join(out, ".render-"));
-    reservationTicket = await reserveOutput(staging, reservation, out);
+    reservationTicket = await AutoMovieRenderOutputReservation.reserve(
+      staging,
+      reservation,
+      out,
+    );
     const candidate = path.join(staging, "film.mp4");
     const pendingReport = path.join(staging, "render-report.json");
     const attempt: IDeliveryReport = {
@@ -176,11 +199,30 @@ export async function renderAutoMovieVideo(
       const frameRoot = path.join(props.root, ".cache", "render");
       await fs.mkdir(frameRoot, { recursive: true });
       scratch = await fs.mkdtemp(path.join(frameRoot, "frames-"));
+
+      // Control frames are staged beside the film and published with it,
+      // inside the output folder whose publish lock this attempt holds.
+      const controls =
+        (props.passes ?? []).length === 0
+          ? null
+          : {
+              staged: path.join(staging, "controls"),
+              installed: path.join(out, "controls"),
+            };
+      if (controls !== null) await fs.mkdir(controls.staged);
       const result = await props.host.render.renderAutoMovieDrawnVideo({
         session,
         spec: SPEC,
         frameDir: scratch.split(path.sep).join("/"),
         outputPath: candidate,
+        ...(controls === null
+          ? {}
+          : {
+              controls: {
+                passes: props.passes ?? [],
+                frameDir: controls.staged.split(path.sep).join("/"),
+              },
+            }),
         audio:
           soundtrack === null ? null : path.resolve(props.root, soundtrack),
         write: (file, data) => fs.writeFile(file, data),
@@ -273,14 +315,42 @@ export async function renderAutoMovieVideo(
       attempt.status = "published";
       attempt.video = "film.mp4";
       await writeReport();
-      await publish({
+      if (controls !== null)
+        await writeControlRecord(controls.staged, {
+          film: name,
+          revision: attempt.revision,
+          backend: attempt.backend,
+          clock: {
+            frameRate: result.frameRate,
+            frameCount: result.frames.length,
+            width: session.subject.width,
+            height: session.subject.height,
+          },
+          filmSha256: attempt.source.sha256,
+          channels: result.controls ?? [],
+        });
+      await publishAutoMovieRenderAttempt({
         candidate,
         video,
         pendingReport,
         report,
         previous: path.join(staging, "previous.mp4"),
+        ...(controls === null
+          ? {}
+          : {
+              controls: {
+                candidate: controls.staged,
+                installed: controls.installed,
+                previous: path.join(staging, "previous-controls"),
+              },
+            }),
       });
-      return { video, report, frames: result.frames.length };
+      return {
+        video,
+        report,
+        frames: result.frames.length,
+        controls: controls === null ? null : controls.installed,
+      };
     } catch (cause) {
       attempt.video = null;
       if (attempt.status !== "blocked") attempt.status = "failed";
@@ -307,129 +377,28 @@ export async function renderAutoMovieVideo(
       ...(scratch === undefined ? [] : [fs.rm(scratch, { recursive: true })]),
       ...(reservationTicket === undefined
         ? []
-        : [releaseOutput(reservation, reservationTicket)]),
+        : [
+            AutoMovieRenderOutputReservation.release(
+              reservation,
+              reservationTicket,
+            ),
+          ]),
     ]);
   }
 }
 
 /**
- * Installs the approved film and then its report. The former film waits in
- * staging until both are in place; when either step fails it returns, so the
- * published film and report always belong to the same attempt.
+ * Writes a control folder's `record.json`, the file a generation request names
+ * and a manifest digests.
  */
-async function publish(paths: {
-  candidate: string;
-  video: string;
-  pendingReport: string;
-  report: string;
-  previous: string;
-}): Promise<void> {
-  const kept = await fs
-    .rename(paths.video, paths.previous)
-    .then(() => true)
-    .catch((error: unknown): false => {
-      if (errorCode(error) !== "ENOENT") throw error;
-      return false;
-    });
-  try {
-    await fs.rename(paths.candidate, paths.video);
-    await fs.rename(paths.pendingReport, paths.report);
-  } catch (cause) {
-    try {
-      if (kept) await fs.rename(paths.previous, paths.video);
-      else await fs.rm(paths.video, { force: true });
-    } catch (restoreFailure) {
-      throw new AggregateError(
-        [cause, restoreFailure],
-        "Publishing failed and the previous film could not be restored to " +
-          paths.video,
-      );
-    }
-    throw cause;
-  }
-}
-
-/** Claims a destination with an atomically installed process ticket. */
-async function reserveOutput(
-  staging: string,
-  reservation: string,
-  out: string,
-): Promise<string> {
-  const pending = path.join(staging, "reservation");
-  const ticket = "owner-" + process.pid + "-" + path.basename(staging);
-  await fs.mkdir(pending);
-  await fs.writeFile(path.join(pending, ticket), "");
-  // Bound the number of races with another failed or completing reservation.
-  for (let pass = 0; pass < 4; pass++) {
-    try {
-      await fs.rename(pending, reservation);
-      return ticket;
-    } catch (cause) {
-      const entries = await fs
-        .readdir(reservation)
-        .catch((error: unknown): string[] => {
-          if (errorCode(error) !== "ENOENT") throw cause;
-          return [];
-        });
-      const owner = entries.length === 1 ? entries[0] : undefined;
-      const pid = Number(
-        /^owner-(\d+)-\.render-[a-z0-9]+$/iu.exec(owner ?? "")?.[1],
-      );
-      if (
-        entries.length !== 0 &&
-        (!Number.isSafeInteger(pid) || pid < 1 || processAlive(pid))
-      )
-        throw new Error("Another render has reserved " + out, { cause });
-      if (owner !== undefined) await releaseOutput(reservation, owner);
-      else await removeEmptyReservation(reservation);
-    }
-  }
-  throw new Error(
-    "Could not reserve " +
-      out +
-      " while another render changed its reservation",
-  );
-}
-
-/** Treats a process as gone only when the operating system confirms it. */
-function processAlive(pid: number): boolean {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (cause) {
-    return !(
-      cause instanceof Error &&
-      "code" in cause &&
-      cause.code === "ESRCH"
-    );
-  }
-}
-
-/** Removes the exact process ticket and only an empty reservation directory. */
-async function releaseOutput(
-  reservation: string,
-  ticket: string,
+async function writeControlRecord(
+  folder: string,
+  record: IAutoMovieControlRecord,
 ): Promise<void> {
-  await fs
-    .unlink(path.join(reservation, ticket))
-    .catch((error: unknown): void => {
-      if (errorCode(error) !== "ENOENT") throw error;
-    });
-  await removeEmptyReservation(reservation);
-}
-
-/** Reads a Node file system error's code, if the value carries one. */
-function errorCode(error: unknown): unknown {
-  return error instanceof Error && "code" in error ? error.code : undefined;
-}
-
-/** A later invocation may already have installed its own ticket. */
-async function removeEmptyReservation(reservation: string): Promise<void> {
-  await fs.rmdir(reservation).catch((error: unknown): void => {
-    const code: unknown = errorCode(error);
-    if (code !== "ENOENT" && code !== "ENOTEMPTY" && code !== "EEXIST")
-      throw error;
-  });
+  await fs.writeFile(
+    path.join(folder, "record.json"),
+    JSON.stringify(record, null, 2) + "\n",
+  );
 }
 
 /**

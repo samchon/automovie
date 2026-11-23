@@ -4,6 +4,7 @@ export type { IAutoMovieAssertCaptureClockHost } from "./IAutoMovieAssertCapture
 export type { IAutoMovieAssertProductionPngPictureProps } from "./IAutoMovieAssertProductionPngPictureProps";
 export type { IAutoMovieAssertProductionVideoProfileProps } from "./IAutoMovieAssertProductionVideoProfileProps";
 export type { IAutoMovieAuditEncodedPresentationExpected } from "./IAutoMovieAuditEncodedPresentationExpected";
+export type { IAutoMovieControlRecord } from "./IAutoMovieControlRecord";
 export type { IAutoMovieDecodedFrame } from "./IAutoMovieDecodedFrame";
 export type { IAutoMovieDecodedFrameAudit } from "./IAutoMovieDecodedFrameAudit";
 export type { IAutoMovieDeliveredCutEntry } from "./IAutoMovieDeliveredCutEntry";

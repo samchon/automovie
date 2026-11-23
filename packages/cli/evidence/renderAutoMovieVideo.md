@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents the measured sources, paths and refusal behavior.
+Documents the control channels staged and published with the film and their record's binding to the film digest, the measured sources, paths and refusal behavior.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -10,7 +10,7 @@ Uses Render for drawing and auditing, hashes and decodes exactly one uniquely st
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Reserves the output, renders, audits, stages the report and publishes, then releases owned resources.
+Reserves the output through `AutoMovieRenderOutputReservation`, renders, audits, stages the report and the control record and publishes through `publishAutoMovieRenderAttempt`, then releases owned resources.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
