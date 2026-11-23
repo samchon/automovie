@@ -16,6 +16,7 @@ import {
 } from "three";
 
 import { boundAutoMovieCameraSubject } from "./boundAutoMovieCameraSubject.js";
+import { crossesAutoMovieFrustumPlane } from "./crossesAutoMovieFrustumPlane.js";
 import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
 import { sampleAutoMovieCameraOcclusion } from "./sampleAutoMovieCameraOcclusion.js";
 
@@ -103,7 +104,9 @@ export function observeAutoMovieCameraInspection(
             ? "outside"
             : frustum.planes
                   .slice(0, 4)
-                  .some((plane: Plane): boolean => crossesPlane(bounds, plane))
+                  .some((plane: Plane): boolean =>
+                    crossesAutoMovieFrustumPlane(bounds, plane),
+                  )
               ? "crosses-side"
               : "possible";
   const triangleBudget: number = props.triangleBudget ?? 0;
@@ -166,22 +169,6 @@ function outsidePlane(box: Box3, plane: Plane): boolean {
   const xx: number = x * (x >= 0 ? box.max.x : box.min.x);
   const yy: number = y * (y >= 0 ? box.max.y : box.min.y);
   const zz: number = z * (z >= 0 ? box.max.z : box.min.z);
-  const tolerance: number =
-    32 *
-    Number.EPSILON *
-    (1 + Math.abs(xx) + Math.abs(yy) + Math.abs(zz) + Math.abs(plane.constant));
-  return xx + yy + zz + plane.constant < -tolerance;
-}
-
-/**
- * Tests the outermost corner, with the same slack, for a box that reaches past
- * the plane.
- */
-function crossesPlane(box: Box3, plane: Plane): boolean {
-  const { x, y, z } = plane.normal;
-  const xx: number = x * (x >= 0 ? box.min.x : box.max.x);
-  const yy: number = y * (y >= 0 ? box.min.y : box.max.y);
-  const zz: number = z * (z >= 0 ? box.min.z : box.max.z);
   const tolerance: number =
     32 *
     Number.EPSILON *

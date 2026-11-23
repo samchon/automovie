@@ -2,6 +2,7 @@ import type { IAutoMovieSubjectBox } from "@automovie/interface";
 import { Box3, Camera, Frustum, Matrix4, Mesh, Plane, Vector3 } from "three";
 
 import { boundAutoMovieCameraSubject } from "./boundAutoMovieCameraSubject.js";
+import { crossesAutoMovieFrustumPlane } from "./crossesAutoMovieFrustumPlane.js";
 import { measureAutoMovieCameraFrameEdgeSurface } from "./measureAutoMovieCameraFrameEdgeSurface.js";
 
 /** The delivery camera and a required subject's bounds and admitted meshes. */
@@ -100,7 +101,7 @@ export function measureAutoMovieCameraFrameEdge(
   const near: Plane = frustum.planes[5]!;
   const crossed: number[] = [];
   for (let i: number = 0; i < 4; ++i)
-    if (crossesPlane(box, sides[i]!)) crossed.push(i);
+    if (crossesAutoMovieFrustumPlane(box, sides[i]!)) crossed.push(i);
   if (crossed.length === 0) return { status: "inside" };
 
   // 2. Extents past each crossed edge, over the box beyond the near plane.
@@ -250,20 +251,4 @@ function clipBox(box: Box3, plane: Plane): Vector3[] {
         );
     }
   return points;
-}
-
-/**
- * Whether the outermost corner lies outside the plane beyond 32 ulps of its
- * arithmetic, as the framing grade tests.
- */
-function crossesPlane(box: Box3, plane: Plane): boolean {
-  const { x, y, z } = plane.normal;
-  const xx: number = x * (x >= 0 ? box.min.x : box.max.x);
-  const yy: number = y * (y >= 0 ? box.min.y : box.max.y);
-  const zz: number = z * (z >= 0 ? box.min.z : box.max.z);
-  const tolerance: number =
-    32 *
-    Number.EPSILON *
-    (1 + Math.abs(xx) + Math.abs(yy) + Math.abs(zz) + Math.abs(plane.constant));
-  return xx + yy + zz + plane.constant < -tolerance;
 }
