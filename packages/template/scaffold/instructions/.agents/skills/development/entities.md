@@ -26,7 +26,7 @@ If no archetype exists, build a coarse form with the required affordances, mass 
 
 ### Flames, screens and lettering
 
-<!-- @source `IAutoMovieFlameCue`, `IAutoMovieSurfaceGraphicTrack`, `IAutoMovieSurfaceGraphicLayer` and `IAutoMovieFontSource` in `@automovie/interface`. -->
+<!-- @source `IAutoMovieFlameCue`, `IAutoMovieSurfaceGraphicTrack`, `IAutoMovieSurfaceGraphicLayer` and `IAutoMovieFontSource` in `@automovie/interface`, with `prepareAutoMovieFlames` and `prepareAutoMovieSurfaceGraphics` in `@automovie/render`. -->
 
 Show what a prop declares. At a lit candle's, lantern's, torch's, lighter's or fire ring's flame frame, author a flame cue on the shot and bind it to the practical light that frame motivates. The light then flickers with the flame, and the flame's brightness follows the light's intensity. An unbound flame states its own luminance and colour.
 
@@ -35,6 +35,8 @@ Put pictures and text on a prop's `screen` or `face` surface with a surface-grap
 Letter only from a font source the shot lists: a font the production synthesizes in its own code, or a licensed font file it holds as a project asset, recorded under [media records](../production/media-records.md#fonts-and-stills). For raised letters, such as channel letters over a storefront, decode the font in production code and build the lettering mesh as a set piece.
 
 A book's face and a folded sheet carry no graphic, because a surface that rides an articulation is refused.
+
+The film draws only what it mounts. After building a shot's scene, mount its flames with `prepareAutoMovieFlames` and its surface graphics with `prepareAutoMovieSurfaceGraphics`, and call each one's `apply` at the shot-local second in `seek`. A shot with a feed layer also needs the film's `beforeDraw` to call the graphics' `renderFeeds`, or the screen shows an empty picture. Dispose both with the film.
 
 ### Everything else
 

@@ -26,7 +26,7 @@ import type * as THREE from "three";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
  * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hosts read the film scene and placement, optional soft surfaces, the delivery intent and sound list, and the review sources: physical marks, named views, and film marks; they hand the film its dialogue mouths.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The hosts read the film scene and placement, optional soft surfaces and render-target work, the delivery intent and sound list, and the review sources: physical marks, named views, and film marks; they hand the film its dialogue mouths.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged. `speak` comes from every host that reads the sound files, the capture and the render alike, so stills and delivered frames show the same mouths; the Viewer reads no sound file and shows the authored mouth.
  */
 export interface IFilmProduction {
@@ -125,6 +125,20 @@ export interface IFilmProduction {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the draw host owns the indirect stage.
    */
   shading?: (seconds: number) => IAutoMovieFilmShading;
+
+  /**
+   * Render-target work at an exact film second, run on the host's renderer after the film's own seek and before each picture of the Viewer, a capture or the delivered video: draw the shot's surface feeds with `renderFeeds` of the surface graphics `prepareAutoMovieSurfaceGraphics` returned, resolving each feed camera by id. It must leave the renderer's render target as it found it. Absent, no feed is drawn and a feed layer shows an empty target.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when the work runs, for which pictures, what it draws, the renderer state it must keep and what absence shows.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns its feeds; this signature has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The film owns its feeds; this signature has no body.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature draws film-owned feeds without providing a fallback.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The film's surface graphics own their feed targets for every picture.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the film's surface graphics own the feed targets until `dispose`.
+   */
+  beforeDraw?: (renderer: THREE.WebGLRenderer, seconds: number) => void;
+
   /** Optional source intent for the delivered media, including any soundtrack. */
   delivery?: IAutoMovieDeliveryContentAudit.IIntent;
 

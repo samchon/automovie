@@ -13,6 +13,7 @@ import {
   type IAutoMovieDrawSubject,
   bindAutoMovieDrawSceneSoftProps,
 } from "@automovie/render";
+import type * as THREE from "three";
 
 import type { IFilm } from "./IFilm";
 import type { IFilmProduction } from "./IFilmProduction";
@@ -29,7 +30,7 @@ import { markFilmProduction } from "./markFilmProduction";
  *
  * Each film is created as the Viewer creates it, at its delivery raster (1280 ×
  * 720 when it states none), seeked through its own `seek` at a second clamped
- * to its running time, given its own `optics` and `shading` at the same clamped second, and
+ * to its running time, given its own `optics`, `shading` and `beforeDraw` at the same clamped second, and
  * marked by `markFilmProduction`, so a capture, a delivered frame and the
  * Viewer show the same state through the same camera response. A film with
  * `playback` hands its timeline over as the subject's `cut`, which the render
@@ -107,6 +108,18 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
                 : {
                     shading: (seconds: number): IAutoMovieFilmShading =>
                       production.shading!(
+                        clampProductionSeconds(seconds, film.durationSeconds),
+                      ),
+                  }),
+              ...(production.beforeDraw === undefined
+                ? {}
+                : {
+                    beforeDraw: (
+                      renderer: THREE.WebGLRenderer,
+                      seconds: number,
+                    ): void =>
+                      production.beforeDraw!(
+                        renderer,
                         clampProductionSeconds(seconds, film.durationSeconds),
                       ),
                   }),

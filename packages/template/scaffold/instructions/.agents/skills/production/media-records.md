@@ -56,7 +56,6 @@ Record the following in `media/manifest.json` or the generation request:
 - its license, attribution and usage terms;
 - its content digest.
 
-
 For control channels, record the SHA-256 of `videos/controls/record.json`. That digest seals every frame digest the record lists, so a request conditioned on hundreds of frames lists one file.
 
 Record the license terms for code, weights, body models, data, territory and service plan. Record provider, model, version, settings, prompt, input digests, job ID and seed if exposed.
