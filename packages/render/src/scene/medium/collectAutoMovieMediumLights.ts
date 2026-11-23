@@ -152,7 +152,7 @@ export namespace collectAutoMovieMediumLights {
 function flatShadow(
   light: THREE.DirectionalLight | THREE.SpotLight,
 ): collectAutoMovieMediumLights.IShadow | null {
-  const map: THREE.WebGLRenderTarget | null = light.castShadow
+  const map: THREE.RenderTarget | null = light.castShadow
     ? light.shadow.map
     : null;
   if (map === null) return null;
@@ -179,7 +179,7 @@ function flatShadow(
 function cubeShadow(
   light: THREE.PointLight,
 ): collectAutoMovieMediumLights.IShadow | null {
-  const map: THREE.WebGLRenderTarget | null = light.castShadow
+  const map: THREE.RenderTarget | null = light.castShadow
     ? light.shadow.map
     : null;
   const depth: THREE.DepthTexture | null = map?.depthTexture ?? null;

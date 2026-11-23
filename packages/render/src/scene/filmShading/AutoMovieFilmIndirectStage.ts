@@ -7,6 +7,7 @@ import type {
 import * as THREE from "three";
 
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "../filmResponse/AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
+import { collectAutoMovieFilmOverlays } from "../filmResponse/collectAutoMovieFilmOverlays.js";
 import { AUTOMOVIE_FILM_OCCLUSION_SHADERS } from "./AUTOMOVIE_FILM_OCCLUSION_SHADERS.js";
 import type { IAutoMovieFilmIndirectRenderer } from "./IAutoMovieFilmIndirectRenderer.js";
 import { applyFilmIndirectPatch } from "./applyFilmIndirectPatch.js";
@@ -27,8 +28,9 @@ import { bakeAutoMovieFilmProbes } from "./bakeAutoMovieFilmProbes.js";
  *    meaning of `revision` is exactly what a new bake would give, and stores
  *    the bake as a float texture of nine coefficient texels per probe;
  * 4. With `occlusion`, renders a depth and view-space normal prepass of the scene
- *    through the beauty camera at the beauty raster, background off, every
- *    object drawn with one double-sided normal material;
+ *    through the beauty camera at the beauty raster, background and display
+ *    overlays (`toneMapped: false`, which the response stage draws last) off,
+ *    every object drawn with one double-sided normal material;
  * 5. Runs the horizon search of `AUTOMOVIE_FILM_OCCLUSION_SHADERS` and its 4 × 4
  *    blur into a visibility target;
  * 6. Turns on the patch's terms that were asked for, calls `beauty`, which draws
@@ -299,8 +301,14 @@ export class AutoMovieFilmIndirectStage {
     const targets: ITargets = this.prepare(props.width, props.height);
     const background: THREE.Scene["background"] = scene.background;
     const override: THREE.Material | null = scene.overrideMaterial;
+
+    // Display overlays state no scene light and are drawn after the response,
+    // so they occlude nothing.
+    const overlays: Map<THREE.Object3D, number> =
+      collectAutoMovieFilmOverlays(scene);
     try {
       // 4. Depth and view-space normals at the beauty raster.
+      for (const object of overlays.keys()) object.layers.mask = 0;
       scene.background = null;
       scene.overrideMaterial = this.normal_;
       renderer.autoClear = true;
@@ -308,6 +316,7 @@ export class AutoMovieFilmIndirectStage {
       renderer.render(scene, camera);
       scene.overrideMaterial = override;
       scene.background = background;
+      for (const [object, mask] of overlays) object.layers.mask = mask;
 
       // 5. Horizon search, then the blur over the pattern's period.
       const projection: THREE.Matrix4 = camera.projectionMatrix;
@@ -333,6 +342,7 @@ export class AutoMovieFilmIndirectStage {
         props.height,
       );
     } finally {
+      for (const [object, mask] of overlays) object.layers.mask = mask;
       scene.overrideMaterial = override;
       scene.background = background;
     }

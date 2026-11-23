@@ -14,9 +14,9 @@ import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDo
  *
  * Scenarios:
  *
- * 1. An 18 % grey Lambert card facing a 100000 lux light has luminance 0.18 횞
- *    100000 / ? = 5729.6 nits; with `ev100: log2(40000)` and no curve the
- *    response is 1.055 횞 0.1194^(1/2.4) ??0.055 = 0.3802, 97 of 255 within 2,
+ * 1. An 18 % grey Lambert card facing a 100000 lux light has luminance 0.18 ×
+ *    100000 / π = 5729.6 nits; with `ev100: log2(40000)` and no curve the
+ *    response is 1.055 × 0.1194^(1/2.4) − 0.055 = 0.3802, 97 of 255 within 2,
  *    in every channel.
  * 2. One stop more exposure (`ev100` one lower) doubles the linear value before
  *    encoding, so the card reads brighter: 0.2389 linear, encoded 0.5258.
@@ -26,7 +26,7 @@ import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDo
  *    and zero elsewhere.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the engine's CPU reference of the response and the render stage over a recording renderer; a wrong exposure constant, a missing encoding, a scene drawn to the canvas or a final pass drawn into the linear target fails.
- * @evidence contracts/development/testing.md#independent-expectations The expected values are the issue's hand computation from Lambert's law, the ISO 12232 scale `1 / (1.2 횞 2^ev100)` and the IEC 61966-2-1 sRGB encoding; none is read from the implementation.
+ * @evidence contracts/development/testing.md#independent-expectations The expected values are the issue's hand computation from Lambert's law, the ISO 12232 scale `1 / (1.2 × 2^ev100)` and the IEC 61966-2-1 sRGB encoding; none is read from the implementation.
  * @evidence contracts/development/testing.md#distinguishing-cases Two exposures one stop apart and the stage's two draws; the renderer's own curve is owned by `test_draw_film_optics_owner`, absent optics by `test_draw_film_optics_absent`. The GPU program's pixels are not observed here; a real capture owns them.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_film_optics_exposure`; the renderer is an in-memory double and no GPU starts.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming the input and the behavior it pins.

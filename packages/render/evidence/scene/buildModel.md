@@ -26,4 +26,4 @@ Shares skeletons only inside this build when ordered joint identifiers match, be
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Registers created geometry/material/shadow material/skeleton immediately within construction rollback and transfers the complete model graph/registries on success; resolver textures stay externally owned. The returned record provides no universal disposer, so its scene/runtime owner must enumerate physical resources including skin skeleton state when retiring it.
+Registers created geometry/material/shadow material/skeleton immediately within construction rollback and transfers the complete model graph/registries on success; resolver textures stay externally owned. A worn part's edge texture is read only through its own material's program, so it is released by that material's `dispose` event. The returned record provides no universal disposer, so its scene/runtime owner must enumerate physical resources including skin skeleton state when retiring it.

@@ -114,7 +114,7 @@ export interface IFilmProduction {
   optics?: (seconds: number) => IAutoMovieFilmOptics;
 
   /**
-   * The film's indirect shading at an exact second: the ambient occlusion of indirect light around each visible point and one diffuse bounce from probes baked over the static set. Read beside `optics` before each single-sample beauty picture; a member without `optics` is refused. Absent leaves indirect light as the scene's image lighting gives it.
+   * The film's indirect shading at an exact second: the ambient occlusion of indirect light around each visible point and one diffuse bounce from probes baked over the static set. Read beside `optics` before each beauty picture, and at each sub-frame sample's own second when `optics` sets `samples`; a member without `optics` is refused. Absent leaves indirect light as the scene's image lighting gives it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the shading holds, when it is read, its dependency on optics and what absence draws.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the shading producer; this signature has no algorithm.

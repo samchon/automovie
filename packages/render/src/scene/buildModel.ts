@@ -72,7 +72,8 @@ import { applyMaterialWear } from "./wearShading/index.js";
  * and leaves degenerate UVs on their existing fallback. Fully transparent,
  * non-transmissive parts stay hidden when a guide swaps materials. A part whose
  * material declares `wear` gets its own material instance and is drawn
- * non-indexed with its bind-pose feature edges, by `applyMaterialWear`.
+ * non-indexed with its bind-pose feature edges, by `applyMaterialWear`;
+ * disposing that material also disposes its edge texture.
  */
 export const buildModel: (
   model: IAutoMovieModel,
@@ -179,6 +180,10 @@ export const buildModel: (
           } = applyMaterialWear(geo, mat, definition.wear);
           geo = own(worn.geometry);
           own(worn.texture);
+
+          // Only the material's compiled program reads the edge texture, so
+          // whoever disposes the part's material releases it too.
+          mat.addEventListener("dispose", (): void => worn.texture.dispose());
         } else {
           let variants: Map<string, THREE.MeshStandardMaterial> | undefined =
             materials.get(definition.id);

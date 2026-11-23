@@ -5,8 +5,9 @@ import * as THREE from "three";
  * A renderer that records, for every `render` call, what was drawn and the
  * state it was drawn under, without a GPU: the drawn object, the target, the
  * renderer's own curve and exposure, the clear policy, shadow-map updates, the
- * camera's layer mask, the scene's background and which of the watched objects
- * the camera could see.
+ * camera's layer mask, the scene's background, which of the watched objects the
+ * camera could see and, for a stage's full-frame pass, its program's uniform
+ * values.
  *
  * A film response stage drives only this structural surface, so its ordering
  * and restoration are observed through its seam.
@@ -46,6 +47,7 @@ export function createFilmResponseRendererDouble(props: {
         seen: (props.watched ?? []).map((watched: THREE.Object3D): boolean =>
           watched.layers.test(camera.layers),
         ),
+        program: programOf(object),
       });
     },
   };
@@ -90,5 +92,44 @@ export namespace createFilmResponseRendererDouble {
 
     /** For each watched object, whether the camera could see it. */
     seen: boolean[];
+
+    /**
+     * For a stage's full-frame pass, a scene whose only child is a mesh with a
+     * raw shader program: each uniform's value at the call, a number as is and
+     * a vector or matrix as its array, any other value as null. Null for every
+     * other draw.
+     */
+    program: Record<string, unknown> | null;
   }
+}
+
+/**
+ * The uniform values of the raw shader program a stage's full-frame scene
+ * draws, copied at the call, since the stage reuses one quad and its uniform
+ * objects across its passes and draws.
+ */
+function programOf(object: THREE.Object3D): Record<string, unknown> | null {
+  const only: THREE.Object3D | undefined =
+    object.children.length === 1 ? object.children[0] : undefined;
+  const material: unknown =
+    only instanceof THREE.Mesh ? (only.material as unknown) : undefined;
+  if (!(material instanceof THREE.RawShaderMaterial)) return null;
+  return Object.fromEntries(
+    Object.entries(material.uniforms).map(
+      ([name, uniform]: [string, THREE.IUniform]): [string, unknown] => {
+        const value: unknown = uniform.value;
+        return [
+          name,
+          typeof value === "number"
+            ? value
+            : value instanceof THREE.Vector2 ||
+                value instanceof THREE.Vector3 ||
+                value instanceof THREE.Matrix3 ||
+                value instanceof THREE.Matrix4
+              ? value.toArray()
+              : null,
+        ];
+      },
+    ),
+  );
 }

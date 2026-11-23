@@ -29,8 +29,11 @@ import { surfaceTriangleOf } from "../internal/surfaceTriangleOf";
  *    triangle of the subdivided box that touches that edge at one vertex only,
  *    whose `dEdge` is 0.005.
  *
- * The shader's weights at 1280 × 720 are compared on a real GPU under the
- * visual-debugging skill, not here.
+ * The shader's weights at 1280 × 720 are checked on a real GPU under the
+ * visual-debugging skill, not here, each box against the CPU weight at the
+ * point the rasterizer interpolated for each pixel, as
+ * `test_render_wear_shader` states; the two boxes are not compared pixel by
+ * pixel.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures both boxes and queries both at the same points; per-triangle lists limited to a triangle's own sides, or a weld that missed the grid's shared vertices, fails.
  * @evidence contracts/development/testing.md#independent-expectations The 24-vertex box from `tessellate` is the reference; the grid box is generated here with exact binary coordinates, and the 0.005 m case follows from geometry.

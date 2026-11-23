@@ -84,7 +84,8 @@ export namespace IAutoMovieFilmShading {
 
     /**
      * Probe pitch in metres, finite and above zero; each axis holds `floor((max
-     * − min) / spacing) + 1` probes.
+     * − min) / spacing) + 1` probes, and the grid at most 2048 in all, the
+     * texture rows every WebGL 2 renderer can store.
      */
     spacing: number;
 

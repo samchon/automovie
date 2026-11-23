@@ -1,16 +1,23 @@
 import type { IAutoMovieFilmShading } from "@automovie/interface";
 
 /**
+ * Most probes one bake may hold: the renderer stores each probe as one row of a
+ * float texture, and WebGL 2 guarantees textures 2048 texels tall.
+ */
+const PROBE_LIMIT: number = 2048;
+
+/**
  * Admit a film's indirect shading for one drawn second, or throw an error
  * naming the second and the first field it refuses.
  *
  * Checks every range {@link IAutoMovieFilmShading} states: `occlusion.radius`
  * finite and above zero; probe box corners finite with `max` at least `min`,
- * `spacing` finite and above zero, `layer` a safe integer within [1, 31] and
- * `revision` a string. A shading that asks for any member while the film has no
- * optics at that second is refused naming `optics`, because the occlusion
- * prepass and the probe cubes live in the optics' linear format. The draw host
- * calls it before every beauty draw of a scene with `shading`.
+ * `spacing` finite and above zero and coarse enough that the grid holds at most
+ * 2048 probes, `layer` a safe integer within [1, 31] and `revision` a string. A
+ * shading that asks for any member while the film has no optics at that second
+ * is refused naming `optics`, because the occlusion prepass and the probe cubes
+ * live in the optics' linear format. The draw host calls it before every beauty
+ * draw of a scene with `shading`.
  *
  * @param shading The film's shading at the second.
  * @param seconds The drawn second.
@@ -59,6 +66,25 @@ export function admitAutoMovieFilmShading(
       )
     )
       refuse("probes.spacing", "finite and above zero", probes.spacing);
+
+    // The bake stores one texture row per probe, and 2048 rows is the least
+    // MAX_TEXTURE_SIZE a WebGL 2 renderer may offer. Counts are those of
+    // autoMovieIrradianceGrid, without building its positions.
+    const total: number = (["x", "y", "z"] as const).reduce(
+      (product: number, axis: "x" | "y" | "z"): number =>
+        product *
+        (Math.floor(
+          (probes.max[axis] - probes.min[axis]) / probes.spacing + 1e-9,
+        ) +
+          1),
+      1,
+    );
+    if (!(total <= PROBE_LIMIT))
+      refuse(
+        "probes.spacing",
+        `coarse enough for at most ${PROBE_LIMIT} probes`,
+        `${total} probes`,
+      );
     if (
       !(
         Number.isSafeInteger(probes.layer) &&

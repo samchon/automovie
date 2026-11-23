@@ -39,9 +39,15 @@ import { surfaceTriangleOf } from "../internal/surfaceTriangleOf";
  *    roughness before the metalness map, and names its layers in the program
  *    key.
  *
- * GPU arithmetic, and the 1280 × 720 weight comparison of the 24-vertex and
- * subdivided boxes, are checked by a float-target capture under the
- * visual-debugging skill.
+ * GPU arithmetic is checked by a float-target capture under the
+ * visual-debugging skill: at 1280 × 720, the 24-vertex box and the box
+ * subdivided 8 × 8 per face each write their edge weight and their interpolated
+ * bind-pose point, and every covered pixel's weight must equal the CPU weight
+ * at that pixel's own point within 1e-3. Comparing the two boxes' weights pixel
+ * by pixel is not a valid check: the rasterizer snaps each triangle's vertices
+ * to its subpixel grid, so the two meshes of one surface put the same pixel at
+ * points up to 0.5 mm apart on SwiftShader, and the weight's gradient turns
+ * that into a difference of up to 0.014 that no shader could remove.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `applyMaterialWear` and decodes its outputs; a list written at the wrong offset, an edge sign lost, a geometry left indexed or a splice in the wrong place fails.
  * @evidence contracts/development/testing.md#independent-expectations Lists and edges come from `measureAutoMovieFeatureEdges` and distances from the CPU reference, independent of the texture packing under test; the weight's zero and positivity follow from its formula.

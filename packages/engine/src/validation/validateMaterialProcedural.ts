@@ -26,7 +26,7 @@ const DIRECTIONAL: readonly string[] = ["wood", "fabric", "brushedMetal"];
 
 /**
  * Admit one material's procedural surface: its record shape, a known kind, a
- * safe-integer seed within [0, 2쨀짼 ??1], a finite positive scale, two linear
+ * safe-integer seed within [0, 2³² − 1], a finite positive scale, two linear
  * colours, two roughness values within [0, 1], a finite nonnegative relief, an
  * axis exactly when the kind is directional, and a pattern piece's sheet,
  * positive tile lengths and finite transform.

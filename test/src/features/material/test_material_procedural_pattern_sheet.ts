@@ -53,7 +53,7 @@ export function test_material_procedural_pattern_sheet(): void {
           zone({
             region: rectangle(0, 0, 3, 1),
             period: { u: 1, v: 0.2 },
-            reach: { u: 1, v: 0.2 },
+            reach: { u: 1.5, v: 0.2 },
             generate: runningBond,
           }),
         ],

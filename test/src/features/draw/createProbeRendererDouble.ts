@@ -64,6 +64,7 @@ export function createProbeRendererDouble(props: {
     reads: (): number => reads,
   };
 }
+/** Types of the probe-bake renderer double. */
 export namespace createProbeRendererDouble {
   /** The double and its logs. */
   export interface IDouble {

@@ -28,12 +28,14 @@ import { createSkinnedTubeModel } from "../internal/createSkinnedTubeModel";
  *    moves them by more than 0.1 m) while the `position` attribute the wear
  *    distances read stays at bind pose, so each fragment's distances, and its
  *    wear, stay on the same surface points.
+ * 4. Disposing the part's material disposes its edge texture, which only that
+ *    material's program reads.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the model through `buildModel` and poses it; a measurement of a posed mesh, an indexed draw or lost skin attributes fails.
  * @evidence contracts/development/testing.md#independent-expectations The expected edges are measured here on the authored mesh record; three's chunk order and CPU skinning are the independent account of where deformation happens.
  * @evidence contracts/development/testing.md#distinguishing-cases A bent pose against the bind pose with a check that the bend moved the skin; the texture packing is owned by `test_render_wear_shader`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_render_wear_skinned`; three objects are built in memory and no GPU starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_render_wear_skinned(): void {
   const wear: IAutoMovieMaterialWear = {
@@ -133,5 +135,18 @@ export function test_render_wear_skinned(): void {
       after.every((value: number, k: number): boolean => value === before[k]) &&
       assigned > 0 &&
       assigned < shader.vertexShader.indexOf("#include <skinning_vertex>"),
+  );
+
+  // 4. Disposing the part's material releases its edge texture.
+  const texture: THREE.DataTexture = shader.uniforms.uWearEdges!
+    .value as THREE.DataTexture;
+  let released: boolean = false;
+  texture.addEventListener("dispose", (): void => {
+    released = true;
+  });
+  material.dispose();
+  TestValidator.predicate(
+    "disposing the worn material disposes its edge texture",
+    released,
   );
 }

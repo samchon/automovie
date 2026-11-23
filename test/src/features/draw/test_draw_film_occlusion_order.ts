@@ -24,15 +24,17 @@ import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDo
  *    B carries into the second A.
  * 3. A change of raster resizes the targets, and the stage's uniforms then name
  *    the new raster.
+ * 4. A display overlay (`toneMapped: false`) is hidden from the prepass, so it
+ *    occludes nothing, and is visible again when the beauty pass runs.
  *
  * Pixel equality of the same second captured in different orders is checked on
  * a real GPU under the visual-debugging skill.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the stage over a recording renderer and reads the pass uniforms through the recorded draws; a pass that read an earlier frame's target, a skipped clear target or an unrestored background fails.
  * @evidence contracts/development/testing.md#independent-expectations The expected order is the one the contract states: prepass, search, blur, beauty; equality of A's draws follows from each draw depending only on its inputs.
- * @evidence contracts/development/testing.md#distinguishing-cases Two different seconds between two equal ones, and a raster change; the gate and the patch are owned by `test_draw_film_occlusion_direct`.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two different seconds between two equal ones, a raster change, and a display overlay; the gate and the patch are owned by `test_draw_film_occlusion_direct`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_film_occlusion_order`; the renderer is an in-memory double and no GPU starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_draw_film_occlusion_order(): void {
   const scene: THREE.Scene = new THREE.Scene();
@@ -91,7 +93,22 @@ export function test_draw_film_occlusion_order(): void {
         });
       },
     );
-    return { renders: double.renders, beauty };
+    // The stage swaps one quad's program between its passes, so the search
+    // pass's uniforms are the ones the double recorded as it rendered.
+    const program: Record<string, unknown> | null =
+      double.renders[1]?.program ?? null;
+    return {
+      renders: double.renders,
+      beauty,
+      search:
+        program === null
+          ? ""
+          : JSON.stringify([
+              program.uRadius,
+              program.uSample,
+              program.uProjection,
+            ]),
+    };
   };
 
   // 1. The order of one draw.
@@ -127,31 +144,14 @@ export function test_draw_film_occlusion_order(): void {
         ],
       ),
     );
-  const uniforms: () => string = (): string => {
-    const occlusion: THREE.Material | undefined = search!.object.children
-      .map(
-        (child: THREE.Object3D): THREE.Material =>
-          (child as THREE.Mesh).material as THREE.Material,
-      )
-      .find(
-        (material: THREE.Material): boolean =>
-          material instanceof THREE.RawShaderMaterial,
-      );
-    const values: Record<string, THREE.IUniform> = (
-      occlusion as THREE.RawShaderMaterial
-    ).uniforms;
-    return JSON.stringify([
-      values.uRadius!.value,
-      values.uSample!.value,
-      (values.uProjection!.value as THREE.Matrix4).toArray(),
-    ]);
-  };
-  const firstUniforms: string = uniforms();
-  draw(b, 1.5, 64);
+  const other: IDrawn = draw(b, 1.5, 64);
   const again: IDrawn = draw(a, 0.5, 64);
   TestValidator.predicate(
     "the second A draws as the first, unaffected by B",
-    signature(again) === signature(first) && uniforms() === firstUniforms,
+    first.search !== "" &&
+      other.search !== first.search &&
+      signature(again) === signature(first) &&
+      again.search === first.search,
   );
 
   // 3. A raster change.
@@ -160,6 +160,43 @@ export function test_draw_film_occlusion_order(): void {
     "a new raster resizes the targets",
     wide.renders[0]!.target!.width === 128 && wide.beauty.includes("[128,36]"),
   );
+
+  // 4. A display overlay is left out of the prepass and restored.
+  const overlay: THREE.Mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(),
+    new THREE.MeshBasicMaterial({ toneMapped: false }),
+  );
+  scene.add(overlay);
+  const watched: createFilmResponseRendererDouble.IDouble =
+    createFilmResponseRendererDouble({
+      toneMapping: THREE.NoToneMapping,
+      exposure: 1,
+      watched: [overlay],
+    });
+  let restored: boolean = false;
+  stage.draw(
+    {
+      renderer: watched.renderer,
+      scene,
+      camera: a,
+      shading: { occlusion: { radius: 0.5 } },
+      optics: true,
+      seconds: 1,
+      width: 64,
+      height: 36,
+      sample: 0,
+    },
+    (): void => {
+      restored = overlay.layers.test(a.layers);
+    },
+  );
+  TestValidator.predicate(
+    "a display overlay is hidden from the prepass and visible again for the beauty pass",
+    watched.renders[0]!.object === scene &&
+      watched.renders[0]!.seen[0] === false &&
+      restored,
+  );
+  scene.remove(overlay);
   stage.dispose();
 }
 
@@ -170,4 +207,7 @@ interface IDrawn {
 
   /** The serialized state inside the beauty callback. */
   beauty: string;
+
+  /** The horizon search's radius, sample and projection as it rendered. */
+  search: string;
 }
