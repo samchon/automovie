@@ -7,8 +7,9 @@ import { restoreAutoMovieRenderModeState } from "../scene/restoreAutoMovieRender
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 
 /**
- * Route soft prop surfaces from a producer into the draw subject's scene.
- * Each requested second is read after the subject has placed its other objects.
+ * Route soft prop surfaces from a producer into the draw subject's scene. Each
+ * requested second is read after the subject has placed its other objects, by
+ * `seek`, `place` or a transition's `seekShot`, whose output second it reads.
  */
 export function bindAutoMovieDrawSceneSoftProps(
   subject: IAutoMovieDrawScene,
@@ -31,6 +32,25 @@ export function bindAutoMovieDrawSceneSoftProps(
             if (closed)
               throw new Error("The soft prop draw subject is closed.");
             subject.place!(seconds);
+            props.update(read(seconds));
+          },
+        }),
+
+    // A transition's outgoing shot reads the producer on the output clock, as
+    // every other output-clock reading of a shot placement does.
+    ...(subject.seekShot === undefined
+      ? {}
+      : {
+          seekShot: async (
+            shot: string,
+            time: number,
+            seconds: number,
+          ): Promise<void> => {
+            if (closed)
+              throw new Error("The soft prop draw subject is closed.");
+            await subject.seekShot!(shot, time, seconds);
+            if (closed)
+              throw new Error("The soft prop draw subject is closed.");
             props.update(read(seconds));
           },
         }),

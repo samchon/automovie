@@ -23,6 +23,7 @@ import type * as THREE from "three";
 
 import { AutoMovieInspectorDiagnosticLog } from "./AutoMovieInspectorDiagnosticLog.js";
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
+import { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHost.js";
 import { changesAutoMovieObservedScene } from "./changesAutoMovieObservedScene.js";
@@ -34,6 +35,7 @@ interface ILive {
   instance: IAutoMovieDrawScene;
   renderer: IAutoMovieInspectorSceneHost.IRenderer;
   response: AutoMovieFilmResponseStage;
+  transition: AutoMovieInspectorTransition;
   inspection: IAutoMovieInspectionHandle;
   applied: IAutoMovieCapturePlanRequest;
   frame: number | undefined;
@@ -54,6 +56,8 @@ interface ILive {
  * The picture's aspect is the subject's raster, not the canvas's, so a view frames what a capture of the same subject frames; the page gives the canvas that aspect. The mount adds no listener and holds at most one pending frame, so a mount, dispose and mount again on one canvas, as React's StrictMode runs an effect, leaves one renderer and one frame loop; a mount disposed before its instance arrives or is ready disposes the instance then and creates no renderer, and a seek that resolves after dispose draws nothing.
  *
  * An opted-in subject is observed at the second actually placed, before the inspection changes the scene: an inspection that changes layers, materials, mark geometry or clipping is restored before the seek and re-applied after the observation, while one that changes none of them, as the default request, stays applied and only updates its marks, as for any subject. Its findings reach the report and the diagnostic log with the playhead's playing flag and jump count, so uninterrupted playback can join painted samples into an observed span. Its witness cubes are drawn under the beauty shade unless `overlay(false)` hid them; hiding them stops no check and no report.
+ *
+ * A plain beauty request paints a subject's transition as the draw page delivers and captures it: before the seek, `AutoMovieInspectorTransition` places, paints and holds a transition's outgoing shot, and after the live entry is painted it composites the held layers by the weights `playbackLayersAt` gives, so a cross dissolve mixes the shots and a fade dips through black at the same second in all three.
  *
  * The page draws the first view and the first pass of the request; the capture command draws them all. While paused, the labels the request asks for are placed by the inspection on the picture's pixels, with the stamp's font pixel at least one CSS pixel of the canvas as a capture keeps it at least one sheet pixel, and reported in CSS pixels; a named view with a focus is framed on what the focus selects.
  */
@@ -161,6 +165,9 @@ export function mountAutoMovieInspectorScene(props: {
       const response: AutoMovieFilmResponseStage =
         new AutoMovieFilmResponseStage();
       held.push((): void => response.dispose());
+      const transition: AutoMovieInspectorTransition =
+        new AutoMovieInspectorTransition();
+      held.push((): void => transition.dispose());
       const inspect: (
         request: IAutoMovieCapturePlanRequest,
       ) => IAutoMovieInspectionHandle = (
@@ -194,6 +201,7 @@ export function mountAutoMovieInspectorScene(props: {
         instance,
         renderer,
         response,
+        transition,
         inspection,
         applied,
         frame: undefined,
@@ -266,7 +274,22 @@ export function mountAutoMovieInspectorScene(props: {
         changesAutoMovieObservedScene(now.applied.inspection)
       )
         now.inspection.restore();
-      ready = now.instance.seek(snapshot.seconds);
+      // A transition's outgoing shot is placed, painted and held before the live second.
+      const held: Promise<void> | null = now.transition.prepare({
+        name: props.name,
+        instance: now.instance,
+        request: now.applied.inspection,
+        renderer: now.renderer,
+        seconds: snapshot.seconds,
+        paint: (): void =>
+          beauty(now, filmCamera(now, snapshot.seconds), snapshot.seconds),
+      });
+      ready =
+        held === null
+          ? now.instance.seek(snapshot.seconds)
+          : held.then(
+              (): Promise<void> => now.instance.seek(snapshot.seconds),
+            );
     } catch (error) {
       ready = Promise.reject(
         error instanceof Error ? error : new Error(String(error)),
@@ -304,25 +327,7 @@ export function mountAutoMovieInspectorScene(props: {
           now.applied = wanted;
       } else now.inspection.update(instance.marks?.(snapshot.seconds));
 
-      // The delivery camera takes the raster's aspect, as a capture of the subject does.
-      const aspect: number = instance.width / instance.height;
-      if (instance.camera.aspect !== aspect) {
-        instance.camera.aspect = aspect;
-        instance.camera.updateProjectionMatrix();
-      }
-      const text: string = now.applied.views[0]!;
-      const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(text);
-      const camera: THREE.Camera = resolveAutoMovieInspectionView({
-        view,
-        text,
-        bounds:
-          view.type === "named" ? now.inspection.bounds(view.focus) : null,
-        camera: instance.camera,
-        ...(instance.views === undefined ? {} : { views: instance.views }),
-        seconds: snapshot.seconds,
-        width: instance.width,
-        height: instance.height,
-      }).camera;
+      const camera: THREE.Camera = filmCamera(now, snapshot.seconds);
       const diagnosticLegend: ReturnType<typeof witnessCubes.render> =
         witnessCubes.render({
           scene: instance.scene,
@@ -336,15 +341,8 @@ export function mountAutoMovieInspectorScene(props: {
               now.renderer.render(instance.scene, camera);
               return;
             }
-            now.response.draw({
-              renderer: now.renderer,
-              scene: instance.scene,
-              camera,
-              optics: instance.optics?.(snapshot.seconds),
-              seconds: snapshot.seconds,
-              width: Math.floor(now.size!.width * now.size!.pixelRatio),
-              height: Math.floor(now.size!.height * now.size!.pixelRatio),
-            });
+            if (now.transition.drawsLive) beauty(now, camera, snapshot.seconds);
+            now.transition.finish(now.renderer);
           },
           width: now.size!.width,
           height: now.size!.height,
@@ -376,6 +374,41 @@ export function mountAutoMovieInspectorScene(props: {
     } catch (error) {
       fail(now, snapshot, error);
     }
+  }
+
+  /** The applied view's camera at a placed second; the delivery camera takes the raster's aspect, as a capture of the subject does. */
+  function filmCamera(now: ILive, seconds: number): THREE.Camera {
+    const { instance } = now;
+    const aspect: number = instance.width / instance.height;
+    if (instance.camera.aspect !== aspect) {
+      instance.camera.aspect = aspect;
+      instance.camera.updateProjectionMatrix();
+    }
+    const text: string = now.applied.views[0]!;
+    const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(text);
+    return resolveAutoMovieInspectionView({
+      view,
+      text,
+      bounds: view.type === "named" ? now.inspection.bounds(view.focus) : null,
+      camera: instance.camera,
+      ...(instance.views === undefined ? {} : { views: instance.views }),
+      seconds,
+      width: instance.width,
+      height: instance.height,
+    }).camera;
+  }
+
+  /** Paint the placed scene's beauty picture: the subject's optics, through the stage delivery draws with. */
+  function beauty(now: ILive, camera: THREE.Camera, seconds: number): void {
+    now.response.draw({
+      renderer: now.renderer,
+      scene: now.instance.scene,
+      camera,
+      optics: now.instance.optics?.(seconds),
+      seconds,
+      width: Math.floor(now.size!.width * now.size!.pixelRatio),
+      height: Math.floor(now.size!.height * now.size!.pixelRatio),
+    });
   }
 
   /** Report a drawing error once until a frame draws again, and stop playback on it. */

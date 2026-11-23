@@ -158,7 +158,7 @@ export interface IFilmProduction {
    */
   speak?: (mouths: IAutoMovieDialogueMouths) => void;
 
-  /** The film's cut, layout and declared breaks, so motion is never examined across a cut or break. Absent treats the whole film as one continuous shot. */
+  /** The film's cut, layout and declared breaks, so motion is never examined across a cut or break, and whose sequence's transitions every film picture draws through `seekShot`. Absent treats the whole film as one continuous shot. */
   playback?: Pick<
     ISelectAutoMoviePlacedChecks.IContinuity,
     "sequence" | "timeline" | "discontinuities"
@@ -231,6 +231,19 @@ export interface IFilmProduction {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the film that implements it answers.
    */
   seek(seconds: number): void;
+
+  /**
+   * Places every displayed object and the camera as one shot of `playback.sequence` shows them at its own shot-local `seconds`, during the film second `filmSeconds`: a transition's outgoing shot, which `seek` cannot place because the incoming entry is live there. Read the dialogue mouths and anything else on the film clock at `filmSeconds`. The hosts call it before placing `filmSeconds` again with `seek`, then dissolve the two pictures or dip them through black, as the entry's transition says. Required when the sequence has a transition: a delivered, captured or viewed picture inside one is refused without it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the call places, on which two clocks, when the hosts call it, what they do with the picture and when it is required.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the film that implements it answers.
+   */
+  seekShot?(shot: string, seconds: number, filmSeconds: number): void;
 
   /**
    * Releases the scene's resources when the Viewer page closes.

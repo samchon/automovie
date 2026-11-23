@@ -118,6 +118,7 @@ export * from "./resolveAutoMovieFilmBeautyComposition.js";
 export * from "./renderFadeToBlackFrame.js";
 export * from "./disposeFadeToBlack.js";
 export * from "./renderAutoMovieFilmFrame.js";
+export * from "./AutoMovieTransitionDisplays.js";
 export * from "./readAutoMovieFilmDisplayTextureResidency.js";
 export * from "./readAutoMovieRenderTextureTarget.js";
 export * from "./readAutoMovieTransmissionTextureTarget.js";

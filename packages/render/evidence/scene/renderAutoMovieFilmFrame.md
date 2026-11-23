@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Admits sampled one/two-layer beauty composition before callbacks, dispatches direct/fade/dissolve beauty and uses the Engine full-weight dominant layer with incoming tie winner for structural passes.
+Admits sampled one/two-layer beauty composition before callbacks, dispatches direct/fade/dissolve beauty, hands `transparent` to the fade so a transparent picture fades toward alpha 0, and uses the Engine full-weight dominant layer with incoming tie winner for structural passes.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ Invalid weight/cardinality/complement sum refuse rather than clamp or blend stru
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents opaque sampled fields, per-source preparation order, reversible pass ownership, beauty weights, structural tie rule and pre-effect admission.
+Documents opaque sampled fields, per-source preparation order, reversible pass ownership, beauty weights, the transparent fade, structural tie rule and pre-effect admission.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

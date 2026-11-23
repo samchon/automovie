@@ -42,7 +42,7 @@ pnpm exec automovie capture --file media/automovie/<film>/videos/film.mp4 --from
 
 The render writes `media/automovie/<film>/videos/film.mp4`, or into `--out <dir>`, with `render-report.json` beside it. Export requires a whole number of frames. The report's hashes describe the drawn frames, and [delivery review]({{skills}}/review/delivery-review.md) judges the film.
 
-`--background transparent` instead draws the beauty pass over a transparent background and wraps the straight-alpha PNG frames, unencoded, into `media/automovie/<film>/transparent/film.mov` with no audio, for compositing in post. It cannot be combined with `--passes`, and a film with `optics` is refused.
+`--background transparent` instead draws the beauty pass over a transparent background and wraps the straight-alpha PNG frames, unencoded, into `media/automovie/<film>/transparent/film.mov` with no audio, for compositing in post. It cannot be combined with `--passes`. A film with `optics` keeps its camera response, and its haze adds its own opacity to the layer.
 
 `--passes depth,mask` also draws those guide passes at every frame through the film's camera and writes them, never encoded, into `controls/` beside the film, with `record.json` naming each pass's convention and every frame file's SHA-256. It takes the guide passes other than `beauty`, each once. A blocked or failed render keeps the previous film and `controls/`, so use them only under the [render report check]({{skills}}/production/media-records.md#render-reports).
 

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Admits finite weight inside0..1 before effects, acquires/resizes the actual renderer-keyed fade compositor and renders the original source over opaque black with alpha1-weight.
+Admits finite weight inside0..1 before effects, acquires/resizes the actual renderer-keyed fade compositor and renders the original source over opaque black with alpha1-weight, or with `transparent` toward a fully transparent pixel, the compositor's associated-alpha fade (Porter and Duff 1984), which lowers alpha and keeps the straight colour.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ No weight clamp or assumed device precision invents a successful frame; transpar
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents byte-domain fade, source-local tone, destination restoration, opaque rounding/endpoint bound and straight transparent delivery through an unassociated target.
+Documents byte-domain fade toward black or toward transparency, source-local tone, destination restoration, opaque rounding/endpoint bound and straight transparent delivery through an unassociated target.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

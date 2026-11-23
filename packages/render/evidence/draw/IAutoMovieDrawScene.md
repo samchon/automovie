@@ -6,11 +6,11 @@ Seconds are the subject's own timebase, the raster is whole pixels, and `seek` r
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Every member is read by `installAutoMovieDraw`: the scene and camera to draw, the clock, raster and named instants for the capture plan, the delivery intent, sound list and cut for the delivery render, `speak` for the dialogue mouths the capture and the render hand, `views` and `marks` for the inspection, `seek` and `dispose` for its life. View placements and marks use the shapes `resolveAutoMovieInspectionView` and `IAutoMovieMark` already own.
+Every member is read by `installAutoMovieDraw`: the scene and camera to draw, the clock, raster and named instants for the capture plan, the delivery intent, sound list and cut for the delivery render, `sequence` and `seekShot` for the film picture's transitions, which the interactive inspector reads too, `speak` for the dialogue mouths the capture and the render hand, `views` and `marks` for the inspection, `seek` and `dispose` for its life. View placements and marks use the shapes `resolveAutoMovieInspectionView` and `IAutoMovieMark` already own, and the sequence is the interface's `IAutoMovieSequence`.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-No member names a film, a figure or a case. A positive clock and raster are checked by the capture planner at runtime.
+No member names a film, a figure or a case. A positive clock and raster are checked by the capture planner at runtime. `sequence` without `seekShot` is a state the type admits, because a cut whose transitions are all outside the drawn seconds needs no shot placement; a picture that needs one refuses by name in `planAutoMovieDrawLayers`.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -50,7 +50,7 @@ A signature has no body; the subject that implements it answers.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States when it is asked for, what it changes about the beauty draw, what absence draws, the refusal and that structural passes never ask.
+States when it is asked for, after either placement, what it changes about the beauty draw and the graphics plate, what absence draws, the refusal and that the other structural passes never ask.
 
 ## @evidenceExclude contracts/development/implementation.md#principled-implementation
 
@@ -136,6 +136,36 @@ The host supplies the already placed sample.
 
 The producer borrows inputs for the call.
 
+# src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.beforeDraw
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States when it runs relative to placement and inspection, what it is for, and the render-target state it must leave.
+
+## @evidenceExclude contracts/development/implementation.md#principled-implementation
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A signature has no body; the subject owns its render targets.
+
 # src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.speak
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -171,6 +201,36 @@ A signature has no body; the subject that implements it answers.
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States what is placed and what the promise means.
+
+## @evidenceExclude contracts/development/implementation.md#principled-implementation
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A signature has no body; the subject that implements it answers.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A signature has no body; the subject that implements it answers.
+
+# src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.seekShot
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what is placed, on which two clocks, what the subject reads at the output second, when the host places the live second again, and the refusal without it.
 
 ## @evidenceExclude contracts/development/implementation.md#principled-implementation
 

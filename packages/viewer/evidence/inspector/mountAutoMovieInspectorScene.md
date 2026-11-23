@@ -10,7 +10,7 @@ The scene is changed only through render's inspection, which restores before re-
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One closure owns one mount: arrival, apply, frame, seek, paint, failure and dispose are local steps over one record of what is held; React, the DOM and WebGL stay with the component and the host.
+One closure owns one mount: arrival, apply, frame, seek, paint, failure and dispose are local steps over one record of what is held; React, the DOM and WebGL stay with the component and the host. A transition's outgoing shot is planned, placed, painted and held by `AutoMovieInspectorTransition` before the seek and composited with the live picture after it, on render's `planAutoMovieDrawLayers` and compositor, the ones the draw page uses, so the Viewer paints the transition frame delivery and capture draw at the same second.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -18,7 +18,7 @@ A refused request is reported with the request still drawn rather than drawn hal
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-A frame that changed nothing costs one size read and one snapshot comparison; a redraw costs the subject's seek, the opted-in observation, the inspection's update linear in its marks, one view resolution and the render. A full inspection re-application per redraw happens only while the request changes what the observation would read. Paths and the first second's marks are listed once per mount.
+A frame that changed nothing costs one size read and one snapshot comparison; a redraw costs the subject's seek, the opted-in observation, the inspection's update linear in its marks, one view resolution and the render. A full inspection re-application per redraw happens only while the request changes what the observation would read. Paths and the first second's marks are listed once per mount. A redraw inside a transition adds the outgoing shot's placement and draw, two canvas copies and one composite pass.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -26,4 +26,4 @@ The applied inspection, the renderer and the instance live for the whole mount; 
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The mount owns one instance, one renderer, one applied inspection, one witness-cube overlay and at most one pending frame, released by `dispose` in reverse order, each attempted even when another fails; the playhead is borrowed and gains no listener.
+The mount owns one instance, one renderer, one applied inspection, one witness-cube overlay, one transition owner with at most two held copies and at most one pending frame, released by `dispose` in reverse order, each attempted even when another fails; the playhead is borrowed and gains no listener.

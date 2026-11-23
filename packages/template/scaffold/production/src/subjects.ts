@@ -34,7 +34,9 @@ import { markFilmProduction } from "./markFilmProduction";
  * marked by `markFilmProduction`, so a capture, a delivered frame and the
  * Viewer show the same state through the same camera response. A film with
  * `playback` hands its timeline over as the subject's `cut`, which the render
- * records in its report. A film with `speak` takes the dialogue mouths the
+ * records in its report, and its sequence, whose transitions every film
+ * picture draws through the film's `seekShot`, the shot-local time unclamped
+ * and the film second clamped. A film with `speak` takes the dialogue mouths the
  * capture and the render hand the subject, and reads them in its own seek.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each subject is, who draws it, and how its raster, seek and marks are taken.
@@ -78,7 +80,10 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
                   }),
               ...(production.playback === undefined
                 ? {}
-                : { cut: production.playback.timeline }),
+                : {
+                    cut: production.playback.timeline,
+                    sequence: production.playback.sequence,
+                  }),
               height: film.height ?? 720,
               markKinds: [
                 ...(production.markKinds ?? []),
@@ -143,6 +148,20 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
                 production.seek(
                   clampProductionSeconds(seconds, film.durationSeconds),
                 ),
+              ...(production.seekShot === undefined
+                ? {}
+                : {
+                    seekShot: async (
+                      shot: string,
+                      time: number,
+                      seconds: number,
+                    ): Promise<void> =>
+                      production.seekShot!(
+                        shot,
+                        time,
+                        clampProductionSeconds(seconds, film.durationSeconds),
+                      ),
+                  }),
               dispose: (): void => production.dispose(),
             };
             const softPropsAt: IFilmProduction["softPropsAt"] =

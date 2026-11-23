@@ -1,14 +1,13 @@
 import * as THREE from "three";
 
-/**
- * One native compositor draw, retaining the selected target by object identity.
- */
+/** One native compositor draw, retaining the selected target by object identity. */
 interface IDisplayCompositionRecord {
   target: THREE.WebGLRenderTarget | null;
   face: number;
   mip: number;
   alpha: number;
   fade: boolean;
+  fadeTransparent: boolean;
   backing: boolean;
   srgb: boolean;
   viewport: number[];
@@ -17,7 +16,8 @@ interface IDisplayCompositionRecord {
 }
 
 /**
- * Configured raster state and its effective pixel rectangles; target is a local scalar identity.
+ * Configured raster state and its effective pixel rectangles; target is a local
+ * scalar identity.
  */
 interface IDisplayCompositionSnapshot {
   target: number | null;
@@ -34,9 +34,7 @@ interface IDisplayCompositionSnapshot {
   currentScissorTest: boolean;
 }
 
-/**
- * Existing controls and observations borrowed by portable display tests.
- */
+/** Existing controls and observations borrowed by portable display tests. */
 interface IDisplayCompositionResult {
   renderer: THREE.WebGLRenderer;
   copied: THREE.FramebufferTexture[];
@@ -54,9 +52,12 @@ interface IDisplayCompositionResult {
 }
 
 /**
- * In-memory renderer controls for display-compositor orchestration only.
- * Copies and shader uniforms are observable; supplied context responses do not establish pixel, tone-mapping or GPU equivalence. Failure inputs name the actual operation.
- * State comparison assigns native targets scalar object identities rather than traversing their cyclic texture and attachment ownership graphs. The caller owns native targets and compositor disposal.
+ * In-memory renderer controls for display-compositor orchestration only. Copies
+ * and shader uniforms are observable; supplied context responses do not
+ * establish pixel, tone-mapping or GPU equivalence. Failure inputs name the
+ * actual operation. State comparison assigns native targets scalar object
+ * identities rather than traversing their cyclic texture and attachment
+ * ownership graphs. The caller owns native targets and compositor disposal.
  */
 export function createDisplayCompositionRenderer(
   width: number = 64,
@@ -247,7 +248,12 @@ export function createDisplayCompositionRenderer(
       const material: THREE.Material | THREE.Material[] | undefined = (
         scene.children[0] as THREE.Mesh | undefined
       )?.material;
-      if (!(material instanceof THREE.RawShaderMaterial)) {
+      // A raw program other than the compositor's, such as a held layer's
+      // replay, is a source draw like any scene's.
+      if (
+        !(material instanceof THREE.RawShaderMaterial) ||
+        material.uniforms.copyBacking === undefined
+      ) {
         perform("sourceRender");
         return;
       }
@@ -262,6 +268,7 @@ export function createDisplayCompositionRenderer(
         mip,
         alpha: material.uniforms.alpha!.value,
         fade: material.uniforms.fade!.value,
+        fadeTransparent: material.uniforms.fadeTransparent!.value,
         backing: material.uniforms.copyBacking!.value,
         srgb: material.uniforms.outputSRGB!.value,
         viewport: currentViewport.toArray(),

@@ -6,6 +6,8 @@ Assemble the delivered video to the scope in [project context](project-context.m
 
 Build one film per screenplay folder. Check the [compositions](../contracts/development/composition.md#screenplay-realization) for missing or unintended repeated beats. Preserve scene order, cuts, pauses, transitions and titles. Use [frame evaluation](../motion/frame-evaluation.md) for scheduling and cut boundaries. Preserve the meaning of each [control channel](../motion/control-channels.md).
 
+The render, captures and the Viewer draw the transitions of the film's `playback` sequence: a `crossDissolve` mixes the two shots across its overlap, and a `fade` dips through black, the outgoing shot fading out over the first half and the incoming shot fading up over the second. When the sequence has a transition, give the film a `seekShot` member. It places one shot at its own shot-local second during a film second, which is how the hosts draw a transition's outgoing shot while `seek` places the incoming one. Read dialogue mouths and other film-clock state at the film second, as `seek` does. Without `seekShot`, every picture inside a transition is refused.
+
 ## Render
 
 <!-- @source The [FFmpeg codec options](https://github.com/FFmpeg/FFmpeg/blob/master/doc/codecs.texi) define color_range. -->

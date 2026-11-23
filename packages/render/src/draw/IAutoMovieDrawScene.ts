@@ -7,6 +7,7 @@ import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieMark,
   IAutoMoviePlaybackTimeline,
+  IAutoMovieSequence,
 } from "@automovie/interface";
 import type * as THREE from "three";
 
@@ -59,6 +60,22 @@ export interface IAutoMovieDrawScene {
   cut?: IAutoMoviePlaybackTimeline;
 
   /**
+   * The sequence `cut` was laid from by `sequenceTimeline`, whose entries'
+   * transitions the film picture draws; absent, or without `cut`, every picture
+   * is the live placement alone.
+   *
+   * With it, a delivered or plain `beauty` picture, in the draw page and the
+   * interactive viewer alike, draws the layers `playbackLayersAt` gives at its
+   * second: the live entry placed by `seek` and a transition's outgoing entry
+   * placed by `seekShot`, each with its own optics and shading read after its
+   * placement, composited by `renderAutoMovieFilmFrame`. A cross dissolve mixes
+   * the two shots and a fade dips through black, or through alpha 0 over a
+   * transparent background, as `IAutoMovieTransition` states. Inspection
+   * pictures, marks, labels and diagnostics read the live placement alone.
+   */
+  sequence?: IAutoMovieSequence;
+
+  /**
    * The subject's own named views, each placing a camera in world metres at a
    * second; absent when it has none.
    */
@@ -95,15 +112,17 @@ export interface IAutoMovieDrawScene {
   marks?: (seconds: number) => readonly IAutoMovieMark[];
 
   /**
-   * The film's camera response at a second, asked for after `seek` before each
-   * beauty draw; absent draws the beauty pass straight to the canvas under the
-   * renderer's own curve, as before optics existed.
+   * The film's camera response at a second, asked for after `seek`, or after
+   * `seekShot` for a transition's outgoing shot, before each beauty draw;
+   * absent draws the beauty pass straight to the canvas under the renderer's
+   * own curve, as before optics existed.
    *
    * When present, the draw host and the inspector render the beauty pass into a
    * linear target with the renderer's curve at none and exposure at one, and
-   * `AutoMovieFilmResponseStage` gives it this response. An out-of-range value
-   * throws, naming the second and the field. Structural passes never ask for
-   * it.
+   * `AutoMovieFilmResponseStage` gives it this response; the draw host gives
+   * the `graphics` plate the same response, so its graphics match the beauty
+   * pass's. An out-of-range value throws, naming the second and the field. The
+   * other structural passes never ask for it.
    */
   optics?: (seconds: number) => IAutoMovieFilmOptics;
 
@@ -156,6 +175,21 @@ export interface IAutoMovieDrawScene {
    * current geometry.
    */
   seek(seconds: number): Promise<void>;
+
+  /**
+   * Put every object and the delivery camera as one shot of `sequence` shows
+   * them at its own shot-local `time`, during the output second `seconds`: the
+   * outgoing shot of a transition, whose tail `seek` cannot place because the
+   * incoming entry is live there. Anything the subject reads on the output
+   * clock, such as the dialogue mouths, is read at `seconds`. The returned
+   * promise resolves once the subject is ready; the draw host places the output
+   * second again with `seek` before it draws the live entry.
+   *
+   * Required when `sequence` has a transition: a picture that must draw an
+   * outgoing shot without it is refused, naming the subject, the entry and
+   * `seekShot`.
+   */
+  seekShot?(shot: string, time: number, seconds: number): Promise<void>;
 
   /**
    * Place the scene at a second synchronously, leaving it exactly as an awaited
