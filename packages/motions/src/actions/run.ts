@@ -105,10 +105,14 @@ export namespace run {
   };
 
   /**
-   * What a gait lets an overlay take: the arms it would swing, the hands and
-   * the head.
+   * What a run lets an overlay take: the arms it would swing, the hands, the
+   * head, and the trunk a throw, a pass or a shot on the run turns (Wagner et
+   * al. 2011: the trunk's rotation carries an overarm throw's speed), while the
+   * run carries the body by its root and legs; the run's own trunk shows only
+   * where no overlay claims it.
    */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = [
+    "trunk",
     "head",
     "leftHand",
     "rightHand",

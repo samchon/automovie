@@ -33,12 +33,13 @@ import type { IAutoMovieMotionHumanGait } from "../next/IAutoMovieMotionHumanGai
  * et al. 1984): 5, 8 and 12 degrees for a jog, a run and a sprint
  * (provisional).
  *
- * A run yields its head, both arms and both hands, so an overlay (a gesture,
- * `throwObject`, `look`) rides it. It is cut by `walk`, `run` and `jump` at any
- * share (a jump blends over 0.15 s) and by `stand` once the last footfall is
- * down; it keeps its speed through a cut and ramps to a stop at its own `to`.
- * It has no `facing`, so there is no running backpedal. For a target speed in
- * m/s set `manner.pace = v / run.speed(body, pace)`.
+ * A run yields its head, both arms, both hands and the trunk, so an overlay (a
+ * gesture, `throwObject`, `look`) rides it; the run's own trunk lean shows
+ * where no overlay claims the trunk. It is cut by `walk`, `run` and `jump` at
+ * any share (a jump blends over 0.15 s) and by `stand` once the last footfall
+ * is down; it keeps its speed through a cut and ramps to a stop at its own
+ * `to`. It has no `facing`, so there is no running backpedal. For a target
+ * speed in m/s set `manner.pace = v / run.speed(body, pace)`.
  */
 export namespace IAutoMovieMotionHumanRun {
   /** Parameters. */
