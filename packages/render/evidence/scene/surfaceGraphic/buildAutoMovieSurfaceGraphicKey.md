@@ -6,7 +6,7 @@ States the face mesh and why a null background still draws one, the render order
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The face covers the whole surface so the mask pass paints it whatever the layers hold; layers stack by rising render order with no depth writes; contain and cover compare the image's pixel aspect with the box's metric aspect and either shrink the quad or narrow the texture window, centred.
+The face covers the whole surface so the mask pass paints it whatever the layers hold; layers stack by rising render order with no depth writes, from an order far below every other blended mesh's, because a graphic lies on an opaque face that already hides what is behind it, so a flame or a glass in front draws over the graphic; contain and cover compare the image's pixel aspect with the box's metric aspect and either shrink the quad or narrow the texture window, centred.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

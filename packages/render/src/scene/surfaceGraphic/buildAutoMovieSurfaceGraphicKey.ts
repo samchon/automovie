@@ -15,9 +15,13 @@ import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraph
  * The first mesh covers the whole face: the background's colour, or, for a
  * `null` background, a material that writes no colour, so the face still exists
  * as the region the mask paints whatever the layers hold. Each layer follows as
- * its own mesh in order. Render order rises with draw order, the face at `1`
- * and layer `i` at `2 + i`, and no material writes depth, so the layers stack
- * by order rather than by depth offsets.
+ * its own mesh in order. Render order rises with draw order from
+ * {@link GRAPHIC_ORDER}, the face at it and layer `i` at one more than `i` past
+ * it, and no material writes depth, so the layers stack by order rather than by
+ * depth offsets. That order lies below every other blended mesh, a flame's `-1`
+ * and the default `0` included, because a graphic lies on an opaque face that
+ * already hides whatever is behind it: drawn first, the graphic is covered by a
+ * flame or a glass in front of it instead of being painted over them.
  *
  * Image layers take the texture `image` returns for their asset. A `contain`
  * fit shrinks the quad to the image's aspect inside its box, centred; a `cover`
@@ -73,7 +77,7 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
         ),
     owned,
   );
-  face.renderOrder = 1;
+  face.renderOrder = GRAPHIC_ORDER;
   group.add(face);
 
   graphic.layers.forEach(
@@ -121,12 +125,19 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
                 )
               : imageMesh(layer, props);
       if (layer.kind === "feed") props.feeds?.push(drawn);
-      drawn.renderOrder = 2 + index;
+      drawn.renderOrder = GRAPHIC_ORDER + 1 + index;
       group.add(drawn);
     },
   );
   return group;
 }
+
+/**
+ * The render order of a graphic's face; its layers follow it one by one. Far
+ * below a flame's `-1` and the default `0`, so every graphic draws before any
+ * other blended mesh.
+ */
+const GRAPHIC_ORDER: number = -1_000_000;
 
 /** The whole face in face fractions. */
 const FULL: IAutoMovieSurfaceGraphicLayer.IBox = {

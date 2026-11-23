@@ -39,11 +39,14 @@ import { renderFixtureNode } from "../internal/renderFixtureNode";
  *    half its height, centred.
  * 6. The applier shows only the key in force and refuses a time at the shot's end;
  *    disposal detaches every root.
+ * 7. The face sorts before its layers, and both before a flame's render order of
+ *    -1 and a blended mesh's default of 0, so a flame or a glass in front of a
+ *    screen draws over its graphic rather than under it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario's input and the layout, placement, identity, emission and lifetime fact it pins.
  * @evidence contracts/development/testing.md#behavioral-verification Builds the phone through buildModel and buildScene, prepares the graphics through the public preparer and reads world vertex positions, visibility and material values of the meshes it mounts.
  * @evidence contracts/development/testing.md#independent-expectations Positions follow from the archetype's own screen frame and extents and the reading direction IAutoMovieAffordance documents; 15.92 cd/m² follows from E = I/d² and L = ρE/π for 1 cd at 0.1 m; the contain fit follows from the 2:1 image and the square box.
- * @evidence contracts/development/testing.md#distinguishing-cases A mirrored or flipped layout fails scenario 1, a graphic left at the origin fails scenario 2, a shared material fails scenario 3, a lit screen or an unlit print fails scenario 4. The float-target GPU calibration needs a WebGL host and is recorded as a visual check, not here.
+ * @evidence contracts/development/testing.md#distinguishing-cases A mirrored or flipped layout fails scenario 1, a graphic left at the origin fails scenario 2, a shared material fails scenario 3, a lit screen or an unlit print fails scenario 4, a graphic sorted after a flame or a glass fails scenario 7. The float-target GPU calibration needs a WebGL host and is recorded as a visual check, not here.
  * @evidence contracts/development/testing.md#execution-ownership In-memory Three scene graph only, with the carried image decoded by the platform DecompressionStream; no renderer is created.
  */
 export async function test_render_surface_graphics(): Promise<void> {
@@ -232,6 +235,17 @@ export async function test_render_surface_graphics(): Promise<void> {
       "red spans the top half from the centre to the top edge",
       nclose(Math.min(...up), 0, 1e-6) &&
         nclose(Math.max(...up), depth / 2, 1e-6),
+    );
+  }
+
+  // 7. The face, then its layers, draw before a flame and any other blended mesh.
+  {
+    const key: THREE.Group = visibleKey(0);
+    const face: THREE.Mesh = key.children[0] as THREE.Mesh;
+    const red: THREE.Mesh = key.children[1] as THREE.Mesh;
+    TestValidator.predicate(
+      "the face sorts before its layer, and both before a flame at -1 and a blended mesh at 0",
+      face.renderOrder < red.renderOrder && red.renderOrder < -1,
     );
   }
 
