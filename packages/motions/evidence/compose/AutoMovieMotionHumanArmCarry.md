@@ -36,7 +36,7 @@ States the two ways an arm is carried, what each reads, the channel claimed and 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A reach that lays a hand on a site is a motion-planning problem, solved as one trajectory over the action against the very postures it is written on (TrajOpt), so the plan is a constant of the action; a transport with no site keeps the joint-space carry (Soechting and Lacquaniti 1981). With an attitude, the hand between the ends is solved to it on the carried arm.
+A reach that lays a hand on a site is a motion-planning problem, solved as one trajectory over the action against the very postures it is written on (TrajOpt), so the plan is a constant of the action; a transport with no site keeps the joint-space carry (Soechting and Lacquaniti 1981). The planned arm is shown from its span's first instant, its rest, the arm the display shows as the course takes over, so a course that starts on its hold leaves from that arm and not from another fit of the goal there. With an attitude, the hand between the ends is solved to it on the carried arm.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

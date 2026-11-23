@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMoviePose,
   IAutoMovieSeededChainFit,
+  IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
 import { HumanArmClearance } from "../posture/HumanArmClearance";
@@ -28,8 +29,10 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
  * - The hold: every arm's goal at the instant, each arm on the base the planner
  *   already solved (`HumanLimbFit.fit`), the riding arm after the one it rides,
  *   on the pose that one placed: fitted at every frame, each continuing the
- *   frame before it (`IAutoMovieSwivelNear`), so neither the branch nor the
- *   forearm's twist hops between two frames;
+ *   frame before it (`IAutoMovieSwivelNear`), the first of a hold with no reach
+ *   before it continuing the arms the course leaves from (their `rest`), so
+ *   neither the branch nor the forearm's twist hops between two frames or away
+ *   from the arm shown;
  * - The reach and the return: laid by the trajectory's own reader between the
  *   rest and the hold's arms, a blend in the optimiser's coordinates timed
  *   under the audit's speed bound (`HumanArmTrajectory.admitted` states it),
@@ -128,16 +131,17 @@ export namespace AutoMovieMotionHumanArmCourse {
 
     if (!times.some(holding)) return undefined;
 
-    // The hold continued frame by frame: its first instant fitted cold and
-    // every later one continuing the instant before it (interval
-    // continuation of the swivel, an arm's one free coordinate on its goal:
-    // Tolani, Goswami and Badler 2000, section 3.2.4), so each instant is
-    // reached from its neighbour by the continued fit's own bounded step and
-    // neither the elbow's side nor the forearm's twist can jump between two
-    // frames; a continuation whose admitted arc vanished refuses at its fit.
-    // The reach and the return are the reader's to lay between the rest and
-    // these. The full frame-grid admission still checks every displayed
-    // instant.
+    // The hold continued frame by frame: its first instant fitted on its own
+    // or, with no reach before it, continuing the arms the course leaves from
+    // (`rested`), and every later one continuing the instant before it
+    // (interval continuation of the swivel, an arm's
+    // one free coordinate on its goal: Tolani, Goswami and Badler 2000,
+    // section 3.2.4), so each instant is reached from its neighbour by the
+    // continued fit's own bounded step and neither the elbow's side nor the
+    // forearm's twist can jump between two frames; a continuation whose
+    // admitted arc vanished refuses at its fit. The reach and the return are
+    // the reader's to lay between the rest and these. The full frame-grid
+    // admission still checks every displayed instant.
     const problem: HumanArmTrajectory.IProblem = props.problem(times);
     const held: number[] = [];
     times.forEach((t: number, k: number): void => {
@@ -148,11 +152,19 @@ export namespace AutoMovieMotionHumanArmCourse {
         (_: IProps["arms"][number], a: number): IAutoMovieHumanLimbGoal =>
           props.aimed(a, times[k]!),
       );
-    const knot = (k: number, from?: IHeldFit): IHeldFit => ({
+    const knot = (k: number, from?: ISolved): IHeldFit => ({
       k,
       ...fit(times[k]!, goals(k), from?.near ?? {}, from?.arms),
     });
-    let previous: IHeldFit = knot(held[0]!);
+    // A hold from the course's start, with no reach before it, starts on the
+    // arms the course leaves from; after a reach the reader lays the way to
+    // whichever solution the hold's first instant takes.
+    let previous: IHeldFit = knot(
+      held[0]!,
+      span.ready > span.start + 1e-9
+        ? undefined
+        : rested(props, times[held[0]!]!),
+    );
     course.set(times[previous.k]!, previous.arms);
     for (let p: number = 1; p < held.length; ++p) {
       previous = knot(held[p]!, previous);
@@ -306,5 +318,50 @@ function solver(
       near: next,
       pose,
     };
+  };
+}
+
+/**
+ * The arms a course leaves from, as the hold's first instant continues them:
+ * each arm's rest posed on the base the planner solved at that instant, and the
+ * swivel and branch each shows there (`HumanLimbFit.seed`, in closed form). The
+ * hold then starts on the solution of its goal nearest the arm shown, which a
+ * plan starts from (its displayed entry), rather than on a cold fit's, which
+ * may place the same hand with the elbow elsewhere: with no reach between them
+ * (the hold from the course's start) that difference is a step.
+ */
+function rested(
+  props: AutoMovieMotionHumanArmCourse.IProps,
+  t: number,
+): ISolved {
+  let pose: IAutoMoviePose = props.at(t).pose;
+  for (const arm of props.arms)
+    pose = HumanArmClearance.posed(pose, arm.side, arm.rest);
+  const near: Partial<
+    Record<
+      AutoMovieHumanLimb,
+      NonNullable<
+        IAutoMovieMotionHumanResolveHumanPosture.INear[AutoMovieHumanLimb]
+      >
+    >
+  > = {};
+  for (const arm of props.arms) {
+    const limb: AutoMovieHumanLimb = `${arm.side}Arm`;
+    const seed: IAutoMovieSwivelSeed | null = HumanLimbFit.seed(
+      props.body,
+      pose,
+      limb,
+    );
+    if (seed !== null)
+      near[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
+  }
+  return {
+    arms: props.arms.map(
+      (
+        arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number],
+      ): IAutoMovieMotionHumanArmClearance.IArm => arm.rest,
+    ),
+    near,
+    pose,
   };
 }

@@ -402,9 +402,6 @@ export namespace AquaticRescue {
       plan: swimming,
       side: "left",
       rest: AquaticPosture.rest(body, opening, "left"),
-      // The crawl arm shown at the arrival is the course's own rest: the
-      // plan already writes the hold's goal at that instant.
-      shown: true,
       span: { start: arrive, ready: hold, relax: duration, end: duration },
     });
   }

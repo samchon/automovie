@@ -337,10 +337,13 @@ export namespace AutoMovieMotionHumanArmCarry {
         // The planned course holds through its span's last instant: a return
         // ends on its `back` there, and the rest-to-goal blend outside the
         // span, whose weight has fallen to none at that instant, would show
-        // the rest instead.
+        // the rest instead. It holds from its first instant too, its rest,
+        // the arm the display shows as the course takes over: the blend there
+        // would show the goal's own fit where the course starts on its hold,
+        // another elbow for the same hand.
         const onPlan: boolean =
           span !== undefined &&
-          seconds > span.start &&
+          seconds >= span.start &&
           (seconds <= span.end || span.relax >= span.end);
         const goaled = (
           at: IAutoMovieMotionHumanPosture,
