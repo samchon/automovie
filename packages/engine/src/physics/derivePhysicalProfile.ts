@@ -25,8 +25,9 @@ import { validatePhysicalProfile } from "./validatePhysicalProfile";
  * declarations. Imported geometry requires a caller-supplied segment override.
  * Non-box primitives use conservative box colliders unless spherical/capsular
  * scale is uniform. Mass is analytic volume times density. Spheres use solid
- * sphere inertia; other primitives use their bounding-box inertia approximation.
- * Aggregation uses the parallel-axis theorem. Overrides replace entire segments.
+ * sphere inertia; other primitives use their bounding-box inertia
+ * approximation. Aggregation uses the parallel-axis theorem. Overrides replace
+ * entire segments.
  */
 export function derivePhysicalProfile(
   model: IAutoMovieModel,
@@ -51,7 +52,8 @@ export function derivePhysicalProfile(
 
   const segments: IAutoMoviePhysicalSegment[] = [];
   for (const [bone, neutral] of transforms) {
-    const override: IAutoMoviePhysicalSegment | undefined = options.overrides?.[bone];
+    const override: IAutoMoviePhysicalSegment | undefined =
+      options.overrides?.[bone];
     if (override) {
       if (override.bone !== bone)
         throw new Error(`Physical override bone must remain ${bone}`);
@@ -207,7 +209,8 @@ export function derivePhysicalProfile(
     });
   }
   const mass: number = segments.reduce(
-    (sum: number, segment: IAutoMoviePhysicalSegment): number => sum + segment.mass,
+    (sum: number, segment: IAutoMoviePhysicalSegment): number =>
+      sum + segment.mass,
     0,
   );
   let centerX: number = 0;

@@ -4,13 +4,9 @@ import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import { AutoMovieViewHermite } from "./AutoMovieViewHermite";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 
-/**
- * Value and qualified scalar jets of an already admitted original outline.
- */
+/** Value and qualified scalar jets of an already admitted original outline. */
 export namespace AutoMovieViewOutlineRead {
-  /**
-   * Scalar value without derivative work or a qualified-reading allocation.
-   */
+  /** Scalar value without derivative work or a qualified-reading allocation. */
   export function value(
     outline: IAutoMovieViewOutline.IOutline,
     station: number,
@@ -25,7 +21,8 @@ export namespace AutoMovieViewOutlineRead {
   }
 
   /**
-   * Original value, parameter jets and explicitly available physical station jets.
+   * Original value, parameter jets and explicitly available physical station
+   * jets.
    */
   export function at(
     outline: IAutoMovieViewOutline.IOutline,
@@ -88,7 +85,10 @@ export namespace AutoMovieViewOutlineRead {
     };
   }
 
-  /** Preserve exact pole zeros and the admitted parameter's original polynomial value. */
+  /**
+   * Preserve exact pole zeros and the admitted parameter's original polynomial
+   * value.
+   */
   function valueAt(
     outline: IAutoMovieViewOutline.IOutline,
     station: number,

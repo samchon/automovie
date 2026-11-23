@@ -18,8 +18,8 @@ import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
  *
  * The opening's own void wins: it is the only record that describes the hole,
  * and its size is the hull the wall kernel cuts (`basis: "profile"`). Without
- * one, the filling element's world extent stands in (`basis: "fill"`), which
- * is the leaf and not the hole, so every caller labels it. An opening with
+ * one, the filling element's world extent stands in (`basis: "fill"`), which is
+ * the leaf and not the hole, so every caller labels it. An opening with
  * neither, or whose fill has no environment-owned model or no triangles, is
  * `null`. The drawing and the schedule both read this, so a sheet and a
  * schedule cannot size one opening two ways.

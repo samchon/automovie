@@ -4,13 +4,13 @@ import type { IAutoMovieLoftContract } from "@automovie/interface";
  * Checked values chains and seams exchange; failed checks throw a message
  * naming the producer and the violated local premise.
  *
- * TypeScript's `number` states neither finiteness nor order, so a shared
- * module that assumes them (a natural spline dividing by its station gaps, a
- * chain builder dating its layers) fails far from the producer that broke the
+ * TypeScript's `number` states neither finiteness nor order, so a shared module
+ * that assumes them (a natural spline dividing by its station gaps, a chain
+ * builder dating its layers) fails far from the producer that broke the
  * assumption: a head chain whose layers stood 0.05 mm apart swung its spline
- * into lobes hundreds of millimetres wide, and the failure surfaced only in
- * the skin chart. The brand records an intended checking boundary in TypeScript;
- * a cast can bypass it and mutating a borrowed input can invalidate it.
+ * into lobes hundreds of millimetres wide, and the failure surfaced only in the
+ * skin chart. The brand records an intended checking boundary in TypeScript; a
+ * cast can bypass it and mutating a borrowed input can invalidate it.
  *
  * - Stations: finite, strictly increasing by at least a stated step, in
  *   millimetres; at least two.
@@ -19,8 +19,8 @@ import type { IAutoMovieLoftContract } from "@automovie/interface";
  * - Ring: finite points `[x, y, z]` in millimetres whose projection on the
  *   horizontal plane encloses a non-zero area.
  *
- * Every check throws; none clamps, so a broken producer is named where it
- * broke the contract.
+ * Every check throws; none clamps, so a broken producer is named where it broke
+ * the contract.
  */
 export namespace AutoMovieLoftContract {
   /**
@@ -30,7 +30,8 @@ export namespace AutoMovieLoftContract {
    * @param values Stations, millimetres.
    * @param least Least rise between two stations, millimetres, positive.
    * @returns The same values, branded.
-   * @throws When fewer than two, one is not finite, or one rises by less than `least`.
+   * @throws When fewer than two, one is not finite, or one rises by less than
+   *   `least`.
    */
   export function stations(
     producer: string,
@@ -64,7 +65,8 @@ export namespace AutoMovieLoftContract {
    *
    * @param producer The chain, layer and quantity, for the message.
    * @param values The numbers.
-   * @param bound Largest magnitude accepted; callers requiring finite entries pass a positive finite bound.
+   * @param bound Largest magnitude accepted; callers requiring finite entries
+   *   pass a positive finite bound.
    * @returns The same values, branded.
    * @throws When an entry is not finite or exceeds `bound`.
    */
@@ -141,7 +143,7 @@ export namespace AutoMovieLoftContract {
    * The least rise between two stations of a spline chain over these stations.
    *
    * @param values The stations, increasing, at least two.
-   * @returns {@link SPLINE_GAP_SHARE} of their span, mm.
+   * @returns {@link SPLINE_GAP_SHARE} Of their span, mm.
    */
   export function splineGap(values: readonly number[]): number {
     return SPLINE_GAP_SHARE * Math.abs(values[values.length - 1]! - values[0]!);

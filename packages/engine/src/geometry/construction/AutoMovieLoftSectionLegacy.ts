@@ -13,13 +13,9 @@ import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
-/**
- * The actual legacy spline generating field used by a mixed native boundary.
- */
+/** The actual legacy spline generating field used by a mixed native boundary. */
 export namespace AutoMovieLoftSectionLegacy {
-  /**
-   * Prepare only the requested station capability of the existing spline field.
-   */
+  /** Prepare only the requested station capability of the existing spline field. */
   export function prepare(
     chain: IAutoMovieLoftChain,
     station: number,
@@ -87,9 +83,7 @@ export namespace AutoMovieLoftSectionLegacy {
         };
   }
 
-  /**
-   * Value and two phase derivatives of the actual complete basis.
-   */
+  /** Value and two phase derivatives of the actual complete basis. */
   export function phase(
     prepared: IAutoMovieLoftSectionLegacy.IPrepared,
     phi: number,
@@ -99,9 +93,7 @@ export namespace AutoMovieLoftSectionLegacy {
     return admit({ p: [q[0], q[1]], t: [q[2], q[3]], tt: [q[4], q[5]] });
   }
 
-  /**
-   * Exact total2 of the declared legacy basis function.
-   */
+  /** Exact total2 of the declared legacy basis function. */
   export function jet(
     prepared: IAutoMovieLoftSectionLegacy.IPrepared,
     phi: number,
@@ -121,9 +113,7 @@ export namespace AutoMovieLoftSectionLegacy {
     });
   }
 
-  /**
-   * Define a complete coefficient-polynomial extension of actual endpoint2.
-   */
+  /** Define a complete coefficient-polynomial extension of actual endpoint2. */
   export function extend(
     rows: AutoMovieLoftSectionLegacyRows,
     order: number,
@@ -161,7 +151,10 @@ export namespace AutoMovieLoftSectionLegacy {
   }
 }
 
-/** Admit only the required returned total-order components, never unused higher partials. */
+/**
+ * Admit only the required returned total-order components, never unused higher
+ * partials.
+ */
 function admit<T extends IAutoMovieLoftSectionPhase>(out: T): T {
   if (
     !Object.values(out).every(

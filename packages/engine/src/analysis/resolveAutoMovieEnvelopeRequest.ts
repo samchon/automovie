@@ -15,10 +15,10 @@ import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironm
  * instant it names.
  *
  * The refused inputs are those {@link IAutoMovieEnvelopeRequest} lists, checked
- * in field order: header strings, the context, the instant, the indoor air,
- * the assemblies with their films, area, position and layers, the bridges, and
- * the targets. The first one throws an `Error` naming it. Ids must be unique
- * within their own list, and a bridge must run along a declared assembly.
+ * in field order: header strings, the context, the instant, the indoor air, the
+ * assemblies with their films, area, position and layers, the bridges, and the
+ * targets. The first one throws an `Error` naming it. Ids must be unique within
+ * their own list, and a bridge must run along a declared assembly.
  *
  * @param request Envelope study to check.
  * @returns The context's own instant record, or `null` when the request names

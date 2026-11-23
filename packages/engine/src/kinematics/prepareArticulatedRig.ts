@@ -33,10 +33,15 @@ interface IPrepared<Bone extends string> {
 /**
  * Prepare generic rigid FK without a species or humanoid-bone branch.
  *
- * @param rig A connected rigid tree with explicit axes and declared degree boxes.
- * @returns An independent prepared reader; later mutation of rig data cannot rewrite it.
- * @throws {Error} For malformed graph, transform, basis or limits, or when a read names an absent bone or violates a declared box.
- * @throws {RangeError} When a composed world position is nonfinite or its quaternion is nonfinite or zero, even if all source transforms were finite.
+ * @param rig A connected rigid tree with explicit axes and declared degree
+ *   boxes.
+ * @returns An independent prepared reader; later mutation of rig data cannot
+ *   rewrite it.
+ * @throws {Error} For malformed graph, transform, basis or limits, or when a
+ *   read names an absent bone or violates a declared box.
+ * @throws {RangeError} When a composed world position is nonfinite or its
+ *   quaternion is nonfinite or zero, even if all source transforms were
+ *   finite.
  */
 export function prepareArticulatedRig<Bone extends string>(
   rig: IAutoMovieArticulatedRig<Bone>,
@@ -177,7 +182,10 @@ export function prepareArticulatedRig<Bone extends string>(
   };
 }
 
-/** Admit source or composed rigid data before normalizing its finite nonzero quaternion. */
+/**
+ * Admit source or composed rigid data before normalizing its finite nonzero
+ * quaternion.
+ */
 function rigid(raw: IAutoMovieTransform): IAutoMovieTransform {
   const point: IAutoMovieTransform["translation"] = raw.translation;
   const turn: IAutoMovieQuaternion = raw.rotation;
@@ -216,7 +224,10 @@ function rigid(raw: IAutoMovieTransform): IAutoMovieTransform {
   };
 }
 
-/** Copy an explicit finite ordered degree interval, keeping null as an immobile axis. */
+/**
+ * Copy an explicit finite ordered degree interval, keeping null as an immobile
+ * axis.
+ */
 function range(raw: IAutoMovieAngleRange | null): IAutoMovieAngleRange | null {
   if (raw === null) return null;
   const min: number = raw.min;

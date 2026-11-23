@@ -13,7 +13,13 @@ import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import { resolvePose } from "../kinematics/resolvePose";
 
 /**
- * Index root-reachable FK results by humanoid bone name using the same clinical axes/rest frames as playback. Caller topology must describe the unchanged skeleton; omission builds it for this call. Rest and pose-root scale are ignored by resolvePose. An optional prepared reader belongs to the current synchronous fit and shares only exact FK computation, never returned map or transform ownership. An optional requested set limits outputs and computed ancestry while every authored joint is still admitted in order.
+ * Index root-reachable FK results by humanoid bone name using the same clinical
+ * axes/rest frames as playback. Caller topology must describe the unchanged
+ * skeleton; omission builds it for this call. Rest and pose-root scale are
+ * ignored by resolvePose. An optional prepared reader belongs to the current
+ * synchronous fit and shares only exact FK computation, never returned map or
+ * transform ownership. An optional requested set limits outputs and computed
+ * ancestry while every authored joint is still admitted in order.
  */
 export const resolveBoneMap: (
   skeleton: IAutoMovieSkeleton,

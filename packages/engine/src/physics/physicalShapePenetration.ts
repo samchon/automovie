@@ -9,20 +9,19 @@ import { physicalShapeSupport } from "./physicalShapeSupport";
 
 /**
  * How deep two overlapping convex colliders interpenetrate: the shortest
- * translation that separates them, its unit direction from the first toward
- * the second and each one's deepest point, by the Expanding Polytope
- * Algorithm (van den Bergen 2003, "Collision Detection in Interactive 3D
- * Environments", section 4.3.8) on the Minkowski difference `A - B`, seeded by
- * GJK's intersection simplex (Gilbert, Johnson and Keerthi 1988).
+ * translation that separates them, its unit direction from the first toward the
+ * second and each one's deepest point, by the Expanding Polytope Algorithm (van
+ * den Bergen 2003, "Collision Detection in Interactive 3D Environments",
+ * section 4.3.8) on the Minkowski difference `A - B`, seeded by GJK's
+ * intersection simplex (Gilbert, Johnson and Keerthi 1988).
  *
- * GJK walks simplices of `A - B` toward the origin until a tetrahedron
- * encloses it; EPA then grows that polytope by the support point beyond its
- * face nearest the origin until the support no longer passes the face by
- * more than the tolerance. The nearest face's distance is the depth, its
- * outward normal the direction, and the origin's barycentric coordinates on
- * it weight the two shapes' support points into their witnesses. Null when
- * GJK finds the shapes apart or merely touching, where no tetrahedron
- * encloses the origin.
+ * GJK walks simplices of `A - B` toward the origin until a tetrahedron encloses
+ * it; EPA then grows that polytope by the support point beyond its face nearest
+ * the origin until the support no longer passes the face by more than the
+ * tolerance. The nearest face's distance is the depth, its outward normal the
+ * direction, and the origin's barycentric coordinates on it weight the two
+ * shapes' support points into their witnesses. Null when GJK finds the shapes
+ * apart or merely touching, where no tetrahedron encloses the origin.
  *
  * @param poseA The first shape's parent pose, world metres.
  * @param shapeA The first shape.
@@ -123,9 +122,7 @@ export function physicalShapePenetration(
   };
 }
 
-/**
- * Companion types of {@link physicalShapePenetration}.
- */
+/** Companion types of {@link physicalShapePenetration}. */
 export namespace physicalShapePenetration {
   /** A penetration between two convex colliders, world metres. */
   export interface IResult {
@@ -155,7 +152,10 @@ interface IVertex {
   b: IAutoMovieVector3;
 }
 
-/** An EPA face: vertex indices wound outward, its unit normal and its distance from the origin. */
+/**
+ * An EPA face: vertex indices wound outward, its unit normal and its distance
+ * from the origin.
+ */
 interface IFace {
   /** First vertex. */
   a: number;
@@ -173,7 +173,10 @@ interface IFace {
   distance: number;
 }
 
-/** A face on three vertices, wound outward from the origin; null when degenerate. */
+/**
+ * A face on three vertices, wound outward from the origin; null when
+ * degenerate.
+ */
 function face(
   vertices: readonly IVertex[],
   a: number,
@@ -194,7 +197,10 @@ function face(
     : { a, b: c, c: b, normal: Vector3.scale(n, -1), distance: -distance };
 }
 
-/** GJK's intersection test: a tetrahedron of the difference enclosing the origin, or null. */
+/**
+ * GJK's intersection test: a tetrahedron of the difference enclosing the
+ * origin, or null.
+ */
 function enclose(support: (d: IAutoMovieVector3) => IVertex): IVertex[] | null {
   let d: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
   let simplex: IVertex[] = [support(d)];
@@ -212,7 +218,10 @@ function enclose(support: (d: IAutoMovieVector3) => IVertex): IVertex[] | null {
   return null;
 }
 
-/** One GJK simplex reduction: the sub-simplex nearest the origin and the next search direction. */
+/**
+ * One GJK simplex reduction: the sub-simplex nearest the origin and the next
+ * search direction.
+ */
 interface IStep {
   /** Whether the tetrahedron encloses the origin. */
   enclosed: boolean;
@@ -224,7 +233,10 @@ interface IStep {
   direction: IAutoMovieVector3;
 }
 
-/** Reduce a simplex, newest vertex last, toward the origin (Ericson 2005, section 9.5). */
+/**
+ * Reduce a simplex, newest vertex last, toward the origin (Ericson 2005,
+ * section 9.5).
+ */
 function step(simplex: IVertex[]): IStep {
   const triple: (
     a: IAutoMovieVector3,
@@ -325,7 +337,10 @@ function weigh(
   );
 }
 
-/** Barycentric weights of a point on the plane of a triangle (Ericson 2005, section 3.4). */
+/**
+ * Barycentric weights of a point on the plane of a triangle (Ericson 2005,
+ * section 3.4).
+ */
 function barycentric(
   p: IAutoMovieVector3,
   a: IAutoMovieVector3,

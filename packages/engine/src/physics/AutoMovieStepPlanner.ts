@@ -313,9 +313,7 @@ export class AutoMovieStepPlanner {
     freezePhysicalRecord(this.schedule);
   }
 
-  /**
-   * Binary search returns a new placement; callers cannot mutate the cache.
-   */
+  /** Binary search returns a new placement; callers cannot mutate the cache. */
   public at(bone: string, seconds: number): IAutoMovieStepPlanner.IState {
     const list: IAutoMovieStepPlanner.IStep[] | undefined =
       this.segments.get(bone);
@@ -366,18 +364,15 @@ export class AutoMovieStepPlanner {
   }
 }
 
-/**
- * World support placements and explicit scheduling policy.
- */
+/** World support placements and explicit scheduling policy. */
 export namespace AutoMovieStepPlanner {
-  /**
-   * Signed shortest angle, radians, preserving both pi endpoints.
-   */
+  /** Signed shortest angle, radians, preserving both pi endpoints. */
   export function angle(value: number): number {
     return Envelope.angle(0, value, 1);
   }
   /**
-   * Quintic endpoint interpolation and a lifted sine arc, as in supported stepping.
+   * Quintic endpoint interpolation and a lifted sine arc, as in supported
+   * stepping.
    */
   export function swing(
     from: IAutoMovieStepPlanner.IPlacement,

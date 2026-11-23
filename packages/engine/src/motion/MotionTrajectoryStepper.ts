@@ -12,8 +12,8 @@ import { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 
 /**
- * The adaptive Dormand-Prince 5(4) builder of integrateMotionTrajectory.
- * Shared rotation algebra and completed numeric readers have separate owners.
+ * The adaptive Dormand-Prince 5(4) builder of integrateMotionTrajectory. Shared
+ * rotation algebra and completed numeric readers have separate owners.
  */
 export namespace MotionTrajectoryStepper {
   const { turn, dexpinv }: typeof MotionTrajectoryRotation =
@@ -22,10 +22,10 @@ export namespace MotionTrajectoryStepper {
   /**
    * The Dormand-Prince 5(4) pair's nodes, its stages' coefficients (the last
    * row its fifth-order weights, so the last stage is the next step's first)
-   * and the difference of its fifth- and fourth-order weights, the step's
-   * error estimate (Dormand and Prince 1980, J Comput Appl Math 6:19-26),
-   * each read digit by digit from Hairer and Wanner's DOPRI5 code, its
-   * subroutine CDOPRI's `c`, `a` and `e`, as the MESA project's port
+   * and the difference of its fifth- and fourth-order weights, the step's error
+   * estimate (Dormand and Prince 1980, J Comput Appl Math 6:19-26), each read
+   * digit by digit from Hairer and Wanner's DOPRI5 code, its subroutine
+   * CDOPRI's `c`, `a` and `e`, as the MESA project's port
    * `num/private/mod_dopri5.f` carries it
    * (https://mesastar.org/mesa/num/private/mod_dopri5.f.gcov.html); the
    * coefficients that code leaves out (`a72`, `e2`) are zero.
@@ -56,11 +56,11 @@ export namespace MotionTrajectoryStepper {
 
   /**
    * The step controller, as the same code's DOPCOR defaults and applies it,
-   * read there line by line: the safety factor `safe`, the bounds `fac1`
-   * and `fac2` on a step's change, the stabilizing exponent `beta` on the
-   * last accepted error, the floor `previous` on that error (its `facold`,
-   * which also starts there), and the share `stretch` of a step past which
-   * the last one is taken to the end at once (its `1.01`).
+   * read there line by line: the safety factor `safe`, the bounds `fac1` and
+   * `fac2` on a step's change, the stabilizing exponent `beta` on the last
+   * accepted error, the floor `previous` on that error (its `facold`, which
+   * also starts there), and the share `stretch` of a step past which the last
+   * one is taken to the end at once (its `1.01`).
    */
   const CONTROL: Readonly<{
     safety: number;
@@ -79,41 +79,46 @@ export namespace MotionTrajectoryStepper {
   };
 
   /**
-   * The most step attempts, accepted and rejected together, one integration
-   * may take: the same code's default `nmax` (100000, used when its caller
-   * passes no maximum), tested as it tests `nstep > nmax` before each attempt.
-   * The time-resolution guard alone, `0.1 |h| > |t| ε`, bounds the attempts
-   * only by the doubles in the interval: from time zero under a tolerance
-   * below the state's roundoff, where every tiny step is accepted, a step
-   * `h` repeats until `t` reaches `h / (10 ε)`, about 4.5e14 steps.
+   * The most step attempts, accepted and rejected together, one integration may
+   * take: the same code's default `nmax` (100000, used when its caller passes
+   * no maximum), tested as it tests `nstep > nmax` before each attempt. The
+   * time-resolution guard alone, `0.1 |h| > |t| ε`, bounds the attempts only by
+   * the doubles in the interval: from time zero under a tolerance below the
+   * state's roundoff, where every tiny step is accepted, a step `h` repeats
+   * until `t` reaches `h / (10 ε)`, about 4.5e14 steps.
    */
   const ATTEMPTS: number = 100000;
 
   /**
    * A trajectory by the Dormand-Prince 5(4) pair under error control: each
    * step's error estimate, the difference of its two orders, is weighed
-   * component by component against `absolute + relative × |value|` (the
-   * vector state's larger of its two ends, as DOPCOR weighs it; the
-   * orientation's rotation vector over the step by its length, this
-   * module's extension of the same norm to the Lie algebra) in the
-   * root-mean-square norm, a step is accepted when that norm is at most one,
-   * and the next step follows DOPCOR's controller (`CONTROL`); a read between
-   * knots is the pair's continuous extension of order four, the orientation
-   * the step's start turned by its rotation vector's extension.
-   * With an explicit vector partition, each same-unit block uses its
-   * Euclidean error and endpoint norms; the maximum of those errors and
-   * the orientation's original RMS controls admission. Zero error at zero
-   * scale is zero; nonzero error there rejects without an absolute floor.
-   * An explicit physical rotation defect additionally uses the paired
-   * quintic continuous extension and its actual angular derivative. Its
+   * component by component against `absolute + relative × |value|` (the vector
+   * state's larger of its two ends, as DOPCOR weighs it; the orientation's
+   * rotation vector over the step by its length, this module's extension of the
+   * same norm to the Lie algebra) in the root-mean-square norm, a step is
+   * accepted when that norm is at most one, and the next step follows DOPCOR's
+   * controller (`CONTROL`); a read between knots is the pair's continuous
+   * extension of order four, the orientation the step's start turned by its
+   * rotation vector's extension. With an explicit vector partition, each
+   * same-unit block uses its Euclidean error and endpoint norms; the maximum of
+   * those errors and the orientation's original RMS controls admission. Zero
+   * error at zero scale is zero; nonzero error there rejects without an
+   * absolute floor. An explicit physical rotation defect additionally uses the
+   * paired quintic continuous extension and its actual angular derivative. Its
    * normalized error is combined by max with the unchanged RMS criterion.
    *
    * @param props The integrator's props, with a tolerance.
-   * @param rate The callback with the wrapper's vector-length and required-angular-rate presence checks; finite numeric components remain a caller premise.
+   * @param rate The callback with the wrapper's vector-length and
+   *   required-angular-rate presence checks; finite numeric components remain a
+   *   caller premise.
    * @param step The first step tried, seconds, positive.
    * @returns The trajectory, its knots the accepted steps' ends.
-   * @throws {MotionTrajectoryFailure} When the existing time-resolution guard catches the attempted step, including its roundoff margin, with the last rejected estimates and optional physical probe. Foreign model errors propagate unchanged.
-   * @throws {Error} When more than `ATTEMPTS` (DOPRI5's default `nmax`) step attempts are needed.
+   * @throws {MotionTrajectoryFailure} When the existing time-resolution guard
+   *   catches the attempted step, including its roundoff margin, with the last
+   *   rejected estimates and optional physical probe. Foreign model errors
+   *   propagate unchanged.
+   * @throws {Error} When more than `ATTEMPTS` (DOPRI5's default `nmax`) step
+   *   attempts are needed.
    */
   export function dormandPrince(
     props: IAutoMovieIntegrateMotionTrajectory.IProps,
@@ -190,14 +195,19 @@ export namespace MotionTrajectoryStepper {
                 const base: number = ks[0]!.dx[c]!;
                 let increment: number = C[i]! * base;
                 for (let j: number = 1; j < row.length; j++)
-                  if (row[j] !== 0) increment += row[j]! * (ks[j]!.dx[c]! - base);
+                  if (row[j] !== 0)
+                    increment += row[j]! * (ks[j]!.dx[c]! - base);
                 return v + h * increment;
               });
         const vi: IAutoMovieVector3 | undefined = oriented
           ? sum(row, us!, h, C[i]!, i < 6 ? stage : undefined)
           : undefined;
         const qi: IAutoMovieQuaternion | null = oriented ? turn(q, vi) : null;
-        const ki: IAutoMovieIntegrateMotionTrajectory.IRate = rate(t + C[i]! * h, xi, qi);
+        const ki: IAutoMovieIntegrateMotionTrajectory.IRate = rate(
+          t + C[i]! * h,
+          xi,
+          qi,
+        );
         if (i === 6) {
           xn = xi;
           endpointQ = qi;
@@ -266,18 +276,28 @@ export namespace MotionTrajectoryStepper {
       let dense: MotionTrajectoryRead.IDenseStep | undefined;
       const rms: number = norm;
       let physical: number | undefined;
-      let kind: NonNullable<MotionTrajectoryFailure["rejection"]>["kind"] = "rms";
+      let kind: NonNullable<MotionTrajectoryFailure["rejection"]>["kind"] =
+        "rms";
       let probe: NonNullable<MotionTrajectoryFailure["rejection"]>["probe"];
       if (norm <= 1) {
-        const built: ReturnType<typeof MotionTrajectoryDense> = MotionTrajectoryDense({
-          t, h, x, q, end: xn, rotation: r, stages: ks, algebra: us,
-          empty: emptyTerms, rate, defect: props.rotationDefect,
-        });
+        const built: ReturnType<typeof MotionTrajectoryDense> =
+          MotionTrajectoryDense({
+            t,
+            h,
+            x,
+            q,
+            end: xn,
+            rotation: r,
+            stages: ks,
+            algebra: us,
+            empty: emptyTerms,
+            rate,
+            defect: props.rotationDefect,
+          });
         if (built === null) {
           norm = Infinity;
           kind = "numeric-dense";
-        }
-        else {
+        } else {
           dense = built.step;
           physical = built.error;
           probe = built.probe;
@@ -287,18 +307,39 @@ export namespace MotionTrajectoryStepper {
       }
       const stretched: number = norm ** exponent;
       if (!(norm <= 1)) {
-        rejection = { step: h, rms, physical, kind, probe,
-          start: oriented ? {
-            q: { x: rateQ!.x, y: rateQ!.y, z: rateQ!.z, w: rateQ!.w },
-            w: { x: ks[0]!.w!.x, y: ks[0]!.w!.y, z: ks[0]!.w!.z },
-          } : undefined,
-          end: oriented ? {
-            q: { x: endpointQ!.x, y: endpointQ!.y, z: endpointQ!.z, w: endpointQ!.w },
-            w: { x: ks[6]!.w!.x, y: ks[6]!.w!.y, z: ks[6]!.w!.z },
-          } : undefined };
-        const reduced: number = h / Math.min(1 / CONTROL.least, stretched / CONTROL.safety);
+        rejection = {
+          step: h,
+          rms,
+          physical,
+          kind,
+          probe,
+          start: oriented
+            ? {
+                q: { x: rateQ!.x, y: rateQ!.y, z: rateQ!.z, w: rateQ!.w },
+                w: { x: ks[0]!.w!.x, y: ks[0]!.w!.y, z: ks[0]!.w!.z },
+              }
+            : undefined,
+          end: oriented
+            ? {
+                q: {
+                  x: endpointQ!.x,
+                  y: endpointQ!.y,
+                  z: endpointQ!.z,
+                  w: endpointQ!.w,
+                },
+                w: { x: ks[6]!.w!.x, y: ks[6]!.w!.y, z: ks[6]!.w!.z },
+              }
+            : undefined,
+        };
+        const reduced: number =
+          h / Math.min(1 / CONTROL.least, stretched / CONTROL.safety);
         if (props.partition !== undefined && !props.partition.split(t, reduced))
-          throw new MotionTrajectoryFailure(t, reduced, rejection, props.errorScope);
+          throw new MotionTrajectoryFailure(
+            t,
+            reduced,
+            rejection,
+            props.errorScope,
+          );
         h = reduced;
         rejected = true;
         continue;
@@ -335,7 +376,8 @@ export namespace MotionTrajectoryStepper {
    * @param weights The weights, as many as the rates or fewer.
    * @param us The rates.
    * @param h The step.
-   * @param total The exact mathematical weight sum from the tableau, C_i or zero.
+   * @param total The exact mathematical weight sum from the tableau, C_i or
+   *   zero.
    * @param out An exclusively owned workspace, absent from rates, callback
    *   inputs and dense records; omitted where the result must be retained.
    * @returns The workspace or a fresh vector, or undefined without orientation.

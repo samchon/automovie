@@ -10,7 +10,8 @@ import { motionAuditGeometry } from "./motionAuditGeometry";
 import { validatePhysicalProfile } from "./validatePhysicalProfile";
 
 /**
- * Invalid promises cannot produce a successful finite-sample audit by making comparisons false.
+ * Invalid promises cannot produce a successful finite-sample audit by making
+ * comparisons false.
  */
 export function admitPhysicalMotionAudit(
   input: IAutoMovieMotionAudit.IInput,

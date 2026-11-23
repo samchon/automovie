@@ -16,18 +16,18 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 /**
  * Check exactly what a building owns about one population it stages.
  *
- * The whole instance-set design is the production builder's to validate, and
- * it validates it again when the lowered set reaches the world. What is checked
+ * The whole instance-set design is the production builder's to validate, and it
+ * validates it again when the lowered set reaches the world. What is checked
  * here is the subset a building record answers for on its own: the prototype
  * box, the slot count, and the placement law `builtInstanceSetPlacementBounds`
- * has to be total over, because a space query that cannot bound a population
- * it was handed would have to return either a lie or nothing at all.
+ * has to be total over, because a space query that cannot bound a population it
+ * was handed would have to return either a lie or nothing at all.
  *
  * Violations are pushed under `${path}.prototypeBounds` and `${path}.set`, so
  * `validateBuiltEnvironment` reports them at the population's own record path
- * and `builtInstanceSetPlacementBounds` at `$input`. The prototype box must
- * be finite and ordered on every axis. The set needs a positive integer count,
- * a finite anchor and heading, positive and ordered scale ranges, finite and
+ * and `builtInstanceSetPlacementBounds` at `$input`. The prototype box must be
+ * finite and ordered on every axis. The set needs a positive integer count, a
+ * finite anchor and heading, positive and ordered scale ranges, finite and
  * ordered rotation ranges, and a layout that is not `along-route`, carries one
  * finite unit-rotation positive-scale transform per slot when explicit, a
  * positive scatter radius, or positive integer rows, columns and layers with

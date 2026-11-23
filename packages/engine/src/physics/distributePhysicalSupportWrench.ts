@@ -10,9 +10,9 @@ import { solveAutoMovieQuadraticProgram } from "../math/solveAutoMovieQuadraticP
 
 /**
  * Allocate a requested floating-base wrench at actual floor points. Unilateral
- * normal forces and the inscribed |fx|+|fz|<=mu*fy pyramid imply Coulomb friction
- * even for diagonal demand. Moments use each actual lever, including yaw.
- * Caron et al. 2015, Eqs.2–7, distinguish these conditions from CoP alone.
+ * normal forces and the inscribed |fx|+|fz|<=mu*fy pyramid imply Coulomb
+ * friction even for diagonal demand. Moments use each actual lever, including
+ * yaw. Caron et al. 2015, Eqs.2–7, distinguish these conditions from CoP alone.
  * This bounded virtual-model allocation is not full inverse dynamics: native
  * constraints and motor caps still determine the actual response. Returned
  * wrench residuals expose infeasible demand rather than inventing support.
@@ -132,7 +132,9 @@ export function distributePhysicalSupportWrench(
   // between supports first.
   const supports: number[][] = [
     ...new Set(
-      input.points.map((point: (typeof input.points)[number]): string => point.bone),
+      input.points.map(
+        (point: (typeof input.points)[number]): string => point.bone,
+      ),
     ),
   ].map((bone: string): number[] =>
     input.points

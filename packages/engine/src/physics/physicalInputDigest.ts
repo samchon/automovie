@@ -5,7 +5,8 @@ import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
 import { AutoMoviePhysicsCache } from "./AutoMoviePhysicsCache";
 
 /**
- * Hash every admitted sampled value without retaining one film-sized JSON string.
+ * Hash every admitted sampled value without retaining one film-sized JSON
+ * string.
  */
 export function physicalInputDigest(
   input: IAutoMoviePhysicalSimulationInput.IInput,

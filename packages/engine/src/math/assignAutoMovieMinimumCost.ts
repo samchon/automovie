@@ -1,11 +1,21 @@
 /**
- * The assignment of rows to distinct columns of least total cost: the Hungarian method (Kuhn 1955) in its shortest-augmenting-path form, for a rectangular cost table with no more rows than columns.
+ * The assignment of rows to distinct columns of least total cost: the Hungarian
+ * method (Kuhn 1955) in its shortest-augmenting-path form, for a rectangular
+ * cost table with no more rows than columns.
  *
- * Row `i` is given column `result[i]`; no two rows share a column, and the sum of `cost[i][result[i]]` is the least any such assignment reaches. Ties are broken by the scan order of rows and columns, so the same table always gives the same assignment.
+ * Row `i` is given column `result[i]`; no two rows share a column, and the sum
+ * of `cost[i][result[i]]` is the least any such assignment reaches. Ties are
+ * broken by the scan order of rows and columns, so the same table always gives
+ * the same assignment.
  *
- * @param cost The cost of giving each row each column: `rows` arrays of `columns` finite numbers, `rows <= columns`.
+ * @param cost The cost of giving each row each column: `rows` arrays of
+ *   `columns` finite numbers, `rows <= columns`.
  * @returns The column of each row.
- * @throws {Error} When the table is ragged, has more rows than columns, or holds a value that is not finite: a caller's defect. Also when finite costs are so far apart that the potentials' reduced costs overflow binary64 (differences beyond the largest double), which the shortest-path search cannot order.
+ * @throws {Error} When the table is ragged, has more rows than columns, or
+ *   holds a value that is not finite: a caller's defect. Also when finite costs
+ *   are so far apart that the potentials' reduced costs overflow binary64
+ *   (differences beyond the largest double), which the shortest-path search
+ *   cannot order.
  */
 export function assignAutoMovieMinimumCost(
   cost: readonly (readonly number[])[],

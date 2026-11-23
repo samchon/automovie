@@ -14,15 +14,34 @@ import { isFiniteStageVector3 } from "./isFiniteStageVector3";
 import { lightTypeOf } from "./lightTypeOf";
 
 /**
- * The staging light contract, per kind: each placement takes exactly the parameters its `type` can act on, so `stageScene` can lower it to the scene light that kind names without guessing.
+ * The staging light contract, per kind: each placement takes exactly the
+ * parameters its `type` can act on, so `stageScene` can lower it to the scene
+ * light that kind names without guessing.
  *
- * - An aimed light (`directional`, `spot`, `area`) needs a finite non-zero `direction`, and a `point` light must not carry one, since it radiates every way.
- * - A positioned light (`point`, `spot`, `area`) needs a finite `position`, and a `directional` light must not carry one, since it is infinitely distant.
- * - `range` belongs to the two punctual falloff kinds and must be finite and at least zero; `coneAngle` belongs to `spot` alone, within `(0, 90]`; `width` and `height` belong to `area` alone and must be finite and positive, and both are reported when both are wrong.
- * - `color`, when given, follows validateColor's canonical linear RGBA rule, including nullable alpha and an optional matching sRGB hex label.
- * - `castShadow` is a boolean, is refused on an `area` light, which renders no shadow map, and when `true` requires `shadow`; `shadow` requires `castShadow: true` and carries a positive safe-integer `mapSize`, finite biases, a positive `near` and a finite `far` beyond it.
+ * - An aimed light (`directional`, `spot`, `area`) needs a finite non-zero
+ *   `direction`, and a `point` light must not carry one, since it radiates
+ *   every way.
+ * - A positioned light (`point`, `spot`, `area`) needs a finite `position`, and a
+ *   `directional` light must not carry one, since it is infinitely distant.
+ * - `range` belongs to the two punctual falloff kinds and must be finite and at
+ *   least zero; `coneAngle` belongs to `spot` alone, within `(0, 90]`; `width`
+ *   and `height` belong to `area` alone and must be finite and positive, and
+ *   both are reported when both are wrong.
+ * - `color`, when given, follows validateColor's canonical linear RGBA rule,
+ *   including nullable alpha and an optional matching sRGB hex label.
+ * - `castShadow` is a boolean, is refused on an `area` light, which renders no
+ *   shadow map, and when `true` requires `shadow`; `shadow` requires
+ *   `castShadow: true` and carries a positive safe-integer `mapSize`, finite
+ *   biases, a positive `near` and a finite `far` beyond it.
  *
- * A parameter that cannot act is refused rather than ignored, because silently dropping a `coneAngle` on a point light stages a light that is not the one authored. An unknown `type` is reported once and nothing else is judged, since no rule set applies. The caller supplies a light record; malformed ordinary JSON fields, including null vectors, colors and shadows, produce located findings. A failed string conversion uses `an uninspectable value` only in text and retains the authored value. Throwing property accessors and nonterminating conversion hooks are outside that guarantee.
+ * A parameter that cannot act is refused rather than ignored, because silently
+ * dropping a `coneAngle` on a point light stages a light that is not the one
+ * authored. An unknown `type` is reported once and nothing else is judged,
+ * since no rule set applies. The caller supplies a light record; malformed
+ * ordinary JSON fields, including null vectors, colors and shadows, produce
+ * located findings. A failed string conversion uses `an uninspectable value`
+ * only in text and retains the authored value. Throwing property accessors and
+ * nonterminating conversion hooks are outside that guarantee.
  */
 export const validateLightPlacementShape: (
   light: IAutoMovieStageLight,
@@ -147,7 +166,10 @@ export const validateLightPlacementShape: (
 /**
  * The panel's extent: required exactly on an `area` light, refused elsewhere.
  *
- * Both axes are checked, not just the first missing one, so an author who typed neither is told both rather than being walked through the same placement one recompile at a time. Each axis is read as `unknown`, because an untyped payload may carry anything there.
+ * Both axes are checked, not just the first missing one, so an author who typed
+ * neither is told both rather than being walked through the same placement one
+ * recompile at a time. Each axis is read as `unknown`, because an untyped
+ * payload may carry anything there.
  */
 const validateLightExtent: (
   light: IAutoMovieStageLight,
@@ -188,7 +210,9 @@ const validateLightExtent: (
 };
 
 /**
- * `castShadow` and `shadow`: a boolean flag, refused on an area light, and settings present exactly when the flag is `true`, each field finite and `far` beyond `near`.
+ * `castShadow` and `shadow`: a boolean flag, refused on an area light, and
+ * settings present exactly when the flag is `true`, each field finite and `far`
+ * beyond `near`.
  */
 const validateLightShadow: (
   light: IAutoMovieStageLight,

@@ -8,7 +8,10 @@ import { convexHull2D } from "../math/convexHull2D";
 import { collectNonEmptyId } from "./collectNonEmptyId";
 import { validateTransformScalars } from "./validateTransformScalars";
 
-/** The optional dimensions of an affordance, each a positive length in metres, angle in degrees or load in newtons when present. */
+/**
+ * The optional dimensions of an affordance, each a positive length in metres,
+ * angle in degrees or load in newtons when present.
+ */
 const DIMENSIONS: readonly (
   | "aperture"
   | "depth"
@@ -34,7 +37,9 @@ const DIMENSIONS: readonly (
 ];
 
 /**
- * Admit nonempty id and finite frame, require every optional dimension present to be finite and positive, then require stack-top extent plan points to span area or point-like kinds to have null extent.
+ * Admit nonempty id and finite frame, require every optional dimension present
+ * to be finite and positive, then require stack-top extent plan points to span
+ * area or point-like kinds to have null extent.
  */
 export const validateAffordance: (
   affordance: IAutoMovieAffordance,

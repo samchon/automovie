@@ -36,7 +36,9 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * Throws on a malformed request (see {@link IAutoMovieSpaceAirRequest}). The
  * returned run is always `solved` and carries no spatial samples.
  *
- * Finite admitted inputs can still overflow or underflow intermediate arithmetic; a nonfinite metric throws through the shared builder instead of becoming a fabricated measurement.
+ * Finite admitted inputs can still overflow or underflow intermediate
+ * arithmetic; a nonfinite metric throws through the shared builder instead of
+ * becoming a fabricated measurement.
  */
 export const analyzeAutoMovieSpaceAir: (
   props: IAutoMovieAnalyzeSpaceAir.IProps,
@@ -179,9 +181,13 @@ export const analyzeAutoMovieSpaceAir: (
 };
 
 /**
- * Check nonblank header strings, positive volume, null/nonnegative flow, safe nonnegative occupancy and finite nonnegative carbon-dioxide inputs before target admission. Throws at the first defect; nested typed-record shape is a premise and derived arithmetic is not certified.
+ * Check nonblank header strings, positive volume, null/nonnegative flow, safe
+ * nonnegative occupancy and finite nonnegative carbon-dioxide inputs before
+ * target admission. Throws at the first defect; nested typed-record shape is a
+ * premise and derived arithmetic is not certified.
  *
- * One fixed field pass plus the shared target scan uses target-proportional temporary ids and retains no request or verdict after return or throw.
+ * One fixed field pass plus the shared target scan uses target-proportional
+ * temporary ids and retains no request or verdict after return or throw.
  */
 const validateAirRequest: (request: IAutoMovieSpaceAirRequest) => void = (
   request: IAutoMovieSpaceAirRequest,

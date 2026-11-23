@@ -15,17 +15,15 @@ import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
 /**
  * The complete state of an extended position-based dynamics world
- * (`AutoMovieXpbdWorld`) as plain data: its settings and next handle, and
- * every body's pose, previous pose, velocities, mass properties, wrench and
- * set kinematic pose, every collider's body, shape and material and every
- * joint's bodies, profile joint and motors, in creation order. Writing then
- * reading reproduces every float64 value and handle, so a restored world
- * continues bit for bit.
+ * (`AutoMovieXpbdWorld`) as plain data: its settings and next handle, and every
+ * body's pose, previous pose, velocities, mass properties, wrench and set
+ * kinematic pose, every collider's body, shape and material and every joint's
+ * bodies, profile joint and motors, in creation order. Writing then reading
+ * reproduces every float64 value and handle, so a restored world continues bit
+ * for bit.
  */
 export namespace AutoMovieXpbdSnapshot {
-  /**
-   * A world's complete state, as `AutoMovieXpbdWorld.takeSnapshot` records it.
-   */
+  /** A world's complete state, as `AutoMovieXpbdWorld.takeSnapshot` records it. */
   export interface IState {
     /** World gravity. */
     gravity: IAutoMovieVector3;
@@ -49,9 +47,7 @@ export namespace AutoMovieXpbdSnapshot {
     activeSets: IActiveSetState[];
   }
 
-  /**
-   * One articulation's warm active sets in a snapshot.
-   */
+  /** One articulation's warm active sets in a snapshot. */
   export interface IActiveSetState {
     /** The root body's handle. */
     body: number;
@@ -63,9 +59,7 @@ export namespace AutoMovieXpbdSnapshot {
     second: string[];
   }
 
-  /**
-   * One body's state in a snapshot.
-   */
+  /** One body's state in a snapshot. */
   export interface IBodyState {
     /** Handle. */
     handle: number;
@@ -73,16 +67,17 @@ export namespace AutoMovieXpbdSnapshot {
     /** Whether dynamic. */
     dynamic: boolean;
 
-    /** Centre, rotation, previous centre and rotation, velocities, mass properties and wrench. */
+    /**
+     * Centre, rotation, previous centre and rotation, velocities, mass
+     * properties and wrench.
+     */
     values: number[];
 
     /** The set kinematic pose, if any. */
     next: IAutoMovieRigidTransform | null;
   }
 
-  /**
-   * One collider's state in a snapshot.
-   */
+  /** One collider's state in a snapshot. */
   export interface IColliderState {
     /** Handle. */
     handle: number;
@@ -97,9 +92,7 @@ export namespace AutoMovieXpbdSnapshot {
     material: [number, number, boolean];
   }
 
-  /**
-   * One joint's state in a snapshot.
-   */
+  /** One joint's state in a snapshot. */
   export interface IJointState {
     /** Handle. */
     handle: number;
@@ -114,9 +107,7 @@ export namespace AutoMovieXpbdSnapshot {
     motors: [string, AutoMovieXpbdJoint.IMotor][];
   }
 
-  /**
-   * One contact of the last step in a snapshot.
-   */
+  /** One contact of the last step in a snapshot. */
   export interface IContactState extends Omit<
     solveXpbdContacts.IContact,
     "a" | "b"
@@ -132,7 +123,8 @@ export namespace AutoMovieXpbdSnapshot {
    * A world's complete state.
    *
    * @param world The world.
-   * @returns Its state: settings, then every body, collider and joint in creation order.
+   * @returns Its state: settings, then every body, collider and joint in
+   *   creation order.
    */
   export function write(world: AutoMovieXpbdWorld): IState {
     return {
@@ -205,7 +197,10 @@ export namespace AutoMovieXpbdSnapshot {
         }),
       ),
       activeSets: [...world.activeSets].map(
-        ([body, warm]: [AutoMovieXpbdBody, solveXpbdSupportCascade.IWarm]): IActiveSetState => ({
+        ([body, warm]: [
+          AutoMovieXpbdBody,
+          solveXpbdSupportCascade.IWarm,
+        ]): IActiveSetState => ({
           body: body.handle,
           first: [...warm.first],
           second: [...warm.second],
@@ -215,8 +210,8 @@ export namespace AutoMovieXpbdSnapshot {
   }
 
   /**
-   * Fill an empty world with a state, giving every body, collider and joint
-   * its recorded handle in the recorded order.
+   * Fill an empty world with a state, giving every body, collider and joint its
+   * recorded handle in the recorded order.
    *
    * @param state The state.
    * @param world An empty world built with the state's gravity.
@@ -297,8 +292,8 @@ export namespace AutoMovieXpbdSnapshot {
   }
 
   /**
-   * The JSON replacer that keeps a negative zero, which JSON writes as
-   * zero: it becomes the marker string, every other value passes through.
+   * The JSON replacer that keeps a negative zero, which JSON writes as zero: it
+   * becomes the marker string, every other value passes through.
    *
    * @param _key The property name.
    * @param value The value.
@@ -330,5 +325,8 @@ function quaternion(q: IAutoMovieQuaternion): [number, number, number, number] {
   return [q.x, q.y, q.z, q.w];
 }
 
-/** The marker a negative zero becomes in snapshot JSON; no shape or joint identity begins with a NUL. */
+/**
+ * The marker a negative zero becomes in snapshot JSON; no shape or joint
+ * identity begins with a NUL.
+ */
 const NEGATIVE_ZERO: string = "\u0000-0";

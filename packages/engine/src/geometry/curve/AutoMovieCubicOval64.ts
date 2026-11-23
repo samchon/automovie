@@ -1,12 +1,17 @@
 import type { IAutoMovieCubicOval64 } from "@automovie/interface";
 
-/** Four-quarter affine cubic-oval sizing in consistent caller units. The quarter-circle handle ratio is 4/3*tan(pi/8); independent anatomical admissibility remains with consumers.
+/**
+ * Four-quarter affine cubic-oval sizing in consistent caller units. The
+ * quarter-circle handle ratio is 4/3*tan(pi/8); independent anatomical
+ * admissibility remains with consumers.
  */
 export namespace AutoMovieCubicOval64 {
   /** Symmetric quarter-circle cubic handle/radius ratio. */
   export const rounding: number = (4 / 3) * Math.tan(Math.PI / 8);
 
-  /** Approximate the perimeter of the affine cubic oval with eight-point Gauss-Legendre quadrature. Nonfinite or negative diameters reject.
+  /**
+   * Approximate the perimeter of the affine cubic oval with eight-point
+   * Gauss-Legendre quadrature. Nonfinite or negative diameters reject.
    */
   export function perimeter(diameterU: number, diameterV: number): number {
     const nodes: readonly number[] = [
@@ -41,7 +46,9 @@ export namespace AutoMovieCubicOval64 {
     );
   }
 
-  /** Resolve the other diameter with 64 bisections while preserving the supplied fixed diameter; no aspect bound is imposed here.
+  /**
+   * Resolve the other diameter with 64 bisections while preserving the supplied
+   * fixed diameter; no aspect bound is imposed here.
    */
   export function otherDiameter(
     circumference: number,
@@ -69,7 +76,11 @@ export namespace AutoMovieCubicOval64 {
     return result;
   }
 
-  /** Approximate the four-quarter cubic perimeter by composite Simpson quadrature with the retained sqrt(2) handle formula. Positive finite millimetre diameters and an even interval count of at least two are required; default count is 256 per quarter.
+  /**
+   * Approximate the four-quarter cubic perimeter by composite Simpson
+   * quadrature with the retained sqrt(2) handle formula. Positive finite
+   * millimetre diameters and an even interval count of at least two are
+   * required; default count is 256 per quarter.
    */
   export function perimeterBySimpson(
     breadth: number,
@@ -102,7 +113,11 @@ export namespace AutoMovieCubicOval64 {
     return (4 * sum) / (3 * intervals);
   }
 
-  /** Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the same Simpson perimeter. Girth and returned diameters are positive finite millimetre values; breadthOverDepth is a positive finite dimensionless ratio. An unrepresentable positive result throws RangeError.
+  /**
+   * Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the
+   * same Simpson perimeter. Girth and returned diameters are positive finite
+   * millimetre values; breadthOverDepth is a positive finite dimensionless
+   * ratio. An unrepresentable positive result throws RangeError.
    */
   export function axesBySimpson(
     girthMm: number,
@@ -132,7 +147,11 @@ export namespace AutoMovieCubicOval64 {
     return { breadthMm, depthMm };
   }
 
-  /** Resolve the second diameter from circumference and a fixed first diameter using Simpson quadrature. Inputs are finite millimetre lengths with circumference greater than twice the positive fixed diameter; at most 64 bisections stop when the bracket cannot refine in binary64.
+  /**
+   * Resolve the second diameter from circumference and a fixed first diameter
+   * using Simpson quadrature. Inputs are finite millimetre lengths with
+   * circumference greater than twice the positive fixed diameter; at most 64
+   * bisections stop when the bracket cannot refine in binary64.
    */
   export function otherDiameterBySimpson(
     girthMm: number,

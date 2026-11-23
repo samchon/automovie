@@ -4,11 +4,18 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Turn joints' range-of-motion overshoot at one instant into flagged inspection marks at the joints that exceed their range.
+ * Turn joints' range-of-motion overshoot at one instant into flagged inspection
+ * marks at the joints that exceed their range.
  *
- * Each entry is a joint's path, its world position in metres and its overshoot in degrees, as `jointRomOvershoot` measures it. A joint with a positive overshoot, or an unmeasurable one (`Infinity`), becomes one flagged point of kind `rom`, label `range overshoot`, colour olive drab `556b2f`, at path `<path>/rom`; a joint within its range draws nothing. The mark is in world metres and unanchored.
+ * Each entry is a joint's path, its world position in metres and its overshoot
+ * in degrees, as `jointRomOvershoot` measures it. A joint with a positive
+ * overshoot, or an unmeasurable one (`Infinity`), becomes one flagged point of
+ * kind `rom`, label `range overshoot`, colour olive drab `556b2f`, at path
+ * `<path>/rom`; a joint within its range draws nothing. The mark is in world
+ * metres and unanchored.
  *
- * It throws for a position that is not finite or an overshoot that is negative or NaN.
+ * It throws for a position that is not finite or an overshoot that is negative
+ * or NaN.
  *
  * @param entries Joints with their world positions and measured overshoots.
  * @returns One flagged mark per joint past its range, in the entries' order.

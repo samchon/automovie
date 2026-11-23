@@ -16,7 +16,8 @@ type Occurrence = IAutoMovieBicubicAtlas64.Occurrence;
 type Edge = IAutoMovieBicubicAtlas64.Edge;
 type Corner = IAutoMovieBicubicAtlas64.Corner;
 /**
- * Create the current patch vertex owner while reading the live generator chunk for each allocation.
+ * Create the current patch vertex owner while reading the live generator chunk
+ * for each allocation.
  */
 export function AutoMovieBicubicAtlasVertex64(
   input: IAutoMovieBicubicAtlasTessellation64.Input,

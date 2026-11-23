@@ -16,22 +16,37 @@ import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
- * Gate one positional target of a performance and resolve it to a world point, or report why it cannot be and answer `null`.
+ * Gate one positional target of a performance and resolve it to a world point,
+ * or report why it cannot be and answer `null`.
  *
- * Positional targets are a `lookAt`, `reach` or `locomote` destination, a `react` source, a `point` or `strike` gesture aim, a `launch` aim, a `frame` subject or focus, and a coverage subject. They resolve against every staged placement, cameras included, so an actor may look down the lens.
+ * Positional targets are a `lookAt`, `reach` or `locomote` destination, a
+ * `react` source, a `point` or `strike` gesture aim, a `launch` aim, a `frame`
+ * subject or focus, and a coverage subject. They resolve against every staged
+ * placement, cameras included, so an actor may look down the lens.
  *
  * The checks run in this order, each answering `null` after its violation:
  *
- * 1. Unless `formationsFramed` is true, a group naming any formation is refused first, because only a lens frames a mass and every other target asks one body for one point; checking membership first would hide that.
- * 2. The target must be a record; a `bone` target's actor must be a staged node with an actor context and a rig carrying that bone; a `group` must list its nodes as an array with every member staged, and each formation it names must be one this shot compiled. Every id must be a non-blank string.
- * 3. Missing nodes, malformed point vectors, empty groups and non-positional kinds are refused before invoking the live resolver.
- * 4. The point comes from the live resolver at `seconds` when it answers, and otherwise from the staged placements and opening formation points; a missing or non-finite point is refused naming the id that failed.
+ * 1. Unless `formationsFramed` is true, a group naming any formation is refused
+ *    first, because only a lens frames a mass and every other target asks one
+ *    body for one point; checking membership first would hide that.
+ * 2. The target must be a record; a `bone` target's actor must be a staged node
+ *    with an actor context and a rig carrying that bone; a `group` must list
+ *    its nodes as an array with every member staged, and each formation it
+ *    names must be one this shot compiled. Every id must be a non-blank
+ *    string.
+ * 3. Missing nodes, malformed point vectors, empty groups and non-positional kinds
+ *    are refused before invoking the live resolver.
+ * 4. The point comes from the live resolver at `seconds` when it answers, and
+ *    otherwise from the staged placements and opening formation points; a
+ *    missing or non-finite point is refused naming the id that failed.
  *
  * @param context The shot's staged tables and collector.
  * @param props.target The target as authored.
  * @param props.path Violation path of the target.
- * @param props.label Name of the target in id messages, such as `lookAt target`.
- * @param props.subject Name of the target in point messages, such as `a lookAt target`.
+ * @param props.label Name of the target in id messages, such as `lookAt
+ *   target`.
+ * @param props.subject Name of the target in point messages, such as `a lookAt
+ *   target`.
  * @param props.seconds Shot-local instant the live resolver is asked at.
  * @param props.formationsFramed Whether the target asks where to point a lens.
  * @returns The resolved world point in metres, or `null` after a violation.
@@ -105,7 +120,8 @@ export function resolvePerformShotTarget(
 }
 
 /**
- * Check the ids an untyped target carries, answering whether it is a target record resolution may read.
+ * Check the ids an untyped target carries, answering whether it is a target
+ * record resolution may read.
  */
 function validateTargetIds(
   context: IAutoMovieEnginePerformShotGateContext,

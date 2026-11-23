@@ -9,7 +9,8 @@ import { srgbHexToLinearColor } from "./math/srgbHexToLinearColor";
 import { productionRuntimeModelId } from "./productionRuntimeModelId";
 
 /**
- * Build a box model group, placed node and bounds from a grounded base and size.
+ * Build a box model group, placed node and bounds from a grounded base and
+ * size.
  */
 export const worldBlock: (
   input: IAutoMovieWorldBlock.IInput,
@@ -96,7 +97,10 @@ export const worldBlock: (
   };
 };
 
-/** Require non-whitespace id text without rewriting its spelling or certifying displayed visibility. */
+/**
+ * Require non-whitespace id text without rewriting its spelling or certifying
+ * displayed visibility.
+ */
 const assertText: (value: string, field: string) => void = (
   value: string,
   field: string,

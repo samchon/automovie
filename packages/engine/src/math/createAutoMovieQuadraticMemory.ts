@@ -6,13 +6,14 @@ import type {
 /**
  * Create an independent synchronous TypeScript workspace owner. Byte requests
  * are positive integers at most 2^32-1, rounded up for aligned float64 storage.
- * Each borrow receives fresh zero-initialized storage at byte address zero;
- * no factor, iterate or previous value survives into the next borrow.
+ * Each borrow receives fresh zero-initialized storage at byte address zero; no
+ * factor, iterate or previous value survives into the next borrow.
  *
  * Nested borrowing refuses. A callback exception propagates after releasing
- * ownership in finally. Heap getters refuse after release; a caller that retains
- * results copies their values. Already obtained typed views remain ordinary JS
- * references, so they are not a memory-safety sandbox and can delay host GC.
+ * ownership in finally. Heap getters refuse after release; a caller that
+ * retains results copies their values. Already obtained typed views remain
+ * ordinary JS references, so they are not a memory-safety sandbox and can delay
+ * host GC.
  */
 export function createAutoMovieQuadraticMemory(): IAutoMovieCreateQuadraticMemory.IResult {
   let active: boolean = false;

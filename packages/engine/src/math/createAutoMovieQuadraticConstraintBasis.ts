@@ -4,15 +4,15 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Factor a working transpose by column-pivoted Householder QR, without A*A'.
- * Only structural identities reduce rows: a nonzero free a*x_j=0 fixes x_j=0,
- * irrespective of a's magnitude/sign, and an all-zero zero endpoint is tautological.
- * Every other numerical rank ambiguity refuses rather than discarding a row.
- * Original coefficients/bounds are borrowed read-only; all factors are owned.
- * Gill and Wong (2014), sections 2-3, require an independent working basis:
- * https://www.ccom.ucsd.edu/~peg/papers/genqp.pdf
- * Binary64 rank readings and affine reconstruction remain separate from the
- * refinement caller's unchanged full original-row KKT and geometry admission.
+ * Factor a working transpose by column-pivoted Householder QR, without A_A'.
+ * Only structural identities reduce rows: a nonzero free a_x_j=0 fixes x_j=0,
+ * irrespective of a's magnitude/sign, and an all-zero zero endpoint is
+ * tautological. Every other numerical rank ambiguity refuses rather than
+ * discarding a row. Original coefficients/bounds are borrowed read-only; all
+ * factors are owned. Gill and Wong (2014), sections 2-3, require an independent
+ * working basis: https://www.ccom.ucsd.edu/~peg/papers/genqp.pdf Binary64 rank
+ * readings and affine reconstruction remain separate from the refinement
+ * caller's unchanged full original-row KKT and geometry admission.
  */
 export function createAutoMovieQuadraticConstraintBasis(
   rows: readonly IAutoMovieQuadraticRow[],

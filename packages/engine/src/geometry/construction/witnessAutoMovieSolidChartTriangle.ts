@@ -119,7 +119,10 @@ export function witnessAutoMovieSolidChartTriangle(
   return true;
 }
 
-/** A nearest local sheet plus two neighbours each way; extra images reserve image-count arithmetic only. */
+/**
+ * A nearest local sheet plus two neighbours each way; extra images reserve
+ * image-count arithmetic only.
+ */
 function images(
   value: number,
   target: number,

@@ -8,12 +8,14 @@ import {
 const UNIT_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
 /**
- * Assemble a node's baked world frame from one already sampled object-channel map.
+ * Assemble a node's baked world frame from one already sampled object-channel
+ * map.
  *
- * Translation and rotation must both have started; otherwise null leaves placement
- * authority with the caller. Admitted complete channel values are a premise.
- * Components are copied into new records, except the borrowed read-only unit scale
- * when no scale track writes. This helper does not choose authority or sample time.
+ * Translation and rotation must both have started; otherwise null leaves
+ * placement authority with the caller. Admitted complete channel values are a
+ * premise. Components are copied into new records, except the borrowed
+ * read-only unit scale when no scale track writes. This helper does not choose
+ * authority or sample time.
  */
 export function bakedTransformFromChannels(
   sampled: ReadonlyMap<string, IAutoMovieSampledChannel>,

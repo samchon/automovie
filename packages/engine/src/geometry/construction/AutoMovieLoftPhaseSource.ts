@@ -13,17 +13,15 @@ import { AutoMovieViewConic } from "./AutoMovieViewConic";
  *
  * A natural spline is linear in its ordinate data. Applying its cardinal
  * weights to Q_i(t) = rho_i(t) [cos(t), sin(t)] therefore retains each native
- * principal section without projecting it into a finite Cartesian cubic.
- * The same weights apply to both analytic phase derivatives. Finite periodic
- * C2 source functions and regular frames give a C2 regular chart; neither
+ * principal section without projecting it into a finite Cartesian cubic. The
+ * same weights apply to both analytic phase derivatives. Finite periodic C2
+ * source functions and regular frames give a C2 regular chart; neither
  * convexity between layers, continuous original-view reproduction, nor a
- * singular pole's geometric regularity follows from this construction.
- * This candidate is deliberately disconnected from the production chain.
+ * singular pole's geometric regularity follows from this construction. This
+ * candidate is deliberately disconnected from the production chain.
  */
 export namespace AutoMovieLoftPhaseSource {
-  /**
-   * Prepare a natural-coordinate operator without fitting any phase samples.
-   */
+  /** Prepare a natural-coordinate operator without fitting any phase samples. */
   export function prepare(
     coordinates: readonly number[],
     curves: readonly IAutoMovieViewConic.ICurve[],
@@ -87,9 +85,7 @@ export namespace AutoMovieLoftPhaseSource {
     };
   }
 
-  /**
-   * Prepare weights at q, optionally reexpressed by [dq/ds, d2q/ds2].
-   */
+  /** Prepare weights at q, optionally reexpressed by [dq/ds, d2q/ds2]. */
   export function station(
     source: IAutoMovieLoftPhaseSource.ISource,
     q: number,
@@ -168,9 +164,7 @@ export namespace AutoMovieLoftPhaseSource {
     return { source, weights };
   }
 
-  /**
-   * Planar point [x,z], millimetres, at the original polar phase in radians.
-   */
+  /** Planar point [x,z], millimetres, at the original polar phase in radians. */
   export function point(
     at: IAutoMovieLoftPhaseSource.IStation,
     phi: number,
@@ -187,9 +181,7 @@ export namespace AutoMovieLoftPhaseSource {
     return [radius * Math.cos(phi), radius * Math.sin(phi)];
   }
 
-  /**
-   * Three planar rows [x,z,x_t,z_t,x_tt,z_tt], for station orders 0,1,2.
-   */
+  /** Three planar rows [x,z,x_t,z_t,x_tt,z_tt], for station orders 0,1,2. */
   export function jet(
     at: IAutoMovieLoftPhaseSource.IStation,
     phi: number,
@@ -225,7 +217,10 @@ export namespace AutoMovieLoftPhaseSource {
   }
 }
 
-/** Validate explicit prepared rows without selecting geometry by registration identity. */
+/**
+ * Validate explicit prepared rows without selecting geometry by registration
+ * identity.
+ */
 function validate(at: IAutoMovieLoftPhaseSource.IStation): void {
   const count: number = at.source.curves.length;
   if (
@@ -243,7 +238,10 @@ function validate(at: IAutoMovieLoftPhaseSource.IStation): void {
     throw new Error("native phase station has malformed explicit source data");
 }
 
-/** A broken present source is an error, never a request for legacy coefficient geometry. */
+/**
+ * A broken present source is an error, never a request for legacy coefficient
+ * geometry.
+ */
 function read(
   curve: IAutoMovieViewConic.ICurve,
   phi: number,

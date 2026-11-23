@@ -17,9 +17,9 @@ import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
  * every bone whose parent chain ends at such a root: a bone whose parent is
  * undeclared, or whose chain is a cycle, is never entered from a root and is
  * absent. The index is a snapshot; it holds the skeleton's bone objects, so a
- * caller that later changes `skeleton.bones` must build a new one.
- * Duplicate bone names throw before traversal because one identity cannot own
- * two parent links or two rest transforms.
+ * caller that later changes `skeleton.bones` must build a new one. Duplicate
+ * bone names throw before traversal because one identity cannot own two parent
+ * links or two rest transforms.
  *
  * @param skeleton Rig to index; read, never modified.
  */
@@ -39,14 +39,9 @@ export function indexSkeletonTopology(
   return { childrenByParent, reachableBones };
 }
 
-/**
- * Parent-child indexing for readers that perform their own root traversal.
- */
+/** Parent-child indexing for readers that perform their own root traversal. */
 export namespace indexSkeletonTopology {
-  /**
-   * Group declared bones by parent. Reject duplicate names before traversal.
-   *
-   */
+  /** Group declared bones by parent. Reject duplicate names before traversal. */
   export function children(
     skeleton: IAutoMovieSkeleton,
   ): IAutoMovieSkeletonTopology["childrenByParent"] {
@@ -57,7 +52,8 @@ export namespace indexSkeletonTopology {
       if (names.has(bone.bone))
         throw new Error(`Skeleton topology has duplicate bone "${bone.bone}".`);
       names.add(bone.bone);
-      const key: AutoMovieSkeletonParentKey = bone.parent ?? SKELETON_ROOT_PARENT;
+      const key: AutoMovieSkeletonParentKey =
+        bone.parent ?? SKELETON_ROOT_PARENT;
       const children: IAutoMovieBone[] = childrenByParent.get(key) ?? [];
       children.push(bone);
       childrenByParent.set(key, children);

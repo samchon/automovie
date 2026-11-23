@@ -7,7 +7,8 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
 /**
- * Interpolate sampled goals and derive world velocities from the same shortest arc.
+ * Interpolate sampled goals and derive world velocities from the same shortest
+ * arc.
  */
 export function samplePhysicalTarget(
   before: IAutoMovieRigidTransform,

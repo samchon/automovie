@@ -18,17 +18,21 @@ import { requireDesignVariant } from "./requireDesignVariant";
 /**
  * Digest one view of the design: a revision, an alternative, and a phase.
  *
- * This recorded view is a replay handle for derived artifacts. Equal serialized alternative/phase views hash equally; alternative identity and recorded subject digests enter the serialization. The function reads recorded digests rather than asset bytes and makes no collision-free identity guarantee.
+ * This recorded view is a replay handle for derived artifacts. Equal serialized
+ * alternative/phase views hash equally; alternative identity and recorded
+ * subject digests enter the serialization. The function reads recorded digests
+ * rather than asset bytes and makes no collision-free identity guarantee.
  *
- * A null `variant` digests the head revision with no changes applied; a
- * variant digests its own base revision and its changes, ordered by subject and
- * aspect in code-unit order. A null `phase` digests the completed work. Every
- * subject state the phase snapshot reports is included with the subject's own
- * content digest. Returns a `sha256:` digest; an invalid lineage, an
- * undeclared phase, or an unknown variant id throws an `Error`.
+ * A null `variant` digests the head revision with no changes applied; a variant
+ * digests its own base revision and its changes, ordered by subject and aspect
+ * in code-unit order. A null `phase` digests the completed work. Every subject
+ * state the phase snapshot reports is included with the subject's own content
+ * digest. Returns a `sha256:` digest; an invalid lineage, an undeclared phase,
+ * or an unknown variant id throws an `Error`.
  *
  * @param lineage Lineage the view is taken from.
- * @param view Variant id or null for the head, and phase id or null for the completed work.
+ * @param view Variant id or null for the head, and phase id or null for the
+ *   completed work.
  * @returns The view's `sha256:` digest.
  */
 export const designLineageViewDigest: (

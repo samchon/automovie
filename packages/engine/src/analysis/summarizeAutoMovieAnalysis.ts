@@ -23,8 +23,8 @@ import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
  * run for becomes a gap of its own; a run that read a superseded revision is
  * counted as stale rather than as an answer; a metric that produced no value
  * carries its reason up. Only when every required domain answered against this
- * revision, every metric produced a value, and every judged metric met its target does
- * the status read `meets`.
+ * revision, every metric produced a value, and every judged metric met its
+ * target does the status read `meets`.
  *
  * Declaring at least one required domain is mandatory, which is what removes
  * the last way to pass: a report over nothing would otherwise clear

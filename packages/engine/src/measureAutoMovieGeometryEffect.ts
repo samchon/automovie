@@ -16,7 +16,9 @@ import { Vector3 } from "./math/Vector3";
 import { sampleCompiledEffect } from "./sampleCompiledEffect";
 
 /**
- * Sample one compiled effect cue at shot-local seconds and report analytic density, camera-ray intersection and subject-root inclusion; visibilityRisk is a capped proxy rather than rendered occlusion.
+ * Sample one compiled effect cue at shot-local seconds and report analytic
+ * density, camera-ray intersection and subject-root inclusion; visibilityRisk
+ * is a capped proxy rather than rendered occlusion.
  */
 export function measureAutoMovieGeometryEffect(
   props: IAutoMovieGeometryMeasurementInput,

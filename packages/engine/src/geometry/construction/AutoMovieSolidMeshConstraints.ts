@@ -18,19 +18,18 @@ interface Cut {
 }
 
 /**
- * Partition existing indexed chart constraints without inventing or welding a point.
+ * Partition existing indexed chart constraints without inventing or welding a
+ * point.
  *
- * T junctions and collinear overlaps are split at the caller's existing vertices.
- * Every subconstraint retains all of its original segment indices. Proper
- * crossings require a supplied shared vertex: that vertex belongs to the
+ * T junctions and collinear overlaps are split at the caller's existing
+ * vertices. Every subconstraint retains all of its original segment indices.
+ * Proper crossings require a supplied shared vertex: that vertex belongs to the
  * analytic boundary producer, not a later triangle reconstruction. Periodic
  * edges carry an explicit cover turn, so coincident endpoints on different
  * sheets do not erase winding.
  */
 export namespace AutoMovieSolidMeshConstraints {
-  /**
-   * Whether an existing constraint contains this represented chart point.
-   */
+  /** Whether an existing constraint contains this represented chart point. */
   export function contains(
     vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
     segments: readonly IAutoMovieSolidMeshConstraints.ISegment[],
@@ -80,9 +79,10 @@ export namespace AutoMovieSolidMeshConstraints {
   }
 
   /**
-   * Split already evaluated constraints; return their named premise failure unchanged.
-   * Each primitive spans at most one period. Callers segment longer source paths
-   * before this operation, as the existing sampled trim/grid producers do.
+   * Split already evaluated constraints; return their named premise failure
+   * unchanged. Each primitive spans at most one period. Callers segment longer
+   * source paths before this operation, as the existing sampled trim/grid
+   * producers do.
    */
   export function split(
     vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -281,7 +281,10 @@ export namespace AutoMovieSolidMeshConstraints {
   }
 }
 
-/** Exact represented-point membership on a closed straight segment; no identity is inferred from it. */
+/**
+ * Exact represented-point membership on a closed straight segment; no identity
+ * is inferred from it.
+ */
 function on(
   a: Readonly<AutoMovieVector2Tuple>,
   b: Readonly<AutoMovieVector2Tuple>,
@@ -296,7 +299,10 @@ function on(
   );
 }
 
-/** Three neighbouring images cover a primitive of at most one period; the midpoint calculation avoids overflow. */
+/**
+ * Three neighbouring images cover a primitive of at most one period; the
+ * midpoint calculation avoids overflow.
+ */
 function images(
   value: number,
   first: number,

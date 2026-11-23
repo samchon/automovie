@@ -47,7 +47,8 @@ interface IPenetration {
 }
 
 /**
- * Sample two capsule-proxy actors and return overlap advice, contact events and an optional response.
+ * Sample two capsule-proxy actors and return overlap advice, contact events and
+ * an optional response.
  */
 export const detectBodyCollision: (
   props: IAutoMovieDetectBodyCollision.IProps,

@@ -10,9 +10,18 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const BACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 /**
- * The rotation that points a camera's −Z down `direction` while keeping its horizon level.
+ * The rotation that points a camera's −Z down `direction` while keeping its
+ * horizon level.
  *
- * A shortest-arc rotation from −Z rolls the frame on an off-axis aim; this one builds the standard look-at basis instead, with camera `+Z = −direction`, `x = up × z` and `y = z × x`, so the camera's local X stays horizontal. When the normalized aim's cross product with up has length below `1e-6`, world `+Z` is the reference and the roll is whatever that reference gives. A zero direction states no aim and answers the identity, the camera's rest orientation looking down −Z with a level horizon. Finite direction length does not matter; finite inputs yield a unit quaternion up to rounding, while a non-finite component yields a non-finite result.
+ * A shortest-arc rotation from −Z rolls the frame on an off-axis aim; this one
+ * builds the standard look-at basis instead, with camera `+Z = −direction`, `x
+ * = up × z` and `y = z × x`, so the camera's local X stays horizontal. When the
+ * normalized aim's cross product with up has length below `1e-6`, world `+Z` is
+ * the reference and the roll is whatever that reference gives. A zero direction
+ * states no aim and answers the identity, the camera's rest orientation looking
+ * down −Z with a level horizon. Finite direction length does not matter; finite
+ * inputs yield a unit quaternion up to rounding, while a non-finite component
+ * yields a non-finite result.
  *
  * @param direction World-space direction to look along, any non-zero length.
  * @returns The camera's world rotation.

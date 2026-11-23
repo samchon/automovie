@@ -3,6 +3,7 @@ import type {
   IAutoMovieLoftRelief,
   IAutoMovieLoftSurfaceJet,
 } from "@automovie/interface";
+
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
 
@@ -16,7 +17,8 @@ type V = AutoMovieVector3Tuple;
  */
 export namespace AutoMovieLoftReliefCompose {
   /**
-   * Add relief values to a fresh Point0; collapsed selects the existing pole refusal.
+   * Add relief values to a fresh Point0; collapsed selects the existing pole
+   * refusal.
    */
   export function point(
     p: V,
@@ -39,9 +41,7 @@ export namespace AutoMovieLoftReliefCompose {
     }
   }
 
-  /**
-   * Add relief value/phase data to fresh p/t vectors without station2.
-   */
+  /** Add relief value/phase data to fresh p/t vectors without station2. */
   export function phase(
     value: { p: V; t: V },
     reliefs: readonly IAutoMovieLoftRelief[],
@@ -65,7 +65,8 @@ export namespace AutoMovieLoftReliefCompose {
   }
 
   /**
-   * Add full relief physical2 to a fresh world jet in station mm and phase radians.
+   * Add full relief physical2 to a fresh world jet in station mm and phase
+   * radians.
    */
   export function jet(
     value: IAutoMovieLoftSurfaceJet,
@@ -90,7 +91,10 @@ export namespace AutoMovieLoftReliefCompose {
   }
 }
 
-/** A retained collapsed pole requires every feature's value/first orders to vanish. */
+/**
+ * A retained collapsed pole requires every feature's value/first orders to
+ * vanish.
+ */
 function admitPole(height: readonly number[], collapsed: boolean): void {
   if (collapsed && height.some((x: number): boolean => x !== 0))
     throw new AutoMovieLoftAdmissionError(

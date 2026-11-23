@@ -18,7 +18,8 @@ import { trianglesOf } from "./trianglesOf";
  * @param holes Voids inside the outer boundary.
  * @param label Name of the region in diagnostics.
  * @returns The canonical layout with its counter-clockwise triangles.
- * @throws Error with the first ring diagnostic, or when floating-point search finds no hole bridge or ear.
+ * @throws Error with the first ring diagnostic, or when floating-point search
+ *   finds no hole bridge or ear.
  */
 export const triangulateRegion: (
   outer: readonly IAutoMovieProfilePoint[],

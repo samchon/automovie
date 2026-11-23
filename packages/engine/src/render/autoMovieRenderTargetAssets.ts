@@ -2,8 +2,7 @@ import { IAutoMovieRenderTargetAsset } from "@automovie/interface";
 
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
-/** Assets shorthand: pair paths with digests already proved elsewhere.
- */
+/** Assets shorthand: pair paths with digests already proved elsewhere. */
 export const autoMovieRenderTargetAssets: (
   entries: Readonly<Record<string, string>>,
 ) => IAutoMovieRenderTargetAsset[] = (

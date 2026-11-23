@@ -5,11 +5,12 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Generate an indexed surface from saved physical polygon identities and P/Q paths.
- * P emits (P_i,Q_j,P_next); Q emits (Q_next,P_i,Q_j). Positive XZ rings
+ * Generate an indexed surface from saved physical polygon identities and P/Q
+ * paths. P emits (P_i,Q_j,P_next); Q emits (Q_next,P_i,Q_j). Positive XZ rings
  * and increasing Y stations give outward winding on an ordinary exterior slab.
- * This operation validates the path, not its optimization or geometric embedding.
- * Finite positive-area faces survive incidence warnings; collapsed faces are counted.
+ * This operation validates the path, not its optimization or geometric
+ * embedding. Finite positive-area faces survive incidence warnings; collapsed
+ * faces are counted.
  */
 export function tessellateAutoMovieContourPath64(
   input: IAutoMovieTessellateContourPath64.IInput,

@@ -12,10 +12,10 @@ interface IRawInputs {
 
 /**
  * Candidate full angles for maximizing the absolute bilinear form
- * `[cos(x/2),sin(x/2)] M [cos(y/2),sin(y/2)]^T` on a degree-valued box.
- * Matrix entries are row-major. Reference coordinates are clipped to the box.
- * The list contains the reference, feasible top singular-vector pair, each
- * boundary's sinusoidal maximum and reference point, and all corners.
+ * `[cos(x/2),sin(x/2)] M [cos(y/2),sin(y/2)]^T` on a degree-valued box. Matrix
+ * entries are row-major. Reference coordinates are clipped to the box. The list
+ * contains the reference, feasible top singular-vector pair, each boundary's
+ * sinusoidal maximum and reference point, and all corners.
  *
  * For equal singular values, an orthogonal matrix's optimal set is
  * `x-sign*y=phase+360*k`. Reference projections onto both orthogonal limiting
@@ -26,17 +26,18 @@ interface IRawInputs {
  * The caller scores actual reconstructed rotations. This operation neither
  * scores quaternion composition nor turns coupled joint limits into a box.
  * Invalid finite/ordered inputs throw; unrepresentable whole-turn indices
- * return null so a caller can retain its existing general solver.
- * Repeated queries on one unchanged box may use prepare to share its range
- * admission, endpoint arrays, boundary sine/cosine and range-only bounds;
- * targets keep alias admission, candidate list and reference. On a bounded
- * interval narrower than a half-turn, one nearest alias suffices when the
- * fixed width proves the remaining turns cannot enter. Matrix and
- * reference admission still precede the unchanged range admission result.
+ * return null so a caller can retain its existing general solver. Repeated
+ * queries on one unchanged box may use prepare to share its range admission,
+ * endpoint arrays, boundary sine/cosine and range-only bounds; targets keep
+ * alias admission, candidate list and reference. On a bounded interval narrower
+ * than a half-turn, one nearest alias suffices when the fixed width proves the
+ * remaining turns cannot enter. Matrix and reference admission still precede
+ * the unchanged range admission result.
  *
  * Method: David Eberly, Constrained Quaternions Using Euler Angles, sections
- * 2.3 and 3.1–3.5: https://www.geometrictools.com/Documentation/ConstrainedQuaternions.pdf
- * The general two-by-two SVD and limiting-family projections are derived below.
+ * 2.3 and 3.1–3.5:
+ * https://www.geometrictools.com/Documentation/ConstrainedQuaternions.pdf The
+ * general two-by-two SVD and limiting-family projections are derived below.
  */
 export function bilinearAngleBoxCandidates(
   matrix: readonly [number, number, number, number],
@@ -59,10 +60,15 @@ function evaluateBox(
     !admitRanges(ranges, prepared)
   )
     throw new Error("Bilinear angle boxes require finite ordered inputs.");
-  return pairsOf(enumerateBox(0, 0, 0, 0, ranges, 0, 0, prepared, { matrix, reference }));
+  return pairsOf(
+    enumerateBox(0, 0, 0, 0, ranges, 0, 0, prepared, { matrix, reference }),
+  );
 }
 
-/** Preserve existing fresh tuple output after the entire shared enumeration finishes. */
+/**
+ * Preserve existing fresh tuple output after the entire shared enumeration
+ * finishes.
+ */
 function pairsOf(flat: number[] | null): [number, number][] | null {
   if (flat === null) return null;
   const pairs: [number, number][] = [];
@@ -83,30 +89,48 @@ function enumerateBox(
   prepared?: IBoxState,
   raw?: IRawInputs,
 ): number[] | null {
-  const anchorX: number = Math.max(ranges[0].min,
-    Math.min(ranges[0].max, raw === undefined ? referenceX : raw.reference[0]));
-  const anchorY: number = Math.max(ranges[1].min,
-    Math.min(ranges[1].max, raw === undefined ? referenceY : raw.reference[1]));
-  const ends: [number[], number[]] | undefined = prepared === undefined
-    ? undefined : prepared.ends ?? [endpoints(ranges[0]), endpoints(ranges[1])];
-  if (prepared !== undefined && prepared.ends === undefined && ends !== undefined)
+  const anchorX: number = Math.max(
+    ranges[0].min,
+    Math.min(ranges[0].max, raw === undefined ? referenceX : raw.reference[0]),
+  );
+  const anchorY: number = Math.max(
+    ranges[1].min,
+    Math.min(ranges[1].max, raw === undefined ? referenceY : raw.reference[1]),
+  );
+  const ends: [number[], number[]] | undefined =
+    prepared === undefined
+      ? undefined
+      : (prepared.ends ?? [endpoints(ranges[0]), endpoints(ranges[1])]);
+  if (
+    prepared !== undefined &&
+    prepared.ends === undefined &&
+    ends !== undefined
+  )
     prepared.ends = ends;
   const points: number[] = [];
   const tight: readonly [boolean, boolean] | undefined =
-    prepared === undefined ? undefined
-      : prepared.tight ??= [narrow(ranges[0]), narrow(ranges[1])];
+    prepared === undefined
+      ? undefined
+      : (prepared.tight ??= [narrow(ranges[0]), narrow(ranges[1])]);
   // Only prepared unchanged axes share min/max/reference slots and refusals.
   const aliases: (number | null | undefined)[] | undefined =
-    prepared === undefined || (tight?.[0] === true && tight[1]) ? undefined : [];
+    prepared === undefined || (tight?.[0] === true && tight[1])
+      ? undefined
+      : [];
   const bounded: readonly [boolean, boolean] | undefined =
-    prepared === undefined ? undefined
-      : prepared.bounded ?? [
+    prepared === undefined
+      ? undefined
+      : (prepared.bounded ?? [
           Math.abs(ranges[0].min) <= Number.MAX_SAFE_INTEGER &&
             Math.abs(ranges[0].max) <= Number.MAX_SAFE_INTEGER,
           Math.abs(ranges[1].min) <= Number.MAX_SAFE_INTEGER &&
             Math.abs(ranges[1].max) <= Number.MAX_SAFE_INTEGER,
-        ];
-  if (prepared !== undefined && prepared.bounded === undefined && bounded !== undefined)
+        ]);
+  if (
+    prepared !== undefined &&
+    prepared.bounded === undefined &&
+    bounded !== undefined
+  )
     prepared.bounded = bounded;
   let representable: boolean = true;
 
@@ -129,10 +153,16 @@ function enumerateBox(
     }
     // Fixed coordinates are keyed by Object.is, unlike pair membership below.
     // A refused cached lift has already applied any unsafe-index refusal.
-    const slot: 0 | 1 | 2 | null = prepared === undefined ? null
-      : Object.is(angle, range.min) ? 0
-        : Object.is(angle, range.max) ? 1
-          : Object.is(angle, axis === 0 ? anchorX : anchorY) ? 2 : null;
+    const slot: 0 | 1 | 2 | null =
+      prepared === undefined
+        ? null
+        : Object.is(angle, range.min)
+          ? 0
+          : Object.is(angle, range.max)
+            ? 1
+            : Object.is(angle, axis === 0 ? anchorX : anchorY)
+              ? 2
+              : null;
     const known: number | null | undefined =
       slot === null ? undefined : aliases?.[axis * 3 + slot];
     if (known !== undefined) return known;
@@ -140,39 +170,46 @@ function enumerateBox(
     // have magnitude at most 2*MAX_SAFE_INTEGER. Division by 360 keeps ceil,
     // floor and round strictly inside the safe-integer range. Their admission
     // cannot refuse; retain the original turn/add/nearestAlias arithmetic.
-    if (bounded?.[axis] === true &&
-      (slot !== null || (angle >= range.min && angle <= range.max))) {
+    if (
+      bounded?.[axis] === true &&
+      (slot !== null || (angle >= range.min && angle <= range.max))
+    ) {
       const turn: number = Math.round((anchor - angle) / 360);
       const shifted: number = angle + 360 * turn;
       // A zero turn keeps this admitted angle inside, including either zero
       // sign produced by the original multiplication and addition above.
-      const value: number = turn === 0 ? shifted : nearestAngleAlias(shifted, range);
-      const result: number | null = turn === 0 || (value >= range.min && value <= range.max)
-        ? value : null;
-      if (slot !== null && aliases !== undefined) aliases[axis * 3 + slot] = result;
+      const value: number =
+        turn === 0 ? shifted : nearestAngleAlias(shifted, range);
+      const result: number | null =
+        turn === 0 || (value >= range.min && value <= range.max) ? value : null;
+      if (slot !== null && aliases !== undefined)
+        aliases[axis * 3 + slot] = result;
       return result;
     }
-    const bounds: IAliasBounds | undefined = slot === 0 || slot === 1
-      ? prepared?.aliasBounds[axis][slot] : undefined;
+    const bounds: IAliasBounds | undefined =
+      slot === 0 || slot === 1 ? prepared?.aliasBounds[axis][slot] : undefined;
     const first: number = bounds?.first ?? Math.ceil((range.min - angle) / 360);
     const last: number = bounds?.last ?? Math.floor((range.max - angle) / 360);
     const turn: number = Math.round((anchor - angle) / 360);
-    const safe: boolean = bounds?.safe ??
+    const safe: boolean =
+      bounds?.safe ??
       (Number.isSafeInteger(first) && Number.isSafeInteger(last));
-    if (prepared !== undefined && (slot === 0 || slot === 1) && bounds === undefined)
+    if (
+      prepared !== undefined &&
+      (slot === 0 || slot === 1) &&
+      bounds === undefined
+    )
       prepared.aliasBounds[axis][slot] = { first, last, safe };
     let result: number | null;
-    if (
-      !safe ||
-      !Number.isSafeInteger(turn)
-    ) {
+    if (!safe || !Number.isSafeInteger(turn)) {
       representable = false;
       result = null;
     } else {
       const value: number = nearestAngleAlias(angle + 360 * turn, range);
       result = value >= range.min && value <= range.max ? value : null;
     }
-    if (slot !== null && aliases !== undefined) aliases[axis * 3 + slot] = result;
+    if (slot !== null && aliases !== undefined)
+      aliases[axis * 3 + slot] = result;
     return result;
   };
 
@@ -192,16 +229,19 @@ function enumerateBox(
     points.push(a, b);
   };
   append(anchorX, anchorY);
-  const scale: number = raw === undefined
-    ? Math.max(Math.abs(m00), Math.abs(m01), Math.abs(m10), Math.abs(m11))
-    : Math.max(...raw.matrix.map(Math.abs));
+  const scale: number =
+    raw === undefined
+      ? Math.max(Math.abs(m00), Math.abs(m01), Math.abs(m10), Math.abs(m11))
+      : Math.max(...raw.matrix.map(Math.abs));
   if (scale === 0) return representable ? points : null;
   let rawA: number | undefined;
   let rawB: number | undefined;
   let rawC: number | undefined;
   let rawD: number | undefined;
   if (raw !== undefined)
-    [rawA, rawB, rawC, rawD] = raw.matrix.map((value: number): number => value / scale);
+    [rawA, rawB, rawC, rawD] = raw.matrix.map(
+      (value: number): number => value / scale,
+    );
   const a: number = raw === undefined ? m00 / scale : rawA!;
   const b: number = raw === undefined ? m01 / scale : rawB!;
   const c: number = raw === undefined ? m10 / scale : rawC!;
@@ -227,7 +267,13 @@ function enumerateBox(
   const xEnds: number[] = ends?.[0] ?? [ranges[0].min, ranges[0].max];
   for (let index: number = 0; index < xEnds.length; index++) {
     const x: number = xEnds[index]!;
-    const { cosine, sine }: IBoundary = boundary(x, 0, index, halfRadians, prepared);
+    const { cosine, sine }: IBoundary = boundary(
+      x,
+      0,
+      index,
+      halfRadians,
+      prepared,
+    );
     const A: number = a * cosine + c * sine;
     const B: number = b * cosine + d * sine;
     if (A !== 0 || B !== 0) append(x, 2 * Math.atan2(B, A) * toDegrees);
@@ -236,7 +282,13 @@ function enumerateBox(
   const yEnds: number[] = ends?.[1] ?? [ranges[1].min, ranges[1].max];
   for (let index: number = 0; index < yEnds.length; index++) {
     const y: number = yEnds[index]!;
-    const { cosine, sine }: IBoundary = boundary(y, 1, index, halfRadians, prepared);
+    const { cosine, sine }: IBoundary = boundary(
+      y,
+      1,
+      index,
+      halfRadians,
+      prepared,
+    );
     const A: number = a * cosine + b * sine;
     const B: number = c * cosine + d * sine;
     if (A !== 0 || B !== 0) append(2 * Math.atan2(B, A) * toDegrees, y);
@@ -250,9 +302,11 @@ function enumerateBox(
   ): void => {
     const phaseDegrees: number = 2 * phase * toDegrees;
     const known: IFamilyInterval | undefined = prepared?.familyIntervals[sign];
-    const minimum: number = known?.minimum ??
+    const minimum: number =
+      known?.minimum ??
       ranges[0].min - sign * (sign === 1 ? ranges[1].max : ranges[1].min);
-    const maximum: number = known?.maximum ??
+    const maximum: number =
+      known?.maximum ??
       ranges[0].max - sign * (sign === 1 ? ranges[1].min : ranges[1].max);
     if (prepared !== undefined && known === undefined)
       prepared.familyIntervals[sign] = { minimum, maximum };
@@ -303,7 +357,10 @@ function enumerateBox(
 
 /** Fixed endpoint data owned by one unchanged box operation, never a target. */
 interface IBoxState {
-  /** Lazy finite/ordered admission, read after this query's matrix and reference. */
+  /**
+   * Lazy finite/ordered admission, read after this query's matrix and
+   * reference.
+   */
   admitted?: boolean;
 
   /** Whether each finite interval fits the exact bounded-index proof. */
@@ -319,7 +376,10 @@ interface IBoxState {
   trigonometry: [Array<IBoundary | undefined>, Array<IBoundary | undefined>];
 
   /** Range-only min/max lift prefixes; reference-nearest turn stays query-local. */
-  aliasBounds: [Array<IAliasBounds | undefined>, Array<IAliasBounds | undefined>];
+  aliasBounds: [
+    Array<IAliasBounds | undefined>,
+    Array<IAliasBounds | undefined>,
+  ];
 
   /** Each limiting family's fixed feasible line-intercept interval. */
   familyIntervals: Partial<Record<1 | -1, IFamilyInterval>>;
@@ -327,8 +387,11 @@ interface IBoxState {
 
 /** Keep a one-degree margin from a half-turn and bound all lift intermediates. */
 function narrow(range: IAutoMovieAngleRange): boolean {
-  return Math.abs(range.min) <= 1024 && Math.abs(range.max) <= 1024 &&
-    range.max - range.min <= 179;
+  return (
+    Math.abs(range.min) <= 1024 &&
+    Math.abs(range.max) <= 1024 &&
+    range.max - range.min <= 179
+  );
 }
 
 /** Range-only line-intercept limits before the target's phase is subtracted. */
@@ -348,7 +411,9 @@ function admitRanges(
   if (prepared?.admitted !== undefined) return prepared.admitted;
   const admitted: boolean = !ranges.some(
     (range: IAutoMovieAngleRange): boolean =>
-      !Number.isFinite(range.min) || !Number.isFinite(range.max) || range.min > range.max,
+      !Number.isFinite(range.min) ||
+      !Number.isFinite(range.max) ||
+      range.min > range.max,
   );
   if (prepared !== undefined) prepared.admitted = admitted;
   return admitted;
@@ -356,10 +421,10 @@ function admitRanges(
 
 /** Original raw whole-turn bounds and their unchanged safe-index admission. */
 interface IAliasBounds {
-  /** ceil((range.min-fixedAngle)/360), with its original signed zero. */
+  /** Ceil((range.min-fixedAngle)/360), with its original signed zero. */
   first: number;
 
-  /** floor((range.max-fixedAngle)/360), before the original safe-index guard. */
+  /** Floor((range.max-fixedAngle)/360), before the original safe-index guard. */
   last: number;
 
   /** Exact result of the two range-only safe-integer checks. */
@@ -398,25 +463,36 @@ function boundary(
   return result;
 }
 
-/**
- * Fixed-box preparation with query-local matrices, references and candidates.
- */
+/** Fixed-box preparation with query-local matrices, references and candidates. */
 export namespace bilinearAngleBoxCandidates {
   /** A fresh candidate list or refusal for each matrix/reference on this box. */
   export interface IPrepared {
-    /** Preserve direct enumeration, candidate order and query-local alias ownership. */
+    /**
+     * Preserve direct enumeration, candidate order and query-local alias
+     * ownership.
+     */
     (
       matrix: Parameters<typeof bilinearAngleBoxCandidates>[0],
       reference: Parameters<typeof bilinearAngleBoxCandidates>[2],
     ): ReturnType<typeof bilinearAngleBoxCandidates>;
 
-    /** Completed [x0,y0,x1,y1,...] list in the same order, without per-pair tuples. */
+    /**
+     * Completed [x0,y0,x1,y1,...] list in the same order, without per-pair
+     * tuples.
+     */
     fromScalarsFlat(
-      m00: number, m01: number, m10: number, m11: number,
-      referenceX: number, referenceY: number,
+      m00: number,
+      m01: number,
+      m10: number,
+      m11: number,
+      referenceX: number,
+      referenceY: number,
     ): number[] | null;
 
-    /** Same row-major objective and reference, without allocating argument tuples. */
+    /**
+     * Same row-major objective and reference, without allocating argument
+     * tuples.
+     */
     fromScalars(
       m00: number,
       m01: number,
@@ -429,28 +505,49 @@ export namespace bilinearAngleBoxCandidates {
 
   /**
    * Borrow an unchanged rig-angle box for one operation's repeated queries.
-   * Retains one range-admission flag, two bounded-index facts, two endpoint arrays, four lazy half-angle
-   * readings, four raw endpoint lift bounds and two family intercept intervals;
-   * every target owns matrix/reference and turn/alias admission and pairs.
-   * Standalone direct calls retain no preparation. A one-query preparation
-   * pays fixed metadata wrappers; runtime improvement remains unmeasured.
+   * Retains one range-admission flag, two bounded-index facts, two endpoint
+   * arrays, four lazy half-angle readings, four raw endpoint lift bounds and
+   * two family intercept intervals; every target owns matrix/reference and
+   * turn/alias admission and pairs. Standalone direct calls retain no
+   * preparation. A one-query preparation pays fixed metadata wrappers; runtime
+   * improvement remains unmeasured.
    */
   export function prepare(
     ranges: Parameters<typeof bilinearAngleBoxCandidates>[1],
   ): IPrepared {
     const prepared: IBoxState = {
-      trigonometry: [[], []], aliasBounds: [[], []], familyIntervals: {},
+      trigonometry: [[], []],
+      aliasBounds: [[], []],
+      familyIntervals: {},
     };
     const scalar: IPrepared["fromScalarsFlat"] = (
-      m00: number, m01: number, m10: number, m11: number,
-      referenceX: number, referenceY: number,
+      m00: number,
+      m01: number,
+      m10: number,
+      m11: number,
+      referenceX: number,
+      referenceY: number,
     ): number[] | null => {
-      if (!Number.isFinite(m00) || !Number.isFinite(m01) ||
-        !Number.isFinite(m10) || !Number.isFinite(m11) ||
-        !Number.isFinite(referenceX) || !Number.isFinite(referenceY) ||
-        !admitRanges(ranges, prepared))
+      if (
+        !Number.isFinite(m00) ||
+        !Number.isFinite(m01) ||
+        !Number.isFinite(m10) ||
+        !Number.isFinite(m11) ||
+        !Number.isFinite(referenceX) ||
+        !Number.isFinite(referenceY) ||
+        !admitRanges(ranges, prepared)
+      )
         throw new Error("Bilinear angle boxes require finite ordered inputs.");
-      return enumerateBox(m00, m01, m10, m11, ranges, referenceX, referenceY, prepared);
+      return enumerateBox(
+        m00,
+        m01,
+        m10,
+        m11,
+        ranges,
+        referenceX,
+        referenceY,
+        prepared,
+      );
     };
     return Object.assign(
       (
@@ -458,12 +555,18 @@ export namespace bilinearAngleBoxCandidates {
         reference: Parameters<typeof bilinearAngleBoxCandidates>[2],
       ): ReturnType<typeof bilinearAngleBoxCandidates> =>
         evaluateBox(matrix, ranges, reference, prepared),
-      { fromScalars: (
-        m00: number, m01: number, m10: number, m11: number,
-        referenceX: number, referenceY: number,
-      ): ReturnType<typeof bilinearAngleBoxCandidates> =>
-        pairsOf(scalar(m00, m01, m10, m11, referenceX, referenceY)),
-        fromScalarsFlat: scalar },
+      {
+        fromScalars: (
+          m00: number,
+          m01: number,
+          m10: number,
+          m11: number,
+          referenceX: number,
+          referenceY: number,
+        ): ReturnType<typeof bilinearAngleBoxCandidates> =>
+          pairsOf(scalar(m00, m01, m10, m11, referenceX, referenceY)),
+        fromScalarsFlat: scalar,
+      },
     );
   }
 }

@@ -11,20 +11,19 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
- * The whole-body momentum task of a root under internal actuation: the
- * ground reaction the supports should give, about the mass center.
+ * The whole-body momentum task of a root under internal actuation: the ground
+ * reaction the supports should give, about the mass center.
  *
- * The ground reaction changes the whole body's momentum, so the task that
- * asks it is a momentum task (Herzog, Rotella, Mason, Grimminger, Schaal
- * and Righetti 2016; Orin, Goswami and Lee 2013, "Centroidal
- * dynamics of a humanoid robot"): its force tracks the mass center,
- * `F = K (c_ref - c) - D (c' - c'_ref) - m g`, and its moment about the
- * mass center, where gravity has none, is the trunk's orientation demand.
- * The reference is the mass center the target pose puts there once its
- * root stands at the root's goal, so the root's own shifts (recovery,
- * lowering) move it with the root. A root error read on the root body
- * alone would leave the mass center free whenever the limbs carry it while
- * the root holds still.
+ * The ground reaction changes the whole body's momentum, so the task that asks
+ * it is a momentum task (Herzog, Rotella, Mason, Grimminger, Schaal and
+ * Righetti 2016; Orin, Goswami and Lee 2013, "Centroidal dynamics of a humanoid
+ * robot"): its force tracks the mass center, `F = K (c_ref - c) - D (c' -
+ * c'_ref) - m g`, and its moment about the mass center, where gravity has none,
+ * is the trunk's orientation demand. The reference is the mass center the
+ * target pose puts there once its root stands at the root's goal, so the root's
+ * own shifts (recovery, lowering) move it with the root. A root error read on
+ * the root body alone would leave the mass center free whenever the limbs carry
+ * it while the root holds still.
  *
  * @param input The body's segments, goals, gains and demands.
  * @returns The task: the mass center, the force and the moment.
@@ -95,9 +94,7 @@ export function physicalCentroidalTask(
   return { origin, force, torque: input.torque };
 }
 
-/**
- * The input of physicalCentroidalTask.
- */
+/** The input of physicalCentroidalTask. */
 export namespace physicalCentroidalTask {
   /** The body, its goals and the root's gains and demands. */
   export interface IInput {

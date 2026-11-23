@@ -26,16 +26,16 @@ import { isRecord } from "./validation/isRecord";
  * every planned list, `unplanned` is sorted by code unit, and the order of the
  * observations cannot change the result.
  *
- * The state is `indeterminate` for an empty plan, `reviewed` when every
- * planned viewpoint is observed, `partial` when some are, `stale` when none is
- * observed but some were seen in another context, and `not-run` otherwise.
+ * The state is `indeterminate` for an empty plan, `reviewed` when every planned
+ * viewpoint is observed, `partial` when some are, `stale` when none is observed
+ * but some were seen in another context, and `not-run` otherwise.
  *
  * Throws an `Error` when `current` does not exactly name the resolved unit
  * (blank production id, shot or runtime identity, a target or revision
  * differing from the unit, or a fingerprint or plan identity not in `sha256:`
- * hex form), and a `RangeError` for a plan with a blank or duplicated
- * viewpoint id, a distance that is not finite and positive, or a direction
- * whose length is not within `1e-6` of one.
+ * hex form), and a `RangeError` for a plan with a blank or duplicated viewpoint
+ * id, a distance that is not finite and positive, or a direction whose length
+ * is not within `1e-6` of one.
  */
 export const foldAutoMovieSubjectReviewCoverage = (
   unit: IAutoMovieSubjectReviewUnit,
@@ -108,7 +108,10 @@ export const foldAutoMovieSubjectReviewCoverage = (
   };
 };
 
-/** Throw unless the context names exactly the resolved unit and a canonical compile, plan and runtime. */
+/**
+ * Throw unless the context names exactly the resolved unit and a canonical
+ * compile, plan and runtime.
+ */
 const validateCurrentContext = (
   unit: IAutoMovieSubjectReviewUnit,
   current: IAutoMovieSubjectReviewCurrentContext,
@@ -128,7 +131,10 @@ const validateCurrentContext = (
     );
 };
 
-/** Throw unless every viewpoint has a unique non-blank id, a positive distance and a unit direction. */
+/**
+ * Throw unless every viewpoint has a unique non-blank id, a positive distance
+ * and a unit direction.
+ */
 const validateViewpointPlan = (
   viewpoints: readonly IAutoMovieSubjectReviewViewpoint[],
 ): void => {
@@ -154,7 +160,10 @@ const validateViewpointPlan = (
   }
 };
 
-/** Whether an untrusted record is a passed, non-delivery subject view with every identity present. */
+/**
+ * Whether an untrusted record is a passed, non-delivery subject view with every
+ * identity present.
+ */
 const isCurrentSubjectObservation = (
   value: unknown,
 ): value is IAutoMovieCurrentSubjectReviewObservation => {
@@ -180,7 +189,10 @@ const isCurrentSubjectObservation = (
   );
 };
 
-/** Whether an observation was captured in exactly the current revision, compile, plan and runtime. */
+/**
+ * Whether an observation was captured in exactly the current revision, compile,
+ * plan and runtime.
+ */
 const isCurrentObservationContext = (
   observation: IAutoMovieCurrentSubjectReviewObservation,
   current: IAutoMovieSubjectReviewCurrentContext,

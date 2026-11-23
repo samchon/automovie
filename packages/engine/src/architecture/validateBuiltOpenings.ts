@@ -125,9 +125,9 @@ export const validateBuiltOpenings: (
 };
 
 /**
- * One opening's void: its outline and bulges, the region its arc hull
- * encloses, and that hull staying on the host face. Returns the hull when the
- * void itself is usable, or null.
+ * One opening's void: its outline and bulges, the region its arc hull encloses,
+ * and that hull staying on the host face. Returns the hull when the void itself
+ * is usable, or null.
  */
 const validateVoid: (
   opening: IAutoMovieBuiltOpening,

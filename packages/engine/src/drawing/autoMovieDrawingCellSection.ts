@@ -13,13 +13,13 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
  * Cross-section of one convex cell on the cut plane, as an unrounded page
  * polygon.
  *
- * Each world half-space `normal . p <= offset` becomes the page half-plane
- * `a x + b y <= c` through the frame's origin, right and up axes, and the
- * section is what survives clipping a square of half-extent
+ * Each world half-space `normal . p <= offset` becomes the page half-plane `a x
+ * + b y <= c` through the frame's origin, right and up axes, and the section is
+ * what survives clipping a square of half-extent
  * {@link AUTOMOVIE_DRAWING_CELL_BOUND} by all of them. The square is what makes
- * an unbounded cell detectable: a result that still reaches it was never
- * closed by the design, so `bounded` is `false` and the caller reports a gap
- * instead of printing the square as a room.
+ * an unbounded cell detectable: a result that still reaches it was never closed
+ * by the design, so `bounded` is `false` and the caller reports a gap instead
+ * of printing the square as a room.
  *
  * An empty `polygon` with `bounded: true` means the plane misses the cell. A
  * half-space parallel to the page keeps or removes the whole section by which
@@ -27,8 +27,8 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
  *
  * @param frame Orthonormal page basis of the view.
  * @param planes The cell's half-spaces; normals need not be unit length.
- * @returns The section's page corners in metres, counter-clockwise, and
- *   whether the cell closed it.
+ * @returns The section's page corners in metres, counter-clockwise, and whether
+ *   the cell closed it.
  */
 export const autoMovieDrawingCellSection = (
   frame: IAutoMovieDrawingFrame,

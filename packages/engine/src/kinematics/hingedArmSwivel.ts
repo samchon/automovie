@@ -15,17 +15,16 @@ import { hingedArmSpan } from "./hingedArmSpan";
  * The geometry of a two-bone chain whose mid joint bends only about its own
  * hinge, as `hingedArmArticulation` poses it: the hinge angles that reach a
  * target's distance (the chain's bend branches, each stopped inside the mid
- * joint's range), and the root rotation that aims the chain at the target
- * and then turns it by a swivel about its own root-to-effector line, which
- * leaves the effector where it is (Tolani, Goswami and Badler 2000). A
- * swivel and a branch name one pose of the chain for any target, so a
- * caller that holds them while the target moves poses the chain exactly as
- * the articulation does, and `read` recovers them from a posed chain.
+ * joint's range), and the root rotation that aims the chain at the target and
+ * then turns it by a swivel about its own root-to-effector line, which leaves
+ * the effector where it is (Tolani, Goswami and Badler 2000). A swivel and a
+ * branch name one pose of the chain for any target, so a caller that holds them
+ * while the target moves poses the chain exactly as the articulation does, and
+ * `read` recovers them from a posed chain.
  */
 export namespace hingedArmSwivel {
   /**
-   * Swivel resolution of `hingedArmArticulation`'s candidate sweep, in
-   * degrees.
+   * Swivel resolution of `hingedArmArticulation`'s candidate sweep, in degrees.
    *
    * Every candidate lands the effector on the same point, so the step decides
    * only which of the equally exact poses is chosen, never how close the hand
@@ -34,13 +33,16 @@ export namespace hingedArmSwivel {
    */
   export const STEP: number = 1;
 
-  /** The golden-section ratio, `(sqrt(5) - 1) / 2`, by which each refinement pass shrinks the swivel bracket. */
+  /**
+   * The golden-section ratio, `(sqrt(5) - 1) / 2`, by which each refinement
+   * pass shrinks the swivel bracket.
+   */
   export const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
 
   /**
    * Golden-section passes refining the swivel inside the two-step bracket
-   * around each local minimum of the sweep: the fewest that shrink the
-   * bracket, `2 STEP`, by `GOLDEN` a pass to within the joint's tolerance
+   * around each local minimum of the sweep: the fewest that shrink the bracket,
+   * `2 STEP`, by `GOLDEN` a pass to within the joint's tolerance
    * (`ROM_TOLERANCE`), since a swivel turns the chain root's joint by itself
    * and a solver need resolve a joint's angle no finer.
    */
@@ -48,20 +50,25 @@ export namespace hingedArmSwivel {
     Math.log(ROM_TOLERANCE / (2 * STEP)) / Math.log(GOLDEN),
   );
 
-  /** The width the refinement leaves of a swivel's bracket, degrees: the two-step bracket shrunk by `GOLDEN` per pass, the swivel's resolution, within `ROM_TOLERANCE`. */
+  /**
+   * The width the refinement leaves of a swivel's bracket, degrees: the
+   * two-step bracket shrunk by `GOLDEN` per pass, the swivel's resolution,
+   * within `ROM_TOLERANCE`.
+   */
   export const RESOLUTION: number = 2 * STEP * GOLDEN ** REFINEMENTS;
 
   /**
    * The chain's bend branches toward its target: the two hinge angles whose
-   * span is the target's distance, `phase + acos` first, or the fully
-   * extended or folded one outside the span, each stopped at the nearer limit
-   * of the range. The fully extended branch is the rest hinge angle, zero,
-   * wherever zero's span is the extended span itself in floating point: a
-   * limb straight at rest to within rounding of its bones' offsets then
-   * stands straight, on either side of a mirrored body alike.
+   * span is the target's distance, `phase + acos` first, or the fully extended
+   * or folded one outside the span, each stopped at the nearer limit of the
+   * range. The fully extended branch is the rest hinge angle, zero, wherever
+   * zero's span is the extended span itself in floating point: a limb straight
+   * at rest to within rounding of its bones' offsets then stands straight, on
+   * either side of a mirrored body alike.
    *
    * @param chain The chain.
-   * @returns The branches, in that order, or null for a degenerate chain (`hingedArmArticulation`).
+   * @returns The branches, in that order, or null for a degenerate chain
+   *   (`hingedArmArticulation`).
    */
   export function branches(
     chain: IAutoMovieHingedChainGeometry,
@@ -71,13 +78,13 @@ export namespace hingedArmSwivel {
 
   /**
    * The chain posed at a hinge angle, for any swivel: the mid joint turned by
-   * the hinge angle, the root aimed so the chain's root-to-effector line
-   * points at the target (`aimRotation`), then turned about that line by the
-   * swivel.
+   * the hinge angle, the root aimed so the chain's root-to-effector line points
+   * at the target (`aimRotation`), then turned about that line by the swivel.
    *
    * @param chain The chain.
    * @param theta The hinge angle, radians.
-   * @returns The bone-local root and mid rotations at a swivel about the root-to-effector line, degrees.
+   * @returns The bone-local root and mid rotations at a swivel about the
+   *   root-to-effector line, degrees.
    */
   export function pose(
     chain: IAutoMovieHingedChainGeometry,
@@ -89,19 +96,13 @@ export namespace hingedArmSwivel {
     return poseBranch(chain, theta);
   }
 
-  /**
-   * The interface contract (`IAutoMovieHingedArmSwivel.IPrepared`).
-   */
+  /** The interface contract (`IAutoMovieHingedArmSwivel.IPrepared`). */
   export type IPrepared = IAutoMovieHingedArmSwivel.IPrepared;
 
-  /**
-   * The interface contract (`IAutoMovieHingedArmSwivel.IPreparedTarget`).
-   */
+  /** The interface contract (`IAutoMovieHingedArmSwivel.IPreparedTarget`). */
   export type IPreparedTarget = IAutoMovieHingedArmSwivel.IPreparedTarget;
 
-  /**
-   * The interface contract (`IAutoMovieHingedArmSwivel.IHarmonic`).
-   */
+  /** The interface contract (`IAutoMovieHingedArmSwivel.IHarmonic`). */
   export type IHarmonic = IAutoMovieHingedArmSwivel.IHarmonic;
 
   /**
@@ -109,16 +110,17 @@ export namespace hingedArmSwivel {
    * Construction performs no numeric admission. Branch queries lazily share
    * exact lengths, normalized hinge and span coefficients; pose queries share
    * the exact inverse root frame and each target's local aim goal. Target
-   * roots, range stops, branch directions, aims and every swivel remain actual.
+   * roots, range stops, branch directions, aims and every swivel remain
+   * actual.
    *
    * Constant-size source/target records retain no candidate or score history.
    * The caller releases each target after its search and the source after all
    * fits; changed frames, offsets or hinge require a new preparation.
    *
-   * An optional span holder (`hingedArmSpan.ISpan`) lends the segment-length gate and the
-   * span coefficients, which depend on the offsets, the mid rest and the
-   * hinge alone and not on the root's frame, to every source that has those
-   * same four records: the first branch query of any of them fills it and
+   * An optional span holder (`hingedArmSpan.ISpan`) lends the segment-length
+   * gate and the span coefficients, which depend on the offsets, the mid rest
+   * and the hinge alone and not on the root's frame, to every source that has
+   * those same four records: the first branch query of any of them fills it and
    * the others read it. The root-frame inverse stays each source's own.
    */
   export function prepare(
@@ -219,7 +221,10 @@ export namespace hingedArmSwivel {
         : degrees;
   }
 
-  /** The mid rotation, the root-to-effector line in the root's frame and the aim at a hinge angle. */
+  /**
+   * The mid rotation, the root-to-effector line in the root's frame and the aim
+   * at a hinge angle.
+   */
   function aimed(
     chain: IAutoMovieHingedChainGeometry,
     theta: number,
@@ -266,7 +271,10 @@ export namespace hingedArmSwivel {
 
   /** Lazy source quantities, retained only by explicit unchanged preparation. */
   interface IPreparation {
-    /** Segment-length and hinge/span admission, this source's own or lent by its owner. */
+    /**
+     * Segment-length and hinge/span admission, this source's own or lent by its
+     * owner.
+     */
     span: hingedArmSpan.ISpan;
     /** Root-frame inverse, first read during branch posing. */
     inverse?: IAutoMovieQuaternion;

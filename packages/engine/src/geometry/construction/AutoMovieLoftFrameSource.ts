@@ -13,11 +13,13 @@ import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
 /**
- * Explicit actual-axis ownership of a loft's frame, with the original Hermite fallback.
+ * Explicit actual-axis ownership of a loft's frame, with the original Hermite
+ * fallback.
  */
 export namespace AutoMovieLoftFrameSource {
   /**
-   * Retain an analytic axis on every final loft layer, replacing resplined frame jets.
+   * Retain an analytic axis on every final loft layer, replacing resplined
+   * frame jets.
    */
   export function retain(
     chain: IAutoMovieLoftChain,
@@ -62,9 +64,7 @@ export namespace AutoMovieLoftFrameSource {
     return { ...chain, layers };
   }
 
-  /**
-   * Validate a present retained source without changing its meaning.
-   */
+  /** Validate a present retained source without changing its meaning. */
   export function validate(layer: IAutoMovieLoftChain.ILayer): void {
     const source: IAutoMovieLoftFrameSource.ISource | undefined =
       layer.frameSource;
@@ -86,7 +86,8 @@ export namespace AutoMovieLoftFrameSource {
   }
 
   /**
-   * Actual frame jet of an unchanged common-source interval, or null for a layer-defined boundary.
+   * Actual frame jet of an unchanged common-source interval, or null for a
+   * layer-defined boundary.
    */
   export function actual(
     a: IAutoMovieLoftChain.ILayer,
@@ -108,7 +109,8 @@ export namespace AutoMovieLoftFrameSource {
   }
 
   /**
-   * Source frame or the original component/rotation Hermite between bracketed layers.
+   * Source frame or the original component/rotation Hermite between bracketed
+   * layers.
    */
   export function frame(
     chain: IAutoMovieLoftChain,
@@ -215,7 +217,10 @@ export namespace AutoMovieLoftFrameSource {
     );
   }
 
-  /** Validate both explicit records and distinguish a common source from an ordinary mixed-source boundary. */
+  /**
+   * Validate both explicit records and distinguish a common source from an
+   * ordinary mixed-source boundary.
+   */
   function owner(
     a: IAutoMovieLoftChain.ILayer,
     b: IAutoMovieLoftChain.ILayer,
@@ -233,12 +238,18 @@ export namespace AutoMovieLoftFrameSource {
 /** Frame component triple. */
 type Vec3 = [number, number, number];
 
-/** Independent numeric copy permits value-preserving layer copies without reference-identity semantics. */
+/**
+ * Independent numeric copy permits value-preserving layer copies without
+ * reference-identity semantics.
+ */
 function copy(frame: IAutoMovieLoftSectionFrame): IAutoMovieLoftSectionFrame {
   return { origin: [...frame.origin], u: [...frame.u], v: [...frame.v] };
 }
 
-/** Exact component equality of copied layer data, with absence distinct from a supplied source jet. */
+/**
+ * Exact component equality of copied layer data, with absence distinct from a
+ * supplied source jet.
+ */
 function same(
   frame: IAutoMovieLoftSectionFrame | undefined,
   snapshot: IAutoMovieLoftSectionFrame,
@@ -257,7 +268,10 @@ function same(
   );
 }
 
-/** Finite actual frame components are required before publishing an analytic jet. */
+/**
+ * Finite actual frame components are required before publishing an analytic
+ * jet.
+ */
 function finite(frame: IAutoMovieLoftSectionFrame): boolean {
   return (
     frame.origin.every(Number.isFinite) &&

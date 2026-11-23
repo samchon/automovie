@@ -1,7 +1,9 @@
 import type { IAutoMovieRigidTransform } from "@automovie/interface";
 
 /**
- * Reuse one call-local value only while every referenced transform scalar is unchanged. Numeric snapshots also detect in-place receiver edits; no mutable object identity or profile survives the owning solve.
+ * Reuse one call-local value only while every referenced transform scalar is
+ * unchanged. Numeric snapshots also detect in-place receiver edits; no mutable
+ * object identity or profile survives the owning solve.
  */
 export function memoizePhysicalTransformValue<Value>(
   references: (

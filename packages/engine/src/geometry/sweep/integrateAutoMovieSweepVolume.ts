@@ -2,18 +2,19 @@
  * Sum the volume a sweep encloses from its section moments, its scale at the
  * step midpoints and its frames at every half step.
  *
- * Step `i` of `n` contributes `s^2 A <N, dC> + s^3 (M_x <N, dX> + M_y <N, dY>)`:
- * the area and moments from `momentAutoMovieSweepSections`, the scale `s` and
- * normal `N` at its midpoint, and the changes `dC`, `dX`, `dY` of the origin and
- * plane axes from its start to its end. This is the flux of every section
- * point's velocity through its plane, the swept-volume formula of sweep-based
- * deformation with the first-moment terms of an off-centre section. It
- * counts a region twice where neighbouring sections cross, so it measures the
- * sweep's own volume only while the surface has no self-intersection.
+ * Step `i` of `n` contributes `s^2 A <N, dC> + s^3 (M_x <N, dX> + M_y <N,
+ * dY>)`: the area and moments from `momentAutoMovieSweepSections`, the scale
+ * `s` and normal `N` at its midpoint, and the changes `dC`, `dX`, `dY` of the
+ * origin and plane axes from its start to its end. This is the flux of every
+ * section point's velocity through its plane, the swept-volume formula of
+ * sweep-based deformation with the first-moment terms of an off-centre section.
+ * It counts a region twice where neighbouring sections cross, so it measures
+ * the sweep's own volume only while the surface has no self-intersection.
  *
  * @param moments Area, `M_x`, `M_y` per step, `3 n` numbers; only read.
  * @param scales Scale at each step's midpoint, `n` numbers; only read.
- * @param frames Frames at `u = j / (2 n)` for `j` from 0 to `2 n`, twelve numbers each as `IAutoMovieSweepTransport.frame` writes them; only read.
+ * @param frames Frames at `u = j / (2 n)` for `j` from 0 to `2 n`, twelve
+ *   numbers each as `IAutoMovieSweepTransport.frame` writes them; only read.
  * @returns Cubic metres.
  */
 export const integrateAutoMovieSweepVolume: (
@@ -43,7 +44,10 @@ export const integrateAutoMovieSweepVolume: (
   return volume;
 };
 
-/** The change from frame `a` to frame `b` of the vector at offset `k`, the origin or an axis, against frame `m`'s normal. */
+/**
+ * The change from frame `a` to frame `b` of the vector at offset `k`, the
+ * origin or an axis, against frame `m`'s normal.
+ */
 const change = (
   frames: Float64Array,
   a: number,

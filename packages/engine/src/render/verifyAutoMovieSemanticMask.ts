@@ -15,7 +15,8 @@ const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
  *
  * This verifies current format identity and the complete canonical payload
  * digest. Semantic graph validity remains the derivation owner's concern, so a
- * consumer cannot accidentally reinterpret a v1 sidecar as current v2 evidence.
+ * consumer cannot accidentally reinterpret a v1 sidecar as current v2
+ * evidence.
  */
 export const verifyAutoMovieSemanticMask: (
   mask: IAutoMovieSemanticMask,

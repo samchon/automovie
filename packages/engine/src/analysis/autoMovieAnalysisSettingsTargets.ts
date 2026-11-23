@@ -4,7 +4,10 @@ import { IAutoMovieAnalysisTarget } from "@automovie/interface";
  * The declared targets as they enter an analyzer's settings text.
  *
  * Each target is copied to exactly its four contract fields, `key`, `unit`,
- * `value` and `comparison`, in that order and in list order. Extra runtime properties and original property order are ignored; changes to covered JSON values change the settings text, while signed zeros share an encoding and a digest is not a collision-free identity proof.
+ * `value` and `comparison`, in that order and in list order. Extra runtime
+ * properties and original property order are ignored; changes to covered JSON
+ * values change the settings text, while signed zeros share an encoding and a
+ * digest is not a collision-free identity proof.
  *
  * @param targets Targets the study declares, already checked.
  * @returns New records holding only the four contract fields.

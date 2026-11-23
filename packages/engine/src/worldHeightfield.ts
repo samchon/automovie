@@ -3,9 +3,7 @@ import {
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 
-/**
- * Bake a supplied height callback into a row-major terrain lattice.
- */
+/** Bake a supplied height callback into a row-major terrain lattice. */
 export const worldHeightfield: (
   input: IAutoMovieWorldHeightfield.IInput,
 ) => IAutoMovieWorldSurface = (
@@ -62,7 +60,10 @@ export const worldHeightfield: (
   };
 };
 
-/** Require non-whitespace terrain identity while preserving its authored spelling. */
+/**
+ * Require non-whitespace terrain identity while preserving its authored
+ * spelling.
+ */
 const assertText: (value: string, field: string) => void = (
   value: string,
   field: string,

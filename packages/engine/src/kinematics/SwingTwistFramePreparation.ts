@@ -22,25 +22,37 @@ const PREPARED: WeakSet<IAutoMovieJointRotationFrame> = new WeakSet();
 
 /** An ordinary joint frame plus its operation-owned lazy axis and swing readers. */
 interface IPrepared extends IAutoMovieJointRotationFrame {
-  /** Admit the unchanged axes on first use, retaining only successful preparation. */
+  /**
+   * Admit the unchanged axes on first use, retaining only successful
+   * preparation.
+   */
   readonly [READ_BASIS]: (
     receiver: IAutoMovieJointRotationFrame,
   ) => IAutoMovieSwingTwistBasis.IBasis;
 
-  /** Admit at the first actual caller's diagnostic path; ordinary receivers opt out. */
+  /**
+   * Admit at the first actual caller's diagnostic path; ordinary receivers opt
+   * out.
+   */
   readonly [READ_AXES]: (
     receiver: IAutoMovieJointRotationFrame,
     path: string,
   ) => IAutoMovieJointAxes | undefined;
 
-  /** The frame's record composer on its admitted axes, made at the first composition. */
+  /**
+   * The frame's record composer on its admitted axes, made at the first
+   * composition.
+   */
   readonly [READ_COMPOSER]: (
     receiver: IAutoMovieJointRotationFrame,
     path: string,
   ) => ReturnType<typeof jointToQuaternionOnBasis.prepare> | undefined;
 }
 
-/** Exact constructor provenance, without probing any caller-owned property or prototype. */
+/**
+ * Exact constructor provenance, without probing any caller-owned property or
+ * prototype.
+ */
 function prepared(joint: IAutoMovieJointRotationFrame): joint is IPrepared {
   return PREPARED.has(joint);
 }
@@ -51,18 +63,24 @@ function prepared(joint: IAutoMovieJointRotationFrame): joint is IPrepared {
  */
 export namespace SwingTwistFramePreparation {
   /**
-   * Borrow a joint's axes and rest frame for one unchanged operation.
-   * Creating the frozen wrapper performs no numerical admission; its first
-   * numerical reader keeps its original diagnostic path.
+   * Borrow a joint's axes and rest frame for one unchanged operation. Creating
+   * the frozen wrapper performs no numerical admission; its first numerical
+   * reader keeps its original diagnostic path.
    *
-   * @param joint Frame whose axis and rest-frame records remain unchanged until release.
-   * @returns A fresh wrapper carrying private lazy metadata readers; release it when the operation ends.
+   * @param joint Frame whose axis and rest-frame records remain unchanged until
+   *   release.
+   * @returns A fresh wrapper carrying private lazy metadata readers; release it
+   *   when the operation ends.
    */
-  export function of(joint: IAutoMovieJointRotationFrame): IAutoMovieJointRotationFrame {
+  export function of(
+    joint: IAutoMovieJointRotationFrame,
+  ): IAutoMovieJointRotationFrame {
     const axes: IAutoMovieJointAxes = joint.axes;
     let normal: IAutoMovieJointAxes | undefined;
     let basis: IAutoMovieSwingTwistBasis.IBasis | undefined;
-    let composer: ReturnType<typeof jointToQuaternionOnBasis.prepare> | undefined;
+    let composer:
+      | ReturnType<typeof jointToQuaternionOnBasis.prepare>
+      | undefined;
     const readAxes: (path: string) => IAutoMovieJointAxes = (
       path: string,
     ): IAutoMovieJointAxes => {
@@ -81,8 +99,12 @@ export namespace SwingTwistFramePreparation {
         receiver: IAutoMovieJointRotationFrame,
         path: string,
       ): ReturnType<typeof jointToQuaternionOnBasis.prepare> | undefined =>
-        receiver !== frame ? undefined
-          : (composer ??= jointToQuaternionOnBasis.prepare(readAxes(path), joint.frame)),
+        receiver !== frame
+          ? undefined
+          : (composer ??= jointToQuaternionOnBasis.prepare(
+              readAxes(path),
+              joint.frame,
+            )),
       [READ_BASIS]: (
         receiver: IAutoMovieJointRotationFrame,
       ): IAutoMovieSwingTwistBasis.IBasis => {
@@ -110,8 +132,10 @@ export namespace SwingTwistFramePreparation {
    * their numerical caller keeps its existing live admission path.
    *
    * @param joint The frame whose exact wrapper identity owns any preparation.
-   * @param path The actual numerical caller's unchanged admission diagnostic prefix.
-   * @returns Its successful admitted basis, or undefined for an ordinary receiver.
+   * @param path The actual numerical caller's unchanged admission diagnostic
+   *   prefix.
+   * @returns Its successful admitted basis, or undefined for an ordinary
+   *   receiver.
    */
   export function normalized(
     joint: IAutoMovieJointRotationFrame,
@@ -121,14 +145,15 @@ export namespace SwingTwistFramePreparation {
   }
 
   /**
-   * Read the explicit wrapper's record composer on its admitted axes and
-   * rest frame (`jointToQuaternionOnBasis.prepare`), made at the first
-   * composition, or undefined for an ordinary receiver, whose caller keeps
-   * its own composition. The composer's products are the direct
-   * composition's, sharing only its factors between calls.
+   * Read the explicit wrapper's record composer on its admitted axes and rest
+   * frame (`jointToQuaternionOnBasis.prepare`), made at the first composition,
+   * or undefined for an ordinary receiver, whose caller keeps its own
+   * composition. The composer's products are the direct composition's, sharing
+   * only its factors between calls.
    *
    * @param joint The frame whose exact wrapper identity owns any preparation.
-   * @param path The actual numerical caller's unchanged admission diagnostic prefix.
+   * @param path The actual numerical caller's unchanged admission diagnostic
+   *   prefix.
    * @returns The composer, or undefined for an ordinary receiver.
    */
   export function composer(
@@ -143,9 +168,12 @@ export namespace SwingTwistFramePreparation {
    * current axes exactly as the original numerical reader did.
    *
    * @param joint An ordinary frame or an explicit unchanged-operation wrapper.
-   * @returns Its admitted basis, frozen for an explicit wrapper, with the existing diagnostic path.
+   * @returns Its admitted basis, frozen for an explicit wrapper, with the
+   *   existing diagnostic path.
    */
-  export function basis(joint: IAutoMovieJointRotationFrame): IAutoMovieSwingTwistBasis.IBasis {
+  export function basis(
+    joint: IAutoMovieJointRotationFrame,
+  ): IAutoMovieSwingTwistBasis.IBasis {
     return prepared(joint)
       ? joint[READ_BASIS](joint)
       : swingTwistBasis.of(joint.axes);

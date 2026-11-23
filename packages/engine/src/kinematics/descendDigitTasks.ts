@@ -5,19 +5,31 @@ import { prepareLinearSystem } from "../math/prepareLinearSystem";
 
 /**
  * Execute the digit task-priority descent and retain the actual primary
- * linearization at its final accepted point. Every nonempty-variable stop follows a Jacobian
- * of that same point; empty variables have the exact empty-column Jacobian.
- * Rejected damping trials never replace its variables,
+ * linearization at its final accepted point. Every nonempty-variable stop
+ * follows a Jacobian of that same point; empty variables have the exact
+ * empty-column Jacobian. Rejected damping trials never replace its variables,
  * residual or Jacobian. The public descent returns only the variables, while
  * digit continuation uses this completed data for its original restart test.
  *
- * @param props The original pure fixed-dimension tasks, projection, resolution and tolerance.
- * @returns Final projected variables, their actual primary residual and their current feasible-probe primary Jacobian.
+ * @param props The original pure fixed-dimension tasks, projection, resolution
+ *   and tolerance.
+ * @returns Final projected variables, their actual primary residual and their
+ *   current feasible-probe primary Jacobian.
  */
-export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): descendDigitTasks.IResult {
-  const { primary, secondary, project, step }: IAutoMovieFitDigitDescent.IProps = props;
+export function descendDigitTasks(
+  props: IAutoMovieFitDigitDescent.IProps,
+): descendDigitTasks.IResult {
+  const {
+    primary,
+    secondary,
+    project,
+    step,
+  }: IAutoMovieFitDigitDescent.IProps = props;
   const n: number = props.start.length;
-  const jacobian: (f: (x: readonly number[]) => number[], x: readonly number[]) => number[][] = (
+  const jacobian: (
+    f: (x: readonly number[]) => number[],
+    x: readonly number[],
+  ) => number[][] = (
     f: (x: readonly number[]) => number[],
     x: readonly number[],
   ): number[][] => {
@@ -32,11 +44,20 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
       // A separable bound can shorten just this coordinate's probe. Its
       // residual difference must use that actual feasible displacement;
       // dividing by 2*step would halve a derivative at either active end.
-      const clipped: boolean = projectedUp.length === n && projectedDown.length === n &&
-        x.every((value: number, index: number): boolean => index === i ||
-          (Object.is(projectedUp[index], value) && Object.is(projectedDown[index], value))) &&
-        (!Object.is(projectedUp[i], up[i]) || !Object.is(projectedDown[i], down[i]));
-      const span: number = clipped ? projectedUp[i]! - projectedDown[i]! : 2 * step;
+      const clipped: boolean =
+        projectedUp.length === n &&
+        projectedDown.length === n &&
+        x.every(
+          (value: number, index: number): boolean =>
+            index === i ||
+            (Object.is(projectedUp[index], value) &&
+              Object.is(projectedDown[index], value)),
+        ) &&
+        (!Object.is(projectedUp[i], up[i]) ||
+          !Object.is(projectedDown[i], down[i]));
+      const span: number = clipped
+        ? projectedUp[i]! - projectedDown[i]!
+        : 2 * step;
       const divisor: number = span === 0 ? 2 * step : span;
       const a: number[] = f(clipped ? projectedUp : up);
       const b: number[] = f(clipped ? projectedDown : down);
@@ -46,9 +67,13 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
       columns.map((c: number[]): number => c[k]!),
     );
   };
-  const squared: (r: readonly number[]) => number = (r: readonly number[]): number =>
-    r.reduce((sum: number, v: number): number => sum + v * v, 0);
-  const gram: (J: readonly (readonly number[])[], at: readonly number[]) => number[][] = (
+  const squared: (r: readonly number[]) => number = (
+    r: readonly number[],
+  ): number => r.reduce((sum: number, v: number): number => sum + v * v, 0);
+  const gram: (
+    J: readonly (readonly number[])[],
+    at: readonly number[],
+  ) => number[][] = (
     J: readonly (readonly number[])[],
     at: readonly number[],
   ): number[][] =>
@@ -60,7 +85,11 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
         ),
       ),
     );
-  const times: (J: readonly (readonly number[])[], at: readonly number[], r: readonly number[]) => number[] = (
+  const times: (
+    J: readonly (readonly number[])[],
+    at: readonly number[],
+    r: readonly number[],
+  ) => number[] = (
     J: readonly (readonly number[])[],
     at: readonly number[],
     r: readonly number[],
@@ -72,7 +101,10 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
         0,
       ),
     );
-  const damped: (A: number[][], mu: number) => number[][] = (A: number[][], mu: number): number[][] =>
+  const damped: (A: number[][], mu: number) => number[][] = (
+    A: number[][],
+    mu: number,
+  ): number[][] =>
     A.map((row: number[], i: number): number[] =>
       row.map((v: number, j: number): number => (i === j ? v + mu : v)),
     );
@@ -81,9 +113,14 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
   let r1: number[] = [...primary(x)];
   let r2: number[] = [...secondary(x)];
   if (n === 0)
-    return { values: x, primary: r1,
-      primaryJacobian: r1.map((): number[] => []) };
-  const together: (at: readonly number[]) => number[] = (at: readonly number[]): number[] =>
+    return {
+      values: x,
+      primary: r1,
+      primaryJacobian: r1.map((): number[] => []),
+    };
+  const together: (at: readonly number[]) => number[] = (
+    at: readonly number[],
+  ): number[] =>
     r2.length === 0 ? [...primary(at)] : [...primary(at), ...secondary(at)];
   let J: number[][] = jacobian(together, x);
   let J1: number[][] = J.slice(0, r1.length);
@@ -126,8 +163,8 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
       const secondaryGradient: number[] | undefined =
         J2.length === 0 || !served ? undefined : times(J2, all, r2);
       const free: number[] = all.filter((i: number): boolean => {
-        const gradient: number = primaryGradient[i]! +
-          (secondaryGradient?.[i] ?? 0);
+        const gradient: number =
+          primaryGradient[i]! + (secondaryGradient?.[i] ?? 0);
         if (gradient === 0) return true;
         const probe: number[] = [...x];
         probe[i] = x[i]! - Math.sign(gradient) * step;
@@ -145,8 +182,14 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
         ),
       };
     }
-    const { met, served, free, gram: G, right, secondary: J2f }: ILinearization =
-      linearization;
+    const {
+      met,
+      served,
+      free,
+      gram: G,
+      right,
+      secondary: J2f,
+    }: ILinearization = linearization;
 
     // The primary's damped step and its damped null space.
     const A1: number[][] = damped(G, mu);
@@ -156,11 +199,8 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
     const h1: number[] = solvePrimary(right);
     let h: number[] = h1;
     if (J2.length !== 0) {
-      const P: number[][] = free.map(
-        (_c: number, c: number): number[] =>
-          solvePrimary(
-            G.map((row: number[]): number => row[c]!),
-          ),
+      const P: number[][] = free.map((_c: number, c: number): number[] =>
+        solvePrimary(G.map((row: number[]): number => row[c]!)),
       );
       // N = I - P, P's columns solved above.
       const N: number[][] = free.map((_r: number, a: number): number[] =>
@@ -199,7 +239,9 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
             ),
         );
     }
-    let maximum: number = Math.max(...h.map((v: number): number => Math.abs(v)));
+    let maximum: number = Math.max(
+      ...h.map((v: number): number => Math.abs(v)),
+    );
     if (maximum <= step) break;
 
     // Damped N is an approximate null complement. Once the primary is met,
@@ -212,19 +254,27 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
     let t2: number[] = r2;
     let accepted: boolean = false;
     for (;;) {
-      trial = [...project(
-        x.map((v: number, i: number): number => {
-          const a: number = free.indexOf(i);
-          return a < 0 ? v : v + scale * h[a]!;
-        }),
-      )];
+      trial = [
+        ...project(
+          x.map((v: number, i: number): number => {
+            const a: number = free.indexOf(i);
+            return a < 0 ? v : v + scale * h[a]!;
+          }),
+        ),
+      ];
       t1 = [...primary(trial)];
       t2 = [...secondary(trial)];
       accepted = !served
         ? squared(t1) < squared(r1)
         : Math.sqrt(squared(t1)) <= met && squared(t2) < squared(r2);
-      if (accepted || !served || J2.length === 0 ||
-        !Number.isFinite(maximum) || !(maximum / 2 > step)) break;
+      if (
+        accepted ||
+        !served ||
+        J2.length === 0 ||
+        !Number.isFinite(maximum) ||
+        !(maximum / 2 > step)
+      )
+        break;
       scale /= 2;
       maximum /= 2;
     }
@@ -273,11 +323,12 @@ interface ILinearization {
   secondary: number[][];
 }
 
-/**
- * Completed task data of one descent, with no caller admission flag.
- */
+/** Completed task data of one descent, with no caller admission flag. */
 export namespace descendDigitTasks {
-  /** Actual final accepted point and primary data, retained until its caller releases them. */
+  /**
+   * Actual final accepted point and primary data, retained until its caller
+   * releases them.
+   */
   export interface IResult {
     /** Final projected variables, in the original variable units and order. */
     values: number[];
@@ -285,9 +336,16 @@ export namespace descendDigitTasks {
     /** Primary residual at values, metres, with its original dimension. */
     primary: readonly number[];
 
-    /** Primary feasible differences at values, metres per variable unit, in task-row/variable-column order. */
+    /**
+     * Primary feasible differences at values, metres per variable unit, in
+     * task-row/variable-column order.
+     */
     primaryJacobian: readonly (readonly number[])[];
   }
 }
-/** The damping start of Levenberg-Marquardt relative to the largest diagonal entry of the normal matrix (Madsen, Nielsen and Tingleff 2004, section 3.2, tau = 1e-3 for a start believed close). */
+/**
+ * The damping start of Levenberg-Marquardt relative to the largest diagonal
+ * entry of the normal matrix (Madsen, Nielsen and Tingleff 2004, section 3.2,
+ * tau = 1e-3 for a start believed close).
+ */
 const TAU: number = 1e-3;

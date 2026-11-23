@@ -8,10 +8,9 @@ import type {
  *
  * Squared because every caller compares it against a squared radius, and taking
  * the root first would only add a rounding step to a comparison that does not
- * need one.
- * Fewer than two route points return infinity. Direct products assume finite
- * representable spans and residuals; extreme coordinate squares can overflow
- * or underflow and this query is not a certified separation bound.
+ * need one. Fewer than two route points return infinity. Direct products assume
+ * finite representable spans and residuals; extreme coordinate squares can
+ * overflow or underflow and this query is not a certified separation bound.
  */
 export const routeDistanceSquared: (
   segment: IAutoMovieServiceSegment,

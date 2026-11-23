@@ -4,14 +4,14 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Decompose original rows by cyclic one-sided Jacobi column rotations.
- * The method rotates A and accumulates V; it never forms A transpose A.
- * A common maximum-entry scale protects the ordinary pair dot products.
- * Numerical null columns remain in V, including when there are fewer rows than
- * columns. Their left directions and relative accuracy remain unresolved.
- * This bounded kernel does not implement LAPACK's preconditioning, scaled-pair
- * rotations or high-relative-accuracy guarantees for extreme column disparities.
- * The one-sided construction is described by LAPACK DGESVJ:
+ * Decompose original rows by cyclic one-sided Jacobi column rotations. The
+ * method rotates A and accumulates V; it never forms A transpose A. A common
+ * maximum-entry scale protects the ordinary pair dot products. Numerical null
+ * columns remain in V, including when there are fewer rows than columns. Their
+ * left directions and relative accuracy remain unresolved. This bounded kernel
+ * does not implement LAPACK's preconditioning, scaled-pair rotations or
+ * high-relative-accuracy guarantees for extreme column disparities. The
+ * one-sided construction is described by LAPACK DGESVJ:
  * https://www.netlib.org/lapack/lapack_routine/dgesvj.f
  */
 export function decomposeAutoMovieSingularMatrix(

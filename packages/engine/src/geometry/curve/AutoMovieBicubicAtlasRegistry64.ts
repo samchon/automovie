@@ -14,7 +14,8 @@ type Cell = IAutoMovieBicubicAtlas64.Cell;
 type Plan = IAutoMovieBicubicAtlas64.Plan;
 type Binding = IAutoMovieBicubicAtlas64.Binding;
 /**
- * Register shared corners, exact edge phases and incidence before atlas emission.
+ * Register shared corners, exact edge phases and incidence before atlas
+ * emission.
  */
 export function AutoMovieBicubicAtlasRegistry64(
   input: IAutoMovieBicubicAtlasTessellation64.Input,

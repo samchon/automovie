@@ -7,7 +7,8 @@ import type {
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 
 /**
- * Pack a complete cache once on a build machine; checkpoints remain with the producer.
+ * Pack a complete cache once on a build machine; checkpoints remain with the
+ * producer.
  */
 export async function encodePhysicalPlayback(
   cache: IAutoMoviePhysicsCache,

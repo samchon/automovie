@@ -6,7 +6,8 @@ import type {
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 
 /**
- * An unchanged prefix is established from actual data, never from an edit-time assertion.
+ * An unchanged prefix is established from actual data, never from an edit-time
+ * assertion.
  */
 export function checkpointPhysicalSimulation(
   input: IAutoMoviePhysicalSimulationInput.IInput,

@@ -7,9 +7,7 @@ import { validateClipArtifact } from "./validateClipArtifact";
 import { validateNonEmptyId } from "./validateNonEmptyId";
 import { validateObjectArtifact } from "./validateObjectArtifact";
 
-/**
- * Inspect alternate-camera takes, their clips and camera intent metadata.
- */
+/** Inspect alternate-camera takes, their clips and camera intent metadata. */
 export const appendShotCoverageArtifact: (
   coverage: unknown,
   path: string,

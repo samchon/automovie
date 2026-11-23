@@ -9,9 +9,13 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * Coordinates, winding, area and physical-source aliases do not change this
  * index graph. The result certifies no surface manifoldness or anatomy.
  *
- * @param mesh Borrowed indexed or consecutive-triangle mesh; positions supply only the vertex count.
- * @returns Components containing at least one triangle, including degenerate triangles.
- * @throws The canonical triangleIndicesOf refusal for malformed xyz/index cardinality or out-of-range indices; coordinate finiteness is not needed for this graph.
+ * @param mesh Borrowed indexed or consecutive-triangle mesh; positions supply
+ *   only the vertex count.
+ * @returns Components containing at least one triangle, including degenerate
+ *   triangles.
+ * @throws The canonical triangleIndicesOf refusal for malformed xyz/index
+ *   cardinality or out-of-range indices; coordinate finiteness is not needed
+ *   for this graph.
  */
 export function countAutoMovieMeshComponents(mesh: IAutoMovieMesh): number {
   const indices: number[] = triangleIndicesOf(mesh, "mesh components");

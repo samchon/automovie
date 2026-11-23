@@ -8,22 +8,24 @@ import type {
 import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
-/** Sample finite parametric charts with declared boundary incidence. Fields and
+/**
+ * Sample finite parametric charts with declared boundary incidence. Fields and
  * first partials use millimetres; output positions use metres. The four sides
  * are bottom/right/top/left, each in its increasing local coordinate. Exact
  * canonical phase requests are unioned across every incident restriction before
- * emission. Extra exterior samples enter the containing cell's parameter polygon.
- * Boundary owners supply positions; all conflicting incident charts are omitted
- * before emission, while distinct chart normal fans remain separate. Callbacks
- * and their input coefficients must remain immutable for the call's lifetime.
- * This fixed lattice has no field-to-triangle error or G1/immersion certificate.
- * A nonlinear restriction declares both parameterize and localize. Their values
- * are checked on the finite schedule, not certified over the continuous domain.
- * Original local addresses are retained for a restriction's own requests, so an
- * approximate numerical inverse cannot replace an exact authored lattice point.
- * A zero chart cross product may carry an authored analytic normalLimit. Its
- * use is counted separately and does not remove the singular parameter sample
- * or certify that the caller derived a unique continuous surface normal.
+ * emission. Extra exterior samples enter the containing cell's parameter
+ * polygon. Boundary owners supply positions; all conflicting incident charts
+ * are omitted before emission, while distinct chart normal fans remain
+ * separate. Callbacks and their input coefficients must remain immutable for
+ * the call's lifetime. This fixed lattice has no field-to-triangle error or
+ * G1/immersion certificate. A nonlinear restriction declares both parameterize
+ * and localize. Their values are checked on the finite schedule, not certified
+ * over the continuous domain. Original local addresses are retained for a
+ * restriction's own requests, so an approximate numerical inverse cannot
+ * replace an exact authored lattice point. A zero chart cross product may carry
+ * an authored analytic normalLimit. Its use is counted separately and does not
+ * remove the singular parameter sample or certify that the caller derived a
+ * unique continuous surface normal.
  */
 export function tessellateAutoMovieParametricAtlas64(
   props: IAutoMovieTessellateParametricAtlas64.IProps,
@@ -353,7 +355,10 @@ export function tessellateAutoMovieParametricAtlas64(
         diagnostics.push(`${patch.id}: no nonzero-area triangle survived`);
       }
 
-      /** Canonical owners determine position; the actual chart determines its normal. */
+      /**
+       * Canonical owners determine position; the actual chart determines its
+       * normal.
+       */
       function vertex(u: number, v: number): number {
         const localKey: string = `${u}:${v}`;
         const previous: number | undefined = local.get(localKey);

@@ -14,21 +14,21 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * never change an answer. The index is a bounding volume hierarchy: each node
  * splits its triangles at the median of their centroids along the axis the
  * centroids spread furthest, down to four triangles a leaf. `nearest` returns
- * the travel to the first triangle in metres along the normalized direction,
- * or null; `nearestHit` also returns that triangle's original ordinal, the
- * lowest one among equal travels, with the same raw travel including the sign
- * of zero; `blocked` answers only whether any triangle lies in range and stops
- * at the first. Returned records are new per query.
+ * the travel to the first triangle in metres along the normalized direction, or
+ * null; `nearestHit` also returns that triangle's original ordinal, the lowest
+ * one among equal travels, with the same raw travel including the sign of zero;
+ * `blocked` answers only whether any triangle lies in range and stops at the
+ * first. Returned records are new per query.
  *
  * A hit counts when its travel lies in `[minimum, maximum]`, minimum defaulting
  * to zero so a ray leaving a surface can skip the triangle it starts on, and
  * positive infinity meaning no maximum. A query may exclude original triangle
  * ordinals, such as the faces around its own attachment vertex; that changes
- * which triangles are targets, never the origin or a band of near hits.
- * Winding does not matter, an edge belongs to both its triangles, and a ray
- * whose Moller-Trumbore determinant is within 1e-18 of zero is treated as
- * parallel to that triangle and passes it. A missing hit is an observation
- * gap, not proof that the origin is inside or outside anything.
+ * which triangles are targets, never the origin or a band of near hits. Winding
+ * does not matter, an edge belongs to both its triangles, and a ray whose
+ * Moller-Trumbore determinant is within 1e-18 of zero is treated as parallel to
+ * that triangle and passes it. A missing hit is an observation gap, not proof
+ * that the origin is inside or outside anything.
  *
  * Finite coordinates do not guarantee representable intermediate arithmetic.
  * Creation throws on a malformed index buffer, a non-finite position or an
@@ -392,9 +392,9 @@ const buildRayHierarchy = (
 };
 
 /**
- * One triangle's centroid coordinate on one axis. A mean of finite values
- * stays bounded by them even when their plain sum overflows, so an overflowing
- * sum is averaged after scaling by the largest magnitude.
+ * One triangle's centroid coordinate on one axis. A mean of finite values stays
+ * bounded by them even when their plain sum overflows, so an overflowing sum is
+ * averaged after scaling by the largest magnitude.
  */
 const centroid = (corner: Float64Array, t: number, axis: number): number => {
   const a: number = corner[9 * t + axis]!;

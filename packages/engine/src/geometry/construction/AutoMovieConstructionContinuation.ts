@@ -14,11 +14,27 @@ import { AutoMovieLoftSectionConnect } from "./AutoMovieLoftSectionConnect";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 
 /**
- * A continuation's shared end layer: the host chain's end layer re-expressed as the part chain's end layer. With complete consistent source jets, the part carries the host's section and both station derivatives at the shared ring, giving the two faces the same C2 boundary data.
+ * A continuation's shared end layer: the host chain's end layer re-expressed as
+ * the part chain's end layer. With complete consistent source jets, the part
+ * carries the host's section and both station derivatives at the shared ring,
+ * giving the two faces the same C2 boundary data.
  *
- * The part's stations leave the ring the way the host's continue it when the two ends differ (a host's top under a part's bottom): the layer is copied as it is. When the two ends are the same (top on top, bottom on bottom), the part's stations run against the host's, so the part's layer is the host's in the frame `(u, -v)`, whose normal `v x u` is reversed: its control points are reindexed `m -> -m mod N` with their `z` negated, which keeps every point of the ring and its counter-clockwise turn about the new normal; the phase `psi` on the part is then `-psi` on the host. First station derivatives change sign with the station's direction, second ones do not; the lift along the normal changes sign with the normal.
+ * The part's stations leave the ring the way the host's continue it when the
+ * two ends differ (a host's top under a part's bottom): the layer is copied as
+ * it is. When the two ends are the same (top on top, bottom on bottom), the
+ * part's stations run against the host's, so the part's layer is the host's in
+ * the frame `(u, -v)`, whose normal `v x u` is reversed: its control points are
+ * reindexed `m -> -m mod N` with their `z` negated, which keeps every point of
+ * the ring and its counter-clockwise turn about the new normal; the phase `psi`
+ * on the part is then `-psi` on the host. First station derivatives change sign
+ * with the station's direction, second ones do not; the lift along the normal
+ * changes sign with the normal.
  *
- * Different orders retain their original chains only when ConstructionBoundary admits already equal whole native scalar2, frame2 and absent/constant lift2. Their compatibility rows are separate density-specific projections, not the native geometry; no endpoint or adjoining interval is rewritten on that path.
+ * Different orders retain their original chains only when ConstructionBoundary
+ * admits already equal whole native scalar2, frame2 and absent/constant lift2.
+ * Their compatibility rows are separate density-specific projections, not the
+ * native geometry; no endpoint or adjoining interval is rewritten on that
+ * path.
  */
 export namespace AutoMovieConstructionContinuation {
   /**
@@ -26,7 +42,8 @@ export namespace AutoMovieConstructionContinuation {
    *
    * @param hostEnd The host face's shared end.
    * @param partEnd The part face's shared end.
-   * @returns 1 when the part's stations continue the host's, -1 when they run against them.
+   * @returns 1 when the part's stations continue the host's, -1 when they run
+   *   against them.
    */
   export function sign(
     hostEnd: "bottom" | "top",
@@ -138,7 +155,10 @@ export namespace AutoMovieConstructionContinuation {
       return copy;
     }
     // Control point m of the part is control point -m of the host.
-    /** Reindex the periodic control row into the reversed chart without observing geometry. */
+    /**
+     * Reindex the periodic control row into the reversed chart without
+     * observing geometry.
+     */
     const points: (c: readonly number[], kx: number, kz: number) => number[] = (
       c: readonly number[],
       kx: number,
@@ -152,7 +172,10 @@ export namespace AutoMovieConstructionContinuation {
       }
       return out;
     };
-    /** Scalar lift controls follow the same phase reversal and explicit normal sign. */
+    /**
+     * Scalar lift controls follow the same phase reversal and explicit normal
+     * sign.
+     */
     const values: (c: readonly number[], k: number) => number[] = (
       c: readonly number[],
       k: number,
@@ -161,7 +184,10 @@ export namespace AutoMovieConstructionContinuation {
         { length: n },
         (_: unknown, m: number): number => k * c[(n - m) % n]!,
       );
-    /** Value and derivative frame records follow their separate station/chart signs. */
+    /**
+     * Value and derivative frame records follow their separate station/chart
+     * signs.
+     */
     const frame: (
       f: IAutoMovieLoftSectionFrame,
       ko: number,

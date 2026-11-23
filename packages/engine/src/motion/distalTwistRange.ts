@@ -15,22 +15,30 @@ import { Vector3 } from "../math/Vector3";
 import type { solveDistalTwist } from "./solveDistalTwist";
 
 /**
- * The swivels of one bend branch at which a prepared chain's distally
- * twisting mid segment (a forearm) can take, inside its twist range, the
- * twist a requested effector rotation leaves it (`distalTwistSwivelRange`),
- * read from the chain's preparation as `solveDistalTwist` reads its
- * equation: the effector's rest-carried abduction and flexion axes and its
- * clinical-zero twist give the two directions of the zero-twist reading, and
- * the request seen from the untwisted mid segment,
- * `K(s) = (W upper(s) Lr lower)^-1 R`, carries the effector's flexion axis.
- * A branch's mid rotation is its hinge turn alone, which is the mid joint's
- * articulation with no twist.
+ * The swivels of one bend branch at which a prepared chain's distally twisting
+ * mid segment (a forearm) can take, inside its twist range, the twist a
+ * requested effector rotation leaves it (`distalTwistSwivelRange`), read from
+ * the chain's preparation as `solveDistalTwist` reads its equation: the
+ * effector's rest-carried abduction and flexion axes and its clinical-zero
+ * twist give the two directions of the zero-twist reading, and the request seen
+ * from the untwisted mid segment, `K(s) = (W upper(s) Lr lower)^-1 R`, carries
+ * the effector's flexion axis. A branch's mid rotation is its hinge turn alone,
+ * which is the mid joint's articulation with no twist.
  *
- * @param props The chain's preparation; the mid joint's twist axis (its admitted basis) and that axis's rest frame; the effector's admitted flexion axis and its fixed distal-twist readings (`solveDistalTwist.prepare` under the same rest, basis and frame); the branch's poser; the requested model-frame effector rotation.
- * @returns The breakpoints and the admission test; null when the mid joint has no box range of twist to read (no constraint, a swing-twist gate, or an immobile twist).
+ * @param props The chain's preparation; the mid joint's twist axis (its
+ *   admitted basis) and that axis's rest frame; the effector's admitted flexion
+ *   axis and its fixed distal-twist readings (`solveDistalTwist.prepare` under
+ *   the same rest, basis and frame); the branch's poser; the requested
+ *   model-frame effector rotation.
+ * @returns The breakpoints and the admission test; null when the mid joint has
+ *   no box range of twist to read (no constraint, a swing-twist gate, or an
+ *   immobile twist).
  */
 export function distalTwistRange(props: {
-  prepared: Pick<IAutoMoviePreparedChainPlant, "upper" | "lowerRotation" | "lowerDomain">;
+  prepared: Pick<
+    IAutoMoviePreparedChainPlant,
+    "upper" | "lowerRotation" | "lowerDomain"
+  >;
   axis: IAutoMovieVector3;
   frame: IAutoMovieAxisFrame | undefined;
   flexion: IAutoMovieVector3;

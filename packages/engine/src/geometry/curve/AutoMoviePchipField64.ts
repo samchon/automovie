@@ -3,22 +3,41 @@ import type { IAutoMoviePchipField64 } from "@automovie/interface";
 import { AutoMoviePchip64 } from "./AutoMoviePchip64";
 
 /**
- * Componentwise Fritsch–Butland interpolation with exposed local power coefficients and station derivatives. Coordinates and component values use caller-defined consistent units; queries outside the station range extrapolate the first or last polynomial. Optional station or endpoint derivatives replace the corresponding slope seeds without normalization or unit conversion; those authored slopes can overshoot and do not retain the default shape-preserving rule.
+ * Componentwise Fritsch–Butland interpolation with exposed local power
+ * coefficients and station derivatives. Coordinates and component values use
+ * caller-defined consistent units; queries outside the station range
+ * extrapolate the first or last polynomial. Optional station or endpoint
+ * derivatives replace the corresponding slope seeds without normalization or
+ * unit conversion; those authored slopes can overshoot and do not retain the
+ * default shape-preserving rule.
  */
 export class AutoMoviePchipField64 {
-  /** Per-interval and per-component power coefficients [cubic, quadratic, derivative, value] relative to the interval start. */
+  /**
+   * Per-interval and per-component power coefficients [cubic, quadratic,
+   * derivative, value] relative to the interval start.
+   */
   public readonly coefficients: number[][][];
 
   /** Station derivatives in component units per coordinate unit. */
   public readonly derivatives: number[][];
 
-  /** Build finite coefficients on increasing coordinates with corresponding equal-length component rows. Coordinate/value arrays must remain stable for the field's lifetime; supplied derivatives are copied. Invalid supports, slope shapes or nonfinite coefficients throw before an instance is returned. */
+  /**
+   * Build finite coefficients on increasing coordinates with corresponding
+   * equal-length component rows. Coordinate/value arrays must remain stable for
+   * the field's lifetime; supplied derivatives are copied. Invalid supports,
+   * slope shapes or nonfinite coefficients throw before an instance is
+   * returned.
+   */
   public constructor(
     /** Increasing coordinates in one caller-owned chart. */
     public readonly x: readonly number[],
     /** Finite component rows in fixed corresponding order. */
     public readonly y: readonly (readonly number[])[],
-    /** Component values per coordinate unit, either all station rows or selected endpoint rows; omitted entries keep their original Fritsch–Butland seeds. No spatial normalization or unit conversion occurs. */
+    /**
+     * Component values per coordinate unit, either all station rows or selected
+     * endpoint rows; omitted entries keep their original Fritsch–Butland seeds.
+     * No spatial normalization or unit conversion occurs.
+     */
     derivatives?: IAutoMoviePchipField64.Derivatives,
   ) {
     if (
@@ -104,7 +123,14 @@ export class AutoMoviePchipField64 {
   }
 
   /**
-   * Evaluate every component or its first/second derivative, selecting the right interval at an interior knot. False/0 reads values, true/1 reads first derivatives, and 2 reads second derivatives, in component units per coordinate unit squared. Values outside the coordinate range extrapolate the nearest interval; the caller owns a narrower supported domain when needed. Nonfinite queries or generated results throw. Endpoint derivative queries keep the existing Horner arithmetic and may differ from an authored slope by rounding.
+   * Evaluate every component or its first/second derivative, selecting the
+   * right interval at an interior knot. False/0 reads values, true/1 reads
+   * first derivatives, and 2 reads second derivatives, in component units per
+   * coordinate unit squared. Values outside the coordinate range extrapolate
+   * the nearest interval; the caller owns a narrower supported domain when
+   * needed. Nonfinite queries or generated results throw. Endpoint derivative
+   * queries keep the existing Horner arithmetic and may differ from an authored
+   * slope by rounding.
    */
   public at(value: number, derivative: boolean | 0 | 1 | 2 = false): number[] {
     if (!Number.isFinite(value)) throw new Error("PCHIP query must be finite");

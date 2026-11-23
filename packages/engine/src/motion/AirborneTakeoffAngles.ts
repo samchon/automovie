@@ -20,11 +20,11 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 /**
  * The shooting attitude angles from an already inverted reference frame.
  *
- * For M = into q = Rx(phi) Rz(theta) Ry(psi), the long axis gives tilt
- * and somersault. Turning the lateral axis back through Rx(phi) Rz(theta)
- * gives twist. Somersault and twist are principal angles; tilt lies in
- * [-pi/2, pi/2]. This is the existing takeoff chart, with its original
- * clamped asin and its Euler-chart singularity.
+ * For M = into q = Rx(phi) Rz(theta) Ry(psi), the long axis gives tilt and
+ * somersault. Turning the lateral axis back through Rx(phi) Rz(theta) gives
+ * twist. Somersault and twist are principal angles; tilt lies in [-pi/2, pi/2].
+ * This is the existing takeoff chart, with its original clamped asin and its
+ * Euler-chart singularity.
  *
  * @param into The inverse of the unit reference orientation.
  * @param q The unit body orientation in the reference's parent coordinates.
@@ -52,9 +52,7 @@ export function AirborneTakeoffAngles(
   return { somersault, tilt, twist: Math.atan2(-lateral.z, lateral.x) };
 }
 
-/**
- * The shared angle chart's continuous branch reader.
- */
+/** The shared angle chart's continuous branch reader. */
 export namespace AirborneTakeoffAngles {
   /**
    * Accumulate whole turns on the same nearest-angle branches as the public
@@ -64,13 +62,13 @@ export namespace AirborneTakeoffAngles {
    * @param frame Unit reference orientation, inverted once for this pass.
    * @returns Unwrapped endpoint angles, radians.
    *
-   * States observations, units, reference ownership and winding premise.
-   * The nearest principal branch follows continuity under the stated pi bound.
-   * Invert once, read the existing chart, accumulate the two cyclic angles.
-   * Retains the original default-step observer without a new angle tolerance.
-   * Linear reads in flight duration over the original observation step.
-   * Both public and shooting paths share this unchanged branch calculation.
-   * Only current numeric angles survive each read; no history is retained.
+   *   States observations, units, reference ownership and winding premise. The
+   *   nearest principal branch follows continuity under the stated pi bound.
+   *   Invert once, read the existing chart, accumulate the two cyclic angles.
+   *   Retains the original default-step observer without a new angle tolerance.
+   *   Linear reads in flight duration over the original observation step. Both
+   *   public and shooting paths share this unchanged branch calculation. Only
+   *   current numeric angles survive each read; no history is retained.
    */
   export function unwrapped(
     flight: IAutoMovieIntegrateAirborneRotation.IFlight,
@@ -83,10 +81,18 @@ export namespace AirborneTakeoffAngles {
     const step: number = integrateMotionTrajectory.STEP;
     const count: number = Math.ceil((flight.t1 - flight.t0) / step) + 1;
     for (let k: number = 0; k < count; k++) {
-      const seconds: number = k === count - 1 ? flight.t1 : flight.t0 + k * step;
-      const angles: IAutoMovieSolveAirborneTakeoff.IAngles = AirborneTakeoffAngles(into, flight.orientation(seconds));
-      somersault = angles.somersault + 2 * Math.PI * Math.round((somersault - angles.somersault) / (2 * Math.PI));
-      twist = angles.twist + 2 * Math.PI * Math.round((twist - angles.twist) / (2 * Math.PI));
+      const seconds: number =
+        k === count - 1 ? flight.t1 : flight.t0 + k * step;
+      const angles: IAutoMovieSolveAirborneTakeoff.IAngles =
+        AirborneTakeoffAngles(into, flight.orientation(seconds));
+      somersault =
+        angles.somersault +
+        2 *
+          Math.PI *
+          Math.round((somersault - angles.somersault) / (2 * Math.PI));
+      twist =
+        angles.twist +
+        2 * Math.PI * Math.round((twist - angles.twist) / (2 * Math.PI));
       tilt = angles.tilt;
     }
     return { somersault, tilt, twist };

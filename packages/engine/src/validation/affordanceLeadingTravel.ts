@@ -10,8 +10,13 @@ import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
  *
  * @param follows The coupling, in each articulation's travel unit.
  * @param follower The requested follower travel.
- * @param domain The leader's legal range, when known. Its forward images admit and recover the exact endpoints before inverse arithmetic can round outside them.
- * @returns The leader travel, or null for a non-finite value, a zero ratio, a malformed or non-monotone table, or a request outside the table's image. This does not grant permission to drive a follower; `reversible` grants that at the state boundary.
+ * @param domain The leader's legal range, when known. Its forward images admit
+ *   and recover the exact endpoints before inverse arithmetic can round outside
+ *   them.
+ * @returns The leader travel, or null for a non-finite value, a zero ratio, a
+ *   malformed or non-monotone table, or a request outside the table's image.
+ *   This does not grant permission to drive a follower; `reversible` grants
+ *   that at the state boundary.
  */
 export function affordanceLeadingTravel(
   follows: IAutoMovieAffordanceCoupling,
@@ -82,7 +87,10 @@ export function affordanceLeadingTravel(
   return Number.isFinite(leader) ? leader : null;
 }
 
-/** Refuse values outside the legal domain's forward image, recover its exact bounds, or leave an interior request to inversion. */
+/**
+ * Refuse values outside the legal domain's forward image, recover its exact
+ * bounds, or leave an interior request to inversion.
+ */
 function endpoint(
   follows: IAutoMovieAffordanceCoupling,
   follower: number,

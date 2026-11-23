@@ -16,25 +16,31 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /**
  * The linearized shooting relation `angle = turning L - lagging` in the
- * take-off frame: `turning = integral I^-1 dt`, `lagging = integral I^-1 h dt`.
+ * take-off frame: `turning = integral I^-1 dt`, `lagging = integral I^-1 h
+ * dt`.
  *
- * Explicit fixed integration keeps the original composite Simpson grid.
- * For adaptive shooting with a resolved angular budget, adaptive Simpson
- * instead estimates both integrals together. Each panel's absolute component
- * errors E_A and E_b contribute ||E_A||_F ||L|| + ||E_b||_2 radians; these
- * panel norms are summed by the triangle inequality,
- * with ||L|| bounded by the larger projected seed norm at request shares
- * zero and one. The unprojected seed is affine in the share, so convexity
- * of its norm and radial projection give this bound throughout continuation.
- * This is the triangle/subordinate-norm estimate for the relation A L-b. It
- * controls seed quadrature, not the nonlinear flight or its sensitivities.
- * The latter still determine the full-request physical residual and admission.
+ * Explicit fixed integration keeps the original composite Simpson grid. For
+ * adaptive shooting with a resolved angular budget, adaptive Simpson instead
+ * estimates both integrals together. Each panel's absolute component errors E_A
+ * and E_b contribute ||E_A||_F ||L|| + ||E_b||_2 radians; these panel norms are
+ * summed by the triangle inequality, with ||L|| bounded by the larger projected
+ * seed norm at request shares zero and one. The unprojected seed is affine in
+ * the share, so convexity of its norm and radial projection give this bound
+ * throughout continuation. This is the triangle/subordinate-norm estimate for
+ * the relation A L-b. It controls seed quadrature, not the nonlinear flight or
+ * its sensitivities. The latter still determine the full-request physical
+ * residual and admission.
  *
- * @param props The shape history, flight, request, momentum ceiling and integration mode.
+ * @param props The shape history, flight, request, momentum ceiling and
+ *   integration mode.
  * @param into The rotation from the root's axes into the take-off frame.
- * @param angularTolerance The resolved shooting angular budget, radians; omitted callers retain the fixed-grid seed. Adaptive physical integration uses its own unchanged relative/absolute budgets.
- * @returns The matrix in seconds per kg m² and the relative-motion angle in radians.
- * @throws {Error} In fixed mode, when the step is not positive and finite or its count over the flight is not a safe integer.
+ * @param angularTolerance The resolved shooting angular budget, radians;
+ *   omitted callers retain the fixed-grid seed. Adaptive physical integration
+ *   uses its own unchanged relative/absolute budgets.
+ * @returns The matrix in seconds per kg m² and the relative-motion angle in
+ *   radians.
+ * @throws {Error} In fixed mode, when the step is not positive and finite or
+ *   its count over the flight is not a safe integer.
  */
 export function AirborneTakeoffLinear(
   props: Pick<
@@ -66,19 +72,30 @@ export function AirborneTakeoffLinear(
   let intoBasis: IAutoMovieVector3[] | undefined;
   const sample: (t: number) => ISample = (t: number): ISample => {
     const instant: ReturnType<typeof props.history> = props.history(t);
-    const factor: physicalInertiaFactor.IPrepared | undefined = AirborneShapeHistory.factor(instant);
+    const factor: physicalInertiaFactor.IPrepared | undefined =
+      AirborneShapeHistory.factor(instant);
     if (factor !== undefined) {
       if (intoBasis === undefined) {
         const back: IAutoMovieQuaternion = Quaternion.inverse(into);
-        intoBasis = [0, 1, 2].map((axis: number): IAutoMovieVector3 =>
-          Quaternion.rotateVector(back, { x: axis === 0 ? 1 : 0, y: axis === 1 ? 1 : 0, z: axis === 2 ? 1 : 0 }));
+        intoBasis = [0, 1, 2].map(
+          (axis: number): IAutoMovieVector3 =>
+            Quaternion.rotateVector(back, {
+              x: axis === 0 ? 1 : 0,
+              y: axis === 1 ? 1 : 0,
+              z: axis === 2 ? 1 : 0,
+            }),
+        );
       }
-      const columns: IAutoMovieVector3[] = intoBasis.map((basis: IAutoMovieVector3): IAutoMovieVector3 =>
-        Quaternion.rotateVector(into, factor.solve(basis)));
+      const columns: IAutoMovieVector3[] = intoBasis.map(
+        (basis: IAutoMovieVector3): IAutoMovieVector3 =>
+          Quaternion.rotateVector(into, factor.solve(basis)),
+      );
       return {
-        inverse: [[columns[0]!.x, columns[1]!.x, columns[2]!.x],
+        inverse: [
+          [columns[0]!.x, columns[1]!.x, columns[2]!.x],
           [columns[0]!.y, columns[1]!.y, columns[2]!.y],
-          [columns[0]!.z, columns[1]!.z, columns[2]!.z]],
+          [columns[0]!.z, columns[1]!.z, columns[2]!.z],
+        ],
         lag: Quaternion.rotateVector(into, factor.solve(instant.relative)),
       };
     }
@@ -112,21 +129,26 @@ export function AirborneTakeoffLinear(
   if (props.integration !== undefined && angularTolerance !== undefined) {
     let current: readonly number[] | undefined;
     let momentum: number = 0;
-    const bound: (integral: readonly number[]) => number = (integral: readonly number[]): number => {
+    const bound: (integral: readonly number[]) => number = (
+      integral: readonly number[],
+    ): number => {
       if (integral === current) return momentum;
       current = integral;
       const { turning, lagging }: Relation = unpack(integral);
       const maximum: number = props.maximum ?? Infinity;
-      momentum = Math.max(...[0, 1].map((share: number): number => {
-        const local: number[] | null = AirborneTakeoffLinear.solve(turning, [
-          2 * Math.PI * props.somersault * share + lagging[0]!,
-          2 * Math.PI * props.twist * share + lagging[1]!, lagging[2]!,
-        ]);
-        if (local === null) return Math.abs(maximum);
-        const magnitude: number = Math.hypot(...local);
-        const scale: number = magnitude > maximum ? maximum / magnitude : 1;
-        return Math.hypot(...local.map((v: number): number => scale * v));
-      }));
+      momentum = Math.max(
+        ...[0, 1].map((share: number): number => {
+          const local: number[] | null = AirborneTakeoffLinear.solve(turning, [
+            2 * Math.PI * props.somersault * share + lagging[0]!,
+            2 * Math.PI * props.twist * share + lagging[1]!,
+            lagging[2]!,
+          ]);
+          if (local === null) return Math.abs(maximum);
+          const magnitude: number = Math.hypot(...local);
+          const scale: number = magnitude > maximum ? maximum / magnitude : 1;
+          return Math.hypot(...local.map((v: number): number => scale * v));
+        }),
+      );
       return momentum;
     };
     const value: number[] = AirborneTakeoffQuadrature({
@@ -147,9 +169,13 @@ export function AirborneTakeoffLinear(
       },
       separable: {
         components: (error: readonly number[]): readonly number[] => [
-          Math.hypot(...error.slice(0, 9)), Math.hypot(...error.slice(9, 12)),
+          Math.hypot(...error.slice(0, 9)),
+          Math.hypot(...error.slice(9, 12)),
         ],
-        weights: (integral: readonly number[]): readonly number[] => [bound(integral), 1],
+        weights: (integral: readonly number[]): readonly number[] => [
+          bound(integral),
+          1,
+        ],
       },
     });
     return unpack(value);
@@ -196,24 +222,29 @@ export function AirborneTakeoffLinear(
   return { turning, lagging };
 }
 
-/**
- * The three-variable linear solve shared by the shooting start and Newton step.
- */
+/** The three-variable linear solve shared by the shooting start and Newton step. */
 export namespace AirborneTakeoffLinear {
   /**
-   * Adapt matrix rows to the engine's three-column linear solver without mutation.
+   * Adapt matrix rows to the engine's three-column linear solver without
+   * mutation.
    *
    * @param a Three matrix rows, read only.
    * @param b Three right-hand-side components, read only.
-   * @returns A fresh solution, or null for non-finite inputs or a matrix the engine's singularity test rejects.
+   * @returns A fresh solution, or null for non-finite inputs or a matrix the
+   *   engine's singularity test rejects.
    *
-   * States row orientation, the right-hand side, input ownership and the nullable result.
-   * Admits finite entries, then delegates the unchanged Cramer solve and determinant-to-column-norm rejection to AutoMovieSolidVector.solve3; this is not a conditioning or error certificate.
-   * Check finiteness, copy three columns and the right-hand side, then delegate.
-   * Preserves the shooting solver's prior finite and singular behavior without a clamp, damping term or alternate numeric policy.
-   * Constant work and storage for the fixed three-by-three system.
-   * One adapter serves both the linearized takeoff start and every Newton correction; the determinant algebra remains engine-owned.
-   * Input rows and right-hand side are never mutated or retained; only fresh triples reach the engine solver, and only its fresh result escapes.
+   *   States row orientation, the right-hand side, input ownership and the
+   *   nullable result. Admits finite entries, then delegates the unchanged
+   *   Cramer solve and determinant-to-column-norm rejection to
+   *   AutoMovieSolidVector.solve3; this is not a conditioning or error
+   *   certificate. Check finiteness, copy three columns and the right-hand
+   *   side, then delegate. Preserves the shooting solver's prior finite and
+   *   singular behavior without a clamp, damping term or alternate numeric
+   *   policy. Constant work and storage for the fixed three-by-three system.
+   *   One adapter serves both the linearized takeoff start and every Newton
+   *   correction; the determinant algebra remains engine-owned. Input rows and
+   *   right-hand side are never mutated or retained; only fresh triples reach
+   *   the engine solver, and only its fresh result escapes.
    */
   export function solve(
     a: readonly number[][],

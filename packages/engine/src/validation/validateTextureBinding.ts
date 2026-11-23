@@ -3,7 +3,9 @@ import type { IAutoMovieViolationCollector } from "@automovie/interface";
 import { collectNonEmptyId } from "./collectNonEmptyId";
 
 /**
- * Admit legacy nonblank asset ids or structured texCoord/color-space/transform/sampler bindings against the slot's expected decoding.
+ * Admit legacy nonblank asset ids or structured
+ * texCoord/color-space/transform/sampler bindings against the slot's expected
+ * decoding.
  */
 export const validateTextureBinding: (
   binding: unknown,
@@ -156,11 +158,13 @@ export const validateTextureBinding: (
 };
 
 /**
- * Admit non-array object shape and finite x/y, optionally excluding zero scale components.
+ * Admit non-array object shape and finite x/y, optionally excluding zero scale
+ * components.
  *
  * One two-axis owner serves UV offset and scale.
  *
- * nonZero is the scale policy; finite signed offsets/scales otherwise remain authored.
+ * NonZero is the scale policy; finite signed offsets/scales otherwise remain
+ * authored.
  *
  * Object/axis paths and exact nonzero semantics are stated.
  *
@@ -211,7 +215,8 @@ const finiteVector2: (
  *
  * The diagnostic lists accepted names and preserves the actual value.
  *
- * A menu scan costs O(A) string comparisons; current menus have at most four choices.
+ * A menu scan costs O(A) string comparisons; current menus have at most four
+ * choices.
  *
  * All closed sampler/coordinate fields reuse this predicate.
  *

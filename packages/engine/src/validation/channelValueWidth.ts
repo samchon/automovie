@@ -29,7 +29,8 @@ const CHANNEL_VALUE_WIDTHS: Partial<
 };
 
 /**
- * Read a channel's fixed component width, leaving weights and malformed shape undefined.
+ * Read a channel's fixed component width, leaving weights and malformed shape
+ * undefined.
  */
 export const channelValueWidth: (channel: unknown) => number | undefined = (
   channel: unknown,

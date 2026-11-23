@@ -11,13 +11,16 @@ import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves6
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
 /**
- * Refine interacting display chords from their retained Bernstein restrictions before slit ownership freezes.
- * A dominant-plane projection is used for the common planar section; exact dyadic orientation tests
- * detect intersections of the represented binary64 chords. Only a contacted curved source restriction
- * is split, retaining its original physical tolerance, parameter interval and existing endpoint identity.
- * A genuine linear contact or exhausted numeric subdivision remains explicit and keeps finite geometry.
- * This is not a certificate of source-curve simplicity, injectivity or exact floating-point subdivision.
- * Actual predicate/refinement counts are returned; elapsed time is measured only on explicit request.
+ * Refine interacting display chords from their retained Bernstein restrictions
+ * before slit ownership freezes. A dominant-plane projection is used for the
+ * common planar section; exact dyadic orientation tests detect intersections of
+ * the represented binary64 chords. Only a contacted curved source restriction
+ * is split, retaining its original physical tolerance, parameter interval and
+ * existing endpoint identity. A genuine linear contact or exhausted numeric
+ * subdivision remains explicit and keeps finite geometry. This is not a
+ * certificate of source-curve simplicity, injectivity or exact floating-point
+ * subdivision. Actual predicate/refinement counts are returned; elapsed time is
+ * measured only on explicit request.
  */
 export function refineAutoMovieContourInteractions64<
   R extends IAutoMovieRefineContourInteractions64Ring,

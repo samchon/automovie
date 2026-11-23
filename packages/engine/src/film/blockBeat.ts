@@ -18,18 +18,32 @@ import { ViolationCollector } from "../validation/ViolationCollector";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 
 /**
- * The blocking gate: check one beat's shot plan before any performance is compiled from it, and report every contradiction at once.
+ * The blocking gate: check one beat's shot plan before any performance is
+ * compiled from it, and report every contradiction at once.
  *
  * The checks are coherence, not craft:
  *
- * - the script's beat ids are unique, and the plan's beat is one of them;
- * - the beat duration is finite and positive;
- * - the plan's beat, actor node, coverage camera and node-kind camera target ids are nonblank;
- * - every actor intent belongs to a staged scene node, and its timing anchors lie inside `[0, duration]` in the order listed, because the list order is the causal order ("the loose before the hit");
- * - a node-kind hero camera target names a staged actor, set piece or camera (#1294), and the hero intent names a supported framing and move;
- * - each optional `coverage` camera (#1187) names a staged camera exactly once, checks staged membership for a node-kind target, and states a supported framing and move.
+ * - The script's beat ids are unique, and the plan's beat is one of them;
+ * - The beat duration is finite and positive;
+ * - The plan's beat, actor node, coverage camera and node-kind camera target ids
+ *   are nonblank;
+ * - Every actor intent belongs to a staged scene node, and its timing anchors lie
+ *   inside `[0, duration]` in the order listed, because the list order is the
+ *   causal order ("the loose before the hit");
+ * - A node-kind hero camera target names a staged actor, set piece or camera
+ *   (#1294), and the hero intent names a supported framing and move;
+ * - Each optional `coverage` camera (#1187) names a staged camera exactly once,
+ *   checks staged membership for a node-kind target, and states a supported
+ *   framing and move.
  *
- * When the prior beat's end state is supplied it becomes this beat's initial condition: each carried actor must be a staged scene node listed once, and the state is returned on success as `previous` so later stages resume from it rather than resetting the world at the cut; without it `previous` is null. This gate assumes typed records and does not validate carried pose values, anchor cue identities or non-node target contents; `performShot` owns later target resolution. Violation paths are rooted at `$script`, `$input` for the blocking, and `$previous`.
+ * When the prior beat's end state is supplied it becomes this beat's initial
+ * condition: each carried actor must be a staged scene node listed once, and
+ * the state is returned on success as `previous` so later stages resume from it
+ * rather than resetting the world at the cut; without it `previous` is null.
+ * This gate assumes typed records and does not validate carried pose values,
+ * anchor cue identities or non-node target contents; `performShot` owns later
+ * target resolution. Violation paths are rooted at `$script`, `$input` for the
+ * blocking, and `$previous`.
  */
 export function blockBeat(
   script: IAutoMovieScript,

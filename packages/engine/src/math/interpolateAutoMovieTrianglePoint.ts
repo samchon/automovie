@@ -4,8 +4,8 @@ import { Vector3 } from "./Vector3";
 import { adjacentAutoMovieFloat64 as outward } from "./adjacentAutoMovieFloat64";
 
 /**
- * A represented triangle seat from three admitted barycentric coefficients.
- * The coefficient sum's outward addition enclosure must contain one; negative,
+ * A represented triangle seat from three admitted barycentric coefficients. The
+ * coefficient sum's outward addition enclosure must contain one; negative,
  * nonfinite or wrong-sized inputs refuse. Producer coefficients round, so exact
  * rational equality is not required. Coefficients are not renormalized: the
  * established three multiply/add source seat remains bit-identical. Attachment

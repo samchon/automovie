@@ -4,12 +4,14 @@
  *
  * The interior point at `(s, t) = (i / columns, j / rows)` is the bilinearly
  * blended Coons patch of its four sides (Coons 1967, MIT Project MAC TR-41):
- * the two ruled blends `(1 - t) B(s) + t T(s)` and `(1 - s) L(t) + s R(t)`
- * less the bilinear blend of the four corners, eight boundary points with
- * weights fixed by `(s, t)`.
+ * the two ruled blends `(1 - t) B(s) + t T(s)` and `(1 - s) L(t) + s R(t)` less
+ * the bilinear blend of the four corners, eight boundary points with weights
+ * fixed by `(s, t)`.
  *
- * @param grid Vertex indices by row `j` from 0 to `rows` and column `i` from 0 to `columns`, boundary and interior; only read.
- * @returns The writer, which reads the boundary vertices and writes the interior into the same buffer.
+ * @param grid Vertex indices by row `j` from 0 to `rows` and column `i` from 0
+ *   to `columns`, boundary and interior; only read.
+ * @returns The writer, which reads the boundary vertices and writes the
+ *   interior into the same buffer.
  */
 export const rigAutoMovieSurfaceCoons: (
   grid: number[][],

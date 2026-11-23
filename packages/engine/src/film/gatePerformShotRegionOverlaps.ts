@@ -14,7 +14,8 @@ import { performShotActionSpan } from "./performShotActionSpan";
 import { performShotActors } from "./performShotActors";
 
 /**
- * What one action's clip carries after its region mask, cached by action only while that actor's overlap pairs are compared.
+ * What one action's clip carries after its region mask, cached by action only
+ * while that actor's overlap pairs are compared.
  */
 interface ICarriedContent {
   /** Bones authored by at least one key and retained by the action's region. */
@@ -28,11 +29,22 @@ interface ICarriedContent {
 }
 
 /**
- * Refuse two overlapping actions of one actor whose clips, after their region masks, author the same channel.
+ * Refuse two overlapping actions of one actor whose clips, after their region
+ * masks, author the same channel.
  *
- * Region names are only mask policy: a `fullBody` gait that authors legs and arms shares nothing with a head-only `lookAt`, but does collide with an arm gesture. So each overlapping pair is compared by the content its synthesized clip actually carries: the bones its region keeps, the root when the actor has a single region or the action is `lowerBody` or `fullBody`, and the expression for a `face` action. Two actions overlap when one starts more than `1e-9` s before the other ends. A shared channel is one `range` violation at the later action's `start`, listing `root`, the shared bones in code-unit order, and `expression`.
+ * Region names are only mask policy: a `fullBody` gait that authors legs and
+ * arms shares nothing with a head-only `lookAt`, but does collide with an arm
+ * gesture. So each overlapping pair is compared by the content its synthesized
+ * clip actually carries: the bones its region keeps, the root when the actor
+ * has a single region or the action is `lowerBody` or `fullBody`, and the
+ * expression for a `face` action. Two actions overlap when one starts more than
+ * `1e-9` s before the other ends. A shared channel is one `range` violation at
+ * the later action's `start`, listing `root`, the shared bones in code-unit
+ * order, and `expression`.
  *
- * Synthesis only follows a clean input gate, so the check is skipped for every actor once the collector holds a violation: a malformed request must return its located violations rather than reach a throwing synthesizer.
+ * Synthesis only follows a clean input gate, so the check is skipped for every
+ * actor once the collector holds a violation: a malformed request must return
+ * its located violations rather than reach a throwing synthesizer.
  *
  * @param context The shot's staged tables and collector.
  * @param actions The performing action list; `frame` actions are ignored.

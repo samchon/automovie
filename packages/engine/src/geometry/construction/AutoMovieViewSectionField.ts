@@ -15,14 +15,12 @@ import { AutoMovieViewSectionReading } from "./AutoMovieViewSectionReading";
  *
  * Inputs must be the actual scalar jets at the same physical station in mm.
  * Effective shoulders already include their owner's departures and cap law.
- * This owner neither interpolates principal sections nor solves a girth.
- * Finite arithmetic is checked; a positive ray denominator is not a general
+ * This owner neither interpolates principal sections nor solves a girth. Finite
+ * arithmetic is checked; a positive ray denominator is not a general
  * forward-error certificate. Physical poles and world/frame jets are separate.
  */
 export namespace AutoMovieViewSectionField {
-  /**
-   * Prepare original positive extents and effective shoulders at one station.
-   */
+  /** Prepare original positive extents and effective shoulders at one station. */
   export function prepare(
     extents: readonly IAutoMovieViewSectionField.IStationJet[],
     shoulders: readonly IAutoMovieViewSectionField.IStationJet[],
@@ -62,9 +60,7 @@ export namespace AutoMovieViewSectionField {
     };
   }
 
-  /**
-   * Read one polar ray and its regular-station radial 2-jet.
-   */
+  /** Read one polar ray and its regular-station radial 2-jet. */
   export function read(
     prepared: IAutoMovieViewSectionField.IPrepared,
     phi: number,
@@ -85,11 +81,12 @@ export namespace AutoMovieViewSectionField {
   }
 
   /**
-   * Read source2 from the caller's one numeric descriptor of this same preparation.
+   * Read source2 from the caller's one numeric descriptor of this same
+   * preparation.
    *
-   * The caller must obtain ray from prepared.geometry, without another geometry,
-   * phase rewrap or reflection. This keeps its primal point/direction available
-   * to Cartesian consumers without repeating the numeric inverse.
+   * The caller must obtain ray from prepared.geometry, without another
+   * geometry, phase rewrap or reflection. This keeps its primal point/direction
+   * available to Cartesian consumers without repeating the numeric inverse.
    */
   export function readRay(
     prepared: IAutoMovieViewSectionField.IPrepared,

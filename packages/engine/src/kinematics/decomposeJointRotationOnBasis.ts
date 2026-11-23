@@ -21,10 +21,16 @@ const RAD2DEG: number = 180 / Math.PI;
 /** Quaternion components in their existing finite-admission order. */
 const QUATERNION_AXES: readonly ["x", "y", "z", "w"] = ["x", "y", "z", "w"];
 
-/** The three rotated axes of the extraction in progress, nine cells (one extraction runs at a time). */
+/**
+ * The three rotated axes of the extraction in progress, nine cells (one
+ * extraction runs at a time).
+ */
 const COLUMNS: Float64Array = new Float64Array(9);
 
-/** The axis rotated by `q`, `readRotatedVector`'s expressions, into three cells from `offset`. */
+/**
+ * The axis rotated by `q`, `readRotatedVector`'s expressions, into three cells
+ * from `offset`.
+ */
 function rotateInto(
   q: IAutoMovieQuaternion,
   v: IAutoMovieVector3,
@@ -67,19 +73,22 @@ type IClinicalReaders = Readonly<
  * With a projected cosine `c`, the two outer angles are read from matrix
  * entries of size `c` that carry a rounding error of about one unit roundoff
  * `e`, so each is uncertain by about `e / c` radians; pinning one of them to
- * zero instead rebuilds the rotation within `c` times the pinned angle. The
- * two errors meet at `c = sqrt(e)`, the usual balance of a rounding against a
+ * zero instead rebuilds the rotation within `c` times the pinned angle. The two
+ * errors meet at `c = sqrt(e)`, the usual balance of a rounding against a
  * truncation error, where both are near 1e-8 radian. A narrower band leaves
  * turns whose outer angles are rounding noise, tens of degrees at `c` near
- * 1e-15, which a caller that holds one of the two (a hinge's immobile
- * abduction clamped to zero) then shows as a rotation error of that size: an
- * elbow held at a right angle read a different forearm twist every call.
- * Resolvable near-gimbal turns, from about a millionth of a degree off the
- * right angle, stay active.
+ * 1e-15, which a caller that holds one of the two (a hinge's immobile abduction
+ * clamped to zero) then shows as a rotation error of that size: an elbow held
+ * at a right angle read a different forearm twist every call. Resolvable
+ * near-gimbal turns, from about a millionth of a degree off the right angle,
+ * stay active.
  */
 const GIMBAL_COSINE_EPSILON: number = Math.sqrt(Number.EPSILON);
 
-/** Reject the first nonfinite component at the inverse's existing diagnostic path. */
+/**
+ * Reject the first nonfinite component at the inverse's existing diagnostic
+ * path.
+ */
 const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
   q: IAutoMovieQuaternion,
 ): void => {
@@ -94,22 +103,22 @@ const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
 
 /**
  * {@link decomposeJointRotation} on a basis its caller already admitted and
- * normalized through {@link normalizeJointAxes}: the extraction itself, with
- * no validation of the basis.
+ * normalized through {@link normalizeJointAxes}: the extraction itself, with no
+ * validation of the basis.
  *
  * A solver that decomposes hundreds of candidate rotations of one joint
- * normalizes that joint's basis once and calls this for each candidate, so
- * the basis is checked once per solve rather than once per candidate. The
- * angles, the gimbal convention, the handedness correction, the frame lift
- * and the chart choice are `decomposeJointRotation`'s, which documents them
- * and is this function behind one normalization.
+ * normalizes that joint's basis once and calls this for each candidate, so the
+ * basis is checked once per solve rather than once per candidate. The angles,
+ * the gimbal convention, the handedness correction, the frame lift and the
+ * chart choice are `decomposeJointRotation`'s, which documents them and is this
+ * function behind one normalization.
  *
- * Throws on a non-finite quaternion component. A basis that is not
- * orthonormal gives angles that do not rebuild the rotation; nothing here
- * detects it.
+ * Throws on a non-finite quaternion component. A basis that is not orthonormal
+ * gives angles that do not rebuild the rotation; nothing here detects it.
  *
  * @param q Bone-local articulation rotation; unit length expected.
- * @param basis Orthonormal clinical axis basis, as `normalizeJointAxes` returns it.
+ * @param basis Orthonormal clinical axis basis, as `normalizeJointAxes` returns
+ *   it.
  * @param frame Rest frame lifting rest-relative angles to clinical ones;
  *   omitted, the angles stay rest-relative.
  * @param domain Bone and resolved ROM that choose among equivalent charts;
@@ -124,7 +133,10 @@ export function decomposeJointRotationOnBasis(
   return extract(q, basis, frame, domain);
 }
 
-/** All actual quaternion admission, extraction, clinical lift and chart selection. */
+/**
+ * All actual quaternion admission, extraction, clinical lift and chart
+ * selection.
+ */
 function extract(
   q: IAutoMovieQuaternion,
   basis: IAutoMovieJointAxes,
@@ -265,17 +277,16 @@ function extract(
   );
 }
 
-/**
- * Fixed-rig metadata for independent inverse queries.
- */
+/** Fixed-rig metadata for independent inverse queries. */
 export namespace decomposeJointRotationOnBasis {
   /**
    * Borrow one unchanged admitted basis/frame/domain and return independent
-   * stateless readers. Construction reads no numerical input. Every actual q still
-   * receives finite admission, extraction and principal/alternate clinical
-   * conversion in the original order; only successful affine metadata is shared.
-   * A fixed operation may reuse its stateless reader; release it with the source.
-   * Outputs remain fresh and local, with no target-specific state in a reader.
+   * stateless readers. Construction reads no numerical input. Every actual q
+   * still receives finite admission, extraction and principal/alternate
+   * clinical conversion in the original order; only successful affine metadata
+   * is shared. A fixed operation may reuse its stateless reader; release it
+   * with the source. Outputs remain fresh and local, with no target-specific
+   * state in a reader.
    */
   export function prepareQueries(
     basis: IAutoMovieJointAxes,
@@ -293,16 +304,17 @@ export namespace decomposeJointRotationOnBasis {
   }
 
   /**
-   * The same decomposition with the ROM overshoot its chart choice scored
-   * for the reading it returns, written into `into`: the gate's own sum
-   * (`jointRomOvershoot`) of the returned angles under the domain's
-   * constraint, which a caller ranking the reading by that sum need not
-   * scan again. NaN where the choice scored no such sum: no domain or a null
-   * constraint, or a constraint gated by swing and twist, whose readings are
-   * ranked by its box alone.
+   * The same decomposition with the ROM overshoot its chart choice scored for
+   * the reading it returns, written into `into`: the gate's own sum
+   * (`jointRomOvershoot`) of the returned angles under the domain's constraint,
+   * which a caller ranking the reading by that sum need not scan again. NaN
+   * where the choice scored no such sum: no domain or a null constraint, or a
+   * constraint gated by swing and twist, whose readings are ranked by its box
+   * alone.
    *
    * @param q Bone-local articulation rotation; unit length expected.
-   * @param basis Orthonormal clinical axis basis, as `normalizeJointAxes` returns it.
+   * @param basis Orthonormal clinical axis basis, as `normalizeJointAxes`
+   *   returns it.
    * @param frame Rest frame lifting rest-relative angles to clinical ones.
    * @param domain Bone and resolved ROM that choose among equivalent charts.
    * @param into Receives the overshoot, degrees, or NaN.
@@ -357,7 +369,10 @@ function align(
   };
 }
 
-/** Preserve principal/alternate chart construction, score order and principal-on-tie selection. */
+/**
+ * Preserve principal/alternate chart construction, score order and
+ * principal-on-tie selection.
+ */
 function lift(
   rig: IAutoMovieResolvedJointAngles,
   basis: IAutoMovieJointAxes,
@@ -433,7 +448,10 @@ function lift(
   return selected;
 }
 
-/** Where `decomposeJointRotationOnBasis.scored` collects the reading's overshoot, during its one extraction. */
+/**
+ * Where `decomposeJointRotationOnBasis.scored` collects the reading's
+ * overshoot, during its one extraction.
+ */
 let scoring: { overshoot: number } | undefined;
 
 /** A basis's handedness and the twist axis an extraction reads against. */
@@ -495,10 +513,10 @@ function sameComponents(
 }
 
 /**
- * A basis's handedness and signed twist axis, read once per basis record
- * when its normalizer owns the immutable record, otherwise while exact
- * comparisons match the original values. Hundreds of limb-fit
- * candidates therefore share the same metadata without caching any inverse.
+ * A basis's handedness and signed twist axis, read once per basis record when
+ * its normalizer owns the immutable record, otherwise while exact comparisons
+ * match the original values. Hundreds of limb-fit candidates therefore share
+ * the same metadata without caching any inverse.
  */
 const handednessOf: (basis: IAutoMovieJointAxes) => IHandedness = (
   basis: IAutoMovieJointAxes,
@@ -533,7 +551,10 @@ interface IBox {
   /** The original constraint's copied fields, with only swingTwist set aside. */
   constraint: IAutoMovieJointConstraint;
 
-  /** This private copy's own enumerable string-key count, unchanged after creation. */
+  /**
+   * This private copy's own enumerable string-key count, unchanged after
+   * creation.
+   */
   size: number;
 }
 
@@ -557,10 +578,10 @@ function sameBox(known: IBox, constraint: IAutoMovieJointConstraint): boolean {
 }
 
 /**
- * A constraint as the readings are ranked by: itself, or for one gated by
- * swing and twist a copy with that gate set aside, the copy remembered per
- * constraint and returned only while every other member is still the one it
- * was copied from.
+ * A constraint as the readings are ranked by: itself, or for one gated by swing
+ * and twist a copy with that gate set aside, the copy remembered per constraint
+ * and returned only while every other member is still the one it was copied
+ * from.
  */
 const boxOf: (
   constraint: IAutoMovieJointConstraint,

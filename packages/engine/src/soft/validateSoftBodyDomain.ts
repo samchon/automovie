@@ -22,7 +22,8 @@ import { validateSoftRestCoincidence as coincident } from "./validateSoftRestCoi
 import { validateSoftVector as vector } from "./validateSoftVector";
 
 /**
- * Validate typed soft-body fields, structural rest edges, reference joins and the authored travel heuristic.
+ * Validate typed soft-body fields, structural rest edges, reference joins and
+ * the authored travel heuristic.
  */
 export const validateSoftBodyDomain: (
   props: IAutoMovieValidateSoftBodyDomain.IProps,

@@ -6,6 +6,5 @@
  * magnitude. Conic expansion omits only unbounded sides. Changing this boundary
  * requires admission, assembly and expansion to agree. Repository history
  * preserves the preceding Clarabel bridge and its matching 1e30 convention.
- *
  */
 export const AUTOMOVIE_QUADRATIC_INFINITY: number = 1e30;

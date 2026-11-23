@@ -22,7 +22,11 @@ import { ease } from "./ease";
 const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
 
 /**
- * Sample caller-admitted clinical motion at finite seconds using clamped or looping clip time and the outgoing segment's easing. Ordered finite keyframes and valid pose/easing data are validateMotion's premise. End samples shallowly share frame data; interior samples interpolate joints, roots and expressions, treating unauthored values as neutral.
+ * Sample caller-admitted clinical motion at finite seconds using clamped or
+ * looping clip time and the outgoing segment's easing. Ordered finite keyframes
+ * and valid pose/easing data are validateMotion's premise. End samples
+ * shallowly share frame data; interior samples interpolate joints, roots and
+ * expressions, treating unauthored values as neutral.
  */
 export function sampleMotion(
   motion: IAutoMovieMotion,
@@ -31,15 +35,12 @@ export function sampleMotion(
   return readAt(motion, seconds, toSample, between);
 }
 
-/**
- * Pose and root projections for geometry and world placement.
- */
+/** Pose and root projections for geometry and world placement. */
 export namespace sampleMotion {
   /**
-   * Sample the clinical pose of admitted motion at clip-local seconds.
-   * This uses the full sample's skeleton, joint order, easing and neutral
-   * values. Endpoint pose wrappers borrow their key's joints and root.
-   *
+   * Sample the clinical pose of admitted motion at clip-local seconds. This
+   * uses the full sample's skeleton, joint order, easing and neutral values.
+   * Endpoint pose wrappers borrow their key's joints and root.
    */
   export function pose(
     motion: IAutoMovieMotion,
@@ -48,10 +49,7 @@ export namespace sampleMotion {
     return readAt(motion, seconds, poseAtKey, poseBetween);
   }
 
-  /**
-   * Sample the root of an admitted motion, borrowing endpoint transforms.
-   *
-   */
+  /** Sample the root of an admitted motion, borrowing endpoint transforms. */
   export function root(
     motion: IAutoMovieMotion,
     seconds: number,
@@ -60,12 +58,20 @@ export namespace sampleMotion {
   }
 }
 
-/** Select the clamped or wrapped key or eased segment for the requested projection. */
+/**
+ * Select the clamped or wrapped key or eased segment for the requested
+ * projection.
+ */
 function readAt<T>(
   motion: IAutoMovieMotion,
   seconds: number,
   endpoint: (motion: IAutoMovieMotion, key: IAutoMovieKeyframe) => T,
-  interior: (motion: IAutoMovieMotion, lo: IAutoMovieKeyframe, hi: IAutoMovieKeyframe, t: number) => T,
+  interior: (
+    motion: IAutoMovieMotion,
+    lo: IAutoMovieKeyframe,
+    hi: IAutoMovieKeyframe,
+    t: number,
+  ) => T,
 ): T {
   const frames: IAutoMovieKeyframe[] = motion.keyframes;
   if (frames.length === 0)
@@ -97,7 +103,10 @@ function readAt<T>(
   return interior(motion, lo, hi, t);
 }
 
-function poseAtKey(motion: IAutoMovieMotion, key: IAutoMovieKeyframe): IAutoMoviePose {
+function poseAtKey(
+  motion: IAutoMovieMotion,
+  key: IAutoMovieKeyframe,
+): IAutoMoviePose {
   return { ...key.pose, skeleton: motion.skeleton };
 }
 

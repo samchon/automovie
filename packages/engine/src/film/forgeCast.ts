@@ -12,9 +12,7 @@ import {
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateModel } from "../validation/validateModel";
 
-/**
- * A cast member with the index it was first declared at.
- */
+/** A cast member with the index it was first declared at. */
 interface IDeclaredMember {
   /** The script's first declaration of the node. */
   member: IAutoMovieCastMember;
@@ -24,11 +22,24 @@ interface IDeclaredMember {
 }
 
 /**
- * The FORGE consumer: accept the stand-in rigs the forge stage built for the script's `modelRef: null` cast members, keyed by cast node, or every violation of the two contracts below at once.
+ * The FORGE consumer: accept the stand-in rigs the forge stage built for the
+ * script's `modelRef: null` cast members, keyed by cast node, or every
+ * violation of the two contracts below at once.
  *
- * The casting contract: script cast nodes are unique, and there is exactly one entry per stand-in cast member (a missing rig is an actor with no body; a rig for an imported-`modelRef` member or for a stranger contradicts the script). Each entry's model `id` must equal its cast `node`, the join the staged scene's `modelRef ?? node` fallback resolves against, and its `origin` must be `"generated"`.
+ * The casting contract: script cast nodes are unique, and there is exactly one
+ * entry per stand-in cast member (a missing rig is an actor with no body; a rig
+ * for an imported-`modelRef` member or for a stranger contradicts the script).
+ * Each entry's model `id` must equal its cast `node`, the join the staged
+ * scene's `modelRef ?? node` fallback resolves against, and its `origin` must
+ * be `"generated"`.
  *
- * The rig contract: `validateModel` covers parts, materials, extents and the skeleton graph, with its violations remapped from `$input` onto the entry's `$input.entries[i].model` path. Forge adds only the performer rule that a stand-in must have a skeleton; boneless models are props for {@link forgeProp}. The returned models are the entries' own objects, not copies. The result dictionary has no prototype, so every accepted literal node id, including __proto__, is an own entry.
+ * The rig contract: `validateModel` covers parts, materials, extents and the
+ * skeleton graph, with its violations remapped from `$input` onto the entry's
+ * `$input.entries[i].model` path. Forge adds only the performer rule that a
+ * stand-in must have a skeleton; boneless models are props for
+ * {@link forgeProp}. The returned models are the entries' own objects, not
+ * copies. The result dictionary has no prototype, so every accepted literal
+ * node id, including **proto**, is an own entry.
  */
 export function forgeCast(
   script: IAutoMovieScript,

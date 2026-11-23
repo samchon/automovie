@@ -29,10 +29,11 @@ interface IProps extends Pick<
 }
 
 /**
- * Resolve only a prepared chain's mid frame after its two supplied articulations.
- * Parent and intermediate bones must remain as they were during preparation.
- * An optional matching rig shares the basis admission; both current joint
- * articulations are still converted in their original order on every read.
+ * Resolve only a prepared chain's mid frame after its two supplied
+ * articulations. Parent and intermediate bones must remain as they were during
+ * preparation. An optional matching rig shares the basis admission; both
+ * current joint articulations are still converted in their original order on
+ * every read.
  */
 export function resolvePreparedChainLower(props: IProps): IAutoMovieChainBone {
   return resolvePreparedChainLower.fromRotations(
@@ -42,7 +43,10 @@ export function resolvePreparedChainLower(props: IProps): IAutoMovieChainBone {
   );
 }
 
-/** Reuse admitted bases at the same clinical-record sites without a new closure per frame read. */
+/**
+ * Reuse admitted bases at the same clinical-record sites without a new closure
+ * per frame read.
+ */
 function rotation(
   props: IProps,
   joint: IAutoMovieJointPose,
@@ -61,23 +65,28 @@ function rotation(
       );
 }
 
-/**
- * The shared two-joint FK prefix for records or already admitted articulations.
- */
+/** The shared two-joint FK prefix for records or already admitted articulations. */
 export namespace resolvePreparedChainLower {
   /**
-   * Compose a mid frame from two already converted chain articulations.
-   * The caller must use the preparation's clinical mapping and keep root,
-   * ancestors and intermediate joints unchanged. Missing articulations are
-   * identity, as in full FK; no unused clinical basis is admitted here.
+   * Compose a mid frame from two already converted chain articulations. The
+   * caller must use the preparation's clinical mapping and keep root, ancestors
+   * and intermediate joints unchanged. Missing articulations are identity, as
+   * in full FK; no unused clinical basis is admitted here.
    *
-   * States admitted-quaternion input, stable prepared dependencies and missing-articulation meaning.
-   * Composes prepared root frame, upper articulation, fixed root-to-mid transform and lower articulation in the original two-stage FK order.
-   * This prefix owns the rigid compositions for both clinical candidates and an authored-order admission scan, so validation order can change without duplicating FK mathematics.
-   * Accepts actual admitted articulations rather than an ideal target; identity applies only to an absent articulation, not an arbitrary clinical zero.
-   * Constant quaternion/vector work with no clinical reconversion or skeleton walk; the caller reuses the quaternion work its admission scan already completed.
-   * Prepared fixed transforms and the exact completed articulation conversions are reused; changed parent or intermediate inputs require new preparation.
-   * Returns one fresh frame, retaining no inputs, cache, handles or tasks after return.
+   * States admitted-quaternion input, stable prepared dependencies and
+   * missing-articulation meaning. Composes prepared root frame, upper
+   * articulation, fixed root-to-mid transform and lower articulation in the
+   * original two-stage FK order. This prefix owns the rigid compositions for
+   * both clinical candidates and an authored-order admission scan, so
+   * validation order can change without duplicating FK mathematics. Accepts
+   * actual admitted articulations rather than an ideal target; identity applies
+   * only to an absent articulation, not an arbitrary clinical zero. Constant
+   * quaternion/vector work with no clinical reconversion or skeleton walk; the
+   * caller reuses the quaternion work its admission scan already completed.
+   * Prepared fixed transforms and the exact completed articulation conversions
+   * are reused; changed parent or intermediate inputs require new preparation.
+   * Returns one fresh frame, retaining no inputs, cache, handles or tasks after
+   * return.
    */
   export function fromRotations(
     prepared: IAutoMoviePreparedChainPlant,

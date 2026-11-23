@@ -5,9 +5,7 @@ import { validateArrayArtifact } from "./validateArrayArtifact";
 import { validateNonEmptyId } from "./validateNonEmptyId";
 import { validateObjectArtifact } from "./validateObjectArtifact";
 
-/**
- * Append located violations for malformed editorial markers on a shot clock.
- */
+/** Append located violations for malformed editorial markers on a shot clock. */
 export function appendEditorialMarkersArtifact(
   markers: unknown,
   path: string,

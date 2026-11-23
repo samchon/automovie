@@ -5,7 +5,10 @@ import {
 } from "@automovie/interface";
 
 /**
- * Require finite positive mass, declared restitution in inclusive [0,1], optional static and kinetic friction, finite optional center-of-mass coordinates and the declared drag and contact ranges. A missing restitution remains unknown and does not invalidate kinematic model construction.
+ * Require finite positive mass, declared restitution in inclusive [0,1],
+ * optional static and kinetic friction, finite optional center-of-mass
+ * coordinates and the declared drag and contact ranges. A missing restitution
+ * remains unknown and does not invalidate kinematic model construction.
  */
 export const validateBody: (
   body: IAutoMovieBody,

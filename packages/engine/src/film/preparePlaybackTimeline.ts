@@ -7,9 +7,15 @@ import {
 } from "@automovie/interface";
 
 /**
- * Build a playback layout and the shot index shared by frame, event and editorial marker consumers.
+ * Build a playback layout and the shot index shared by frame, event and
+ * editorial marker consumers.
  *
- * The sequence must have passed cutSequence: source trims, playback rates and output overlaps already fit their respective clocks. This preparation still refuses empty cuts, duplicate supplied shot ids, missing referenced shots, a first-entry transition and nondefault rates that cannot produce a representable output interval. Extra supplied shots are indexed but do not add playback entries.
+ * The sequence must have passed cutSequence: source trims, playback rates and
+ * output overlaps already fit their respective clocks. This preparation still
+ * refuses empty cuts, duplicate supplied shot ids, missing referenced shots, a
+ * first-entry transition and nondefault rates that cannot produce a
+ * representable output interval. Extra supplied shots are indexed but do not
+ * add playback entries.
  *
  * @returns The output-clock timeline and its unambiguous supplied-shot index.
  */

@@ -15,29 +15,35 @@ import { orientChainEffector } from "./orientChainEffector";
 import { prepareHingedChainAt } from "./prepareHingedChainAt";
 
 /**
- * A hinged two-bone chain posed at a prescribed swivel and bend branch, with
- * no search, score or continuation: the closed-form articulation a caller
- * that chooses its own swivel (an arm course) evaluates.
+ * A hinged two-bone chain posed at a prescribed swivel and bend branch, with no
+ * search, score or continuation: the closed-form articulation a caller that
+ * chooses its own swivel (an arm course) evaluates.
  *
- * The request is the fit's own (`IFitChainToTargetProps`); its `near`'s
- * swivel and branch, `strain`, reference and bend hint are not read, since
- * the swivel is given, while the `near`'s twist is continued by the final
- * orientation (`IAutoMovieSwivelSeed.twist`). Its `obstruction` is read once, at the placed mid and end joints,
- * exactly as the hinged fit reads a candidate (`fitHingedChainCandidate`),
- * so a caller can tell a placement that passes through what the fit keeps
- * clear of. The hinge angle of the chosen branch comes from the span
- * (`hingedArmSwivel.branches`, each branch stopped on the legal shell when the
- * target lies outside the hinge's range), the root is aimed and turned by the
- * swivel (`hingedArmSwivel.pose`), both joints are decomposed through the
- * fit's own clinical domains and clamped by its ROM clamp, and a requested
- * effector rotation is laid by the fit's own final orientation
- * (`orientChainEffector`: the distal twist split and the end joint's range
- * projection), the tail of the hinged fit for one candidate.
+ * The request is the fit's own (`IFitChainToTargetProps`); its `near`'s swivel
+ * and branch, `strain`, reference and bend hint are not read, since the swivel
+ * is given, while the `near`'s twist is continued by the final orientation
+ * (`IAutoMovieSwivelSeed.twist`). Its `obstruction` is read once, at the placed
+ * mid and end joints, exactly as the hinged fit reads a candidate
+ * (`fitHingedChainCandidate`), so a caller can tell a placement that passes
+ * through what the fit keeps clear of. The hinge angle of the chosen branch
+ * comes from the span (`hingedArmSwivel.branches`, each branch stopped on the
+ * legal shell when the target lies outside the hinge's range), the root is
+ * aimed and turned by the swivel (`hingedArmSwivel.pose`), both joints are
+ * decomposed through the fit's own clinical domains and clamped by its ROM
+ * clamp, and a requested effector rotation is laid by the fit's own final
+ * orientation (`orientChainEffector`: the distal twist split and the end
+ * joint's range projection), the tail of the hinged fit for one candidate.
  *
- * @param props The fit request: source pose, chain, rig tables and target; an optional effector rotation.
- * @param swivel The swivel, degrees, in the frame `IAutoMovieSwivelNear` and the fit's seeds use.
- * @param branch The bend branch, 0 or 1; clamped to the branches the target has.
- * @returns The posed chain, its seed, the shortfall from the target on the legal shell, metres, whether the range of motion moved a joint off the swivel's pose, and the obstruction's reading there; null when the chain is not a hinged two-bone chain or is degenerate.
+ * @param props The fit request: source pose, chain, rig tables and target; an
+ *   optional effector rotation.
+ * @param swivel The swivel, degrees, in the frame `IAutoMovieSwivelNear` and
+ *   the fit's seeds use.
+ * @param branch The bend branch, 0 or 1; clamped to the branches the target
+ *   has.
+ * @returns The posed chain, its seed, the shortfall from the target on the
+ *   legal shell, metres, whether the range of motion moved a joint off the
+ *   swivel's pose, and the obstruction's reading there; null when the chain is
+ *   not a hinged two-bone chain or is degenerate.
  */
 export function fitHingedChainAt(
   props: IAutoMovieFitChainToTargetProps,
@@ -120,9 +126,7 @@ export function fitHingedChainAt(
   };
 }
 
-/**
- * Companion types of `fitHingedChainAt`.
- */
+/** Companion types of `fitHingedChainAt`. */
 export namespace fitHingedChainAt {
   /** A chain placed at a swivel. */
   export interface IPlaced extends IAutoMovieSeededChainFit {
@@ -132,7 +136,11 @@ export namespace fitHingedChainAt {
     /** Whether the range of motion moved a joint off the swivel's own pose. */
     clamped: boolean;
 
-    /** The request's obstruction read at the swivel's own mid and end joints (`IAutoMovieFitChainToTargetProps.obstruction`); 0 without one, positive where the chain passes through what the fit keeps clear of. */
+    /**
+     * The request's obstruction read at the swivel's own mid and end joints
+     * (`IAutoMovieFitChainToTargetProps.obstruction`); 0 without one, positive
+     * where the chain passes through what the fit keeps clear of.
+     */
     blocked: number;
   }
 }

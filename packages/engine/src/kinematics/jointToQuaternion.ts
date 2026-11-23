@@ -11,8 +11,8 @@ import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
 /**
- * Convert a joint's clinical flexion, abduction and twist, in degrees, into
- * one bone-local rotation quaternion.
+ * Convert a joint's clinical flexion, abduction and twist, in degrees, into one
+ * bone-local rotation quaternion.
  *
  * Flexion turns about `axes.flexion` (default local X, sagittal), abduction
  * about `axes.abduction` (default Z, frontal) and twist about `axes.twist`
@@ -37,10 +37,10 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
  * `axes` lets a rig whose bone frames are not aligned to the clinical planes
  * keep flexion sagittal, such as a T-pose arm that needs flexion about Y. A
  * `null` angle contributes no rotation. With a `frame`, each angle is read as
- * clinical and mapped to the rig's rest-relative angle,
- * `r = (clinical − neutral) / sign`, so one clinical convention serves both
- * sides of a mirrored rig. {@link decomposeJointRotation} is the inverse for
- * the same `axes` and `frame`.
+ * clinical and mapped to the rig's rest-relative angle, `r = (clinical −
+ * neutral) / sign`, so one clinical convention serves both sides of a mirrored
+ * rig. {@link decomposeJointRotation} is the inverse for the same `axes` and
+ * `frame`.
  *
  * Throws on a non-finite angle, an invalid axis basis (see
  * {@link normalizeJointAxes}), or an invalid frame sign or neutral.

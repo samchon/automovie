@@ -5,14 +5,15 @@ import type {
 
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
-/** Continue an implicit level along one declared constant physical direction.
+/**
+ * Continue an implicit level along one declared constant physical direction.
  * Seed and target first derivatives use the caller's same parameter domain.
  * Optional second derivatives are propagated analytically for curve consumers.
  * Four level homotopy steps start at the seed's own level. Newton backtracking
  * accepts only decreasing level residuals inside the caller's physical search
- * distance. A singular direction, unsupported query or failed solve throws;
- * the seed is never returned as replacement geometry after a failed solve.
- * This local continuation does not certify a unique root or an embedded chart.
+ * distance. A singular direction, unsupported query or failed solve throws; the
+ * seed is never returned as replacement geometry after a failed solve. This
+ * local continuation does not certify a unique root or an embedded chart.
  * Failed solves retain their physical query and bounded ray samples in the
  * error message. Those samples diagnose the selected ray; they do not prove
  * existence or absence of roots between samples or on another ray.
@@ -173,7 +174,8 @@ export function evaluateAutoMovieImplicitProjection64(
     directionalDerivative: denominator,
   };
 
-  /** Preserve the actual failed continuation before the caller rejects geometry.
+  /**
+   * Preserve the actual failed continuation before the caller rejects geometry.
    * Ray samples use the unchanged declared domain and never select replacement
    * roots. Sampling cannot certify a continuous polynomial's attainable range.
    */

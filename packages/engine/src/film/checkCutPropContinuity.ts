@@ -67,7 +67,8 @@ type Check =
  * Layout admission must already have checked spans, ids and references. Report
  * missing, unreadable or discontinuous samples and differences beyond the
  * stated tolerance on the requirement's path in plan order. The editor marks
- * which props need to match, as in the [Orlando continuity script](https://www.bfi.org.uk/inside-the-archive/features/continuity-script-sally-potters-orlando).
+ * which props need to match, as in the [Orlando continuity
+ * script](https://www.bfi.org.uk/inside-the-archive/features/continuity-script-sally-potters-orlando).
  */
 export function checkCutPropContinuity(
   sequence: IAutoMovieSequence,
@@ -172,7 +173,10 @@ export function checkCutPropContinuity(
   }
 }
 
-/** Validate one requirement and bind the two source times and clip lists it asks to sample. */
+/**
+ * Validate one requirement and bind the two source times and clip lists it asks
+ * to sample.
+ */
 function compileBoundaryDemand(
   sequence: IAutoMovieSequence,
   requirement: PropRequirement,
@@ -240,7 +244,10 @@ function compileBoundaryDemand(
   };
 }
 
-/** Sample the boundary once and mark outgoing channels whose inclusive sample cannot establish their left limit. */
+/**
+ * Sample the boundary once and mark outgoing channels whose inclusive sample
+ * cannot establish their left limit.
+ */
 function sampleBoundary(
   clips: readonly IAutoMovieClip[],
   time: number,
@@ -326,7 +333,10 @@ function readBoundary(
   return undefined;
 }
 
-/** Compare magnitudes in channel units, using the sign-invariant short rotation arc for unit quaternions. */
+/**
+ * Compare magnitudes in channel units, using the sign-invariant short rotation
+ * arc for unit quaternions.
+ */
 function channelDistance(
   component: IAutoMovieNodeChannel["path"],
   left: number[],

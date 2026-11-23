@@ -12,27 +12,29 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
- * Read each limb's actual floor support: the rigid floor contacts the
- * world's last step solved on the limb's patch colliders, then recent
- * positive compliant-surface impulses on the same patch. No projected sole
- * or future contact is invented; a limb with no sample returns nothing.
+ * Read each limb's actual floor support: the rigid floor contacts the world's
+ * last step solved on the limb's patch colliders, then recent positive
+ * compliant-surface impulses on the same patch. No projected sole or future
+ * contact is invented; a limb with no sample returns nothing.
  *
  * A rigid floor manifold supports the limb when its normal, taken from the
- * limb's collider toward the floor, points down by more than 60 degrees
- * (`y < -0.5`, the cosine of that cone). Each of its points the step found
- * pressing (separation not positive where the contact was found) is a sample carrying the pair's
- * combined friction as the step used it (`manifold.friction`), and a point
- * that received a positive normal impulse marks the limb loaded. A
- * compliant receipt counts only while its latest sample at or before
- * `seconds` is still within its duration plus one substep, pressed with a
- * positive impulse that the limb's side actually received, with the floor
- * on the other side of the same 60-degree cone; it carries the mean of its
- * material's friction and the floor's 0.7, the coefficient the binding
- * gives the floor collider, and marks the limb loaded. Samples at the same
- * horizontal position on the same carrier are one application point.
+ * limb's collider toward the floor, points down by more than 60 degrees (`y <
+ * -0.5`, the cosine of that cone). Each of its points the step found pressing
+ * (separation not positive where the contact was found) is a sample carrying
+ * the pair's combined friction as the step used it (`manifold.friction`), and a
+ * point that received a positive normal impulse marks the limb loaded. A
+ * compliant receipt counts only while its latest sample at or before `seconds`
+ * is still within its duration plus one substep, pressed with a positive
+ * impulse that the limb's side actually received, with the floor on the other
+ * side of the same 60-degree cone; it carries the mean of its material's
+ * friction and the floor's 0.7, the coefficient the binding gives the floor
+ * collider, and marks the limb loaded. Samples at the same horizontal position
+ * on the same carrier are one application point.
  *
- * @param input The world, owner, patch pattern, segment bodies, collider identities, receipts and clock.
- * @returns One support per limb with samples: the limb's declared world point, its sample points and samples, and whether it is loaded.
+ * @param input The world, owner, patch pattern, segment bodies, collider
+ *   identities, receipts and clock.
+ * @returns One support per limb with samples: the limb's declared world point,
+ *   its sample points and samples, and whether it is loaded.
  */
 export function collectPhysicalSupports(
   input: collectPhysicalSupports.IInput,
@@ -138,7 +140,10 @@ export function collectPhysicalSupports(
           ]
         : [];
 
-      /** Whether an identified collider is one of this limb's patch colliders on the body. */
+      /**
+       * Whether an identified collider is one of this limb's patch colliders on
+       * the body.
+       */
       function owns(
         identity: IAutoMovieContactReceipt["a"] | undefined,
       ): boolean {
@@ -149,7 +154,10 @@ export function collectPhysicalSupports(
         );
       }
 
-      /** Equal horizontal witnesses on one carrier describe the same floor application point. */
+      /**
+       * Equal horizontal witnesses on one carrier describe the same floor
+       * application point.
+       */
       function append(
         point: IAutoMovieVector3,
         friction: number,
@@ -165,8 +173,8 @@ export function collectPhysicalSupports(
 }
 
 /**
- * The input {@link collectPhysicalSupports} reads: one body's limbs against
- * the world's last step and the run's compliant receipts at one local time.
+ * The input {@link collectPhysicalSupports} reads: one body's limbs against the
+ * world's last step and the run's compliant receipts at one local time.
  */
 export namespace collectPhysicalSupports {
   /** What one support reading needs. */

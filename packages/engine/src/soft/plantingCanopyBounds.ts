@@ -8,11 +8,15 @@ import {
 import { Quaternion } from "../math/Quaternion";
 
 /**
- * Enclose emitted recipe-local stems and leaf cards for installation containment.
+ * Enclose emitted recipe-local stems and leaf cards for installation
+ * containment.
  *
- * Stem endpoints carry radial support perpendicular to their axis. The larger authored end radius covers both the declared taper and the viewer's averaged cylinder.
+ * Stem endpoints carry radial support perpendicular to their axis. The larger
+ * authored end radius covers both the declared taper and the viewer's averaged
+ * cylinder.
  *
- * Leaves use the viewer's unit XY card transformed by their emitted scale, rotation and translation; local Z scale does not thicken that card.
+ * Leaves use the viewer's unit XY card transformed by their emitted scale,
+ * rotation and translation; local Z scale does not thicken that card.
  */
 export function plantingCanopyBounds(
   branches: readonly IAutoMoviePlantingBranch[],
@@ -22,7 +26,10 @@ export function plantingCanopyBounds(
   const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
   const max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
 
-  /** Fold one point and its axis-aligned radial support into this fresh envelope. */
+  /**
+   * Fold one point and its axis-aligned radial support into this fresh
+   * envelope.
+   */
   const include: (
     point: IAutoMovieVector3,
     support: IAutoMovieVector3,

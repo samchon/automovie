@@ -3,7 +3,8 @@ import { IAutoMovieSemanticMask } from "@automovie/interface";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
 /**
- * Project the complete current semantic payload into one field/collection order.
+ * Project the complete current semantic payload into one field/collection
+ * order.
  */
 export function canonicalAutoMovieSemanticMaskPayload(
   mask: Omit<IAutoMovieSemanticMask, "digest">,

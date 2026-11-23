@@ -10,11 +10,14 @@ import { witnessAutoMovieSolidChartTriangle } from "./witnessAutoMovieSolidChart
 /**
  * Select a represented left-side probe with an independently checked corridor.
  *
- * A boundary walk is one face cycle: the face lies on the left of every one of its edges, so a probe witnessed beside any edge reads that
- * face's membership. The edges are tried in walk order and the first witnessed corridor is returned. Reading the first edge alone failed
- * where a curve met a straight constraint at a grazing angle: the curve's last vertex stood 1e-14 off the line, a few units of the last
- * place at the chart's scale, so its short edge to the line had no represented corridor on either side, though the face beside every other
- * edge of the same walk was wide.
+ * A boundary walk is one face cycle: the face lies on the left of every one of
+ * its edges, so a probe witnessed beside any edge reads that face's membership.
+ * The edges are tried in walk order and the first witnessed corridor is
+ * returned. Reading the first edge alone failed where a curve met a straight
+ * constraint at a grazing angle: the curve's last vertex stood 1e-14 off the
+ * line, a few units of the last place at the chart's scale, so its short edge
+ * to the line had no represented corridor on either side, though the face
+ * beside every other edge of the same walk was wide.
  */
 export function probeAutoMovieSolidMesh(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -44,7 +47,10 @@ export function probeAutoMovieSolidMesh(
   return "visibility left-side probe has no admitted represented corridor";
 }
 
-/** A witnessed probe on the left of one boundary edge, null when that edge admits no represented corridor, or a named arithmetic failure. */
+/**
+ * A witnessed probe on the left of one boundary edge, null when that edge
+ * admits no represented corridor, or a named arithmetic failure.
+ */
 function corridor(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
   edges: readonly IAutoMovieSolidMeshConstraints.ISegment[],
@@ -130,7 +136,10 @@ function corridor(
   return null;
 }
 
-/** Floating distance proposes a probe only; witness checks decide the represented corridor. */
+/**
+ * Floating distance proposes a probe only; witness checks decide the
+ * represented corridor.
+ */
 function distance(
   point: Readonly<AutoMovieVector2Tuple>,
   a: Readonly<AutoMovieVector2Tuple>,

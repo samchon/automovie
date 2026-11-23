@@ -1,28 +1,29 @@
 /**
  * A small dense convex quadratic program by the dual active-set method of
  * Goldfarb and Idnani (1983, "A numerically stable dual method for solving
- * strictly convex quadratic programs", Mathematical Programming 27):
- * `min 1/2 x^T diag(g) x + c^T x` subject to equality rows `a x = v` and
- * inequality rows `a x >= v`, with every `g_i > 0`.
+ * strictly convex quadratic programs", Mathematical Programming 27): `min 1/2
+ * x^T diag(g) x + c^T x` subject to equality rows `a x = v` and inequality rows
+ * `a x >= v`, with every `g_i > 0`.
  *
- * The method starts at the unconstrained minimum, which is dual feasible,
- * and adds violated rows one at a time, keeping the multipliers of the
- * active inequalities nonnegative: a full step makes the added row active, a
- * partial step drops the active row whose multiplier reached zero first.
- * It keeps `J = L^-T Q` and the upper triangle `R` of `J^T N = [R; 0]` (`L`
- * the Cholesky factor of the objective's diagonal, `N` the active rows) by
- * Givens rotations, so adding or dropping a row costs `O(n^2)`. Equalities
- * are added first and never dropped; one whose row lies in the span of the
- * rows already active is left out, since it holds with them or not at all.
+ * The method starts at the unconstrained minimum, which is dual feasible, and
+ * adds violated rows one at a time, keeping the multipliers of the active
+ * inequalities nonnegative: a full step makes the added row active, a partial
+ * step drops the active row whose multiplier reached zero first. It keeps `J =
+ * L^-T Q` and the upper triangle `R` of `J^T N = [R; 0]` (`L` the Cholesky
+ * factor of the objective's diagonal, `N` the active rows) by Givens rotations,
+ * so adding or dropping a row costs `O(n^2)`. Equalities are added first and
+ * never dropped; one whose row lies in the span of the rows already active is
+ * left out, since it holds with them or not at all.
  *
  * The previous solve's active inequalities warm-start the next: among the
- * violated rows the method picks a preferred one first (any violated row is
- * a valid choice of the dual method), so a solve whose active set did not
- * change adds exactly those rows and drops none. The objective's diagonal
- * factor `L` is the same for every solve of one diagonal.
+ * violated rows the method picks a preferred one first (any violated row is a
+ * valid choice of the dual method), so a solve whose active set did not change
+ * adds exactly those rows and drops none. The objective's diagonal factor `L`
+ * is the same for every solve of one diagonal.
  *
  * @param problem The objective, the rows and the preferred inequalities.
- * @returns The minimizer and its active inequalities, or null when the rows are infeasible or the method does not finish within its bound.
+ * @returns The minimizer and its active inequalities, or null when the rows are
+ *   infeasible or the method does not finish within its bound.
  */
 export function solveXpbdDualActiveSet(
   problem: solveXpbdDualActiveSet.IProblem,
@@ -132,7 +133,8 @@ export function solveXpbdDualActiveSet(
     normals.splice(l, 1);
     values.splice(l, 1);
     for (let col: number = l; col < q - 1; ++col)
-      for (let row: number = 0; row < q; ++row) r[row]![col] = r[row]![col + 1]!;
+      for (let row: number = 0; row < q; ++row)
+        r[row]![col] = r[row]![col + 1]!;
     for (let row: number = 0; row < q; ++row) r[row]![q - 1] = 0;
     for (let col: number = l; col < q - 1; ++col) {
       const length: number = Math.hypot(r[col]![col]!, r[col + 1]![col]!);
@@ -239,11 +241,11 @@ export function solveXpbdDualActiveSet(
       // magnitude, the scale the caller's rows are told independent at.
       return certified() &&
         omitted.every(
-        (row: solveXpbdDualActiveSet.IRow): boolean =>
-          Math.abs(slack(row)) <=
-          Math.sqrt(Number.EPSILON) *
-            (rounding(row) / ((row.indices.length + 1) * Number.EPSILON)),
-      )
+          (row: solveXpbdDualActiveSet.IRow): boolean =>
+            Math.abs(slack(row)) <=
+            Math.sqrt(Number.EPSILON) *
+              (rounding(row) / ((row.indices.length + 1) * Number.EPSILON)),
+        )
         ? {
             primal: Array.from(x),
             active: active.filter((i: number): boolean => i >= 0),
@@ -268,8 +270,7 @@ export function solveXpbdDualActiveSet(
       const length: number = Math.min(partial, full);
       if (length === Infinity) return null;
       if (full === Infinity) {
-        for (let i: number = 0; i < u.length; ++i)
-          u[i]! -= length * change[i]!;
+        for (let i: number = 0; i < u.length; ++i) u[i]! -= length * change[i]!;
         multiplier += length;
         drop(leaving);
         continue;
@@ -290,9 +291,7 @@ export function solveXpbdDualActiveSet(
   return null;
 }
 
-/**
- * The problem and result of solveXpbdDualActiveSet.
- */
+/** The problem and result of solveXpbdDualActiveSet. */
 export namespace solveXpbdDualActiveSet {
   /** One row: `a x = value` as an equality, `a x >= value` as an inequality. */
   export interface IRow {
@@ -320,7 +319,10 @@ export namespace solveXpbdDualActiveSet {
     /** The inequality rows. */
     inequalities: IRow[];
 
-    /** Indices of inequalities to add first when violated: the previous solve's active set. */
+    /**
+     * Indices of inequalities to add first when violated: the previous solve's
+     * active set.
+     */
     prefer: readonly number[];
   }
 

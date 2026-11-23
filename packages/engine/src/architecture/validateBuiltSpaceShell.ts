@@ -11,11 +11,22 @@ import { builtSpaceShellVolume } from "./builtSpaceShellVolume";
 const FACET_AREA_EPSILON: number = 1e-12;
 
 /**
- * Check shell indices, finite facet areas, paired edges and positive signed volume.
+ * Check shell indices, finite facet areas, paired edges and positive signed
+ * volume.
  *
- * Indices must resolve, computed facet areas must be finite/non-negligible, and each directed edge must appear once with its reverse once. Aggregate computed signed volume must be finite/positive. Nothing is repaired. These checks reject missing/duplicated edges and nonpositive global volume but do not prove every disconnected component's orientation or exclude all self-intersections. Containment's absolute solid-angle test is a separate numerical policy.
+ * Indices must resolve, computed facet areas must be finite/non-negligible, and
+ * each directed edge must appear once with its reverse once. Aggregate computed
+ * signed volume must be finite/positive. Nothing is repaired. These checks
+ * reject missing/duplicated edges and nonpositive global volume but do not
+ * prove every disconnected component's orientation or exclude all
+ * self-intersections. Containment's absolute solid-angle test is a separate
+ * numerical policy.
  *
- * Vertices must be finite, with at least four vertices and four whole triangles. Vertex-component/count findings do not stop checking; bad triangle count/index, unusable facet area or unmatched edge does. Findings can therefore include a vertex-count finding plus one later structural finding and non-finite component findings.
+ * Vertices must be finite, with at least four vertices and four whole
+ * triangles. Vertex-component/count findings do not stop checking; bad triangle
+ * count/index, unusable facet area or unmatched edge does. Findings can
+ * therefore include a vertex-count finding plus one later structural finding
+ * and non-finite component findings.
  *
  * @param shell Shell to check.
  * @param path Violation path of the shell, such as `$input.spaces[0].shell`.

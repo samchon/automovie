@@ -321,7 +321,11 @@ export function solvePhysicalTargetForest(
     return result;
   }
 
-  /** Admit the seed once, then own only branches changed from the accepted pose. The shared setter replaces vectors on mutable pose shells, so unchanged accepted branches remain borrowed and untouched. */
+  /**
+   * Admit the seed once, then own only branches changed from the accepted pose.
+   * The shared setter replaces vectors on mutable pose shells, so unchanged
+   * accepted branches remain borrowed and untouched.
+   */
   function build(
     parameters: readonly number[],
     base?: Readonly<Record<string, IAutoMovieRigidTransform>>,

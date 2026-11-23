@@ -3,7 +3,8 @@ import type { IAutoMovieEffectRecipe } from "@automovie/interface";
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 
 /**
- * Refuse malformed optional transport, opacity-envelope and final-size controls before compiled bytes are published.
+ * Refuse malformed optional transport, opacity-envelope and final-size controls
+ * before compiled bytes are published.
  */
 export function admitEffectTransport(recipe: IAutoMovieEffectRecipe): void {
   if (

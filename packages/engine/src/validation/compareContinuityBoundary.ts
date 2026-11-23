@@ -8,7 +8,8 @@ import {
 import { Vector3 } from "../math/Vector3";
 
 /**
- * Index opening actors by node and compare every prior actor or report its absence.
+ * Index opening actors by node and compare every prior actor or report its
+ * absence.
  */
 export const compareContinuityBoundary: (
   previous: IAutoMovieBeatEndState,
@@ -54,17 +55,21 @@ export const compareContinuityBoundary: (
 };
 
 /**
- * Compare one actor's translation, normalized facing angle and prior persistent mount to its opening state.
+ * Compare one actor's translation, normalized facing angle and prior persistent
+ * mount to its opening state.
  *
  * The boundary owner supplies admitted tolerances and matching node identity.
  *
- * A prior null mount imposes no incoming mount requirement; differences remain advisory.
+ * A prior null mount imposes no incoming mount requirement; differences remain
+ * advisory.
  *
  * Metre/degree overshoots and actor-qualified paths identify each warning.
  *
- * Fixed vector arithmetic and mount string comparisons cost bounded work apart from text.
+ * Fixed vector arithmetic and mount string comparisons cost bounded work apart
+ * from text.
  *
- * angleBetweenDeg and sameMount share these decisions for pairwise/film callers.
+ * AngleBetweenDeg and sameMount share these decisions for pairwise/film
+ * callers.
  *
  * Only collector warnings remain; snapshots are borrowed without host state.
  */
@@ -115,9 +120,11 @@ const compareActor: (
 /**
  * Normalize both facing vectors, clamp their dot and return acos in degrees.
  *
- * Shared Vector3 arithmetic gives the usual angle for finite nonzero facing vectors.
+ * Shared Vector3 arithmetic gives the usual angle for finite nonzero facing
+ * vectors.
  *
- * Degenerate zero vectors normalize to zero and therefore yield90deg; malformed snapshots are not separately admitted here.
+ * Degenerate zero vectors normalize to zero and therefore yield90deg; malformed
+ * snapshots are not separately admitted here.
  *
  * The finite nonzero-facing premise and degree output are stated.
  *
@@ -144,7 +151,8 @@ const angleBetweenDeg: (
  *
  * Mount persistence is identity equality rather than world-position proximity.
  *
- * Only a previously mounted actor invokes this predicate; a new mount is not forbidden.
+ * Only a previously mounted actor invokes this predicate; a new mount is not
+ * forbidden.
  *
  * Null incoming mount means the previous coupling was dropped.
  *

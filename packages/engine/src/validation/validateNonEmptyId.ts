@@ -3,7 +3,8 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { pushViolation } from "./pushViolation";
 
 /**
- * Require a string with at least one non-whitespace code unit and append a type fault otherwise.
+ * Require a string with at least one non-whitespace code unit and append a type
+ * fault otherwise.
  */
 export const validateNonEmptyId: (
   id: unknown,

@@ -8,7 +8,11 @@ import { segmentsTouch } from "./segmentsTouch";
  *
  * Contact counts so opening validation can refuse voids meeting along a jamb.
  *
- * Requires non-empty simple rings in one planar frame and inherits the binary64 and scale-relative `PLANAR_EPSILON` behavior of {@link segmentsTouch} and {@link pointInPolygon}. An edge contact or containment of one corner returns true. Paired with a non-empty ring, an empty ring can throw a `TypeError` when its missing corner reaches the containment predicate.
+ * Requires non-empty simple rings in one planar frame and inherits the binary64
+ * and scale-relative `PLANAR_EPSILON` behavior of {@link segmentsTouch} and
+ * {@link pointInPolygon}. An edge contact or containment of one corner returns
+ * true. Paired with a non-empty ring, an empty ring can throw a `TypeError`
+ * when its missing corner reaches the containment predicate.
  *
  * @param left One closed ring.
  * @param right The other closed ring, in the same frame.

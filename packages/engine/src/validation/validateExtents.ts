@@ -4,7 +4,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Switch on primitive shape and require finite positive supported dimensions, including capsule length policy.
+ * Switch on primitive shape and require finite positive supported dimensions,
+ * including capsule length policy.
  */
 export const validateExtents: (
   shape: IAutoMoviePrimitiveShape,

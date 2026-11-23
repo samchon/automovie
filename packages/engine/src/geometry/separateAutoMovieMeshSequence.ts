@@ -19,7 +19,8 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * around corners or preserve an external path after separation.
  *
  * @throws Error for malformed triangles, non-finite coordinates or clearance,
- * an invalid axis, or arithmetic that exceeds finite translations or positions.
+ *   an invalid axis, or arithmetic that exceeds finite translations or
+ *   positions.
  */
 export function separateAutoMovieMeshSequence(
   meshes: readonly IAutoMovieMesh[],

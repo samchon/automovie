@@ -14,18 +14,52 @@ const { turn, scaled, dexpinv }: typeof MotionTrajectoryRotation =
   MotionTrajectoryRotation;
 
 /**
- * A trajectory planned once and read by time: the solution of `dx/dt = f(t, x)` from `t0` to `t1` by classical fourth-order Runge-Kutta at a fixed step, its knots kept with their derivatives and read between them by cubic Hermite interpolation.
+ * A trajectory planned once and read by time: the solution of `dx/dt = f(t, x)`
+ * from `t0` to `t1` by classical fourth-order Runge-Kutta at a fixed step, its
+ * knots kept with their derivatives and read between them by cubic Hermite
+ * interpolation.
  *
- * The step count is `ceil((t1 - t0) / h)`, the last step shortened to land on `t1` exactly. A state may carry an orientation block, a unit quaternion advanced on the exponential map by the body-frame angular velocity `f` returns, by the fourth-order Runge-Kutta-Munthe-Kaas method: each stage turns the step's start orientation by a rotation vector built from the earlier stages, each stage's body rate is carried to that vector's derivative by the inverse differential of the exponential, and the step turns the start by the stages' weighted vector, renormalised at each knot. Between knots the vector is the cubic Hermite of the two knots' values and derivatives, exact at knots and C1 between; the orientation is the start knot turned by the cubic Hermite of the rotation vector to the end knot, matching both knots' body rates, so a rate read between knots is the motion's and not the step's mean. Reads outside `[t0, t1]` hold the nearer end.
+ * The step count is `ceil((t1 - t0) / h)`, the last step shortened to land on
+ * `t1` exactly. A state may carry an orientation block, a unit quaternion
+ * advanced on the exponential map by the body-frame angular velocity `f`
+ * returns, by the fourth-order Runge-Kutta-Munthe-Kaas method: each stage turns
+ * the step's start orientation by a rotation vector built from the earlier
+ * stages, each stage's body rate is carried to that vector's derivative by the
+ * inverse differential of the exponential, and the step turns the start by the
+ * stages' weighted vector, renormalised at each knot. Between knots the vector
+ * is the cubic Hermite of the two knots' values and derivatives, exact at knots
+ * and C1 between; the orientation is the start knot turned by the cubic Hermite
+ * of the rotation vector to the end knot, matching both knots' body rates, so a
+ * rate read between knots is the motion's and not the step's mean. Reads
+ * outside `[t0, t1]` hold the nearer end.
  *
- * Given a `tolerance`, Dormand-Prince 5(4) controls its existing endpoint RMS estimate. Its default continuous extension is quartic; orientation slopes at both ends use the exact right exponential Jacobian. An explicit `rotationDefect` additionally builds the paired quintic continuous extensions of Enright and Hayes and checks their actual body angular velocities in the caller's physical units. The maximum of the existing RMS and physical estimate controls the same step controller. These sampled estimates are not continuous or global-error certificates for an arbitrary pure callback.
+ * Given a `tolerance`, Dormand-Prince 5(4) controls its existing endpoint RMS
+ * estimate. Its default continuous extension is quartic; orientation slopes at
+ * both ends use the exact right exponential Jacobian. An explicit
+ * `rotationDefect` additionally builds the paired quintic continuous extensions
+ * of Enright and Hayes and checks their actual body angular velocities in the
+ * caller's physical units. The maximum of the existing RMS and physical
+ * estimate controls the same step controller. These sampled estimates are not
+ * continuous or global-error certificates for an arbitrary pure callback.
  *
- * The output depends on the numeric inputs, pure `f` and optional pure defect callback, never on playback times or order. The default fixed step is a sixtieth of a second; a stiff RHS needs a smaller fixed step or adaptive control. Optional orientation-only playback reads the same solved quaternion without vector interpolation or vector copying, and still returns a fresh quaternion.
- * The caller supplies finite numeric state and rate components. This wrapper checks vector lengths and the presence of an angular rate for an oriented state; it does not validate the components of x0, dx or w for finiteness.
+ * The output depends on the numeric inputs, pure `f` and optional pure defect
+ * callback, never on playback times or order. The default fixed step is a
+ * sixtieth of a second; a stiff RHS needs a smaller fixed step or adaptive
+ * control. Optional orientation-only playback reads the same solved quaternion
+ * without vector interpolation or vector copying, and still returns a fresh
+ * quaternion. The caller supplies finite numeric state and rate components.
+ * This wrapper checks vector lengths and the presence of an angular rate for an
+ * oriented state; it does not validate the components of x0, dx or w for
+ * finiteness.
  *
  * @param props The right-hand side, the start state, the interval and the step.
  * @returns The trajectory.
- * @throws {Error} When interval, step, tolerance, partition, failure scope or defect-mode combination is invalid, a fixed step's count over the interval is not a safe integer, the state is empty, required rate shape is missing, a defect is negative/NaN, adaptive refinement reaches time resolution, or adaptive stepping needs more than DOPRI5's default maximum of 100000 step attempts. Errors from the pure physical model propagate unchanged.
+ * @throws {Error} When interval, step, tolerance, partition, failure scope or
+ *   defect-mode combination is invalid, a fixed step's count over the interval
+ *   is not a safe integer, the state is empty, required rate shape is missing,
+ *   a defect is negative/NaN, adaptive refinement reaches time resolution, or
+ *   adaptive stepping needs more than DOPRI5's default maximum of 100000 step
+ *   attempts. Errors from the pure physical model propagate unchanged.
  */
 export function integrateMotionTrajectory(
   props: IAutoMovieIntegrateMotionTrajectory.IProps,
@@ -39,11 +73,18 @@ export function integrateMotionTrajectory(
   if (!(Number.isFinite(h) && h > 0))
     throw new Error(`integrateMotionTrajectory: the step ${h} is not positive`);
   if (props.errorScope !== undefined && typeof props.errorScope !== "symbol")
-    throw new Error("integrateMotionTrajectory: an error scope must be a symbol");
+    throw new Error(
+      "integrateMotionTrajectory: an error scope must be a symbol",
+    );
   const n: number = props.x0.length;
   const oriented: boolean = props.q0 !== undefined;
-  if (props.rotationDefect !== undefined && (!oriented || props.tolerance === undefined))
-    throw new Error("Continuous rotation-defect control requires an orientation and adaptive tolerance");
+  if (
+    props.rotationDefect !== undefined &&
+    (!oriented || props.tolerance === undefined)
+  )
+    throw new Error(
+      "Continuous rotation-defect control requires an orientation and adaptive tolerance",
+    );
   if (n === 0 && !oriented)
     throw new Error("integrateMotionTrajectory: the state is empty");
   const rate: IAutoMovieIntegrateMotionTrajectory.IProps["f"] = (
@@ -89,18 +130,12 @@ export function integrateMotionTrajectory(
     }
     return MotionTrajectoryStepper.dormandPrince(props, rate, h);
   }
-  const add: (
-    x: number[],
-    k: readonly number[],
-    s: number,
-  ) => number[] = (
+  const add: (x: number[], k: readonly number[], s: number) => number[] = (
     x: number[],
     k: readonly number[],
     s: number,
   ): number[] =>
-    x.length === 0
-      ? x
-      : x.map((v: number, i: number): number => v + s * k[i]!);
+    x.length === 0 ? x : x.map((v: number, i: number): number => v + s * k[i]!);
 
   // Only retained knot derivatives need an owned snapshot. Copy numeric
   // indices rather than iterating an externally supplied derivative array.
@@ -137,7 +172,9 @@ export function integrateMotionTrajectory(
   const qs: (IAutoMovieQuaternion | null)[] = [
     oriented ? Quaternion.normalize(props.q0!) : null,
   ];
-  const ks: IAutoMovieIntegrateMotionTrajectory.IRate[] = [retained(t0, xs[0]!, qs[0]!)];
+  const ks: IAutoMovieIntegrateMotionTrajectory.IRate[] = [
+    retained(t0, xs[0]!, qs[0]!),
+  ];
   for (let s: number = 0; s < steps; s++) {
     const t: number = times[s]!;
     const next: number = s === steps - 1 ? t1 : t0 + (s + 1) * h;
@@ -212,13 +249,18 @@ export function integrateMotionTrajectory(
   return MotionTrajectoryRead.fixed({ t0, t1, h, times, xs, qs, ks, oriented });
 }
 
-/**
- * Companion types and the default step of {@link integrateMotionTrajectory}.
- */
+/** Companion types and the default step of {@link integrateMotionTrajectory}. */
 export namespace integrateMotionTrajectory {
-  /** Actual fixed Hermite knot data; the top-level owner documents its units and independent arrays. */
+  /**
+   * Actual fixed Hermite knot data; the top-level owner documents its units and
+   * independent arrays.
+   */
   export type IInterval = IAutoMovieMotionTrajectoryInterval;
 
-  /** The default step, seconds: a sixtieth of a second, under which the classical method's error stays far below a millimetre for the motions planned (#3424). */
+  /**
+   * The default step, seconds: a sixtieth of a second, under which the
+   * classical method's error stays far below a millimetre for the motions
+   * planned (#3424).
+   */
   export const STEP: number = 1 / 60;
 }

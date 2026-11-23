@@ -15,9 +15,7 @@ const FRAMINGS: ReadonlySet<string> = CAMERA_FRAMINGS;
 /** The closed move union, read as strings for an unvalidated artifact. */
 const MOVES: ReadonlySet<string> = CAMERA_MOVES;
 
-/**
- * Append camera-intent span shape, vocabulary, focus and focal-length findings.
- */
+/** Append camera-intent span shape, vocabulary, focus and focal-length findings. */
 export const appendCameraIntentArtifact: (
   intents: unknown,
   path: string,

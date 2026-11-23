@@ -6,18 +6,19 @@ import {
 import { Vector3 } from "./Vector3";
 
 /**
- * Evaluate one finite orientation-preserving 3×3 deformation Jacobian.
- * Input and returned matrix use row-major order and dimensionless entries.
- * The cofactor matrix is det(J) times inverse(J)-transpose, so it transports
+ * Evaluate one finite orientation-preserving 3×3 deformation Jacobian. Input
+ * and returned matrix use row-major order and dimensionless entries. The
+ * cofactor matrix is det(J) times inverse(J)-transpose, so it transports
  * oriented area vectors and positive determinant leaves normal direction
- * unchanged by that scalar. No inverse or absolute singularity epsilon is used.
+ * unchanged by that scalar. No inverse or absolute singularity epsilon is
+ * used.
  *
- * This is the arithmetic owner used by createAutoMovieMeshDeformer's normal
- * and face-direction checks. It does not construct a deformation Jacobian,
- * choose a surface's transverse extension, or establish emitted geometry.
- * The consumer still checks every used transported vector and actual cell:
- * cofactor entries can overflow even when the determinant remains finite.
- * Caller arrays are unchanged and the returned object/matrix are owned.
+ * This is the arithmetic owner used by createAutoMovieMeshDeformer's normal and
+ * face-direction checks. It does not construct a deformation Jacobian, choose a
+ * surface's transverse extension, or establish emitted geometry. The consumer
+ * still checks every used transported vector and actual cell: cofactor entries
+ * can overflow even when the determinant remains finite. Caller arrays are
+ * unchanged and the returned object/matrix are owned.
  */
 export function cofactorAutoMovieJacobian(
   jacobian: readonly number[],

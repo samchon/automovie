@@ -6,8 +6,8 @@ import type {
 import { stepSubdivisionRing } from "./stepSubdivisionRing";
 
 /**
- * The limit point and two tangent vectors of a ring's vertex, from the
- * dominant left eigenvectors of the ring's own subdivision matrix.
+ * The limit point and two tangent vectors of a ring's vertex, from the dominant
+ * left eigenvectors of the ring's own subdivision matrix.
  *
  * Refining a one-ring is linear in its points, so it is a square matrix `S`
  * over the centre, edge neighbours and diagonals, built here by refining one
@@ -19,14 +19,15 @@ import { stepSubdivisionRing } from "./stepSubdivisionRing";
  * are found by iteration on `S` from the left: plain power iteration for the
  * limit, and orthogonal iteration of a two-dimensional zero-sum subspace for
  * the tangents, re-orthonormalised every step so the weaker tangent is never
- * lost to the stronger one. `limitSubdivisionRing` uses this for darts and
- * for crease sides of three faces, whose sharp edges give them other matrices
- * than the published masks assume. The tangent search converges at the ratio
- * of the third to the second dominant zero-sum eigenvalue, about 0.94 for a
- * dart of valence 12, so `EIGEN_STEPS` iterations reach rounding.
+ * lost to the stronger one. `limitSubdivisionRing` uses this for darts and for
+ * crease sides of three faces, whose sharp edges give them other matrices than
+ * the published masks assume. The tangent search converges at the ratio of the
+ * third to the second dominant zero-sum eigenvalue, about 0.94 for a dart of
+ * valence 12, so `EIGEN_STEPS` iterations reach rounding.
  *
  * @param ring A one-ring whose sharpness is only 0 or 10.
- * @returns The limit point and two vectors spanning the tangent plane, unoriented.
+ * @returns The limit point and two vectors spanning the tangent plane,
+ *   unoriented.
  */
 export const subdivisionRingEigenbasis = (
   ring: IAutoMovieSubdivisionRing,

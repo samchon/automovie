@@ -10,7 +10,8 @@ import { AUTOMOVIE_ARKIT_CHANNELS } from "./constants/AUTOMOVIE_ARKIT_CHANNELS";
 import { AUTOMOVIE_EXPRESSION_PRESETS } from "./constants/AUTOMOVIE_EXPRESSION_PRESETS";
 
 /**
- * Admit preset/channel membership, intensity/weight ranges and duplicate ARKit channels.
+ * Admit preset/channel membership, intensity/weight ranges and duplicate ARKit
+ * channels.
  */
 export const validateExpression: (
   props: IAutoMovieValidateExpression.IProps,

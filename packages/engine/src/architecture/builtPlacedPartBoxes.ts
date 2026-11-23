@@ -9,13 +9,27 @@ import { realizeAutoMovieGeometry } from "../geometry/realizeAutoMovieGeometry";
 import { Matrix4 } from "../math/Matrix4";
 
 /**
- * One world box per drawn part of one placed element, in the model's part order, or the element's world origin as a single degenerate box when it draws no vertex.
+ * One world box per drawn part of one placed element, in the model's part
+ * order, or the element's world origin as a single degenerate box when it draws
+ * no vertex.
  *
- * Each part is placed for this CPU measurement under its own transform and then under the element's world matrix. The canonical geometry realizer supplies primitive or bicubic vertices and borrows stated mesh vertices, retaining finite partial recipe output. A part with no vertex adds no box. A model the environment does not hold is `undefined`, because a runtime model reference is a legal way to furnish a building whose bytes the record never carries; such an element, and one whose parts draw nothing, keeps its origin so the answer still says where the record put it.
+ * Each part is placed for this CPU measurement under its own transform and then
+ * under the element's world matrix. The canonical geometry realizer supplies
+ * primitive or bicubic vertices and borrows stated mesh vertices, retaining
+ * finite partial recipe output. A part with no vertex adds no box. A model the
+ * environment does not hold is `undefined`, because a runtime model reference
+ * is a legal way to furnish a building whose bytes the record never carries;
+ * such an element, and one whose parts draw nothing, keeps its origin so the
+ * answer still says where the record put it.
  *
- * The union of the returned boxes is the element's whole world box, so the per-element union query and the per-part queries read one measurement.
+ * The union of the returned boxes is the element's whole world box, so the
+ * per-element union query and the per-part queries read one measurement.
  *
- * These are CPU boxes of finite stated or tessellated vertices under element-world and part-local TRS. Attached-bone transforms, skinning, animation, loaded external geometry and GPU Float32 evaluation are outside this measurement; enclosure of a rendered frame requires those extra effects to be absent or separately bounded.
+ * These are CPU boxes of finite stated or tessellated vertices under
+ * element-world and part-local TRS. Attached-bone transforms, skinning,
+ * animation, loaded external geometry and GPU Float32 evaluation are outside
+ * this measurement; enclosure of a rendered frame requires those extra effects
+ * to be absent or separately bounded.
  */
 export const builtPlacedPartBoxes: (
   model: IAutoMovieModel | undefined,

@@ -9,9 +9,15 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
 /**
  * Report the support patches usable in a logical space and its descendants.
  *
- * Support and walkability are separate facts: a roof deck may carry a prop without being somewhere a performer may walk. Both are answered by the stable surface id the lowered stage space also cites, so a caller never has to match geometry to learn which patch it is holding.
+ * Support and walkability are separate facts: a roof deck may carry a prop
+ * without being somewhere a performer may walk. Both are answered by the stable
+ * surface id the lowered stage space also cites, so a caller never has to match
+ * geometry to learn which patch it is holding.
  *
- * Each entry names the space that owns the patch, which may be a descendant of the asked space, the patch's surface id, and whether the record lists that id as walkable; entries come back in the record's surface order. Throws an `Error` for an undeclared space id.
+ * Each entry names the space that owns the patch, which may be a descendant of
+ * the asked space, the patch's surface id, and whether the record lists that id
+ * as walkable; entries come back in the record's surface order. Throws an
+ * `Error` for an undeclared space id.
  *
  * @param environment Building record to read.
  * @param spaceId Logical space whose support patches are reported.

@@ -12,19 +12,19 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 /**
  * Project authored shot markers through each play of an admitted sequence.
  *
- * A point survives when its time lies in the half-open source trim. The
- * opening point also survives if rounding collapses the numeric source end
- * onto the start of a positive played span.
- * A range survives when it has a positive intersection with the trim, and its
- * retained endpoints are mapped through the same start and rate as playback.
- * A range covering a collapsed span's opening instant plays across the whole
- * span, with both retained source endpoints at the opening instant.
- * Output order is start time, entry index and then id by UTF-16 code units.
- * The prepared layout must come from this same admitted sequence and shot set.
- * A preserved symbolic end defines the source boundary. For numeric trims,
- * the incoming trim start supplies a same-shot hard-cut seam when the two
- * bounds differ by no more than floating-point roundoff. Membership uses
- * exact comparisons and output endpoints stay within the played span.
+ * A point survives when its time lies in the half-open source trim. The opening
+ * point also survives if rounding collapses the numeric source end onto the
+ * start of a positive played span. A range survives when it has a positive
+ * intersection with the trim, and its retained endpoints are mapped through the
+ * same start and rate as playback. A range covering a collapsed span's opening
+ * instant plays across the whole span, with both retained source endpoints at
+ * the opening instant. Output order is start time, entry index and then id by
+ * UTF-16 code units. The prepared layout must come from this same admitted
+ * sequence and shot set. A preserved symbolic end defines the source boundary.
+ * For numeric trims, the incoming trim start supplies a same-shot hard-cut seam
+ * when the two bounds differ by no more than floating-point roundoff.
+ * Membership uses exact comparisons and output endpoints stay within the played
+ * span.
  */
 export function sequenceEditorialMarkerTimeline(
   sequence: IAutoMovieSequence,

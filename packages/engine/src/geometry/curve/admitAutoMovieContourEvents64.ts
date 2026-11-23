@@ -4,11 +4,12 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Admit saved event addresses and quarantine defective incident declarations.
- * A missing saved bracket cannot be located and refuses globally. Within a known
- * bracket, invalid terminals, coordinates, incidence or names remain local reasons;
- * no replacement terminal, contour association or critical coordinate is inferred.
- * Duplicate names quarantine every participant rather than selecting one owner.
+ * Admit saved event addresses and quarantine defective incident declarations. A
+ * missing saved bracket cannot be located and refuses globally. Within a known
+ * bracket, invalid terminals, coordinates, incidence or names remain local
+ * reasons; no replacement terminal, contour association or critical coordinate
+ * is inferred. Duplicate names quarantine every participant rather than
+ * selecting one owner.
  */
 export function admitAutoMovieContourEvents64(
   input: IAutoMovieContourLoft64,

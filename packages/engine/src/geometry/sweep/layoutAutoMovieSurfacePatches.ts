@@ -8,15 +8,15 @@ import type {
 /**
  * Create the face layout of a network's cage.
  *
- * Each emitted patch adds its faces row by row from `t` 0, each row from `s`
- * 0, wound counterclockwise as `(i, j), (i + 1, j), (i + 1, j + 1), (i, j + 1)`;
+ * Each emitted patch adds its faces row by row from `t` 0, each row from `s` 0,
+ * wound counterclockwise as `(i, j), (i + 1, j), (i + 1, j + 1), (i, j + 1)`;
  * every face corner carries `(patch, s, t)` and a UV value, the patch's
- * rectangle in texture space or, where it declares none, the band
- * `t in [k / P, (k + 1) / P]` of the unit square for patch `k` of `P`. A
- * patch's UVs are its own, so seams between patches stay seams in texture
- * space. A patch whose faces are no grid, a transition band, gives each
- * corner its own coordinates instead, and corners at the same coordinates
- * share a UV value. `check` then requires every directed edge to appear once.
+ * rectangle in texture space or, where it declares none, the band `t in [k / P,
+ * (k + 1) / P]` of the unit square for patch `k` of `P`. A patch's UVs are its
+ * own, so seams between patches stay seams in texture space. A patch whose
+ * faces are no grid, a transition band, gives each corner its own coordinates
+ * instead, and corners at the same coordinates share a UV value. `check` then
+ * requires every directed edge to appear once.
  *
  * @param network The network, only read.
  * @returns The empty layout.

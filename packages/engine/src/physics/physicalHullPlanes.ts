@@ -4,28 +4,30 @@ import { Vector3 } from "../math/Vector3";
 import { physicalHullLoop } from "./physicalHullLoop";
 
 /**
- * The faces of a convex hull from triangles that name its planes, in the
- * order of each face's first triple of points: the order a scan of every
- * triple in ascending index order meets them in.
+ * The faces of a convex hull from triangles that name its planes, in the order
+ * of each face's first triple of points: the order a scan of every triple in
+ * ascending index order meets them in.
  *
  * Each candidate triangle's plane is read again from the first triple, in
  * ascending index order, of the points on it, so a face's normal, offset and
- * membership do not depend on which triangle named it. A plane is kept when
- * it supports the hull, every point lying on it or behind it within the
- * tolerance, and a face that an earlier face's membership already holds is
- * dropped.
+ * membership do not depend on which triangle named it. A plane is kept when it
+ * supports the hull, every point lying on it or behind it within the tolerance,
+ * and a face that an earlier face's membership already holds is dropped.
  *
- * Candidates carried from another point set (`carried`) are not trusted to
- * name every plane. The result is then returned only when every candidate
- * supports these points and the faces close a surface, each boundary edge of
- * each face lying on a second face; otherwise null, and the caller searches.
+ * Candidates carried from another point set (`carried`) are not trusted to name
+ * every plane. The result is then returned only when every candidate supports
+ * these points and the faces close a surface, each boundary edge of each face
+ * lying on a second face; otherwise null, and the caller searches.
  *
  * @param points Shape-local points, metres.
  * @param extent The greatest distance between two points, metres.
- * @param tolerance The distance within which a point counts as on a plane, metres, finite.
+ * @param tolerance The distance within which a point counts as on a plane,
+ *   metres, finite.
  * @param triangles Candidate triangles as consecutive index triples.
- * @param carried Whether the candidates come from another point set and must be verified.
- * @returns The faces with their triples, or null when carried candidates fail their check.
+ * @param carried Whether the candidates come from another point set and must be
+ *   verified.
+ * @returns The faces with their triples, or null when carried candidates fail
+ *   their check.
  */
 export function physicalHullPlanes(
   points: readonly IAutoMovieVector3[],
@@ -48,7 +50,14 @@ export function physicalHullPlanes(
       )
     )
       continue;
-    let plane: IPlane | null = supporting(points, i!, j!, k!, extent, tolerance);
+    let plane: IPlane | null = supporting(
+      points,
+      i!,
+      j!,
+      k!,
+      extent,
+      tolerance,
+    );
     if (plane === null) {
       // A carried face that no longer supports the points is no face here.
       if (carried) return null;
@@ -121,9 +130,7 @@ export function physicalHullPlanes(
   return accepted.length === 0 ? null : result;
 }
 
-/**
- * The records {@link physicalHullPlanes} returns.
- */
+/** The records {@link physicalHullPlanes} returns. */
 export namespace physicalHullPlanes {
   /** The faces of one hull. */
   export interface IResult {
@@ -227,9 +234,9 @@ function supporting(
 }
 
 /**
- * The supporting plane of the first triple, in ascending index order, among
- * the points on a plane: the triple a scan of every triple would have met
- * first on that face. The plane itself when its own triple is that one.
+ * The supporting plane of the first triple, in ascending index order, among the
+ * points on a plane: the triple a scan of every triple would have met first on
+ * that face. The plane itself when its own triple is that one.
  */
 function earliest(
   points: readonly IAutoMovieVector3[],

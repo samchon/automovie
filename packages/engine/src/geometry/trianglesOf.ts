@@ -12,11 +12,12 @@ import { pointInPlanarRing } from "./pointInPlanarRing";
 /**
  * Triangulate a canonical region without changing its point identities.
  *
- * The caller supplies finite, nonintersecting rings admitted by canonicalRegion,
- * with the outer ring counter-clockwise and holes clockwise. Hole bridges are
- * traversed in both directions and ears retain collinear boundary subdivisions.
- * The result is a flat counter-clockwise triangle index array into points.
- * Floating-point bridge and ear searches refuse when no candidate is found.
+ * The caller supplies finite, nonintersecting rings admitted by
+ * canonicalRegion, with the outer ring counter-clockwise and holes clockwise.
+ * Hole bridges are traversed in both directions and ears retain collinear
+ * boundary subdivisions. The result is a flat counter-clockwise triangle index
+ * array into points. Floating-point bridge and ear searches refuse when no
+ * candidate is found.
  */
 export const trianglesOf: (
   region: Pick<IAutoMovieRegionTriangulation, "points" | "rings">,
@@ -32,7 +33,8 @@ export const trianglesOf: (
  * traversals meet nothing between them. Pending holes are searched in declared
  * order for a visible bridge. A sheltered hole waits until the hole screening
  * it joins the outer boundary, so declaration order cannot make a valid region
- * impossible. Floating-point predicates can still exhaust the search and refuse.
+ * impossible. Floating-point predicates can still exhaust the search and
+ * refuse.
  */
 const bridgeHoles: (
   points: readonly IAutoMovieProfilePoint[],
@@ -193,7 +195,8 @@ const earClip: (
  *
  * A vertex on the proposed diagonal blocks the cut too: skipping it can leave
  * only a zero-area chain for the remaining triangulation. A bridge repeats its
- * endpoints by index; those copies are the triangle's own corners, not blockers.
+ * endpoints by index; those copies are the triangle's own corners, not
+ * blockers.
  */
 const isEar: (
   points: readonly IAutoMovieProfilePoint[],

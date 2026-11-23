@@ -1,13 +1,13 @@
 /**
- * A root of a continuous function inside a bracket by the Illinois rule:
- * regula falsi that halves the stored value of the end kept twice in a row,
- * improving the one-sided stagnation of plain regula falsi. The familiar
- * superlinear order concerns a sufficiently regular simple root, not every
- * continuous residual (Dowell and Jarratt, A modified regula falsi method for
- * computing the root of an equation, BIT 11, 1971).
+ * A root of a continuous function inside a bracket by the Illinois rule: regula
+ * falsi that halves the stored value of the end kept twice in a row, improving
+ * the one-sided stagnation of plain regula falsi. The familiar superlinear
+ * order concerns a sufficiently regular simple root, not every continuous
+ * residual (Dowell and Jarratt, A modified regula falsi method for computing
+ * the root of an equation, BIT 11, 1971).
  *
- * The bracket's ends must give values of opposite signs (or one zero), and
- * the root found stays inside it, so a monotone function gives its one root.
+ * The bracket's ends must give values of opposite signs (or one zero), and the
+ * root found stays inside it, so a monotone function gives its one root.
  */
 export namespace AutoMovieIllinois {
   /**

@@ -8,30 +8,35 @@ import {
 
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 
-/** Shortest tangent part a curve keeps in a sweep's tangent plane before it is refused as meeting the sweep along its normal. */
+/**
+ * Shortest tangent part a curve keeps in a sweep's tangent plane before it is
+ * refused as meeting the sweep along its normal.
+ */
 const FLAT: number = 1e-9;
 
 /**
  * Compile a network curve for per-pose evaluation.
  *
- * The curve is the centripetal Catmull-Rom spline through its start node,
- * its through points and its end node, by chord-length share. At a node on a
- * sweep its end direction is the spline's own less its part along the
- * sweep's normal there, so it leaves or reaches the sweep in the sweep's
- * tangent plane. A bridge leaving the curve under the `across` rule takes
- * the declared normal at mid-curve, turning linearly toward each end to the
- * sweep's normal at a sweep node; under the other rules it takes the
- * declared direction. Through points, the normal and the direction ride the
- * curve's bone when it has one, and the nodes are written by their own rig.
+ * The curve is the centripetal Catmull-Rom spline through its start node, its
+ * through points and its end node, by chord-length share. At a node on a sweep
+ * its end direction is the spline's own less its part along the sweep's normal
+ * there, so it leaves or reaches the sweep in the sweep's tangent plane. A
+ * bridge leaving the curve under the `across` rule takes the declared normal at
+ * mid-curve, turning linearly toward each end to the sweep's normal at a sweep
+ * node; under the other rules it takes the declared direction. Through points,
+ * the normal and the direction ride the curve's bone when it has one, and the
+ * nodes are written by their own rig.
  *
  * @param props.name The curve's name, for diagnostics.
  * @param props.curve The curve, only read.
  * @param props.from The start node.
  * @param props.to The end node.
- * @param props.bone Bone index of the through points, normal and direction, or -1 for none.
+ * @param props.bone Bone index of the through points, normal and direction, or
+ *   -1 for none.
  * @param props.bones The rig's bone motions, or null for a rig without bones.
  * @returns The curve's rig.
- * @throws Error from `update` when the curve meets a sweep along its normal or the spline is refused by `transportAutoMovieSweepSpine`.
+ * @throws Error from `update` when the curve meets a sweep along its normal or
+ *   the spline is refused by `transportAutoMovieSweepSpine`.
  */
 export const rigAutoMovieSurfaceCurve: (
   props: IAutoMovieRigSurfaceCurve.IProps,

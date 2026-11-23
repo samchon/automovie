@@ -1,5 +1,8 @@
 /**
- * Freeze only strictly violated inequality rows for finite-difference probes. Exact one-sided boundaries remain free to depart into slack; equal finite sides use one signed row selected to match the current nonlinear error. Nonlinear merit remains clamped separately.
+ * Freeze only strictly violated inequality rows for finite-difference probes.
+ * Exact one-sided boundaries remain free to depart into slack; equal finite
+ * sides use one signed row selected to match the current nonlinear error.
+ * Nonlinear merit remains clamped separately.
  */
 export function linearizePhysicalInterval(
   value: number,

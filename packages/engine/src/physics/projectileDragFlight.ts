@@ -13,25 +13,24 @@ import { integrateMotionTrajectory } from "../motion/integrateMotionTrajectory";
 import { AutoMovieAir } from "./AutoMovieAir";
 
 /**
- * A projectile's flight under gravity and quadratic drag, read by time:
- * `dx/dt = v`, `dv/dt = gravity - k |v| v` with `k = rho Cd A / (2 m)`,
- * solved by the engine's one fixed-step integrator
- * (`integrateMotionTrajectory`, classical Runge-Kutta read by cubic Hermite)
- * from the launch.
+ * A projectile's flight under gravity and quadratic drag, read by time: `dx/dt
+ * = v`, `dv/dt = gravity - k |v| v` with `k = rho Cd A / (2 m)`, solved by the
+ * engine's one fixed-step integrator (`integrateMotionTrajectory`, classical
+ * Runge-Kutta read by cubic Hermite) from the launch.
  *
- * The step is chosen once per flight by step doubling (Press et al.,
- * Numerical Recipes, 3rd ed., 2007, sec. 17.2): from the integrator's own
- * default step, the step is halved until one step and two half steps from
- * the launch differ, divided by 15 (the fourth-order method's
- * `2^4 - 1`), by no more than `TOLERANCE` metres per second of the step,
- * so the error over a flight of `T` seconds stays near `TOLERANCE T`. The
- * probe starts at the launch with the speed the flight can reach at most:
- * a body faster than its terminal speed `sqrt(|g| / k)` only slows, one
- * slower only approaches it, so the speed never exceeds the larger of the
- * two, where the drag's acceleration is largest. With zero drag and nonzero
- * gravity the global speed bound is Infinity; the finite launch speed suffices
- * for the step probe because acceleration is constant. The halving stops at the
- * 52 bits of a double's mantissa, past which a step cannot shrink.
+ * The step is chosen once per flight by step doubling (Press et al., Numerical
+ * Recipes, 3rd ed., 2007, sec. 17.2): from the integrator's own default step,
+ * the step is halved until one step and two half steps from the launch differ,
+ * divided by 15 (the fourth-order method's `2^4 - 1`), by no more than
+ * `TOLERANCE` metres per second of the step, so the error over a flight of `T`
+ * seconds stays near `TOLERANCE T`. The probe starts at the launch with the
+ * speed the flight can reach at most: a body faster than its terminal speed
+ * `sqrt(|g| / k)` only slows, one slower only approaches it, so the speed never
+ * exceeds the larger of the two, where the drag's acceleration is largest. With
+ * zero drag and nonzero gravity the global speed bound is Infinity; the finite
+ * launch speed suffices for the step probe because acceleration is constant.
+ * The halving stops at the 52 bits of a double's mantissa, past which a step
+ * cannot shrink.
  *
  * The flight is integrated in chunks of `CHUNK` steps, each started from the
  * previous chunk's end, so a read far along the flight integrates only up to
@@ -42,7 +41,9 @@ import { AutoMovieAir } from "./AutoMovieAir";
  *
  * @param projectile A projectile with drag.
  * @returns The flight's reader.
- * @throws {RangeError} When launch vectors, speed/gravity norms, drag coefficients or their derived positive-drag bound are invalid or unrepresentable; reader methods also reject nonfinite times.
+ * @throws {RangeError} When launch vectors, speed/gravity norms, drag
+ *   coefficients or their derived positive-drag bound are invalid or
+ *   unrepresentable; reader methods also reject nonfinite times.
  */
 export function projectileDragFlight(
   projectile: IAutoMovieProjectile,
@@ -210,19 +211,19 @@ export function projectileDragFlight(
   return flight;
 }
 
-/**
- * Companion types and constants of {@link projectileDragFlight}.
- */
+/** Companion types and constants of {@link projectileDragFlight}. */
 export namespace projectileDragFlight {
   /**
-   * The error a flight may gather per second, metres: a tenth of the
-   * millimetre within which a flight's arrival is accepted (#3470: an arrow's
-   * arrival within 1 ms and 1 mm), so a flight of up to ten seconds stays
-   * inside it.
+   * The error a flight may gather per second, metres: a tenth of the millimetre
+   * within which a flight's arrival is accepted (#3470: an arrow's arrival
+   * within 1 ms and 1 mm), so a flight of up to ten seconds stays inside it.
    */
   export const TOLERANCE: number = 1e-4;
 
-  /** Steps per chunk: a memory bound no flight reads, about a thousand knots of six numbers per chunk. */
+  /**
+   * Steps per chunk: a memory bound no flight reads, about a thousand knots of
+   * six numbers per chunk.
+   */
   export const CHUNK: number = 1024;
 }
 
@@ -230,7 +231,10 @@ export namespace projectileDragFlight {
 const MEMO: WeakMap<IAutoMovieProjectile, IAutoMovieProjectileFlight> =
   new WeakMap();
 
-/** Reject an unbounded chunk request before allocation; finite prelaunch reads hold the launch. */
+/**
+ * Reject an unbounded chunk request before allocation; finite prelaunch reads
+ * hold the launch.
+ */
 const flightTime = (seconds: number): number => {
   if (!Number.isFinite(seconds))
     throw new RangeError(

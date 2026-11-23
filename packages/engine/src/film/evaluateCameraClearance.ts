@@ -55,7 +55,8 @@ function unionBoxes(
 }
 
 /**
- * Grow a box by a radius on every side, the box a sphere centre must enter to touch it; this over-covers the rounded corners, which keeps it conservative.
+ * Grow a box by a radius on every side, the box a sphere centre must enter to
+ * touch it; this over-covers the rounded corners, which keeps it conservative.
  */
 function inflateBox(
   box: IAutoMovieEvaluateCameraClearanceBox,
@@ -76,7 +77,8 @@ function inflateBox(
 }
 
 /**
- * Inclusive segment/box slab test. Equality is collision: a camera body that merely touches a wall or support has no physical clearance.
+ * Inclusive segment/box slab test. Equality is collision: a camera body that
+ * merely touches a wall or support has no physical clearance.
  */
 function segmentIntersectsBox(
   start: IAutoMovieVector3,
@@ -117,7 +119,10 @@ function sphereCenter(
 }
 
 /**
- * Extra radius covering the arc a rotated local centre sweeps between two camera states: the sagitta `r(1 - cos(θ/2))` of the shortest-path rotation angle `θ`, which is the largest gap between a constant-speed arc point and the chord point at the same interval fraction.
+ * Extra radius covering the arc a rotated local centre sweeps between two
+ * camera states: the sagitta `r(1 - cos(θ/2))` of the shortest-path rotation
+ * angle `θ`, which is the largest gap between a constant-speed arc point and
+ * the chord point at the same interval fraction.
  */
 function rotationArcMargin(
   first: IAutoMovieTransform,
@@ -172,19 +177,35 @@ function obstaclesByNode(
 }
 
 /**
- * Sweep one camera take's body and optional parent-rig spheres over every adjacent pair of samples and report each contact with each obstacle.
+ * Sweep one camera take's body and optional parent-rig spheres over every
+ * adjacent pair of samples and report each contact with each obstacle.
  *
- * For each interval, each sphere's centre travels the segment between its two transformed positions, its radius grows by the camera's largest absolute scale component and by the sagitta of the arc the centre sweeps under the interval's shortest-path rotation, and that capsule is tested against each obstacle's union of its two endpoint boxes. Touching counts as contact. A single sample is tested as a stationary sphere. A revision mismatch returns a `stale` report with no samples before any geometry is read.
+ * For each interval, each sphere's centre travels the segment between its two
+ * transformed positions, its radius grows by the camera's largest absolute
+ * scale component and by the sagitta of the arc the centre sweeps under the
+ * interval's shortest-path rotation, and that capsule is tested against each
+ * obstacle's union of its two endpoint boxes. Touching counts as contact. A
+ * single sample is tested as a stationary sphere. A revision mismatch returns a
+ * `stale` report with no samples before any geometry is read.
  *
- * The capsule bound assumes linear camera translation, constant camera scale, constant-speed slerp rotation and obstacles contained by their endpoint-box union. The compiler refines keys and keeps staged camera scale, but the sampler uses normalized lerp below about 3.6 degrees; its deviation is not covered by the slerp sagitta. Direct callers must also supply the constant-scale and endpoint-containment premises. Floating geometry remains numerical, without pixel observation.
+ * The capsule bound assumes linear camera translation, constant camera scale,
+ * constant-speed slerp rotation and obstacles contained by their endpoint-box
+ * union. The compiler refines keys and keeps staged camera scale, but the
+ * sampler uses normalized lerp below about 3.6 degrees; its deviation is not
+ * covered by the slerp sagitta. Direct callers must also supply the
+ * constant-scale and endpoint-containment premises. Floating geometry remains
+ * numerical, without pixel observation.
  *
- * Findings are ordered by interval, then body before parent rig, then obstacle id in UTF-16 code-unit order, so every host reports the same sequence.
+ * Findings are ordered by interval, then body before parent rig, then obstacle
+ * id in UTF-16 code-unit order, so every host reports the same sequence.
  *
  * @param input - Complete current-revision camera and obstacle sample plan.
  * @returns The take's report: `clear` with no findings, `blocked` with each
- * contact's part, obstacle and inclusive interval, or `stale`.
+ *   contact's part, obstacle and inclusive interval, or `stale`.
  * @throws Error when the sample rate or duration is invalid, when the samples
- * omit a fixed-clock instant, leave `[0, duration]` or are not strictly increasing, or when a box is non-finite or inverted, an obstacle id repeats within a sample, or the obstacle id set changes between samples.
+ *   omit a fixed-clock instant, leave `[0, duration]` or are not strictly
+ *   increasing, or when a box is non-finite or inverted, an obstacle id repeats
+ *   within a sample, or the obstacle id set changes between samples.
  */
 export function evaluateCameraClearance(
   input: IAutoMovieCameraClearanceEvaluation,

@@ -34,13 +34,27 @@ import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
 
 /**
- * Build the function that turns a gated camera subject into the framed subject the camera grammar solves from.
+ * Build the function that turns a gated camera subject into the framed subject
+ * the camera grammar solves from.
  *
- * Called once the performance, couplings and object clips are final, so a `follow` can track a walking actor, a launched prop or a handoff. The hero's frame moves and every coverage angle read subjects through the same function, so an alternate camera frames the beat's subject exactly as the hero does.
+ * Called once the performance, couplings and object clips are final, so a
+ * `follow` can track a walking actor, a launched prop or a handoff. The hero's
+ * frame moves and every coverage angle read subjects through the same function,
+ * so an alternate camera frames the beat's subject exactly as the hero does.
  *
- * A group is measured as the union of its resolved members' portable part/proxy boxes, with node placements from baked world transforms or actor translations and formation footprints from their cues. Height and radius are fixed from the union at the camera move's start. A moving group's follow or truck updates the base while retaining that fit. Below MIN_MEASURED_SUBJECT_HEIGHT, height takes DEFAULT_SUBJECT_HEIGHT.
+ * A group is measured as the union of its resolved members' portable part/proxy
+ * boxes, with node placements from baked world transforms or actor translations
+ * and formation footprints from their cues. Height and radius are fixed from
+ * the union at the camera move's start. A moving group's follow or truck
+ * updates the base while retaining that fit. Below MIN_MEASURED_SUBJECT_HEIGHT,
+ * height takes DEFAULT_SUBJECT_HEIGHT.
  *
- * Any other subject resolves to one point, from the live resolver when it answers and the staged placements otherwise, and is boxed through {@link nodeSubjectBox} from the geometry its model draws, falling back to its rig span and then the stand-in height. A baked node's framed base follows its full world frame. An actor translation or live bone target moves with the fixed offset of its staged subject box. A camera subject holds still.
+ * Any other subject resolves to one point, from the live resolver when it
+ * answers and the staged placements otherwise, and is boxed through
+ * {@link nodeSubjectBox} from the geometry its model draws, falling back to its
+ * rig span and then the stand-in height. A baked node's framed base follows its
+ * full world frame. An actor translation or live bone target moves with the
+ * fixed offset of its staged subject box. A camera subject holds still.
  *
  * @param context The shot's staged tables.
  * @param props.models Compiler-owned models of the staged nodes, if any.
@@ -48,7 +62,8 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
  * @param props.motions The compiled actor clips by node id.
  * @param props.objectMotions Every object clip in producer order.
  * @param props.rotations Each staged node's world rotation, by id.
- * @returns A function from a gated subject and optional move start in shot-local seconds to its framed subject. The start defaults to zero.
+ * @returns A function from a gated subject and optional move start in
+ *   shot-local seconds to its framed subject. The start defaults to zero.
  */
 export function createPerformShotSubjectFramer(
   context: IAutoMovieEnginePerformShotGateContext,
@@ -78,7 +93,10 @@ export function createPerformShotSubjectFramer(
         channels: ReadonlyMap<string, IAutoMovieSampledChannel>;
       }
     | undefined;
-  /** Share the playback authority and sampled key values across subjects at the current instant. */
+  /**
+   * Share the playback authority and sampled key values across subjects at the
+   * current instant.
+   */
   function bakedPlacement(
     node: string,
     seconds: number,
@@ -104,7 +122,10 @@ export function createPerformShotSubjectFramer(
     }
     return extent;
   }
-  /** A node's model-space extent, reusing its model measurement and querying the rig fallback when that measurement is absent. */
+  /**
+   * A node's model-space extent, reusing its model measurement and querying the
+   * rig fallback when that measurement is absent.
+   */
   function nodeExtent(node: string): IAutoMovieSubjectBox {
     let extent: IAutoMovieSubjectBox | null | undefined = extents.get(node);
     if (extent === undefined) {
@@ -273,7 +294,10 @@ export function createPerformShotSubjectFramer(
   };
 }
 
-/** Read the actor clip under the staged facing, or null when neither drives actor translation. */
+/**
+ * Read the actor clip under the staged facing, or null when neither drives
+ * actor translation.
+ */
 function actorMovementOf(
   props: {
     motions: Readonly<Record<string, IAutoMovieMotion>>;

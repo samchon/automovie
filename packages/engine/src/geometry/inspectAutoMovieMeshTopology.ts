@@ -9,11 +9,27 @@ import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMe
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
- * Measure a mesh's triangle topology and signed volume from its actual buffers instead of assuming them.
+ * Measure a mesh's triangle topology and signed volume from its actual buffers
+ * instead of assuming them.
  *
- * Without physical source correspondence, vertices weld by position on the `MESH_WELD_GRID` lattice, so face-local corners can still form one shell. A mesh that declares physical sources instead keeps their incidence across contact: two different sources stay distinct even where they touch. A triangle whose corners collapse onto fewer than three grid cells is counted degenerate, by ordinal, and contributes no edges in either mode. A closed solid reports `watertight`; an assembly whose members share faces, or a surface meant to stay open, reports its boundary and non-manifold edge counts rather than passing. Non-finite components are counted across positions, normals, UVs, colours and relief weights. Coordinates are metres and the volume, by the divergence theorem, is cubic metres, positive for an outward-wound closed shell.
+ * Without physical source correspondence, vertices weld by position on the
+ * `MESH_WELD_GRID` lattice, so face-local corners can still form one shell. A
+ * mesh that declares physical sources instead keeps their incidence across
+ * contact: two different sources stay distinct even where they touch. A
+ * triangle whose corners collapse onto fewer than three grid cells is counted
+ * degenerate, by ordinal, and contributes no edges in either mode. A closed
+ * solid reports `watertight`; an assembly whose members share faces, or a
+ * surface meant to stay open, reports its boundary and non-manifold edge counts
+ * rather than passing. Non-finite components are counted across positions,
+ * normals, UVs, colours and relief weights. Coordinates are metres and the
+ * volume, by the divergence theorem, is cubic metres, positive for an
+ * outward-wound closed shell.
  *
- * This measures; it does not judge. `validateMeshTopology` is the verdict on the same surface, adding winding consistency and an `expectClosed` declaration, and `validateModel` runs it on every mesh a model carries. A malformed index buffer and invalid physical correspondence throw their own named refusals. The mesh is only read.
+ * This measures; it does not judge. `validateMeshTopology` is the verdict on
+ * the same surface, adding winding consistency and an `expectClosed`
+ * declaration, and `validateModel` runs it on every mesh a model carries. A
+ * malformed index buffer and invalid physical correspondence throw their own
+ * named refusals. The mesh is only read.
  *
  * @param mesh Mesh to measure.
  * @returns Counts, degenerate ordinals, closure and volume.
@@ -94,7 +110,9 @@ export const inspectAutoMovieMeshTopology: (
 };
 
 /**
- * How many components of one optional attribute buffer are not finite numbers, counted in place so measuring a merged building never allocates a second copy of its buffers.
+ * How many components of one optional attribute buffer are not finite numbers,
+ * counted in place so measuring a merged building never allocates a second copy
+ * of its buffers.
  */
 const countNonFinite: (values: readonly number[] | null) => number = (
   values: readonly number[] | null,

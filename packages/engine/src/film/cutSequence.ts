@@ -15,9 +15,7 @@ import { validateObjectArtifact } from "../validation/validateObjectArtifact";
 import { checkCutPropContinuity } from "./checkCutPropContinuity";
 import { sequenceEventTimeline } from "./sequenceEventTimeline";
 
-/**
- * A built shot with the index it was first supplied at.
- */
+/** A built shot with the index it was first supplied at. */
 interface IBuiltShot {
   /** The first shot supplied under the id. */
   shot: IAutoMovieShot;
@@ -30,11 +28,33 @@ interface IBuiltShot {
 type RequiredEvent = NonNullable<IAutoMovieEditPlan["requiredEvents"]>[number];
 
 /**
- * The ASSEMBLE consumer: fold the editor's cut-list into an {@link IAutoMovieSequence} over the shots the pipeline actually built, or return every violation at once.
+ * The ASSEMBLE consumer: fold the editor's cut-list into an
+ * {@link IAutoMovieSequence} over the shots the pipeline actually built, or
+ * return every violation at once.
  *
- * The layout gates are editorial arithmetic. Built shot ids are unique; the sequence id and each entry's shot id are non-blank; the frame rate is finite and positive; there is at least one entry; every entry names a built shot whose duration is finite and positive; a trim has a finite positive duration and a finite start, and lies inside `[0, shot.duration]`; the entry rate is finite and positive with a representable positive output span; the first entry has no transition; and a transition is finite and positive, no longer than either neighbour's played span, and does not overlap the previous entry's own incoming transition inside that entry. An event trim resolves two exact, uniquely occurring built shot events to the same numeric source span before these checks. Pacing and continuity rationale stay prose.
+ * The layout gates are editorial arithmetic. Built shot ids are unique; the
+ * sequence id and each entry's shot id are non-blank; the frame rate is finite
+ * and positive; there is at least one entry; every entry names a built shot
+ * whose duration is finite and positive; a trim has a finite positive duration
+ * and a finite start, and lies inside `[0, shot.duration]`; the entry rate is
+ * finite and positive with a representable positive output span; the first
+ * entry has no transition; and a transition is finite and positive, no longer
+ * than either neighbour's played span, and does not overlap the previous
+ * entry's own incoming transition inside that entry. An event trim resolves two
+ * exact, uniquely occurring built shot events to the same numeric source span
+ * before these checks. Pacing and continuity rationale stay prose.
  *
- * `runtime` is in seconds: the sum of each entry's played output span (retained source duration divided by the entry rate) minus each transition's duration, since a transition overlaps the previous entry's tail. An unrepresentable runtime is refused at entries. Each event requirement addresses one playback entry and must match one built shot interaction event after trim and seam ownership. Prop requirements compare sampled object-motion channels on the two retained sides of hard cuts. Requirement lists and records are checked before their fields are read. The sequence copies the plan's id, name, frame rate and entries in order, borrowing numeric trim and transition objects, lowering event trims with exact source ends, and recording only nondefault playback rates.
+ * `runtime` is in seconds: the sum of each entry's played output span (retained
+ * source duration divided by the entry rate) minus each transition's duration,
+ * since a transition overlaps the previous entry's tail. An unrepresentable
+ * runtime is refused at entries. Each event requirement addresses one playback
+ * entry and must match one built shot interaction event after trim and seam
+ * ownership. Prop requirements compare sampled object-motion channels on the
+ * two retained sides of hard cuts. Requirement lists and records are checked
+ * before their fields are read. The sequence copies the plan's id, name, frame
+ * rate and entries in order, borrowing numeric trim and transition objects,
+ * lowering event trims with exact source ends, and recording only nondefault
+ * playback rates.
  */
 export function cutSequence(
   assemble: IAutoMovieEditPlan,
@@ -89,7 +109,10 @@ export function cutSequence(
   /** Index each symbolically trimmed shot only on its first use. */
   const eventTimesByShot: Map<string, Map<string, number | null>> = new Map();
 
-  /** Resolve one exact id, reporting absent, repeated and invalid bounds individually. */
+  /**
+   * Resolve one exact id, reporting absent, repeated and invalid bounds
+   * individually.
+   */
   function resolveEventBound(
     times: Map<string, number | null>,
     shot: IAutoMovieShot,
@@ -122,7 +145,10 @@ export function cutSequence(
     return time;
   }
 
-  /** Lower ordered, admitted event times without reconstructing an end beyond the source event. */
+  /**
+   * Lower ordered, admitted event times without reconstructing an end beyond
+   * the source event.
+   */
   function trimBetweenEvents(start: number, end: number): IAutoMovieTrim {
     let duration: number = end - start;
     if (start + duration > end) {

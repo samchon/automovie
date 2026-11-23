@@ -13,13 +13,22 @@ import { bilinearQuaternionSwivelRoots } from "../math/bilinearQuaternionSwivelR
 import { prepareFiniteQuaternionDot } from "../math/prepareFiniteQuaternionDot";
 import { toRigAngle } from "../rom/toRigAngle";
 
-/** The inverse owner's three clinical coordinates, with no alternate axis representation. */
+/**
+ * The inverse owner's three clinical coordinates, with no alternate axis
+ * representation.
+ */
 type ClinicalAxis = keyof IAutoMovieResolvedJointAngles;
 
-/** The interface contract (`IAutoMoviePrepareJointRotationCoefficientDots.IDot`). */
+/**
+ * The interface contract
+ * (`IAutoMoviePrepareJointRotationCoefficientDots.IDot`).
+ */
 type IDot = IAutoMoviePrepareJointRotationCoefficientDots.IDot;
 
-/** Actual fixed-rig inputs, already selected by the projector's box eligibility gate. */
+/**
+ * Actual fixed-rig inputs, already selected by the projector's box eligibility
+ * gate.
+ */
 interface IProps {
   /** Original normalized clinical axes. */
   basis: IAutoMovieJointAxes;
@@ -29,7 +38,10 @@ interface IProps {
   immobile: readonly ClinicalAxis[];
   /** Positive-width coordinates in the original F/A/T ordering. */
   mobile: readonly ClinicalAxis[];
-  /** Canonical numeric-zero immobile seed, or each numeric fixed range's minimum. */
+  /**
+   * Canonical numeric-zero immobile seed, or each numeric fixed range's
+   * minimum.
+   */
   fixed: IAutoMovieJointPose;
   /** Original actual quaternion factor order. */
   order: readonly ClinicalAxis[];
@@ -39,11 +51,20 @@ interface IProps {
 
 /** One source-fixed factor and its optional distinct null-rest factor. */
 interface IFixed {
-  /** Fixed clinical coordinate whose actual reference representation selects the factor. */
+  /**
+   * Fixed clinical coordinate whose actual reference representation selects the
+   * factor.
+   */
   axis: ClinicalAxis;
-  /** Original numeric-coordinate factor, composed at its original preparation site. */
+  /**
+   * Original numeric-coordinate factor, composed at its original preparation
+   * site.
+   */
   factor: IAutoMovieQuaternion;
-  /** Null-mode bit, zero when null has the same exact rig angle or is not admitted. */
+  /**
+   * Null-mode bit, zero when null has the same exact rig angle or is not
+   * admitted.
+   */
   bit: number;
   /** Lazy actual rig-zero factor; never an incoming target or scored result. */
   rest?: IAutoMovieQuaternion;
@@ -59,14 +80,14 @@ interface IVariant {
 
 /**
  * Prepare the box objective's fixed-rig coefficients for actual fixed outputs.
- * Numeric immobile outputs mean clinical zero, as the ordinary clamp emits;
- * an explicitly null output instead means rig zero, as joint composition reads.
+ * Numeric immobile outputs mean clinical zero, as the ordinary clamp emits; an
+ * explicitly null output instead means rig zero, as joint composition reads.
  * Only null-ROM fixed coordinates can select between these two declared modes.
- * The explicit two-axis companion also keeps the source-fixed Gram cross
- * term. Its four product columns have unit norm, C1.C2=-C0.C3, and all
- * remaining cross-dots zero. Two actual half-angle quaternion coefficients
- * therefore map through the structured adjugate to the shared rank-one
- * sinusoid solver. Its roots are proposals, not ROM or objective admission.
+ * The explicit two-axis companion also keeps the source-fixed Gram cross term.
+ * Its four product columns have unit norm, C1.C2=-C0.C3, and all remaining
+ * cross-dots zero. Two actual half-angle quaternion coefficients therefore map
+ * through the structured adjugate to the shared rank-one sinusoid solver. Its
+ * roots are proposals, not ROM or objective admission.
  */
 export function prepareJointRotationCoefficientDots(
   props: IProps,
@@ -76,10 +97,15 @@ export function prepareJointRotationCoefficientDots(
   for (const axis of props.order)
     if (!props.mobile.includes(axis)) {
       const direction: IAutoMovieJointAxes[ClinicalAxis] = props.basis[axis];
-      const angle: number = toRigAngle(props.fixed[axis], props.frame?.[axis]) ?? 0;
-      const factor: IAutoMovieQuaternion = Quaternion.fromAxisAngle(direction, angle);
+      const angle: number =
+        toRigAngle(props.fixed[axis], props.frame?.[axis]) ?? 0;
+      const factor: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        direction,
+        angle,
+      );
       const mayRest: boolean = props.immobile.includes(axis);
-      const bit: number = mayRest && !Object.is(angle, 0) ? 1 << nullable.length : 0;
+      const bit: number =
+        mayRest && !Object.is(angle, 0) ? 1 << nullable.length : 0;
       const row: IFixed = { axis, factor, bit };
       fixed[axis] = row;
       if (bit !== 0) nullable.push(row);
@@ -88,7 +114,10 @@ export function prepareJointRotationCoefficientDots(
     }
   const variants: Array<IVariant | undefined> = [];
 
-  /** Original four coefficient masks, with only fixed rig representation varying. */
+  /**
+   * Original four coefficient masks, with only fixed rig representation
+   * varying.
+   */
   const build: (mode: number) => IVariant = (mode: number): IVariant => {
     const coefficients: IAutoMovieQuaternion[] = [0, 1, 2, 3].map(
       (mask: number): IAutoMovieQuaternion => {
@@ -98,10 +127,14 @@ export function prepareJointRotationCoefficientDots(
         for (const axis of props.order) {
           const index: number = props.mobile.indexOf(axis);
           const row: IFixed | undefined = fixed[axis];
-          const factor: IAutoMovieQuaternion = index < 0
-            ? (mode & row!.bit) === 0 ? row!.factor
-              : (row!.rest ??= Quaternion.fromAxisAngle(props.basis[axis], 0))
-            : (mask & (1 << index)) === 0 ? Quaternion.identity() : { ...props.basis[axis], w: 0 };
+          const factor: IAutoMovieQuaternion =
+            index < 0
+              ? (mode & row!.bit) === 0
+                ? row!.factor
+                : (row!.rest ??= Quaternion.fromAxisAngle(props.basis[axis], 0))
+              : (mask & (1 << index)) === 0
+                ? Quaternion.identity()
+                : { ...props.basis[axis], w: 0 };
           product = Quaternion.multiply(product, factor);
         }
         return product;
@@ -119,29 +152,40 @@ export function prepareJointRotationCoefficientDots(
     let mode: number = 0;
     for (const row of nullable)
       if (reference[row.axis] === null) mode |= row.bit;
-    const variant: IVariant = variants[mode] ??= build(mode);
+    const variant: IVariant = (variants[mode] ??= build(mode));
     return variant;
   };
   return Object.assign(
     (reference: IAutoMovieJointPose): readonly IDot[] => read(reference).dots,
-    { swivels: (reference: IAutoMovieJointPose,
-      cosine: IAutoMovieQuaternion, sine: IAutoMovieQuaternion): ReturnType<typeof bilinearQuaternionSwivelRoots> => {
-      if (props.mobile.length !== 2) return null;
-      const variant: IVariant = read(reference);
-      const dots: readonly IDot[] = variant.dots;
-      return bilinearQuaternionSwivelRoots(
-        [dots[0]!(cosine), dots[1]!(cosine), dots[2]!(cosine), dots[3]!(cosine)],
-        [dots[0]!(sine), dots[1]!(sine), dots[2]!(sine), dots[3]!(sine)],
-        variant.cross,
-      );
-    } },
+    {
+      swivels: (
+        reference: IAutoMovieJointPose,
+        cosine: IAutoMovieQuaternion,
+        sine: IAutoMovieQuaternion,
+      ): ReturnType<typeof bilinearQuaternionSwivelRoots> => {
+        if (props.mobile.length !== 2) return null;
+        const variant: IVariant = read(reference);
+        const dots: readonly IDot[] = variant.dots;
+        return bilinearQuaternionSwivelRoots(
+          [
+            dots[0]!(cosine),
+            dots[1]!(cosine),
+            dots[2]!(cosine),
+            dots[3]!(cosine),
+          ],
+          [dots[0]!(sine), dots[1]!(sine), dots[2]!(sine), dots[3]!(sine)],
+          variant.cross,
+        );
+      },
+    },
   );
 }
 
-/**
- * Fixed quaternion coefficient dots and explicit orientation-circle proposals.
- */
+/** Fixed quaternion coefficient dots and explicit orientation-circle proposals. */
 export namespace prepareJointRotationCoefficientDots {
-  /** The interface contract (`IAutoMoviePrepareJointRotationCoefficientDots.IReader`). */
+  /**
+   * The interface contract
+   * (`IAutoMoviePrepareJointRotationCoefficientDots.IReader`).
+   */
   export type IReader = IAutoMoviePrepareJointRotationCoefficientDots.IReader;
 }

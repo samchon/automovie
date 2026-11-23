@@ -10,15 +10,15 @@ import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
 /**
  * Choose one bounded support fit among candidates fitted from different seeds.
  *
- * A warm seed keeps temporal continuity but can trap the bounded fit in a
- * poor local solution that it then carries into every later replan; an
- * authored seed restarts from the declared posture each time. Candidates are
- * ranked by the fit's own contract: a fit whose largest residual meets the
- * declared tolerance is admissible. Among admissible fits the one closest to
- * the completed reference, summed squared joint rotation angle, wins, so an
- * equally valid solution never jumps. Without an admissible fit the smallest
- * residual wins. Ties keep the earlier candidate, so callers list the
- * authored-seed fit first.
+ * A warm seed keeps temporal continuity but can trap the bounded fit in a poor
+ * local solution that it then carries into every later replan; an authored seed
+ * restarts from the declared posture each time. Candidates are ranked by the
+ * fit's own contract: a fit whose largest residual meets the declared tolerance
+ * is admissible. Among admissible fits the one closest to the completed
+ * reference, summed squared joint rotation angle, wins, so an equally valid
+ * solution never jumps. Without an admissible fit the smallest residual wins.
+ * Ties keep the earlier candidate, so callers list the authored-seed fit
+ * first.
  */
 export function choosePhysicalSupportFit<
   Fit extends {

@@ -15,7 +15,8 @@ import { Vector3 } from "../math/Vector3";
  * @param pose Parent pose in world metres and an admitted unit rotation.
  * @param shape Admitted local shape geometry and transform, in metres.
  * @returns Fresh world-axis minimum and maximum coordinates.
- * @throws {Error} For an unknown runtime shape kind; admission of numeric geometry remains the caller's responsibility.
+ * @throws {Error} For an unknown runtime shape kind; admission of numeric
+ *   geometry remains the caller's responsibility.
  */
 export function physicalShapeBounds(
   pose: IAutoMovieRigidTransform,
@@ -23,7 +24,10 @@ export function physicalShapeBounds(
 ): IAutoMoviePhysicalShapeBounds.IResult {
   // Read the parent position before rotation, as the original add operands do.
   const origin: IAutoMovieVector3 = pose.position;
-  const center: IAutoMovieVector3 = Quaternion.rotateVector(pose.rotation, shape.transform.position);
+  const center: IAutoMovieVector3 = Quaternion.rotateVector(
+    pose.rotation,
+    shape.transform.position,
+  );
   center.x = origin.x + center.x;
   center.y = origin.y + center.y;
   center.z = origin.z + center.z;
@@ -35,58 +39,75 @@ export function physicalShapeBounds(
 }
 
 /**
- * Bounds on a freshly composed shape frame, shared by the legacy pose entry
- * and consumers that need this same frame for another geometric reading.
+ * Bounds on a freshly composed shape frame, shared by the legacy pose entry and
+ * consumers that need this same frame for another geometric reading.
  */
 export namespace physicalShapeBounds {
   /**
    * The exact world-axis minimum Y, metres, for a floor-only observation.
    * Compose the needed components of the same admitted parent/local frame,
    * keeping its original Y expression, vertex order and Math.min/NaN behavior.
-   * Every shape remains queried; only unused axes/maxima and result records
-   * are omitted. Sphere/capsule/box are constant work and hulls scan V points.
+   * Every shape remains queried; only unused axes/maxima and result records are
+   * omitted. Sphere/capsule/box are constant work and hulls scan V points.
    * KnockdownFloor consumes this scalar in both floor reductions. Each call
-   * reads current geometry and releases its frame/vertex temporaries on return.
+   * reads current geometry and releases its frame/vertex temporaries on
+   * return.
    */
-  export function lowest(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape): number {
+  export function lowest(
+    pose: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
+  ): number {
     const origin: IAutoMovieVector3 = pose.position;
     const offsetY: number = Quaternion.rotateVectorY(
-      pose.rotation, shape.transform.position,
+      pose.rotation,
+      shape.transform.position,
     );
     const centerY: number = origin.y + offsetY;
     if (shape.kind === "sphere") return centerY - shape.radius;
-    const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(pose.rotation, shape.transform.rotation);
+    const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+      pose.rotation,
+      shape.transform.rotation,
+    );
     return lowestFromShapeFrame(centerY, rotation, shape);
   }
 
   /**
-   * Exact minimum Y from an actual parent's world Y and unit rotation.
-   * The shape's local transform is still applied here. This shares lowest's
+   * Exact minimum Y from an actual parent's world Y and unit rotation. The
+   * shape's local transform is still applied here. This shares lowest's
    * numerical owner without asking a floor-only caller to construct unused
-   * parent X/Z coordinates or a transform wrapper. Inputs are admitted by
-   * the caller; every actual shape and hull vertex remains observed.
+   * parent X/Z coordinates or a transform wrapper. Inputs are admitted by the
+   * caller; every actual shape and hull vertex remains observed.
    */
   export function lowestFromParent(
     parentY: number,
     parentRotation: IAutoMovieRigidTransform["rotation"],
     shape: IAutoMoviePhysicalShape,
   ): number {
-    const centerY: number = parentY + Quaternion.rotateVectorY(parentRotation, shape.transform.position);
+    const centerY: number =
+      parentY +
+      Quaternion.rotateVectorY(parentRotation, shape.transform.position);
     if (shape.kind === "sphere") return centerY - shape.radius;
-    return lowestFromShapeFrame(centerY, Quaternion.multiply(parentRotation, shape.transform.rotation), shape);
+    return lowestFromShapeFrame(
+      centerY,
+      Quaternion.multiply(parentRotation, shape.transform.rotation),
+      shape,
+    );
   }
 
   /**
-   * Read bounds from an actual composed shape centre and orientation.
-   * The centre is in world metres and rotation includes both parent and
-   * local shape rotation; shape.transform has already been applied and is
-   * not applied again. All shape geometry is admitted by the caller.
+   * Read bounds from an actual composed shape centre and orientation. The
+   * centre is in world metres and rotation includes both parent and local shape
+   * rotation; shape.transform has already been applied and is not applied
+   * again. All shape geometry is admitted by the caller.
    *
-   * This is the same numerical owner as physicalShapeBounds: sphere,
-   * capsule and box extents retain their original expressions and hull
-   * extrema retain original vertex order. It mutates and retains no input.
+   * This is the same numerical owner as physicalShapeBounds: sphere, capsule
+   * and box extents retain their original expressions and hull extrema retain
+   * original vertex order. It mutates and retains no input.
    *
-   * @param takeHullPoint Optional synchronous ownership transfer of each fresh rotated hull offset in world axes, before translation and after extrema consumption. It may adopt or mutate that vector but must not change the shape or current frame.
+   * @param takeHullPoint Optional synchronous ownership transfer of each fresh
+   *   rotated hull offset in world axes, before translation and after extrema
+   *   consumption. It may adopt or mutate that vector but must not change the
+   *   shape or current frame.
    */
   export function fromFrame(
     center: IAutoMovieVector3,
@@ -94,8 +115,7 @@ export namespace physicalShapeBounds {
     shape: IAutoMoviePhysicalShape,
     takeHullPoint?: (point: IAutoMovieVector3) => void,
   ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } {
-    if (shape.kind === "sphere")
-      return sphereBounds(center, shape.radius);
+    if (shape.kind === "sphere") return sphereBounds(center, shape.radius);
     let extent: IAutoMovieVector3;
     if (shape.kind === "capsule") {
       const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Y);
@@ -113,7 +133,10 @@ export namespace physicalShapeBounds {
       let maxY: number = -Infinity;
       let maxZ: number = -Infinity;
       for (const point of shape.points) {
-        const world: IAutoMovieVector3 = Quaternion.rotateVector(rotation, point);
+        const world: IAutoMovieVector3 = Quaternion.rotateVector(
+          rotation,
+          point,
+        );
         minX = Math.min(minX, world.x);
         minY = Math.min(minY, world.y);
         minZ = Math.min(minZ, world.z);
@@ -155,7 +178,10 @@ export namespace physicalShapeBounds {
   }
 }
 
-/** A sphere's six original centre-plus/minus-radius expressions need no orientation. */
+/**
+ * A sphere's six original centre-plus/minus-radius expressions need no
+ * orientation.
+ */
 function sphereBounds(
   center: IAutoMovieVector3,
   radius: number,
@@ -175,7 +201,10 @@ const AXIS_Y: Readonly<IAutoMovieVector3> = { x: 0, y: 1, z: 0 };
 /** Third oriented-box column, shared without caller-owned geometry. */
 const AXIS_Z: Readonly<IAutoMovieVector3> = { x: 0, y: 0, z: 1 };
 
-/** One original minimum-Y kernel consumes already composed non-spherical shape frames. */
+/**
+ * One original minimum-Y kernel consumes already composed non-spherical shape
+ * frames.
+ */
 function lowestFromShapeFrame(
   centerY: number,
   rotation: IAutoMovieRigidTransform["rotation"],
@@ -189,8 +218,10 @@ function lowestFromShapeFrame(
     const x: number = Quaternion.rotateVectorY(rotation, AXIS_X);
     const y: number = Quaternion.rotateVectorY(rotation, AXIS_Y);
     const z: number = Quaternion.rotateVectorY(rotation, AXIS_Z);
-    const extent: number = Math.abs(x) * shape.halfExtents.x +
-      Math.abs(y) * shape.halfExtents.y + Math.abs(z) * shape.halfExtents.z;
+    const extent: number =
+      Math.abs(x) * shape.halfExtents.x +
+      Math.abs(y) * shape.halfExtents.y +
+      Math.abs(z) * shape.halfExtents.z;
     return centerY - extent;
   }
   if (shape.kind === "hull") {

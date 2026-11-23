@@ -12,25 +12,32 @@ import type {
  *
  * A bone's local rotation is its rest rotation times its articulation; its
  * world rotation is its parent's world rotation times that; and its world
- * position is its parent's world position plus the parent-rotated rest
- * offset. A bone with no parent stands under the given root. The rows are
- * parent first, so a parent's frame is complete when its child reads it.
- * Scale is not read. Nothing is admitted or normalized: the articulations
- * and the root are what an admission wrote, and a component that is not a
- * number propagates as arithmetic gives it.
+ * position is its parent's world position plus the parent-rotated rest offset.
+ * A bone with no parent stands under the given root. The rows are parent first,
+ * so a parent's frame is complete when its child reads it. Scale is not read.
+ * Nothing is admitted or normalized: the articulations and the root are what an
+ * admission wrote, and a component that is not a number propagates as
+ * arithmetic gives it.
  *
  * The expressions are those of `Quaternion.multiply`, `Quaternion.rotateVector`
  * and `Vector3.add`, in their grouping, so a frame has the components the
  * record forms of the same operands give.
  *
  * @param tables The rig's rows (`composePoseFrames.tables`).
- * @param articulations Each bone's rest-relative articulation, four numbers a bone (x, y, z, w) in the rig's row order.
+ * @param articulations Each bone's rest-relative articulation, four numbers a
+ *   bone (x, y, z, w) in the rig's row order.
  * @param rootRotation The rotation the rootless bones stand under.
  * @param rootTranslation Their origin, model metres.
- * @param frames The workspace the frames are written to (`composePoseFrames.frames`).
- * @param from The first row composed; 0 when absent. The rows before it must already hold this pose's frames.
- * @param indices Optional parent-first row selection. When supplied, from and to index this selection, and each selected parent must already be composed or precede its child.
- * @param to The row after the last composed; every row when absent. A prefix of the rows is complete in itself, since every row's ancestors come before it.
+ * @param frames The workspace the frames are written to
+ *   (`composePoseFrames.frames`).
+ * @param from The first row composed; 0 when absent. The rows before it must
+ *   already hold this pose's frames.
+ * @param indices Optional parent-first row selection. When supplied, from and
+ *   to index this selection, and each selected parent must already be composed
+ *   or precede its child.
+ * @param to The row after the last composed; every row when absent. A prefix of
+ *   the rows is complete in itself, since every row's ancestors come before
+ *   it.
  */
 export function composePoseFrames(
   tables: composePoseFrames.ITables,
@@ -121,9 +128,7 @@ export function composePoseFrames(
   }
 }
 
-/**
- * The tables, the workspace and the record view of {@link composePoseFrames}.
- */
+/** The tables, the workspace and the record view of {@link composePoseFrames}. */
 export namespace composePoseFrames {
   /** One rooted rig as numeric rows, parent first. */
   export interface ITables {
@@ -136,10 +141,16 @@ export namespace composePoseFrames {
     /** Each bone's parent row, -1 for a bone without one. */
     parents: Int32Array;
 
-    /** Each bone's rest rotation in its parent's frame, four numbers a bone (x, y, z, w). */
+    /**
+     * Each bone's rest rotation in its parent's frame, four numbers a bone (x,
+     * y, z, w).
+     */
     rests: Float64Array;
 
-    /** Each bone's rest offset in its parent's frame, metres, three numbers a bone. */
+    /**
+     * Each bone's rest offset in its parent's frame, metres, three numbers a
+     * bone.
+     */
     offsets: Float64Array;
   }
 
@@ -155,7 +166,10 @@ export namespace composePoseFrames {
     position: Float64Array;
   }
 
-  /** What a rig's node gives its row: the name, the parent's row and the rest transform's rotation and translation. */
+  /**
+   * What a rig's node gives its row: the name, the parent's row and the rest
+   * transform's rotation and translation.
+   */
   export interface INode {
     /** The bone's name. */
     name: AutoMovieHumanoidBone;
@@ -170,7 +184,10 @@ export namespace composePoseFrames {
     rotation: IAutoMovieQuaternion;
   }
 
-  /** A rig's tables, built from its parent-first nodes on first use and kept with the node list. */
+  /**
+   * A rig's tables, built from its parent-first nodes on first use and kept
+   * with the node list.
+   */
   export function tables(nodes: readonly INode[]): ITables {
     const known: ITables | undefined = TABLES.get(nodes);
     if (known !== undefined) return known;
@@ -213,7 +230,10 @@ export namespace composePoseFrames {
     return rows;
   }
 
-  /** One composed bone as a fresh public record, no value of which aliases the workspace or another record. */
+  /**
+   * One composed bone as a fresh public record, no value of which aliases the
+   * workspace or another record.
+   */
   export function bone(
     names: readonly AutoMovieHumanoidBone[],
     frames: IFrames,
@@ -245,4 +265,7 @@ export namespace composePoseFrames {
 }
 
 /** Each rig's tables by its node list. */
-const TABLES: WeakMap<readonly composePoseFrames.INode[], composePoseFrames.ITables> = new WeakMap();
+const TABLES: WeakMap<
+  readonly composePoseFrames.INode[],
+  composePoseFrames.ITables
+> = new WeakMap();

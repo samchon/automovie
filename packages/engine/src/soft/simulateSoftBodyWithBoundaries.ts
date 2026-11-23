@@ -10,7 +10,13 @@ import {
 
 import { simulateSoftBodyCore } from "./simulateSoftBodyCore";
 
-/** Replay cloth against a complete resolved moving boundary for every absolute step from zero through the target. Static colliders remain active. Each sample holds every authored moving anchor or releases it; an observer reads every completed step. This public API currently reaches portable tests through the wearable resolver; no production/viewer host wires that live solver.
+/**
+ * Replay cloth against a complete resolved moving boundary for every absolute
+ * step from zero through the target. Static colliders remain active. Each
+ * sample holds every authored moving anchor or releases it; an observer reads
+ * every completed step. This public API currently reaches portable tests
+ * through the wearable resolver; no production/viewer host wires that live
+ * solver.
  */
 export const simulateSoftBodyWithBoundaries: (
   domain: IAutoMovieSoftBodyDomain,

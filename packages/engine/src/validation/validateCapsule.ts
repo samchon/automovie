@@ -5,7 +5,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Require distinct skeleton endpoints that are declared and FK-reachable, plus finite positive radius.
+ * Require distinct skeleton endpoints that are declared and FK-reachable, plus
+ * finite positive radius.
  */
 export const validateCapsule: (
   capsule: IAutoMovieCapsuleProxy,

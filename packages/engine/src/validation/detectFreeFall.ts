@@ -24,7 +24,8 @@ const DEFAULT_FALL_DURATION: number = 1;
 const DEFAULT_FPS: number = 30;
 
 /**
- * Advise free fall for an unsupported, unattached body that is not already falling.
+ * Advise free fall for an unsupported, unattached body that is not already
+ * falling.
  */
 export const detectFreeFall: (
   props: IAutoMovieDetectFreeFall.IProps,

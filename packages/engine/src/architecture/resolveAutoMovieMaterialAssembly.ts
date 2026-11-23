@@ -23,7 +23,12 @@ import { validateAutoMovieMaterialAssembly } from "./validateAutoMovieMaterialAs
  * An invalid build-up is refused here rather than resolved into numbers that
  * look usable, the same way a built environment refuses to lower.
  *
- * Positions are signed metres along the host axis. Negative sense makes a positive-thickness layer advance downward; zero-thickness membranes or rounded increments can have equal endpoints. `extent` orders the assembly ends. `total` sums thicknesses and the overall `end` is offset plus signed total, which can differ from the final accumulated layer end by rounding. Failed validation throws an `Error` naming its first finding.
+ * Positions are signed metres along the host axis. Negative sense makes a
+ * positive-thickness layer advance downward; zero-thickness membranes or
+ * rounded increments can have equal endpoints. `extent` orders the assembly
+ * ends. `total` sums thicknesses and the overall `end` is offset plus signed
+ * total, which can differ from the final accumulated layer end by rounding.
+ * Failed validation throws an `Error` naming its first finding.
  *
  * @param props.assembly Layered build-up to place.
  * @param props.substances Substances the layers may cite, or omitted.

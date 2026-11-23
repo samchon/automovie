@@ -3,7 +3,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Find the forward distance where an inside-base unit-axis segment leaves an authored box or sphere, or null when the exit is not before the segment end.
+/**
+ * Find the forward distance where an inside-base unit-axis segment leaves an
+ * authored box or sphere, or null when the exit is not before the segment end.
  */
 export const plantingPruningDistance: (
   envelope: IAutoMoviePruningEnvelope,

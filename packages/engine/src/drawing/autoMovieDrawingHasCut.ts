@@ -5,9 +5,9 @@ import { AutoMovieDrawingProjection } from "@automovie/interface";
  * plane and drafts what the plane passes through.
  *
  * Every projection except `elevation` cuts, so a plan, a reflected ceiling plan
- * and a section all draw cut linework and room regions, while an elevation
- * only projects. A new projection added to the closed union is a cutting one
- * unless this rule is changed with it.
+ * and a section all draw cut linework and room regions, while an elevation only
+ * projects. A new projection added to the closed union is a cutting one unless
+ * this rule is changed with it.
  *
  * @param projection The view's projection.
  * @returns `true` for every projection other than `elevation`.

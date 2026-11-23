@@ -9,11 +9,13 @@ import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCT
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 
 /**
- * Explicit C2 source jets and sufficient scalar-range filtering of shared quintic Hermite knot jets.
+ * Explicit C2 source jets and sufficient scalar-range filtering of shared
+ * quintic Hermite knot jets.
  */
 export namespace AutoMovieViewHermite {
   /**
-   * Admit requested normalized source jets and an optional sufficient scalar hull bound.
+   * Admit requested normalized source jets and an optional sufficient scalar
+   * hull bound.
    */
   export function create(
     spline: IAutoMovieNaturalCubicSpline,
@@ -155,9 +157,7 @@ export namespace AutoMovieViewHermite {
     return { xs, ys, first, second, coefficients };
   }
 
-  /**
-   * Scalar value, with the endpoint tangent beyond the closed source knot span.
-   */
+  /** Scalar value, with the endpoint tangent beyond the closed source knot span. */
   export function value(
     curve: IAutoMovieViewHermite.ICurve,
     x: number,
@@ -177,9 +177,7 @@ export namespace AutoMovieViewHermite {
     );
   }
 
-  /**
-   * First/second derivatives in the selected source parameter.
-   */
+  /** First/second derivatives in the selected source parameter. */
   export function derivative(
     curve: IAutoMovieViewHermite.ICurve,
     x: number,
@@ -201,9 +199,7 @@ export namespace AutoMovieViewHermite {
     ];
   }
 
-  /**
-   * Value and both parameter derivatives from one selected original span.
-   */
+  /** Value and both parameter derivatives from one selected original span. */
   export function read(
     curve: IAutoMovieViewHermite.ICurve,
     x: number,
@@ -237,9 +233,7 @@ export namespace AutoMovieViewHermite {
     ];
   }
 
-  /**
-   * Additional isolated zero-slope parameters strictly inside each source span.
-   */
+  /** Additional isolated zero-slope parameters strictly inside each source span. */
   export function critical(curve: IAutoMovieViewHermite.ICurve): number[] {
     return curve.coefficients.flatMap(
       (c: readonly number[], i: number): number[] => {
@@ -256,7 +250,10 @@ export namespace AutoMovieViewHermite {
     );
   }
 
-  /** Binary search in an admitted increasing knot list; outside queries use an end interval. No query state survives. */
+  /**
+   * Binary search in an admitted increasing knot list; outside queries use an
+   * end interval. No query state survives.
+   */
   function interval(xs: readonly number[], x: number): number {
     let lo: number = 0;
     let hi: number = xs.length - 1;
@@ -268,7 +265,10 @@ export namespace AutoMovieViewHermite {
     return lo;
   }
 
-  /** The adjacent smaller nonnegative binary64 factor; an eight-byte local view is released immediately and no scalar ordinate is changed. */
+  /**
+   * The adjacent smaller nonnegative binary64 factor; an eight-byte local view
+   * is released immediately and no scalar ordinate is changed.
+   */
   function lower(factor: number): number {
     if (factor === 0) return 0;
     const bits: DataView = new DataView(new ArrayBuffer(8));

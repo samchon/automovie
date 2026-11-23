@@ -33,7 +33,9 @@ import { transformFormationBounds } from "./transformFormationBounds";
 import { transformFormationPoint } from "./transformFormationPoint";
 
 /**
- * Measure one materialized formation at shot-local seconds: representative ground contacts, bounds, route clearance and analytic chunk/hero visibility and LOD; inconsistent participating shots throw.
+ * Measure one materialized formation at shot-local seconds: representative
+ * ground contacts, bounds, route clearance and analytic chunk/hero visibility
+ * and LOD; inconsistent participating shots throw.
  */
 export function measureAutoMovieGeometryFormation(
   props: IAutoMovieGeometryMeasurementInput,

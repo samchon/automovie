@@ -13,21 +13,21 @@ import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectio
  * triangle can lie.
  *
  * `fan[0]` is the root, already registered on the support by the caller's
- * canonical seat check, and `fan[1]` and `fan[2]` are the row's actual
- * corners; `support` is one original host triangle. Both are metres in one
- * frame and are only read. The function trusts the root's registration and
- * says nothing about any other host triangle, which needs its own strict
- * separation proof; the resident separation query supplies both.
+ * canonical seat check, and `fan[1]` and `fan[2]` are the row's actual corners;
+ * `support` is one original host triangle. Both are metres in one frame and are
+ * only read. The function trusts the root's registration and says nothing about
+ * any other host triangle, which needs its own strict separation proof; the
+ * resident separation query supplies both.
  *
  * The support's stored face normal is only a direction. Outward intervals
  * enclose the whole support slab along it; with H its top, the root's deficit
  * is delta = max(0, H - root low) and the corners' smallest clearance above H
  * is s. When s > 0, a contact point's combined non-root barycentric weight is
  * at most delta / (delta + s), so its distance from the root is at most that
- * weight times the larger corner L1 distance from the root. A shallow
- * emergence therefore enlarges the cap through the explicit denominator. A
- * nonpositive s or a collapsed support leaves the proof false. Neither the
- * winding nor the cap says anything about tissue volume or burial.
+ * weight times the larger corner L1 distance from the root. A shallow emergence
+ * therefore enlarges the cap through the explicit denominator. A nonpositive s
+ * or a collapsed support leaves the proof false. Neither the winding nor the
+ * cap says anything about tissue volume or burial.
  *
  * Throws when either triangle is not three finite vertices, when the support's
  * edge differences overflow, or, through the shared enclosure arithmetic, when
@@ -35,7 +35,8 @@ import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectio
  *
  * @param fan Root followed by the two row corners.
  * @param support One original host triangle.
- * @returns The proof flag, the cap in metres, and the slab quantities behind it.
+ * @returns The proof flag, the cap in metres, and the slab quantities behind
+ *   it.
  */
 export function boundAutoMovieTriangleAttachmentContact(
   fan: readonly IAutoMovieVector3[],

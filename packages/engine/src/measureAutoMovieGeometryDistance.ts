@@ -10,7 +10,8 @@ import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryAct
 import { Vector3 } from "./math/Vector3";
 
 /**
- * Measure Euclidean distance in world metres between point, landmark or actor/bone selectors; invalid time or unresolved selectors throw.
+ * Measure Euclidean distance in world metres between point, landmark or
+ * actor/bone selectors; invalid time or unresolved selectors throw.
  */
 export function measureAutoMovieGeometryDistance(
   props: IAutoMovieGeometryMeasurementInput,

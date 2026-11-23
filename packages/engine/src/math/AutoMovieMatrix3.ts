@@ -1,12 +1,11 @@
 /**
  * Finite row-major 3-by-3 algebra for original-design numerical consumers.
  * These arrays use row-major order, unlike the scene Matrix4 column convention.
- * Operations copy their outputs and throw on malformed or unrepresentable data.
+ * Operations copy their outputs and throw on malformed or unrepresentable
+ * data.
  */
 export namespace AutoMovieMatrix3 {
-  /**
-   * Matrix whose action on x is the right-handed cross product vector cross x.
-   */
+  /** Matrix whose action on x is the right-handed cross product vector cross x. */
   export function skew(vector: readonly number[]): number[] {
     if (!Array.isArray(vector) || vector.length !== 3)
       throw new Error(
@@ -30,9 +29,7 @@ export namespace AutoMovieMatrix3 {
     ];
   }
 
-  /**
-   * Multiply two finite row-major arrays without changing either operand.
-   */
+  /** Multiply two finite row-major arrays without changing either operand. */
   export function multiply(
     left: readonly number[],
     right: readonly number[],
@@ -64,9 +61,7 @@ export namespace AutoMovieMatrix3 {
     return result;
   }
 
-  /**
-   * Swap row and column indices into a fresh finite nine-number array.
-   */
+  /** Swap row and column indices into a fresh finite nine-number array. */
   export function transpose(matrix: readonly number[]): number[] {
     if (!Array.isArray(matrix) || matrix.length !== 9)
       throw new Error("matrix3: complete finite row-major matrix required");
@@ -87,8 +82,8 @@ export namespace AutoMovieMatrix3 {
   }
 
   /**
-   * Apply a row-major matrix to a finite three-coordinate column vector.
-   * The returned third coordinate is retained; no projective divide is performed.
+   * Apply a row-major matrix to a finite three-coordinate column vector. The
+   * returned third coordinate is retained; no projective divide is performed.
    */
   export function apply(
     matrix: readonly number[],

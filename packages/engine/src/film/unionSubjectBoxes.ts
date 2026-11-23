@@ -3,11 +3,11 @@ import { IAutoMovieSubjectBox } from "@automovie/interface";
 /**
  * The smallest box containing every given box, or null when none were given.
  *
- * The corners are folded one box at a time rather than spread into
- * `Math.min`, so a union over hundreds of thousands of part boxes, such as a
- * building's contents, returns a box instead of throwing a `RangeError` for
- * too many call arguments. A `NaN` corner propagates into the result. The
- * returned box is new; the input boxes are not modified.
+ * The corners are folded one box at a time rather than spread into `Math.min`,
+ * so a union over hundreds of thousands of part boxes, such as a building's
+ * contents, returns a box instead of throwing a `RangeError` for too many call
+ * arguments. A `NaN` corner propagates into the result. The returned box is
+ * new; the input boxes are not modified.
  */
 export const unionSubjectBoxes: (
   boxes: readonly IAutoMovieSubjectBox[],

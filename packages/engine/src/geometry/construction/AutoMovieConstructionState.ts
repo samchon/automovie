@@ -7,11 +7,16 @@ import type {
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 
 /**
- * What a construction's walk builds besides the body (`realizeAutoMovieConstruction`), and its rollback: a snapshot of the body's faces, cycles, mesh and the walk's lists taken before a part is built, restored when the node attaching that part breaks a premise, so the part's whole subtree is left out and its host stands as it was.
+ * What a construction's walk builds besides the body
+ * (`realizeAutoMovieConstruction`), and its rollback: a snapshot of the body's
+ * faces, cycles, mesh and the walk's lists taken before a part is built,
+ * restored when the node attaching that part breaks a premise, so the part's
+ * whole subtree is left out and its host stands as it was.
  */
 export namespace AutoMovieConstructionState {
   /**
-   * Capture the geometry/list checkpoint consumed by a failed subtree's rollback.
+   * Capture the geometry/list checkpoint consumed by a failed subtree's
+   * rollback.
    */
   export function snap(
     body: IAutoMovieSolidBody.IBody,
@@ -44,8 +49,9 @@ export namespace AutoMovieConstructionState {
   }
 
   /**
-   * Restore checkpointed geometry and lists; keep diagnostics and scoped override state.
-   * Saved cycle arrays are transferred back to faces rather than copied again.
+   * Restore checkpointed geometry and lists; keep diagnostics and scoped
+   * override state. Saved cycle arrays are transferred back to faces rather
+   * than copied again.
    */
   export function restore(
     body: IAutoMovieSolidBody.IBody,
@@ -79,7 +85,10 @@ export namespace AutoMovieConstructionState {
     state.trims.length = s.trims;
   }
 
-  /** A deep copy of a cycle, by the cycle's own copy, so a snapshot keeps its exact curve and boundary readers (`AutoMovieSolidCycle.copy`). */
+  /**
+   * A deep copy of a cycle, by the cycle's own copy, so a snapshot keeps its
+   * exact curve and boundary readers (`AutoMovieSolidCycle.copy`).
+   */
   function copy(c: IAutoMovieSolidCycle.ICycle): IAutoMovieSolidCycle.ICycle {
     return AutoMovieSolidCycle.copy(c);
   }

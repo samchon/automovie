@@ -10,12 +10,11 @@ import type {
 
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 
-/**
- * Original scalar preparation retained for a direct view-generated field.
- */
+/** Original scalar preparation retained for a direct view-generated field. */
 export namespace AutoMovieLoftViewSource {
   /**
-   * Prepare direct shoulder/top ownership; null explicitly leaves generic girth unchanged.
+   * Prepare direct shoulder/top ownership; null explicitly leaves generic girth
+   * unchanged.
    */
   export function create(
     part: IAutoMovieLoftViewSource.IInput,
@@ -239,7 +238,10 @@ export namespace AutoMovieLoftViewSource {
   }
 }
 
-/** Preserve a curve's existing failure category and attach only its source identity. */
+/**
+ * Preserve a curve's existing failure category and attach only its source
+ * identity.
+ */
 function curve(
   outline: IAutoMovieViewPart.IOutline,
   ends: IAutoMovieViewOutline.IEnds,

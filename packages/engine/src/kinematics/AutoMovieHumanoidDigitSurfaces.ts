@@ -15,22 +15,23 @@ import { Vector3 } from "../math/Vector3";
  * The tip and the pad of every digit of both hands, as bone-local frames on
  * each digit's distal phalanx.
  *
- * A digit's tip is where a ray from its last joint, along its distal
- * phalanx (the line from the joint before it), leaves the phalanx's
- * colliders, with the exited collider's outward normal: the index fingertip
- * as `resolveAutoMovieHumanoidSurfaces` has always placed it, now for every
- * digit. Its pad is the palmar face of the same phalanx: where a ray from the
- * middle of the phalanx, between the last joint and the tip, leaves the
- * colliders toward the palm's side. The palm faces -Y in the canonical rest
- * (`HUMANOID_REST_FRAME`), so the palmar direction is -Y made perpendicular
- * to the phalanx; the rig's thumb lies in the palm's plane with its nail up,
- * so its pad faces the same side. A profile with no segment for a phalanx
- * reads the hand's colliders instead, as the index tip did.
+ * A digit's tip is where a ray from its last joint, along its distal phalanx
+ * (the line from the joint before it), leaves the phalanx's colliders, with the
+ * exited collider's outward normal: the index fingertip as
+ * `resolveAutoMovieHumanoidSurfaces` has always placed it, now for every digit.
+ * Its pad is the palmar face of the same phalanx: where a ray from the middle
+ * of the phalanx, between the last joint and the tip, leaves the colliders
+ * toward the palm's side. The palm faces -Y in the canonical rest
+ * (`HUMANOID_REST_FRAME`), so the palmar direction is -Y made perpendicular to
+ * the phalanx; the rig's thumb lies in the palm's plane with its nail up, so
+ * its pad faces the same side. A profile with no segment for a phalanx reads
+ * the hand's colliders instead, as the index tip did.
  *
  * Both sides are resolved; the caller replaces each left frame with its right
  * twin's mirror image, as it does for every region.
  *
- * @param rays The rest-pose readers of the body (`AutoMovieHumanoidSurfaceRays.tools`).
+ * @param rays The rest-pose readers of the body
+ *   (`AutoMovieHumanoidSurfaceRays.tools`).
  * @param profile The body's physical profile, segments keyed by rig bones.
  * @returns The tip and pad frames of every digit, keyed by region.
  * @throws {Error} When a digit bone is missing or a ray misses its colliders.

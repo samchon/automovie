@@ -15,14 +15,12 @@ type Scalar = IAutoMovieViewSectionField.IStationJet;
  *
  * A source declaring touch offsets or quarter splits is a G1 conic chain
  * (`AutoMovieViewChain`), whose phase reading is C1 with sided second
- * derivatives at its joins and whose inputs are more than these eight
- * scalars; it has no law here, and every entry refuses it by name rather
- * than carrying its four-quarter part alone.
+ * derivatives at its joins and whose inputs are more than these eight scalars;
+ * it has no law here, and every entry refuses it by name rather than carrying
+ * its four-quarter part alone.
  */
 export namespace AutoMovieLoftSectionBoundary {
-  /**
-   * Define one changed span from actual effective native scalar endpoint2.
-   */
+  /** Define one changed span from actual effective native scalar endpoint2. */
   export function create(
     first: IAutoMovieLoftSectionBoundary.IEnd,
     last: IAutoMovieLoftSectionBoundary.IEnd,
@@ -58,7 +56,8 @@ export namespace AutoMovieLoftSectionBoundary {
   }
 
   /**
-   * Read the declared full scalar field, preserving its exact original endpoints.
+   * Read the declared full scalar field, preserving its exact original
+   * endpoints.
    */
   export function read(
     bridge: IAutoMovieLoftSectionBoundary.IBridge,
@@ -95,9 +94,7 @@ export namespace AutoMovieLoftSectionBoundary {
       : "The native continuation's effective scalar2 overflows, underflows or reaches a shoulder boundary.";
   }
 
-  /**
-   * Evaluate only the value of an already declared boundary law.
-   */
+  /** Evaluate only the value of an already declared boundary law. */
   export function values(
     bridge: IAutoMovieLoftSectionBoundary.IBridge,
     station: number,
@@ -141,7 +138,8 @@ export namespace AutoMovieLoftSectionBoundary {
   }
 
   /**
-   * Re-express source2 for opposite chart direction, once before native preparation.
+   * Re-express source2 for opposite chart direction, once before native
+   * preparation.
    */
   export function orient(
     inputs: IAutoMovieLoftViewRead.IJets,
@@ -186,7 +184,10 @@ function chained(
   );
 }
 
-/** Validate the explicit generating-law coefficients without evaluating a requested derivative. */
+/**
+ * Validate the explicit generating-law coefficients without evaluating a
+ * requested derivative.
+ */
 function admit(
   bridge: IAutoMovieLoftSectionBoundary.IBridge,
   station: number,
@@ -233,7 +234,10 @@ function admit(
   return null;
 }
 
-/** Actual scalar2 admission is distinct from value-only source availability; a chain's inputs are not eight scalars. */
+/**
+ * Actual scalar2 admission is distinct from value-only source availability; a
+ * chain's inputs are not eight scalars.
+ */
 function valid(inputs: IAutoMovieLoftViewRead.IJets): boolean {
   return (
     inputs !== null &&
@@ -254,7 +258,10 @@ function valid(inputs: IAutoMovieLoftViewRead.IJets): boolean {
   );
 }
 
-/** Complete fixed-size transformed rows cannot silently select another interpolation law. */
+/**
+ * Complete fixed-size transformed rows cannot silently select another
+ * interpolation law.
+ */
 function control(value: IAutoMovieLoftSectionBoundaryControls): boolean {
   return (
     value !== null &&
@@ -280,7 +287,10 @@ function matches(
   );
 }
 
-/** The original exact endpoint data is never replaced by inverse-transform rounding. */
+/**
+ * The original exact endpoint data is never replaced by inverse-transform
+ * rounding.
+ */
 function copy(
   inputs: IAutoMovieLoftViewRead.IJets,
 ): IAutoMovieLoftViewRead.IJets {
@@ -316,7 +326,10 @@ function transform(
   };
 }
 
-/** A stable logistic complement is computed directly rather than by subtracting a rounded one. */
+/**
+ * A stable logistic complement is computed directly rather than by subtracting
+ * a rounded one.
+ */
 function inverse(jet: Scalar, extent: boolean): Scalar {
   if (extent) {
     const value: number = Math.exp(jet[0]);

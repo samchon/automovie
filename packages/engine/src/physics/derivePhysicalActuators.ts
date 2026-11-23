@@ -10,12 +10,14 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
-/** Size declared actuators from the entire neutral downstream load about each joint.
- * The parallel-axis term includes equipment and small coordinate carriers without
- * altering physical masses. These are control assumptions, not muscle measurements.
- * Active gains use an isotropic upper bound on the neutral subtree tensor:
- * bending a downstream limb can move its load off the neutral twist axis.
- * Passive damping uses directional inertia and has no preferred rest angle.
+/**
+ * Size declared actuators from the entire neutral downstream load about each
+ * joint. The parallel-axis term includes equipment and small coordinate
+ * carriers without altering physical masses. These are control assumptions, not
+ * muscle measurements. Active gains use an isotropic upper bound on the neutral
+ * subtree tensor: bending a downstream limb can move its load off the neutral
+ * twist axis. Passive damping uses directional inertia and has no preferred
+ * rest angle.
  */
 export function derivePhysicalActuators(
   segments: readonly IAutoMoviePhysicalSegment[],

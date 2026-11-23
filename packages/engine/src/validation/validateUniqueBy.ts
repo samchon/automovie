@@ -6,7 +6,8 @@ import {
 import { pushViolation } from "./pushViolation";
 
 /**
- * Scan string-valued ids with a seen set, reporting later occurrences at supplied paths.
+ * Scan string-valued ids with a seen set, reporting later occurrences at
+ * supplied paths.
  */
 export const validateUniqueBy: (
   entries: IAutoMovieValidateUniqueBy.IEntries,

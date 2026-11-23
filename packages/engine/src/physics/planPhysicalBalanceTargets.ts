@@ -13,7 +13,9 @@ import { planPhysicalFloorSupportTargets } from "./planPhysicalFloorSupportTarge
 import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
 
 /**
- * Fit world support intent in the measured floating-base frame. Reach-derived lowering remains a separate root motor request; no lowered virtual root is passed off as the actual stance frame.
+ * Fit world support intent in the measured floating-base frame. Reach-derived
+ * lowering remains a separate root motor request; no lowered virtual root is
+ * passed off as the actual stance frame.
  */
 export function planPhysicalBalanceTargets(
   input: IAutoMoviePlanPhysicalBalanceTargets.IInput,

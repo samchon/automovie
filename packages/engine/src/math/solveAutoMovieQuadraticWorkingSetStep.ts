@@ -7,23 +7,23 @@ import type {
 import { createAutoMovieQuadraticConstraintBasis } from "./createAutoMovieQuadraticConstraintBasis";
 
 /**
- * Minimize the unchanged diagonal PSD objective on an independent working space.
- * Householder QR of sqrt(H)*Z avoids a Schur normal-equation factor. Exact flat
- * columns retain their coordinate when their linear term is zero; otherwise a
- * zero-curvature descent direction requires the caller's complete-row blocker.
- * Other numerical rank ambiguity refuses without removing a constraint or adding
- * objective curvature. The caller retains its feasible native state and alone
- * checks the original full KKT. Gill and Wong (2014), sections 2-3:
- * https://www.ccom.ucsd.edu/~peg/papers/genqp.pdf
- * The finite arithmetic and rank test establish no convergence guarantee.
- * A normal projection at the affine origin is a separate least-residual dual
- * candidate, even when a flat direction prevents a working-space minimum.
- * It is not a second-order-consistent LP basis or a subspace-optimum certificate.
- * Column-pivoted QR's A*P=Q*R convention is documented by LAPACK DGEQP3:
- * https://www.netlib.org/lapack/double/dgeqp3.f
- * An unavailable normal projection leaves a valid flat continuation available.
- * Inputs are borrowed after the refinement owner's complete QP validation;
- * owned dense coordinates have finite-memory limits, not full-row scalability.
+ * Minimize the unchanged diagonal PSD objective on an independent working
+ * space. Householder QR of sqrt(H)_Z avoids a Schur normal-equation factor.
+ * Exact flat columns retain their coordinate when their linear term is zero;
+ * otherwise a zero-curvature descent direction requires the caller's
+ * complete-row blocker. Other numerical rank ambiguity refuses without removing
+ * a constraint or adding objective curvature. The caller retains its feasible
+ * native state and alone checks the original full KKT. Gill and Wong (2014),
+ * sections 2-3: https://www.ccom.ucsd.edu/~peg/papers/genqp.pdf The finite
+ * arithmetic and rank test establish no convergence guarantee. A normal
+ * projection at the affine origin is a separate least-residual dual candidate,
+ * even when a flat direction prevents a working-space minimum. It is not a
+ * second-order-consistent LP basis or a subspace-optimum certificate.
+ * Column-pivoted QR's A_P=Q*R convention is documented by LAPACK DGEQP3:
+ * https://www.netlib.org/lapack/double/dgeqp3.f An unavailable normal
+ * projection leaves a valid flat continuation available. Inputs are borrowed
+ * after the refinement owner's complete QP validation; owned dense coordinates
+ * have finite-memory limits, not full-row scalability.
  */
 export function solveAutoMovieQuadraticWorkingSetStep(
   diagonal: readonly number[],

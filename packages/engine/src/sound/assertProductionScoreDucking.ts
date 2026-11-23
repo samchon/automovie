@@ -1,7 +1,8 @@
 import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
 
 /**
- * Refuse a score ducking policy whose gain or frame counts fall outside the authored ranges.
+ * Refuse a score ducking policy whose gain or frame counts fall outside the
+ * authored ranges.
  */
 export function assertProductionScoreDucking(
   policy: IAutoMovieProductionSoundPlan["scoreDucking"] | null,

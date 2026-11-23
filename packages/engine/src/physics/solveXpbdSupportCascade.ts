@@ -10,29 +10,30 @@ import { solveXpbdDualActiveSet as ActiveSet } from "./solveXpbdDualActiveSet";
 
 /**
  * The strict two-level cascade of hierarchical inverse dynamics (Herzog,
- * Rotella, Mason, Grimminger, Schaal and Righetti 2016, eq. 5) over one
- * tree's support rows and actuated axes, each level one quadratic program
- * over the same feasible set: the support rows bring their contacts to rest,
- * the row's velocity after the step zero as in sticking contact (Mirtich
- * 1996), through the independent ones, a normal row's impulse stays at or
- * above its
- * Signorini bound, each patch's whole friction, the contact passes' plus
- * the rows', stays inside the inscribed pyramid `|t1| + |t2| <= mu (N + sum
- * lambda_n)` the wrench allocation uses, and every joint impulse within its
- * motor's cap. Level one minimizes the task's residual `e = G x - g`,
- * regularized by `sqrt(eps)` as the allocation is; level two fixes that
- * residual at its optimum and tracks the motors' own impulses, `min |tau -
- * b|^2 + sqrt(eps) |lambda|^2`. Both objectives are diagonal and positive,
- * the fixed residual's weight changing nothing.
+ * Rotella, Mason, Grimminger, Schaal and Righetti 2016, eq. 5) over one tree's
+ * support rows and actuated axes, each level one quadratic program over the
+ * same feasible set: the support rows bring their contacts to rest, the row's
+ * velocity after the step zero as in sticking contact (Mirtich 1996), through
+ * the independent ones, a normal row's impulse stays at or above its Signorini
+ * bound, each patch's whole friction, the contact passes' plus the rows', stays
+ * inside the inscribed pyramid `|t1| + |t2| <= mu (N + sum lambda_n)` the
+ * wrench allocation uses, and every joint impulse within its motor's cap. Level
+ * one minimizes the task's residual `e = G x - g`, regularized by `sqrt(eps)`
+ * as the allocation is; level two fixes that residual at its optimum and tracks
+ * the motors' own impulses, `min |tau - b|^2 + sqrt(eps) |lambda|^2`. Both
+ * objectives are diagonal and positive, the fixed residual's weight changing
+ * nothing.
  *
- * Each level is solved by the dual active-set method (Goldfarb and Idnani
- * 1983, `solveXpbdDualActiveSet`), warm-started from the active set the
- * same level ended with on the previous substep, as whole-body controllers
- * solve their per-cycle programs; the engine's interior-point solver is the
- * cold fallback when the active-set solve reports no solution.
+ * Each level is solved by the dual active-set method (Goldfarb and Idnani 1983,
+ * `solveXpbdDualActiveSet`), warm-started from the active set the same level
+ * ended with on the previous substep, as whole-body controllers solve their
+ * per-cycle programs; the engine's interior-point solver is the cold fallback
+ * when the active-set solve reports no solution.
  *
- * @param input The rows, the task, the actuators, the posture and the warm start.
- * @returns The rows' and joint impulses, or null when level one has no feasible point.
+ * @param input The rows, the task, the actuators, the posture and the warm
+ *   start.
+ * @returns The rows' and joint impulses, or null when level one has no feasible
+ *   point.
  */
 export function solveXpbdSupportCascade(
   input: solveXpbdSupportCascade.IInput,
@@ -111,7 +112,10 @@ export function solveXpbdSupportCascade(
   // The task's residual e = G x - g, one variable per wrench row.
   for (let m: number = 0; m < 6; ++m)
     equalities.push({
-      indices: [...columns.map((_: number[], s: number): number => s), size + m],
+      indices: [
+        ...columns.map((_: number[], s: number): number => s),
+        size + m,
+      ],
       weights: [...columns.map((column: number[]): number => column[m]!), -1],
       value: target[m]!,
     });
@@ -154,19 +158,23 @@ export function solveXpbdSupportCascade(
   return (second ?? first).slice(0, size);
 }
 
-/**
- * The input and the warm store of solveXpbdSupportCascade.
- */
+/** The input and the warm store of solveXpbdSupportCascade. */
 export namespace solveXpbdSupportCascade {
   /** One tree's program. */
   export interface IInput {
-    /** Each support row's velocity change per unit impulse of every unknown, rows then actuators. */
+    /**
+     * Each support row's velocity change per unit impulse of every unknown,
+     * rows then actuators.
+     */
     k: readonly number[][];
 
     /** Each support row's velocity change under the motors without the unknowns. */
     u: readonly number[];
 
-    /** Each unknown's ground-reaction wrench per unit impulse, force then moment over the lever. */
+    /**
+     * Each unknown's ground-reaction wrench per unit impulse, force then moment
+     * over the lever.
+     */
     columns: readonly number[][];
 
     /** The ground-reaction wrench the rows should add, over the substep. */
@@ -181,7 +189,10 @@ export namespace solveXpbdSupportCascade {
     /** The motors' own impulses on those axes, level two's targets. */
     posture: readonly number[];
 
-    /** The tree's active sets from the previous substep, rewritten with this one's. */
+    /**
+     * The tree's active sets from the previous substep, rewritten with this
+     * one's.
+     */
     warm: IWarm;
   }
 
@@ -196,8 +207,8 @@ export namespace solveXpbdSupportCascade {
 }
 
 /**
- * One level: the warm active-set solve, else the interior-point solve; the
- * warm keys become the level's active set, or none after the fallback.
+ * One level: the warm active-set solve, else the interior-point solve; the warm
+ * keys become the level's active set, or none after the fallback.
  */
 function level(
   diagonal: number[],
@@ -253,13 +264,12 @@ function level(
 }
 
 /**
- * The rows whose holds are independent. A row reads its body's velocity
- * change through its own unit impulse, `(r x d, d)`, so the rows of one
- * patch on one rigid body are
- * dependent exactly when those functionals are: four coplanar points span
- * three. Gram-Schmidt over each patch's functionals, normals first, keeps a
- * row whose functional leaves more than `sqrt(eps)` of itself outside the
- * ones kept; the others hold with them, and leaving them out keeps the
+ * The rows whose holds are independent. A row reads its body's velocity change
+ * through its own unit impulse, `(r x d, d)`, so the rows of one patch on one
+ * rigid body are dependent exactly when those functionals are: four coplanar
+ * points span three. Gram-Schmidt over each patch's functionals, normals first,
+ * keeps a row whose functional leaves more than `sqrt(eps)` of itself outside
+ * the ones kept; the others hold with them, and leaving them out keeps the
  * program's equality rows of full rank.
  */
 function independent(set: Contacts.ISet): Set<number> {
@@ -296,5 +306,9 @@ function product(a: readonly number[], b: readonly number[]): number {
 /** The Tikhonov weight: the square root of float64's machine epsilon. */
 const REGULARIZATION: number = Math.sqrt(Number.EPSILON);
 
-/** The rows' violation an interior-point solve may leave and still count as solved: the wrench allocation's own acceptance (`distributePhysicalSupportWrench`). */
+/**
+ * The rows' violation an interior-point solve may leave and still count as
+ * solved: the wrench allocation's own acceptance
+ * (`distributePhysicalSupportWrench`).
+ */
 const ACCEPTANCE: number = 1e-6;

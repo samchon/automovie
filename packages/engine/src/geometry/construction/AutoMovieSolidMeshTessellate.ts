@@ -9,7 +9,10 @@ import { AutoMovieSolidMeshWrite } from "./AutoMovieSolidMeshWrite";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSolidZip } from "./AutoMovieSolidZip";
 
-/** Preserve original jet failures and reject nonfinite source positions before appending them. */
+/**
+ * Preserve original jet failures and reject nonfinite source positions before
+ * appending them.
+ */
 function point(
   surface: IAutoMovieSolidSurface,
   u: number,
@@ -30,13 +33,9 @@ function point(
 /** Existing orientation arithmetic. */
 const { dot, norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
-/**
- * Published seam strips, pole fans and explicit external-ring bridges.
- */
+/** Published seam strips, pole fans and explicit external-ring bridges. */
 export namespace AutoMovieSolidMeshTessellate {
-  /**
-   * Evaluate both source rails and the published blend's interior rows.
-   */
+  /** Evaluate both source rails and the published blend's interior rows. */
   export function seam(
     mesh: IAutoMovieSolidMesh.IMesh,
     seam: IAutoMovieSolidMesh.ISeam,
@@ -164,9 +163,7 @@ export namespace AutoMovieSolidMeshTessellate {
     }
   }
 
-  /**
-   * Emit an endpoint fan opposite its positive native boundary traversal.
-   */
+  /** Emit an endpoint fan opposite its positive native boundary traversal. */
   export function close(
     mesh: IAutoMovieSolidMesh.IMesh,
     triangles: readonly [number, number, number][],
@@ -182,9 +179,7 @@ export namespace AutoMovieSolidMeshTessellate {
     );
   }
 
-  /**
-   * Join an explicit event ring to its admitted open endpoint cycle.
-   */
+  /** Join an explicit event ring to its admitted open endpoint cycle. */
   export function bridge(
     mesh: IAutoMovieSolidMesh.IMesh,
     ring: readonly number[],

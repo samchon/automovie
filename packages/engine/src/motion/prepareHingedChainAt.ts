@@ -17,20 +17,34 @@ import { readHingeRange } from "./readHingeRange";
  * bend-branch roots, with no search.
  *
  * @param props The fit request.
- * @returns The prepared chain, or null when it is not a hinged two-bone chain (the mid joint's abduction is mobile) or is degenerate.
+ * @returns The prepared chain, or null when it is not a hinged two-bone chain
+ *   (the mid joint's abduction is mobile) or is degenerate.
  */
-export function prepareHingedChainAt(props: IAutoMovieFitChainToTargetProps): prepareHingedChainAt.IPrepared | null {
+export function prepareHingedChainAt(
+  props: IAutoMovieFitChainToTargetProps,
+): prepareHingedChainAt.IPrepared | null {
   const workspace: prepareChainFit.IWorkspace = prepareChainFit(props);
   const prepared: prepareChainFit.IWorkspace["prepared"] = workspace.prepared;
-  if (prepared === null || prepared.lowerDomain.constraint === null ||
-    prepared.lowerDomain.constraint.abduction !== null) return null;
-  const axes: IAutoMovieJointAxes = props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES;
+  if (
+    prepared === null ||
+    prepared.lowerDomain.constraint === null ||
+    prepared.lowerDomain.constraint.abduction !== null
+  )
+    return null;
+  const axes: IAutoMovieJointAxes =
+    props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES;
   const upperBasis: IAutoMovieJointAxes =
     workspace.rig?.basis(props.chain.upper, "decomposeJointRotation axes") ??
     basisOf(props.jointAxes?.[props.chain.upper]);
   const lowerBasis: IAutoMovieJointAxes =
-    workspace.rig?.basis(props.chain.lower, "decomposeJointRotation axes") ?? basisOf(axes);
-  const range: { min: number; max: number } | null = readHingeRange(props, prepared, axes, lowerBasis);
+    workspace.rig?.basis(props.chain.lower, "decomposeJointRotation axes") ??
+    basisOf(axes);
+  const range: { min: number; max: number } | null = readHingeRange(
+    props,
+    prepared,
+    axes,
+    lowerBasis,
+  );
   const chain: IAutoMovieHingedChainGeometry = {
     upper: prepared.upper,
     midOffset: prepared.lowerOffset,
@@ -40,14 +54,13 @@ export function prepareHingedChainAt(props: IAutoMovieFitChainToTargetProps): pr
     target: props.target,
     ...(range === null ? {} : { range }),
   };
-  const branches: IAutoMovieHingedArmSwivel.IStop[] | null = hingedArmSwivel.branches(chain);
+  const branches: IAutoMovieHingedArmSwivel.IStop[] | null =
+    hingedArmSwivel.branches(chain);
   if (branches === null || branches.length === 0) return null;
   return { workspace, prepared, upperBasis, lowerBasis, chain, branches };
 }
 
-/**
- * The prepared parts of {@link prepareHingedChainAt}.
- */
+/** The prepared parts of {@link prepareHingedChainAt}. */
 export namespace prepareHingedChainAt {
   /** One prepared hinged request. */
   export interface IPrepared {

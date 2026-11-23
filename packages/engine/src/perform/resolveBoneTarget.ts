@@ -15,7 +15,10 @@ import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
 
 /**
- * Resolve a bone action target to world metres using its actor rig and sampled motion, or the rest pose when motion is absent. Non-bone targets, unknown actors/rigs or absent resolved bones return null. Staged heading/position are applied after pose-root FK exactly once.
+ * Resolve a bone action target to world metres using its actor rig and sampled
+ * motion, or the rest pose when motion is absent. Non-bone targets, unknown
+ * actors/rigs or absent resolved bones return null. Staged heading/position are
+ * applied after pose-root FK exactly once.
  */
 export const resolveBoneTarget: (
   target: IAutoMovieActionTarget,

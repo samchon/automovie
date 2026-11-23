@@ -17,7 +17,8 @@ import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
  */
 export namespace AutoMovieConstructionProfileTopology {
   /**
-   * Validate only the declared capability shape; actual source geometry remains authoritative.
+   * Validate only the declared capability shape; actual source geometry remains
+   * authoritative.
    */
   export function admit(
     definition: IAutoMovieConstructionProfile,
@@ -48,7 +49,8 @@ export namespace AutoMovieConstructionProfileTopology {
   }
 
   /**
-   * Normalize one complete original period without fitting or joining different functions.
+   * Normalize one complete original period without fitting or joining different
+   * functions.
    */
   export function period(
     loop: IAutoMovieConstructionProfileLoop,

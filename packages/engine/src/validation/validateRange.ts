@@ -4,9 +4,13 @@ import { describeInvalidValue } from "./describeInvalidValue";
 import { pushViolation } from "./pushViolation";
 
 /**
- * Require a finite numeric actual value between independently configured open/closed endpoints.
+ * Require a finite numeric actual value between independently configured
+ * open/closed endpoints.
  *
- * Both endpoints default to inclusive. Infinite bounds are permitted, but the tested value must be a finite number and is never coerced into one. Refusals retain the authored value; failed string conversion produces `an uninspectable value` only in the explanatory text.
+ * Both endpoints default to inclusive. Infinite bounds are permitted, but the
+ * tested value must be a finite number and is never coerced into one. Refusals
+ * retain the authored value; failed string conversion produces `an
+ * uninspectable value` only in the explanatory text.
  */
 export const validateRange: (
   value: unknown,

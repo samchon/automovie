@@ -1,18 +1,31 @@
 import { IAutoMovieFluidState } from "@automovie/interface";
 
 /**
- * A 32-bit FNV-1a digest of selected fluid-state numbers, as eight lowercase hex digits.
+ * A 32-bit FNV-1a digest of selected fluid-state numbers, as eight lowercase
+ * hex digits.
  *
- * The bytes are the little-endian IEEE-754 doubles of step, every depth, every x and z face velocity, then the volume, source, drain and outflow ledgers, in that order; domain, time and array lengths are omitted. Equal serialized sequences hash alike, and a mismatch identifies a difference in that sequence. A match cannot prove state identity: the 32-bit hash collides, omitted fields are invisible, and array partition boundaries are not encoded. No collision probability is established for this workload.
+ * The bytes are the little-endian IEEE-754 doubles of step, every depth, every
+ * x and z face velocity, then the volume, source, drain and outflow ledgers, in
+ * that order; domain, time and array lengths are omitted. Equal serialized
+ * sequences hash alike, and a mismatch identifies a difference in that
+ * sequence. A match cannot prove state identity: the 32-bit hash collides,
+ * omitted fields are invisible, and array partition boundaries are not encoded.
+ * No collision probability is established for this workload.
  *
- * Signed zero is serialized distinctly. DataView serializes the JavaScript Number value; NaN payload preservation across runtimes is not guaranteed, and this helper performs no finite-state admission.
+ * Signed zero is serialized distinctly. DataView serializes the JavaScript
+ * Number value; NaN payload preservation across runtimes is not guaranteed, and
+ * this helper performs no finite-state admission.
  */
 export const fluidStateDigest: (state: IAutoMovieFluidState) => string = (
   state: IAutoMovieFluidState,
 ): string => {
   const view: DataView = new DataView(new ArrayBuffer(8));
   let hash: number = 0x811c9dc5;
-  /** Serialize one Number into the reused eight-byte view and fold its bytes in order into the call-local unsigned hash; constant work retains no per-value history. */
+  /**
+   * Serialize one Number into the reused eight-byte view and fold its bytes in
+   * order into the call-local unsigned hash; constant work retains no per-value
+   * history.
+   */
   const absorb: (value: number) => void = (value: number): void => {
     view.setFloat64(0, value, true);
     for (let byte: number = 0; byte < 8; ++byte) {

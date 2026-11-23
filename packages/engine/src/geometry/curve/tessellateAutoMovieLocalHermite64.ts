@@ -25,29 +25,32 @@ type FaceRange = IAutoMovieLocalHermiteStream64.Chunk["faceRanges"][number];
 
 /**
  * Stream a conforming open mesh of the local linear physical Hermite field.
- * Input courses are complete millimetre cubic curves with common normalized phase;
- * their direction and ordinary-run graph authority are supplied by the caller.
- * Positions/construction are published in metres. Indices are global, beginning at
- * vertexOffset, and may reference vertices published in earlier chunks of this run.
- * Every shared station uses the same actual vertex index and authoritative source jet.
+ * Input courses are complete millimetre cubic curves with common normalized
+ * phase; their direction and ordinary-run graph authority are supplied by the
+ * caller. Positions/construction are published in metres. Indices are global,
+ * beginning at vertexOffset, and may reference vertices published in earlier
+ * chunks of this run. Every shared station uses the same actual vertex index
+ * and authoritative source jet.
  *
  * Exact tensor restrictions are refined until Muu/8+Muv/4+Mvv/8 <= toleranceMm,
- * using maxima of Bernstein second-derivative coefficient norms on each local unit
- * cell. Taylor's formula and barycentric coordinate variances <=1/4 bound the
- * same-parameter affine error of each parameter triangle in exact arithmetic.
- * Binary64 estimates are not outward-rounded certificates. This bound concerns the
- * new Hermite field, not source-surface distance, monotonicity or injectivity.
- * Bottom/top boundary chains are zipped and exterior hanging edges subdivided
- * using existing samples only. Identical translated polygons with matching phase
- * samples retain station-parallel face planes; general normal error is unbounded.
+ * using maxima of Bernstein second-derivative coefficient norms on each local
+ * unit cell. Taylor's formula and barycentric coordinate variances <=1/4 bound
+ * the same-parameter affine error of each parameter triangle in exact
+ * arithmetic. Binary64 estimates are not outward-rounded certificates. This
+ * bound concerns the new Hermite field, not source-surface distance,
+ * monotonicity or injectivity. Bottom/top boundary chains are zipped and
+ * exterior hanging edges subdivided using existing samples only. Identical
+ * translated polygons with matching phase samples retain station-parallel face
+ * planes; general normal error is unbounded.
  *
- * Corners use right-sided analytic normals (u=1 left-sided); unresolved normals remain
- * zero with diagnostics. Zero-area triangles are counted and omitted. Resource limits
- * or unresolved interval arithmetic leave a diagnostic gap while other intervals survive.
- * Input admission failures reject the run. Ruled station interpolation is C0 only and
- * chooses right incident station normals, with the final station left-sided.
- * Quadratic mode C1 requires same-chart C1 input courses;
- * crease/G1 input does not acquire parametric C1 from station interpolation.
+ * Corners use right-sided analytic normals (u=1 left-sided); unresolved normals
+ * remain zero with diagnostics. Zero-area triangles are counted and omitted.
+ * Resource limits or unresolved interval arithmetic leave a diagnostic gap
+ * while other intervals survive. Input admission failures reject the run. Ruled
+ * station interpolation is C0 only and chooses right incident station normals,
+ * with the final station left-sided. Quadratic mode C1 requires same-chart C1
+ * input courses; crease/G1 input does not acquire parametric C1 from station
+ * interpolation.
  */
 export function* tessellateAutoMovieLocalHermite64(
   input: IAutoMovieLocalHermiteStream64.Input,

@@ -131,7 +131,11 @@ const seedRestArticulation: (
 });
 
 /**
- * Create the reference actor action callback from borrowed contexts and placements. It supports gait locomotion, hold, gaze, expression, reference gestures, analytic arm targets and ROM-bounded reactions; unknown actors or unsupported/unresolvable content return null. Duplicate gait names throw at construction.
+ * Create the reference actor action callback from borrowed contexts and
+ * placements. It supports gait locomotion, hold, gaze, expression, reference
+ * gestures, analytic arm targets and ROM-bounded reactions; unknown actors or
+ * unsupported/unresolvable content return null. Duplicate gait names throw at
+ * construction.
  */
 export const makeActorSynthesizer: (
   contexts: Map<string, IAutoMovieActorContext>,
@@ -355,15 +359,31 @@ export const makeActorSynthesizer: (
 
       if (action.kind === "point" && ctx.rig !== undefined) {
         return synthesizeActorReach({
-          kind: "point", action, duration, actor, ctx, nodes, staticFrame,
-          frameAt, actorFrameAt, resolveTarget,
+          kind: "point",
+          action,
+          duration,
+          actor,
+          ctx,
+          nodes,
+          staticFrame,
+          frameAt,
+          actorFrameAt,
+          resolveTarget,
         });
       }
 
       if (action.kind === "strike" && ctx.rig !== undefined) {
         return synthesizeActorReach({
-          kind: "strike", action, duration, actor, ctx, nodes, staticFrame,
-          frameAt, actorFrameAt, resolveTarget,
+          kind: "strike",
+          action,
+          duration,
+          actor,
+          ctx,
+          nodes,
+          staticFrame,
+          frameAt,
+          actorFrameAt,
+          resolveTarget,
         });
       }
 
@@ -376,8 +396,15 @@ export const makeActorSynthesizer: (
     }
     if (action.verb === "reach") {
       return synthesizeActorReach({
-        kind: "reach", action, actor, ctx, nodes, staticFrame,
-        frameAt, actorFrameAt, resolveTarget,
+        kind: "reach",
+        action,
+        actor,
+        ctx,
+        nodes,
+        staticFrame,
+        frameAt,
+        actorFrameAt,
+        resolveTarget,
       });
     }
     if (action.verb === "react") {

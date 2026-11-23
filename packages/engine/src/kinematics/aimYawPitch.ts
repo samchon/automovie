@@ -9,14 +9,13 @@ const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
  *
  * The world direction is rotated by `-facingDeg` into the actor's frame. Yaw is
  * `atan2(localX, localZ)` in `[-180, 180]`, where 0 is straight ahead and +90
- * is the actor's left, the direction-target convention. Pitch is
- * `atan2(dy, horizontal)` in `[-90, 90]`, positive up. A target on `from` has
- * no direction and answers `{ yawDeg: 0, pitchDeg: 0 }`. The caller maps the
- * pair onto a rig, such as a head's twist and flexion or a camera's pan and
- * tilt.
- * Heading is periodic modulo 360 degrees. Finite coordinates are uniformly
- * rescaled when differences overflow or heading rotation risks overflow or
- * subnormal precision loss; angles depend on direction rather than distance.
+ * is the actor's left, the direction-target convention. Pitch is `atan2(dy,
+ * horizontal)` in `[-90, 90]`, positive up. A target on `from` has no direction
+ * and answers `{ yawDeg: 0, pitchDeg: 0 }`. The caller maps the pair onto a
+ * rig, such as a head's twist and flexion or a camera's pan and tilt. Heading
+ * is periodic modulo 360 degrees. Finite coordinates are uniformly rescaled
+ * when differences overflow or heading rotation risks overflow or subnormal
+ * precision loss; angles depend on direction rather than distance.
  *
  * A non-finite coordinate or facing throws an error naming the field, such as
  * `aimYawPitch to.z must be finite, but was Infinity`.

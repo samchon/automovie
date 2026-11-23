@@ -5,8 +5,8 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  *
  * The matrix is the sixteen-number column-major array `Matrix4.compose` and
  * `Matrix4.multiply` produce, with the translation in elements 12 to 14. The
- * projective row is ignored, so the matrix must be affine, which every
- * composed TRS matrix is.
+ * projective row is ignored, so the matrix must be affine, which every composed
+ * TRS matrix is.
  *
  * @param matrix Column-major affine matrix of sixteen numbers.
  * @param point Point to transform.

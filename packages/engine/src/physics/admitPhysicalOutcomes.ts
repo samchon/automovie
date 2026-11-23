@@ -3,7 +3,8 @@ import type { IAutoMovieAuditPhysicalOutcomes } from "@automovie/interface";
 import { samplePhysicalContactEvents } from "./samplePhysicalContactEvents";
 
 /**
- * Refuse invalid event windows, observed times and receipt authority before evaluating outcome promises.
+ * Refuse invalid event windows, observed times and receipt authority before
+ * evaluating outcome promises.
  */
 export function admitPhysicalOutcomes(
   input: IAutoMovieAuditPhysicalOutcomes.IInput,

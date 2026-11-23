@@ -8,18 +8,18 @@ import { weldMeshVertices } from "./weldMeshVertices";
 
 /**
  * Resolve actual source-point aliases and current-position legacy vertices.
- * Source pairs are interned in first render occurrence order, independently
- * of ID magnitude or table order. Legacy labels use the existing nanometre
- * grid and never share an identity with an explicit source point. Each source
- * alias must agree on that same grid in the mesh's local metre frame.
+ * Source pairs are interned in first render occurrence order, independently of
+ * ID magnitude or table order. Legacy labels use the existing nanometre grid
+ * and never share an identity with an explicit source point. Each source alias
+ * must agree on that same grid in the mesh's local metre frame.
  *
  * Omitted correspondence delegates exactly to position welding. Explicit
- * correspondence needs dense aligned arrays, finite XYZ, nonblank domains,
- * safe nonnegative IDs and resident source references. Malformed metadata or
+ * correspondence needs dense aligned arrays, finite XYZ, nonblank domains, safe
+ * nonnegative IDs and resident source references. Malformed metadata or
  * separated aliases throw a named physicalVertices refusal; no fallback hides
- * the declaration. Unused and repeated valid source rows are harmless.
- * Returned arrays are owned. Geometry, indices, areas and intersections remain
- * their independent owners' obligations, not a promise of this equivalence.
+ * the declaration. Unused and repeated valid source rows are harmless. Returned
+ * arrays are owned. Geometry, indices, areas and intersections remain their
+ * independent owners' obligations, not a promise of this equivalence.
  */
 export function resolveAutoMovieMeshPhysicalVertices(
   mesh: Pick<IAutoMovieMesh, "positions" | "physicalVertices">,

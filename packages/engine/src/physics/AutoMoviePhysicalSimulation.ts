@@ -38,9 +38,10 @@ import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
 
 /**
  * Precompute fixed-step physics, then replay by time. Inputs are sampled bytes,
- * not callbacks hidden behind a cache key. The run steps its own in-house extended position-based dynamics world, which lives only for the run.
- * A late edit reuses a checkpoint only after every earlier input matches;
- * changed geometry, solver settings or modes require a complete restart.
+ * not callbacks hidden behind a cache key. The run steps its own in-house
+ * extended position-based dynamics world, which lives only for the run. A late
+ * edit reuses a checkpoint only after every earlier input matches; changed
+ * geometry, solver settings or modes require a complete restart.
  */
 export class AutoMoviePhysicalSimulation {
   /** Own the immutable input snapshot needed to verify checkpoint equivalence. */
@@ -53,7 +54,10 @@ export class AutoMoviePhysicalSimulation {
     public readonly recomputedSteps: number,
     /** Pre-solve PD demands exceeding the enforced motor torque cap. */
     public readonly tracking: IAutoMoviePhysicalSimulationInput.IDiagnostic[],
-    /** Converged coupled-group target fits by output step and group id; omitted when no target declares a group. */
+    /**
+     * Converged coupled-group target fits by output step and group id; omitted
+     * when no target declares a group.
+     */
     public readonly coupledTargetFits?: IAutoMoviePhysicalCoupledTargetFit.ISeries,
   ) {}
 
@@ -122,12 +126,13 @@ export class AutoMoviePhysicalSimulation {
    * Compute or resume a complete film from an admitted input snapshot.
    *
    * An equal full identity returns previous unchanged. Otherwise a compatible
-   * unchanged prefix can resume from a solver/controller/balance checkpoint; fully kinematic inputs generate frames without a dynamics world.
-   * Progress reports completed intervals synchronously. Cancellation or an
-   * error rejects rather than returning a partial successful performance.
-   * Each declared coupled group fits its members against one snapshot. The
-   * result keeps every converged report, and a resumed run keeps the reports
-   * of its reused prefix. A failed group throws its typed error.
+   * unchanged prefix can resume from a solver/controller/balance checkpoint;
+   * fully kinematic inputs generate frames without a dynamics world. Progress
+   * reports completed intervals synchronously. Cancellation or an error rejects
+   * rather than returning a partial successful performance. Each declared
+   * coupled group fits its members against one snapshot. The result keeps every
+   * converged report, and a resumed run keeps the reports of its reused prefix.
+   * A failed group throws its typed error.
    */
   public static async compute(
     input: IAutoMoviePhysicalSimulationInput.IInput,

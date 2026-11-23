@@ -17,7 +17,10 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries";
 
-/** Resolve admitted node/bone moving anchors and body capsules from complete absolute primary-motion snapshots, then replay cloth. This exported resolver currently has portable test consumers and no production/viewer live host.
+/**
+ * Resolve admitted node/bone moving anchors and body capsules from complete
+ * absolute primary-motion snapshots, then replay cloth. This exported resolver
+ * currently has portable test consumers and no production/viewer live host.
  */
 export const simulateAutoMovieWearableSoftBody: (
   props: IAutoMovieSimulateWearableSoftBody.IProps,
@@ -173,7 +176,10 @@ export const simulateAutoMovieWearableSoftBody: (
   };
 };
 
-/** Index caller-owned frame subject references by nonblank unique ids; duplicate admission preserves named frame diagnostics. */
+/**
+ * Index caller-owned frame subject references by nonblank unique ids; duplicate
+ * admission preserves named frame diagnostics.
+ */
 
 const keyed: <Entry>(
   entries: readonly Entry[],
@@ -198,7 +204,10 @@ const keyed: <Entry>(
   return output;
 };
 
-/** Scan all supplied bone rows to refuse duplicate or missing required names, returning the unique caller-owned pose reference. */
+/**
+ * Scan all supplied bone rows to refuse duplicate or missing required names,
+ * returning the unique caller-owned pose reference.
+ */
 
 const resolvedBone: (
   bones: readonly IAutoMovieResolvedBone[],
@@ -221,7 +230,10 @@ const resolvedBone: (
   return resolved;
 };
 
-/** Validate a rigid world placement and local metre offset, rotate the offset without scale, and allocate its translated target. */
+/**
+ * Validate a rigid world placement and local metre offset, rotate the offset
+ * without scale, and allocate its translated target.
+ */
 
 const resolveLocalPoint: (
   position: IAutoMovieVector3,
@@ -243,7 +255,10 @@ const resolveLocalPoint: (
   };
 };
 
-/** Refuse nonfinite components and squared unit-length error above 1e-6 before rotating a moving anchor offset. */
+/**
+ * Refuse nonfinite components and squared unit-length error above 1e-6 before
+ * rotating a moving anchor offset.
+ */
 
 const assertQuaternion: (value: IAutoMovieQuaternion, label: string) => void = (
   value: IAutoMovieQuaternion,
@@ -260,7 +275,10 @@ const assertQuaternion: (value: IAutoMovieQuaternion, label: string) => void = (
     throw new Error(`${label} must be unit length`);
 };
 
-/** Admit nonnegative safe subject/budget integers and refuse a slot at or beyond its declared live-subject ceiling. */
+/**
+ * Admit nonnegative safe subject/budget integers and refuse a slot at or beyond
+ * its declared live-subject ceiling.
+ */
 
 const assertAdmission: (subjectIndex: number, maxSubjects: number) => void = (
   subjectIndex: number,

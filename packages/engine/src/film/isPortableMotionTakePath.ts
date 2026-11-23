@@ -1,7 +1,11 @@
 /**
- * Recognize a production-relative POSIX path portable to Windows and POSIX hosts.
+ * Recognize a production-relative POSIX path portable to Windows and POSIX
+ * hosts.
  *
- * Each slash-separated component must be nonempty and may not contain Windows-forbidden punctuation or control bytes, end with a dot or space, or name a Windows device. This is a syntax check; the host decides filesystem availability and physical confinement.
+ * Each slash-separated component must be nonempty and may not contain
+ * Windows-forbidden punctuation or control bytes, end with a dot or space, or
+ * name a Windows device. This is a syntax check; the host decides filesystem
+ * availability and physical confinement.
  */
 export function isPortableMotionTakePath(value: unknown): value is string {
   return (

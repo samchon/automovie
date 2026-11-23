@@ -14,21 +14,23 @@ import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 import { compileAutoMovieNormalizedPhases64 } from "./compileAutoMovieNormalizedPhases64";
 
 /**
- * Local physical-station cubic Hermite fields from complete normalized open courses.
- * Fixed linear nonuniform quadratic derivative stencils commute with exact Bernstein
- * restriction. This is a different field from coefficientwise monotone PCHIP: scalar
- * overshoot, zero Jacobians and intersections remain possible. The explicit ruled
- * alternative uses two-course convex interpolation with station C0 only. Source corners survive.
+ * Local physical-station cubic Hermite fields from complete normalized open
+ * courses. Fixed linear nonuniform quadratic derivative stencils commute with
+ * exact Bernstein restriction. This is a different field from coefficientwise
+ * monotone PCHIP: scalar overshoot, zero Jacobians and intersections remain
+ * possible. The explicit ruled alternative uses two-course convex interpolation
+ * with station C0 only. Source corners survive.
  */
 export namespace AutoMovieLocalHermiteField64 {
   /**
-   * Admit continuous open cubic courses and prepare linear physical derivative weights.
-   * Source curves must already share a normalized correspondence chart and orientation.
-   * Interior derivatives use the nonuniform quadratic stencil; endpoints use unclipped
-   * one-sided quadratic derivatives, or the common secant for exactly two courses.
-   * This preserves station positions and physical dP/ds, not monotonicity or injectivity.
-   * Explicit ruled interpolation instead uses only the two incident courses and their
-   * convex blend. Its station jet chooses the right incident secant, or the last left
+   * Admit continuous open cubic courses and prepare linear physical derivative
+   * weights. Source curves must already share a normalized correspondence chart
+   * and orientation. Interior derivatives use the nonuniform quadratic stencil;
+   * endpoints use unclipped one-sided quadratic derivatives, or the common
+   * secant for exactly two courses. This preserves station positions and
+   * physical dP/ds, not monotonicity or injectivity. Explicit ruled
+   * interpolation instead uses only the two incident courses and their convex
+   * blend. Its station jet chooses the right incident secant, or the last left
    * secant, as one normal authority; station continuity is C0 rather than C1.
    */
   export function prepare(

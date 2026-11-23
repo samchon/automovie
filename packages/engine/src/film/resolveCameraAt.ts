@@ -9,9 +9,14 @@ import { channelKey } from "../resolve/channelKey";
 import { sampleClip } from "../resolve/sampleClip";
 
 /**
- * A camera's world placement at shot-local `time`: its staged base transform when the shot has no camera move, else the move's `translation` and `rotation` tracks for the camera node sampled at `time`.
+ * A camera's world placement at shot-local `time`: its staged base transform
+ * when the shot has no camera move, else the move's `translation` and
+ * `rotation` tracks for the camera node sampled at `time`.
  *
- * A move that lacks one of the two tracks takes that component from the base. Sampling follows {@link sampleClip}: time is clamped to the clip, or wrapped when it loops, and an invalid time or a duplicated track throws. A component taken from the base is the base's own object, not a copy.
+ * A move that lacks one of the two tracks takes that component from the base.
+ * Sampling follows {@link sampleClip}: time is clamped to the clip, or wrapped
+ * when it loops, and an invalid time or a duplicated track throws. A component
+ * taken from the base is the base's own object, not a copy.
  *
  * @param base The staged camera node's translation and rotation.
  * @param cameraMotion The shot's camera clip, or `null` for a static camera.

@@ -10,11 +10,23 @@ import { pointSubjectBox } from "./pointSubjectBox";
 /**
  * The world-axis-aligned bound of a supplied model-space subject box.
  *
- * The eight corners of extent go through placeTransformedPoint and their axis-aligned range encloses the transformed input box, assuming finite transform arithmetic. This bounds the portable parts or proxies that the input represents; it does not inspect external asset bytes or renderer-only deformation.
+ * The eight corners of extent go through placeTransformedPoint and their
+ * axis-aligned range encloses the transformed input box, assuming finite
+ * transform arithmetic. This bounds the portable parts or proxies that the
+ * input represents; it does not inspect external asset bytes or renderer-only
+ * deformation.
  *
- * `performShot` frames a node subject from this box, `realizeShotContract` and the camera-clearance reports grade the same subject from it, and the production film-grammar pass reads it too, so a camera solved to hold a mass is tested against the mass it was solved for.
+ * `performShot` frames a node subject from this box, `realizeShotContract` and
+ * the camera-clearance reports grade the same subject from it, and the
+ * production film-grammar pass reads it too, so a camera solved to hold a mass
+ * is tested against the mass it was solved for.
  *
- * An extent whose X and Z endpoints are all zero is treated as a point with a height, the shape nodeSubjectExtent returns when nothing could be measured, and goes to pointSubjectBox: only the placement's translation applies by the stand-in boxing policy. This shape test also catches measured vertical segments, so their rotation and scale are ignored here; it does not distinguish them from unmeasured subjects.
+ * An extent whose X and Z endpoints are all zero is treated as a point with a
+ * height, the shape nodeSubjectExtent returns when nothing could be measured,
+ * and goes to pointSubjectBox: only the placement's translation applies by the
+ * stand-in boxing policy. This shape test also catches measured vertical
+ * segments, so their rotation and scale are ignored here; it does not
+ * distinguish them from unmeasured subjects.
  *
  * @param placement The node's world transform.
  * @param extent The model-space box of what the node draws, in metres.

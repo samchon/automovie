@@ -17,11 +17,11 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * parameter is the barycentric mix of the simplex's segment ends. Once the
  * difference reaches within the hull's tolerance of the origin, the segment
  * meets the hull, and its deepest point minimises the greatest face plane
- * distance along it: a convex piecewise linear function of the parameter,
- * whose least value the walk along its upper envelope reaches exactly. A
- * segment that only grazes the hull within the tolerance takes the
- * iteration's parameter: that of its nearest point, or of the origin's
- * barycentric mix when a tetrahedron of the difference holds the origin.
+ * distance along it: a convex piecewise linear function of the parameter, whose
+ * least value the walk along its upper envelope reaches exactly. A segment that
+ * only grazes the hull within the tolerance takes the iteration's parameter:
+ * that of its nearest point, or of the origin's barycentric mix when a
+ * tetrahedron of the difference holds the origin.
  *
  * @param points The hull's shape-local points, metres, spanning a volume.
  * @param a The segment's start, at parameter 0, in the same frame.
@@ -86,7 +86,10 @@ export function physicalHullSegment(
   return Math.min(1, Math.max(0, parameter));
 }
 
-/** A support point of the Minkowski difference: a hull vertex less a segment end. */
+/**
+ * A support point of the Minkowski difference: a hull vertex less a segment
+ * end.
+ */
 interface IVertex {
   /** The difference, metres. */ w: IAutoMovieVector3;
   /** The hull vertex's index. */ vertex: number;
@@ -180,8 +183,8 @@ const nearest = (simplex: readonly IVertex[]): IWeighted[] | null => {
 };
 
 /**
- * The segment parameter of the origin's barycentric mix in a tetrahedron of
- * the difference that holds it, by its signed sub-volumes; null for a flat
+ * The segment parameter of the origin's barycentric mix in a tetrahedron of the
+ * difference that holds it, by its signed sub-volumes; null for a flat
  * tetrahedron.
  */
 const enclosing = (simplex: readonly IVertex[]): number | null => {
@@ -286,9 +289,9 @@ const triangle = (p: IVertex, q: IVertex, r: IVertex): IWeighted[] => {
 };
 
 /**
- * The parameter minimising the greatest face plane distance along the
- * segment, when that least value is not positive; null when the segment
- * stays outside every face plane's reach, so it does not enter the hull.
+ * The parameter minimising the greatest face plane distance along the segment,
+ * when that least value is not positive; null when the segment stays outside
+ * every face plane's reach, so it does not enter the hull.
  */
 const deepest = (
   hull: IAutoMoviePhysicalHullFaces.IHull,

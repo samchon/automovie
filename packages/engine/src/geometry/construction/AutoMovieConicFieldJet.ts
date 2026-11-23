@@ -1,14 +1,19 @@
 import type { IAutoMovieConicFieldJet } from "@automovie/interface";
 
 /**
- * Scalar source partials for the shared numeric and differentiated conic algebra.
+ * Scalar source partials for the shared numeric and differentiated conic
+ * algebra.
  *
- * The two coordinates are source parameters s and p, never a native curve clock.
- * Entries are derivatives rather than Taylor coefficients. Geometry owners admit
- * inputs and finite outputs; these operations propagate IEEE nonfinite arithmetic.
+ * The two coordinates are source parameters s and p, never a native curve
+ * clock. Entries are derivatives rather than Taylor coefficients. Geometry
+ * owners admit inputs and finite outputs; these operations propagate IEEE
+ * nonfinite arithmetic.
  */
 export namespace AutoMovieConicFieldJet {
-  /** Ordinary scalar specialization; its arithmetic has the existing Math semantics. */
+  /**
+   * Ordinary scalar specialization; its arithmetic has the existing Math
+   * semantics.
+   */
   export const NUMBER: IAutoMovieConicFieldJet.IAlgebra<number> = {
     /** Identity primal reading. */
     value: (input: number): number => input,
@@ -103,7 +108,8 @@ export namespace AutoMovieConicFieldJet {
     };
 
   /**
-   * Lift a regular station scalar [value,ds,dss] while p is a declared constant.
+   * Lift a regular station scalar [value,ds,dss] while p is a declared
+   * constant.
    */
   export function fromStation(
     input: readonly [number, number, number],
@@ -112,7 +118,10 @@ export namespace AutoMovieConicFieldJet {
   }
 }
 
-/** Full two-variable product rule, with actual Hessian rather than Taylor entries. */
+/**
+ * Full two-variable product rule, with actual Hessian rather than Taylor
+ * entries.
+ */
 function multiply(
   a: IAutoMovieConicFieldJet.IJet,
   b: IAutoMovieConicFieldJet.IJet,
@@ -160,7 +169,10 @@ function sqrt(a: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet {
   ];
 }
 
-/** Differentiate y cubed equals a using representable root powers and first jets. */
+/**
+ * Differentiate y cubed equals a using representable root powers and first
+ * jets.
+ */
 function cbrt(a: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet {
   const value: number = Math.cbrt(a[0]);
   const square: number = value * value;

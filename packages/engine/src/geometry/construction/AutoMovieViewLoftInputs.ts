@@ -9,9 +9,7 @@ import type {
 
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 
-/**
- * Prepare ViewLoft's existing value readers, reusing retained direct sources.
- */
+/** Prepare ViewLoft's existing value readers, reusing retained direct sources. */
 export function AutoMovieViewLoftInputs(
   part: IAutoMovieViewPart,
   source: IAutoMovieLoftViewSource.ISource | null,

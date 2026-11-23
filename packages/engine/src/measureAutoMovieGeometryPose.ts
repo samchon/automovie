@@ -8,7 +8,9 @@ import {
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 
 /**
- * Summarize an actor's sampled or held pose at shot-local seconds, reporting world root position, joint count and motion-held status; lookup and time failures throw.
+ * Summarize an actor's sampled or held pose at shot-local seconds, reporting
+ * world root position, joint count and motion-held status; lookup and time
+ * failures throw.
  */
 export function measureAutoMovieGeometryPose(
   props: IAutoMovieGeometryMeasurementInput,

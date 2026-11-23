@@ -40,7 +40,8 @@ interface IAutoMovieHullShapeFactory {
 }
 
 /**
- * Open one actual hull constructor group with the same shared identity rotation.
+ * Open one actual hull constructor group with the same shared identity
+ * rotation.
  */
 export function createPhysicalHullShape(): IAutoMovieHullShapeFactory {
   const original: boolean = own(Quaternion, "identity") === IDENTITY;
@@ -89,14 +90,9 @@ export function createPhysicalHullShape(): IAutoMovieHullShapeFactory {
     },
   };
 }
-/**
- * Verify the current placement of an actually allocated hull shape.
- */
+/** Verify the current placement of an actually allocated hull shape. */
 export namespace createPhysicalHullShape {
-  /**
-   * Check the original point-array and transform identities and placement bits.
-   *
-   */
+  /** Check the original point-array and transform identities and placement bits. */
   export function current(shape: IAutoMoviePhysicalShape): boolean {
     const receipt: IAutoMovieHullShapeReceipt | undefined = SHAPES.get(shape);
     if (

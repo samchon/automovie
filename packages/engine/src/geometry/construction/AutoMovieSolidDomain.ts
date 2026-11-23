@@ -2,13 +2,9 @@ import type { IAutoMovieSolidSurface } from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
-/**
- * Pre-evaluation admission of solver trials to an actually owned chart.
- */
+/** Pre-evaluation admission of solver trials to an actually owned chart. */
 export namespace AutoMovieSolidDomain {
-  /**
-   * Finite chart membership without evaluating the surface.
-   */
+  /** Finite chart membership without evaluating the surface. */
   export function contains(
     surface: IAutoMovieSolidSurface,
     u: number,
@@ -22,9 +18,7 @@ export namespace AutoMovieSolidDomain {
     );
   }
 
-  /**
-   * One admissible physical2 trial, or null before an unavailable evaluation.
-   */
+  /** One admissible physical2 trial, or null before an unavailable evaluation. */
   export function jet(
     surface: IAutoMovieSolidSurface,
     u: number,

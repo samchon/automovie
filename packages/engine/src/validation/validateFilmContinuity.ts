@@ -14,7 +14,8 @@ import { compareContinuityBoundary } from "./compareContinuityBoundary";
 import { readContinuityTolerances } from "./readContinuityTolerances";
 
 /**
- * Resolve end/opening states in playback order and compare adjacent beat boundaries for advisory discontinuity.
+ * Resolve end/opening states in playback order and compare adjacent beat
+ * boundaries for advisory discontinuity.
  */
 export const validateFilmContinuity: (
   props: IAutoMovieValidateFilmContinuity.IProps,

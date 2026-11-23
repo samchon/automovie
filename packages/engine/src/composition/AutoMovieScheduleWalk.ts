@@ -11,9 +11,9 @@ import { AutoMovieScheduleError } from "./AutoMovieScheduleError";
 
 /**
  * The state of one walk of a composition (`resolveAutoMovieSchedule`) and the
- * readings of it every placement shares: the instants an anchor or a cue
- * track offers, the names placed so far, the instant an event names and the
- * intent a part begins with.
+ * readings of it every placement shares: the instants an anchor or a cue track
+ * offers, the names placed so far, the instant an event names and the intent a
+ * part begins with.
  */
 export namespace AutoMovieScheduleWalk {
   /**
@@ -36,8 +36,8 @@ export namespace AutoMovieScheduleWalk {
   }
 
   /**
-   * The named instants of an anchored entry (its events, and its own start
-   * and end where it names none so) or of a cue track.
+   * The named instants of an anchored entry (its events, and its own start and
+   * end where it names none so) or of a cue track.
    *
    * @param walk The walk.
    * @param of The anchor or track.
@@ -82,7 +82,8 @@ export namespace AutoMovieScheduleWalk {
    * @param index The occurrence, from 0.
    * @param by The intent that asks, for the error.
    * @returns Film seconds.
-   * @throws {AutoMovieScheduleError} When there is no event of that name or that many.
+   * @throws {AutoMovieScheduleError} When there is no event of that name or
+   *   that many.
    */
   export function instant(
     of: string,
@@ -131,7 +132,8 @@ export namespace AutoMovieScheduleWalk {
    * The intent a part begins with.
    *
    * @param node The part.
-   * @returns The first intent of a sequence or group, an intent itself, or undefined for an `at` or an empty group.
+   * @returns The first intent of a sequence or group, an intent itself, or
+   *   undefined for an `at` or an empty group.
    */
   export function leading(
     node: IAutoMovieComposition,

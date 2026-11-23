@@ -16,9 +16,9 @@ import { rootsAutoMovieCubicBernstein64 } from "./curve/rootsAutoMovieCubicBerns
  * use the existing normalized binary64 cubic solver; they are numerical
  * construction events, not certified intervals. The determinant owner's
  * exact-sign fallback distinguishes continuous zero incidence from a small
- * nonzero coefficient without replacing either by a geometric tolerance.
- * Near event phases can share one phase only when all their plane equations
- * hold there within the same relative arithmetic bound; otherwise they refuse.
+ * nonzero coefficient without replacing either by a geometric tolerance. Near
+ * event phases can share one phase only when all their plane equations hold
+ * there within the same relative arithmetic bound; otherwise they refuse.
  */
 export function planAutoMovieSupportLoft64(
   input: IAutoMoviePlanSupportLoft64.IInput,

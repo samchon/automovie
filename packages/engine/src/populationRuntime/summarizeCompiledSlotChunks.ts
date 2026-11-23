@@ -7,15 +7,16 @@ import {
 
 import { createCompiledSlotSummary } from "./createCompiledSlotSummary";
 
-/**
- * Fold each generated slot once into both its chunk and the population summary.
- */
+/** Fold each generated slot once into both its chunk and the population summary. */
 export function summarizeCompiledSlotChunks(
   /** Number of admitted slots starting at zero. */
   count: number,
   /** Positive package chunk size, in slots. */
   chunkSize: number,
-  /** Generate one borrowed position synchronously; invoked exactly once per slot. */
+  /**
+   * Generate one borrowed position synchronously; invoked exactly once per
+   * slot.
+   */
   position: (slot: number) => IAutoMovieVector3,
 ): IAutoMovieSummarizeCompiledSlotChunks.IResult {
   const whole: IAutoMovieCreateCompiledSlotSummary.IResult =

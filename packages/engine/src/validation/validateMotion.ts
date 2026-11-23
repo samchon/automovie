@@ -14,11 +14,15 @@ import { ViolationCollector } from "./ViolationCollector";
 import { validateExpression } from "./validateExpression";
 import { validatePose } from "./validatePose";
 
-/** Declared per-axis adjacent-keyframe speed policy in degrees per second, rather than a measured anatomical maximum. */
+/**
+ * Declared per-axis adjacent-keyframe speed policy in degrees per second,
+ * rather than a measured anatomical maximum.
+ */
 const MAX_ANGULAR_SPEED_DEG_PER_S: number = 900;
 
 /**
- * Admit motion identity/skeleton, positive duration, loop, ordered in-range times/easing, frame pose/expression and adjacent-axis speed.
+ * Admit motion identity/skeleton, positive duration, loop, ordered in-range
+ * times/easing, frame pose/expression and adjacent-axis speed.
  */
 export const validateMotion: (
   props: IAutoMovieValidateMotion.IProps,
@@ -112,9 +116,11 @@ export const validateMotion: (
 };
 
 /**
- * Index prior joints by bone and flag shared axes whose degree delta divided by positive dt exceeds900deg/s.
+ * Index prior joints by bone and flag shared axes whose degree delta divided by
+ * positive dt exceeds900deg/s.
  *
- * Temporal ordering admission owns bad dt; this helper owns adjacent-frame speed policy.
+ * Temporal ordering admission owns bad dt; this helper owns adjacent-frame
+ * speed policy.
  *
  * Absent prior joints are skipped and null axis angles contribute zero.
  *
@@ -172,19 +178,22 @@ const checkAngularSpeed: (
 };
 
 /**
- * Require four finite controls only for cubicBezier and restrict X controls to inclusive[0,1].
+ * Require four finite controls only for cubicBezier and restrict X controls to
+ * inclusive[0,1].
  *
- * isFiniteBezierTuple owns shape/finite admission before destructuring.
+ * IsFiniteBezierTuple owns shape/finite admission before destructuring.
  *
  * Y controls may overshoot; non-cubic easing must carry null controls.
  *
- * The control tuple and exact bezier path preserve authored values without clamping.
+ * The control tuple and exact bezier path preserve authored values without
+ * clamping.
  *
  * Four control reads and fixed comparisons take constant work.
  *
  * Motion easing and the cubicBezier solver share the legal X-domain premise.
  *
- * Only diagnostic rows escape; no easing curve cache or sampler task is retained.
+ * Only diagnostic rows escape; no easing curve cache or sampler task is
+ * retained.
  */
 const validateKeyframeBezier: (
   kf: IAutoMovieKeyframe,
@@ -237,7 +246,8 @@ const validateKeyframeBezier: (
  *
  * The type predicate makes destructuring safe after shape/finite admission.
  *
- * Array density is required; a length-four array of holes is not four finite controls.
+ * Array density is required; a length-four array of holes is not four finite
+ * controls.
  *
  * Boolean narrowing certifies only this tuple shape and scalar finiteness.
  *

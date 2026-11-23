@@ -16,7 +16,10 @@ import { softBodyRestConfiguration } from "./softBodyRestConfiguration";
 import { validateAutoMovieSoftFurnishingDomainOwnership } from "./validateAutoMovieSoftFurnishingDomainOwnership";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
 
-/** Fixed schema kind membership shared across validation calls without per-call rebuilding. */
+/**
+ * Fixed schema kind membership shared across validation calls without per-call
+ * rebuilding.
+ */
 const FURNISHING_KINDS: Set<string> = new Set([
   "curtain",
   "blind",
@@ -27,11 +30,15 @@ const FURNISHING_KINDS: Set<string> = new Set([
   "other",
 ]);
 
-/** Fixed lowering modes; selecting simulated here does not execute the unwired live solver host. */
+/**
+ * Fixed lowering modes; selecting simulated here does not execute the unwired
+ * live solver host.
+ */
 const FURNISHING_MODES: Set<string> = new Set(["rest", "simulated"]);
 
 /**
- * Join typed furnishings to domains, supports and room volumes, then inspect held rest particles.
+ * Join typed furnishings to domains, supports and room volumes, then inspect
+ * held rest particles.
  */
 export const validateSoftFurnishings: (
   props: IAutoMovieValidateSoftFurnishings.IProps,

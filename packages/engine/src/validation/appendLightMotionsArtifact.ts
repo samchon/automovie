@@ -20,9 +20,7 @@ import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
 
-/**
- * Append light-clip shape, target, uniqueness and range findings for a shot.
- */
+/** Append light-clip shape, target, uniqueness and range findings for a shot. */
 export const appendLightMotionsArtifact: (
   lightMotions: unknown,
   path: string,
@@ -208,7 +206,11 @@ const lightValueInBounds: (
   return (inclusiveMin ? value >= min : value > min) && value <= max;
 };
 
-/** Normalize finite derivative coefficients before solving, retaining tiny nonzero curves; select roots strictly inside (0,1), with stable paired roots avoiding subtraction cancellation. */
+/**
+ * Normalize finite derivative coefficients before solving, retaining tiny
+ * nonzero curves; select roots strictly inside (0,1), with stable paired roots
+ * avoiding subtraction cancellation.
+ */
 const interiorQuadraticRoots: (a: number, b: number, c: number) => number[] = (
   a: number,
   b: number,

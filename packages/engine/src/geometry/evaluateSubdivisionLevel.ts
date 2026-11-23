@@ -10,11 +10,11 @@ import { limitSubdivisionLevel } from "./limitSubdivisionLevel";
 /**
  * Evaluate a completed generating level without another topology refinement.
  *
- * This boundary lets a refined fitting domain emit its existing LOD instead
- * of multiplying render triangles merely because fitting added controls.
- * Original source-face parameters and indexed face-varying UV identities are
- * copied from the level unchanged. The level must come from cage admission or
- * the maintained refiner; this function performs no admission or repair.
+ * This boundary lets a refined fitting domain emit its existing LOD instead of
+ * multiplying render triangles merely because fitting added controls. Original
+ * source-face parameters and indexed face-varying UV identities are copied from
+ * the level unchanged. The level must come from cage admission or the
+ * maintained refiner; this function performs no admission or repair.
  */
 export function evaluateSubdivisionLevel(
   level: IAutoMovieSubdivisionLevel,

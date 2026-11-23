@@ -18,10 +18,16 @@ import { FLUID_MAX_SPRAY_PARTICLES } from "./constants/FLUID_MAX_SPRAY_PARTICLES
 import { FLUID_MAX_STEPS } from "./constants/FLUID_MAX_STEPS";
 import { fluidCourantNumber } from "./fluidCourantNumber";
 
-/** Closed boundary vocabulary read by the four edge checks; module-owned constant-size lookup with no mutation after construction. */
+/**
+ * Closed boundary vocabulary read by the four edge checks; module-owned
+ * constant-size lookup with no mutation after construction.
+ */
 const BOUNDARY_KINDS: ReadonlySet<string> = new Set(["wall", "open"]);
 
-/** Every solver edge, visited in diagnostic order without building per-domain key lists. */
+/**
+ * Every solver edge, visited in diagnostic order without building per-domain
+ * key lists.
+ */
 const EDGES: readonly ["xMin", "xMax", "zMin", "zMax"] = [
   "xMin",
   "xMax",
@@ -32,9 +38,20 @@ const EDGES: readonly ["xMin", "xMax", "zMin", "zMax"] = [
 /**
  * Validate a fluid domain's lattice, budgets, stability, and declared flows.
  *
- * For a structurally typed domain, checks schema/id, safe positive grid counts, finite authored scalars, count budgets, per-cell array lengths/values, boundary vocabulary, nonsolid source/drain/spray sites, activity windows and sibling identities. Initial depths must lie in [0, referenceDepth], and solid cells must start dry. Violations retain field paths and authored values; inputs are not modified.
+ * For a structurally typed domain, checks schema/id, safe positive grid counts,
+ * finite authored scalars, count budgets, per-cell array lengths/values,
+ * boundary vocabulary, nonsolid source/drain/spray sites, activity windows and
+ * sibling identities. Initial depths must lie in [0, referenceDepth], and solid
+ * cells must start dry. Violations retain field paths and authored values;
+ * inputs are not modified.
  *
- * The Courant comparison runs only when its five authored inputs are finite and positive. A computed value above one, including Infinity, is refused; derived NaN is missed by that comparison. Admission also does not bound finite area, damping, clock, flow accumulation or spray-index products, and later water depth may exceed referenceDepth. It does not certify every derived solver/surface/spray result or perform general unknown-object shape admission.
+ * The Courant comparison runs only when its five authored inputs are finite and
+ * positive. A computed value above one, including Infinity, is refused; derived
+ * NaN is missed by that comparison. Admission also does not bound finite area,
+ * damping, clock, flow accumulation or spray-index products, and later water
+ * depth may exceed referenceDepth. It does not certify every derived
+ * solver/surface/spray result or perform general unknown-object shape
+ * admission.
  */
 export const validateFluidDomain: (
   props: IAutoMovieValidateFluidDomain.IProps,
@@ -333,7 +350,11 @@ export const validateFluidDomain: (
   return out.toValidation();
 };
 
-/** Append the shared finite, open-lower-bound range finding; scalar work has the diagnostic conversion costs of validateRange and mutates only the borrowed collector. */
+/**
+ * Append the shared finite, open-lower-bound range finding; scalar work has the
+ * diagnostic conversion costs of validateRange and mutates only the borrowed
+ * collector.
+ */
 const positive: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -346,7 +367,10 @@ const positive: (
   value: number,
 ): void => validateRange(value, path, 0, Infinity, label, out.items, false);
 
-/** Require a safe integer inside inclusive bounds; one constant-work predicate appends at most one finding without clamping. */
+/**
+ * Require a safe integer inside inclusive bounds; one constant-work predicate
+ * appends at most one finding without clamping.
+ */
 const integer: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -371,7 +395,10 @@ const integer: (
     );
 };
 
-/** Compare actual length with the computed cell count, appending at most one finding even for an unusable count; no array is traversed or resized here. */
+/**
+ * Compare actual length with the computed cell count, appending at most one
+ * finding even for an unusable count; no array is traversed or resized here.
+ */
 const length: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -394,7 +421,11 @@ const length: (
     );
 };
 
-/** Append one range finding and overshoot when an actual collection length exceeds its named budget; constant scalar work leaves the collection unchanged. */
+/**
+ * Append one range finding and overshoot when an actual collection length
+ * exceeds its named budget; constant scalar work leaves the collection
+ * unchanged.
+ */
 const count: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -418,7 +449,11 @@ const count: (
     );
 };
 
-/** Check blank text and sibling duplication, then add the exact id to the call-owned set. Text trimming/hashing scales with id length; blank siblings receive blank findings without duplicate findings. */
+/**
+ * Check blank text and sibling duplication, then add the exact id to the
+ * call-owned set. Text trimming/hashing scales with id length; blank siblings
+ * receive blank findings without duplicate findings.
+ */
 const identity: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -438,7 +473,11 @@ const identity: (
   seen.add(id);
 };
 
-/** Check each safe integer coordinate before reading solidity; an in-grid solid site appends a separate finding. Constant work borrows the domain and collector without retaining them. */
+/**
+ * Check each safe integer coordinate before reading solidity; an in-grid solid
+ * site appends a separate finding. Constant work borrows the domain and
+ * collector without retaining them.
+ */
 const site: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -474,13 +513,20 @@ const site: (
     );
 };
 
-/** Constant-work safe-index predicate used before solidity lookup; the limit is the authored count and is admitted separately. No state is retained. */
+/**
+ * Constant-work safe-index predicate used before solidity lookup; the limit is
+ * the authored count and is admitted separately. No state is retained.
+ */
 const inside: (value: number, limit: number) => boolean = (
   value: number,
   limit: number,
 ): boolean => Number.isSafeInteger(value) && value >= 0 && value < limit;
 
-/** Check finite nonnegative endpoints and strict end-after-start ordering; null end is unbounded. Scalar checks append their own findings without mutating the window or repeating ordering errors for non-finite endpoints. */
+/**
+ * Check finite nonnegative endpoints and strict end-after-start ordering; null
+ * end is unbounded. Scalar checks append their own findings without mutating
+ * the window or repeating ordering errors for non-finite endpoints.
+ */
 const window: (
   out: IAutoMovieViolationCollector,
   path: string,

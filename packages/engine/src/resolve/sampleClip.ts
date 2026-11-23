@@ -16,7 +16,11 @@ import { channelIsRotation } from "./channelIsRotation";
 import { channelKey } from "./channelKey";
 
 /**
- * Sample every admitted track at finite clip-local seconds, clamped or duration-wrapped. STEP changes at exact keys, LINEAR uses quaternion slerp where declared, and cubic Hermite scales tangents by segment duration and normalizes interpolated rotations. Before/after-key endpoints copy authored values verbatim.
+ * Sample every admitted track at finite clip-local seconds, clamped or
+ * duration-wrapped. STEP changes at exact keys, LINEAR uses quaternion slerp
+ * where declared, and cubic Hermite scales tangents by segment duration and
+ * normalizes interpolated rotations. Before/after-key endpoints copy authored
+ * values verbatim.
  */
 export const sampleClip: (
   clip: IAutoMovieClip,

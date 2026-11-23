@@ -15,8 +15,8 @@ import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter
  * Seal one render target: the renderer, its settings, and the exact asset bytes
  * a frame will read.
  *
- * The digest hashes explicit-position JSON tuples, so object property order
- * and embedded tabs/newlines do not collapse different renderer/asset fields.
+ * The digest hashes explicit-position JSON tuples, so object property order and
+ * embedded tabs/newlines do not collapse different renderer/asset fields.
  * Assets are sorted by UTF-16 code unit rather than locale collation.
  *
  * Buffer dimensions, ratio/exposure, shadow policy, nonblank renderer fields,

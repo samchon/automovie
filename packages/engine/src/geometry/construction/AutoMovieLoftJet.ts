@@ -24,14 +24,14 @@ import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
  * A chain's surface point with its exact first and second derivatives in
  * station and phase.
  *
- * A chain expanded with its jets (every layer carrying its plane, the
- * plane's station derivatives and the coefficients' second derivatives)
- * is, between two layers, `P(s, t) = o(s) + x(s, t) u(s) + z(s, t) v(s)`
- * with coefficient Hermite factors in physical station or a declared pole
- * coordinate, actual analytic frames or the existing component-plane fit,
- * and the actual local source/continuation total2 or legacy phase spline, plus a lift along
- * `w = v x u` and its reliefs along their axes. Each derivative is then the
- * product rule over those factors, each factor's derivative exact:
+ * A chain expanded with its jets (every layer carrying its plane, the plane's
+ * station derivatives and the coefficients' second derivatives) is, between two
+ * layers, `P(s, t) = o(s) + x(s, t) u(s) + z(s, t) v(s)` with coefficient
+ * Hermite factors in physical station or a declared pole coordinate, actual
+ * analytic frames or the existing component-plane fit, and the actual local
+ * source/continuation total2 or legacy phase spline, plus a lift along `w = v x
+ * u` and its reliefs along their axes. Each derivative is then the product rule
+ * over those factors, each factor's derivative exact:
  *
  * ```text
  * P_s  = o' + x_s u + x u' + z_s v + z v'
@@ -40,14 +40,14 @@ import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
  * P_t  = x_t u + z_t v,   P_tt = x_tt u + z_tt v
  * ```
  *
- * The strips, the trims' and lids' cross derivatives and the shading
- * normals read these instead of differences of sampled points.
+ * The strips, the trims' and lids' cross derivatives and the shading normals
+ * read these instead of differences of sampled points.
  */
 export namespace AutoMovieLoftJet {
   /**
-   * Whether the actual local interval owners carry physical2 and every
-   * layer carries its frame2. Projection curvatures are required only by
-   * actual legacy intervals. This is not complete numeric/regularity validation.
+   * Whether the actual local interval owners carry physical2 and every layer
+   * carries its frame2. Projection curvatures are required only by actual
+   * legacy intervals. This is not complete numeric/regularity validation.
    */
   export function carries(chain: IAutoMovieLoftChain): boolean {
     return (
@@ -114,13 +114,19 @@ export namespace AutoMovieLoftJet {
     b: IAutoMovieStationHermite.IEnd;
     /** Value, slope and curvature interpolation weights. */
     weights: number[][];
-    /** Three coefficient rows; lazy rows contain holes until their support is read. */
+    /**
+     * Three coefficient rows; lazy rows contain holes until their support is
+     * read.
+     */
     c: number[][];
   }
 
   /** A station's plane, section controls and optional lift controls. */
   interface IStation {
-    /** Actual basis controls only on the legacy branch; no fabricated rows on a native station. */
+    /**
+     * Actual basis controls only on the legacy branch; no fabricated rows on a
+     * native station.
+     */
     controls: IControls | null;
     /** Actual local total2 generator, absent only on the existing basis branch. */
     native: ((phi: number) => IAutoMovieLoftSectionJet) | null;
@@ -293,7 +299,10 @@ export namespace AutoMovieLoftJet {
     return station;
   }
 
-  /** Keep malformed lift layouts on the old doubled-row path; this does not reject an input. */
+  /**
+   * Keep malformed lift layouts on the old doubled-row path; this does not
+   * reject an input.
+   */
   function liftFits(layer: IAutoMovieLoftChain.ILayer, n: number): boolean {
     return (
       (layer.lift === undefined || layer.lift.length === n) &&
@@ -302,7 +311,10 @@ export namespace AutoMovieLoftJet {
     );
   }
 
-  /** Fill the same periodic support read by SplineCurve.jet, without changing its arithmetic. */
+  /**
+   * Fill the same periodic support read by SplineCurve.jet, without changing
+   * its arithmetic.
+   */
   function fill(station: IStation, n: number, t: number): void {
     const controls: IControls | null = station.controls;
     if (station.filled === undefined || controls === null) return;
@@ -326,7 +338,10 @@ export namespace AutoMovieLoftJet {
     }
   }
 
-  /** One component, in exactly StationHermite.combine's left-associated summation order. */
+  /**
+   * One component, in exactly StationHermite.combine's left-associated
+   * summation order.
+   */
   function scalar(
     a: IAutoMovieStationHermite.IEnd,
     b: IAutoMovieStationHermite.IEnd,
@@ -344,7 +359,8 @@ export namespace AutoMovieLoftJet {
   }
 
   /**
-   * Unit normal `P_t x P_s` of a finite jet, or null when its length is at most 1e-12.
+   * Unit normal `P_t x P_s` of a finite jet, or null when its length is at most
+   * 1e-12.
    */
   export function normal(
     jet: IAutoMovieLoftSurfaceJet,
@@ -358,7 +374,10 @@ export namespace AutoMovieLoftJet {
 /** A section's `[x, z, x_t, z_t, x_tt, z_tt]` at one phase. */
 type J = [number, number, number, number, number, number];
 
-/** Read exactly the required local total2 from the unchanged complete legacy basis. */
+/**
+ * Read exactly the required local total2 from the unchanged complete legacy
+ * basis.
+ */
 function section(
   controls: { c: number[][] },
   n: number,
@@ -378,9 +397,9 @@ function section(
 }
 
 /**
- * Add the lift `h(s, t) w(s)` and its derivatives to a jet, `w = v x u`;
- * the lift takes the quintic rule where both layers carry its curvatures,
- * with `w' = v' x u + v x u'` and `w'' = v'' x u + 2 v' x u' + v x u''`.
+ * Add the lift `h(s, t) w(s)` and its derivatives to a jet, `w = v x u`; the
+ * lift takes the quintic rule where both layers carry its curvatures, with `w'
+ * = v' x u + v x u'` and `w'' = v'' x u + 2 v' x u' + v x u''`.
  */
 function lift(
   jet: IAutoMovieLoftSurfaceJet,

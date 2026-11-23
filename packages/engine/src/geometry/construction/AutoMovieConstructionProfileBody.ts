@@ -11,7 +11,8 @@ import { AutoMovieConstructionProfileGrid } from "./AutoMovieConstructionProfile
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 
 /**
- * Publish original profile charts and authoritative common boundaries to a body.
+ * Publish original profile charts and authoritative common boundaries to a
+ * body.
  *
  * All queried regular grid points require their actual physical2. Shared piece
  * endpoints were checked on the same source grid, then receive one index owned
@@ -21,7 +22,8 @@ import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
  */
 export namespace AutoMovieConstructionProfileBody {
   /**
-   * Append prepared original faces; the realizing leaf owns rollback on any failure.
+   * Append prepared original faces; the realizing leaf owns rollback on any
+   * failure.
    */
   export function append(
     body: IAutoMovieSolidBody.IBody,
@@ -49,7 +51,10 @@ export namespace AutoMovieConstructionProfileBody {
       const rowCount: number = grid.stations.length;
       const known: Map<string, number> = new Map();
 
-      /** Boundary equality was checked against both source endpoints before one authority is assigned. */
+      /**
+       * Boundary equality was checked against both source endpoints before one
+       * authority is assigned.
+       */
       const vertex: (i: number, row: number, column: number) => number = (
         i: number,
         row: number,

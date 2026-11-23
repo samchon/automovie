@@ -7,16 +7,16 @@ import type {
 
 /**
  * Form a shared bicubic atlas from cubic centre and ellipse-radius profiles.
- * Each quarter uses the tangent-matching circular cubic with
- * k = 4 (sqrt(2) - 1) / 3. Its radial deviation from the unit circle is below
- * 0.000273: differentiating x(t)^2 + z(t)^2 locates the interior extrema.
- * Applying the diagonal ellipse scale bounds the section's Hausdorff deviation
- * by that constant times its largest half-axis. This is a separate geometric
+ * Each quarter uses the tangent-matching circular cubic with k = 4 (sqrt(2) -
+ * 1) / 3. Its radial deviation from the unit circle is below 0.000273:
+ * differentiating x(t)^2 + z(t)^2 locates the interior extrema. Applying the
+ * diagonal ellipse scale bounds the section's Hausdorff deviation by that
+ * constant times its largest half-axis. This is a separate geometric
  * approximation from the atlas-to-triangle tolerance and any observation error.
  * Clockwise angular U and increasing physical Y make U cross V outward.
- * Adjacent spans share coefficient identity at equal endpoints; each patch keeps
- * its own analytic normal fan so a C0-only axial join retains both limits.
- * C1 remains the caller's constraint rather than an inferred property.
+ * Adjacent spans share coefficient identity at equal endpoints; each patch
+ * keeps its own analytic normal fan so a C0-only axial join retains both
+ * limits. C1 remains the caller's constraint rather than an inferred property.
  */
 export function createAutoMovieEllipticLoftAtlas(
   input: IAutoMovieCreateEllipticLoftAtlas.IInput,

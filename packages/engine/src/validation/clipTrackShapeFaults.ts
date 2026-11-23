@@ -8,7 +8,8 @@ import { channelValueWidth } from "./channelValueWidth";
 import { TRACK_INTERPOLATIONS } from "./constants/TRACK_INTERPOLATIONS";
 
 /**
- * Accumulate ordered interpolation, keyframe-clock, finite-value and stride faults.
+ * Accumulate ordered interpolation, keyframe-clock, finite-value and stride
+ * faults.
  */
 export const clipTrackShapeFaults: (
   track: IAutoMovieClipTrackShapeFaults.ITrack,

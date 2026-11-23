@@ -36,14 +36,14 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * resident triangle: a hierarchy box is skipped only when an enclosed axis
  * projection already proves the requested clearance, and every remaining
  * triangle is bounded by `boundAutoMovieConvexSeparation`. This is neither ray
- * sampling nor a nearest-corner test. `certified` means the complete feature
- * is at least the clearance away, and at zero clearance strictly positive;
- * false means unproved, including touches, crossings and rounding at an exact
- * limit, and neither diagnoses penetration nor selects a closest point.
- * `lowerBound` is capped at the clearance, or is the smallest positive double
- * at zero clearance, which is a proof threshold rather than a distance
- * estimate; `triangle` is the original ordinal of the triangle that lowered it
- * below that cap, the lowest on ties, or -1 when none did.
+ * sampling nor a nearest-corner test. `certified` means the complete feature is
+ * at least the clearance away, and at zero clearance strictly positive; false
+ * means unproved, including touches, crossings and rounding at an exact limit,
+ * and neither diagnoses penetration nor selects a closest point. `lowerBound`
+ * is capped at the clearance, or is the smallest positive double at zero
+ * clearance, which is a proof threshold rather than a distance estimate;
+ * `triangle` is the original ordinal of the triangle that lowered it below that
+ * cap, the lowest on ties, or -1 when none did.
  *
  * At zero clearance, a three-vertex fan may carry attachment metadata: its
  * root's canonical barycentric seat on a source triangle and the original
@@ -52,16 +52,16 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * supporting corners. Each support must then bound the whole fan's contact
  * through `boundAutoMovieTriangleAttachmentContact`, reported as an
  * `attachmentCaps` entry, and every other triangle still needs strict positive
- * separation. Such a result reports `lowerBound` zero, because certification
- * is that combined proof and not positive separation. Without metadata a fan
+ * separation. Such a result reports `lowerBound` zero, because certification is
+ * that combined proof and not positive separation. Without metadata a fan
  * touching its root is simply unproved.
  *
  * Compilation throws on an unknown representation, a malformed or empty index
- * buffer, a non-finite position, or a Float32 rounding that overflows.
- * Every visited box, with its up to three axis projections, spends one budget
- * unit, and every tested support, triangle, normal triple, projection axis and
- * edge pair spends one more before its work. Exhaustion and malformed input
- * throw by name; the caller owns the spent count and must not reset it during
+ * buffer, a non-finite position, or a Float32 rounding that overflows. Every
+ * visited box, with its up to three axis projections, spends one budget unit,
+ * and every tested support, triangle, normal triple, projection axis and edge
+ * pair spends one more before its work. Exhaustion and malformed input throw by
+ * name; the caller owns the spent count and must not reset it during
  * refinement. A failed call accepts no geometry and retries nothing. The
  * returned query's `separated` runs the same walk and stops at the first
  * triangle whose bound falls below the target; since the running bound only

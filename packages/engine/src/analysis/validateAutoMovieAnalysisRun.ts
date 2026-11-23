@@ -25,9 +25,9 @@ import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysi
  *
  * Every violation is returned rather than thrown, with paths rooted at
  * `$input`: the contents first, then the digest, then staleness. The rules are
- * semantic: the run must already have the declared shape, because nested
- * fields such as `solver.id` are read without a guard, so a JSON value missing
- * one throws a `TypeError` instead of producing a violation.
+ * semantic: the run must already have the declared shape, because nested fields
+ * such as `solver.id` are read without a guard, so a JSON value missing one
+ * throws a `TypeError` instead of producing a violation.
  */
 export const validateAutoMovieAnalysisRun: (
   props: IAutoMovieValidateAnalysisRun.IProps,

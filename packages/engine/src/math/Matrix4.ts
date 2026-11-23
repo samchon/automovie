@@ -15,15 +15,13 @@ import { rotationBetween } from "./rotationBetween";
  * The interface never exposes a matrix: nodes carry translation, rotation and
  * scale so every value stays animatable (`IAutoMovieTransform`). Composing a
  * hierarchy under non-uniform scale needs a real matrix product, because a
- * scaled parent rotating a child produces a shear that no translation,
- * rotation and scale triple can carry, so the engine composes world matrices
- * here and hands them to the renderer. Every function leaves its inputs
- * unchanged and returns a new value.
+ * scaled parent rotating a child produces a shear that no translation, rotation
+ * and scale triple can carry, so the engine composes world matrices here and
+ * hands them to the renderer. Every function leaves its inputs unchanged and
+ * returns a new value.
  */
 export namespace Matrix4 {
-  /**
-   * A new identity matrix.
-   */
+  /** A new identity matrix. */
   export const identity: () => number[] = (): number[] => [
     1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
   ];

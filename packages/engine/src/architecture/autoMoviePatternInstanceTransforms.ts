@@ -105,9 +105,7 @@ export const autoMoviePatternInstanceTransforms: (
   return { transforms, cut };
 };
 
-/**
- * One panel's approximate orthonormal world basis and developed anchor.
- */
+/** One panel's approximate orthonormal world basis and developed anchor. */
 interface IResolvedPanel {
   /** Face-local metre point {@link origin} sits at. */
   anchor: IAutoMoviePatternPoint;
@@ -158,7 +156,10 @@ const resolveFacets: (
   return panels;
 };
 
-/** Validate one frame and anchor against the approximate orthonormality tolerance. */
+/**
+ * Validate one frame and anchor against the approximate orthonormality
+ * tolerance.
+ */
 const resolvePanel: (
   anchor: IAutoMoviePatternPoint,
   frame: IAutoMoviePatternFaceFrame,

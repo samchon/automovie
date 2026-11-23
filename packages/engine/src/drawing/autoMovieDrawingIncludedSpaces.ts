@@ -8,13 +8,13 @@ import {
  *
  * An empty `view.spaces` filter means every space. Otherwise the named spaces
  * and every space below them in the space hierarchy are included, because a
- * view filtered to a storey means the rooms in it, and a filter that stopped
- * at the named record would draw an empty sheet for every building that
- * partitions its floors. A named space the design does not declare stays in
- * the set and selects nothing; the caller reports it as a gap.
+ * view filtered to a storey means the rooms in it, and a filter that stopped at
+ * the named record would draw an empty sheet for every building that partitions
+ * its floors. A named space the design does not declare stays in the set and
+ * selects nothing; the caller reports it as a gap.
  *
- * @param environment The validated design, whose space parents resolve and
- *   are acyclic.
+ * @param environment The validated design, whose space parents resolve and are
+ *   acyclic.
  * @param view The view whose space filter applies.
  * @returns The included space ids, or `null` when the view does not filter.
  */

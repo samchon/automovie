@@ -17,12 +17,12 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * equality tokens group sorted stable owner/asset use locations; their random
  * spelling never enters the digest. Renaming tokens preserves identity, while
  * shared-to-independent decode or environment-clone changes invalidate it.
- * Fixed-position records ignore property order and retain unknown facts. Invalid
- * dimensions remain distinct so an unknown bound cannot reuse a valid one.
- * Conflicting facts for one scoped asset refuse rather than choosing by order.
- * The caller supplies the current shot's required source closure; retained
- * scopes are filtered to the texture channels and environment they consume.
- * This proves identity, not validity or a complete memory bound.
+ * Fixed-position records ignore property order and retain unknown facts.
+ * Invalid dimensions remain distinct so an unknown bound cannot reuse a valid
+ * one. Conflicting facts for one scoped asset refuse rather than choosing by
+ * order. The caller supplies the current shot's required source closure;
+ * retained scopes are filtered to the texture channels and environment they
+ * consume. This proves identity, not validity or a complete memory bound.
  */
 export function autoMovieRenderTextureDigest(
   sources: readonly IAutoMovieRenderTextureSource[],

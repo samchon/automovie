@@ -11,13 +11,9 @@ import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 /** A retained original closed end, with legacy absence still permitted. */
 type Pole = NonNullable<IAutoMovieLoftChain["pole"]>;
 
-/**
- * Explicit ownership of original cap intervals beyond principal positive rows.
- */
+/** Explicit ownership of original cap intervals beyond principal positive rows. */
 export namespace AutoMovieLoftCapSource {
-  /**
-   * Retain original cap ownership after all principal-row preparation.
-   */
+  /** Retain original cap ownership after all principal-row preparation. */
   export function retain(
     chain: IAutoMovieLoftChain,
     axis: IAutoMovieViewPart["axis"],
@@ -47,9 +43,7 @@ export namespace AutoMovieLoftCapSource {
     return copy;
   }
 
-  /**
-   * Owned station interval, including only validated surviving original caps.
-   */
+  /** Owned station interval, including only validated surviving original caps. */
   export function bounds(chain: IAutoMovieLoftChain): [number, number] {
     const out: [number, number] = [
       chain.layers[0]!.y,
@@ -63,9 +57,7 @@ export namespace AutoMovieLoftCapSource {
     return out;
   }
 
-  /**
-   * Actual cap owner outside the principal rows, or null on ordinary rows.
-   */
+  /** Actual cap owner outside the principal rows, or null on ordinary rows. */
   export function at(
     chain: IAutoMovieLoftChain,
     station: number,
@@ -90,7 +82,10 @@ export namespace AutoMovieLoftCapSource {
   }
 }
 
-/** Exact numeric compatibility/frame/lift binding; source callbacks are separate. */
+/**
+ * Exact numeric compatibility/frame/lift binding; source callbacks are
+ * separate.
+ */
 function binding(layer: IAutoMovieLoftChain.ILayer): string {
   return JSON.stringify([
     layer.y,
@@ -107,7 +102,10 @@ function binding(layer: IAutoMovieLoftChain.ILayer): string {
   ]);
 }
 
-/** What a cap source was last checked against: the chain, its end layer and the pole's point, by identity and value. */
+/**
+ * What a cap source was last checked against: the chain, its end layer and the
+ * pole's point, by identity and value.
+ */
 interface IChecked {
   /** The chain the source was checked on. */
   chain: IAutoMovieLoftChain;
@@ -126,9 +124,12 @@ const CHECKED: WeakMap<IAutoMovieLoftCapSource.ISource, IChecked> =
 /**
  * Reject stale ownership before any actual geometry callback is evaluated.
  *
- * The full check serialises the end layer and the section data to compare them with the source's bindings. It ran for every station read
- * outside the principal rows, a sixth of a capped body's realization. Chains, layers and sources are immutable while they are read, so a
- * source that passed against the same chain, end layer and pole objects is not serialised again; any of them replaced is checked in full.
+ * The full check serialises the end layer and the section data to compare them
+ * with the source's bindings. It ran for every station read outside the
+ * principal rows, a sixth of a capped body's realization. Chains, layers and
+ * sources are immutable while they are read, so a source that passed against
+ * the same chain, end layer and pole objects is not serialised again; any of
+ * them replaced is checked in full.
  */
 function validate(chain: IAutoMovieLoftChain, pole: Pole): void {
   const source: IAutoMovieLoftCapSource.ISource = pole.source!;

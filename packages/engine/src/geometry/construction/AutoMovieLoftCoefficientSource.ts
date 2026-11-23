@@ -10,11 +10,13 @@ import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 
 /**
- * New principal-coefficient interpolation in the part's selected common root/angle pole coordinate.
+ * New principal-coefficient interpolation in the part's selected common
+ * root/angle pole coordinate.
  */
 export namespace AutoMovieLoftCoefficientSource {
   /**
-   * Prepare the capped coefficient data and carry its regular layer jets to station.
+   * Prepare the capped coefficient data and carry its regular layer jets to
+   * station.
    */
   export function prepare(
     chain: IAutoMovieLoftChain,
@@ -121,7 +123,8 @@ export namespace AutoMovieLoftCoefficientSource {
   }
 
   /**
-   * Parameter span at a station, or null for an ordinary station-Hermite boundary.
+   * Parameter span at a station, or null for an ordinary station-Hermite
+   * boundary.
    */
   export function controls(
     chain: IAutoMovieLoftChain,
@@ -198,9 +201,7 @@ export namespace AutoMovieLoftCoefficientSource {
     };
   }
 
-  /**
-   * Physical-station weights of one prepared coefficient span.
-   */
+  /** Physical-station weights of one prepared coefficient span. */
   export function weights(
     controls: IAutoMovieLoftCoefficientSource.IControls,
     order: 0 | 1 | 2,
@@ -219,10 +220,16 @@ export namespace AutoMovieLoftCoefficientSource {
   }
 }
 
-/** Principal coefficient values remain direct data, with optional explicit pole-coordinate derivatives. */
+/**
+ * Principal coefficient values remain direct data, with optional explicit
+ * pole-coordinate derivatives.
+ */
 type Layer = IAutoMovieLoftChain.ILayer;
 
-/** Station forward jet computed from the stable inverse map, absent at an actual singularity or nonfinite result. */
+/**
+ * Station forward jet computed from the stable inverse map, absent at an actual
+ * singularity or nonfinite result.
+ */
 function forward(
   parameter: IAutoMovieConstructionOutlineParameter,
   station: number,
@@ -239,7 +246,10 @@ function forward(
   return result.every(Number.isFinite) ? result : null;
 }
 
-/** Direct layer endpoint in its retained parameter; no parallel value copy can become stale. */
+/**
+ * Direct layer endpoint in its retained parameter; no parallel value copy can
+ * become stale.
+ */
 function endpoint(layer: Layer): IAutoMovieStationHermite.IEnd {
   return {
     value: layer.coefficients,
@@ -248,7 +258,10 @@ function endpoint(layer: Layer): IAutoMovieStationHermite.IEnd {
   };
 }
 
-/** Present interpolation metadata must carry its declared map and matching derivative widths. */
+/**
+ * Present interpolation metadata must carry its declared map and matching
+ * derivative widths.
+ */
 function validate(layer: Layer): void {
   const source: IAutoMovieLoftCoefficientSource.ISource | undefined =
     layer.coefficientSource;
@@ -264,7 +277,10 @@ function validate(layer: Layer): void {
     );
 }
 
-/** Actual closing endpoint membership, independent of the first/last surviving section. */
+/**
+ * Actual closing endpoint membership, independent of the first/last surviving
+ * section.
+ */
 function closed(chain: IAutoMovieLoftChain, end: "bottom" | "top"): boolean {
   return chain.pole?.end === end || chain.opposite?.end === end;
 }
@@ -281,7 +297,10 @@ function poleStation(
       : undefined;
 }
 
-/** Numeric map equality preserves interpolation under value copying without hidden registration identity. */
+/**
+ * Numeric map equality preserves interpolation under value copying without
+ * hidden registration identity.
+ */
 function same(
   a: IAutoMovieConstructionOutlineParameter,
   b: IAutoMovieConstructionOutlineParameter,

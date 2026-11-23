@@ -15,11 +15,16 @@ import { rigAutoMovieSurfaceBridge } from "./rigAutoMovieSurfaceBridge";
 import { rigAutoMovieSurfaceCoons } from "./rigAutoMovieSurfaceCoons";
 
 /**
- * Lay out the sweep, transition, Coons and bridge blocks of a surface rig, preserving vertex registration order and cell reaches. Bridge sweep probes bind once after registry cell resolution and before sealing, so their normals and axial derivatives use the same geometric field as their loop positions, before control pins.
+ * Lay out the sweep, transition, Coons and bridge blocks of a surface rig,
+ * preserving vertex registration order and cell reaches. Bridge sweep probes
+ * bind once after registry cell resolution and before sealing, so their normals
+ * and axial derivatives use the same geometric field as their loop positions,
+ * before control pins.
  *
  * @param props Network, registry and the rig's shared edge/sweep evaluators
  * @returns The checked patch layout and the blend-control vertex indices
- * @throws Error for duplicate names, invalid patch ranges or counts, incompatible sides or loops, or overlapping patches
+ * @throws Error for duplicate names, invalid patch ranges or counts,
+ *   incompatible sides or loops, or overlapping patches
  */
 export function planAutoMovieSurfaceRigPatches(
   props: IAutoMoviePlanSurfaceRigPatches.IProps,

@@ -5,7 +5,9 @@ import {
 } from "@automovie/interface";
 
 /**
- * Hold the supplied pose for a finite positive duration in seconds, retargeting only its skeleton identity; two linear keyframes carry shallow pose copies with shared nested root/joint records and no expression.
+ * Hold the supplied pose for a finite positive duration in seconds, retargeting
+ * only its skeleton identity; two linear keyframes carry shallow pose copies
+ * with shared nested root/joint records and no expression.
  */
 export const holdMotion: (
   id: string,

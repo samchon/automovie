@@ -3,12 +3,12 @@ import type { IAutoMovieNaturalCubicSpline } from "@automovie/interface";
 import { AutoMoviePeriodicCubic } from "./AutoMoviePeriodicCubic";
 
 /**
- * Natural cubic spline through knots: the C2 curve of least bending that
- * passes through every knot, with zero curvature at both ends.
+ * Natural cubic spline through knots: the C2 curve of least bending that passes
+ * through every knot, with zero curvature at both ends.
  *
  * It carries a sparse anatomical law along a chain: a few stations hold the
- * named numbers and the spline evaluates them at any layer, so layers can be
- * as dense as the surface needs while the independent numbers stay few.
+ * named numbers and the spline evaluates them at any layer, so layers can be as
+ * dense as the surface needs while the independent numbers stay few.
  */
 export namespace AutoMovieNaturalSpline {
   /**
@@ -43,8 +43,8 @@ export namespace AutoMovieNaturalSpline {
   }
 
   /**
-   * Value at x; beyond the end knots the curve continues as its straight
-   * end tangent by this reader's explicit extension rule.
+   * Value at x; beyond the end knots the curve continues as its straight end
+   * tangent by this reader's explicit extension rule.
    */
   export function evaluate(
     spline: IAutoMovieNaturalCubicSpline,
@@ -86,9 +86,9 @@ export namespace AutoMovieNaturalSpline {
 
   /**
    * First and second derivatives at x of the same piecewise cubic as
-   * {@link evaluate}: on an interval `S' = slope + M_k t + (M_{k+1} - M_k) t^2 / (2 h)`
-   * and `S'' = M_k + (M_{k+1} - M_k) t / h`; beyond the end knots the straight
-   * end tangent, with no curvature.
+   * {@link evaluate}: on an interval `S' = slope + M_k t + (M_{k+1} - M_k) t^2 /
+   * (2 h)` and `S'' = M_k + (M_{k+1} - M_k) t / h`; beyond the end knots the
+   * straight end tangent, with no curvature.
    *
    * @param spline The spline.
    * @param x Abscissa.
@@ -126,9 +126,7 @@ export namespace AutoMovieNaturalSpline {
     ];
   }
 
-  /**
-   * Value and first/second derivatives with one shared interval lookup.
-   */
+  /** Value and first/second derivatives with one shared interval lookup. */
   export function read(
     spline: IAutoMovieNaturalCubicSpline,
     x: number,
@@ -139,7 +137,10 @@ export namespace AutoMovieNaturalSpline {
     return [value, jet[0], jet[1]];
   }
 
-  /** First span whose right knot is >=x; failed comparisons retain the old last-span NaN policy. */
+  /**
+   * First span whose right knot is >=x; failed comparisons retain the old
+   * last-span NaN policy.
+   */
   function interval(xs: readonly number[], x: number): number {
     let lo: number = 0;
     let hi: number = xs.length - 2;
@@ -172,12 +173,15 @@ export namespace AutoMovieNaturalSpline {
   }
 
   /**
-   * The periodic cubic spline through values at the equally spaced phases `2 pi j / m`: the C2 periodic curve of least bending through
-   * them, read at any phase.
+   * The periodic cubic spline through values at the equally spaced phases `2 pi
+   * j / m`: the C2 periodic curve of least bending through them, read at any
+   * phase.
    *
-   * Its knot curvatures `M` solve `M[j-1] + 4 M[j] + M[j+1] = 6 (y[j+1] - 2 y[j] + y[j-1]) / h^2` round the cycle, `h = 2 pi / m`. The
-   * system is strictly diagonally dominant, so Jacobi's iteration contracts the error by at least one half a sweep; 64 sweeps leave less
-   * than `2^-64` of the first one.
+   * Its knot curvatures `M` solve `M[j-1] + 4 M[j] + M[j+1] = 6 (y[j+1] - 2
+   * y[j] + y[j-1]) / h^2` round the cycle, `h = 2 pi / m`. The system is
+   * strictly diagonally dominant, so Jacobi's iteration contracts the error by
+   * at least one half a sweep; 64 sweeps leave less than `2^-64` of the first
+   * one.
    *
    * @param values The values at the `m >= 3` phases.
    * @returns The spline as a function of phase, radians, any real.

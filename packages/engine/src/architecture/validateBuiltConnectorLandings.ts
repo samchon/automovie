@@ -8,11 +8,11 @@ import {
  * Validate the further spaces a run serves along its own route.
  *
  * A landing is a stop, and a stop stated twice, stated at an end the run
- * already names, or stated out of order is a stop later work cannot place.
- * Each landing's space must resolve, differ from the run's `from` and `to`,
- * and appear once; its arc-length fraction `at` must lie strictly inside
- * `(0, 1)`, because both ends are already served by the run's own endpoints,
- * and strictly increase from the landing before it. Findings are pushed under
+ * already names, or stated out of order is a stop later work cannot place. Each
+ * landing's space must resolve, differ from the run's `from` and `to`, and
+ * appear once; its arc-length fraction `at` must lie strictly inside `(0, 1)`,
+ * because both ends are already served by the run's own endpoints, and strictly
+ * increase from the landing before it. Findings are pushed under
  * `<path>.landings`; a run with no landings is skipped.
  *
  * @param connector Run whose landings are checked.

@@ -7,11 +7,13 @@ import type {
 import { preparePhysicalTargetSampler } from "./preparePhysicalTargetSampler";
 
 /**
- * Shared interval clock and coherent pose/twist sampling for every fitted target owner.
+ * Shared interval clock and coherent pose/twist sampling for every fitted
+ * target owner.
  */
 export namespace PhysicalTargetInterval {
   /**
-   * Retain the completed prefix when an in-interval policy revision changes its future goal.
+   * Retain the completed prefix when an in-interval policy revision changes its
+   * future goal.
    */
   export function plan(
     input: IAutoMoviePhysicalTargetInterval.IPlanInput,
@@ -41,9 +43,7 @@ export namespace PhysicalTargetInterval {
     };
   }
 
-  /**
-   * Sample only within the admitted plan, preserving both interval endpoints.
-   */
+  /** Sample only within the admitted plan, preserving both interval endpoints. */
   export function fraction(
     plan: IAutoMoviePhysicalTargetInterval.IPlan,
     seconds: number,
@@ -56,7 +56,8 @@ export namespace PhysicalTargetInterval {
   }
 
   /**
-   * Derivatives use the same remaining interval as the interpolated world poses.
+   * Derivatives use the same remaining interval as the interpolated world
+   * poses.
    */
   export function sample(
     plan: IAutoMoviePhysicalTargetInterval.IPlan,
@@ -105,7 +106,11 @@ export namespace PhysicalTargetInterval {
   }
 }
 
-/** Weak lifetime follows transient plans; scalar-checked samplers never trust mutable pose identity alone. Functions remain outside checkpoint-serializable plans. */
+/**
+ * Weak lifetime follows transient plans; scalar-checked samplers never trust
+ * mutable pose identity alone. Functions remain outside checkpoint-serializable
+ * plans.
+ */
 const MOTIONS: WeakMap<
   IAutoMoviePhysicalTargetInterval.IPlan,
   {

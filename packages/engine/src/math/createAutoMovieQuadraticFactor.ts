@@ -7,14 +7,14 @@ import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 import { orderAutoMovieQuadraticMatrix } from "./orderAutoMovieQuadraticMatrix";
 
 /**
- * Own sparse LDL-transpose factors of [diag(P), A'; A, -diag(H)]. H is zero
- * for equality rows and s/z for inequalities. Symbolic elimination and ordering
- * are reused within this solve; only diagonal values change between iterations.
+ * Own sparse LDL-transpose factors of [diag(P), A'; A, -diag(H)]. H is zero for
+ * equality rows and s/z for inequalities. Symbolic elimination and ordering are
+ * reused within this solve; only diagonal values change between iterations.
  * Davis's left-looking elimination-tree LDL algorithm computes actual fill.
  * Signed static/dynamic pivot stabilization affects factors only; every solve
- * refines against the original, unregularized KKT matrix.
- * Twofold product sums retain cancellation in elimination, substitution and
- * original-system residuals; rounded residuals cannot certify their own error.
+ * refines against the original, unregularized KKT matrix. Twofold product sums
+ * retain cancellation in elimination, substitution and original-system
+ * residuals; rounded residuals cannot certify their own error.
  *
  * The regularization/refinement constants retain Clarabel 0.11.1 defaults.
  * Finite refinement is not a convergence proof: the interior-point owner must

@@ -4,7 +4,10 @@ import { formatLightPointer } from "./formatLightPointer";
 import { isLightProperty } from "./isLightProperty";
 
 /**
- * Parse canonical /lights/<id>/<property> addresses, returning null for wrong shape, unsupported property, empty id or invalid/noncanonical RFC-6901 escaping. Light ids are stable scene identifiers; actual target existence is checked by the consumer.
+ * Parse canonical /lights/<id>/<property> addresses, returning null for wrong
+ * shape, unsupported property, empty id or invalid/noncanonical RFC-6901
+ * escaping. Light ids are stable scene identifiers; actual target existence is
+ * checked by the consumer.
  */
 export const parseLightPointer: (
   pointer: unknown,

@@ -5,8 +5,8 @@ import { Quaternion } from "./Quaternion";
 /**
  * Unit quaternion of the rotation whose columns are the orthonormal vectors
  * `x`, `y`, `z` (local axes expressed in world). Shepperd's method: pick the
- * largest diagonal term so the square root never divides by a small number.
- * The result is normalized; the inputs are read only and must already be an
+ * largest diagonal term so the square root never divides by a small number. The
+ * result is normalized; the inputs are read only and must already be an
  * orthonormal right-handed frame, which this function does not check.
  */
 export function quaternionFromAutoMovieBasis(

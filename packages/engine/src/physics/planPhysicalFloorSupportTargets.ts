@@ -18,10 +18,10 @@ import { solvePhysicalFloorChainTarget } from "./solvePhysicalFloorChainTarget";
 /**
  * Fit declared support patches to a plane using their actual convex geometry.
  * Keep authored endpoint goals and their floor constraints in the same fit,
- * retaining any unresolved residual.
- * A shared root-drop budget is consumed across passes; cached bodies are never
- * corrected. Non-planted patches preserve their authored clearance, clamped
- * to the floor, so a root-drop correction cannot drive a swinging sole below it.
+ * retaining any unresolved residual. A shared root-drop budget is consumed
+ * across passes; cached bodies are never corrected. Non-planted patches
+ * preserve their authored clearance, clamped to the floor, so a root-drop
+ * correction cannot drive a swinging sole below it.
  */
 export function planPhysicalFloorSupportTargets(
   input: IAutoMoviePlanPhysicalFloorSupportTargets.IInput,

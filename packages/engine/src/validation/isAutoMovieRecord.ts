@@ -1,5 +1,7 @@
 /**
- * Authoring descriptors are plain string-keyed records, including null-prototype records; arrays, null and opaque built-in objects are not omission.
+ * Authoring descriptors are plain string-keyed records, including
+ * null-prototype records; arrays, null and opaque built-in objects are not
+ * omission.
  */
 export function isAutoMovieRecord(
   value: unknown,

@@ -6,7 +6,14 @@ import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
 /**
  * Identify the normalized edit state shared by planning and film effects.
  *
- * The digest is SHA-256 over the UTF-8 bytes of the canonical JSON v2 of a record tagged `automovie.production-render-edit.v2` that carries the timeline's id, `fps`, `frameRate`, `totalFrames`, segments, omissions and tracks. Builder provenance (`version`, `builder`, `inputFingerprint`, `sourceDigest`) is left out, so recompiling an unchanged edit keeps its edit identity. The engine computes it without a Node built-in, and the bytes and digest equal what the Node builder path produces for the same edit, so a browser viewer and the render planner compare one identity.
+ * The digest is SHA-256 over the UTF-8 bytes of the canonical JSON v2 of a
+ * record tagged `automovie.production-render-edit.v2` that carries the
+ * timeline's id, `fps`, `frameRate`, `totalFrames`, segments, omissions and
+ * tracks. Builder provenance (`version`, `builder`, `inputFingerprint`,
+ * `sourceDigest`) is left out, so recompiling an unchanged edit keeps its edit
+ * identity. The engine computes it without a Node built-in, and the bytes and
+ * digest equal what the Node builder path produces for the same edit, so a
+ * browser viewer and the render planner compare one identity.
  */
 export function productionFilmEffectEditFingerprint(
   timeline: IAutoMovieFilmTimeline,

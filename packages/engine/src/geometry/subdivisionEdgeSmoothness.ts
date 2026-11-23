@@ -1,6 +1,6 @@
 /**
- * How much of the smooth Catmull-Clark edge rule an edge of the given
- * sharpness takes; the rest is the sharp midpoint rule.
+ * How much of the smooth Catmull-Clark edge rule an edge of the given sharpness
+ * takes; the rest is the sharp midpoint rule.
  *
  * DeRose, Kass and Truong (1998) use the sharp rule for sharpness of one or
  * more and interpolate linearly between the smooth and sharp edge points for a

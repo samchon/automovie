@@ -1,10 +1,10 @@
 import type { IAutoMovieMonotone } from "@automovie/interface";
 
 /**
- * The Fritsch-Carlson monotone cubic on caller-owned arrays: slopes computed
- * in place and evaluation without allocation, so a profile whose values
- * change every frame, such as a posed sweep's volume scale, is rebuilt into
- * the same buffers.
+ * The Fritsch-Carlson monotone cubic on caller-owned arrays: slopes computed in
+ * place and evaluation without allocation, so a profile whose values change
+ * every frame, such as a posed sweep's volume scale, is rebuilt into the same
+ * buffers.
  *
  * `interpolateAutoMovieMonotone` validates its knots and wraps these two
  * functions in a closure; callers that already hold validated knots call them
@@ -17,8 +17,8 @@ export namespace AutoMovieMonotone {
    * Each interior slope starts as the mean of its two secants, or zero where
    * they differ in sign or either is zero; a segment whose slope ratios leave
    * the circle of radius 3 has both scaled back onto it; an open curve's end
-   * slopes are its end secants. A periodic curve takes secants across the
-   * wrap. One knot gives slope 0.
+   * slopes are its end secants. A periodic curve takes secants across the wrap.
+   * One knot gives slope 0.
    *
    * @param xs Strictly increasing knots, at least `n`.
    * @param ys Values, at least `n`.

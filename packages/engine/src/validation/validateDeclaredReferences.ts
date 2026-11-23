@@ -1,8 +1,8 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
 /**
- * Report each reference in a list that resolves to no declared id or repeats
- * an earlier one.
+ * Report each reference in a list that resolves to no declared id or repeats an
+ * earlier one.
  *
  * Reference `i` is checked at `<path>[i]`: one that is not in `targets` gets a
  * `type` violation `<label> "<id>" does not resolve`, and one equal to an

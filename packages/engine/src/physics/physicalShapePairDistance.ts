@@ -17,17 +17,17 @@ import { physicalShapeNearest } from "./physicalShapeNearest";
  * The signed distance between two admitted shapes, each placed by its parent
  * pose: positive when they are apart, negative when one enters the other.
  *
- * Every shape is a wire frame widened by a radius: a sphere is its centre and
- * a capsule its axis, widened by their radius; a box and a hull are their
- * edges, widened by nothing. The distance is the least, over both shapes, of
- * the signed distance from one shape's wires to the other shape
+ * Every shape is a wire frame widened by a radius: a sphere is its centre and a
+ * capsule its axis, widened by their radius; a box and a hull are their edges,
+ * widened by nothing. The distance is the least, over both shapes, of the
+ * signed distance from one shape's wires to the other shape
  * (`physicalShapeNearest`) less the wires' radius.
  *
- * Apart, this is the exact distance between the two solids: the nearest pair
- * of points of two convex solids lies on a vertex or an edge of one of them,
- * or on the axis of a round one. Overlapping, it is how deep a wire of one
- * lies inside the other, the same depth a capsule's axis reads against a
- * body, so two capsules read their axis distance less both radii.
+ * Apart, this is the exact distance between the two solids: the nearest pair of
+ * points of two convex solids lies on a vertex or an edge of one of them, or on
+ * the axis of a round one. Overlapping, it is how deep a wire of one lies
+ * inside the other, the same depth a capsule's axis reads against a body, so
+ * two capsules read their axis distance less both radii.
  *
  * @param poseA The first shape's parent pose, world metres.
  * @param shapeA The first shape.
@@ -91,9 +91,7 @@ export function physicalShapePairDistance(
   return least;
 }
 
-/**
- * Companion types and the wire frames of {@link physicalShapePairDistance}.
- */
+/** Companion types and the wire frames of {@link physicalShapePairDistance}. */
 export namespace physicalShapePairDistance {
   /** A shape's wire frame in its own frame: segments widened by a radius. */
   export interface IWires {
@@ -105,9 +103,9 @@ export namespace physicalShapePairDistance {
   }
 
   /**
-   * The wire frame of one shape: a sphere's centre and a capsule's axis
-   * widened by their radius, a box's and a hull's edges widened by nothing.
-   * A hull's edges are kept per point list.
+   * The wire frame of one shape: a sphere's centre and a capsule's axis widened
+   * by their radius, a box's and a hull's edges widened by nothing. A hull's
+   * edges are kept per point list.
    *
    * @param shape The shape.
    * @returns Its wire frame, shape-local metres.

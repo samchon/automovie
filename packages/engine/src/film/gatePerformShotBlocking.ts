@@ -13,7 +13,13 @@ import { performShotActors } from "./performShotActors";
 /**
  * Refuse a performance that does not realize the beat's blocking.
  *
- * When the pipeline blocked the beat, the performance must play that plan and not another: the same beat id, a duration within `1e-6` s of the blocked one, every timing anchor covered by a stage action of its actor whose span contains the anchor within `1e-9` s, and the blocked camera intent honoured by the first frame move, its framing and its move. Without a frame move, only a `static` intent is honoured, by the locked-off camera. Each failure is one violation at the field that disagrees.
+ * When the pipeline blocked the beat, the performance must play that plan and
+ * not another: the same beat id, a duration within `1e-6` s of the blocked one,
+ * every timing anchor covered by a stage action of its actor whose span
+ * contains the anchor within `1e-9` s, and the blocked camera intent honoured
+ * by the first frame move, its framing and its move. Without a frame move, only
+ * a `static` intent is honoured, by the locked-off camera. Each failure is one
+ * violation at the field that disagrees.
  *
  * @param context The shot's staged tables and collector.
  * @param blocking The beat's validated blocking.

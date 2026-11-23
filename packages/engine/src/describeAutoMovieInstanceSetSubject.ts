@@ -10,8 +10,8 @@ import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
 import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "./constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
 import { Quaternion } from "./math/Quaternion";
-import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
 import { Transform } from "./math/Transform";
+import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
 
 /** World up, the axis an instance set's heading turns about. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -22,10 +22,10 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * The set's model is the first tier of its own LOD list, its transform is the
  * anchor turned by the heading about +Y at unit scale, and its content box is
  * the compiled `bounds`, in world metres. It is owned by, and placed in, the
- * space `space` names, if any. Its members are drawn from the slot range
- * rather than a list, because a compact set stores a count and not its
- * members: the page is the slots from `memberOffset`, clamped to the count, up
- * to `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` of them, addressed by
+ * space `space` names, if any. Its members are drawn from the slot range rather
+ * than a list, because a compact set stores a count and not its members: the
+ * page is the slots from `memberOffset`, clamped to the count, up to
+ * `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` of them, addressed by
  * {@link autoMovieInstanceAddress} and sorted in render-id order.
  *
  * @param set Compiled set to describe.
@@ -70,7 +70,10 @@ export const describeAutoMovieInstanceSetSubject = (
     owner: space,
     model,
     space,
-    transform: Transform.of(structuredClone(set.anchor), Quaternion.fromAxisAngle(UP, set.facingDeg)),
+    transform: Transform.of(
+      structuredClone(set.anchor),
+      Quaternion.fromAxisAngle(UP, set.facingDeg),
+    ),
     bounds: {
       declared: null,
       content: structuredClone(set.bounds),

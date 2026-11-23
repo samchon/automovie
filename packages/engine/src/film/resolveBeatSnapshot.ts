@@ -34,13 +34,36 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /**
- * Every scene actor's resumable state at one shot-local instant, the one body behind {@link resolveBeatOpening} (`instant = 0`) and {@link resolveBeatEnd} (`instant = shot.duration`).
+ * Every scene actor's resumable state at one shot-local instant, the one body
+ * behind {@link resolveBeatOpening} (`instant = 0`) and {@link resolveBeatEnd}
+ * (`instant = shot.duration`).
  *
- * Each node of `props.scene` yields one actor state, in scene order. A node with a performance plays that performance's motion from its `startOffset`, so its clip-local time is `max(0, instant - startOffset)`; any other node plays its own `motion` at `instant`, or holds its staged pose when it has none. The pose root is folded into the staged transform unless the shot's object motions bake both a translation and a rotation for the node at that time: a mounted rider, a grabbed prop, or a launched one then takes the baked world transform and the baked trailing velocity instead, because the shot left it in a hand or where it landed rather than at its staged spot. Baked samples use the shot clock, but their velocity window begins no earlier than the actor's performance start: a newly starting performance has no trailing velocity history. Nodes without a performance use the shot's zero boundary. The persistent mount binding and ground-IK plants are carried through. Plant intervals are currently selected on the pose-local clock; the production performer writes startOffset zero, where that clock agrees with the shot. A supplied nonzero offset therefore shifts plant selection without shifting baked object transforms.
+ * Each node of `props.scene` yields one actor state, in scene order. A node
+ * with a performance plays that performance's motion from its `startOffset`, so
+ * its clip-local time is `max(0, instant - startOffset)`; any other node plays
+ * its own `motion` at `instant`, or holds its staged pose when it has none. The
+ * pose root is folded into the staged transform unless the shot's object
+ * motions bake both a translation and a rotation for the node at that time: a
+ * mounted rider, a grabbed prop, or a launched one then takes the baked world
+ * transform and the baked trailing velocity instead, because the shot left it
+ * in a hand or where it landed rather than at its staged spot. Baked samples
+ * use the shot clock, but their velocity window begins no earlier than the
+ * actor's performance start: a newly starting performance has no trailing
+ * velocity history. Nodes without a performance use the shot's zero boundary.
+ * The persistent mount binding and ground-IK plants are carried through. Plant
+ * intervals are currently selected on the pose-local clock; the production
+ * performer writes startOffset zero, where that clock agrees with the shot. A
+ * supplied nonzero offset therefore shifts plant selection without shifting
+ * baked object transforms.
  *
- * Throws when two motions share an id, two performances share a node, two mounts or two plant entries name the same node, or a node or performance names a motion that `props.motions` does not supply, because a snapshot built from an ambiguous or missing input would hand the next beat a state no shot produced.
+ * Throws when two motions share an id, two performances share a node, two
+ * mounts or two plant entries name the same node, or a node or performance
+ * names a motion that `props.motions` does not supply, because a snapshot built
+ * from an ambiguous or missing input would hand the next beat a state no shot
+ * produced.
  *
- * @param props The compiled shot, its staged scene and motions, and the mount and plant facts to carry.
+ * @param props The compiled shot, its staged scene and motions, and the mount
+ *   and plant facts to carry.
  * @param instant Shot-local seconds to sample at.
  * @returns The beat id, the shot id, and one state per scene node.
  */
@@ -135,7 +158,8 @@ export function resolveBeatSnapshot(
 }
 
 /**
- * A borrowed performance and its original shot-list position, held by the snapshot's per-call node index.
+ * A borrowed performance and its original shot-list position, held by the
+ * snapshot's per-call node index.
  */
 interface IPerformanceEntry {
   /** Motion reference and startOffset defining this node's pose-local clock. */
@@ -145,9 +169,7 @@ interface IPerformanceEntry {
   index: number;
 }
 
-/**
- * The per-call lookups one actor's state derives from.
- */
+/** The per-call lookups one actor's state derives from. */
 interface IResolveContext {
   /** Shot-local seconds the snapshot is taken at. */
   instant: number;
@@ -171,14 +193,15 @@ interface IResolveContext {
   plantsByNode: ReadonlyMap<string, readonly IAutoMovieBeatEndFootPlant[]>;
 }
 
-/**
- * A baked world transform and its trailing velocity, overriding the fold.
- */
+/** A baked world transform and its trailing velocity, overriding the fold. */
 interface IWorldOverride {
   /** Effective world TRS composed from the shot-local object-channel authority. */
   transform: IAutoMovieTransform;
 
-  /** Backward world velocity in metres per second, zero for an unreadable difference window. */
+  /**
+   * Backward world velocity in metres per second, zero for an unreadable
+   * difference window.
+   */
   rootVelocity: IAutoMovieVector3;
 }
 
@@ -244,7 +267,11 @@ function actorAt(
 }
 
 /**
- * Trailing world velocity of the baked object-authority sequence at `t`, differenced over the last {@link VELOCITY_DT} without crossing the actor's performance start. Each end reads shot-clock translation authority. Zero before or at that start, or when the earlier end has no translation sample because authority has only just begun.
+ * Trailing world velocity of the baked object-authority sequence at `t`,
+ * differenced over the last {@link VELOCITY_DT} without crossing the actor's
+ * performance start. Each end reads shot-clock translation authority. Zero
+ * before or at that start, or when the earlier end has no translation sample
+ * because authority has only just begun.
  */
 function bakedVelocity(
   channelsAt: (time: number) => ReadonlyMap<string, IAutoMovieSampledChannel>,

@@ -1,8 +1,8 @@
 /**
- * Freeze an admitted physical input/state tree without copying it again.
- * Shared records are visited once, and typed snapshot byte buffers are left
- * to their Map owner because JavaScript cannot freeze nonempty typed arrays.
- * Trees have the fixed profile/frame schema depth; this is not a JSON parser.
+ * Freeze an admitted physical input/state tree without copying it again. Shared
+ * records are visited once, and typed snapshot byte buffers are left to their
+ * Map owner because JavaScript cannot freeze nonempty typed arrays. Trees have
+ * the fixed profile/frame schema depth; this is not a JSON parser.
  */
 export function freezePhysicalRecord(value: object): void {
   if (Object.isFrozen(value) || ArrayBuffer.isView(value)) return;

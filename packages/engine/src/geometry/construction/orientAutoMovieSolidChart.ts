@@ -21,7 +21,8 @@ interface Dyadic {
  * @param a First finite chart point.
  * @param b Second finite chart point.
  * @param c Third finite chart point.
- * @returns +1 for counterclockwise, -1 for clockwise and 0 for exact collinearity.
+ * @returns +1 for counterclockwise, -1 for clockwise and 0 for exact
+ *   collinearity.
  * @throws RangeError for a nonfinite input coordinate.
  */
 export function orientAutoMovieSolidChart(
@@ -109,7 +110,10 @@ function normal(value: number): boolean {
   return Number.isFinite(value) && Math.abs(value) >= NORMAL;
 }
 
-/** Decode a finite double without arithmetic on its significand. Calls are synchronous and have no callbacks. */
+/**
+ * Decode a finite double without arithmetic on its significand. Calls are
+ * synchronous and have no callbacks.
+ */
 function decode(value: number): Dyadic {
   VIEW.setFloat64(0, value, false);
   const bits: bigint = VIEW.getBigUint64(0, false);
@@ -122,7 +126,10 @@ function decode(value: number): Dyadic {
   };
 }
 
-/** Smallest normal binary64 magnitude; a representation boundary, not a geometry tolerance. */
+/**
+ * Smallest normal binary64 magnitude; a representation boundary, not a geometry
+ * tolerance.
+ */
 const NORMAL: number = 2 ** -1022;
 
 /** Fixed decoding storage, never exposed or retained by an input/result. */

@@ -1,5 +1,6 @@
 /**
- * The spacing a sample gives its cell below and above one axis, infinite where that side is not reached.
+ * The spacing a sample gives its cell below and above one axis, infinite where
+ * that side is not reached.
  *
  * @param step Signed spacing between adjacent samples
  * @param first Whether this is the first sample

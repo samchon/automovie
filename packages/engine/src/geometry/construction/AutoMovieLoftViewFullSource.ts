@@ -7,6 +7,7 @@ import type {
   IAutoMovieLoftViewSource,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
+
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
@@ -30,14 +31,14 @@ interface Station {
 
 /**
  * Original native field values and physical2 before any loft or mesh.
- * Relief/shift composition is shared with chain consumers. This reader owns
- * no emitted rows, fitted source, legacy lift or geometry process.
+ * Relief/shift composition is shared with chain consumers. This reader owns no
+ * emitted rows, fitted source, legacy lift or geometry process.
  */
 export namespace AutoMovieLoftViewFullSource {
-  /**
-   * Prepare one actual direct field and its bounded caller-owned value cache.
-   */
-  export function create(input: IAutoMovieLoftViewFullSource.IInput): IAutoMovieLoftViewFullSource.IReader {
+  /** Prepare one actual direct field and its bounded caller-owned value cache. */
+  export function create(
+    input: IAutoMovieLoftViewFullSource.IInput,
+  ): IAutoMovieLoftViewFullSource.IReader {
     const prepared: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(input);
     if (prepared === null || prepared.source === null)
@@ -51,7 +52,8 @@ export namespace AutoMovieLoftViewFullSource {
       source.domain[1],
     ];
     const axis: IAutoMovieLoftViewFullSource.IInput["axis"] = input.axis;
-    const reliefs: NonNullable<IAutoMovieLoftViewFullSource.IInput["reliefs"]> = [...(input.reliefs ?? [])];
+    const reliefs: NonNullable<IAutoMovieLoftViewFullSource.IInput["reliefs"]> =
+      [...(input.reliefs ?? [])];
     const stations: Station[] = [];
 
     /** Each capability admits the actual owned physical domain before reading. */

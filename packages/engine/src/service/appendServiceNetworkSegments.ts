@@ -11,7 +11,8 @@ import { appendServiceCrossings } from "./appendServiceCrossings";
 import { routeDistanceSquared } from "./routeDistanceSquared";
 
 /**
- * Check segment connectivity, admitted routes and cited sleeve fit, collecting used penetration ids without changing diagnostic order.
+ * Check segment connectivity, admitted routes and cited sleeve fit, collecting
+ * used penetration ids without changing diagnostic order.
  */
 export function appendServiceNetworkSegments(
   props: IAutoMovieAppendServiceNetworkSegments.IProps,

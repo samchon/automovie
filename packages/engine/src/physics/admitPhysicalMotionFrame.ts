@@ -8,7 +8,8 @@ import type {
 import { motionAuditGeometry } from "./motionAuditGeometry";
 
 /**
- * Refuse invalid consumer frames before geometry, speed and angular comparisons can hide a nonfinite measurement.
+ * Refuse invalid consumer frames before geometry, speed and angular comparisons
+ * can hide a nonfinite measurement.
  */
 export function admitPhysicalMotionFrame(
   frame: IAutoMoviePhysicalFrame,

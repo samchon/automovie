@@ -8,7 +8,10 @@ import type {
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewSection } from "./AutoMovieViewSection";
 
-/** The cap's actual active domain and small complementary weight survive rounded values. */
+/**
+ * The cap's actual active domain and small complementary weight survive rounded
+ * values.
+ */
 interface CapReading {
   /** Weight value and its actual physical station derivatives. */
   jet: IAutoMovieViewSectionField.IStationJet;
@@ -21,12 +24,11 @@ interface CapReading {
 }
 
 /**
- * Original scalar values and qualified physical jets for native view evaluation.
+ * Original scalar values and qualified physical jets for native view
+ * evaluation.
  */
 export namespace AutoMovieLoftViewRead {
-  /**
-   * Read finite scalar values without requesting station derivatives.
-   */
+  /** Read finite scalar values without requesting station derivatives. */
   export function values(
     source: IAutoMovieLoftViewSource.ISource,
     station: number,
@@ -105,9 +107,7 @@ export namespace AutoMovieLoftViewRead {
     }
   }
 
-  /**
-   * Read actual physical source2; an unavailable input jet remains unavailable.
-   */
+  /** Read actual physical source2; an unavailable input jet remains unavailable. */
   export function jets(
     source: IAutoMovieLoftViewSource.ISource,
     station: number,
@@ -247,11 +247,14 @@ export namespace AutoMovieLoftViewRead {
 }
 
 /**
- * Whether a source's sections are conic chains (touch offsets, splits or split lists) rather than four plain quarters.
+ * Whether a source's sections are conic chains (touch offsets, splits or split
+ * lists) rather than four plain quarters.
  *
- * Such a source closes a pole self-similarly: its coordinates fall to zero in the pole parameter while every tangent angle and shoulder keeps
- * its own source value, so the cap is the end section shrunk to a point. The surface has a tangent plane there when the coordinates fall
- * together; its curvature at the pole is that of the section's own shape, not an ellipse's.
+ * Such a source closes a pole self-similarly: its coordinates fall to zero in
+ * the pole parameter while every tangent angle and shoulder keeps its own
+ * source value, so the cap is the end section shrunk to a point. The surface
+ * has a tangent plane there when the coordinates fall together; its curvature
+ * at the pole is that of the section's own shape, not an ellipse's.
  */
 function chained(source: IAutoMovieLoftViewSource.ISource): boolean {
   return (
@@ -265,7 +268,10 @@ function chained(source: IAutoMovieLoftViewSource.ISource): boolean {
 /** The four scalar roles of one split, in its tuple order. */
 const SPLIT: readonly string[] = ["u", "v", "angle", "shoulder"];
 
-/** Distinguish explicit source absence at the caller from broken present source data here. */
+/**
+ * Distinguish explicit source absence at the caller from broken present source
+ * data here.
+ */
 function validate(
   source: IAutoMovieLoftViewSource.ISource,
   station: number,
@@ -422,7 +428,10 @@ function value(
   return reading;
 }
 
-/** Required physical source2 is read, never inferred from nearby samples or parameter jets. */
+/**
+ * Required physical source2 is read, never inferred from nearby samples or
+ * parameter jets.
+ */
 function jet(
   outline: IAutoMovieViewOutline.IOutline,
   station: number,
@@ -438,7 +447,10 @@ function jet(
   return [reading.value, reading.stationJet[0], reading.stationJet[1]];
 }
 
-/** Existing maximum of disjoint quintic cap spans, with exact physical station derivatives. */
+/**
+ * Existing maximum of disjoint quintic cap spans, with exact physical station
+ * derivatives.
+ */
 function cap(
   caps: IAutoMovieLoftViewSource.ISource["caps"],
   station: number,
@@ -480,7 +492,10 @@ function cap(
   return { jet: [0, 0, 0], complement: 1, active: false };
 }
 
-/** Both sides use their directly represented small weight rather than subtracting a rounded one. */
+/**
+ * Both sides use their directly represented small weight rather than
+ * subtracting a rounded one.
+ */
 function blend(value: number, reading: CapReading): number {
   return reading.jet[0] < 0.5
     ? value + reading.jet[0] * (AutoMovieViewSection.ELLIPSE - value)
@@ -488,7 +503,10 @@ function blend(value: number, reading: CapReading): number {
         reading.complement * (value - AutoMovieViewSection.ELLIPSE);
 }
 
-/** Include the actual query coordinate while retaining the original diagnostic text. */
+/**
+ * Include the actual query coordinate while retaining the original diagnostic
+ * text.
+ */
 function fault(station: number, error: unknown): string {
   return `View source at station ${station} mm: ${error instanceof Error ? error.message : String(error)}`;
 }

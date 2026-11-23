@@ -14,7 +14,8 @@ const CONSTRAINT_AXES: readonly ["flexion", "abduction", "twist"] = [
 ] as const;
 
 /**
- * Check finite ordered degree intervals and whether the admitted flexion/abduction box reaches the declared swing cone.
+ * Check finite ordered degree intervals and whether the admitted
+ * flexion/abduction box reaches the declared swing cone.
  */
 export const validateJointConstraint: (
   constraint: IAutoMovieJointConstraint,
@@ -103,19 +104,27 @@ export const validateJointConstraint: (
 };
 
 /**
- * A continuous half-angle cosine reaches its extrema at endpoints or angles congruent to 0/360 modulo 720 degrees; one representative of each interior extremum suffices.
+ * A continuous half-angle cosine reaches its extrema at endpoints or angles
+ * congruent to 0/360 modulo 720 degrees; one representative of each interior
+ * extremum suffices.
  *
- * The helper owns fixed feasibility candidates while swingConeAngle remains the angular metric owner.
+ * The helper owns fixed feasibility candidates while swingConeAngle remains the
+ * angular metric owner.
  *
- * Null means an immobile zero axis; invalid bounds return null without invented angles, and very large degree arithmetic retains binary64 phase limitations.
+ * Null means an immobile zero axis; invalid bounds return null without invented
+ * angles, and very large degree arithmetic retains binary64 phase limitations.
  *
- * Degree input, immobile-axis meaning, endpoint inclusion and malformed refusal are stated.
+ * Degree input, immobile-axis meaning, endpoint inclusion and malformed refusal
+ * are stated.
  *
- * Fixed ceil/comparison arithmetic produces at most four scalars, independent of interval width or revolution count.
+ * Fixed ceil/comparison arithmetic produces at most four scalars, independent
+ * of interval width or revolution count.
  *
- * Repeated periodic extrema need one representative each; endpoint-equal extrema are not appended twice.
+ * Repeated periodic extrema need one representative each; endpoint-equal
+ * extrema are not appended twice.
  *
- * Only a bounded candidate array transfers to the current validation call, with no angle history or native joint retained.
+ * Only a bounded candidate array transfers to the current validation call, with
+ * no angle history or native joint retained.
  */
 const constraintSwingCandidates: (
   range: IAutoMovieAngleRange | null,
@@ -139,19 +148,22 @@ const constraintSwingCandidates: (
 };
 
 /**
- * Append finite-bound faults and a separate inverted-order fault for an axis interval.
+ * Append finite-bound faults and a separate inverted-order fault for an axis
+ * interval.
  *
- * Axis admission precedes cone feasibility and remains independent of angle projection.
+ * Axis admission precedes cone feasibility and remains independent of angle
+ * projection.
  *
  * Nonfinite bounds do not receive an invented finite replacement.
  *
- * min/max paths and the inclusive finite ordered interval are explicit.
+ * Min/max paths and the inclusive finite ordered interval are explicit.
  *
  * Two finite tests and one ordering check take constant work.
  *
  * All three constraint axes share this exact admission rule.
  *
- * Only caller-owned fault rows remain; no angle table or pose cache is retained.
+ * Only caller-owned fault rows remain; no angle table or pose cache is
+ * retained.
  */
 const validateAngleRange: (
   range: IAutoMovieAngleRange,

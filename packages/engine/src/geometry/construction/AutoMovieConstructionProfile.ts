@@ -33,19 +33,24 @@ interface Piece {
 }
 
 /**
- * Evaluate original piecewise sections through the existing surface/atlas contracts.
+ * Evaluate original piecewise sections through the existing surface/atlas
+ * contracts.
  *
  * Each normalized piece coordinate maps affinely to its actual original clock.
  * Complete source2 and actual plane2 use the existing world product rule, with
  * no interpolation, polar restriction or generated chain. Point0 remains
  * independently readable where total2 is unavailable. Numeric failures are
- * admission errors; exceptions from original functions/getters retain identity.
+ * admission errors; exceptions from original functions/getters retain
+ * identity.
  *
- * Queried endpoint closure is a binary64 observation. Whole-domain simplicity, topology transitions and cross-face continuity remain separate admission obligations; branch identities survive.
+ * Queried endpoint closure is a binary64 observation. Whole-domain simplicity,
+ * topology transitions and cross-face continuity remain separate admission
+ * obligations; branch identities survive.
  */
 export namespace AutoMovieConstructionProfile {
   /**
-   * Prepare immutable original owners; malformed domains/references throw before publication.
+   * Prepare immutable original owners; malformed domains/references throw
+   * before publication.
    */
   export function create(
     source: IAutoMovieConstructionProfileSource,
@@ -315,7 +320,10 @@ export namespace AutoMovieConstructionProfile {
   }
 }
 
-/** Finite increasing owned intervals reject overflow as well as collapsed clocks. */
+/**
+ * Finite increasing owned intervals reject overflow as well as collapsed
+ * clocks.
+ */
 function interval(value: readonly [number, number]): boolean {
   return (
     Array.isArray(value) &&
@@ -342,7 +350,10 @@ function joined(
     fail(`Original loop ${loop} has a mismatched actual boundary query.`);
 }
 
-/** Restriction retains original parameter support without extending actual ownership. */
+/**
+ * Restriction retains original parameter support without extending actual
+ * ownership.
+ */
 function inside(
   value: readonly [number, number],
   owner: readonly [number, number],
@@ -350,7 +361,10 @@ function inside(
   return value[0] >= owner[0] && value[1] <= owner[1];
 }
 
-/** Named numerical/source admission failures remain distinct from foreign exceptions. */
+/**
+ * Named numerical/source admission failures remain distinct from foreign
+ * exceptions.
+ */
 function fail(message: string): never {
   throw new AutoMovieLoftAdmissionError(message);
 }

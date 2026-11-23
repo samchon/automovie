@@ -16,39 +16,64 @@ const { combine, cross, dot, norm, unit }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 
 /**
- * The two rails at one intersection point, where each surface is trimmed back on its kept side.
+ * The two rails at one intersection point, where each surface is trimmed back
+ * on its kept side.
  *
- * A square offset uses the surface's first fundamental form G: for preimage tangent c'=(u',v'), e=G^-1(-v',u') satisfies c'^T G e=0, so S_*e is perpendicular in world space. The host uses this direction; the part does in square mode. Station mode instead follows the part's fixed-phase station line, s_A=s*+sigma*lambda, preserving its phase columns.
+ * A square offset uses the surface's first fundamental form G: for preimage
+ * tangent c'=(u',v'), e=G^-1(-v',u') satisfies c'^T G e=0, so S__e is
+ * perpendicular in world space. The host uses this direction; the part does in
+ * square mode. Station mode instead follows the part's fixed-phase station
+ * line, s_A=s_+sigma*lambda, preserving its phase columns.
  *
- * A square offset is refined in the normal-section plane spanned by the original surface normal and S_*e, at world chord w from the curve point. A straight chart-line guess precedes Newton on plane/chord equations. With regular well-conditioned jets, the intended rail is geometric rather than a chart-distance offset.
+ * A square offset is refined in the normal-section plane spanned by the
+ * original surface normal and S_*e, at world chord w from the curve point. A
+ * straight chart-line guess precedes Newton on plane/chord equations. With
+ * regular well-conditioned jets, the intended rail is geometric rather than a
+ * chart-distance offset.
  *
- * Merge keeps the part outside the host; diff keeps its cutter inside. The host remains outside the part. Offset signs come from the other surface's oriented normal, so a tangent or degenerate direction can return null. Local Newton convergence and multiple-face boundary placement are not globally certified.
+ * Merge keeps the part outside the host; diff keeps its cutter inside. The host
+ * remains outside the part. Offset signs come from the other surface's oriented
+ * normal, so a tangent or degenerate direction can return null. Local Newton
+ * convergence and multiple-face boundary placement are not globally certified.
  */
 export namespace AutoMovieSolidRail {
   /** Newton steps of one offset. */
   export const STEPS: number = 40;
 
-  /** Relative residual a rail solve accepts, of the chord plus the curve point's distance from the origin: rounding grows with the coordinates, so a sub-millimetre chord far from the origin converges as a large one does. */
+  /**
+   * Relative residual a rail solve accepts, of the chord plus the curve point's
+   * distance from the origin: rounding grows with the coordinates, so a
+   * sub-millimetre chord far from the origin converges as a large one does.
+   */
   export const ROUNDING: number = 1e-12;
 
   /** Faces one host rail may cross before it is refused. */
   export const SWITCHES: number = 4;
 
-  /** Legacy crossing-resolution constant, retained for callers; atlas Newton no longer uses this bisection. */
+  /**
+   * Legacy crossing-resolution constant, retained for callers; atlas Newton no
+   * longer uses this bisection.
+   */
   export const CROSSING_BISECTIONS: number = 40;
 
   /**
    * The rails at a curve point.
    *
    * @param part The attached part.
-   * @param host The host as an atlas (`AutoMovieSolidIntersection.atlas` for one surface).
+   * @param host The host as an atlas (`AutoMovieSolidIntersection.atlas` for
+   *   one surface).
    * @param curve The curve point with its preimages and their rates.
-   * @param keep Which side of the host the part keeps: `outside` for a merge, `inside` for a diff.
-   * @param partWidth Positive chord, mm; or a fixed `{ station }` in station mode, required to lie on the kept side of this contact.
+   * @param keep Which side of the host the part keeps: `outside` for a merge,
+   *   `inside` for a diff.
+   * @param partWidth Positive chord, mm; or a fixed `{ station }` in station
+   *   mode, required to lie on the kept side of this contact.
    * @param hostWidth Chord from the curve to the host's rail, mm, positive.
    * @param mode How the part's rail leaves the curve; absent, `station`.
-   * @param toward The rails' sides from a declared loop (`IAutoMovieSolidRail.IToward`); absent, from the two surfaces' normals and `keep`.
-   * @returns Rails, or null on the checked direction, solve or atlas-transition failures.
+   * @param toward The rails' sides from a declared loop
+   *   (`IAutoMovieSolidRail.IToward`); absent, from the two surfaces' normals
+   *   and `keep`.
+   * @returns Rails, or null on the checked direction, solve or atlas-transition
+   *   failures.
    */
   export function at(
     part: IAutoMovieSolidSurface,
@@ -60,20 +85,24 @@ export namespace AutoMovieSolidRail {
     mode: IAutoMovieSolidRail.Mode = "station",
     toward?: IAutoMovieSolidRail.IToward,
   ): IAutoMovieSolidRail.IRail | null {
-    return explain(part, host, curve, keep, partWidth, hostWidth, mode, toward).rail;
+    return explain(part, host, curve, keep, partWidth, hostWidth, mode, toward)
+      .rail;
   }
 
   /**
-   * The rails at a curve point, as `at`, with the quantities read and the failed premise named.
+   * The rails at a curve point, as `at`, with the quantities read and the
+   * failed premise named.
    *
    * @param part The attached part.
    * @param host The host as an atlas.
    * @param curve The curve point.
    * @param keep Which side of the host the part keeps.
-   * @param partWidth Positive chord, mm, or a fixed `{ station }` in station mode.
+   * @param partWidth Positive chord, mm, or a fixed `{ station }` in station
+   *   mode.
    * @param hostWidth Chord from the curve to the host's rail, mm.
    * @param mode How the part's rail leaves the curve.
-   * @param toward The rails' sides from a declared loop; absent, from the normals and `keep`.
+   * @param toward The rails' sides from a declared loop; absent, from the
+   *   normals and `keep`.
    * @returns The explanation; `rail` is what `at` returns.
    */
   export function explain(
@@ -140,8 +169,12 @@ export namespace AutoMovieSolidRail {
       const facing: number = dot(a.u, toward === undefined ? nB : toward.part);
       quantities.facing = facing;
       quantities.stationSpeed = norm(a.u);
-      if (!(Math.abs(facing) > 0)) return refuse("the part's station line is parallel to the host (facing 0)");
-      const side: number = facing > 0 === (toward !== undefined || keep === "outside") ? 1 : -1;
+      if (!(Math.abs(facing) > 0))
+        return refuse(
+          "the part's station line is parallel to the host (facing 0)",
+        );
+      const side: number =
+        facing > 0 === (toward !== undefined || keep === "outside") ? 1 : -1;
       quantities.side = side;
       sigma = side;
       partAcross = [side / norm(a.u), 0];
@@ -298,7 +331,11 @@ export namespace AutoMovieSolidRail {
     };
   }
 
-  /** Unit normal of the plane spanned by the preimage jet j's surface normal and the world image of square chart direction e; failed normalization returns [0,0,0]. */
+  /**
+   * Unit normal of the plane spanned by the preimage jet j's surface normal and
+   * the world image of square chart direction e; failed normalization returns
+   * [0,0,0].
+   */
   function plane(j: IJet, e: readonly [number, number]): AutoMovieVector3Tuple {
     const d: AutoMovieVector3Tuple = combine([
       [e[0], j.u],
@@ -307,7 +344,12 @@ export namespace AutoMovieSolidRail {
     return unit(cross(cross(j.u, j.v), d)) ?? [0, 0, 0];
   }
 
-  /** From a nearby chart start, solve (S-from).m=0 and |S-from|²=width² with world point from and positive chord width in mm and unit plane normal m; return a chart pair or null on failed Newton/degenerate direction. An accepted residual still takes one final unchecked update. */
+  /**
+   * From a nearby chart start, solve (S-from).m=0 and |S-from|²=width² with
+   * world point from and positive chord width in mm and unit plane normal m;
+   * return a chart pair or null on failed Newton/degenerate direction. An
+   * accepted residual still takes one final unchecked update.
+   */
   function section(
     surface: IAutoMovieSolidSurface,
     start: readonly [number, number],
@@ -326,7 +368,12 @@ export namespace AutoMovieSolidRail {
     );
   }
 
-  /** From surface jet j and preimage chart tangent (u',v'), return the inverse-metric square chart direction at unit world speed, signed along world direction toward for side=1 and against it for -1; return null for a failed metric solve, vanishing speed or zero sidedness. */
+  /**
+   * From surface jet j and preimage chart tangent (u',v'), return the
+   * inverse-metric square chart direction at unit world speed, signed along
+   * world direction toward for side=1 and against it for -1; return null for a
+   * failed metric solve, vanishing speed or zero sidedness.
+   */
   function square(
     j: IJet,
     tangent: readonly [number, number],
@@ -363,7 +410,13 @@ export namespace AutoMovieSolidRail {
     return [e[0] * turn, e[1] * turn];
   }
 
-  /** Solve chart distance l along the jet callback along(l) and chart direction d at positive world chord width from world point from, both in mm. The initial remaining-chord guess is start or width, divided by world speed; failed/invalid offsets return null, and an accepted residual takes one final unchecked Newton update. */
+  /**
+   * Solve chart distance l along the jet callback along(l) and chart direction
+   * d at positive world chord width from world point from, both in mm. The
+   * initial remaining-chord guess is start or width, divided by world speed;
+   * failed/invalid offsets return null, and an accepted residual takes one
+   * final unchecked Newton update.
+   */
   function offset(
     along: (l: number) => IJet | null,
     d: readonly [number, number],

@@ -19,22 +19,23 @@ import { abductionRange } from "./abductionRange";
 import { swingConeBlend } from "./swingConeBlend";
 
 /**
- * Project one joint, given as its bone and its three clinical angles, into
- * its admitted range: the projection `clampJointRom` documents, read from
- * the angles themselves so a writer that has them (a posture's assembly)
- * makes the projected record without first making the record it projects.
- * Specified nonfinite angles first become neutral, null rest stays null,
- * an immobile axis is forced to zero and a swing cap blends toward the box
- * point nearest neutral; a ball joint gated by swing and twist is brought
- * into its range as a rotation and read back in the reading the box prefers,
- * a joint already inside coming back as given.
+ * Project one joint, given as its bone and its three clinical angles, into its
+ * admitted range: the projection `clampJointRom` documents, read from the
+ * angles themselves so a writer that has them (a posture's assembly) makes the
+ * projected record without first making the record it projects. Specified
+ * nonfinite angles first become neutral, null rest stays null, an immobile axis
+ * is forced to zero and a swing cap blends toward the box point nearest
+ * neutral; a ball joint gated by swing and twist is brought into its range as a
+ * rotation and read back in the reading the box prefers, a joint already inside
+ * coming back as given.
  *
  * @param bone The joint's bone.
  * @param flexion Its flexion, degrees, or null at rest.
  * @param abduction Its abduction, degrees, or null at rest.
  * @param twist Its twist, degrees, or null at rest.
  * @param constraint Its resolved range.
- * @param rig The bone's frame as the caller's rig resolves it; the humanoid tables' when absent.
+ * @param rig The bone's frame as the caller's rig resolves it; the humanoid
+ *   tables' when absent.
  * @returns A fresh joint record in range.
  */
 export function clampJointRomValues(
@@ -45,18 +46,24 @@ export function clampJointRomValues(
   constraint: IAutoMovieJointConstraint,
   rig?: IAutoMovieJointRotationFrame,
 ): IAutoMovieJointPose {
-  return clampJointRomValues.into(bone, flexion, abduction, twist, constraint, rig, undefined);
+  return clampJointRomValues.into(
+    bone,
+    flexion,
+    abduction,
+    twist,
+    constraint,
+    rig,
+    undefined,
+  );
 }
 
-/**
- * The record form's entry.
- */
+/** The record form's entry. */
 export namespace clampJointRomValues {
   /**
-   * The same projection, handing back `input`, the record the angles were
-   * read from, where the projected angles are its own (`Object.is` each):
-   * a clamp output is a value, as an admitted record is, so a record
-   * already in range is its own clamp. Absent, a fresh record is returned.
+   * The same projection, handing back `input`, the record the angles were read
+   * from, where the projected angles are its own (`Object.is` each): a clamp
+   * output is a value, as an admitted record is, so a record already in range
+   * is its own clamp. Absent, a fresh record is returned.
    *
    * @param bone The joint's bone.
    * @param flexion Its flexion, degrees, or null at rest.
@@ -80,7 +87,10 @@ export namespace clampJointRomValues {
   }
 }
 
-/** The input record where the projected angles are its own, else a fresh record of them. */
+/**
+ * The input record where the projected angles are its own, else a fresh record
+ * of them.
+ */
 function record(
   bone: AutoMovieHumanoidBone,
   flexion: number | null,
@@ -88,8 +98,10 @@ function record(
   twist: number | null,
   input: IAutoMovieJointPose | undefined,
 ): IAutoMovieJointPose {
-  return input !== undefined && Object.is(input.flexion, flexion) &&
-    Object.is(input.abduction, abduction) && Object.is(input.twist, twist)
+  return input !== undefined &&
+    Object.is(input.flexion, flexion) &&
+    Object.is(input.abduction, abduction) &&
+    Object.is(input.twist, twist)
     ? input
     : { bone, flexion, abduction, twist };
 }
@@ -125,7 +137,8 @@ function project(
     // A prepared frame lends its composer, the same products with its
     // factors prepared once for the frame.
     const compose: ReturnType<typeof SwingTwistFramePreparation.composer> =
-      basis === undefined ? undefined
+      basis === undefined
+        ? undefined
         : SwingTwistFramePreparation.composer(range, "jointToQuaternion axes");
     const q: IAutoMovieQuaternion =
       basis === undefined
@@ -176,7 +189,8 @@ function project(
     // itself: for a box that excludes neutral, shrinking toward the origin
     // leaves the box (#1245). A resting axis anchors at its own rest, 0.
     const anchorF: number = f === null ? 0 : nearestNeutral(constraint.flexion);
-    const anchorA: number = a === null ? 0 : nearestNeutral(constraint.abduction);
+    const anchorA: number =
+      a === null ? 0 : nearestNeutral(constraint.abduction);
     const blend: number = swingConeBlend(
       fv,
       av,
@@ -196,7 +210,10 @@ function project(
   return record(bone, f, a, t, input);
 }
 
-/** One axis into its interval: null rest stays null, an immobile axis (no interval) goes to neutral, a nonfinite angle first becomes neutral. */
+/**
+ * One axis into its interval: null rest stays null, an immobile axis (no
+ * interval) goes to neutral, a nonfinite angle first becomes neutral.
+ */
 function clampAxis(
   angle: number | null,
   allowed: IAutoMovieAngleRange | null,
@@ -211,12 +228,19 @@ function clampAxis(
       : finiteAngle;
 }
 
-/** A specified angle as it is, or its rest (0) when it is not finite; a resting `null` stays resting. */
+/**
+ * A specified angle as it is, or its rest (0) when it is not finite; a resting
+ * `null` stays resting.
+ */
 function finiteOrRest(value: number | null): number | null {
   return value === null || Number.isFinite(value) ? value : 0;
 }
 
-/** How far past a swing-twist range a joint may lie and count as on its edge, degrees: a millionth, above the rounding of a rotation read back into angles. */
+/**
+ * How far past a swing-twist range a joint may lie and count as on its edge,
+ * degrees: a millionth, above the rounding of a rotation read back into
+ * angles.
+ */
 const EDGE: number = 1e-6;
 
 /**

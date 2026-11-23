@@ -5,7 +5,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-
 /**
  * Expose a completed numeric trajectory as an airborne flight, outside the
  * integration right-hand side's scope.

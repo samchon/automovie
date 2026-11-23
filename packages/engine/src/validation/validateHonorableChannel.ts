@@ -8,7 +8,8 @@ import { NODE_CHANNEL_PATHS } from "./constants/NODE_CHANNEL_PATHS";
 import { pushViolation } from "./pushViolation";
 
 /**
- * Require node channels with translation/rotation/scale/weights paths, matching transform-clip appliers.
+ * Require node channels with translation/rotation/scale/weights paths, matching
+ * transform-clip appliers.
  */
 export const validateHonorableChannel: IAutoMovieClipChannelGate = (
   channel: Record<string, unknown>,

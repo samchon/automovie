@@ -20,7 +20,10 @@ type ILimb = NonNullable<
   IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
 >["pattern"]["limbs"][number];
 
-/** The lowest point of a patch's goal geometry and how deep its material may compress. */
+/**
+ * The lowest point of a patch's goal geometry and how deep its material may
+ * compress.
+ */
 interface ILowest {
   /** World height of the lowest convex point, metres. */
   height: number;
@@ -30,26 +33,25 @@ interface ILowest {
 }
 
 /**
- * Pull each enabled support endpoint toward its interpolated world goal
- * with a bounded force, leaving the rest of the body's motion to the
- * solver.
+ * Pull each enabled support endpoint toward its interpolated world goal with a
+ * bounded force, leaving the rest of the body's motion to the solver.
  *
  * A limb's strength is the target's strength times its declared support
- * strength; a limb with none, the limb an active recovery swing owns, or a
- * limb on an authored segment gets no force. The force is the stable
- * finite-step PD law of `AutoMoviePhysicalTracking.force` on the endpoint's
- * world error and its velocity error against the goal point's velocity
- * (`v + w x r`), with the carrier's mass and the policy's stiffness,
- * damping and maximum force scaled by the strength, in newtons. Under
- * internal actuation the force becomes joint torques through
- * `accumulatePhysicalMotorTorques`, and a stationary goal on a patch that
- * a real floor constraint already holds yields to that constraint while
- * its goal geometry stays floor-compatible (within the contact tolerance
- * above the floor and no deeper than the material compresses); otherwise
- * it acts on the carrier at the endpoint. An endpoint whose world position
- * is not finite throws instead of reaching the solver.
+ * strength; a limb with none, the limb an active recovery swing owns, or a limb
+ * on an authored segment gets no force. The force is the stable finite-step PD
+ * law of `AutoMoviePhysicalTracking.force` on the endpoint's world error and
+ * its velocity error against the goal point's velocity (`v + w x r`), with the
+ * carrier's mass and the policy's stiffness, damping and maximum force scaled
+ * by the strength, in newtons. Under internal actuation the force becomes joint
+ * torques through `accumulatePhysicalMotorTorques`, and a stationary goal on a
+ * patch that a real floor constraint already holds yields to that constraint
+ * while its goal geometry stays floor-compatible (within the contact tolerance
+ * above the floor and no deeper than the material compresses); otherwise it
+ * acts on the carrier at the endpoint. An endpoint whose world position is not
+ * finite throws instead of reaching the solver.
  *
- * @param input The body, target, goals, segment bodies, substep and actuation context.
+ * @param input The body, target, goals, segment bodies, substep and actuation
+ *   context.
  */
 export function trackPhysicalSupports(
   input: trackPhysicalSupports.IInput,
@@ -128,7 +130,11 @@ export function trackPhysicalSupports(
     else rigid.addForceAtPoint(force, actual);
   }
 
-  /** A stationary task may yield to stance only while its declared surface geometry remains floor-compatible. Explicit witnesses all share the plane; otherwise the declared patch's lowest convex point owns contact. */
+  /**
+   * A stationary task may yield to stance only while its declared surface
+   * geometry remains floor-compatible. Explicit witnesses all share the plane;
+   * otherwise the declared patch's lowest convex point owns contact.
+   */
   function matchesFloor(limb: ILimb): boolean {
     const parts: IAutoMoviePhysicalSegment[] =
       input.body.profile.segments.filter(
@@ -180,7 +186,10 @@ export function trackPhysicalSupports(
     );
   }
 
-  /** A shape's material's maximum compression, metres; zero for a rigid material. */
+  /**
+   * A shape's material's maximum compression, metres; zero for a rigid
+   * material.
+   */
   function compressionOf(shape: IAutoMoviePhysicalShape): number {
     return (
       input.body.profile.materials.find(
@@ -192,11 +201,11 @@ export function trackPhysicalSupports(
 }
 
 /**
- * The input {@link trackPhysicalSupports} reads for one body and one
- * substep. Each optional member widens the default: without a recovery
- * bone every limb may get force, without an actuation map forces act on
- * the carriers, without constrained limbs no stance yields and without a
- * dynamic set every bone may get an endpoint force.
+ * The input {@link trackPhysicalSupports} reads for one body and one substep.
+ * Each optional member widens the default: without a recovery bone every limb
+ * may get force, without an actuation map forces act on the carriers, without
+ * constrained limbs no stance yields and without a dynamic set every bone may
+ * get an endpoint force.
  */
 export namespace trackPhysicalSupports {
   /** What one support-tracking substep needs. */
@@ -204,7 +213,10 @@ export namespace trackPhysicalSupports {
     /** The body: its profile and support-tracking policy. */
     body: IAutoMoviePhysicalSimulationInput.IBody;
 
-    /** The current admitted target: strength, support strengths and unavailable supports. */
+    /**
+     * The current admitted target: strength, support strengths and unavailable
+     * supports.
+     */
     target: IAutoMoviePhysicalSimulationInput.ITarget;
 
     /** Interpolated world goals by bone, including accepted recovery offsets. */
@@ -219,13 +231,19 @@ export namespace trackPhysicalSupports {
     /** The limb an active recovery swing drives itself; it gets no force here. */
     recoveryBone?: string;
 
-    /** Joint torques by joint, N m, that internal actuation accumulates into; absent, forces act on the carriers directly. */
+    /**
+     * Joint torques by joint, N m, that internal actuation accumulates into;
+     * absent, forces act on the carriers directly.
+     */
     actuation?: Map<string, IAutoMovieVector3>;
 
     /** Limbs a real floor constraint holds this substep. */
     constrained?: ReadonlySet<string>;
 
-    /** Bones the solver owns; an authored segment gets no endpoint force. Absent, every bone may. */
+    /**
+     * Bones the solver owns; an authored segment gets no endpoint force.
+     * Absent, every bone may.
+     */
     dynamic?: ReadonlySet<string>;
 
     /** Declared horizontal floor height, metres. */

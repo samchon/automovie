@@ -21,13 +21,13 @@ const { combine } = AutoMovieSolidVector;
  * second = a^2 (S_uu d_u^2 + 2 S_uv d_u d_v + S_vv d_v^2)
  * ```
  *
- * When `r`, `d` and `a` are smooth functions of the rail's parameter `phi`,
- * a blend that copies these three vectors at its edge shares the whole
- * parametric 2-jet of `g(phi, w) = S(r(phi) + w a(phi) d(phi))` there: its
- * derivatives along the edge are those of `S(r(phi))`, and its mixed
- * derivative is the `phi` derivative of the copied `first`, which is `g`'s
- * mixed derivative too. So the blend meets the surface G2 along the rail by
- * construction, for any direction field transversal to the rail.
+ * When `r`, `d` and `a` are smooth functions of the rail's parameter `phi`, a
+ * blend that copies these three vectors at its edge shares the whole parametric
+ * 2-jet of `g(phi, w) = S(r(phi) + w a(phi) d(phi))` there: its derivatives
+ * along the edge are those of `S(r(phi))`, and its mixed derivative is the
+ * `phi` derivative of the copied `first`, which is `g`'s mixed derivative too.
+ * So the blend meets the surface G2 along the rail by construction, for any
+ * direction field transversal to the rail.
  */
 export namespace AutoMovieSolidRibbon {
   /**

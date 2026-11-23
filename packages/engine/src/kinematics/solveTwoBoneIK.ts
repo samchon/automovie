@@ -9,16 +9,17 @@ const acosDeg: (x: number) => number = (x: number): number =>
  *
  * `bend` is the interior angle at the mid joint, 180 straight and smaller as
  * the chain folds; `lift` is the angle between the upper segment and the
- * root-to-goal line. The caller orients the chain toward the goal and turns
- * the mid joint and the root by these angles. A distance below
- * `|upper − lower|` or above `upper + lower` is clamped to that bound and
- * `clamped` is set, so the chain fully folds or extends instead of producing
- * `NaN`. When both segments are equal and the goal is at the root, `lift` is 0.
+ * root-to-goal line. The caller orients the chain toward the goal and turns the
+ * mid joint and the root by these angles. A distance below `|upper − lower|` or
+ * above `upper + lower` is clamped to that bound and `clamped` is set, so the
+ * chain fully folds or extends instead of producing `NaN`. When both segments
+ * are equal and the goal is at the root, `lift` is 0.
  *
  * Lengths and distance share one unit. Throws when a length is not finite and
  * positive, the distance is not finite and non-negative, or relative side
  * products cannot be represented after common rescaling. Extreme common units
- * are rescaled before squaring; ordinary lengths retain their arithmetic order.
+ * are rescaled before squaring; ordinary lengths retain their arithmetic
+ * order.
  *
  * @param upper Root-to-mid segment length, positive.
  * @param lower Mid-to-tip segment length, positive.

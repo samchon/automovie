@@ -12,22 +12,25 @@ import type {
  * terms, so a field declared over the network, such as a displacement, can be
  * evaluated at each vertex.
  *
- * A vertex's cage face and quad-local coordinates give its surface
- * coordinate, the bilinear blend of the face's corner coordinates, the same
- * chart `mapAutoMovieSurfaceTier` uses, so the coordinate is exact on a grid
- * patch and continuous across faces inside that patch. Different patch charts
- * can assign different addresses to a shared edge; compatible fields must
- * agree there. Each vertex keeps its supplied incident-face address. A sweep or transition patch
- * also gives the sweep's domain point, `u` and `v` carried from `t` and `s`
- * by the patch's ranges. The locations depend only on the network's layout
- * and the tier, never on a pose, so they are computed once per tier and level
- * and serve every pose.
+ * A vertex's cage face and quad-local coordinates give its surface coordinate,
+ * the bilinear blend of the face's corner coordinates, the same chart
+ * `mapAutoMovieSurfaceTier` uses, so the coordinate is exact on a grid patch
+ * and continuous across faces inside that patch. Different patch charts can
+ * assign different addresses to a shared edge; compatible fields must agree
+ * there. Each vertex keeps its supplied incident-face address. A sweep or
+ * transition patch also gives the sweep's domain point, `u` and `v` carried
+ * from `t` and `s` by the patch's ranges. The locations depend only on the
+ * network's layout and the tier, never on a pose, so they are computed once per
+ * tier and level and serve every pose.
  *
  * @param props.network The network the cage was sampled from, only read.
  * @param props.cage The sampled cage, only read.
- * @param props.parameters Each subdivided vertex's cage face and quad-local coordinates, `IAutoMovieSubdivisionSurface.parameters` of the cage's subdivision.
+ * @param props.parameters Each subdivided vertex's cage face and quad-local
+ *   coordinates, `IAutoMovieSubdivisionSurface.parameters` of the cage's
+ *   subdivision.
  * @returns One location per vertex, in vertex order.
- * @throws Error when the network's patches are not the cage's, a parameter's face is out of range or not a quad, or its coordinates leave 0 to 1.
+ * @throws Error when the network's patches are not the cage's, a parameter's
+ *   face is out of range or not a quad, or its coordinates leave 0 to 1.
  */
 export const locateAutoMovieSurfaceVertices: (
   props: IAutoMovieLocateSurfaceVertices.IProps,

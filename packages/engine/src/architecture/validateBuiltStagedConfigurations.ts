@@ -35,16 +35,16 @@ const SHEAR_ADVICE: string =
  *
  * Every element is checked in the current staging and reported at its own
  * `transform`. Then each non-current state of each opening and connector is
- * staged with every other member in its current state, and only the subtree
- * the state moves is re-checked, because a displacement rides down from the
- * element it drives and nothing above or beside it can change. A state that
- * shears any element is reported once, at the state's path, naming the first.
- * Operations whose moved subtrees overlap are also checked in every joint
- * assignment of their named states. Independent branches do not interact.
- * A matrix is sheared when recomposing its decomposition differs in the linear
- * basis by more than 1e-8 times max(1, that basis's largest absolute entry).
- * The unit floor gives tiny bases an absolute tolerance; translation cannot
- * enlarge it. Non-finite compositions are refused by the same gate.
+ * staged with every other member in its current state, and only the subtree the
+ * state moves is re-checked, because a displacement rides down from the element
+ * it drives and nothing above or beside it can change. A state that shears any
+ * element is reported once, at the state's path, naming the first. Operations
+ * whose moved subtrees overlap are also checked in every joint assignment of
+ * their named states. Independent branches do not interact. A matrix is sheared
+ * when recomposing its decomposition differs in the linear basis by more than
+ * 1e-8 times max(1, that basis's largest absolute entry). The unit floor gives
+ * tiny bases an absolute tolerance; translation cannot enlarge it. Non-finite
+ * compositions are refused by the same gate.
  *
  * @param environment Building already free of validation errors.
  * @param root Violation path of the building record, `$input`.

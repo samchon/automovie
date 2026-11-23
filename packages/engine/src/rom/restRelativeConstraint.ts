@@ -37,7 +37,10 @@ const shift: (
 };
 
 /**
- * Convert clinical degree interval endpoints by (clinical - neutral) / sign and reorder mirrored bounds. Null axes remain immobile and absent frames retain range identity. swingDeg is carried as the existing rest-deviation policy; arbitrary neutral shifts do not prove clinical swing-metric invariance.
+ * Convert clinical degree interval endpoints by (clinical - neutral) / sign and
+ * reorder mirrored bounds. Null axes remain immobile and absent frames retain
+ * range identity. swingDeg is carried as the existing rest-deviation policy;
+ * arbitrary neutral shifts do not prove clinical swing-metric invariance.
  */
 export const restRelativeConstraint: (
   clinical: IAutoMovieJointConstraint,

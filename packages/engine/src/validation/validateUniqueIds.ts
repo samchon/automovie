@@ -5,7 +5,8 @@ import { validateArrayArtifact } from "./validateArrayArtifact";
 import { validateUniqueBy } from "./validateUniqueBy";
 
 /**
- * Admit an array and map shallow record ids to element paths before validateUniqueBy checks string duplicates.
+ * Admit an array and map shallow record ids to element paths before
+ * validateUniqueBy checks string duplicates.
  */
 export const validateUniqueIds: (
   items: unknown,

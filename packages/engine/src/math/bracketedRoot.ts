@@ -1,14 +1,14 @@
 /**
- * A root of a continuous function between two arguments where it takes
- * opposite signs, by the Illinois variant of the false position method
- * (Dowell and Jarratt 1971).
+ * A root of a continuous function between two arguments where it takes opposite
+ * signs, by the Illinois variant of the false position method (Dowell and
+ * Jarratt 1971).
  *
  * Each step evaluates the function where the chord through the bracket's two
  * ends crosses zero and keeps the half that still brackets the root. When the
  * same end is kept twice in a row its value is halved for the next chord, so
  * both ends close on the root and the order of convergence is about 1.44 on a
- * smooth function, against one bit a step for bisection. The root never
- * leaves the bracket, so the method needs no derivative and no guard.
+ * smooth function, against one bit a step for bisection. The root never leaves
+ * the bracket, so the method needs no derivative and no guard.
  *
  * @param f The function.
  * @param low One end of the bracket.
@@ -16,10 +16,10 @@
  * @param tolerance The bracket width at which the search stops, in the
  *   argument's unit; positive.
  * @param limit The most evaluations after the two ends'.
- * @returns The last argument evaluated, within `tolerance` of a root unless
- *   the limit ran out first; an end itself when the function is zero there.
- * @throws If an end or its value is not finite, the two values share a sign,
- *   or the tolerance is not positive and finite.
+ * @returns The last argument evaluated, within `tolerance` of a root unless the
+ *   limit ran out first; an end itself when the function is zero there.
+ * @throws If an end or its value is not finite, the two values share a sign, or
+ *   the tolerance is not positive and finite.
  */
 export function bracketedRoot(
   f: (x: number) => number,

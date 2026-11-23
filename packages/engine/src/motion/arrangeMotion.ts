@@ -7,7 +7,10 @@ import {
 import { addPositiveModulo } from "../math/addPositiveModulo";
 
 /**
- * Arrange admitted clips on one actor's shot clock in stable start order. Keyframes shift by placement start, gaps hold the previous tail, and coincident or overlapping later frames are dropped rather than layered; empty placements return an empty zero-duration clip.
+ * Arrange admitted clips on one actor's shot clock in stable start order.
+ * Keyframes shift by placement start, gaps hold the previous tail, and
+ * coincident or overlapping later frames are dropped rather than layered; empty
+ * placements return an empty zero-duration clip.
  */
 export const arrangeMotion: (
   id: string,

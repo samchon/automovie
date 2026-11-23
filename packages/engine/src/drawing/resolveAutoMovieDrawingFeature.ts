@@ -38,18 +38,18 @@ interface IWeldedEdge {
  * moves its dimension and changes its number; and it may store how many
  * features of its kind existed, so replacing a wall with a differently shaped
  * one is reported stale instead of relocating the note onto whichever feature
- * inherited the index. A feature that cannot be found is never approximated
- * to the nearest surviving one.
+ * inherited the index. A feature that cannot be found is never approximated to
+ * the nearest surviving one.
  *
- * Features are read from the element's world geometry in its current
- * operating state: `axis` is one of the element's three local axes (origin and
- * unit direction); `vertex` and `edge` index the welded corners and undirected
- * edges in coordinate order on the drawing grid, an edge resolving to its
- * midpoint and unit direction; `face` indexes the triangles in part and mesh
- * order and resolves to the triangle's centroid; `centroid` is the mean of the
- * welded corners, which is a vertex average rather than a volume centroid.
- * Every failure is a `stale` result whose `reason` names the cause and whose
- * `count` is the current feature count where one exists.
+ * Features are read from the element's world geometry in its current operating
+ * state: `axis` is one of the element's three local axes (origin and unit
+ * direction); `vertex` and `edge` index the welded corners and undirected edges
+ * in coordinate order on the drawing grid, an edge resolving to its midpoint
+ * and unit direction; `face` indexes the triangles in part and mesh order and
+ * resolves to the triangle's centroid; `centroid` is the mean of the welded
+ * corners, which is a vertex average rather than a volume centroid. Every
+ * failure is a `stale` result whose `reason` names the cause and whose `count`
+ * is the current feature count where one exists.
  *
  * @param environment The validated design.
  * @param feature The pinned target.

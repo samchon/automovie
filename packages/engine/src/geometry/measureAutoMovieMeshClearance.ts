@@ -11,20 +11,20 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * overlap of two triangle meshes.
  *
  * Each entry belongs to one front triangle, by ordinal, and gives its smallest
- * signed depth separation from any back triangle in mesh-local metres:
- * positive is clear, zero is contact, negative breaks the declared front-back
- * ordering. A front triangle with no projected overlap is not reported. The
- * projection plane is Y/Z for depth X, Z/X for depth Y and X/Y for depth Z.
- * Triangles parallel to the depth axis are skipped, so this is directional
- * surface ordering, not a closed-volume collision test. Both meshes must
- * already share a frame; callers own transforms and which pairs may touch.
- * Neither input is changed.
+ * signed depth separation from any back triangle in mesh-local metres: positive
+ * is clear, zero is contact, negative breaks the declared front-back ordering.
+ * A front triangle with no projected overlap is not reported. The projection
+ * plane is Y/Z for depth X, Z/X for depth Y and X/Y for depth Z. Triangles
+ * parallel to the depth axis are skipped, so this is directional surface
+ * ordering, not a closed-volume collision test. Both meshes must already share
+ * a frame; callers own transforms and which pairs may touch. Neither input is
+ * changed.
  *
  * The optional `visit` receives every overlap polygon vertex as a witness,
  * clear ones included, so a later coupled displacement can keep every one of
- * those inequalities and not only the violated ones. Throws on an invalid
- * axis, a malformed index buffer, a non-finite position, and projected area,
- * clipping or depth arithmetic that overflows.
+ * those inequalities and not only the violated ones. Throws on an invalid axis,
+ * a malformed index buffer, a non-finite position, and projected area, clipping
+ * or depth arithmetic that overflows.
  *
  * @param front Mesh that should lie in front.
  * @param back Mesh that should lie behind.
@@ -98,11 +98,11 @@ type ITriangleTree = {
 );
 
 /**
- * Build a balanced index over projected triangles by widest-axis median.
- * Eight triangles per leaf is a traversal cost choice, never a geometry sample
- * count: every leaf triangle still receives its own inclusive bounds test.
- * Halved spans and quarter-coordinate centre differences keep ordering
- * arithmetic finite even when the full coordinate range would overflow.
+ * Build a balanced index over projected triangles by widest-axis median. Eight
+ * triangles per leaf is a traversal cost choice, never a geometry sample count:
+ * every leaf triangle still receives its own inclusive bounds test. Halved
+ * spans and quarter-coordinate centre differences keep ordering arithmetic
+ * finite even when the full coordinate range would overflow.
  */
 const triangleTree = (list: IProjectedTriangle[]): ITriangleTree | null => {
   if (list.length === 0) return null;

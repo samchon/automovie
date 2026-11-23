@@ -24,12 +24,12 @@ interface Incident {
 }
 
 /**
- * Plan contour slabs from explicit incidence or the existing nearest legacy policy.
- * Explicit mode uses exact event brackets and
- * local loop ordinals. Missing or conflicting local partitions remain diagnosed gaps;
- * independent valid groups survive without rematching them.
- * It supports ordinary one-to-one strips and isolated regular simple events;
- * sector order, handles, critical clusters and injectivity are not inferred.
+ * Plan contour slabs from explicit incidence or the existing nearest legacy
+ * policy. Explicit mode uses exact event brackets and local loop ordinals.
+ * Missing or conflicting local partitions remain diagnosed gaps; independent
+ * valid groups survive without rematching them. It supports ordinary one-to-one
+ * strips and isolated regular simple events; sector order, handles, critical
+ * clusters and injectivity are not inferred.
  */
 export function planAutoMovieContourSlabs64(
   props: IAutoMoviePlanContourSlabs64Props,

@@ -6,17 +6,17 @@ import type {
 import { adjacentAutoMovieFloat64 as outward } from "../math/adjacentAutoMovieFloat64";
 
 /**
- * Enclose each point's projection onto a stored direction in an outward
- * rounded interval, relative to an origin.
+ * Enclose each point's projection onto a stored direction in an outward rounded
+ * interval, relative to an origin.
  *
  * Points, origin and direction share one metre frame. The direction is scaled
- * so its largest absolute component is one, and is taken as stored: rounding
- * in how a caller proposed it never matters, because the intervals enclose
- * the projections of the supplied points onto exactly this direction. The
- * result also carries an upper enclosure of that scaled direction's norm, so a
- * caller can turn an interval gap into a Euclidean lower bound. A zero
- * direction yields `[0, 0]` for every point and a zero norm, which proves no
- * separation. The origin defaults to the first point.
+ * so its largest absolute component is one, and is taken as stored: rounding in
+ * how a caller proposed it never matters, because the intervals enclose the
+ * projections of the supplied points onto exactly this direction. The result
+ * also carries an upper enclosure of that scaled direction's norm, so a caller
+ * can turn an interval gap into a Euclidean lower bound. A zero direction
+ * yields `[0, 0]` for every point and a zero norm, which proves no separation.
+ * The origin defaults to the first point.
  *
  * Throws on an empty point run, a missing or non-finite coordinate in a point,
  * the origin or the direction, and, through `adjacentAutoMovieFloat64`, on a

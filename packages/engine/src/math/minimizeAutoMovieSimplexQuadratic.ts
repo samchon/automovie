@@ -5,9 +5,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Minimize half ||sum(lambda_i*a_i)||^2 + sum(lambda_i*b_i) on the simplex.
- * Pairwise Frank-Wolfe transfers mass from the most expensive occupied atom
- * to the cheapest atom, with exact quadratic line search and complete pricing.
+ * Minimize half ||sum(lambda_i_a_i)||^2 + sum(lambda_i_b_i) on the simplex.
+ * Pairwise Frank-Wolfe transfers mass from the most expensive occupied atom to
+ * the cheapest atom, with exact quadratic line search and complete pricing.
  * Lacoste-Julien and Jaggi (2015), Algorithm 2, describes the pairwise update.
  * Exact-arithmetic pricing bounds convex objective error, not parameter error.
  * Computed gaps include measured simplex-mass correction, but are not interval

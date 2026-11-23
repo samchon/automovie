@@ -24,7 +24,8 @@ import { engineDiagnostic } from "./engineDiagnostic";
 const FORMATION_SLOT_EXCEPTION_LIMIT: number = 1_024;
 
 /**
- * Validate sparse member cue slots, states, ids, order and participant formation references.
+ * Validate sparse member cue slots, states, ids, order and participant
+ * formation references.
  */
 export const validateAutoMovieFormationSlotMotions: (
   contract: Pick<

@@ -15,8 +15,8 @@ import { autoMoviePlanarRegionFailure } from "../geometry/autoMoviePlanarRegionF
  *
  * Throws an `Error` for fewer than three corners, and with the
  * {@link autoMoviePlanarRegionFailure} message for a ring that is not one
- * unambiguous region, because a triangle of undefined or crossing corners
- * would put a face of nothing into a drawing.
+ * unambiguous region, because a triangle of undefined or crossing corners would
+ * put a face of nothing into a drawing.
  *
  * The ring is walked counter-clockwise whichever way it was authored, so a
  * clockwise outline triangulates as its own region rather than clipping its

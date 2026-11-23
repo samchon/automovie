@@ -6,10 +6,14 @@
  * simulation; Teschner, Heidelberger, Muller, Pomeranets and Gross 2003,
  * "Optimized spatial hashing for collision detection of deformable objects").
  *
- * @param x The stacked state `[x, z, vx, vz]` per agent, metres and metres per second.
+ * @param x The stacked state `[x, z, vx, vz]` per agent, metres and metres per
+ *   second.
  * @param n The number of agents.
- * @param cell The cell's side, metres: the largest distance any query must reach; finite and positive.
- * @returns The query: it writes the agents other than one that lie in its cell or the eight around it into the caller's buffer of at least `n` entries, in ascending index, and returns how many.
+ * @param cell The cell's side, metres: the largest distance any query must
+ *   reach; finite and positive.
+ * @returns The query: it writes the agents other than one that lie in its cell
+ *   or the eight around it into the caller's buffer of at least `n` entries, in
+ *   ascending index, and returns how many.
  */
 export function steerAutoMovieCrowdNeighbours(
   x: readonly number[],
@@ -44,14 +48,18 @@ export function steerAutoMovieCrowdNeighbours(
   };
 }
 
-/**
- * Companion types of {@link steerAutoMovieCrowdNeighbours}.
- */
+/** Companion types of {@link steerAutoMovieCrowdNeighbours}. */
 export namespace steerAutoMovieCrowdNeighbours {
-  /** Write the agents other than agent `k` in its cell and the eight around it into `into`, ascending, and return their count. */
+  /**
+   * Write the agents other than agent `k` in its cell and the eight around it
+   * into `into`, ascending, and return their count.
+   */
   export type Query = (k: number, into: Int32Array) => number;
 
-  /** Cell coordinates within this offset of zero key uniquely: a crowd spans far fewer cells. */
+  /**
+   * Cell coordinates within this offset of zero key uniquely: a crowd spans far
+   * fewer cells.
+   */
   const OFFSET: number = 1 << 20;
 
   /**

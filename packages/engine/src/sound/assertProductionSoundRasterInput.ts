@@ -1,6 +1,4 @@
-/**
- * Admit dimensions and finite interleaved stereo PCM before evidence drawing.
- */
+/** Admit dimensions and finite interleaved stereo PCM before evidence drawing. */
 export function assertProductionSoundRasterInput(
   pcm: Float32Array,
   width: number,

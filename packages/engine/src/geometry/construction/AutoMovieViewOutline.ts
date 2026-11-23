@@ -16,13 +16,23 @@ import { distanceAutoMovieViewOutline } from "./distanceAutoMovieViewOutline";
 import { supportAutoMovieViewOutline } from "./supportAutoMovieViewOutline";
 
 /**
- * The scalar source shared by lofting, origin placement and inspection: a default natural cubic or explicitly requested C2 quintic knot jets/range, in station or a selected root-distance/angle parameter. A closing part supplies its pole parameter by default and separately requires zero radial knots.
+ * The scalar source shared by lofting, origin placement and inspection: a
+ * default natural cubic or explicitly requested C2 quintic knot jets/range, in
+ * station or a selected root-distance/angle parameter. A closing part supplies
+ * its pole parameter by default and separately requires zero radial knots.
  *
- * This is the input curve, before section admission and coefficient interpolation. A natural cubic can overshoot its knots; an admitted requested range bounds only the scalar on its knot span. A moving world half-space and equality with the final loft between layers are not asserted. A source parameter endpoint may have a nonzero finite value while its station derivatives diverge. Parameter derivatives remain available there; radial zero belongs only to actual part closure.
+ * This is the input curve, before section admission and coefficient
+ * interpolation. A natural cubic can overshoot its knots; an admitted requested
+ * range bounds only the scalar on its knot span. A moving world half-space and
+ * equality with the final loft between layers are not asserted. A source
+ * parameter endpoint may have a nonzero finite value while its station
+ * derivatives diverge. Parameter derivatives remain available there; radial
+ * zero belongs only to actual part closure.
  */
 export namespace AutoMovieViewOutline {
   /**
-   * Prepare the original knots, returning a named premise failure rather than a replacement curve.
+   * Prepare the original knots, returning a named premise failure rather than a
+   * replacement curve.
    */
   export function create(
     outline: IAutoMovieViewPart.IOutline,
@@ -173,7 +183,11 @@ export namespace AutoMovieViewOutline {
   }
 
   /**
-   * Isolated interior zero-slope stations of source spans, alongside every named knot. Constant spans have no isolated roots. Natural cubic derivative quadratics and requested quintic derivative quartics have separate bounded-degree solvers; source parameters are inverted analytically, never inferred from sections.
+   * Isolated interior zero-slope stations of source spans, alongside every
+   * named knot. Constant spans have no isolated roots. Natural cubic derivative
+   * quadratics and requested quintic derivative quartics have separate
+   * bounded-degree solvers; source parameters are inverted analytically, never
+   * inferred from sections.
    */
   export function criticalStations(
     outline: IAutoMovieViewOutline.IOutline,
@@ -222,7 +236,8 @@ export namespace AutoMovieViewOutline {
   }
 
   /**
-   * Candidate support stations of slope*s+valueScale*source(s) on a closed source subdomain.
+   * Candidate support stations of slope_s+valueScale_source(s) on a closed
+   * source subdomain.
    */
   export function supportStations(
     outline: IAutoMovieViewOutline.IOutline,
@@ -234,7 +249,8 @@ export namespace AutoMovieViewOutline {
   }
 
   /**
-   * Candidate stations for squared distance from the original scalar graph to a fixed point in the same orthonormal chart and length units.
+   * Candidate stations for squared distance from the original scalar graph to a
+   * fixed point in the same orthonormal chart and length units.
    */
   export function distanceStations(
     outline: IAutoMovieViewOutline.IOutline,
@@ -251,7 +267,8 @@ export namespace AutoMovieViewOutline {
   }
 
   /**
-   * Value-only source reading for production callers that need no derivative or reading record.
+   * Value-only source reading for production callers that need no derivative or
+   * reading record.
    */
   export function value(
     outline: IAutoMovieViewOutline.IOutline,
@@ -261,7 +278,8 @@ export namespace AutoMovieViewOutline {
   }
 
   /**
-   * Read the original curve and analytic scalar jets; outside a closing domain returns its premise failure.
+   * Read the original curve and analytic scalar jets; outside a closing domain
+   * returns its premise failure.
    */
   export function at(
     outline: IAutoMovieViewOutline.IOutline,
@@ -271,7 +289,8 @@ export namespace AutoMovieViewOutline {
   }
 
   /**
-   * Convert source units without changing the interpolation coordinate or scalar meaning.
+   * Convert source units without changing the interpolation coordinate or
+   * scalar meaning.
    */
   export function scale(
     outline: IAutoMovieViewPart.IOutline,

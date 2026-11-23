@@ -29,11 +29,11 @@ import { prepareChainPlant } from "./prepareChainPlant";
  * With the hinge angle fixed by the reach, the effector joint's rotation is a
  * function of the swivel alone, and the immobile axis reads its clinical zero
  * at the roots of one sinusoid (`immobileAxisSwivels`' own reading, entry by
- * entry, of which only the immobile axis's entries are sampled here). Each
- * root is one candidate, scored by the caller's own reading. A candidate whose
+ * entry, of which only the immobile axis's entries are sampled here). Each root
+ * is one candidate, scored by the caller's own reading. A candidate whose
  * effector joint reads inside its box by more than the range tolerance, with
- * the immobile axis within the projector's admission width of zero, is shown
- * by the joint projection unchanged, so its displayed rotation error is the
+ * the immobile axis within the projector's admission width of zero, is shown by
+ * the joint projection unchanged, so its displayed rotation error is the
  * rounding of one recomposition and the candidate is met without being
  * measured; any other candidate is measured by the caller's exact error.
  *
@@ -42,10 +42,13 @@ import { prepareChainPlant } from "./prepareChainPlant";
  * returned only where that order is certain without the unmeasured errors,
  * which lie within the range tolerance: the chosen candidate's deviation is
  * below every other's lower bound by more than that tolerance. Everything else
- * (no root, no candidate without overshoot, a choice the tolerance could
- * turn, an unmet best) returns null, and the general search answers.
+ * (no root, no candidate without overshoot, a choice the tolerance could turn,
+ * an unmet best) returns null, and the general search answers.
  *
- * @param props The prepared chain, the target's prepared swivel geometry, the continuation seed if any, the requested effector rotation in the model frame, the effector joint, the caller's candidate reading and its exact displayed error.
+ * @param props The prepared chain, the target's prepared swivel geometry, the
+ *   continuation seed if any, the requested effector rotation in the model
+ *   frame, the effector joint, the caller's candidate reading and its exact
+ *   displayed error.
  * @returns The chosen candidate, or null where the general search must answer.
  */
 export function fitHingedClosedRoots(
@@ -63,14 +66,14 @@ export function fitHingedClosedRoots(
     (axis: swivelJointReadings.Axis): boolean => constraint[axis] === null,
   );
   if (immobile.length !== 1) return null;
-  const found: IAutoMovieHingedArmSwivel.IStop[] | null = props.geometry.branches();
+  const found: IAutoMovieHingedArmSwivel.IStop[] | null =
+    props.geometry.branches();
   if (found === null) return null;
 
   const basis: IAutoMovieJointAxes = props.end.basis;
   const frame: IAutoMovieRestFrame | undefined = props.end.frame;
   const handed: 1 | -1 =
-    Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >=
-    0
+    Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0
       ? 1
       : -1;
   const axes: readonly IAutoMovieVector3[] = [
@@ -127,11 +130,7 @@ export function fitHingedClosedRoots(
     const y: IAutoMovieSwivelArcs.ISinusoid =
       axis === "twist" ? entry(1, 0) : distal ? entry(0, 2) : entry(2, 1);
     const x: IAutoMovieSwivelArcs.ISinusoid =
-      axis === "twist"
-        ? distal
-          ? entry(1, 1)
-          : entry(0, 0)
-        : entry(2, 2);
+      axis === "twist" ? (distal ? entry(1, 1) : entry(0, 0)) : entry(2, 2);
     const turn: 1 | -1 = axis === "twist" ? handed : 1;
     return swivelArcs.roots(
       swivelArcs.combined(
@@ -153,7 +152,10 @@ export function fitHingedClosedRoots(
   ): void => {
     const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
       posed(swivel);
-    const scored: fitHingedClosedRoots.IScore | null = props.score(at.upper, at.lower);
+    const scored: fitHingedClosedRoots.IScore | null = props.score(
+      at.upper,
+      at.lower,
+    );
     if (scored === null || scored.overshoot !== 0) return;
     const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
       local(scored.above, at.lower),
@@ -207,18 +209,21 @@ export function fitHingedClosedRoots(
   } else {
     let shortfall: number = Infinity;
     for (const stop of found) shortfall = Math.min(shortfall, stop.shortfall);
-    found.forEach((stop: IAutoMovieHingedArmSwivel.IStop, branch: number): void => {
-      if (
-        stop.shortfall !== shortfall ||
-        found.findIndex(
-          (other: IAutoMovieHingedArmSwivel.IStop): boolean => other.theta === stop.theta,
-        ) !== branch
-      )
-        return;
-      const posed: ReturnType<typeof hingedArmSwivel.pose> =
-        props.geometry.pose(stop.theta);
-      for (const angle of roots(posed)) probe(posed, stop, branch, angle);
-    });
+    found.forEach(
+      (stop: IAutoMovieHingedArmSwivel.IStop, branch: number): void => {
+        if (
+          stop.shortfall !== shortfall ||
+          found.findIndex(
+            (other: IAutoMovieHingedArmSwivel.IStop): boolean =>
+              other.theta === stop.theta,
+          ) !== branch
+        )
+          return;
+        const posed: ReturnType<typeof hingedArmSwivel.pose> =
+          props.geometry.pose(stop.theta);
+        for (const angle of roots(posed)) probe(posed, stop, branch, angle);
+      },
+    );
   }
 
   // The least exact score among the candidates without overshoot is a shown
@@ -255,21 +260,36 @@ export function fitHingedClosedRoots(
  * fit.
  */
 export namespace fitHingedClosedRoots {
-  /** What a closed-root answer reads, each input in the frame the general search holds it in. */
+  /**
+   * What a closed-root answer reads, each input in the frame the general search
+   * holds it in.
+   */
   export interface IProps {
-    /** The chain's preparation, for the upper bone's world rotation and the fixed frame between the upper and the hinged bone. */
+    /**
+     * The chain's preparation, for the upper bone's world rotation and the
+     * fixed frame between the upper and the hinged bone.
+     */
     prepared: NonNullable<ReturnType<typeof prepareChainPlant>>;
 
-    /** The target's prepared swivel geometry: its hinge branches and each branch's upper and lower rotation by swivel. */
+    /**
+     * The target's prepared swivel geometry: its hinge branches and each
+     * branch's upper and lower rotation by swivel.
+     */
     geometry: hingedArmSwivel.IPreparedTarget;
 
     /** The continuation seed, when the fit continues one. */
     near: IAutoMovieSwivelNear | undefined;
 
-    /** The requested effector rotation in the model frame, as the general search's root reading takes it. */
+    /**
+     * The requested effector rotation in the model frame, as the general
+     * search's root reading takes it.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** The effector joint: its clinical basis, rest frame, range and the inverse of its rest rotation in the hinged bone's frame. */
+    /**
+     * The effector joint: its clinical basis, rest frame, range and the inverse
+     * of its rest rotation in the hinged bone's frame.
+     */
     end: {
       basis: IAutoMovieJointAxes;
       frame: IAutoMovieRestFrame | undefined;
@@ -278,9 +298,15 @@ export namespace fitHingedClosedRoots {
     };
 
     /** The candidate's reading by its bone-local upper and lower rotations. */
-    score: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => IScore | null;
+    score: (
+      upper: IAutoMovieQuaternion,
+      lower: IAutoMovieQuaternion,
+    ) => IScore | null;
 
-    /** The exact displayed rotation error, degrees, of a candidate, given its completed prefix `(upper world * upper) * fixed lower frame`. */
+    /**
+     * The exact displayed rotation error, degrees, of a candidate, given its
+     * completed prefix `(upper world * upper) * fixed lower frame`.
+     */
     error: (
       upper: IAutoMovieQuaternion,
       lower: IAutoMovieQuaternion,
@@ -296,10 +322,16 @@ export namespace fitHingedClosedRoots {
     /** The completed prefix `(upper world * upper) * fixed lower frame`. */
     above: IAutoMovieQuaternion;
 
-    /** Range overshoot of the upper and hinged joints plus any obstruction, zero when legal. */
+    /**
+     * Range overshoot of the upper and hinged joints plus any obstruction, zero
+     * when legal.
+     */
     overshoot: number;
 
-    /** The score without the displayed rotation error, which the exact score adds. */
+    /**
+     * The score without the displayed rotation error, which the exact score
+     * adds.
+     */
     deviation: number;
   }
 
@@ -337,8 +369,14 @@ interface ICandidate extends fitHingedClosedRoots.IScore {
   least: number;
 }
 
-/** The swivels, degrees, that fix a sinusoid of the swivel (`swivelJointReadings.of`'s). */
+/**
+ * The swivels, degrees, that fix a sinusoid of the swivel
+ * (`swivelJointReadings.of`'s).
+ */
 const SAMPLES: readonly number[] = [0, 90, 180];
 
-/** The joint projection's admission width, degrees (`prepareJointRotationProjection`'s `admitted`). */
+/**
+ * The joint projection's admission width, degrees
+ * (`prepareJointRotationProjection`'s `admitted`).
+ */
 const ADMITTED: number = 1e-9;

@@ -7,13 +7,13 @@ import { Vector3 } from "../math/Vector3";
  * vertex normals are computed from its own triangles.
  *
  * Each vertex normal is the normalized sum of its incident triangles'
- * unnormalized face normals, so larger faces weigh more and the winding
- * decides the side. `normalGroups` lists vertices that duplicate one smooth
- * point at a texture seam; their sums are pooled before normalizing so the
- * seam carries one normal while its positions and UVs stay separate. A vertex
- * no triangle uses keeps the zero vector. The arrays passed in become the
- * mesh's own and must not be reused by the caller; indices are trusted, since
- * every caller generates them.
+ * unnormalized face normals, so larger faces weigh more and the winding decides
+ * the side. `normalGroups` lists vertices that duplicate one smooth point at a
+ * texture seam; their sums are pooled before normalizing so the seam carries
+ * one normal while its positions and UVs stay separate. A vertex no triangle
+ * uses keeps the zero vector. The arrays passed in become the mesh's own and
+ * must not be reused by the caller; indices are trusted, since every caller
+ * generates them.
  *
  * @param positions Packed XYZ positions in metres, adopted by the mesh.
  * @param indices Triangle corner indices, adopted by the mesh.

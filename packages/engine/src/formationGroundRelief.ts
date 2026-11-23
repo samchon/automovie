@@ -9,8 +9,8 @@ import {
 import { worldGroundHeight } from "./worldGroundHeight";
 
 /**
- * How far the terrain under one point rises above the terrain under the
- * anchor, in metres.
+ * How far the terrain under one point rises above the terrain under the anchor,
+ * in metres.
  *
  * Relief rather than absolute ground, so `anchor.y` keeps meaning what it
  * always meant: the height the unit was staged at. A unit standing on its
@@ -19,10 +19,10 @@ import { worldGroundHeight } from "./worldGroundHeight";
  * keeps that metre all the way up the hill instead of being snapped down at
  * placement time. Level terrain gives zero relief everywhere.
  *
- * Zero when the formation declares no terrain, when the point is over none,
- * and when the anchor itself is over none: relief is measured from the
- * anchor's own ground, and without that datum there is no rise to state. Each
- * is a fact about what was authored rather than a fallback that guesses.
+ * Zero when the formation declares no terrain, when the point is over none, and
+ * when the anchor itself is over none: relief is measured from the anchor's own
+ * ground, and without that datum there is no rise to state. Each is a fact
+ * about what was authored rather than a fallback that guesses.
  *
  * The anchor's ground height is remembered per formation record object, so a
  * record must keep its `anchor` and `ground` unchanged once members have been

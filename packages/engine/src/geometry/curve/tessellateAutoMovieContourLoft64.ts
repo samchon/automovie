@@ -11,8 +11,9 @@ import { generateAutoMovieContourLoft64 } from "./generateAutoMovieContourLoft64
 
 /**
  * Materialize the original contour kernel into its existing memory result.
- * Source-free coefficients and declared incidence retain their original ordering.
- * Normals use the original face/corner reduction, with no source-normal fallback.
+ * Source-free coefficients and declared incidence retain their original
+ * ordering. Normals use the original face/corner reduction, with no
+ * source-normal fallback.
  */
 export function tessellateAutoMovieContourLoft64(
   input: IAutoMovieContourLoft64,

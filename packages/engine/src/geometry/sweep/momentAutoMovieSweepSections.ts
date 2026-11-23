@@ -11,14 +11,15 @@ const DIRECTIONS: number = 256;
  * profile, at the midpoints of 400 equal steps along the spine.
  *
  * At `u = (i + 0.5) / 400` the area is `(1/2) integral r^2 da` and the first
- * moments `M_x = (1/3) integral r^3 cos a da` and `M_y = (1/3) integral r^3 sin a da`
- * of the radius `r = profile(u, v)`, each by the midpoint rule over 256
+ * moments `M_x = (1/3) integral r^3 cos a da` and `M_y = (1/3) integral r^3 sin
+ * a da` of the radius `r = profile(u, v)`, each by the midpoint rule over 256
  * directions. A scale `s` multiplies the area by `s^2` and the moments by
  * `s^3`, so a sweep whose scale or frames change keeps these numbers;
  * `integrateAutoMovieSweepVolume` combines them with its frames and scale.
  *
  * @param surface A compiled sweep, only read.
- * @returns Area, `M_x` and `M_y` per step, `3 * 400` numbers in square and cubic metres.
+ * @returns Area, `M_x` and `M_y` per step, `3 * 400` numbers in square and
+ *   cubic metres.
  */
 export const momentAutoMovieSweepSections: (
   surface: IAutoMovieSweepSurface,

@@ -11,8 +11,8 @@ import { adjacentAutoMovieFloat64 } from "./adjacentAutoMovieFloat64";
 import { solveAutoMovieQuadraticWorkingSetStep } from "./solveAutoMovieQuadraticWorkingSetStep";
 
 /**
- * Prepare a correction near an unchanged native primal and signed dual.
- * When the independent original-row owner has already admitted feasibility and
+ * Prepare a correction near an unchanged native primal and signed dual. When
+ * the independent original-row owner has already admitted feasibility and
  * complementarity, retain that primal and cyclically minimize stationarity's
  * squared Euclidean norm over each signed-dual coordinate. Its box comes from
  * the same original equality, null-bound and complementarity predicate; native
@@ -21,11 +21,10 @@ import { solveAutoMovieQuadraticWorkingSetStep } from "./solveAutoMovieQuadratic
  * or convergence within the caller's finite work budget.
  *
  * Wright (2015), sections 1.1-1.2, treats box constraints by coordinate
- * indicators and exact scalar minimization:
- * https://arxiv.org/pdf/1502.04759
- * A different native residual signature instead selects joint correction.
- * Neither problem phase names nor particular original rows select the method.
- * Each started dual sweep or working solve consumes that one unchanged budget.
+ * indicators and exact scalar minimization: https://arxiv.org/pdf/1502.04759 A
+ * different native residual signature instead selects joint correction. Neither
+ * problem phase names nor particular original rows select the method. Each
+ * started dual sweep or working solve consumes that one unchanged budget.
  *
  * The refinement owner supplies exact coefficient groups and their interval
  * intersections. Only identical sparse A rows share an equation: proportional,
@@ -36,38 +35,44 @@ import { solveAutoMovieQuadraticWorkingSetStep } from "./solveAutoMovieQuadratic
  * The sum of original signed multipliers is the group multiplier because the
  * coefficients are identical. Corrections preserve that equation and restore
  * its signed multiplier to the original endpoint owner. A point intersection
- * allows a free multiplier: its sign chooses the lower or upper owner, including
- * point intersections formed by separate one-sided inequalities. Every original
- * row stays in independent final admission; grouping is no deleted QP constraint.
+ * allows a free multiplier: its sign chooses the lower or upper owner,
+ * including point intersections formed by separate one-sided inequalities.
+ * Every original row stays in independent final admission; grouping is no
+ * deleted QP constraint.
  *
  * Joint correction uses a changing independent working basis. Its native start
  * must be feasible on every original row within the unchanged caller threshold;
  * initial inequalities must also be practically active at that threshold. This
- * is an explicit finite-arithmetic premise, not an exact feasible-point theorem.
- * Wrong-sign working multipliers leave the basis; every original row can block
- * a primal step and supply its exact endpoint owner. Structural zero equalities
- * compress exactly; other unresolved dependence refuses without row deletion.
- * QR solves the unchanged PSD objective on the working null space. Flat descent
- * needs a finite original-row blocker; rank uncertainty preserves native state.
- * Each attempted working solve shares the same finite budget as dual sweeps.
- * Gill and Wong (2014), sections 2-3, describe independent working bases,
- * sign-aware changes and blocking constraints:
- * https://www.ccom.ucsd.edu/~peg/papers/genqp.pdf
- * No shifted/penalized feasibility phase, extra native solve or convergence
- * guarantee is supplied here. A trial is adopted only after original full KKT.
- * Before a flat step, a separate working-normal dual estimate is paired with
- * its own affine origin and measured by that same original full-row owner.
- * Nonzero projected scalars introduce no new stopping epsilon. A failed normal
- * candidate neither replaces the live flat state nor supplies optimum sign
- * departures; finite objective and native status remain with the final refiner.
+ * is an explicit finite-arithmetic premise, not an exact feasible-point
+ * theorem. Wrong-sign working multipliers leave the basis; every original row
+ * can block a primal step and supply its exact endpoint owner. Structural zero
+ * equalities compress exactly; other unresolved dependence refuses without row
+ * deletion. QR solves the unchanged PSD objective on the working null space.
+ * Flat descent needs a finite original-row blocker; rank uncertainty preserves
+ * native state. Each attempted working solve shares the same finite budget as
+ * dual sweeps. Gill and Wong (2014), sections 2-3, describe independent working
+ * bases, sign-aware changes and blocking constraints:
+ * https://www.ccom.ucsd.edu/~peg/papers/genqp.pdf No shifted/penalized
+ * feasibility phase, extra native solve or convergence guarantee is supplied
+ * here. A trial is adopted only after original full KKT. Before a flat step, a
+ * separate working-normal dual estimate is paired with its own affine origin
+ * and measured by that same original full-row owner. Nonzero projected scalars
+ * introduce no new stopping epsilon. A failed normal candidate neither replaces
+ * the live flat state nor supplies optimum sign departures; finite objective
+ * and native status remain with the final refiner.
  *
  * @param groups Refiner-owned exact coefficient groups with original endpoint
- * owners and complete original ordinals; inputs have passed its intersection check.
- * @param readMerit Original full-row KKT maximum, owned by the refinement caller.
+ *   owners and complete original ordinals; inputs have passed its intersection
+ *   check.
+ * @param readMerit Original full-row KKT maximum, owned by the refinement
+ *   caller.
  * @param readGradient Original stationarity measurement, owned by that caller.
- * @param readComplementarity Original signed/null/equality predicate, owned by that caller.
- * @param fixedPrimalEligible Original native feasibility and complementarity already pass.
- * @throws {Error} When `options.maximumRefinements` is not a nonnegative safe integer, the budget both correction loops count against.
+ * @param readComplementarity Original signed/null/equality predicate, owned by
+ *   that caller.
+ * @param fixedPrimalEligible Original native feasibility and complementarity
+ *   already pass.
+ * @throws {Error} When `options.maximumRefinements` is not a nonnegative safe
+ *   integer, the budget both correction loops count against.
  */
 export function polishAutoMovieQuadraticProgram(
   input: IAutoMovieSolveQuadraticProgram.IInput,

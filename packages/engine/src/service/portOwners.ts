@@ -5,7 +5,8 @@ import {
 
 /**
  * Map every port id to the node that declares it, first declaration winning.
- * Values alias source nodes; duplicate admission belongs to validateServiceNetwork.
+ * Values alias source nodes; duplicate admission belongs to
+ * validateServiceNetwork.
  */
 export const portOwners: (
   network: IAutoMovieServiceNetwork,

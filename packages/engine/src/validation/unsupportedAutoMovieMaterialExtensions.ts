@@ -3,7 +3,9 @@ import { AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS } from "./constants/AUTO_MOVIE
 import { isAutoMovieMaterialExtension } from "./isAutoMovieMaterialExtension";
 
 /**
- * Select material/texture-category names absent from AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS, deduplicate and sort by code units.
+ * Select material/texture-category names absent from
+ * AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS, deduplicate and sort by code
+ * units.
  */
 export const unsupportedAutoMovieMaterialExtensions: (
   extensions: readonly string[],

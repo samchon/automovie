@@ -5,20 +5,22 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * counter clockwise seen from outside, by quickhull.
  *
  * The hull starts as a tetrahedron of extreme points. Every other point lying
- * more than `tolerance` in front of a triangle is filed with one such
- * triangle. While a triangle holds points, the farthest one joins the hull:
- * the triangles it lies in front of are found by walking neighbours from that
- * triangle, removed, and replaced by a fan from the point to the boundary of
- * the removed region (the horizon); the removed triangles' points are filed
- * again among the new ones. A point within `tolerance` of every plane never
- * joins, so coplanar points come out as several triangles of one plane, or
- * as no vertex at all, and a caller that wants faces groups the points by
- * plane afterwards.
+ * more than `tolerance` in front of a triangle is filed with one such triangle.
+ * While a triangle holds points, the farthest one joins the hull: the triangles
+ * it lies in front of are found by walking neighbours from that triangle,
+ * removed, and replaced by a fan from the point to the boundary of the removed
+ * region (the horizon); the removed triangles' points are filed again among the
+ * new ones. A point within `tolerance` of every plane never joins, so coplanar
+ * points come out as several triangles of one plane, or as no vertex at all,
+ * and a caller that wants faces groups the points by plane afterwards.
  *
  * @param points Shape-local points, metres.
- * @param tolerance The distance within which a point counts as on a plane, metres, finite and not negative.
- * @returns The triangles as consecutive index triples; empty when the points span no volume beyond the tolerance.
- * @throws {Error} When the horizon of a point is not one closed loop, which a convex hull's always is.
+ * @param tolerance The distance within which a point counts as on a plane,
+ *   metres, finite and not negative.
+ * @returns The triangles as consecutive index triples; empty when the points
+ *   span no volume beyond the tolerance.
+ * @throws {Error} When the horizon of a point is not one closed loop, which a
+ *   convex hull's always is.
  */
 export function physicalHullTriangles(
   points: readonly IAutoMovieVector3[],
@@ -173,7 +175,8 @@ export function physicalHullTriangles(
 
   const out: number[] = [];
   for (const face of faces)
-    if (face.alive) out.push(face.corners[0]!, face.corners[1]!, face.corners[2]!);
+    if (face.alive)
+      out.push(face.corners[0]!, face.corners[1]!, face.corners[2]!);
   return out;
 }
 

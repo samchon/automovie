@@ -25,22 +25,22 @@ const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * {@link solveTwoBoneIK}'s `lift`, turning about the bend-plane normal: the
  * caller's `bendNormal` when given, otherwise `axis × world-down` so the mid
  * joint is displaced toward world-down, or `axis × +Z` when the axis is
- * vertical. The root's world change is lowered to bone-local as
- * `restWorld⁻¹ · Δ · restWorld`, and the mid joint aims the fore segment's
- * bone-local direction at the target. An unreachable target extends or folds
- * the chain toward it, so the effector stops on the reachable shell.
+ * vertical. The root's world change is lowered to bone-local as `restWorld⁻¹ ·
+ * Δ · restWorld`, and the mid joint aims the fore segment's bone-local
+ * direction at the target. An unreachable target extends or folds the chain
+ * toward it, so the effector stops on the reachable shell.
  *
  * The mid rotation is a free swing, so it may carry abduction and twist; a
  * caller whose mid joint is a hinge passes the hinge axis as `bendNormal` to
- * keep the solve in its plane. The arm reach uses
- * {@link hingedArmArticulation} instead, which turns the elbow about its hinge
- * by construction. Which bones form the chain and how the deltas become
- * clinical angles stay with the caller.
+ * keep the solve in its plane. The arm reach uses {@link hingedArmArticulation}
+ * instead, which turns the elbow about its hinge by construction. Which bones
+ * form the chain and how the deltas become clinical angles stay with the
+ * caller.
  *
  * Returns `null` for a degenerate chain: a segment shorter than `1e-6`, or a
- * target within `1e-6` of the root.
- * Inputs remain unchanged during one call; explicit preparation additionally
- * keeps source frames fixed across targets and a target fixed across normals.
+ * target within `1e-6` of the root. Inputs remain unchanged during one call;
+ * explicit preparation additionally keeps source frames fixed across targets
+ * and a target fixed across normals.
  */
 export function twoBoneChainArticulation(
   props: IProps,
@@ -51,30 +51,37 @@ export function twoBoneChainArticulation(
   return target === null ? null : evaluate(source, target, props.bendNormal);
 }
 
-/**
- * Exact source and target geometry shared within one unchanged chain fit.
- */
+/** Exact source and target geometry shared within one unchanged chain fit. */
 export namespace twoBoneChainArticulation {
-  /** Fixed source geometry, valid only while its resolved frames and end point remain unchanged. */
+  /**
+   * Fixed source geometry, valid only while its resolved frames and end point
+   * remain unchanged.
+   */
   export interface IPrepared {
-    /** Prepare the actual target triangle, or null at the original root-distance gate; release it after that target's bend search. */
+    /**
+     * Prepare the actual target triangle, or null at the original root-distance
+     * gate; release it after that target's bend search.
+     */
     target(point: IAutoMovieVector3): IPreparedTarget | null;
   }
 
   /** One unchanged target's geometry; no candidate articulation is retained. */
   export interface IPreparedTarget {
-    /** Compute this bend normal's actual upper/lower deltas, with fresh quaternion outputs. */
+    /**
+     * Compute this bend normal's actual upper/lower deltas, with fresh
+     * quaternion outputs.
+     */
     solve(bendNormal?: IAutoMovieVector3): IAutoMovieTwoBoneArticulation;
   }
 
   /**
    * Prepare fixed lengths and rest directions at the first actual geometric
-   * solve. The source frames/end must stay unchanged until caller release.
-   * Each target prepares its own reach axis and law-of-cosines lift; a root
-   * target returns null before scalar triangle admission, as in the direct
-   * entry. Source frame inverses/local fore direction are lazy at their
-   * original first-use sites and shared only after successful computation.
-   * All candidate orientations and clinical decomposition remain actual.
+   * solve. The source frames/end must stay unchanged until caller release. Each
+   * target prepares its own reach axis and law-of-cosines lift; a root target
+   * returns null before scalar triangle admission, as in the direct entry.
+   * Source frame inverses/local fore direction are lazy at their original
+   * first-use sites and shared only after successful computation. All candidate
+   * orientations and clinical decomposition remain actual.
    *
    * Preparation and each new target take constant arithmetic and fixed-size
    * records. A target's repeated solves omit only identical completed geometry;
@@ -104,12 +111,21 @@ export namespace twoBoneChainArticulation {
   }
 }
 
-/** Direct source/target inputs in resolved world coordinates (the interface contract). */
+/**
+ * Direct source/target inputs in resolved world coordinates (the interface
+ * contract).
+ */
 type IProps = IAutoMovieTwoBoneChainArticulation.IProps;
 
-/** One fixed source, with inverses first completed at their original evaluation sites. */
+/**
+ * One fixed source, with inverses first completed at their original evaluation
+ * sites.
+ */
 interface ISource {
-  /** Original frame owner, retaining each late world-rotation read at its original site. */
+  /**
+   * Original frame owner, retaining each late world-rotation read at its
+   * original site.
+   */
   frames: Pick<IProps, "upper" | "lower" | "end">;
 
   /** Source root point in world metres. */
@@ -145,7 +161,10 @@ interface ISource {
 
 /** One fixed target's triangle data, before selecting any bend normal. */
 interface ITarget {
-  /** Original point owner, retaining the second target read at the candidate's fore-direction stage. */
+  /**
+   * Original point owner, retaining the second target read at the candidate's
+   * fore-direction stage.
+   */
   goal: Pick<IProps, "target">;
 
   /** Original normalized source-root-to-target direction. */
@@ -155,7 +174,10 @@ interface ITarget {
   lift: number;
 }
 
-/** Keep length degeneracy before rest directions or any target read, as in the direct solve. */
+/**
+ * Keep length degeneracy before rest directions or any target read, as in the
+ * direct solve.
+ */
 function readSource(
   props: Pick<IProps, "upper" | "lower" | "end">,
 ): ISource | null {
@@ -181,7 +203,10 @@ function readSource(
   };
 }
 
-/** Keep root-distance degeneracy before the scalar solver's length/distance validation. */
+/**
+ * Keep root-distance degeneracy before the scalar solver's length/distance
+ * validation.
+ */
 function readTarget(
   source: ISource,
   goal: Pick<IProps, "target">,
@@ -195,7 +220,10 @@ function readTarget(
   return { goal, axis, lift };
 }
 
-/** Compute one actual candidate using the same original expression grouping and admission order. */
+/**
+ * Compute one actual candidate using the same original expression grouping and
+ * admission order.
+ */
 function evaluate(
   source: ISource,
   target: ITarget,

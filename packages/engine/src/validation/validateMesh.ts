@@ -13,7 +13,9 @@ import { AUTOMOVIE_ARKIT_CHANNELS } from "./constants/AUTOMOVIE_ARKIT_CHANNELS";
 import { AUTOMOVIE_EXPRESSION_PRESETS } from "./constants/AUTOMOVIE_EXPRESSION_PRESETS";
 
 /**
- * Admit tuple/cardinality buffers, dense finite numeric elements, vertex references, skin bindings, morph targets and their drivers, and shared welded topology.
+ * Admit tuple/cardinality buffers, dense finite numeric elements, vertex
+ * references, skin bindings, morph targets and their drivers, and shared welded
+ * topology.
  */
 export const validateMesh: (
   mesh: IAutoMovieMesh,
@@ -21,7 +23,10 @@ export const validateMesh: (
   boneNames: ReadonlySet<string>,
   collector: IAutoMovieViolationCollector,
 ) => void = (
-  /** Typed array/null and skin-record structure; this owner admits entries and cardinality without a total unknown-object schema gate. */
+  /**
+   * Typed array/null and skin-record structure; this owner admits entries and
+   * cardinality without a total unknown-object schema gate.
+   */
   mesh: IAutoMovieMesh,
   path: string,
   boneNames: ReadonlySet<string>,
@@ -145,19 +150,23 @@ export const validateMesh: (
 };
 
 /**
- * Require length divisible by tuple arity and inspect every indexed scalar for finiteness.
+ * Require length divisible by tuple arity and inspect every indexed scalar for
+ * finiteness.
  *
  * One owner serves position/normal/UV/color/index tuple layout checks.
  *
- * Sparse holes are inspected as undefined and diagnosed rather than skipped by forEach.
+ * Sparse holes are inspected as undefined and diagnosed rather than skipped by
+ * forEach.
  *
- * Arity faults use the buffer path; finite faults use the precise element index.
+ * Arity faults use the buffer path; finite faults use the precise element
+ * index.
  *
  * B scalars take O(B) work with constant loop storage.
  *
  * All mesh tuple attributes reuse the same finite/layout predicate.
  *
- * Only collector rows remain; numeric buffers stay borrowed and no copy is retained.
+ * Only collector rows remain; numeric buffers stay borrowed and no copy is
+ * retained.
  */
 const validateTupleBuffer: (
   buffer: number[],
@@ -228,19 +237,26 @@ const validateBufferLength: (
 };
 
 /**
- * Require a known blend method, four references/weights per vertex, declared unique joints, dense bounded weights/references and finite weight sums within1e-6 of one.
+ * Require a known blend method, four references/weights per vertex, declared
+ * unique joints, dense bounded weights/references and finite weight sums
+ * within1e-6 of one.
  *
- * Shared length/range owners supply scalar diagnostics while this helper owns skin packing.
+ * Shared length/range owners supply scalar diagnostics while this helper owns
+ * skin packing.
  *
- * Zero-valued influences still require valid joint references; sparse holes are diagnosed and excluded from sum evaluation.
+ * Zero-valued influences still require valid joint references; sparse holes are
+ * diagnosed and excluded from sum evaluation.
  *
  * Four-influence layout and exact joint/reference/weight paths are stated.
  *
- * J joints and I influences are scanned linearly; each vertex checks four values with bounded temporary slices.
+ * J joints and I influences are scanned linearly; each vertex checks four
+ * values with bounded temporary slices.
  *
- * One joint seen set shares duplicate lookup for this skin; current buffers are not cached.
+ * One joint seen set shares duplicate lookup for this skin; current buffers are
+ * not cached.
  *
- * Seen/slice storage releases and the collector owns faults; no skeletal renderer or buffer handle remains.
+ * Seen/slice storage releases and the collector owns faults; no skeletal
+ * renderer or buffer handle remains.
  */
 const validateMeshSkin: (
   skin: IAutoMovieMeshSkin,
@@ -350,7 +366,8 @@ const validateMeshSkin: (
  * and a name no expression writes.
  *
  * Expressions write preset and ARKit names after the pose, matching ignoring
- * case, so a driven target under such a name would lose its weight every frame.
+ * case, so a driven target under such a name would lose its weight every
+ * frame.
  *
  * T targets over V vertices cost O(T V) with one name set and one folded
  * expression-name set per call.

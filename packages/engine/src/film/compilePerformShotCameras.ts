@@ -21,9 +21,23 @@ import { createPerformShotSubjectFramer } from "./createPerformShotSubjectFramer
 import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
 
 /**
- * Compile the camera fields of a performed shot: the live camera's move, its per-span intent, one alternate take per coverage job, and the clearance reports.
+ * Compile the camera fields of a performed shot: the live camera's move, its
+ * per-span intent, one alternate take per coverage job, and the clearance
+ * reports.
  *
- * The live camera's `frame` moves, already sorted by start, compile through {@link compileCameraMove} into the clip `cam:<scope>`; with no move the camera is locked off and the clip is null. Each move's intent carries its framing, move, focal length and focus, ordinary focus resolved to the opening point the input gate accepted. An authored focus pull resolves two lens marks after actor and object motion are compiled. A downstream host reads the intent independently of the camera path. Each coverage job plays its one framing across the whole beat from its own staged camera, as the clip `cam:<scope>:<camera>`, so a host can cut to the angle at any instant, with no focus or focal length invented for it. Every subject is measured by one {@link createPerformShotSubjectFramer}, so hero and coverage frame the same subject. {@link compileCameraClearanceReports} then reports any take whose physical envelope is obstructed into the context's collector.
+ * The live camera's `frame` moves, already sorted by start, compile through
+ * {@link compileCameraMove} into the clip `cam:<scope>`; with no move the camera
+ * is locked off and the clip is null. Each move's intent carries its framing,
+ * move, focal length and focus, ordinary focus resolved to the opening point
+ * the input gate accepted. An authored focus pull resolves two lens marks after
+ * actor and object motion are compiled. A downstream host reads the intent
+ * independently of the camera path. Each coverage job plays its one framing
+ * across the whole beat from its own staged camera, as the clip
+ * `cam:<scope>:<camera>`, so a host can cut to the angle at any instant, with
+ * no focus or focal length invented for it. Every subject is measured by one
+ * {@link createPerformShotSubjectFramer}, so hero and coverage frame the same
+ * subject. {@link compileCameraClearanceReports} then reports any take whose
+ * physical envelope is obstructed into the context's collector.
  *
  * @param context The shot's staged tables and collector.
  * @param props.liveCamera The live camera id the camera gate settled.

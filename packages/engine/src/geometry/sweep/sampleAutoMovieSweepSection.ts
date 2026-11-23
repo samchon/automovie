@@ -10,32 +10,38 @@ import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepS
 const DENSITY: number = 64;
 /** Fewest curve samples whatever the segment count. */
 const MINIMUM_SAMPLES: number = 1024;
-/** Bisection steps that place a radius on the curve, each halving the parameter interval. */
+/**
+ * Bisection steps that place a radius on the curve, each halving the parameter
+ * interval.
+ */
 const BISECTIONS: number = 40;
 /**
  * Sample a section's radius from its origin at evenly spaced polar angles.
  *
  * Radius `k` lies along angle `2 pi k / count`, measured counterclockwise from
  * the section plane's `+x` axis. A radial section is read through its periodic
- * spline, `interpolateAutoMovieSpline`. A superellipse centred on its origin is read in
- * closed form: in the quadrant holding the angle, with that quadrant's
- * half-axes `a` along `x` and `b` along `y` and exponent `n`, the curve is
- * `|x / a|^n + |y / b|^n = 1`, so the radius is
- * `(|cos a / a|^n + |sin a / b|^n)^(-1/n)`, and it is star-shaped and
- * counterclockwise by construction. Any other curve is first walked at 64 points per
- * segment (at least 1,024) to bracket each angle between two curve parameters,
- * then the parameter is bisected forty times against the curve's own polar
- * angle, so the radius lies on the exact curve rather than on a chord.
+ * spline, `interpolateAutoMovieSpline`. A superellipse centred on its origin is
+ * read in closed form: in the quadrant holding the angle, with that quadrant's
+ * half-axes `a` along `x` and `b` along `y` and exponent `n`, the curve is `|x
+ * / a|^n + |y / b|^n = 1`, so the radius is `(|cos a / a|^n + |sin a /
+ * b|^n)^(-1/n)`, and it is star-shaped and counterclockwise by construction.
+ * Any other curve is first walked at 64 points per segment (at least 1,024) to
+ * bracket each angle between two curve parameters, then the parameter is
+ * bisected forty times against the curve's own polar angle, so the radius lies
+ * on the exact curve rather than on a chord.
  *
- * The walk checks the sampled curve for star-shapedness about its origin and winding
- * counterclockwise: the polar angle must strictly increase between successive
- * points and turn once in total, or the curve is refused, because the sampled walk would not pair its points by direction.
- * This finite walk does not certify monotone polar angle between probes.
+ * The walk checks the sampled curve for star-shapedness about its origin and
+ * winding counterclockwise: the polar angle must strictly increase between
+ * successive points and turn once in total, or the curve is refused, because
+ * the sampled walk would not pair its points by direction. This finite walk
+ * does not certify monotone polar angle between probes.
  *
  * @param props.section The section, only read.
  * @param props.count Number of angles, an integer of at least 3.
  * @returns Radii in metres, one per angle, all positive.
- * @throws Error when the count is not an integer of at least 3, the section's numbers are not finite or out of range, or the curve passes through its origin, winds clockwise or is not star-shaped about it.
+ * @throws Error when the count is not an integer of at least 3, the section's
+ *   numbers are not finite or out of range, or the curve passes through its
+ *   origin, winds clockwise or is not star-shaped about it.
  */
 export const sampleAutoMovieSweepSection: (
   props: IAutoMovieSampleSweepSection.IProps,

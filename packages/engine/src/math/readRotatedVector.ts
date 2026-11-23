@@ -1,12 +1,15 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
- * Read the original quaternion-vector rotation's completed X/Y/Z values.
- * A unit quaternion rotates v in its frame; nonunit inputs keep the direct
- * operation's distortion and nonfinite arithmetic, with no normalization or
- * new admission. All original q/v property reads and expressions complete in
- * order before the synchronous visitor receives its context. The visitor owns
- * its result, and errors propagate without retaining inputs or pending state.
+ * Read the original quaternion-vector rotation's completed X/Y/Z values. A unit
+ * quaternion rotates v in its frame; nonunit inputs keep the direct operation's
+ * distortion and nonfinite arithmetic, with no normalization or new admission.
+ * All original q/v property reads and expressions complete in order before the
+ * synchronous visitor receives its context. The visitor owns its result, and
+ * errors propagate without retaining inputs or pending state.
  */
 export function readRotatedVector<Result, Context>(
   q: IAutoMovieQuaternion,

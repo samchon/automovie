@@ -18,7 +18,9 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
 
 /**
- * Keep an endpoint's existing XYZ promise and its explicitly declared real support plane in the same solve. Geometry, witnesses and original goals are borrowed only for this invocation.
+ * Keep an endpoint's existing XYZ promise and its explicitly declared real
+ * support plane in the same solve. Geometry, witnesses and original goals are
+ * borrowed only for this invocation.
  */
 export function physicalContactSupportRows(
   input: IAutoMoviePhysicalContactSupportRows.IInput,

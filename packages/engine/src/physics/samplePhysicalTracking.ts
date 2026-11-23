@@ -8,11 +8,13 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
-/** Dense authored-relative joint errors at any cached film second, without retaining film-sized diagnostics.
- * Error is the shortest relative-rotation distance in radians. Recovery retargets
- * can intentionally depart from the original authored hint. Saturation entries
- * remain the most recent completed step's pre-solve demand forecasts, never a
- * claim to a native motor impulse that the pinned SDK does not expose.
+/**
+ * Dense authored-relative joint errors at any cached film second, without
+ * retaining film-sized diagnostics. Error is the shortest relative-rotation
+ * distance in radians. Recovery retargets can intentionally depart from the
+ * original authored hint. Saturation entries remain the most recent completed
+ * step's pre-solve demand forecasts, never a claim to a native motor impulse
+ * that the pinned SDK does not expose.
  */
 export function samplePhysicalTracking(
   input: IAutoMoviePhysicalSimulationInput.IInput,

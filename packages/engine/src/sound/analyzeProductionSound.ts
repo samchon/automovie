@@ -7,7 +7,9 @@ import type {
 
 import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
 
-/** Analyze the exact limited stereo master and measure mixed peaks near expected event times.
+/**
+ * Analyze the exact limited stereo master and measure mixed peaks near expected
+ * event times.
  */
 export function analyzeProductionSound(
   plan: IAutoMovieProductionSoundPlan,
@@ -86,7 +88,11 @@ export function analyzeProductionSound(
   };
 }
 
-/** Apply the fixed 48kHz two-stage weighting coefficients, average 400ms blocks at 100ms hops and gate at -70 and relative -10 levels; silent/gated-out input returns null, without external conformance certification. */
+/**
+ * Apply the fixed 48kHz two-stage weighting coefficients, average 400ms blocks
+ * at 100ms hops and gate at -70 and relative -10 levels; silent/gated-out input
+ * returns null, without external conformance certification.
+ */
 const integratedLoudness: (
   pcm: Float32Array<ArrayBufferLike>,
   sampleRate: number,
@@ -149,7 +155,11 @@ const integratedLoudness: (
   );
 };
 
-/** Filter one channel with the supplied second-order numerator/denominator in its original recurrence order, returning a fresh Float64 mono generation and local two-sample histories. */
+/**
+ * Filter one channel with the supplied second-order numerator/denominator in
+ * its original recurrence order, returning a fresh Float64 mono generation and
+ * local two-sample histories.
+ */
 const biquadChannel: (
   interleaved: ArrayLike<number>,
   channel: number,
@@ -186,7 +196,10 @@ const biquadChannel: (
   return output;
 };
 
-/** Map nonpositive mean-square energy to negative infinity, otherwise use the fixed -0.691 + 10log10(energy) loudness law consumed by the gate. */
+/**
+ * Map nonpositive mean-square energy to negative infinity, otherwise use the
+ * fixed -0.691 + 10log10(energy) loudness law consumed by the gate.
+ */
 const loudnessOfEnergy: (energy: number) => number = (
   energy: number,
 ): number => (energy <= 0 ? -Infinity : -0.691 + 10 * Math.log10(energy));

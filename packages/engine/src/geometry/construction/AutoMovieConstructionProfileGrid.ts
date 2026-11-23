@@ -10,21 +10,28 @@ import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 /** World millimetres, copied before a cached source reading is retained. */
 type Point = [number, number, number];
 
-/** Maximum requested rectangular cells per original loop; exceeding it refuses instead of coarsening. */
+/**
+ * Maximum requested rectangular cells per original loop; exceeding it refuses
+ * instead of coarsening.
+ */
 const CELLS: number = 1_000_000;
 
-/** Maximum dyadic refinement levels; an unresolved criterion remains a named refusal. */
+/**
+ * Maximum dyadic refinement levels; an unresolved criterion remains a named
+ * refusal.
+ */
 const DEPTH: number = 16;
 
 /**
- * Source-owned piece grids for the existing mesh consumer, without a fitted curve.
+ * Source-owned piece grids for the existing mesh consumer, without a fitted
+ * curve.
  *
- * Every original guide is a phase mark. A cell reads its original corners,
- * edge midpoints and centre. It refines station/phase directions whose linear
- * chord observations exceed the requested millimetre tolerance; a remaining
- * diagonal-centre discrepancy refines both directions. This finite criterion
- * is not a certified continuous maximum. Work/depth/representability limits
- * refuse the request instead of silently returning an unresolved coarse grid.
+ * Every original guide is a phase mark. A cell reads its original corners, edge
+ * midpoints and centre. It refines station/phase directions whose linear chord
+ * observations exceed the requested millimetre tolerance; a remaining
+ * diagonal-centre discrepancy refines both directions. This finite criterion is
+ * not a certified continuous maximum. Work/depth/representability limits refuse
+ * the request instead of silently returning an unresolved coarse grid.
  *
  * Pure original functions and all their dependencies stay immutable through
  * preparation. A loop's station-major cache reuses exactly equal queries and
@@ -32,7 +39,8 @@ const DEPTH: number = 16;
  */
 export namespace AutoMovieConstructionProfileGrid {
   /**
-   * Derive grids from original Point0; malformed or unresolved requests produce no partial output.
+   * Derive grids from original Point0; malformed or unresolved requests produce
+   * no partial output.
    */
   export function create(
     prepared: IAutoMoviePreparedConstructionProfile.IPrepared,
@@ -253,7 +261,10 @@ function middle(a: number, b: number): number {
   return value;
 }
 
-/** Ordered endpoint and midpoint query marks, without changing any original source support. */
+/**
+ * Ordered endpoint and midpoint query marks, without changing any original
+ * source support.
+ */
 function interleave(values: readonly number[]): number[] {
   const result: number[] = [values[0]!];
   for (let i: number = 1; i < values.length; i++)
@@ -271,7 +282,10 @@ function deviation(point: Point, a: Point, b: Point): number {
   return value;
 }
 
-/** Binary64 evaluation budget for a queried source boundary; never a source fit or global certificate. */
+/**
+ * Binary64 evaluation budget for a queried source boundary; never a source fit
+ * or global certificate.
+ */
 function same(a: Point, b: Point, message: string): void {
   if (
     a.some(
@@ -283,7 +297,10 @@ function same(a: Point, b: Point, message: string): void {
     fail(message);
 }
 
-/** Explicit source/numeric admission leaves original callback failures untouched. */
+/**
+ * Explicit source/numeric admission leaves original callback failures
+ * untouched.
+ */
 function fail(message: string): never {
   throw new AutoMovieLoftAdmissionError(message);
 }

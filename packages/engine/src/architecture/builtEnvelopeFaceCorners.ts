@@ -11,11 +11,18 @@ import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION
 /**
  * Proximity-based corner records among already placed envelope facades.
  *
- * Only non-parallel `facade` pairs of one building qualify. Vertex proximity within the thicker separation plus numeric slack supplies an allowance rather than proof of a shared edge. The position averages approximately nearest vertex-pair midpoints; it equals a shared edge midpoint only when those pairs describe its ends. Boundary ids fix pair order. The first probe-oriented normal's sign toward the second centroid determines exterior/reentrant; negligible direction or dot product skips an unreadable pair. Results sort by id.
+ * Only non-parallel `facade` pairs of one building qualify. Vertex proximity
+ * within the thicker separation plus numeric slack supplies an allowance rather
+ * than proof of a shared edge. The position averages approximately nearest
+ * vertex-pair midpoints; it equals a shared edge midpoint only when those pairs
+ * describe its ends. Boundary ids fix pair order. The first probe-oriented
+ * normal's sign toward the second centroid determines exterior/reentrant;
+ * negligible direction or dot product skips an unreadable pair. Results sort by
+ * id.
  *
  * {@link builtEnvironmentEnvelopeCorners} answers for a whole environment, and
- * the building census passes the faces it already placed so they are not
- * placed twice.
+ * the building census passes the faces it already placed so they are not placed
+ * twice.
  */
 export const builtEnvelopeFaceCorners: (
   faces: readonly IAutoMovieBuiltEnvelopeFace[],

@@ -24,7 +24,9 @@ interface IProps {
 }
 
 /** Original joint-only or explicitly requested paired projection output. */
-type IEvaluation = IAutoMovieJointPose | prepareJointRotationProjection.IProjection;
+type IEvaluation =
+  | IAutoMovieJointPose
+  | prepareJointRotationProjection.IProjection;
 
 /** Scores and raw components of each ordered candidate; links use -1 as absent. */
 const enum ScoreField {
@@ -48,7 +50,6 @@ const enum ScoreField {
   STRIDE = 8,
 }
 
-
 /**
  * Rank the analytic box projector's actual admitted candidates under its
  * original normalized-dot, summation-error and nearest-reference tie policy.
@@ -58,13 +59,17 @@ const enum ScoreField {
  *
  * Empty scratch capacity belongs to the fixed projector. A synchronous query
  * leases it exclusively; reentrant clamp queries use separate temporary
- * containers. finally clears every joint and map reference on success or
- * throw. Selected joints and requested raw quaternion copies remain independent.
+ * containers. finally clears every joint and map reference on success or throw.
+ * Selected joints and requested raw quaternion copies remain independent.
  *
- * @param props Fixed mobile axes, exact composer/converter and original equality under one unchanged rig.
- * @returns A query scorer accepting current target/reference/pairs/clamp and the original paired-output demand.
+ * @param props Fixed mobile axes, exact composer/converter and original
+ *   equality under one unchanged rig.
+ * @returns A query scorer accepting current target/reference/pairs/clamp and
+ *   the original paired-output demand.
  */
-export function prepareJointProjectionScores(props: IProps): (
+export function prepareJointProjectionScores(
+  props: IProps,
+): (
   local: IAutoMovieQuaternion,
   reference: IAutoMovieJointPose,
   pairs: readonly number[],
@@ -77,116 +82,166 @@ export function prepareJointProjectionScores(props: IProps): (
   const unitRoundoff: number = Number.EPSILON / 2;
   const gamma: number = (4 * unitRoundoff) / (1 - 4 * unitRoundoff);
   const queryStorage: ReturnType<typeof createStorage> = createStorage();
-  return (local: IAutoMovieQuaternion, reference: IAutoMovieJointPose,
-    pairs: readonly number[], clamp: ReturnType<typeof prepareJointProjectionClamp>,
-    requested: boolean): IEvaluation => {
+  return (
+    local: IAutoMovieQuaternion,
+    reference: IAutoMovieJointPose,
+    pairs: readonly number[],
+    clamp: ReturnType<typeof prepareJointProjectionClamp>,
+    requested: boolean,
+  ): IEvaluation => {
     // Four rounded products followed by three additions give gamma(4):
     // Higham, Accuracy and Stability of Numerical Algorithms, section 3.1;
     // https://epubs.siam.org/doi/10.1137/18M1226312 recalls gamma(n).
     // Four least-subnormal units cover gradual-underflow product errors.
-    const compose: ReturnType<IProps["composition"]> =
-      props.composition();
+    const compose: ReturnType<IProps["composition"]> = props.composition();
     const storage: IWorkspace = queryStorage.acquire();
     try {
-    const { joints, scores, buckets }: IWorkspace = storage;
-    /** One normalized-score visitor per query, never one per candidate. */
-    const normalizedScore: (
-      x: number, y: number, z: number, w: number,
-      joint: IAutoMovieJointPose,
-    ) => number = (
-      normalizedX: number, normalizedY: number, normalizedZ: number, normalizedW: number,
-      joint: IAutoMovieJointPose,
-    ): number => {
-      const x: number = local.x * normalizedX;
-      const y: number = local.y * normalizedY;
-      const z: number = local.z * normalizedZ;
-      const w: number = local.w * normalizedW;
-      let value: number = 0;
-      value += x;
-      value += y;
-      value += z;
-      value += w;
-      let magnitude: number = 0;
-      magnitude += Math.abs(x);
-      magnitude += Math.abs(y);
-      magnitude += Math.abs(z);
-      magnitude += Math.abs(w);
-      const index: number = joints.length;
-      joints.push(joint);
-      scores.push(Math.abs(value), (gamma * magnitude) / (1 - gamma) + 4 * Number.MIN_VALUE, 0, -1);
-      return index;
-    };
-    const scoreScalars: (x: number, y: number, z: number, w: number,
-      joint: IAutoMovieJointPose) => number = (
-      x: number, y: number, z: number, w: number, joint: IAutoMovieJointPose,
-    ): number => {
-      const index: number = readNormalizedQuaternion.fromScalars(x, y, z, w, normalizedScore, joint);
-      scores.push(x, y, z, w);
-      return index;
-    };
-    const score: (joint: IAutoMovieJointPose) => number = (
-      joint: IAutoMovieJointPose,
-    ): number => compose(joint, scoreScalars, joint);
-    score(reference);
-    buckets.set(reference[first], 0);
-    let maximum: number = 0;
-    for (let pair: number = 0; pair < pairs.length; pair += 2) {
-      const admitted: IAutoMovieJointPose = clamp.candidate(first, second, pairs[pair]!, pairs[pair + 1]!, clinical);
+      const { joints, scores, buckets }: IWorkspace = storage;
+      /** One normalized-score visitor per query, never one per candidate. */
+      const normalizedScore: (
+        x: number,
+        y: number,
+        z: number,
+        w: number,
+        joint: IAutoMovieJointPose,
+      ) => number = (
+        normalizedX: number,
+        normalizedY: number,
+        normalizedZ: number,
+        normalizedW: number,
+        joint: IAutoMovieJointPose,
+      ): number => {
+        const x: number = local.x * normalizedX;
+        const y: number = local.y * normalizedY;
+        const z: number = local.z * normalizedZ;
+        const w: number = local.w * normalizedW;
+        let value: number = 0;
+        value += x;
+        value += y;
+        value += z;
+        value += w;
+        let magnitude: number = 0;
+        magnitude += Math.abs(x);
+        magnitude += Math.abs(y);
+        magnitude += Math.abs(z);
+        magnitude += Math.abs(w);
+        const index: number = joints.length;
+        joints.push(joint);
+        scores.push(
+          Math.abs(value),
+          (gamma * magnitude) / (1 - gamma) + 4 * Number.MIN_VALUE,
+          0,
+          -1,
+        );
+        return index;
+      };
+      const scoreScalars: (
+        x: number,
+        y: number,
+        z: number,
+        w: number,
+        joint: IAutoMovieJointPose,
+      ) => number = (
+        x: number,
+        y: number,
+        z: number,
+        w: number,
+        joint: IAutoMovieJointPose,
+      ): number => {
+        const index: number = readNormalizedQuaternion.fromScalars(
+          x,
+          y,
+          z,
+          w,
+          normalizedScore,
+          joint,
+        );
+        scores.push(x, y, z, w);
+        return index;
+      };
+      const score: (joint: IAutoMovieJointPose) => number = (
+        joint: IAutoMovieJointPose,
+      ): number => compose(joint, scoreScalars, joint);
+      score(reference);
+      buckets.set(reference[first], 0);
+      let maximum: number = 0;
+      for (let pair: number = 0; pair < pairs.length; pair += 2) {
+        const admitted: IAutoMovieJointPose = clamp.candidate(
+          first,
+          second,
+          pairs[pair]!,
+          pairs[pair + 1]!,
+          clinical,
+        );
 
-      // The same admitted coordinates under this query's unchanged target,
-      // basis and frame compose the same quaternion, including null/-0.
-      // Numeric membership only narrows the scan; sameJoint below still
-      // distinguishes signed zeros, every other coordinate and bone.
-      const coordinate: number | null = admitted[first];
-      const head: number | undefined = buckets.get(coordinate);
-      let index: number = head ?? -1;
-      let known: number | undefined;
-      while (index >= 0) {
-        if (sameJoint(joints[index]!, admitted)) {
-          known = index;
-          break;
+        // The same admitted coordinates under this query's unchanged target,
+        // basis and frame compose the same quaternion, including null/-0.
+        // Numeric membership only narrows the scan; sameJoint below still
+        // distinguishes signed zeros, every other coordinate and bone.
+        const coordinate: number | null = admitted[first];
+        const head: number | undefined = buckets.get(coordinate);
+        let index: number = head ?? -1;
+        let known: number | undefined;
+        while (index >= 0) {
+          if (sameJoint(joints[index]!, admitted)) {
+            known = index;
+            break;
+          }
+          index = scores[index * ScoreField.STRIDE + ScoreField.PREVIOUS]!;
         }
-        index = scores[index * ScoreField.STRIDE + ScoreField.PREVIOUS]!;
+        if (known !== undefined) continue;
+        const next: number = score(admitted);
+        const offset: number = next * ScoreField.STRIDE;
+        for (const axis of mobile) {
+          const value: number | null = admitted[axis];
+          const coordinate: number = value === null ? clinical(axis, 0) : value;
+          const origin: number | null = reference[axis];
+          scores[offset + ScoreField.DISTANCE]! +=
+            (coordinate - (origin === null ? clinical(axis, 0) : origin)) ** 2;
+        }
+        scores[offset + ScoreField.PREVIOUS] = head ?? -1;
+        buckets.set(coordinate, next);
+        if (
+          scores[offset + ScoreField.VALUE]! >
+          scores[maximum * ScoreField.STRIDE + ScoreField.VALUE]!
+        )
+          maximum = next;
       }
-      if (known !== undefined) continue;
-      const next: number = score(admitted);
-      const offset: number = next * ScoreField.STRIDE;
-      for (const axis of mobile) {
-        const value: number | null = admitted[axis];
-        const coordinate: number = value === null ? clinical(axis, 0) : value;
-        const origin: number | null = reference[axis];
-        scores[offset + ScoreField.DISTANCE]! +=
-          (coordinate - (origin === null ? clinical(axis, 0) : origin)) ** 2;
+      let best: number = 0;
+      let bestDistance: number = Infinity;
+      const maximumOffset: number = maximum * ScoreField.STRIDE;
+      const maximumLow: number =
+        scores[maximumOffset + ScoreField.VALUE]! -
+        scores[maximumOffset + ScoreField.ERROR]!;
+      const maximumHigh: number =
+        scores[maximumOffset + ScoreField.VALUE]! +
+        scores[maximumOffset + ScoreField.ERROR]!;
+      for (let candidate: number = 0; candidate < joints.length; candidate++) {
+        const offset: number = candidate * ScoreField.STRIDE;
+        if (
+          scores[offset + ScoreField.VALUE]! +
+            scores[offset + ScoreField.ERROR]! >=
+            maximumLow &&
+          maximumHigh >=
+            scores[offset + ScoreField.VALUE]! -
+              scores[offset + ScoreField.ERROR]! &&
+          scores[offset + ScoreField.DISTANCE]! < bestDistance
+        ) {
+          best = candidate;
+          bestDistance = scores[offset + ScoreField.DISTANCE]!;
+        }
       }
-      scores[offset + ScoreField.PREVIOUS] = head ?? -1;
-      buckets.set(coordinate, next);
-      if (scores[offset + ScoreField.VALUE]! > scores[maximum * ScoreField.STRIDE + ScoreField.VALUE]!)
-        maximum = next;
-    }
-    let best: number = 0;
-    let bestDistance: number = Infinity;
-    const maximumOffset: number = maximum * ScoreField.STRIDE;
-    const maximumLow: number = scores[maximumOffset + ScoreField.VALUE]! - scores[maximumOffset + ScoreField.ERROR]!;
-    const maximumHigh: number = scores[maximumOffset + ScoreField.VALUE]! + scores[maximumOffset + ScoreField.ERROR]!;
-    for (let candidate: number = 0; candidate < joints.length; candidate++) {
-      const offset: number = candidate * ScoreField.STRIDE;
-      if (
-        scores[offset + ScoreField.VALUE]! + scores[offset + ScoreField.ERROR]! >=
-          maximumLow &&
-        maximumHigh >=
-          scores[offset + ScoreField.VALUE]! - scores[offset + ScoreField.ERROR]! &&
-        scores[offset + ScoreField.DISTANCE]! < bestDistance
-      ) {
-        best = candidate;
-        bestDistance = scores[offset + ScoreField.DISTANCE]!;
-      }
-    }
-    if (!requested) return joints[best]!;
-    const offset: number = best * ScoreField.STRIDE;
-    return { joint: joints[best]!, quaternion: {
-      x: scores[offset + ScoreField.RAW_X]!, y: scores[offset + ScoreField.RAW_Y]!,
-      z: scores[offset + ScoreField.RAW_Z]!, w: scores[offset + ScoreField.RAW_W]!,
-    } };
+      if (!requested) return joints[best]!;
+      const offset: number = best * ScoreField.STRIDE;
+      return {
+        joint: joints[best]!,
+        quaternion: {
+          x: scores[offset + ScoreField.RAW_X]!,
+          y: scores[offset + ScoreField.RAW_Y]!,
+          z: scores[offset + ScoreField.RAW_Z]!,
+          w: scores[offset + ScoreField.RAW_W]!,
+        },
+      };
     } finally {
       queryStorage.release(storage);
     }

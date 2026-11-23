@@ -11,8 +11,8 @@ import { materializeCompiledInstanceSet } from "./materializeCompiledInstanceSet
  * Compile every instance set a world declares into its compact runtime record.
  *
  * Records are keyed by set id and inserted in code-unit order of that id, so
- * the inventory is the same whatever order the world lists its sets in. A
- * world that declares no instance sets compiles to an empty inventory.
+ * the inventory is the same whatever order the world lists its sets in. A world
+ * that declares no instance sets compiles to an empty inventory.
  */
 export const materializeCompiledInstanceSetInventory: (
   props: IAutoMovieMaterializeCompiledInstanceSetInventory.IProps,

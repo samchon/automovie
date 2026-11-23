@@ -11,7 +11,8 @@ import { withArticle } from "../text/withArticle";
 import { pushViolation } from "./pushViolation";
 
 /**
- * Create a gate for canonical light pointers and shared property value types, optionally checking staged light presence and kind.
+ * Create a gate for canonical light pointers and shared property value types,
+ * optionally checking staged light presence and kind.
  */
 export const lightClipChannelGate: (
   stagedLights: ReadonlyMap<string, unknown> | null,

@@ -20,7 +20,8 @@ import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 import { validateSoftVector as vector } from "./validateSoftVector";
 
 /**
- * Validate a typed planting recipe's scalar law, child identities, pruning and emission budgets.
+ * Validate a typed planting recipe's scalar law, child identities, pruning and
+ * emission budgets.
  */
 export const validatePlantingDomain: (
   props: IAutoMovieValidatePlantingDomain.IProps,

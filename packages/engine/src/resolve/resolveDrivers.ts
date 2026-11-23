@@ -26,7 +26,10 @@ const DEFERRED_DRIVER_TYPES: Set<unknown> = new Set<unknown>([
 ]);
 
 /**
- * Evaluate copy and driven channels in stable dependency order, mutating samples before constraints. Return world/stateful descriptors in original order. Unknown kinds and reciprocal dependencies throw; a null/absent curve selects linear range mapping.
+ * Evaluate copy and driven channels in stable dependency order, mutating
+ * samples before constraints. Return world/stateful descriptors in original
+ * order. Unknown kinds and reciprocal dependencies throw; a null/absent curve
+ * selects linear range mapping.
  */
 export const resolveDrivers: (
   drivers: IAutoMovieDriver[],

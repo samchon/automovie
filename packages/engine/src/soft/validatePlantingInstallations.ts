@@ -26,7 +26,10 @@ import { growPlanting } from "./growPlanting";
 import { validatePlantingCluster } from "./validatePlantingCluster";
 import { validatePlantingDomain } from "./validatePlantingDomain";
 
-/** Fixed schema kinds reused by installation admission; module-owned set is never mutated by a pass. */
+/**
+ * Fixed schema kinds reused by installation admission; module-owned set is
+ * never mutated by a pass.
+ */
 const INSTALLATION_KINDS: Set<string> = new Set([
   "potted",
   "planter",
@@ -35,7 +38,10 @@ const INSTALLATION_KINDS: Set<string> = new Set([
   "other",
 ]);
 
-/** Fixed declared irrigation media; this membership check does not establish a connected water service. */
+/**
+ * Fixed declared irrigation media; this membership check does not establish a
+ * connected water service.
+ */
 const IRRIGATION_MEDIA: Set<string> = new Set([
   "potable",
   "reclaimed",
@@ -44,7 +50,8 @@ const IRRIGATION_MEDIA: Set<string> = new Set([
 ]);
 
 /**
- * Join planting recipes, clusters and installation references, then inspect member canopy bounds in authored rooms.
+ * Join planting recipes, clusters and installation references, then inspect
+ * member canopy bounds in authored rooms.
  */
 export const validatePlantingInstallations: (
   props: IAutoMovieValidatePlantingInstallations.IProps,

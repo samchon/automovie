@@ -8,11 +8,17 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 /**
  * Scale-safe direction arithmetic for the existing construction axes.
  *
- * Ordinary normal magnitudes retain the original dot/subtract/hypot/reciprocal-multiply order. A subnormal or unrepresentable projected norm instead causes max-component scaling of the input direction before projection. Normalization likewise scales a vector before measuring it when its norm is subnormal or overflows. This preserves direction rather than dividing by a subnormal hypot rounded to one representable step.
+ * Ordinary normal magnitudes retain the original
+ * dot/subtract/hypot/reciprocal-multiply order. A subnormal or unrepresentable
+ * projected norm instead causes max-component scaling of the input direction
+ * before projection. Normalization likewise scales a vector before measuring it
+ * when its norm is subnormal or overflows. This preserves direction rather than
+ * dividing by a subnormal hypot rounded to one representable step.
  */
 export namespace AutoMovieAxisDirection {
   /**
-   * Project a direction off an admitted unit tangent, preserving ordinary arithmetic.
+   * Project a direction off an admitted unit tangent, preserving ordinary
+   * arithmetic.
    */
   export function project(
     up: AutoMovieVector3Tuple,
@@ -57,7 +63,8 @@ export namespace AutoMovieAxisDirection {
   }
 
   /**
-   * A unit direction, preserving zero/invalid inputs for the caller's admission path.
+   * A unit direction, preserving zero/invalid inputs for the caller's admission
+   * path.
    */
   export function unit(
     vector: AutoMovieVector3Tuple,
@@ -75,7 +82,8 @@ export namespace AutoMovieAxisDirection {
   }
 
   /**
-   * Reflect an admitted unit direction in a finite Householder normal, retaining the existing ordinary formula.
+   * Reflect an admitted unit direction in a finite Householder normal,
+   * retaining the existing ordinary formula.
    */
   export function reflect(
     vector: AutoMovieVector3Tuple,
@@ -102,5 +110,8 @@ export namespace AutoMovieAxisDirection {
   }
 }
 
-/** Smallest normal binary64 magnitude; this is a representation boundary, not an axis length or anatomical tolerance. */
+/**
+ * Smallest normal binary64 magnitude; this is a representation boundary, not an
+ * axis length or anatomical tolerance.
+ */
 const MINIMUM_NORMAL: number = 2 ** -1022;

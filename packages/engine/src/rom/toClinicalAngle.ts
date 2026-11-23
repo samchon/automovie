@@ -15,10 +15,12 @@ const assertAxisFrame: (
 };
 
 /**
- * Convert rig degrees to clinical = sign * rig + neutral. Null rest remains null and an absent frame preserves the angle; an invalid supplied sign/neutral throws when used.
- * prepare reads the same expression repeatedly on unchanged frame objects:
- * construction admits nothing, first nonnull use captures the actual final
- * sign/neutral operands after original validation and replacement admits anew.
+ * Convert rig degrees to clinical = sign * rig + neutral. Null rest remains
+ * null and an absent frame preserves the angle; an invalid supplied
+ * sign/neutral throws when used. prepare reads the same expression repeatedly
+ * on unchanged frame objects: construction admits nothing, first nonnull use
+ * captures the actual final sign/neutral operands after original validation and
+ * replacement admits anew.
  */
 export function toClinicalAngle(
   rig: number | null,
@@ -65,21 +67,21 @@ function convert(
   return result;
 }
 
-/**
- * Lazy unchanged-frame arithmetic for actual repeated clinical conversions.
- */
+/** Lazy unchanged-frame arithmetic for actual repeated clinical conversions. */
 export namespace toClinicalAngle {
   /**
    * Prepare one lazy reader without reading a frame or angle. Null bypasses
-   * unused frames; each used frame object stays unchanged until replacement
-   * or release, and failed admission leaves any valid prior reading intact.
+   * unused frames; each used frame object stays unchanged until replacement or
+   * release, and failed admission leaves any valid prior reading intact.
    */
   export function prepare(): (
     rig: number | null,
     frame: IAutoMovieAxisFrame | undefined,
   ) => number | null {
     const state: IConversionState = {};
-    return (rig: number | null, frame: IAutoMovieAxisFrame | undefined): number | null =>
-      convert(rig, frame, state);
+    return (
+      rig: number | null,
+      frame: IAutoMovieAxisFrame | undefined,
+    ): number | null => convert(rig, frame, state);
   }
 }

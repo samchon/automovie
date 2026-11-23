@@ -13,11 +13,11 @@ import { validateRotationArtifact } from "./validateRotationArtifact";
 import { validateVectorArtifact } from "./validateVectorArtifact";
 
 /**
- * Measure a support or grip using already placed observations at one film instant.
- * Support gives signed normal gap and tangential slip in metres. Grip gives
- * position separation in metres and the shortest orientation separation in radians.
- * An absent sample leaves the check unsupported. Invalid observations or limits
- * produce findings without measurements.
+ * Measure a support or grip using already placed observations at one film
+ * instant. Support gives signed normal gap and tangential slip in metres. Grip
+ * gives position separation in metres and the shortest orientation separation
+ * in radians. An absent sample leaves the check unsupported. Invalid
+ * observations or limits produce findings without measurements.
  */
 export function measureAutoMoviePlacedContact(
   props: IAutoMoviePlacedContact.IProps,
@@ -30,8 +30,8 @@ export function measureAutoMoviePlacedContact(
 
 /**
  * Measure a support sample: express the observed point in the support's rigid
- * frame, then compare its local Y offset from the anchor with the gap limit
- * and its XZ offset with the slip limit, both in metres.
+ * frame, then compare its local Y offset from the anchor with the gap limit and
+ * its XZ offset with the slip limit, both in metres.
  */
 function measureSupport(
   props: Extract<IAutoMoviePlacedContact.IProps, { kind: "support" }>,
@@ -185,8 +185,8 @@ function validateFrame(
 }
 
 /**
- * A world point expressed in the frame at `origin` whose inverse orientation
- * is given.
+ * A world point expressed in the frame at `origin` whose inverse orientation is
+ * given.
  */
 function localPosition(
   point: IAutoMovieVector3,

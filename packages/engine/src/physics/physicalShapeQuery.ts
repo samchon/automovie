@@ -15,7 +15,10 @@ import { physicalHullNearest } from "./physicalHullNearest";
 import { physicalHullSegment } from "./physicalHullSegment";
 import { readPhysicalHullPoint } from "./readPhysicalHullPoint";
 
-/** A shape-local proximity reading before its point and normal return to world space. */
+/**
+ * A shape-local proximity reading before its point and normal return to world
+ * space.
+ */
 interface ILocal {
   /** Signed metres, negative inside the local shape. */
   distance: number;
@@ -35,7 +38,10 @@ interface IFrame {
   /** Actual parent-times-shape world rotation. */
   rotation: IAutoMovieQuaternion;
 
-  /** Inverse rotation, prepared only when the original local-query branch needs it. */
+  /**
+   * Inverse rotation, prepared only when the original local-query branch needs
+   * it.
+   */
   inverse?: IAutoMovieQuaternion;
 
   /** Bare sphere/capsule axis start, world metres, prepared only with its end. */
@@ -45,7 +51,10 @@ interface IFrame {
   end?: IAutoMovieVector3;
 }
 
-/** A factory retains completed fixed geometry, never point/segment query results. */
+/**
+ * A factory retains completed fixed geometry, never point/segment query
+ * results.
+ */
 interface IPrepared {
   /** Absent until the first actual query composes this fixed frame. */
   frame?: IFrame;
@@ -56,11 +65,11 @@ interface IPrepared {
  *
  * The parent pose, admitted shape, world segment ends and optional endpoint
  * radii produce distance, surface point, normal and segment point together.
- * physicalShapeNearest selects this mode. It preserves the original local
- * and world contact construction, normal fallbacks, shape order and endpoint
- * admission. Searched segments keep 48 ordered scalar evaluations and one
- * final reading; world vectors are fresh and nothing is retained across
- * queries. The implementation's contract below covers both overloads.
+ * physicalShapeNearest selects this mode. It preserves the original local and
+ * world contact construction, normal fallbacks, shape order and endpoint
+ * admission. Searched segments keep 48 ordered scalar evaluations and one final
+ * reading; world vectors are fresh and nothing is retained across queries. The
+ * implementation's contract below covers both overloads.
  */
 export function physicalShapeQuery(
   pose: IAutoMovieRigidTransform,
@@ -74,12 +83,12 @@ export function physicalShapeQuery(
 /**
  * Signed distance alone from that same query, with false detail mode.
  *
- * physicalShapeSegmentDistance supplies the same world geometry and
- * widening, and receives signed metres. Candidate order, the searched
- * parameter, endpoint comparisons, distance branches and numerical bounds
- * stay the same. Only unobserved final contact fields are omitted; hull local work
- * keeps its existing owner. Endpoint transforms are shared only within this
- * synchronous pure-DTO query, and only the number escapes it.
+ * PhysicalShapeSegmentDistance supplies the same world geometry and widening,
+ * and receives signed metres. Candidate order, the searched parameter, endpoint
+ * comparisons, distance branches and numerical bounds stay the same. Only
+ * unobserved final contact fields are omitted; hull local work keeps its
+ * existing owner. Endpoint transforms are shared only within this synchronous
+ * pure-DTO query, and only the number escapes it.
  */
 export function physicalShapeQuery(
   pose: IAutoMovieRigidTransform,
@@ -90,9 +99,7 @@ export function physicalShapeQuery(
   details: false,
 ): number;
 
-/**
- * The single numerical owner behind full and distance-only proximity reads.
- */
+/** The single numerical owner behind full and distance-only proximity reads. */
 export function physicalShapeQuery(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
@@ -104,9 +111,7 @@ export function physicalShapeQuery(
   return query(pose, shape, a, b, taper, details);
 }
 
-/**
- * Fixed-geometry preparation belonging to this same proximity owner.
- */
+/** Fixed-geometry preparation belonging to this same proximity owner. */
 export namespace physicalShapeQuery {
   /**
    * Read signed distances against one unchanged posed shape during a
@@ -115,15 +120,17 @@ export namespace physicalShapeQuery {
    * branch. Every changed segment still runs all closest/hull/search queries,
    * candidates, bounds, taper, ties and original numerical grouping.
    *
-   * One private state and opaque closure use the cold entry's query body.
-   * Each completed centre/rotation and optional inverse/axis is prepared once;
-   * a never-called reader prepares nothing. Only fixed geometry is shared:
+   * One private state and opaque closure use the cold entry's query body. Each
+   * completed centre/rotation and optional inverse/axis is prepared once; a
+   * never-called reader prepares nothing. Only fixed geometry is shared:
    * segment endpoints, current radii, interpolation scratch and signed-distance
    * or nearest-witness results are never retained between calls.
    *
    * @param pose The fixed parent pose through reader release.
    * @param shape The fixed admitted shape and transform through reader release.
-   * @returns A distance reader of changing world segments and optional endpoint radii. Release its closure/state and borrowed geometry with this synchronous operation; no global cache or handle is acquired.
+   * @returns A distance reader of changing world segments and optional endpoint
+   *   radii. Release its closure/state and borrowed geometry with this
+   *   synchronous operation; no global cache or handle is acquired.
    */
   export function prepare(
     pose: IAutoMovieRigidTransform,
@@ -143,7 +150,10 @@ export namespace physicalShapeQuery {
   }
 }
 
-/** Scalar reads share this one mathematical body with the cold full-contact entry. */
+/**
+ * Scalar reads share this one mathematical body with the cold full-contact
+ * entry.
+ */
 function query(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
@@ -343,19 +353,25 @@ function query(
 
 /**
  * The nearest surface point, outward normal and signed distance of an
- * origin-centred box to a point in the box's frame: outside, the point
- * clamped to the box; inside, the projection onto the nearest face.
+ * origin-centred box to a point in the box's frame: outside, the point clamped
+ * to the box; inside, the projection onto the nearest face.
  */
 function boxNearest(h: IAutoMovieVector3, p: IAutoMovieVector3): ILocal;
 
-/** The same box distance without unobserved contact fields at an internal search probe. */
+/**
+ * The same box distance without unobserved contact fields at an internal search
+ * probe.
+ */
 function boxNearest(
   h: IAutoMovieVector3,
   p: IAutoMovieVector3,
   details: false,
 ): number;
 
-/** One box-distance calculation serves both the scalar search and the final contact. */
+/**
+ * One box-distance calculation serves both the scalar search and the final
+ * contact.
+ */
 function boxNearest(
   h: IAutoMovieVector3,
   p: IAutoMovieVector3,
@@ -404,7 +420,10 @@ function roundNearest(
   p: IAutoMovieVector3,
 ): ILocal;
 
-/** The same capsule/sphere distance; optional query-local axis scratch keeps X/Z zero and receives only the current clamped Y. */
+/**
+ * The same capsule/sphere distance; optional query-local axis scratch keeps X/Z
+ * zero and receives only the current clamped Y.
+ */
 function roundNearest(
   half: number,
   radius: number,
@@ -413,7 +432,10 @@ function roundNearest(
   axis?: IAutoMovieVector3,
 ): number;
 
-/** One round-shape distance calculation serves scalar search and full contact readers. */
+/**
+ * One round-shape distance calculation serves scalar search and full contact
+ * readers.
+ */
 function roundNearest(
   half: number,
   radius: number,
@@ -438,5 +460,9 @@ function roundNearest(
   };
 }
 
-/** The share of a segment's length its nearest point is located to: under a nanometre on a limb's segment, where the fixed golden-section search stopped. */
+/**
+ * The share of a segment's length its nearest point is located to: under a
+ * nanometre on a limb's segment, where the fixed golden-section search
+ * stopped.
+ */
 const ALONG: number = 1e-9;

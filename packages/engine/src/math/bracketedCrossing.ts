@@ -6,17 +6,21 @@ import { bracketedRoot } from "./bracketedRoot";
  * lower end is never past the threshold and the upper end always is, as a
  * bisection keeps them, at a final width no greater than the one asked.
  *
- * The reading is first driven by the Illinois false position
- * (`bracketedRoot`), each of whose readings is inside the bracket and moves
- * the end of its own side exactly as a bisection's reading does. Whatever
- * width that leaves (a reading of exactly zero ends it at once; a reading
- * that is not finite is never handed to it) is then bisected away, so the
- * final width is the caller's whatever the reading does. A caller that asks
- * the width a number of bisections would leave therefore gets a crossing at
- * least as fine as theirs, in fewer readings where the reading is smooth.
+ * The reading is first driven by the Illinois false position (`bracketedRoot`),
+ * each of whose readings is inside the bracket and moves the end of its own
+ * side exactly as a bisection's reading does. Whatever width that leaves (a
+ * reading of exactly zero ends it at once; a reading that is not finite is
+ * never handed to it) is then bisected away, so the final width is the caller's
+ * whatever the reading does. A caller that asks the width a number of
+ * bisections would leave therefore gets a crossing at least as fine as theirs,
+ * in fewer readings where the reading is smooth.
  *
- * @param props The reading less its threshold (`f`, positive on one side); which sign is past the threshold (`past`); the bracket's two ends, `low` not past and `high` past; their readings when the caller has them (`known`), so they are not read again; and the final width, positive.
- * @returns The final bracket: `low`, the greatest argument read that is not past the threshold, and `high`, the least read that is.
+ * @param props The reading less its threshold (`f`, positive on one side);
+ *   which sign is past the threshold (`past`); the bracket's two ends, `low`
+ *   not past and `high` past; their readings when the caller has them
+ *   (`known`), so they are not read again; and the final width, positive.
+ * @returns The final bracket: `low`, the greatest argument read that is not
+ *   past the threshold, and `high`, the least read that is.
  */
 export function bracketedCrossing(props: {
   f: (x: number) => number;

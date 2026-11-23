@@ -22,8 +22,18 @@ import { softBodyParticleDistance } from "./softBodyParticleDistance";
 import { softBodyRestBuffer } from "./softBodyRestBuffer";
 import { solveSoftBodyCompliantSweep } from "./solveSoftBodyCompliantSweep";
 
-/** Integrate an admitted cloth lattice from its authored rest boundary to one absolute fixed step.
- * Without declared compliance and contact the solve is the plain position-based one, operation for operation. With compliance, each sweep projects the lattice's edges as compliant constraints with their own multipliers (`solveSoftBodyCompliantSweep`); with contact, a collider's push is followed by Coulomb friction (`applySoftBodyFriction`) and a cord that asks for self-collision keeps its segments apart after each sweep (`projectSoftCordSelfContact`). A moving anchor a boundary sample lists as released regains its mass for that step, leaving with the velocity its target last moved at. An observer reads every completed step, with the force each held particle bears when the solve is compliant.
+/**
+ * Integrate an admitted cloth lattice from its authored rest boundary to one
+ * absolute fixed step. Without declared compliance and contact the solve is the
+ * plain position-based one, operation for operation. With compliance, each
+ * sweep projects the lattice's edges as compliant constraints with their own
+ * multipliers (`solveSoftBodyCompliantSweep`); with contact, a collider's push
+ * is followed by Coulomb friction (`applySoftBodyFriction`) and a cord that
+ * asks for self-collision keeps its segments apart after each sweep
+ * (`projectSoftCordSelfContact`). A moving anchor a boundary sample lists as
+ * released regains its mass for that step, leaving with the velocity its target
+ * last moved at. An observer reads every completed step, with the force each
+ * held particle bears when the solve is compliant.
  */
 export const simulateSoftBodyCore: (
   domain: IAutoMovieSoftBodyDomain,
@@ -335,7 +345,10 @@ export const simulateSoftBodyCore: (
 /** The loads of a solve with no multipliers to read them from. */
 const EMPTY: ReadonlyMap<number, IAutoMovieVector3> = new Map();
 
-/** Overwrite each resolved hard target in the working position buffer, leaving unrelated particles untouched. */
+/**
+ * Overwrite each resolved hard target in the working position buffer, leaving
+ * unrelated particles untouched.
+ */
 const applyResolvedAnchors: (
   position: Float64Array<ArrayBufferLike>,
   anchors: readonly IAutoMovieSoftBodyResolvedAnchor[],
@@ -351,7 +364,10 @@ const applyResolvedAnchors: (
   }
 };
 
-/** Normalize the admitted draught direction with the existing square-root expression, or return zero for no wind. */
+/**
+ * Normalize the admitted draught direction with the existing square-root
+ * expression, or return zero for no wind.
+ */
 const windAxis: (domain: IAutoMovieSoftBodyDomain) => IAutoMovieVector3 = (
   domain: IAutoMovieSoftBodyDomain,
 ): IAutoMovieVector3 => {
@@ -369,7 +385,10 @@ const windAxis: (domain: IAutoMovieSoftBodyDomain) => IAutoMovieVector3 = (
   };
 };
 
-/** Evaluate the declared triangle gust at a fixed-clock time with the existing binary64 phase arithmetic. */
+/**
+ * Evaluate the declared triangle gust at a fixed-clock time with the existing
+ * binary64 phase arithmetic.
+ */
 const windAcceleration: (
   domain: IAutoMovieSoftBodyDomain,
   time: number,
@@ -383,7 +402,10 @@ const windAcceleration: (
   );
 };
 
-/** Reject nonfinite integrated coordinates by scanning the completed working buffer. */
+/**
+ * Reject nonfinite integrated coordinates by scanning the completed working
+ * buffer.
+ */
 const allFinite: (values: Float64Array<ArrayBufferLike>) => boolean = (
   values: Float64Array,
 ): boolean => {

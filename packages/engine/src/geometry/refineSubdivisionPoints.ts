@@ -8,15 +8,15 @@ import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 import { subdivisionVertexMask } from "./subdivisionVertexMask";
 
 /**
- * Apply one Catmull-Clark step to vertex positions: every vertex, edge and
- * face point of the next level.
+ * Apply one Catmull-Clark step to vertex positions: every vertex, edge and face
+ * point of the next level.
  *
  * The output holds the vertex points in vertex order, then the edge points in
  * edge order, then the face points in face order. A face point is the average
  * of its corners. An edge point is `(A + B + F0 + F1) / 4`, the ends and the
  * two adjacent face points, blended towards the midpoint `(A + B) / 2` by
- * `subdivisionEdgeSmoothness`, so boundary and sharp edges take the midpoint.
- * A vertex point applies `subdivisionVertexMask` to the vertex, its edge
+ * `subdivisionEdgeSmoothness`, so boundary and sharp edges take the midpoint. A
+ * vertex point applies `subdivisionVertexMask` to the vertex, its edge
  * neighbours and the new face points of its fan.
  *
  * @param topology Connectivity of the current level.

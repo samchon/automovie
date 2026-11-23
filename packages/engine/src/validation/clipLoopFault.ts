@@ -1,8 +1,6 @@
 import type { IAutoMovieClipShapeFault } from "@automovie/interface";
 
-/**
- * Return a loop-shape fault unless the authored flag is boolean.
- */
+/** Return a loop-shape fault unless the authored flag is boolean. */
 export const clipLoopFault: (
   loop: unknown,
 ) => IAutoMovieClipShapeFault | null = (

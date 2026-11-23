@@ -13,7 +13,8 @@ import { ViolationCollector } from "./ViolationCollector";
 import { validateTransformScalars } from "./validateTransformScalars";
 
 /**
- * Admit skeleton identity, optional root transform, duplicate/undeclared joint bones and effective rig/default ROM.
+ * Admit skeleton identity, optional root transform, duplicate/undeclared joint
+ * bones and effective rig/default ROM.
  */
 export const validatePose: (
   props: IAutoMovieValidatePose.IProps,

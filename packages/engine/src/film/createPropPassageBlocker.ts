@@ -19,9 +19,18 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
 /**
  * Prepare world passage bounds once and return a read-only intrusion query.
  *
- * Openings use the fill model's rest-pose part boxes; absent models or unresolved placement chains are omitted. A held model without vertices inherits builtPlacedPartBoxes' zero-size fallback at the staged fill element's world origin. Connector route segments widen to their greatest section width and clearance height at endpoints and internal section stations, giving an outer axis-aligned corridor bound. Strict interior overlap preserves touching as nonblocking. Results list openings then connectors in declaration order.
+ * Openings use the fill model's rest-pose part boxes; absent models or
+ * unresolved placement chains are omitted. A held model without vertices
+ * inherits builtPlacedPartBoxes' zero-size fallback at the staged fill
+ * element's world origin. Connector route segments widen to their greatest
+ * section width and clearance height at endpoints and internal section
+ * stations, giving an outer axis-aligned corridor bound. Strict interior
+ * overlap preserves touching as nonblocking. Results list openings then
+ * connectors in declaration order.
  *
- * The environment must remain unchanged while the query is retained. The prop registry validator creates one query per environment only for its current synchronous call; a one-off caller uses propBlockedPassages instead.
+ * The environment must remain unchanged while the query is retained. The prop
+ * registry validator creates one query per environment only for its current
+ * synchronous call; a one-off caller uses propBlockedPassages instead.
  */
 export function createPropPassageBlocker(
   environment: IAutoMovieBuiltEnvironment,

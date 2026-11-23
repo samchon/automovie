@@ -3,18 +3,19 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 
 /**
- * The indices of the member points on a hull face's boundary, counter
- * clockwise about the face normal.
+ * The indices of the member points on a hull face's boundary, counter clockwise
+ * about the face normal.
  *
- * The members are projected onto two unit axes in the face plane, the first
- * the normal crossed with the coordinate axis it leans on least, and Andrew's
+ * The members are projected onto two unit axes in the face plane, the first the
+ * normal crossed with the coordinate axis it leans on least, and Andrew's
  * monotone chain walks their planar hull. A member collinear with its
  * neighbours on the boundary is left out.
  *
  * @param points Shape-local points, metres.
  * @param member Whether each point lies on the face's plane.
  * @param normal The face's outward unit normal.
- * @returns The boundary's point indices, starting at the member lowest on the first in-plane axis.
+ * @returns The boundary's point indices, starting at the member lowest on the
+ *   first in-plane axis.
  */
 export function physicalHullLoop(
   points: readonly IAutoMovieVector3[],
@@ -53,12 +54,18 @@ interface IPlanarPoint {
   y: number;
 }
 
-/** The original X-then-Y ordering is independent of the face and point population. */
+/**
+ * The original X-then-Y ordering is independent of the face and point
+ * population.
+ */
 function comparePlanarPoints(a: IPlanarPoint, b: IPlanarPoint): number {
   return a.x - b.x || a.y - b.y;
 }
 
-/** Keep the same determinant expression and collinearity comparison in both chains. */
+/**
+ * Keep the same determinant expression and collinearity comparison in both
+ * chains.
+ */
 function planarTurn(o: IPlanarPoint, a: IPlanarPoint, b: IPlanarPoint): number {
   return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
 }

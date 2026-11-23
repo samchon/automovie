@@ -22,7 +22,10 @@ const gaitPhaseEase: (
     : ease(curve ?? "linear", t);
 
 /**
- * Evaluate one gait row's clinical-axis angle in degrees at cycle time t in seconds. Stance sweeps +amplitude to -amplitude, swing returns, phase offsets the wrapped cycle and neutral shifts both halves; optional easing shapes each half.
+ * Evaluate one gait row's clinical-axis angle in degrees at cycle time t in
+ * seconds. Stance sweeps +amplitude to -amplitude, swing returns, phase offsets
+ * the wrapped cycle and neutral shifts both halves; optional easing shapes each
+ * half.
  */
 export const gaitLimbFlexion: (
   limb: IAutoMovieGaitLimb,

@@ -43,9 +43,7 @@ const TRUCK_SEGMENTS: number = 8;
 /** Follow moves sample the subject's animated base at this rate, in hertz. */
 const FOLLOW_HZ: number = 4;
 
-/**
- * One camera key: shot-local seconds, world position and world rotation.
- */
+/** One camera key: shot-local seconds, world position and world rotation. */
 interface IKey {
   /** Shot-local seconds. */
   t: number;
@@ -58,26 +56,56 @@ interface IKey {
 }
 
 /**
- * Compile a camera's `frame` entries into one clip of its world translation and rotation, the deterministic shot grammar.
+ * Compile a camera's `frame` entries into one clip of its world translation and
+ * rotation, the deterministic shot grammar.
  *
- * Framing fixes the distance and the aim. The frame must show the framing's {@link FRAMING_HEIGHT_FRACTION} multiple of the subject's height vertically and of its width (twice `radius`) horizontally, each by the pinhole fit `d = (visible / 2) / tan(half-angle)`, and the camera stands at whichever distance is larger. It aims at {@link FRAMING_AIM_FRACTION} of the height above the subject's base. The camera approaches along its staged bearing, the direction from the aim point to the staged camera, so the side staging chose is kept and only the distance is solved; a camera staged on the aim point uses +Z.
+ * Framing fixes the distance and the aim. The frame must show the framing's
+ * {@link FRAMING_HEIGHT_FRACTION} multiple of the subject's height vertically
+ * and of its width (twice `radius`) horizontally, each by the pinhole fit `d =
+ * (visible / 2) / tan(half-angle)`, and the camera stands at whichever distance
+ * is larger. It aims at {@link FRAMING_AIM_FRACTION} of the height above the
+ * subject's base. The camera approaches along its staged bearing, the direction
+ * from the aim point to the staged camera, so the side staging chose is kept
+ * and only the distance is solved; a camera staged on the aim point uses +Z.
  *
- * Move picks the path over the span `[start, start + duration]`, clipped to the shot, where an `"auto"` duration runs to the next entry's start or the shot end:
+ * Move picks the path over the span `[start, start + duration]`, clipped to the
+ * shot, where an `"auto"` duration runs to the next entry's start or the shot
+ * end:
  *
  * - `static` holds one framed key at the start.
- * - `push-in` dollies from 1.25 to 0.8 times the framed distance, eased in and out over eight segments.
- * - `orbit` swings 45 degrees about world up around the start aim, eased over eight segments.
- * - `truck` slides one framed distance toward the camera's screen-left while looking at the subject, eased over eight segments and riding the subject's animated base when it has one; a camera staged straight above or below uses world -X as screen-left.
- * - `follow` re-frames against the animated base at 4 Hz, at least two keys, or holds one framed key for an unsampled subject. Authored lookahead changes aim by reading the subject ahead of the key time up to the shot end. Translation uses the current sample.
- * - `whip` keeps the staged position and turns from the staged rotation onto the aim within 0.2 seconds, without solving a distance.
+ * - `push-in` dollies from 1.25 to 0.8 times the framed distance, eased in and
+ *   out over eight segments.
+ * - `orbit` swings 45 degrees about world up around the start aim, eased over
+ *   eight segments.
+ * - `truck` slides one framed distance toward the camera's screen-left while
+ *   looking at the subject, eased over eight segments and riding the subject's
+ *   animated base when it has one; a camera staged straight above or below uses
+ *   world -X as screen-left.
+ * - `follow` re-frames against the animated base at 4 Hz, at least two keys, or
+ *   holds one framed key for an unsampled subject. Authored lookahead changes
+ *   aim by reading the subject ahead of the key time up to the shot end.
+ *   Translation uses the current sample.
+ * - `whip` keeps the staged position and turns from the staged rotation onto the
+ *   aim within 0.2 seconds, without solving a distance.
  *
- * Keys are linear, so the gap between two entries plays as a re-frame move, and a key landing within 1e-9 s of the previous one replaces it, the later framing winning. Entries must be sorted by `start` and must not overlap, which `performShot` checks. Returns null for no entries, and throws an `Error` for a framing or move outside the grammar.
+ * Keys are linear, so the gap between two entries plays as a re-frame move, and
+ * a key landing within 1e-9 s of the previous one replaces it, the later
+ * framing winning. Entries must be sorted by `start` and must not overlap,
+ * which `performShot` checks. Returns null for no entries, and throws an
+ * `Error` for a framing or move outside the grammar.
  *
  * @param props.clipId - Id the returned clip carries.
- * @param props.camera - The staged camera: its id names the tracks, its vertical field of view sets the fit, and its transform sets the bearing and the whip's position.
+ * @param props.camera - The staged camera: its id names the tracks, its
+ *   vertical field of view sets the fit, and its transform sets the bearing and
+ *   the whip's position.
  * @param props.entries - Frame actions with their resolved subjects.
  * @param props.shotDuration - Shot length in seconds; the clip's duration.
- * @param props.aspect - Frame width over height for the horizontal fit. A camera states only its vertical field of view, so without this a subject with a `radius` cannot be fitted across the delivered frame. Omitted, non-finite or non-positive, it is 1, an assumed square frame; a narrower portrait output requires its actual aspect and is not bounded by that fallback. A subject with no `radius` is unaffected.
+ * @param props.aspect - Frame width over height for the horizontal fit. A
+ *   camera states only its vertical field of view, so without this a subject
+ *   with a `radius` cannot be fitted across the delivered frame. Omitted,
+ *   non-finite or non-positive, it is 1, an assumed square frame; a narrower
+ *   portrait output requires its actual aspect and is not bounded by that
+ *   fallback. A subject with no `radius` is unaffected.
  */
 export function compileCameraMove(
   props: IAutoMovieCompileCameraMove.IProps,

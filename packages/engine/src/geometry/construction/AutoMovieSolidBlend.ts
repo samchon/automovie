@@ -15,23 +15,23 @@ const { combine } = AutoMovieSolidVector;
  * The quintic Hermite basis interpolates a point and its first and second
  * derivatives at both ends, so the column leaves the start surface with the
  * start ribbon's jet and arrives on the end surface with the end ribbon's,
- * which with smooth, regular and compatible ribbon fields makes the blend
- * G2 to both surfaces
- * (`AutoMovieSolidRibbon`; Hartmann 2001, parametric G^n blending; the
- * Coons-type strip of `docs/techniques/surface-composition.md`). The start
- * ribbon's `first` points from its rail into the blend; the end ribbon's
- * `first` is the derivative at `w = 1` in increasing `w`, from the blend into
- * the end surface. Their lengths are the blend's laws: each ribbon's scale is
- * set by its caller, as the chord between the rails over the cross
- * derivative's length. This sets the endpoint derivative lengths to that
- * chord; the Hermite span does not bound its interior speed or bulge.
+ * which with smooth, regular and compatible ribbon fields makes the blend G2 to
+ * both surfaces (`AutoMovieSolidRibbon`; Hartmann 2001, parametric G^n
+ * blending; the Coons-type strip of `docs/techniques/surface-composition.md`).
+ * The start ribbon's `first` points from its rail into the blend; the end
+ * ribbon's `first` is the derivative at `w = 1` in increasing `w`, from the
+ * blend into the end surface. Their lengths are the blend's laws: each ribbon's
+ * scale is set by its caller, as the chord between the rails over the cross
+ * derivative's length. This sets the endpoint derivative lengths to that chord;
+ * the Hermite span does not bound its interior speed or bulge.
  */
 export namespace AutoMovieSolidBlend {
   /**
    * The column at a share of the cross parameter.
    *
    * @param start The start rail's ribbon, `first` into the blend.
-   * @param end The end rail's ribbon, `first` along increasing `w` into the end surface.
+   * @param end The end rail's ribbon, `first` along increasing `w` into the end
+   *   surface.
    * @param w Share of the column, 0 the start rail and 1 the end rail; a share
    *   outside reads the quintic past its ends.
    * @returns The point and its `w` derivatives.

@@ -161,80 +161,80 @@ export function validatePhysicalProfile(
       },
     ];
     for (const list of lists)
-    for (const [j, shape] of list.shapes.entries()) {
-      const location: string = `${path}.${list.key}[${j}]`;
-      if (!shape || typeof shape !== "object") {
-        errors.push(location);
-        continue;
-      }
-      fail(
-        typeof shape.id === "string" &&
-          shape.id.trim().length > 0 &&
-          !shapes.has(shape.id),
-        `${location}.id`,
-      );
-      shapes.add(shape.id);
-      fail(materials.has(shape.material), `${location}.material`);
-      transform(shape.transform, `${location}.transform`);
-      let hull: IAutoMoviePhysicalHullFaces.IHull | null = null;
-      if (shape.kind === "box")
+      for (const [j, shape] of list.shapes.entries()) {
+        const location: string = `${path}.${list.key}[${j}]`;
+        if (!shape || typeof shape !== "object") {
+          errors.push(location);
+          continue;
+        }
         fail(
-          vector(shape.halfExtents) &&
-            [
-              shape.halfExtents.x,
-              shape.halfExtents.y,
-              shape.halfExtents.z,
-            ].every(positive),
-          `${location}.halfExtents`,
+          typeof shape.id === "string" &&
+            shape.id.trim().length > 0 &&
+            !shapes.has(shape.id),
+          `${location}.id`,
         );
-      else if (shape.kind === "sphere" || shape.kind === "capsule") {
-        fail(positive(shape.radius), `${location}.radius`);
-        if (shape.kind === "capsule")
-          fail(nonnegative(shape.halfLength), `${location}.halfLength`);
-      } else if (shape.kind === "hull") {
-        // Convex by contract: the points span a volume and none lies inside.
-        hull =
-          Array.isArray(shape.points) &&
-          shape.points.length >= 4 &&
-          shape.points.every(vector)
-            ? physicalHullFaces(shape.points)
-            : null;
-        fail(
-          hull !== null &&
-            hull.faces.length >= 4 &&
-            hull.buried <= hull.tolerance,
-          `${location}.points`,
-        );
-      } else fail(false, `${location}.kind`);
-      const material: IAutoMoviePhysicalMaterial | undefined =
-        profile.materials.find(
-          (candidate: (typeof profile.materials)[number]): boolean =>
-            !!candidate && candidate.id === shape.material,
-        );
-      if (material && material.compliance > 0)
-        fail(
-          shape.kind === "box"
-            ? !!shape.halfExtents &&
-                material.maximumCompression! <
-                  Math.min(
+        shapes.add(shape.id);
+        fail(materials.has(shape.material), `${location}.material`);
+        transform(shape.transform, `${location}.transform`);
+        let hull: IAutoMoviePhysicalHullFaces.IHull | null = null;
+        if (shape.kind === "box")
+          fail(
+            vector(shape.halfExtents) &&
+              [
+                shape.halfExtents.x,
+                shape.halfExtents.y,
+                shape.halfExtents.z,
+              ].every(positive),
+            `${location}.halfExtents`,
+          );
+        else if (shape.kind === "sphere" || shape.kind === "capsule") {
+          fail(positive(shape.radius), `${location}.radius`);
+          if (shape.kind === "capsule")
+            fail(nonnegative(shape.halfLength), `${location}.halfLength`);
+        } else if (shape.kind === "hull") {
+          // Convex by contract: the points span a volume and none lies inside.
+          hull =
+            Array.isArray(shape.points) &&
+            shape.points.length >= 4 &&
+            shape.points.every(vector)
+              ? physicalHullFaces(shape.points)
+              : null;
+          fail(
+            hull !== null &&
+              hull.faces.length >= 4 &&
+              hull.buried <= hull.tolerance,
+            `${location}.points`,
+          );
+        } else fail(false, `${location}.kind`);
+        const material: IAutoMoviePhysicalMaterial | undefined =
+          profile.materials.find(
+            (candidate: (typeof profile.materials)[number]): boolean =>
+              !!candidate && candidate.id === shape.material,
+          );
+        if (material && material.compliance > 0)
+          fail(
+            shape.kind === "box"
+              ? !!shape.halfExtents &&
+                  material.maximumCompression! <
+                    Math.min(
+                      shape.halfExtents.x,
+                      shape.halfExtents.y,
+                      shape.halfExtents.z,
+                    ) &&
+                  [
                     shape.halfExtents.x,
                     shape.halfExtents.y,
                     shape.halfExtents.z,
-                  ) &&
-                [
-                  shape.halfExtents.x,
-                  shape.halfExtents.y,
-                  shape.halfExtents.z,
-                ].every((extent: number): boolean =>
-                  positive(extent - material.maximumCompression!),
-                )
-            : shape.kind === "hull"
-              ? hull !== null &&
-                positive(hull.depth - material.maximumCompression!)
-              : positive(shape.radius - material.maximumCompression!),
-          `${location}.rigidCore`,
-        );
-    }
+                  ].every((extent: number): boolean =>
+                    positive(extent - material.maximumCompression!),
+                  )
+              : shape.kind === "hull"
+                ? hull !== null &&
+                  positive(hull.depth - material.maximumCompression!)
+                : positive(shape.radius - material.maximumCompression!),
+            `${location}.rigidCore`,
+          );
+      }
     mass += segment.mass;
     if (
       segment.neutral &&
@@ -446,7 +446,10 @@ export function validatePhysicalProfile(
   return errors;
 }
 
-/** One of a segment's collider lists with the key its defects are reported under. */
+/**
+ * One of a segment's collider lists with the key its defects are reported
+ * under.
+ */
 interface IShapeList {
   key: string;
   shapes: readonly IAutoMoviePhysicalShape[];

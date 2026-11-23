@@ -31,27 +31,26 @@ interface IAutoMovieClinicalJoint extends IAutoMovieResolvedJointAngles {
 }
 
 /**
- * The arm pose, upper arm and forearm articulation, that brings the `side`
- * hand onto `target` in the skeleton's model space: the harness `reach` verb
- * made concrete with analytic hinge geometry and the original bounded swivel
- * search for its clinical range of motion.
+ * The arm pose, upper arm and forearm articulation, that brings the `side` hand
+ * onto `target` in the skeleton's model space: the harness `reach` verb made
+ * concrete with analytic hinge geometry and the original bounded swivel search
+ * for its clinical range of motion.
  *
  * Segment offsets and the shoulder's rest frame come from the skeleton's rest
- * pose, and {@link hingedArmArticulation} solves the chain: the elbow turns
- * only about its own flexion axis, so its abduction and twist are zero as an
- * elbow's immobile axes require, and the shoulder spends the chain's exact
- * swivel freedom on staying inside the rig's declared range of motion. An
- * unreachable target extends the arm fully toward it, so the hand stops on the
- * reachable shell instead of failing. A target no legal pose reaches still
- * returns the least-overshoot pose, which the shot's ROM gate then reports.
+ * pose, and {@link hingedArmArticulation} solves the chain: the elbow turns only
+ * about its own flexion axis, so its abduction and twist are zero as an elbow's
+ * immobile axes require, and the shoulder spends the chain's exact swivel
+ * freedom on staying inside the rig's declared range of motion. An unreachable
+ * target extends the arm fully toward it, so the hand stops on the reachable
+ * shell instead of failing. A target no legal pose reaches still returns the
+ * least-overshoot pose, which the shot's ROM gate then reports.
  *
  * The angles are clinical, so `validatePose` can compare them with the ROM
  * table directly. The clinical axes and the rest frame are two halves of one
- * convention: this function applies {@link HUMANOID_JOINT_AXES} under any
- * axes the arm bones declare ({@link skeletonJointAxes}) and so defaults
- * `restFrames` to the matching {@link HUMANOID_REST_FRAME}. Pass a
- * table for a rig with its own rest convention, or `{}` for raw rest-relative
- * angles.
+ * convention: this function applies {@link HUMANOID_JOINT_AXES} under any axes
+ * the arm bones declare ({@link skeletonJointAxes}) and so defaults `restFrames`
+ * to the matching {@link HUMANOID_REST_FRAME}. Pass a table for a rig with its
+ * own rest convention, or `{}` for raw rest-relative angles.
  *
  * Returns `null` when `side` is not `"left"` or `"right"` (the value arrives
  * from runtime calls), when the upper arm, lower arm or hand is missing, when

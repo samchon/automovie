@@ -26,10 +26,10 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * whose variation derives a non-finite value. Its model is the first LOD tier
  * of the prototype it drew, or of the set when the set has no prototype table.
  * A member naming no prototype, rotation or per-axis scale is described as the
- * `default` prototype, turned by the set heading about +Y and scaled by its
- * one scale on all three axes, which is how the viewer draws it. The content
- * box is the model's vertices placed by that transform, in world metres, or
- * null when the model is not in `models`. The member has no members.
+ * `default` prototype, turned by the set heading about +Y and scaled by its one
+ * scale on all three axes, which is how the viewer draws it. The content box is
+ * the model's vertices placed by that transform, in world metres, or null when
+ * the model is not in `models`. The member has no members.
  *
  * @param set Compiled set the member belongs to.
  * @param slot Zero-based member slot.

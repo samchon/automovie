@@ -10,17 +10,16 @@ import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 /**
  * Admit a domain's compliance and contact: every compliance finite and not
  * negative, the thickness finite and positive, the friction finite and not
- * negative; and, when a cord asks for self-collision, a step that cannot
- * carry a segment past another unseen.
+ * negative; and, when a cord asks for self-collision, a step that cannot carry
+ * a segment past another unseen.
  *
  * A cord's self-contact is found at the end of a step, so a segment that
- * travels farther than the cord's radius in one step can pass through
- * another between two checks. The domain's declared design speed bounds the
- * travel: `fixedStepSeconds * referenceSpeed <= thickness` is required, the
- * same declared-speed premise the structural travel number rests on. Self
- * collision is evaluated only on a cord, a one-wide lattice; a sheet that
- * asks for it is refused, since the solver does not evaluate cloth on
- * cloth.
+ * travels farther than the cord's radius in one step can pass through another
+ * between two checks. The domain's declared design speed bounds the travel:
+ * `fixedStepSeconds * referenceSpeed <= thickness` is required, the same
+ * declared-speed premise the structural travel number rests on. Self collision
+ * is evaluated only on a cord, a one-wide lattice; a sheet that asks for it is
+ * refused, since the solver does not evaluate cloth on cloth.
  *
  * @param out The collector the domain's validation writes to.
  * @param root The domain's path.

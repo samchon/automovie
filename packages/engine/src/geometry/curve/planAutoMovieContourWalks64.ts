@@ -7,11 +7,13 @@ import type {
 import { AutoMovieContourLoftCurves64 } from "./AutoMovieContourLoftCurves64";
 
 /**
- * Freezes branch slit choices before emission and expands them through shared contour refinements.
- * All prepare calls must finish before the first resolve; ring order and point identities remain fixed.
- * Polygon-chord slit parameters are chosen once; the insertion callback supplies
- * the actual source-authoritative endpoint. Subsequent cuts of the same sheet edge enrich that walk without
- * recomputing a nearest point or welding separate sheets by their coordinates.
+ * Freezes branch slit choices before emission and expands them through shared
+ * contour refinements. All prepare calls must finish before the first resolve;
+ * ring order and point identities remain fixed. Polygon-chord slit parameters
+ * are chosen once; the insertion callback supplies the actual
+ * source-authoritative endpoint. Subsequent cuts of the same sheet edge enrich
+ * that walk without recomputing a nearest point or welding separate sheets by
+ * their coordinates.
  */
 export function planAutoMovieContourWalks64<
   R extends IAutoMoviePlanContourWalks64Ring,

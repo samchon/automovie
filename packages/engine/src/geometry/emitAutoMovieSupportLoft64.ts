@@ -7,12 +7,13 @@ import type {
 import { AutoMovieBernsteinAlgebra64 as B } from "./curve/AutoMovieBernsteinAlgebra64";
 
 /**
- * Tessellate planned ruled support faces with their own analytic normals.
- * A face nx X + nz Z = h(Y) has outward normal (nx,-dh/dY,nz), including
- * a vanishing edge endpoint where a tensor-chart derivative would collapse.
+ * Tessellate planned ruled support faces with their own analytic normals. A
+ * face nx X + nz Z = h(Y) has outward normal (nx,-dh/dY,nz), including a
+ * vanishing edge endpoint where a tensor-chart derivative would collapse.
  * Plane-pair identity and algebraic event incidence own shared positions;
- * distinct faces retain their normal fans. Exact collapsed triangles are omitted.
- * Endpoint roundoff is checked separately from the requested chord tolerance.
+ * distinct faces retain their normal fans. Exact collapsed triangles are
+ * omitted. Endpoint roundoff is checked separately from the requested chord
+ * tolerance.
  */
 export function emitAutoMovieSupportLoft64(
   input: IAutoMovieEmitSupportLoft64.IInput,

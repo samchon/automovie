@@ -3,24 +3,24 @@ import type { IAutoMovieMinimumJerk } from "@automovie/interface";
 import { bracketedBisection } from "../math/bracketedBisection";
 
 /**
- * The minimum-jerk normalized profile and its first two derivatives: the
- * share of a point-to-point movement completed at normalized time `u`.
+ * The minimum-jerk normalized profile and its first two derivatives: the share
+ * of a point-to-point movement completed at normalized time `u`.
  *
  * Flash and Hogan (1985, J. Neurosci. 5:1688) showed that unconstrained
  * point-to-point arm movements follow the trajectory minimizing integrated
- * squared jerk, which for rest-to-rest motion is the quintic
- * `s(u) = 10 u^3 - 15 u^4 + 6 u^5`: zero velocity and acceleration at both
- * ends and a bell-shaped speed profile peaking at `u = 0.5` with 1.875 times
- * the mean speed. Outside `[0, 1]` the profile holds its end value with zero
+ * squared jerk, which for rest-to-rest motion is the quintic `s(u) = 10 u^3 -
+ * 15 u^4 + 6 u^5`: zero velocity and acceleration at both ends and a
+ * bell-shaped speed profile peaking at `u = 0.5` with 1.875 times the mean
+ * speed. Outside `[0, 1]` the profile holds its end value with zero
  * derivatives, so a sum of units can be evaluated at any time.
  *
- * Derivatives are with respect to `u`; divide the first by the duration and
- * the second by its square for seconds.
- * share reads only the displacement fraction and rate only the first
- * derivative, with identical admission, endpoint clipping and the selected
- * polynomial arithmetic, without the unused fields or a profile record.
- * The position uses `s(u) = 1 - s(1 - u)` above one half to keep the share
- * in [0, 1] even at representable times immediately before the endpoint.
+ * Derivatives are with respect to `u`; divide the first by the duration and the
+ * second by its square for seconds. share reads only the displacement fraction
+ * and rate only the first derivative, with identical admission, endpoint
+ * clipping and the selected polynomial arithmetic, without the unused fields or
+ * a profile record. The position uses `s(u) = 1 - s(1 - u)` above one half to
+ * keep the share in [0, 1] even at representable times immediately before the
+ * endpoint.
  *
  * @param u Normalized time, any finite number.
  * @returns The share `s`, its rate `ds` and its acceleration `dds`.
@@ -58,9 +58,7 @@ function evaluate(u: number, demand: IDemand): IReading {
   };
 }
 
-/**
- * Companion types of {@link minimumJerk}.
- */
+/** Companion types of {@link minimumJerk}. */
 export namespace minimumJerk {
   /**
    * The same normalized displacement fraction s, without derivative work or a
@@ -81,11 +79,11 @@ export namespace minimumJerk {
   }
 
   /**
-   * The normalized time at which the profile has covered a share of its
-   * travel, the inverse of `share`: 0 for a share of none or less, 1 for the
-   * whole travel or more, and otherwise the time `share` reaches it at, by
-   * bisection to 2^-48 of the unit, since the quintic is strictly increasing
-   * on [0, 1] and has no closed-form inverse. A nonfinite share is refused.
+   * The normalized time at which the profile has covered a share of its travel,
+   * the inverse of `share`: 0 for a share of none or less, 1 for the whole
+   * travel or more, and otherwise the time `share` reaches it at, by bisection
+   * to 2^-48 of the unit, since the quintic is strictly increasing on [0, 1]
+   * and has no closed-form inverse. A nonfinite share is refused.
    */
   export function time(travel: number): number {
     if (!Number.isFinite(travel))

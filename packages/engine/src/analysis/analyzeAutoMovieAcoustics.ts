@@ -50,9 +50,9 @@ const EPSILON: number = 1e-12;
  * returning `0.161 * V / A`, a positive decay time for an anechoic chamber,
  * which is the arithmetic of the model rather than a property of the room.
  *
- * A receiver whose energy underflows to zero or overflows to infinity in
- * double precision has no level, so the level metrics gap with a reason naming
- * which bound was crossed.
+ * A receiver whose energy underflows to zero or overflows to infinity in double
+ * precision has no level, so the level metrics gap with a reason naming which
+ * bound was crossed.
  *
  * Throws on a malformed request (see {@link IAutoMovieAcousticRequest}), on a
  * receiver within `1e-12` m of a source, and when the sealed run would fail
@@ -329,9 +329,14 @@ export const analyzeAutoMovieAcoustics: (
 };
 
 /**
- * Sum precomputed source power times directivity over 4*pi*r^2 at one receiver, refusing distances at or below 1e-12 metres. Typed admitted positions and matching source/power order are premises; intermediate overflow or underflow is not repaired.
+ * Sum precomputed source power times directivity over 4_pi_r^2 at one receiver,
+ * refusing distances at or below 1e-12 metres. Typed admitted positions and
+ * matching source/power order are premises; intermediate overflow or underflow
+ * is not repaired.
  *
- * One source scan reuses the study's powers and retains only a scalar accumulator; the caller owns the borrowed lists and handles nonfinite derived levels.
+ * One source scan reuses the study's powers and retains only a scalar
+ * accumulator; the caller owns the borrowed lists and handles nonfinite derived
+ * levels.
  */
 const directField: (
   sources: readonly IAutoMovieAcousticSource[],
@@ -359,9 +364,14 @@ const directField: (
 };
 
 /**
- * Check headers, positive volume/surface areas, absorption fractions, nonnegative transmission loss, finite source fields and receiver positions; per-list ids are unique and receiver count is capped. Throws the first defect without modifying inputs; nested typed shape is assumed and derived energy is unchecked.
+ * Check headers, positive volume/surface areas, absorption fractions,
+ * nonnegative transmission loss, finite source fields and receiver positions;
+ * per-list ids are unique and receiver count is capped. Throws the first defect
+ * without modifying inputs; nested typed shape is assumed and derived energy is
+ * unchecked.
  *
- * Linear member/target scans use per-list id sets, released on return or throw; no validation result persists across studies.
+ * Linear member/target scans use per-list id sets, released on return or throw;
+ * no validation result persists across studies.
  */
 const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
   request: IAutoMovieAcousticRequest,
@@ -461,9 +471,13 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
 };
 
 /**
- * Serialize the study's physical fields and projected targets in fixed list/field order, omitting run header identity. Position records are borrowed into the serialization, so extra fields or custom serialization hooks on them can affect text; this is not arbitrary-object canonicalization.
+ * Serialize the study's physical fields and projected targets in fixed
+ * list/field order, omitting run header identity. Position records are borrowed
+ * into the serialization, so extra fields or custom serialization hooks on them
+ * can affect text; this is not arbitrary-object canonicalization.
  *
- * Linear encoded-entry/text work creates temporary mapped records and one returned string, with no cache or retained request after hashing.
+ * Linear encoded-entry/text work creates temporary mapped records and one
+ * returned string, with no cache or retained request after hashing.
  */
 const acousticSettings: (request: IAutoMovieAcousticRequest) => string = (
   request: IAutoMovieAcousticRequest,

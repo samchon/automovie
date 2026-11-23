@@ -32,11 +32,26 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
 const PLACEMENT_EPSILON: number = 1e-9;
 
 /**
- * Judge every volume the sound part of a prop registry claims: keep-out clearances, pairwise occupancy, support contact, space containment, opening fit and passage intrusion.
+ * Judge every volume the sound part of a prop registry claims: keep-out
+ * clearances, pairwise occupancy, support contact, space containment, opening
+ * fit and passage intrusion.
  *
- * "Sound" is deliberately narrow: a prop is measured only when it forged, when its node is declared once, when exactly one staged piece places it, and when any footprint it declares is a real volume. Measuring an ambiguous, unforged or degenerate prop would report a second failure caused by the first, and the author would correct the wrong line. Sound props without a `placement` are still measured as occupants others must clear and as hosts others rest on, but claim nothing themselves.
+ * "Sound" is deliberately narrow: a prop is measured only when it forged, when
+ * its node is declared once, when exactly one staged piece places it, and when
+ * any footprint it declares is a real volume. Measuring an ambiguous, unforged
+ * or degenerate prop would report a second failure caused by the first, and the
+ * author would correct the wrong line. Sound props without a `placement` are
+ * still measured as occupants others must clear and as hosts others rest on,
+ * but claim nothing themselves.
  *
- * Pairwise overlap is checked only when both staged props declare `placement`, and is refused unless one declares contact through a prop affordance. A prop is judged against the environment it occupies, or, when it names no space, the one building all its building relations cite; relations spanning two buildings name no single place and are not measured. An opening is fitted through the rest-pose world box of the element filling it, and a passage the prop fills is not reported as one it blocks. Violations go to `out` in prop declaration order within each check.
+ * Pairwise overlap is checked only when both staged props declare `placement`,
+ * and is refused unless one declares contact through a prop affordance. A prop
+ * is judged against the environment it occupies, or, when it names no space,
+ * the one building all its building relations cite; relations spanning two
+ * buildings name no single place and are not measured. An opening is fitted
+ * through the rest-pose world box of the element filling it, and a passage the
+ * prop fills is not reported as one it blocks. Violations go to `out` in prop
+ * declaration order within each check.
  */
 export function validatePropPlacementGeometry(
   props: IAutoMovieValidatePropPlacementGeometry.IProps,
@@ -83,7 +98,8 @@ export function validatePropPlacementGeometry(
 }
 
 /**
- * A sound prop with the one piece staging it and its measured world occupancy, retained only during this validation call.
+ * A sound prop with the one piece staging it and its measured world occupancy,
+ * retained only during this validation call.
  */
 interface IStagedProp {
   /** Borrowed registry spec whose forging and unique staging join passed. */
@@ -165,7 +181,10 @@ function validateOverlaps(
     }
 }
 
-/** Encode the sorted string pair as JSON, preserving symmetry without delimiter collisions in authored ids. */
+/**
+ * Encode the sorted string pair as JSON, preserving symmetry without delimiter
+ * collisions in authored ids.
+ */
 function pairKey(left: string, right: string): string {
   return JSON.stringify(left < right ? [left, right] : [right, left]);
 }
@@ -173,7 +192,13 @@ function pairKey(left: string, right: string): string {
 /**
  * Judge every `on-support` relation whose face the record can state.
  *
- * Support needs no logical space: a lamp that only says which table top it stands on has named a face, and that face is measurable whether or not the lamp also says which room it is in. Each relation is judged on its own, so a plank across two tables answers for both of them. A relation whose host is not itself soundly staged, one citing a face the record cannot state, and a prop citing itself, which the registry gate already refuses by name, are passed over rather than measured twice or guessed at.
+ * Support needs no logical space: a lamp that only says which table top it
+ * stands on has named a face, and that face is measurable whether or not the
+ * lamp also says which room it is in. Each relation is judged on its own, so a
+ * plank across two tables answers for both of them. A relation whose host is
+ * not itself soundly staged, one citing a face the record cannot state, and a
+ * prop citing itself, which the registry gate already refuses by name, are
+ * passed over rather than measured twice or guessed at.
  */
 function validateSupports(
   staged: readonly IStagedProp[],
@@ -247,7 +272,11 @@ function validateSupports(
 /**
  * The environment a prop's geometry is judged against.
  *
- * The occupied space answers first, because that is the prop's own statement of where it is. A prop that names no space but cites one building anyway (a leaf that only declares which opening it fills) is still judged there: refusing to measure it would let the strongest claim a prop can make, that it fits a passage, go unchecked because a weaker one was left out.
+ * The occupied space answers first, because that is the prop's own statement of
+ * where it is. A prop that names no space but cites one building anyway (a leaf
+ * that only declares which opening it fills) is still judged there: refusing to
+ * measure it would let the strongest claim a prop can make, that it fits a
+ * passage, go unchecked because a weaker one was left out.
  */
 function judgedEnvironment(
   entry: IStagedProp,
@@ -327,7 +356,10 @@ function validateOccupancy(
 }
 
 /**
- * Rest-pose world bounds of the element filling an opening, or `null` when the opening is an open cut, its fill draws no model held by the record, or the fill's parent chain is missing or cyclic. First declarations win for duplicate ids, as validation refuses the duplicate on its own path.
+ * Rest-pose world bounds of the element filling an opening, or `null` when the
+ * opening is an open cut, its fill draws no model held by the record, or the
+ * fill's parent chain is missing or cyclic. First declarations win for
+ * duplicate ids, as validation refuses the duplicate on its own path.
  */
 function openingFillBounds(
   environment: IAutoMovieBuiltEnvironment,

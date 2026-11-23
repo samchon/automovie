@@ -10,7 +10,12 @@ import { quaternionInterpolationCriticalRatios } from "../math/quaternionInterpo
 /**
  * Add analytical rotation extrema and one-sided key samples to shot admission.
  *
- * Clips must have passed transform-track admission. Each loop repeats the same component curve against the same direct limits, so one cycle suffices; sequence authority can only replace an earlier track, never restore it. The owner resolves the complete sequence, so a hidden track gains no authority. Nearest representable neighbours check the values just inside key boundaries, including shortest-arc quaternion sign changes and cross-clip handoffs.
+ * Clips must have passed transform-track admission. Each loop repeats the same
+ * component curve against the same direct limits, so one cycle suffices;
+ * sequence authority can only replace an earlier track, never restore it. The
+ * owner resolves the complete sequence, so a hidden track gains no authority.
+ * Nearest representable neighbours check the values just inside key boundaries,
+ * including shortest-arc quaternion sign changes and cross-clip handoffs.
  */
 export function authoredRotationCriticalTimes(
   clips: readonly IAutoMovieClip[],

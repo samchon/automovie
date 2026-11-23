@@ -9,7 +9,10 @@ import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { validateTransformScalars } from "../validation/validateTransformScalars";
 import { AUTO_MOVIE_DESIGN_FRAME_VIEWS } from "./constants/AUTO_MOVIE_DESIGN_FRAME_VIEWS";
 
-/** Below this, a direction carries no direction; above `1 - it`, two are parallel. */
+/**
+ * Below this, a direction carries no direction; above `1 - it`, two are
+ * parallel.
+ */
 const AXIS_EPSILON: number = 1e-12;
 
 /**
@@ -22,8 +25,8 @@ const AXIS_EPSILON: number = 1e-12;
  * settled `scale` must name one of them; leaving it null is how an unknown
  * scale is recorded. `axisX`, `axisY`, `up` and a present `north` must be
  * finite non-zero directions, `axisX` and `axisY` must not be parallel, the
- * origin must be finite, and a present transform must have finite components,
- * a unit rotation and a positive scale. Every finding is pushed to `collector`
+ * origin must be finite, and a present transform must have finite components, a
+ * unit rotation and a positive scale. Every finding is pushed to `collector`
  * under `path`; nothing throws.
  *
  * @param frame Frame to validate.

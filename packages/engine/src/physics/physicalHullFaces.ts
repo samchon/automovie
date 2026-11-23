@@ -10,24 +10,24 @@ import { physicalHullPlanes } from "./physicalHullPlanes";
 import { physicalHullTriangles } from "./physicalHullTriangles";
 
 /**
- * The faces of the convex hull of a point set: each face's outward unit
- * normal, its plane offset along that normal and its vertex loop, counter
- * clockwise seen from outside.
+ * The faces of the convex hull of a point set: each face's outward unit normal,
+ * its plane offset along that normal and its vertex loop, counter clockwise
+ * seen from outside.
  *
  * A plane through three points is a face when no point lies in front of it;
  * every point on that plane then belongs to the face, and their planar convex
- * hull (Andrew's monotone chain) orders the loop. Points within `tolerance`
- * of a plane count as on it, so a flat ring of many points yields one face
- * rather than a fan of slivers. A point set that spans no volume has no face.
+ * hull (Andrew's monotone chain) orders the loop. Points within `tolerance` of
+ * a plane count as on it, so a flat ring of many points yields one face rather
+ * than a fan of slivers. A point set that spans no volume has no face.
  *
  * The result is remembered per `points` array, so a profile's shape pays the
- * search once however many queries read it; the array must not be mutated
- * after its first use.
+ * search once however many queries read it; the array must not be mutated after
+ * its first use.
  *
  * @param points Shape-local points, metres.
- * @returns The hull's faces, its vertices, the mean of its vertices, the
- *   radii about that mean of a sphere containing the hull and of one inside
- *   it, and how deep any input point lies below the surface.
+ * @returns The hull's faces, its vertices, the mean of its vertices, the radii
+ *   about that mean of a sphere containing the hull and of one inside it, and
+ *   how deep any input point lies below the surface.
  */
 export function physicalHullFaces(
   points: readonly IAutoMovieVector3[],
@@ -131,20 +131,26 @@ function ordinaryMap(faces: readonly physicalHullPlanes.IFace[]): boolean {
     Object.getOwnPropertyDescriptor(ARRAY, Symbol.species)?.get === SPECIES
   );
 }
-/** Each searched points array's face triples, which a translation of it starts from. */
+/**
+ * Each searched points array's face triples, which a translation of it starts
+ * from.
+ */
 const TRIPLES: WeakMap<readonly IAutoMovieVector3[], readonly number[]> =
   new WeakMap();
 
-/** Fresh translated definitions with the source and offset they came from, until their first hull read. */
+/**
+ * Fresh translated definitions with the source and offset they came from, until
+ * their first hull read.
+ */
 const SHIFTS: WeakMap<
   readonly IAutoMovieVector3[],
   { source: readonly IAutoMovieVector3[]; by: IAutoMovieVector3 }
 > = new WeakMap();
 
 /**
- * The face triples of the points a translated array came from, when the
- * array still is that translation coordinate for coordinate; undefined for
- * any other array, which is then searched on its own.
+ * The face triples of the points a translated array came from, when the array
+ * still is that translation coordinate for coordinate; undefined for any other
+ * array, which is then searched on its own.
  */
 function shiftedTriples(
   points: readonly IAutoMovieVector3[],
@@ -178,34 +184,55 @@ const HULLS: WeakMap<
   IAutoMoviePhysicalHullFaces.IHull
 > = new WeakMap();
 
-/** Fresh reflected definitions defer topology work until their first actual hull query. */
+/**
+ * Fresh reflected definitions defer topology work until their first actual hull
+ * query.
+ */
 const REFLECTIONS: WeakMap<
   readonly IAutoMovieVector3[],
   readonly IAutoMovieVector3[]
 > = new WeakMap();
 
-/**
- * The hull record and its face.
- */
+/** The hull record and its face. */
 export namespace physicalHullFaces {
   /**
    * Produce fresh points reflected in X and prepare lazy topology transfer.
    *
    * Reflection is the isometry M=diag(-1,1,1): a supporting plane n dot p=d
-   * becomes (M n) dot (M p)=d. Face order and tolerance stay the source's;
-   * the same planar loop owner orders actual reflected points against each
-   * reflected outward normal, retaining winding and canonical loop starts.
-   * The first hull read validates those coordinates before transfer; edits
-   * to the fresh points instead receive their own ordinary face search.
-   * Input points keep the hull owner's existing no-mutation-after-use premise.
+   * becomes (M n) dot (M p)=d. Face order and tolerance stay the source's; the
+   * same planar loop owner orders actual reflected points against each
+   * reflected outward normal, retaining winding and canonical loop starts. The
+   * first hull read validates those coordinates before transfer; edits to the
+   * fresh points instead receive their own ordinary face search. Input points
+   * keep the hull owner's existing no-mutation-after-use premise.
    *
-   * States X reflection, fresh ownership, lazy first-read validation, edited-output fallback, supporting-plane identity, winding and source stability.
-   * An orthogonal reflection preserves support-plane membership, point distances and convex hull incidence. Reflecting each normal with the same M keeps it outward; rerunning the existing planarLoop on those actual coordinates handles orientation reversal without a caller-authored face list.
-   * This producer only constructs points and registers their source. The first physicalHullFaces read validates the reflection, then shares source planes, planarLoop and the common hull summary; edited geometry keeps the ordinary supporting-plane path.
-   * No unchecked reflected array or cached-hull flag is accepted. Every actual output coordinate must still equal its exact source reflection before reuse; each reflected face membership and loop uses the unchanged extent-relative tolerance, without omitted geometry or admission.
-   * Construction costs O(V) and performs no topology work. The first actual hull read validates O(V) coordinates, then costs O(F V log V) planar ordering and O(F V) summary work instead of another cubic-to-quartic supporting-triple search. The original source search still runs once if needed.
-   * The producer constructs all reflected coordinates, and first-use Object.is checks reconfirm the exact isometry against source geometry before deriving its planes. HumanColliderPlacement consumes the fresh points; ordinary hull readers then share the existing registered result. Changed fresh geometry runs a genuine independent search.
-   * A weak fresh-points registration borrows its source only until the first attempted topology read, then releases provenance in finally on success, edit detection or failure. The existing weak cache owns the resulting numeric hull. Source/reflected vectors do not alias, and local membership/index arrays release on return or throw.
+   * States X reflection, fresh ownership, lazy first-read validation,
+   * edited-output fallback, supporting-plane identity, winding and source
+   * stability. An orthogonal reflection preserves support-plane membership,
+   * point distances and convex hull incidence. Reflecting each normal with the
+   * same M keeps it outward; rerunning the existing planarLoop on those actual
+   * coordinates handles orientation reversal without a caller-authored face
+   * list. This producer only constructs points and registers their source. The
+   * first physicalHullFaces read validates the reflection, then shares source
+   * planes, planarLoop and the common hull summary; edited geometry keeps the
+   * ordinary supporting-plane path. No unchecked reflected array or cached-hull
+   * flag is accepted. Every actual output coordinate must still equal its exact
+   * source reflection before reuse; each reflected face membership and loop
+   * uses the unchanged extent-relative tolerance, without omitted geometry or
+   * admission. Construction costs O(V) and performs no topology work. The first
+   * actual hull read validates O(V) coordinates, then costs O(F V log V) planar
+   * ordering and O(F V) summary work instead of another cubic-to-quartic
+   * supporting-triple search. The original source search still runs once if
+   * needed. The producer constructs all reflected coordinates, and first-use
+   * Object.is checks reconfirm the exact isometry against source geometry
+   * before deriving its planes. HumanColliderPlacement consumes the fresh
+   * points; ordinary hull readers then share the existing registered result.
+   * Changed fresh geometry runs a genuine independent search. A weak
+   * fresh-points registration borrows its source only until the first attempted
+   * topology read, then releases provenance in finally on success, edit
+   * detection or failure. The existing weak cache owns the resulting numeric
+   * hull. Source/reflected vectors do not alias, and local membership/index
+   * arrays release on return or throw.
    */
   export function mirrorX(
     points: readonly IAutoMovieVector3[],
@@ -226,16 +253,17 @@ export namespace physicalHullFaces {
    * source's.
    *
    * A translation maps a convex hull onto the hull of the translated points
-   * with every incidence kept, so the source's face triples name every plane
-   * of the result. The first hull read checks that the fresh points still
-   * are `source - by` coordinate for coordinate, then reads each plane again
-   * from the translated points themselves, by the arithmetic and in the order
-   * of an ordinary search. The carried faces are kept only when every one
-   * supports the translated points within the tolerance and every boundary
-   * edge lies on a second face, so a face rounding added or removed is
-   * detected; such points, and edited points, receive an ordinary search.
+   * with every incidence kept, so the source's face triples name every plane of
+   * the result. The first hull read checks that the fresh points still are
+   * `source - by` coordinate for coordinate, then reads each plane again from
+   * the translated points themselves, by the arithmetic and in the order of an
+   * ordinary search. The carried faces are kept only when every one supports
+   * the translated points within the tolerance and every boundary edge lies on
+   * a second face, so a face rounding added or removed is detected; such
+   * points, and edited points, receive an ordinary search.
    *
-   * @param points Shape-local points, metres; not mutated after their first hull read.
+   * @param points Shape-local points, metres; not mutated after their first
+   *   hull read.
    * @param by The offset subtracted from every point, metres.
    * @returns The translated points, each `point - by` by component.
    */
@@ -267,8 +295,14 @@ export namespace physicalHullFaces {
     /** The points that are corners of some face. */ vertices: IAutoMovieVector3[];
     /** Mean of the vertices, shape-local metres. */ centre: IAutoMovieVector3;
     /** Radius about `centre` of a sphere containing the hull, metres. */ radius: number;
-    /** Least distance from `centre` to a face plane, metres: a sphere of this radius about `centre` lies inside the hull. Zero without faces. */ depth: number;
-    /** Greatest depth of any input point below the surface, metres: at most `tolerance` when every point lies on the surface. */ buried: number;
+    /**
+     * Least distance from `centre` to a face plane, metres: a sphere of this
+     * radius about `centre` lies inside the hull. Zero without faces.
+     */ depth: number;
+    /**
+     * Greatest depth of any input point below the surface, metres: at most
+     * `tolerance` when every point lies on the surface.
+     */ buried: number;
     /** The coplanarity tolerance used, metres: 1e-9 of the extent. */ tolerance: number;
   }
 }
@@ -289,7 +323,10 @@ function isMirrorX(
   );
 }
 
-/** Use actual reflected coordinates in the same face membership, loop and summary owners. */
+/**
+ * Use actual reflected coordinates in the same face membership, loop and
+ * summary owners.
+ */
 function reflectedHull(
   points: readonly IAutoMovieVector3[],
   source: IAutoMoviePhysicalHullFaces.IHull,
@@ -320,7 +357,10 @@ function reflectedHull(
   return summarize(points, faces, used, source.tolerance);
 }
 
-/** Preserve the same ordered vertex, sphere and face-distance reductions for both producers. */
+/**
+ * Preserve the same ordered vertex, sphere and face-distance reductions for
+ * both producers.
+ */
 function summarize(
   points: readonly IAutoMovieVector3[],
   faces: IAutoMoviePhysicalHullFaces.IFace[],

@@ -13,8 +13,8 @@ import { planarCross } from "./planarCross";
  * the other's line, each side more than `PLANAR_EPSILON` from zero; otherwise
  * the segments meet when an endpoint of one is collinear with the other within
  * that absolute tolerance and its projection parameter lies in [0, 1] widened
- * by the same constant. A zero-length segment never reports a touch through
- * its own projection.
+ * by the same constant. A zero-length segment never reports a touch through its
+ * own projection.
  *
  * @param fromA First endpoint of the first segment.
  * @param toA Second endpoint of the first segment.

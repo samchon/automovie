@@ -13,9 +13,9 @@ import { footprintRingPlacement } from "./footprintRingPlacement";
  * is standing on concrete. Only the open interior of a hole is off the
  * surface.
  *
- * A zero cached outer area covers nothing. Ring queries separately reject
- * fewer than three points; this function does not validate arbitrary topology
- * or catch the shared segment query's finite-arithmetic admission failures.
+ * A zero cached outer area covers nothing. Ring queries separately reject fewer
+ * than three points; this function does not validate arbitrary topology or
+ * catch the shared segment query's finite-arithmetic admission failures.
  */
 export const footprintContains: (
   footprint: IAutoMovieFootprint,

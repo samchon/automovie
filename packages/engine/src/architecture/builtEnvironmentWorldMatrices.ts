@@ -19,13 +19,25 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
 /**
- * The column-major world matrix of every element, displaced by its selected operating state.
+ * The column-major world matrix of every element, displaced by its selected
+ * operating state.
  *
- * The local matrix is rest transform times joint displacement; the world matrix is parent world times local. Travel consequently carries descendants, and {@link lowerBuiltEnvironment} and element measurements share this staging.
+ * The local matrix is rest transform times joint displacement; the world matrix
+ * is parent world times local. Travel consequently carries descendants, and
+ * {@link lowerBuiltEnvironment} and element measurements share this staging.
  *
- * Omitting stateId selects each operation's current state. A string selects that name wherever declared; an operation without it, or a member without a value, stays at rest. A selector chooses a name or null per operation. State and value lookup preserve the first matching entry. Validated records require every member value and prohibit multiple members driving one element; otherwise later operation iteration overwrites a shared driven element's displacement.
+ * Omitting stateId selects each operation's current state. A string selects
+ * that name wherever declared; an operation without it, or a member without a
+ * value, stays at rest. A selector chooses a name or null per operation. State
+ * and value lookup preserve the first matching entry. Validated records require
+ * every member value and prohibit multiple members driving one element;
+ * otherwise later operation iteration overwrites a shared driven element's
+ * displacement.
  *
- * Parents must resolve and be acyclic: an unresolved parent throws a TypeError and a cycle or sufficiently deep chain can exhaust the call stack. Returned keys are element ids, with one world matrix per id under the validated unique-id premise.
+ * Parents must resolve and be acyclic: an unresolved parent throws a TypeError
+ * and a cycle or sufficiently deep chain can exhaust the call stack. Returned
+ * keys are element ids, with one world matrix per id under the validated
+ * unique-id premise.
  */
 export const builtEnvironmentWorldMatrices: (
   environment: IAutoMovieBuiltEnvironment,

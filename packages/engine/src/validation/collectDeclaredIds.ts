@@ -1,8 +1,8 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
 /**
- * Collect the ids a list of records declares, reporting each blank or
- * repeated one.
+ * Collect the ids a list of records declares, reporting each blank or repeated
+ * one.
  *
  * Each record's id is checked at `<path>[<index>].id`: a blank id gets a `type`
  * violation `<label> id must be non-empty`, and an id already seen earlier in

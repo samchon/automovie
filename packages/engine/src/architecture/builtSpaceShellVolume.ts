@@ -3,12 +3,21 @@ import { IAutoMovieSpaceShell, IAutoMovieVector3 } from "@automovie/interface";
 /**
  * Volume, in cubic metres, enclosed by a closed outward-wound shell.
  *
- * The divergence theorem over triangles: a sixth of the summed scalar triple products. Voids subtract themselves through opposite winding. This is a binary64 evaluation of the polyhedral formula, with cancellation and overflow possible, especially for large coordinates far from the origin; it is not an exact-arithmetic volume certificate. {@link builtEnvironmentSpaceFidelity} reports the author's fidelity claim for what the facets represent.
+ * The divergence theorem over triangles: a sixth of the summed scalar triple
+ * products. Voids subtract themselves through opposite winding. This is a
+ * binary64 evaluation of the polyhedral formula, with cancellation and overflow
+ * possible, especially for large coordinates far from the origin; it is not an
+ * exact-arithmetic volume certificate. {@link builtEnvironmentSpaceFidelity}
+ * reports the author's fidelity claim for what the facets represent.
  *
- * A shell wound inward returns the negative of its volume, and a triangle naming a missing vertex is skipped, as is a trailing index group shorter than three; validation refuses an open shell and an out-of-range index before this is reached.
+ * A shell wound inward returns the negative of its volume, and a triangle
+ * naming a missing vertex is skipped, as is a trailing index group shorter than
+ * three; validation refuses an open shell and an out-of-range index before this
+ * is reached.
  *
  * @param shell Closed triangle shell, in metres.
- * @returns Signed enclosed volume in cubic metres, positive for outward winding.
+ * @returns Signed enclosed volume in cubic metres, positive for outward
+ *   winding.
  */
 export const builtSpaceShellVolume: (shell: IAutoMovieSpaceShell) => number = (
   shell: IAutoMovieSpaceShell,

@@ -6,7 +6,8 @@ import type {
 import { AutoMovieStepPlanner as Planner } from "./AutoMovieStepPlanner";
 
 /**
- * Sample the declared recovery trajectory and its derivative at one clock, independently of native control or cache-frame ownership.
+ * Sample the declared recovery trajectory and its derivative at one clock,
+ * independently of native control or cache-frame ownership.
  */
 export function samplePhysicalRecoveryGoal(
   input: IAutoMovieSamplePhysicalRecoveryGoal.IInput,

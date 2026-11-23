@@ -13,13 +13,14 @@ import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
 
 /**
- * Exact world chart of one original interval, retained or in its actual neighborhood.
+ * Exact world chart of one original interval, retained or in its actual
+ * neighborhood.
  *
  * The default physical domain is the loop's retained metre interval converted
- * once to kernel mm. An explicit domain reads the same original curve/plane
- * on their actual supported neighborhood; it extends no function by fitting
- * or Taylor data. A complete periodic original permits its actual phase
- * aliases. Other piece charts retain their bounded normalized interval.
+ * once to kernel mm. An explicit domain reads the same original curve/plane on
+ * their actual supported neighborhood; it extends no function by fitting or
+ * Taylor data. A complete periodic original permits its actual phase aliases.
+ * Other piece charts retain their bounded normalized interval.
  */
 export function AutoMovieConstructionProfileSurface(
   source: IAutoMovieConstructionProfileSource,
@@ -143,7 +144,10 @@ function pair(value: readonly number[]): void {
     fail("Original profile requires two finite local components.");
 }
 
-/** Copy actual frame value/first/second operands without manufacturing absent data. */
+/**
+ * Copy actual frame value/first/second operands without manufacturing absent
+ * data.
+ */
 function frameRow(frame: IAutoMovieLoftSectionFrame): number[] {
   const row: number[] = [];
   for (const key of ["origin", "u", "v"] as const) {
@@ -158,7 +162,10 @@ function frameRow(frame: IAutoMovieLoftSectionFrame): number[] {
   return row;
 }
 
-/** Actual affine clock scaling applies only to the corresponding derivative order. */
+/**
+ * Actual affine clock scaling applies only to the corresponding derivative
+ * order.
+ */
 function scale(
   value: AutoMovieVector2Tuple,
   factor: number,
@@ -166,7 +173,10 @@ function scale(
   return [factor * value[0], factor * value[1]];
 }
 
-/** Numerical/unavailable admission leaves exceptions from original owners unchanged. */
+/**
+ * Numerical/unavailable admission leaves exceptions from original owners
+ * unchanged.
+ */
 function fail(message: string): never {
   throw new AutoMovieLoftAdmissionError(message);
 }

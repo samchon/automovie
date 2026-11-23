@@ -17,8 +17,8 @@ import { requireDesignVariant } from "./requireDesignVariant";
  * {@link designLineageDecisionComparisons} answer with after their own single
  * validation, so a decision with many options validates once rather than once
  * per pair. It assumes a valid lineage: a change keyed twice on one subject and
- * aspect is a contradiction validation refuses, and here the later change
- * would win.
+ * aspect is a contradiction validation refuses, and here the later change would
+ * win.
  *
  * Variants on different base revisions, or an unknown variant id, throw an
  * `Error`. A difference whose `left` or `right` is null means that alternative
@@ -29,7 +29,8 @@ import { requireDesignVariant } from "./requireDesignVariant";
  * @param lineage A lineage `validateDesignLineage` accepts.
  * @param left Id of the variant reported on the `left` side.
  * @param right Id of the variant reported on the `right` side.
- * @returns The shared revision, both ids, the untouched subjects, and every differing (subject, aspect) pair.
+ * @returns The shared revision, both ids, the untouched subjects, and every
+ *   differing (subject, aspect) pair.
  */
 export const compareDesignVariants: (
   lineage: IAutoMovieDesignLineage,

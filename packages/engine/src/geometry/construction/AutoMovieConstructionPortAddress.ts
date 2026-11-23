@@ -4,8 +4,8 @@ import type { IAutoMovieConstructionPortLoop } from "@automovie/interface";
  * One original radial port-chart address in kernel mm and radians.
  *
  * The caller supplies the admitted loop, clock and radial share. Arithmetic
- * grouping is the existing PortCurve.chart law: (share*a)*cos(clock) and
- * ((share*sense)*b)*sin(clock). A mathematically equivalent regrouping can
+ * grouping is the existing PortCurve.chart law: (share*a)_cos(clock) and
+ * ((share_sense)*b)*sin(clock). A mathematically equivalent regrouping can
  * cross a literal Float64 source-domain endpoint, so both operators and
  * numerical source constraints consume this function.
  */

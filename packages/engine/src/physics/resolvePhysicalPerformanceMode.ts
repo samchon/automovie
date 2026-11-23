@@ -1,7 +1,8 @@
 import type { IAutoMoviePerformanceMode } from "@automovie/interface";
 
 /**
- * Resolve an explicit scene policy and optional body override without content-name defaults.
+ * Resolve an explicit scene policy and optional body override without
+ * content-name defaults.
  */
 export function resolvePhysicalPerformanceMode(
   scene: IAutoMoviePerformanceMode,

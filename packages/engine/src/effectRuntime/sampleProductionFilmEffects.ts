@@ -17,11 +17,11 @@ import { validateProductionFilmEffectRuntime } from "./validateProductionFilmEff
  * exact boundary second on that runtime's rate, with `cameraDistance` in metres
  * passed to the engine sampler (zero when omitted). Every call re-validates
  * each persisted runtime and compares it with `identity`; all refusals throw
- * `AutoMovieFilmEffectRuntimeError`: `film-effect-input-invalid` for a malformed
- * identity, a frame that is not a nonnegative safe integer or a negative or
- * non-finite distance, `film-effect-runtime-invalid` for a runtime that is not
- * what the materializer writes, and `film-effect-runtime-stale` for one written
- * under a different production, film, compile or edit identity.
+ * `AutoMovieFilmEffectRuntimeError`: `film-effect-input-invalid` for a
+ * malformed identity, a frame that is not a nonnegative safe integer or a
+ * negative or non-finite distance, `film-effect-runtime-invalid` for a runtime
+ * that is not what the materializer writes, and `film-effect-runtime-stale` for
+ * one written under a different production, film, compile or edit identity.
  */
 export const sampleProductionFilmEffects = (
   props: IAutoMovieSampleProductionFilmEffects.IProps,

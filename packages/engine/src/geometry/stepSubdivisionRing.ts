@@ -11,8 +11,8 @@ import { subdivisionVertexMask } from "./subdivisionVertexMask";
  * Refine a vertex's quad one-ring once, giving the one-ring of the vertex's
  * child.
  *
- * The child's diagonals are the new face points `(C + E_i + D_i + E_{i+1}) / 4`,
- * its edge neighbours the new edge points of the ring edges, and its centre
+ * The child's diagonals are the new face points `(C + E_i + D_i + E_{i+1}) /
+ * 4`, its edge neighbours the new edge points of the ring edges, and its centre
  * the new vertex point, by the same rules as `refineSubdivisionPoints`. Every
  * point it needs lies inside the ring's quads, so the ring refines without the
  * rest of the mesh.

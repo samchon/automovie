@@ -18,8 +18,8 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * budget, identities, particles (each held by one anchor only), static
  * positions and moving bindings, then the states' budget, identities and the
  * anchors each poses (declared, posed once, finite). Split from
- * `validateSoftBodyDomain`, which calls it at the same place, so its
- * findings keep their order.
+ * `validateSoftBodyDomain`, which calls it at the same place, so its findings
+ * keep their order.
  *
  * @param out The collector the domain's validation writes to.
  * @param root The domain's path.

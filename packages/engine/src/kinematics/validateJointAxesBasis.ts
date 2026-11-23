@@ -33,8 +33,8 @@ const AXIS_PAIRS: readonly (readonly [
 ];
 
 /**
- * Every reason a joint-axis basis cannot serve the clinical angle
- * conversions, as located issues; an empty list means the basis is usable.
+ * Every reason a joint-axis basis cannot serve the clinical angle conversions,
+ * as located issues; an empty list means the basis is usable.
  *
  * Each axis must have finite components and a length above `1e-9`; it need not
  * be unit length, because {@link normalizeJointAxes} normalizes after this
@@ -43,8 +43,8 @@ const AXIS_PAIRS: readonly (readonly [
  * instead of silently skewing forward or inverse kinematics. A declared
  * `twistPlacement` must be `"proximal"` or `"distal"`. The only explicit
  * `rotationOrder` is `"flexion-abduction-twist"`, which permits omitted or
- * distal twist placement. Issues are listed in
- * that order, each with a path under `path` such as `<path>.twist.y`.
+ * distal twist placement. Issues are listed in that order, each with a path
+ * under `path` such as `<path>.twist.y`.
  *
  * @param axes Basis to check; read, never modified.
  * @param path Diagnostic path prefix naming the caller's input.

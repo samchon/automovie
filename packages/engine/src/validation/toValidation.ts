@@ -4,7 +4,8 @@ import {
 } from "@automovie/interface";
 
 /**
- * Return failure with the supplied violation array when any error exists, otherwise return the same array as warnings or an empty success record.
+ * Return failure with the supplied violation array when any error exists,
+ * otherwise return the same array as warnings or an empty success record.
  */
 export const toValidation: (
   violations: IAutoMovieConstraintViolation[],

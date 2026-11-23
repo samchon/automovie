@@ -17,17 +17,31 @@ import { resolveCameraAt } from "./resolveCameraAt";
 const DEFAULT_ASPECT: number = 16 / 9;
 
 /**
- * Project one posed actor's joints to normalized 2D frame keypoints, the OpenPose-style conditioning automovie can emit exactly because it knows every bone's 3D position.
+ * Project one posed actor's joints to normalized 2D frame keypoints, the
+ * OpenPose-style conditioning automovie can emit exactly because it knows every
+ * bone's 3D position.
  *
- * Forward kinematics resolves the pose in rig space, the actor's staged node transform lifts each joint into scene world with the renderer's TRS order, and the live camera, sampled at `time`, projects it through an optional delivery crop. `x` grows rightward and `y` downward from the frame's top-left corner, both in `[0, 1]` inside the frame. A joint behind the camera, outside the clip range or outside the frame is still projected, never clamped, because a clamped point reads as a false edge keypoint, and is flagged `inFrame: false`. A requested joint the rig does not have yields no keypoint. The order follows joints. FK uses default engine joint axes and rest frames; coincidence with a renderer requires those same conventions, and these numerical outputs establish no observed rendered pixels.
+ * Forward kinematics resolves the pose in rig space, the actor's staged node
+ * transform lifts each joint into scene world with the renderer's TRS order,
+ * and the live camera, sampled at `time`, projects it through an optional
+ * delivery crop. `x` grows rightward and `y` downward from the frame's top-left
+ * corner, both in `[0, 1]` inside the frame. A joint behind the camera, outside
+ * the clip range or outside the frame is still projected, never clamped,
+ * because a clamped point reads as a false edge keypoint, and is flagged
+ * `inFrame: false`. A requested joint the rig does not have yields no keypoint.
+ * The order follows joints. FK uses default engine joint axes and rest frames;
+ * coincidence with a renderer requires those same conventions, and these
+ * numerical outputs establish no observed rendered pixels.
  *
- * @param props The pose, rig, staged placement, camera, instant and output options.
+ * @param props The pose, rig, staged placement, camera, instant and output
+ *   options.
  * @returns One keypoint per requested joint the rig has.
  */
 export function resolvePoseKeypoints(
   props: IAutoMovieResolvePoseKeypoints.IProps,
 ): IAutoMoviePoseKeypoint[] {
-  const joints: readonly AutoMovieHumanoidBone[] = props.joints ?? DEFAULT_KEYPOINT_BONES;
+  const joints: readonly AutoMovieHumanoidBone[] =
+    props.joints ?? DEFAULT_KEYPOINT_BONES;
   const rigByBone: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map(
     resolvePose(
       props.pose,

@@ -15,7 +15,8 @@ import { planAutoMovieSupportLoft64 } from "./planAutoMovieSupportLoft64";
  * remains numerical, with explicit refusal for unresolved charts and budgets.
  * Normals come from the same face equations; caps and interior are not emitted.
  * The face chord bound covers interpolation within the numerical partition,
- * separately from uncertified event isolation, boundary roundoff and source fit.
+ * separately from uncertified event isolation, boundary roundoff and source
+ * fit.
  */
 export function realizeAutoMovieConvexSupportLoft(
   input: IAutoMovieRealizeConvexSupportLoft.IInput,

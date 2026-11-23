@@ -9,12 +9,14 @@ import type {
 import { AutoMovieCurveLengthQuadrature64 } from "./AutoMovieCurveLengthQuadrature64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 
-/** Integrate a cubic curve's physical speed with composite eight-point
+/**
+ * Integrate a cubic curve's physical speed with composite eight-point
  * Gauss-Legendre quadrature. Controls use millimetres, so the returned length
  * uses millimetres independently of the curve's phase unit or piece widths.
- * Doubling the subdivisions supplies an observed difference, not an error bound.
- * The original interior-only finite-final policy remains: endpoint-only speed
- * overflow and underflowed contributions do not add admission failures here.
+ * Doubling the subdivisions supplies an observed difference, not an error
+ * bound. The original interior-only finite-final policy remains: endpoint-only
+ * speed overflow and underflowed contributions do not add admission failures
+ * here.
  */
 export function measureAutoMovieCubicCurveLength64(
   curve: IAutoMovieCubicBezierCurve64,
@@ -34,7 +36,10 @@ export function measureAutoMovieCubicCurveLength64(
           p: AutoMovieCubicBezierControls3,
         ): [
           readonly {
-            /** Original finite closed parameter interval, admitted by the caller. */
+            /**
+             * Original finite closed parameter interval, admitted by the
+             * caller.
+             */
             domain: readonly [number, number];
             /** Original world derivative in mm per interval-parameter unit. */
             derivative: (

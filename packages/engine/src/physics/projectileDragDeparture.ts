@@ -14,8 +14,10 @@ import { projectileDragFlight } from "./projectileDragFlight";
  *
  * @param normal Fixed plane's unit outward normal.
  * @param projectile The already admitted launch with quadratic drag.
- * @param contact Its resolved initial fixed-plane episode and actual gap reader.
- * @returns An actual positive-gap witness before any certified new entry, or no certificate.
+ * @param contact Its resolved initial fixed-plane episode and actual gap
+ *   reader.
+ * @returns An actual positive-gap witness before any certified new entry, or no
+ *   certificate.
  */
 export function projectileDragDeparture(
   normal: IAutoMovieVector3,

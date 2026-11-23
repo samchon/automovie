@@ -13,23 +13,23 @@ const COMPONENTS: readonly ["x", "y", "z"] = ["x", "y", "z"];
  * A point moved by overlapping minimum-jerk units, each adding its own
  * displacement over its own time window.
  *
- * Flash and Henis (1991, J. Cogn. Neurosci. 3:220) and Henis and Flash
- * (1995) found that when a target jumps during a reach, the observed hand path
- * is fitted best by superposing a second minimum-jerk unit, from the old
- * target to the new one, on the unmodified first, rather than by aborting and
- * re-planning; Meyer et al. (1988) model corrective submovements the same
- * way. Because every unit is a quintic with zero velocity and acceleration at
- * its ends, the sum is continuous in position, velocity and acceleration at
- * every unit's start and end, ends at rest at the origin plus every
- * displacement, and equals the first unit alone when a later unit's
- * displacement is zero.
- * position reads only that same accumulated point, omitting derivative
- * profiles and velocity/acceleration/state records. Every unit still receives
- * its original positive-duration check and normalized-time admission; an
- * empty unit list performs no time admission, as in the complete reader.
+ * Flash and Henis (1991, J. Cogn. Neurosci. 3:220) and Henis and Flash (1995)
+ * found that when a target jumps during a reach, the observed hand path is
+ * fitted best by superposing a second minimum-jerk unit, from the old target to
+ * the new one, on the unmodified first, rather than by aborting and
+ * re-planning; Meyer et al. (1988) model corrective submovements the same way.
+ * Because every unit is a quintic with zero velocity and acceleration at its
+ * ends, the sum is continuous in position, velocity and acceleration at every
+ * unit's start and end, ends at rest at the origin plus every displacement, and
+ * equals the first unit alone when a later unit's displacement is zero.
+ * position reads only that same accumulated point, omitting derivative profiles
+ * and velocity/acceleration/state records. Every unit still receives its
+ * original positive-duration check and normalized-time admission; an empty unit
+ * list performs no time admission, as in the complete reader.
  *
  * @param origin Where the point starts, metres.
- * @param units Displacements in metres with their start and duration in seconds.
+ * @param units Displacements in metres with their start and duration in
+ *   seconds.
  * @param seconds The instant.
  * @returns Position (m), velocity (m/s) and acceleration (m/s²).
  */
@@ -38,7 +38,12 @@ export function superposeMinimumJerk(
   units: readonly IAutoMovieSuperposeMinimumJerk.IUnit[],
   seconds: number,
 ): IAutoMovieSuperposeMinimumJerk.IState {
-  return evaluate(origin, units, seconds, true) as IAutoMovieSuperposeMinimumJerk.IState;
+  return evaluate(
+    origin,
+    units,
+    seconds,
+    true,
+  ) as IAutoMovieSuperposeMinimumJerk.IState;
 }
 
 /** Only the two actual public demands select this private result union. */
@@ -52,13 +57,19 @@ function evaluate(
   derivatives: boolean,
 ): IReading {
   const position: IAutoMovieVector3 = { ...origin };
-  const velocity: IAutoMovieVector3 | undefined = derivatives ? { x: 0, y: 0, z: 0 } : undefined;
-  const acceleration: IAutoMovieVector3 | undefined = derivatives ? { x: 0, y: 0, z: 0 } : undefined;
+  const velocity: IAutoMovieVector3 | undefined = derivatives
+    ? { x: 0, y: 0, z: 0 }
+    : undefined;
+  const acceleration: IAutoMovieVector3 | undefined = derivatives
+    ? { x: 0, y: 0, z: 0 }
+    : undefined;
   for (const unit of units) {
     if (!(unit.duration > 0))
       throw new Error("A minimum-jerk unit's duration is positive");
     const u: number = (seconds - unit.start) / unit.duration;
-    const p: IAutoMovieMinimumJerk.IProfile | undefined = derivatives ? minimumJerk(u) : undefined;
+    const p: IAutoMovieMinimumJerk.IProfile | undefined = derivatives
+      ? minimumJerk(u)
+      : undefined;
     const s: number = p === undefined ? minimumJerk.share(u) : p.s;
     for (const k of COMPONENTS) {
       position[k] += unit.displacement[k] * s;
@@ -69,12 +80,12 @@ function evaluate(
       }
     }
   }
-  return derivatives ? { position, velocity: velocity!, acceleration: acceleration! } : position;
+  return derivatives
+    ? { position, velocity: velocity!, acceleration: acceleration! }
+    : position;
 }
 
-/**
- * Companion types of {@link superposeMinimumJerk}.
- */
+/** Companion types of {@link superposeMinimumJerk}. */
 export namespace superposeMinimumJerk {
   /**
    * The same accumulated position in metres, with one fresh point and no

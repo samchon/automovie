@@ -15,9 +15,7 @@ import { Vector3 } from "../math/Vector3";
  * is N m, never a pose offset; equal opposite torques act on the joint bodies.
  */
 export namespace AutoMoviePhysicalTracking {
-  /**
-   * Calculate a torque without retaining a controller state or changing inputs.
-   */
+  /** Calculate a torque without retaining a controller state or changing inputs. */
   export function torque(
     current: IAutoMovieQuaternion,
     target: IAutoMovieQuaternion,
@@ -71,7 +69,8 @@ export namespace AutoMoviePhysicalTracking {
     return result;
   }
   /**
-   * Root positional PD; gravity compensation is explicit in the caller's acceleration.
+   * Root positional PD; gravity compensation is explicit in the caller's
+   * acceleration.
    */
   export function force(
     error: IAutoMovieVector3,

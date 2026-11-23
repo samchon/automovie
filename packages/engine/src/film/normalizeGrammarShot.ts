@@ -12,12 +12,23 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 import { assertGrammarPositive } from "./assertGrammarPositive";
 
 /**
- * Validates one shot observation and returns it in the canonical form the film-grammar read inspects.
+ * Validates one shot observation and returns it in the canonical form the
+ * film-grammar read inspects.
  *
- * Throws an `Error` naming the offending field at the first defect, in this order: a blank shot id; a duration that is not finite and positive; at each camera boundary, a field of view outside `(0, 180)`, an aspect that is not finite and positive, or a non-finite or missing position or rotation component; then per subject in id order, a blank or repeated id, a non-finite or missing point component, a height that is not finite and positive, a radius that is negative or not finite, or a blank eyeline target or non-finite eyeline point; a primary subject that is not observed; an action axis that repeats or misses an observed subject; and repeated style intents.
+ * Throws an `Error` naming the offending field at the first defect, in this
+ * order: a blank shot id; a duration that is not finite and positive; at each
+ * camera boundary, a field of view outside `(0, 180)`, an aspect that is not
+ * finite and positive, or a non-finite or missing position or rotation
+ * component; then per subject in id order, a blank or repeated id, a non-finite
+ * or missing point component, a height that is not finite and positive, a
+ * radius that is negative or not finite, or a blank eyeline target or
+ * non-finite eyeline point; a primary subject that is not observed; an action
+ * axis that repeats or misses an observed subject; and repeated style intents.
  *
  * @param input One observed shot as the production grammar pass built it.
- * @returns A new record whose subjects are sorted and indexed by id and whose axis endpoints are sorted; the camera and subject objects are shared with `input`, not copied.
+ * @returns A new record whose subjects are sorted and indexed by id and whose
+ *   axis endpoints are sorted; the camera and subject objects are shared with
+ *   `input`, not copied.
  */
 export function normalizeGrammarShot(
   input: IAutoMovieGrammarShotObservation,

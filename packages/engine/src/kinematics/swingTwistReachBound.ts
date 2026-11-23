@@ -10,60 +10,86 @@ import type {
 import { Vector3 } from "../math/Vector3";
 
 /**
- * A certified upper bound of the farthest swing along one great circle that
- * a joint's flexion and abduction intervals reach with no twist, in closed
- * form, so `swingTwistRegion`'s scan from the far end starts at the bound
- * instead of at half a turn.
+ * A certified upper bound of the farthest swing along one great circle that a
+ * joint's flexion and abduction intervals reach with no twist, in closed form,
+ * so `swingTwistRegion`'s scan from the far end starts at the bound instead of
+ * at half a turn.
  *
  * On an orthonormal clinical basis the untwisted rotation is the abduction
  * after the flexion, a latitude and longitude chart about the abduction axis
- * `a`: the flexion alone sets the direction's part along `a`
- * (`sin f = (d . a) / across`), and the abduction then turns the rest about
- * `a`. Along a great circle `d(s) = cos s u + sin s w` through the rest
- * direction `u` that part is `k sin s` with `k = (w . a) / across`, and the
- * abduction is `atan2(c sin s, cos s)` with `c = a . (u x w)` on the reading
- * whose flexion lies within a quarter turn of rest, half a turn from it on
- * the other reading (`180 - f`). Both are monotone in pieces, so the swings
- * each interval admits are intervals with closed-form ends, and the farthest
- * swing either reading admits bounds the reach. The swing cone only removes
- * directions, so the bound stands with it.
+ * `a`: the flexion alone sets the direction's part along `a` (`sin f = (d . a)
+ * / across`), and the abduction then turns the rest about `a`. Along a great
+ * circle `d(s) = cos s u + sin s w` through the rest direction `u` that part is
+ * `k sin s` with `k = (w . a) / across`, and the abduction is `atan2(c sin s,
+ * cos s)` with `c = a . (u x w)` on the reading whose flexion lies within a
+ * quarter turn of rest, half a turn from it on the other reading (`180 - f`).
+ * Both are monotone in pieces, so the swings each interval admits are intervals
+ * with closed-form ends, and the farthest swing either reading admits bounds
+ * the reach. The swing cone only removes directions, so the bound stands with
+ * it.
  */
 export namespace swingTwistReachBound {
-  /** How far past its closed-form end an admitted interval is taken, degrees: past the rounding of the scan's own reading of a direction, far under the scan's half-degree step. */
+  /**
+   * How far past its closed-form end an admitted interval is taken, degrees:
+   * past the rounding of the scan's own reading of a direction, far under the
+   * scan's half-degree step.
+   */
   export const MARGIN: number = 1e-6;
 
   /**
-   * What the scan's grid can read of a ray's reached swings, written beside
-   * the bound for a caller that gives the grid's step.
+   * What the scan's grid can read of a ray's reached swings, written beside the
+   * bound for a caller that gives the grid's step.
    */
   export interface ISpan {
     /** The scan grid's step, degrees; given by the caller. */
     grid: number;
 
-    /** The farthest grid step, at most half a turn less one step, that lies inside an interval of reached swings, to the margins; 0 when none does. No grid step past it is reached. */
+    /**
+     * The farthest grid step, at most half a turn less one step, that lies
+     * inside an interval of reached swings, to the margins; 0 when none does.
+     * No grid step past it is reached.
+     */
     cell: number;
 
-    /** The least swing of the interval of reached swings that holds `cell`, joined with those overlapping it; NaN when no interval is reported. */
+    /**
+     * The least swing of the interval of reached swings that holds `cell`,
+     * joined with those overlapping it; NaN when no interval is reported.
+     */
     low: number;
 
-    /** That interval's greatest swing; NaN when none is reported: the circle passes the abduction axis, where the longitude's closed form does not hold, or another interval reaches into the cell past it. */
+    /**
+     * That interval's greatest swing; NaN when none is reported: the circle
+     * passes the abduction axis, where the longitude's closed form does not
+     * hold, or another interval reaches into the cell past it.
+     */
     high: number;
   }
   /**
    * Prepare a joint's bound.
    *
-   * @param constraint The constraint, with flexion and abduction intervals in clinical degrees.
+   * @param constraint The constraint, with flexion and abduction intervals in
+   *   clinical degrees.
    * @param frame The rest frame its clinical angles are lifted by.
    * @param basis The joint's swing frame.
    * @param across `(f x u) . a` of that frame.
-   * @returns For a great circle's azimuth cosine and sine, an upper bound in degrees within [0, 180] of every swing the intervals reach on it, 0 when none is reached, and, when a span is given, what the scan's grid can read of them ({@link ISpan}); null when an interval is absent or the basis is not orthonormal to rounding, so the chart's closed forms do not hold.
+   * @returns For a great circle's azimuth cosine and sine, an upper bound in
+   *   degrees within [0, 180] of every swing the intervals reach on it, 0 when
+   *   none is reached, and, when a span is given, what the scan's grid can read
+   *   of them ({@link ISpan}); null when an interval is absent or the basis is
+   *   not orthonormal to rounding, so the chart's closed forms do not hold.
    */
   export function prepare(
     constraint: IAutoMovieJointConstraint,
     frame: IAutoMovieRestFrame | undefined,
     basis: IAutoMovieSwingTwistBasis.IBasis,
     across: number,
-  ): ((cosine: number, sine: number, span?: swingTwistReachBound.ISpan) => number) | null {
+  ):
+    | ((
+        cosine: number,
+        sine: number,
+        span?: swingTwistReachBound.ISpan,
+      ) => number)
+    | null {
     const flexion: IAutoMovieAngleRange | null = constraint.flexion;
     const abduction: IAutoMovieAngleRange | null = constraint.abduction;
     if (flexion === null || abduction === null) return null;
@@ -86,7 +112,11 @@ export namespace swingTwistReachBound {
     const sides: IInterval[] = admitted(abduction, frame?.abduction, -180, 180);
     const firstAcross: number = Vector3.dot(basis.e1, basis.a);
     const secondAcross: number = Vector3.dot(basis.e2, basis.a);
-    return (cosine: number, sine: number, span?: swingTwistReachBound.ISpan): number => {
+    return (
+      cosine: number,
+      sine: number,
+      span?: swingTwistReachBound.ISpan,
+    ): number => {
       // w = cosine e1 + sine e2, on the scan's own circle axes.
       const k: number = (cosine * firstAcross + sine * secondAcross) / across;
       const c: number = Vector3.dot(
@@ -121,7 +151,11 @@ export namespace swingTwistReachBound {
           continue;
         }
         for (const a of sides) {
-          const longitude: IInterval | null = swingsOfLongitude(a, c, reading === 1);
+          const longitude: IInterval | null = swingsOfLongitude(
+            a,
+            c,
+            reading === 1,
+          );
           if (longitude === null) continue;
           for (const latitude of latitudes) {
             const high: number = Math.min(latitude.high, longitude.high);
@@ -174,7 +208,11 @@ export namespace swingTwistReachBound {
           }
           let alone: boolean = true;
           for (const other of reached)
-            if (!joined.has(other) && other.high > high && other.low < cell + span.grid)
+            if (
+              !joined.has(other) &&
+              other.high > high &&
+              other.low < cell + span.grid
+            )
               alone = false;
           if (alone) {
             span.low = low;
@@ -196,7 +234,11 @@ interface IInterval {
   high: number;
 }
 
-/** How far two intervals of reached swings must overlap to be joined as one, degrees: far above their margins, so the join never bridges a gap the margins hide. */
+/**
+ * How far two intervals of reached swings must overlap to be joined as one,
+ * degrees: far above their margins, so the join never bridges a gap the margins
+ * hide.
+ */
 const OVERLAP: number = 0.01;
 
 /** Degrees per radian. */
@@ -208,9 +250,9 @@ function unit(v: IAutoMovieVector3): boolean {
 }
 
 /**
- * The rig angles within `[from, to]` whose clinical reading
- * (`sign * rig + neutral`) has a full-turn alias inside the interval: one rig
- * interval and its full-turn aliases, each widened by the margin.
+ * The rig angles within `[from, to]` whose clinical reading (`sign * rig +
+ * neutral`) has a full-turn alias inside the interval: one rig interval and its
+ * full-turn aliases, each widened by the margin.
  */
 function admitted(
   range: IAutoMovieAngleRange,
@@ -239,9 +281,9 @@ function admitted(
 }
 
 /**
- * The swings in [0, 180] at which `asin(k sin s)`, degrees, lies in an
- * interval within [-90, 90]: `sin s` between the interval's sines over `k`,
- * which is a swing interval and its mirror about a quarter turn.
+ * The swings in [0, 180] at which `asin(k sin s)`, degrees, lies in an interval
+ * within [-90, 90]: `sin s` between the interval's sines over `k`, which is a
+ * swing interval and its mirror about a quarter turn.
  */
 function swingsOfLatitude(f: IInterval, k: number): IInterval[] {
   const margin: number = swingTwistReachBound.MARGIN;

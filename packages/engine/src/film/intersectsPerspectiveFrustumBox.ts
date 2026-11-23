@@ -14,7 +14,10 @@ import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspect
 /**
  * The twelve edges of any eight-corner box, as index pairs.
  *
- * Both corner lists below are built by nesting three two-valued choices, so a corner's index is those three choices read as bits and an edge is a pair differing in exactly one of them. The same twelve pairs therefore name the box's edges and the frustum's.
+ * Both corner lists below are built by nesting three two-valued choices, so a
+ * corner's index is those three choices read as bits and an edge is a pair
+ * differing in exactly one of them. The same twelve pairs therefore name the
+ * box's edges and the frustum's.
  */
 const BOX_EDGES: ReadonlyArray<readonly [number, number]> = [
   [0, 1],
@@ -32,11 +35,26 @@ const BOX_EDGES: ReadonlyArray<readonly [number, number]> = [
 ];
 
 /**
- * Whether a world-space axis-aligned box intersects a perspective-camera frustum under finite, ordered geometry and a valid lens.
+ * Whether a world-space axis-aligned box intersects a perspective-camera
+ * frustum under finite, ordered geometry and a valid lens.
  *
- * Both bodies are convex, and two convex polyhedra meet exactly when an edge of one meets the other: every vertex of the intersection is a vertex of one body lying inside the other, or a crossing of one body's edge with the other's face, and each of those puts some edge of one body inside the other. So the twelve box edges are clipped against the frustum's six half-spaces, and the twelve frustum edges against the box's three slabs. Neither half alone is the answer: a box small enough to sit inside the frame is found only by the first, and a frustum that pierces a mass far wider than itself, a camera standing inside a crowd or above one, only by the second. Touching counts as meeting, and a malformed crop throws the `RangeError` of {@link deliveryCropNdc}.
+ * Both bodies are convex, and two convex polyhedra meet exactly when an edge of
+ * one meets the other: every vertex of the intersection is a vertex of one body
+ * lying inside the other, or a crossing of one body's edge with the other's
+ * face, and each of those puts some edge of one body inside the other. So the
+ * twelve box edges are clipped against the frustum's six half-spaces, and the
+ * twelve frustum edges against the box's three slabs. Neither half alone is the
+ * answer: a box small enough to sit inside the frame is found only by the
+ * first, and a frustum that pierces a mass far wider than itself, a camera
+ * standing inside a crowd or above one, only by the second. Touching counts as
+ * meeting, and a malformed crop throws the `RangeError` of
+ * {@link deliveryCropNdc}.
  *
- * This is what a required subject with a real extent is judged against in `realizeShotContract`. A segment through one point cannot answer for a mass: it reports a crowd absent whenever the frame holds its flank instead of its middle, and present whenever that one point is on screen no matter where the rest of the unit stands.
+ * This is what a required subject with a real extent is judged against in
+ * `realizeShotContract`. A segment through one point cannot answer for a mass:
+ * it reports a crowd absent whenever the frame holds its flank instead of its
+ * middle, and present whenever that one point is on screen no matter where the
+ * rest of the unit stands.
  *
  * @param props.camera Camera placement, looking down its local −Z.
  * @param props.min Minimum world corner of the box, in metres.

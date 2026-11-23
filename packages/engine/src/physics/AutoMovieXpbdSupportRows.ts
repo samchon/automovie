@@ -8,16 +8,16 @@ import type { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArtic
 import { solveXpbdContacts } from "./solveXpbdContacts";
 
 /**
- * The support rows of one articulation: which contacts take part, the rows
- * each patch gives, and how a row reads and moves the tree.
+ * The support rows of one articulation: which contacts take part, the rows each
+ * patch gives, and how a row reads and moves the tree.
  *
- * A patch takes part when one side is a body of the tree and the other is
- * not dynamic (the floor, a kinematic prop), with its points the step
- * pressed (`normalLambda > 0`) and those touching inside the allowed depth,
- * which a sequential-impulse solver's velocity rows also cover (Catto 2006,
- * "Fast and Simple Physics using Sequential Impulses"). Each such point
- * gives a normal row along its push direction; each patch gives two
- * tangential rows at its points' centroid (patch friction).
+ * A patch takes part when one side is a body of the tree and the other is not
+ * dynamic (the floor, a kinematic prop), with its points the step pressed
+ * (`normalLambda > 0`) and those touching inside the allowed depth, which a
+ * sequential-impulse solver's velocity rows also cover (Catto 2006, "Fast and
+ * Simple Physics using Sequential Impulses"). Each such point gives a normal
+ * row along its push direction; each patch gives two tangential rows at its
+ * points' centroid (patch friction).
  */
 export namespace AutoMovieXpbdSupportRows {
   /**
@@ -97,8 +97,10 @@ export namespace AutoMovieXpbdSupportRows {
       );
       const centroid: IAutoMovieVector3 = Vector3.scale(
         points.reduce(
-          (sum: IAutoMovieVector3, point: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.add(sum, point),
+          (
+            sum: IAutoMovieVector3,
+            point: IAutoMovieVector3,
+          ): IAutoMovieVector3 => Vector3.add(sum, point),
           { x: 0, y: 0, z: 0 },
         ),
         1 / points.length,
@@ -147,8 +149,8 @@ export namespace AutoMovieXpbdSupportRows {
   }
 
   /**
-   * A row's unit spatial impulse on its body: a force along the direction
-   * at the point.
+   * A row's unit spatial impulse on its body: a force along the direction at
+   * the point.
    *
    * @param row The row.
    * @returns The spatial impulse, moment then force, about the tree origin.
@@ -158,8 +160,8 @@ export namespace AutoMovieXpbdSupportRows {
   }
 
   /**
-   * A row's velocity change under a response, along its direction: the
-   * point's linear change.
+   * A row's velocity change under a response, along its direction: the point's
+   * linear change.
    *
    * @param row The row.
    * @param response The response.
@@ -171,15 +173,17 @@ export namespace AutoMovieXpbdSupportRows {
   ): number {
     const change: number[] = response.change[row.state]!;
     return Vector3.dot(
-          row.direction,
-          AutoMovieXpbdArticulation.pointChange(change, row.point),
-        );
+      row.direction,
+      AutoMovieXpbdArticulation.pointChange(change, row.point),
+    );
   }
 
   /** Two unit tangents completing a unit normal to a right-handed basis. */
   function tangents(n: IAutoMovieVector3): IAutoMovieVector3[] {
     const seed: IAutoMovieVector3 =
-      Math.abs(n.x) < Math.SQRT1_2 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 };
+      Math.abs(n.x) < Math.SQRT1_2
+        ? { x: 1, y: 0, z: 0 }
+        : { x: 0, y: 1, z: 0 };
     const t1: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(n, seed));
     return [t1, Vector3.cross(n, t1)];
   }

@@ -4,7 +4,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Resolve the already admitted exclusive description; a physical profile structurally supplies the same collision and joint facts.
+ * Resolve the already admitted exclusive description; a physical profile
+ * structurally supplies the same collision and joint facts.
  */
 export function motionAuditGeometry(
   body: IAutoMovieMotionAudit.IBody,

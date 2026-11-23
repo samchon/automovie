@@ -1,7 +1,11 @@
 /**
- * Throws `<path> must be finite and positive.` unless `value` is a finite number greater than zero.
+ * Throws `<path> must be finite and positive.` unless `value` is a finite
+ * number greater than zero.
  *
- * The film-grammar read refuses a malformed observation instead of reporting it, so a threshold, a duration, a lens or a subject height that is zero, negative, `NaN` or infinite stops the read before any projection divides by it.
+ * The film-grammar read refuses a malformed observation instead of reporting
+ * it, so a threshold, a duration, a lens or a subject height that is zero,
+ * negative, `NaN` or infinite stops the read before any projection divides by
+ * it.
  *
  * @param value Number that must be finite and greater than zero.
  * @param path Dotted name of the field, used as the message prefix.

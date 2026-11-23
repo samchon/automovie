@@ -13,8 +13,8 @@ import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
 import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
 
 /**
- * Compute authored frames and geometric relationships without a dynamics
- * world. Any coupled groups and their report sink come from the same intake.
+ * Compute authored frames and geometric relationships without a dynamics world.
+ * Any coupled groups and their report sink come from the same intake.
  */
 export async function computePhysicalKinematicFrames(
   input: IAutoMoviePhysicalSimulationInput.IInput,

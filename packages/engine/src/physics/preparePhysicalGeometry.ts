@@ -13,16 +13,15 @@ import { physicalShapePairContact } from "./physicalShapePairContact";
 
 /**
  * Prepare exact convex geometric queries in the engine's own geometry: no
- * dynamics world, steps or impulses. A returned contact keeps a null
- * impulse, so a geometric witness cannot pass for a solver result.
+ * dynamics world, steps or impulses. A returned contact keeps a null impulse,
+ * so a geometric witness cannot pass for a solver result.
  *
  * A contact is the least signed distance over both colliders' wire frames
- * (`physicalShapePairContact`): exact while they are apart, and the depth
- * of the deepest wire inside the other solid while they overlap. Two
- * colliders whose bounds are farther apart than the prediction on some
- * axis are not queried. The projection of a point is the collider's
- * nearest surface point (`physicalShapeNearest`), from inside as from
- * outside.
+ * (`physicalShapePairContact`): exact while they are apart, and the depth of
+ * the deepest wire inside the other solid while they overlap. Two colliders
+ * whose bounds are farther apart than the prediction on some axis are not
+ * queried. The projection of a point is the collider's nearest surface point
+ * (`physicalShapeNearest`), from inside as from outside.
  */
 export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysicalGeometry.IQueries> {
   return {

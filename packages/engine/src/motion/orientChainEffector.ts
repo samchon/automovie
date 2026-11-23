@@ -28,21 +28,26 @@ import { splitDistalTwist } from "./splitDistalTwist";
 /**
  * Turn a fitted effector toward a requested model-frame rotation within its
  * actual clinical domain. A distal mid bone takes its twist share first.
- * Removing the resulting lower rotation and the fixed lower-to-effector
- * frame leaves the articulation projected by prepareJointRotationProjection:
- * a finite analytic candidate list for a plain box with zero, one or two
- * mobile axes, and the existing bounded refinement for other domains.
+ * Removing the resulting lower rotation and the fixed lower-to-effector frame
+ * leaves the articulation projected by prepareJointRotationProjection: a finite
+ * analytic candidate list for a plain box with zero, one or two mobile axes,
+ * and the existing bounded refinement for other domains.
  *
- * The fixed frame includes unchanged intermediate bones and the effector's
- * rest rotation. Prepared callers reuse that frame and chain-only FK.
- * Standalone callers retain full authored FK admission before deriving it;
- * unsupported chains retain the previous direct-rest fallback.
+ * The fixed frame includes unchanged intermediate bones and the effector's rest
+ * rotation. Prepared callers reuse that frame and chain-only FK. Standalone
+ * callers retain full authored FK admission before deriving it; unsupported
+ * chains retain the previous direct-rest fallback.
  *
- * @param props The fit request; without effectorRotation the pose returns unchanged.
+ * @param props The fit request; without effectorRotation the pose returns
+ *   unchanged.
  * @param fitted The fitted pose.
- * @param prepared Preparation for the same root, ancestors, intermediate pose and merged clinical mappings; only chain articulations may differ.
- * @param rig Optional lazy rig of the same source workspace; basis, clamps, local projection and fixed inverse remain valid only under unchanged rig/frame dependencies.
- * @param capture Immediate reader of the final projected rotation and optional position, when the native rig admitted the lower prefix.
+ * @param prepared Preparation for the same root, ancestors, intermediate pose
+ *   and merged clinical mappings; only chain articulations may differ.
+ * @param rig Optional lazy rig of the same source workspace; basis, clamps,
+ *   local projection and fixed inverse remain valid only under unchanged
+ *   rig/frame dependencies.
+ * @param capture Immediate reader of the final projected rotation and optional
+ *   position, when the native rig admitted the lower prefix.
  * @returns The pose with the effector oriented inside its rig's limits.
  */
 export function orientChainEffector(
@@ -136,20 +141,29 @@ export function orientChainEffector(
       clamp: clampJointToSkeleton.of(props.chain.effector, props.skeleton),
     });
   const previous: splitDistalTwist.IResult["projection"] = split.projection;
-  const effector: IAutoMovieJointPose = previous !== undefined &&
-    Object.is(previous.local.x, local.x) && Object.is(previous.local.y, local.y) &&
-    Object.is(previous.local.z, local.z) && Object.is(previous.local.w, local.w)
-      ? previous.joint : project(local);
+  const effector: IAutoMovieJointPose =
+    previous !== undefined &&
+    Object.is(previous.local.x, local.x) &&
+    Object.is(previous.local.y, local.y) &&
+    Object.is(previous.local.z, local.z) &&
+    Object.is(previous.local.w, local.w)
+      ? previous.joint
+      : project(local);
   if (capture !== undefined && prepared !== undefined && rig !== undefined) {
-    const articulation: IAutoMovieQuaternion = rig.composer(effector.bone, props.restFrames?.[effector.bone])(effector);
+    const articulation: IAutoMovieQuaternion = rig.composer(
+      effector.bone,
+      props.restFrames?.[effector.bone],
+    )(effector);
     const rotation: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.multiply(lower.worldRotation, prepared.effectorBaseRotation),
       articulation,
     );
-    capture(rotation, () => Vector3.add(
-      lower.worldPosition,
-      Quaternion.rotateVector(lower.worldRotation, prepared.effectorOffset),
-    ));
+    capture(rotation, () =>
+      Vector3.add(
+        lower.worldPosition,
+        Quaternion.rotateVector(lower.worldRotation, prepared.effectorOffset),
+      ),
+    );
   }
   return {
     ...pose,
@@ -163,11 +177,12 @@ export function orientChainEffector(
   };
 }
 
-/**
- * The synchronous observation of this operation's produced orientation.
- */
+/** The synchronous observation of this operation's produced orientation. */
 export namespace orientChainEffector {
-  /** An immediate contact reader of the admitted lower prefix and final projected orientation. */
+  /**
+   * An immediate contact reader of the admitted lower prefix and final
+   * projected orientation.
+   */
   export type IReading = (
     rotation: IAutoMovieQuaternion,
     position: () => IAutoMovieVector3,

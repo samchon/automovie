@@ -19,8 +19,8 @@ import {
  * `clearHeight`, or null when either is absent. A varying section is read as
  * linear between the two stations bracketing the fraction. Past the last
  * station it holds that station's values, and before the first it extends the
- * first segment's line, which validation rules out by starting stations at
- * `0`. Widths and clear heights are in metres.
+ * first segment's line, which validation rules out by starting stations at `0`.
+ * Widths and clear heights are in metres.
  */
 export const builtConnectorSection: (
   connector: IAutoMovieBuiltConnector,

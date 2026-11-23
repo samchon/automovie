@@ -8,13 +8,15 @@ import type {
  * Admit authoritative indexed trim and original-domain chart occurrences.
  *
  * Shared IDs keep their own face charts and exact integer periodic lifts.
- * Original domain authorities seed and protect the real rectangular sides; they are
- * never cutting loops. This distinction lets open-boundary provenance retain
- * a genuine source end while a coincident actual trim remains uncappable.
+ * Original domain authorities seed and protect the real rectangular sides; they
+ * are never cutting loops. This distinction lets open-boundary provenance
+ * retain a genuine source end while a coincident actual trim remains
+ * uncappable.
  */
 export namespace AutoMovieSolidMeshAuthorities {
   /**
-   * An exact cell side consumes both authority endpoints through the existing grid lookup.
+   * An exact cell side consumes both authority endpoints through the existing
+   * grid lookup.
    */
   export function consumedByCell(
     a: Readonly<AutoMovieVector2Tuple>,
@@ -49,7 +51,8 @@ export namespace AutoMovieSolidMeshAuthorities {
   }
 
   /**
-   * Seed actual rectangular domain points; return a named premise before any source or mesh write.
+   * Seed actual rectangular domain points; return a named premise before any
+   * source or mesh write.
    */
   export function domainSegments(
     mesh: IAutoMovieSolidMesh.IMesh,
@@ -105,7 +108,10 @@ export namespace AutoMovieSolidMeshAuthorities {
     return segments;
   }
   /**
-   * Preserve original IDs; every repeated phase must equal the first authority plus its explicit integer period in binary64. Original loops remain unchanged for membership, so no near-coordinate canonicalization replaces their input.
+   * Preserve original IDs; every repeated phase must equal the first authority
+   * plus its explicit integer period in binary64. Original loops remain
+   * unchanged for membership, so no near-coordinate canonicalization replaces
+   * their input.
    */
   export function collect(
     mesh: IAutoMovieSolidMesh.IMesh,

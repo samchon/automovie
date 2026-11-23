@@ -19,7 +19,8 @@ type Cell = IAutoMovieBicubicAtlas64.Cell;
 type Binding = IAutoMovieBicubicAtlas64.Binding;
 
 /**
- * Admit canonical atlas coefficients and plan adaptive leaves under the original shared cell budget.
+ * Admit canonical atlas coefficients and plan adaptive leaves under the
+ * original shared cell budget.
  */
 export function AutoMovieBicubicAtlasPlan64(
   input: IAutoMovieBicubicAtlasTessellation64.Input,

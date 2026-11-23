@@ -9,12 +9,12 @@ import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 /**
  * Apply the existing frame product rule to a complete local total2.
  *
- * The caller supplies all six local pairs and three complete nine-number
- * frame rows: origin/u/v value, first and second station derivatives.
- * Station derivatives share physical millimetres; phase units stay with the
- * caller's original or exactly mapped clock. Missing input is not zero.
- * Input getters and malformed-array exceptions propagate; a nonfinite
- * computed world reading raises the existing numeric admission error.
+ * The caller supplies all six local pairs and three complete nine-number frame
+ * rows: origin/u/v value, first and second station derivatives. Station
+ * derivatives share physical millimetres; phase units stay with the caller's
+ * original or exactly mapped clock. Missing input is not zero. Input getters
+ * and malformed-array exceptions propagate; a nonfinite computed world reading
+ * raises the existing numeric admission error.
  */
 export function AutoMovieLoftWorldJet(
   local: IAutoMovieLoftWorldJetLocal,

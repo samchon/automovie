@@ -15,7 +15,11 @@ import { positive } from "../geometry/positive";
  * the depth each lining reaches is the run of wrapping layers measured inward
  * from that face, and whatever the two linings do not reach is bare jamb.
  *
- * A lining that consumes the opening is refused rather than reported as a negative clear dimension. Testing "not above zero" also refuses a computed `NaN`. The resolved assembly is assumed to carry finite nonnegative thicknesses, including zero-thickness membranes; arbitrary forged negative-infinite layers are outside that premise.
+ * A lining that consumes the opening is refused rather than reported as a
+ * negative clear dimension. Testing "not above zero" also refuses a computed
+ * `NaN`. The resolved assembly is assumed to carry finite nonnegative
+ * thicknesses, including zero-thickness membranes; arbitrary forged
+ * negative-infinite layers are outside that premise.
  *
  * Only wrapping layers reachable from a face line the jamb. A layer that claims
  * to wrap from behind one that stops there cannot turn the corner, which is why

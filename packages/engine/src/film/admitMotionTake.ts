@@ -3,9 +3,15 @@ import type { IAutoMovieMotionTake } from "@automovie/interface";
 import { isPortableMotionTakePath } from "./isPortableMotionTakePath";
 
 /**
- * Admit a parsed motion-take artifact before the host binds any saved references.
+ * Admit a parsed motion-take artifact before the host binds any saved
+ * references.
  *
- * Accepts authored version 1 only. Checks exact record fields, portable paths, lowercase SHA-256 digests, unique ledger keys, and finite nonnegative clocks. The source module must appear in the file ledger and at least one versioned provider must be named. Throws a path-specific diagnostic for a malformed record or an unsupported version or replay mode. The result borrows the parsed data; hosts independently rederive its facts before replay.
+ * Accepts authored version 1 only. Checks exact record fields, portable paths,
+ * lowercase SHA-256 digests, unique ledger keys, and finite nonnegative clocks.
+ * The source module must appear in the file ledger and at least one versioned
+ * provider must be named. Throws a path-specific diagnostic for a malformed
+ * record or an unsupported version or replay mode. The result borrows the
+ * parsed data; hosts independently rederive its facts before replay.
  */
 export function admitMotionTake(input: unknown): IAutoMovieMotionTake {
   const take: Record<string, unknown> = object(input, "$take");

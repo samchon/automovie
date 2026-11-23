@@ -5,19 +5,32 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Turn articulated bodies at one cached instant into inspection marks: one bone segment per joint, from the parent segment's position to the child's, and one joint point per segment.
+ * Turn articulated bodies at one cached instant into inspection marks: one bone
+ * segment per joint, from the parent segment's position to the child's, and one
+ * joint point per segment.
  *
- * It works on any body a physical profile describes, whatever its rig. A bone mark has kind `bone`, label `bone`, colour ochre `c8a24a` and path `<body>/<child>/bone`; a joint mark has kind `joint`, label `joint`, colour pink `ff7eb6` and path `<body>/<bone>/joint`, so a pattern naming a body or one of its bones selects its marks. Both are in world metres and unanchored, because the cached positions are world positions.
+ * It works on any body a physical profile describes, whatever its rig. A bone
+ * mark has kind `bone`, label `bone`, colour ochre `c8a24a` and path
+ * `<body>/<child>/bone`; a joint mark has kind `joint`, label `joint`, colour
+ * pink `ff7eb6` and path `<body>/<bone>/joint`, so a pattern naming a body or
+ * one of its bones selects its marks. Both are in world metres and unanchored,
+ * because the cached positions are world positions.
  *
- * It throws naming the body and bone when the frame lacks a segment the profile names.
+ * It throws naming the body and bone when the frame lacks a segment the profile
+ * names.
  *
  * ```ts
- * const marks = markAutoMovieSkeleton({ bodies, frame: cache.at(seconds) });
+ * const marks = markAutoMovieSkeleton({
+ *   bodies,
+ *   frame: cache.at(seconds),
+ * });
  * ```
  *
- * @param props.bodies Scene body ids with their profiles, whose joints and segments are drawn.
+ * @param props.bodies Scene body ids with their profiles, whose joints and
+ *   segments are drawn.
  * @param props.frame The cached state at the drawn second.
- * @returns Every body's bone marks in joint order, then its joint marks in segment order, body by body.
+ * @returns Every body's bone marks in joint order, then its joint marks in
+ *   segment order, body by body.
  */
 export function markAutoMovieSkeleton(
   props: IAutoMovieMarkSkeleton.IProps,

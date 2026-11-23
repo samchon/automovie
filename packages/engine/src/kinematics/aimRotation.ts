@@ -41,9 +41,7 @@ export function aimRotation(
   return rotationBetween(from, to);
 }
 
-/**
- * Lazy finite-admitted aiming from one unchanged source direction.
- */
+/** Lazy finite-admitted aiming from one unchanged source direction. */
 export namespace aimRotation {
   /**
    * Borrow an unchanged finite source until the returned reader is released.

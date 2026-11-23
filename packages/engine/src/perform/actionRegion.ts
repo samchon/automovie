@@ -38,7 +38,9 @@ const REGION_BY_GESTURE: Partial<
 };
 
 /**
- * Resolve an action's explicit body region, else its gesture-kind default, verb default, or fullBody. Head-only and whole-body gesture defaults match the actual reference gesture channels; explicit overrides remain authoritative.
+ * Resolve an action's explicit body region, else its gesture-kind default, verb
+ * default, or fullBody. Head-only and whole-body gesture defaults match the
+ * actual reference gesture channels; explicit overrides remain authoritative.
  */
 export const actionRegion: (
   action: IAutoMovieActionCall,

@@ -35,7 +35,10 @@ const assertFiniteQuaternion: (
 };
 
 /**
- * Repeat an admitted in-place clip a positive safe-integer number of cycles and add velocity times global seconds to its root. Velocity uses the receiving motion's metre frame, not necessarily the final staged world frame; optional facing rotates base root translation and orientation.
+ * Repeat an admitted in-place clip a positive safe-integer number of cycles and
+ * add velocity times global seconds to its root. Velocity uses the receiving
+ * motion's metre frame, not necessarily the final staged world frame; optional
+ * facing rotates base root translation and orientation.
  */
 export const travelMotion: (
   id: string,

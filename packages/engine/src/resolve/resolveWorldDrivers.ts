@@ -21,7 +21,11 @@ import { validateInfluence } from "./validateInfluence";
 const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;
 
 /**
- * Apply world-space aim, parent and analytic/iterative IK in producer order, updating matrices and recomposing affected descendants. Springs and malformed two-bone chains remain deferred. Geometry must be admitted finite/nondegenerate and TRS-decomposable; partial influence and epsilon reach shells are numerical policies rather than anatomical ROM guarantees.
+ * Apply world-space aim, parent and analytic/iterative IK in producer order,
+ * updating matrices and recomposing affected descendants. Springs and malformed
+ * two-bone chains remain deferred. Geometry must be admitted
+ * finite/nondegenerate and TRS-decomposable; partial influence and epsilon
+ * reach shells are numerical policies rather than anatomical ROM guarantees.
  */
 export const resolveWorldDrivers: (
   drivers: IAutoMovieDriver[],

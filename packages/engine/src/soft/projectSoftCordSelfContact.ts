@@ -1,41 +1,42 @@
 import type { IAutoMovieProjectSoftCordSelfContact } from "@automovie/interface";
 
 /**
- * Project detected nonadjacent cord-segment penetrations along the line
- * between their closest points, with Coulomb friction, in place on predicted
- * positions. One ordered pass does not certify separation of every pair.
+ * Project detected nonadjacent cord-segment penetrations along the line between
+ * their closest points, with Coulomb friction, in place on predicted positions.
+ * One ordered pass does not certify separation of every pair.
  *
  * A cord is a one-wide lattice, its particles in index order along it and
  * segment s joining particles s and s + 1. Each segment is a capsule of the
- * domain's `thickness` (its radius). For two segments, the closest points
- * p = a0 + s (a1 - a0) and q = b0 + t (b1 - b0) come from the clamped
- * segment-segment solution of Ericson ("Real-Time Collision Detection",
- * 2005, section 5.1.9). The non-penetration constraint C = |p - q| - 2r
- * (r the radius) has gradients (1 - s) n and s n on a0 and a1 and
- * -(1 - t) n and -t n on b0 and b1, n the unit direction from q to p; an
- * active one (C < 0) is projected as a position-based constraint with
- * those gradients and the particles' inverse masses (Müller, Heidelberger,
- * Hennix and Ratcliff 2007, "Position based dynamics", section 3.3).
+ * domain's `thickness` (its radius). For two segments, the closest points p =
+ * a0 + s (a1 - a0) and q = b0 + t (b1 - b0) come from the clamped
+ * segment-segment solution of Ericson ("Real-Time Collision Detection", 2005,
+ * section 5.1.9). The non-penetration constraint C = |p - q| - 2r (r the
+ * radius) has gradients (1 - s) n and s n on a0 and a1 and -(1 - t) n and -t n
+ * on b0 and b1, n the unit direction from q to p; an active one (C < 0) is
+ * projected as a position-based constraint with those gradients and the
+ * particles' inverse masses (Müller, Heidelberger, Hennix and Ratcliff 2007,
+ * "Position based dynamics", section 3.3).
  *
- * Friction is the position-based Coulomb model of Macklin, Müller,
- * Chentanez and Kim 2014 ("Unified particle physics for real-time
- * applications", ACM TOG 33(4):153, section 6.1), with one coefficient for
- * sticking and sliding: the relative tangential displacement of the two
- * closest points over the step is removed entirely while it is under mu
- * times the penetration depth, and shortened by mu times the depth above
- * it, distributed over the four particles as the normal correction is.
+ * Friction is the position-based Coulomb model of Macklin, Müller, Chentanez
+ * and Kim 2014 ("Unified particle physics for real-time applications", ACM TOG
+ * 33(4):153, section 6.1), with one coefficient for sticking and sliding: the
+ * relative tangential displacement of the two closest points over the step is
+ * removed entirely while it is under mu times the penetration depth, and
+ * shortened by mu times the depth above it, distributed over the four particles
+ * as the normal correction is.
  *
  * Candidate pairs come from a uniform grid whose cell is the longest segment
- * plus two radii, so two segments within two radii of each other have
- * midpoints in neighbouring cells; segments are visited in index order and
- * each one's candidates in ascending order, so the result is deterministic.
- * The grid describes positions at the start of this call and is not rebuilt
- * after each projection. Closest-point coincidence has no separating direction
- * and is skipped. The declared `dt * referenceSpeed <= thickness` admission
- * bound does not clamp actual particle speed; this discrete projection is not
- * continuous collision detection and cannot rule out tunnelling.
+ * plus two radii, so two segments within two radii of each other have midpoints
+ * in neighbouring cells; segments are visited in index order and each one's
+ * candidates in ascending order, so the result is deterministic. The grid
+ * describes positions at the start of this call and is not rebuilt after each
+ * projection. Closest-point coincidence has no separating direction and is
+ * skipped. The declared `dt * referenceSpeed <= thickness` admission bound does
+ * not clamp actual particle speed; this discrete projection is not continuous
+ * collision detection and cannot rule out tunnelling.
  *
- * @param props The cord's particles, its previous and predicted positions, inverse masses and contact.
+ * @param props The cord's particles, its previous and predicted positions,
+ *   inverse masses and contact.
  * @returns How many pairs were in contact.
  */
 export const projectSoftCordSelfContact: (
@@ -91,7 +92,10 @@ interface IPair {
   friction: number;
 }
 
-/** Project one pair of segments apart and apply friction between them, returning whether they were in contact. */
+/**
+ * Project one pair of segments apart and apply friction between them, returning
+ * whether they were in contact.
+ */
 const separate: (
   props: IPair,
   a: number,

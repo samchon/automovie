@@ -1,8 +1,6 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
-/**
- * Append identity findings for nonstrings and whitespace-only strings.
- */
+/** Append identity findings for nonstrings and whitespace-only strings. */
 export const collectNonEmptyId: (
   value: unknown,
   path: string,

@@ -5,8 +5,8 @@ import { IAutoMoviePropBox, IAutoMovieServiceNode } from "@automovie/interface";
  *
  * The authored box is node-local so that moving the equipment moves the space
  * it is opened in; a world box authored beside a world position would let the
- * two drift apart with no way to tell which one was meant.
- * No rotation or scale is applied; the source node has only world position.
+ * two drift apart with no way to tell which one was meant. No rotation or scale
+ * is applied; the source node has only world position.
  */
 export const serviceMaintenanceBounds: (
   node: IAutoMovieServiceNode,

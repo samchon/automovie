@@ -10,7 +10,10 @@ import { Vector3 } from "../math/Vector3";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 
 /**
- * Refuse composed poses, bounds and origin/COM twists that are not finite although their input scalars are, the solver's precondition on every state it is handed. This boundary never clips values or restricts the shared Float64 math helpers.
+ * Refuse composed poses, bounds and origin/COM twists that are not finite
+ * although their input scalars are, the solver's precondition on every state it
+ * is handed. This boundary never clips values or restricts the shared Float64
+ * math helpers.
  */
 export function assertPhysicalFiniteMotion(
   segment: IAutoMoviePhysicalSegment,
@@ -48,7 +51,5 @@ export function assertPhysicalFiniteMotion(
       [value.x, value.y, value.z].every(Number.isFinite),
     )
   )
-    throw new Error(
-      `Derived pose or velocity is not finite: ${segment.bone}`,
-    );
+    throw new Error(`Derived pose or velocity is not finite: ${segment.bone}`);
 }

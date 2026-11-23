@@ -14,7 +14,8 @@ import { measureAutoMovieGeometryPose } from "./measureAutoMovieGeometryPose";
 import { measureAutoMovieGeometryReach } from "./measureAutoMovieGeometryReach";
 
 /**
- * Answer one geometry question from caller-established current records; unresolvable records or times throw a correction-bearing error.
+ * Answer one geometry question from caller-established current records;
+ * unresolvable records or times throw a correction-bearing error.
  */
 export function measureAutoMovieGeometry(
   props: IAutoMovieGeometryMeasurementInput,

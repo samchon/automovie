@@ -8,11 +8,12 @@ import type {
 import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves64";
 
 /**
- * Sample one declared closed polynomial without leaking a local refusal downstream.
- * An admitted curve retains its exact name and complete phase period. A failed
- * millimetre cubic retains its actual dense finite first endpoint as construction
- * only; an absent or untrusted physical endpoint produces empty construction.
- * Failed metadata is never evaluated again to obtain a period or geometry.
+ * Sample one declared closed polynomial without leaking a local refusal
+ * downstream. An admitted curve retains its exact name and complete phase
+ * period. A failed millimetre cubic retains its actual dense finite first
+ * endpoint as construction only; an absent or untrusted physical endpoint
+ * produces empty construction. Failed metadata is never evaluated again to
+ * obtain a period or geometry.
  */
 export function sampleAutoMovieContourRing64(
   curve: IAutoMovieCubicBezierCurve64,

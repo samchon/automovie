@@ -16,7 +16,8 @@ import type {
  *
  * @param store Storage port; read, written and asked to digest.
  * @param key A key from `composeAutoMovieArtifactKey`.
- * @param compute Produces the artifact when no valid entry exists or when verifying; a rejection propagates and stores nothing.
+ * @param compute Produces the artifact when no valid entry exists or when
+ *   verifying; a rejection propagates and stores nothing.
  * @param verify Recompute and compare even when a valid entry exists.
  * @returns The artifact, its content digest and the outcome.
  */

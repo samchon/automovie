@@ -15,7 +15,10 @@ import { regionAutoMovieSolidMesh } from "./regionAutoMovieSolidMesh";
 import { triangulateAutoMovieSolidBoundary } from "./triangulateAutoMovieSolidBoundary";
 import { witnessAutoMovieSolidChartTriangle } from "./witnessAutoMovieSolidChartTriangle";
 
-/** One possible straight visibility edge, ordered by original endpoint IDs and turn. */
+/**
+ * One possible straight visibility edge, ordered by original endpoint IDs and
+ * turn.
+ */
 type Candidate = IAutoMovieSolidMeshConstraints.ISegment;
 
 /** A kept left boundary, classified in its own finite native cover. */
@@ -34,23 +37,22 @@ interface Component {
  * kept interior points are inserted, and every free diagonal is then flipped
  * until the plan is the constrained Delaunay triangulation in the caller's
  * uniform metric (`legalizeAutoMovieSolidMesh`), so a dense rail keeps no
- * triangle of its own consecutive vertices.
- * The finished triangles are read against the residual membership once per
- * constraint-bounded region (`regionAutoMovieSolidMesh`): each triangle with a
- * represented strict centroid is sampled and must be kept, and an exactly
- * positive triangle too thin for one, which an exact insertion split of
- * ulp-collinear grid points makes, takes its region's reading. A region with
- * no sampled triangle is a named failure.
- * Each bridge is the shortest visible one in the caller's uniform metric,
- * the legalization's own, so it joins its components where they stand
- * closest (matching phase across a periodic band); original endpoint IDs and
- * the integer turn only break exact ties. The metric's phase scale carries
- * the length unit, so the choice is unchanged by length units.
- * This is a final index plan: it evaluates no surface and constructs no point.
+ * triangle of its own consecutive vertices. The finished triangles are read
+ * against the residual membership once per constraint-bounded region
+ * (`regionAutoMovieSolidMesh`): each triangle with a represented strict
+ * centroid is sampled and must be kept, and an exactly positive triangle too
+ * thin for one, which an exact insertion split of ulp-collinear grid points
+ * makes, takes its region's reading. A region with no sampled triangle is a
+ * named failure. Each bridge is the shortest visible one in the caller's
+ * uniform metric, the legalization's own, so it joins its components where they
+ * stand closest (matching phase across a periodic band); original endpoint IDs
+ * and the integer turn only break exact ties. The metric's phase scale carries
+ * the length unit, so the choice is unchanged by length units. This is a final
+ * index plan: it evaluates no surface and constructs no point.
  *
  * Periodic visibility uses the shortest phase images (both at a half-period
- * tie). An untriangulated kept component is a named search failure, not a
- * proof of an invalid source or permission to omit that component. This finite
+ * tie). An untriangulated kept component is a named search failure, not a proof
+ * of an invalid source or permission to omit that component. This finite
  * local-image search is not a complete solver for arbitrary spiral regions.
  */
 export namespace AutoMovieSolidMeshPlan {
@@ -61,11 +63,21 @@ export namespace AutoMovieSolidMeshPlan {
    * @param constraints Original boundary primitives in their native cover.
    * @param keeps Interior membership of the desired residual source partition.
    * @param period Positive phase period, absent for a planar chart.
-   * @param indexed Whether the consumer drops explicit lifts into a global index buffer; then half-period ties are unavailable.
-   * @param occupied Immutable prior global endpoint-pair keys `minID/maxID`; new interior bridges/ears cannot reuse them. Existing source boundaries retain their identities and final global incidence belongs to the caller.
-   * @param scale Phase scale of the uniform metric the bridges are chosen and the free diagonals legalized in, positive and finite, length units per radian; 1 reads the chart as given.
-   * @param local A quadrilateral's own first fundamental form from its vertex IDs and chart points, `[shear, scale]`, which legalization reads in place of `scale` (`legalizeAutoMovieSolidMesh`); absent, the free diagonals are legalized in `scale` too.
-   * @returns Positive native-chart index triples with split-source provenance, or a named construction failure.
+   * @param indexed Whether the consumer drops explicit lifts into a global
+   *   index buffer; then half-period ties are unavailable.
+   * @param occupied Immutable prior global endpoint-pair keys `minID/maxID`;
+   *   new interior bridges/ears cannot reuse them. Existing source boundaries
+   *   retain their identities and final global incidence belongs to the
+   *   caller.
+   * @param scale Phase scale of the uniform metric the bridges are chosen and
+   *   the free diagonals legalized in, positive and finite, length units per
+   *   radian; 1 reads the chart as given.
+   * @param local A quadrilateral's own first fundamental form from its vertex
+   *   IDs and chart points, `[shear, scale]`, which legalization reads in place
+   *   of `scale` (`legalizeAutoMovieSolidMesh`); absent, the free diagonals are
+   *   legalized in `scale` too.
+   * @returns Positive native-chart index triples with split-source provenance,
+   *   or a named construction failure.
    */
   export function triangulate(
     vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -189,15 +201,22 @@ export namespace AutoMovieSolidMeshPlan {
     // Membership is read once per constraint-bounded region (regionAutoMovieSolidMesh): every triangle with a represented strict centroid
     // is sampled and must be kept, and a triangle too thin for one, which an exact split may make, takes its region's sampled reading.
     const regions: number[] = regionAutoMovieSolidMesh(legal, split);
-    const covers: Readonly<AutoMovieVector2Tuple>[][] = legal.map((triangle: IAutoMovieSolidMeshPlan.ITriangle): Readonly<AutoMovieVector2Tuple>[] =>
-      triangle.vertices.map((id: number, k: number): Readonly<AutoMovieVector2Tuple> => [
-        vertices.get(id)![0],
-        vertices.get(id)![1] + triangle.lifts[k]! * (period ?? 0),
-      ]),
+    const covers: Readonly<AutoMovieVector2Tuple>[][] = legal.map(
+      (
+        triangle: IAutoMovieSolidMeshPlan.ITriangle,
+      ): Readonly<AutoMovieVector2Tuple>[] =>
+        triangle.vertices.map(
+          (id: number, k: number): Readonly<AutoMovieVector2Tuple> => [
+            vertices.get(id)![0],
+            vertices.get(id)![1] + triangle.lifts[k]! * (period ?? 0),
+          ],
+        ),
     );
     const sampled: Set<number> = new Set();
     for (let index: number = 0; index < legal.length; index++) {
-      const probe: Readonly<AutoMovieVector2Tuple> | string = centroid(covers[index]!);
+      const probe: Readonly<AutoMovieVector2Tuple> | string = centroid(
+        covers[index]!,
+      );
       if (typeof probe === "string") continue;
       if (!keeps(probe[0], probe[1]))
         return `inserted triangle left the kept source partition; triangle ${JSON.stringify({ vertices: legal[index]!.vertices, lifts: legal[index]!.lifts, cover: covers[index], probe })}`;
@@ -212,7 +231,10 @@ export namespace AutoMovieSolidMeshPlan {
   }
 }
 
-/** Kept left boundary components; exact ray parity distinguishes finite outer walks from holes. */
+/**
+ * Kept left boundary components; exact ray parity distinguishes finite outer
+ * walks from holes.
+ */
 function components(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
   edges: readonly IAutoMovieSolidMeshConstraints.ISegment[],
@@ -268,27 +290,26 @@ function components(
 }
 
 /**
- * The shortest visible bridge from the selected component to any other, in
- * the face's uniform metric: `du^2 + (scale dv)^2`, the same metric the free
+ * The shortest visible bridge from the selected component to any other, in the
+ * face's uniform metric: `du^2 + (scale dv)^2`, the same metric the free
  * diagonals are legalized in (`legalizeAutoMovieSolidMesh`; George and
  * Borouchaki 1998), so a bridge joins its two boundaries where they stand
  * closest on the surface. On a periodic annulus (a station band between two
- * winding cycles) that is the pair at matching phase, a bridge straight
- * across the band. Original IDs and the turn only break exact length ties,
- * for a deterministic choice.
+ * winding cycles) that is the pair at matching phase, a bridge straight across
+ * the band. Original IDs and the turn only break exact length ties, for a
+ * deterministic choice.
  *
- * Choosing by ID order instead (the earlier rule) let two cycles whose
- * smallest IDs stand half a period apart be bridged by a half-period
- * diagonal: the ears beside it then span more than half a period, which the
- * cover rule refuses, and the face was left untriangulated (a split band,
- * 2026-11-08).
+ * Choosing by ID order instead (the earlier rule) let two cycles whose smallest
+ * IDs stand half a period apart be bridged by a half-period diagonal: the ears
+ * beside it then span more than half a period, which the cover rule refuses,
+ * and the face was left untriangulated (a split band, 2026-11-08).
  *
- * The search is exact without ranking every pair: first each selected
- * vertex's own shortest candidate, those few ranked by length (then IDs and
- * turn) and tested for visibility in that order; then every other candidate
- * strictly shorter than the first visible one found, ranked the same way,
- * since only such a candidate could still beat it. Each candidate keeps the
- * shortest phase image allowed (both at a half-period tie, as before).
+ * The search is exact without ranking every pair: first each selected vertex's
+ * own shortest candidate, those few ranked by length (then IDs and turn) and
+ * tested for visibility in that order; then every other candidate strictly
+ * shorter than the first visible one found, ranked the same way, since only
+ * such a candidate could still beat it. Each candidate keeps the shortest phase
+ * image allowed (both at a half-period tie, as before).
  */
 function bridge(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -301,7 +322,10 @@ function bridge(
   scale: number,
 ): Candidate | string {
   type Ranked = { candidate: Candidate; length: number };
-  /** Whether a pair already holds a prior global edge, which no bridge may reuse. */
+  /**
+   * Whether a pair already holds a prior global edge, which no bridge may
+   * reuse.
+   */
   const taken: (a: number, b: number) => boolean = (
     a: number,
     b: number,
@@ -309,10 +333,10 @@ function bridge(
   /**
    * Visit every candidate of a pair that may hold a bridge, with its squared
    * metric length; a string stops the visit. A taken pair is no candidate, but
-   * the visitor asks `taken` itself, and only of a candidate it would keep:
-   * the pairs are the product of two boundaries' vertices, and keying every
-   * one of them cost more than the search. A pair whose image cannot be
-   * represented is refused only when it is not taken, as before.
+   * the visitor asks `taken` itself, and only of a candidate it would keep: the
+   * pairs are the product of two boundaries' vertices, and keying every one of
+   * them cost more than the search. A pair whose image cannot be represented is
+   * refused only when it is not taken, as before.
    */
   const each: (
     visit: (a: number, b: number, turn: number, length: number) => void,
@@ -364,7 +388,10 @@ function bridge(
     }
     return null;
   };
-  /** Whether a candidate comes strictly before a ranked one in the exact total order. */
+  /**
+   * Whether a candidate comes strictly before a ranked one in the exact total
+   * order.
+   */
   const sooner: (
     a: number,
     b: number,
@@ -469,7 +496,10 @@ function bridge(
     : chosen.candidate;
 }
 
-/** A strict represented centroid, never a silent empty-face classification at rounded boundaries. */
+/**
+ * A strict represented centroid, never a silent empty-face classification at
+ * rounded boundaries.
+ */
 function centroid(
   points: readonly Readonly<AutoMovieVector2Tuple>[],
 ): Readonly<AutoMovieVector2Tuple> | string {
@@ -504,7 +534,10 @@ function midpoint(
   ];
 }
 
-/** Neighbour images cover comparisons with shortest-image visibility edges and one-period primitives. */
+/**
+ * Neighbour images cover comparisons with shortest-image visibility edges and
+ * one-period primitives.
+ */
 function images(
   value: number,
   a: Readonly<AutoMovieVector2Tuple>,

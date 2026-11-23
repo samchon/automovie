@@ -18,7 +18,10 @@ import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeleto
 import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
 
 /**
- * Emit one corrected keyframe per admitted parallel time/pose/target sample using the same unchanged skeleton topology as stance detection. Only targeted leg chains are fitted; roots, expressions and other joints persist, while the prior corrected pose ranks equally accurate bend choices.
+ * Emit one corrected keyframe per admitted parallel time/pose/target sample
+ * using the same unchanged skeleton topology as stance detection. Only targeted
+ * leg chains are fitted; roots, expressions and other joints persist, while the
+ * prior corrected pose ranks equally accurate bend choices.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States parallel sample premise, topology/clinical agreement, unchanged root/expression/non-chain data and continuity-only prior-pose use.
  */
@@ -115,13 +118,9 @@ const plantedJoints: (
   return joints;
 };
 
-/**
- * Companion types of {@link rekeyPlantedFeet}.
- */
+/** Companion types of {@link rekeyPlantedFeet}. */
 export namespace rekeyPlantedFeet {
-  /**
-   * The re-keying props with the optional shared FK reader and prepared rig.
-   */
+  /** The re-keying props with the optional shared FK reader and prepared rig. */
   export interface IProps extends IAutoMovieRekeyPlantedFeet.IProps {
     /** Optional same-operation exact FK reader shared with stance detection. */
     resolution?: ReturnType<typeof preparePoseResolution>;

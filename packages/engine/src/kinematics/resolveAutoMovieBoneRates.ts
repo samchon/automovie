@@ -15,16 +15,16 @@ import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
  *
  * Every input bone must come from the same current resolvePose snapshot and
  * unchanged unit-rotation rig as topology, including the ancestors of every
- * demanded bone. Root placement must likewise have a unit rotation.
- * Local angular rates are radians per second in the moving bone's frame:
- * localRotation^-1 times its derivative has vector part omega/2. Root rates
- * are in the resolved bones' common frame, with linear velocity at position.
- * A missing local rate is unknown, including on an unlisted pose joint; a
+ * demanded bone. Root placement must likewise have a unit rotation. Local
+ * angular rates are radians per second in the moving bone's frame:
+ * localRotation^-1 times its derivative has vector part omega/2. Root rates are
+ * in the resolved bones' common frame, with linear velocity at position. A
+ * missing local rate is unknown, including on an unlisted pose joint; a
  * producer that proves rest articulation constant supplies an explicit zero.
  *
- * Native FK applies no root/rest scale and holds each rest translation and
- * rest rotation fixed. This entry differentiates precisely that convention.
- * Changing rest transforms, changing axes/rest frames, or an independently
+ * Native FK applies no root/rest scale and holds each rest translation and rest
+ * rotation fixed. This entry differentiates precisely that convention. Changing
+ * rest transforms, changing axes/rest frames, or an independently
  * scaled/transformed bone snapshot needs a different derivative producer.
  * Missing ancestors/rates and non-finite inputs return undefined so the owner
  * can retain its generic sampled path. Inputs are read without modification;
@@ -39,7 +39,8 @@ export function resolveAutoMovieBoneRates(
   if (!finite(root.position) || !finite(root.linear) || !finite(root.angular))
     return undefined;
 
-  const resolved: Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> = new Map();
+  const resolved: Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> =
+    new Map();
   const walk: (
     definition: IAutoMovieBone,
     parentPosition: IAutoMovieVector3,
@@ -52,15 +53,25 @@ export function resolveAutoMovieBoneRates(
     const bone: IAutoMovieResolvedBone | undefined = bones.get(definition.bone);
     if (bone === undefined) return true;
 
-    const local: IAutoMovieVector3 | undefined = localBodyAngularRates.get(definition.bone);
-    if (local === undefined || !finite(local) || !finite(bone.worldPosition) ||
-        !finite(bone.worldRotation) || !Number.isFinite(bone.worldRotation.w) ||
-        bone.bone !== definition.bone)
+    const local: IAutoMovieVector3 | undefined = localBodyAngularRates.get(
+      definition.bone,
+    );
+    if (
+      local === undefined ||
+      !finite(local) ||
+      !finite(bone.worldPosition) ||
+      !finite(bone.worldRotation) ||
+      !Number.isFinite(bone.worldRotation.w) ||
+      bone.bone !== definition.bone
+    )
       return false;
 
     // A fixed offset moves with the parent only. The child's own rotation
     // affects its attached mass points later, not its joint origin here.
-    const offset: IAutoMovieVector3 = Vector3.subtract(bone.worldPosition, parentPosition);
+    const offset: IAutoMovieVector3 = Vector3.subtract(
+      bone.worldPosition,
+      parentPosition,
+    );
     const linear: IAutoMovieVector3 = Vector3.add(
       parentRate.linear,
       Vector3.cross(parentRate.angular, offset),
@@ -81,7 +92,9 @@ export function resolveAutoMovieBoneRates(
     return true;
   };
 
-  for (const definition of topology.childrenByParent.get(SKELETON_ROOT_PARENT) ?? [])
+  for (const definition of topology.childrenByParent.get(
+    SKELETON_ROOT_PARENT,
+  ) ?? [])
     if (!walk(definition, root.position, root)) return undefined;
 
   // A supplied descendant below a missing ancestor or a detached subtree was
@@ -89,14 +102,12 @@ export function resolveAutoMovieBoneRates(
   return resolved.size === bones.size ? resolved : undefined;
 }
 
-/**
- * Rate records exchanged by native derivative producers and mass reduction.
- */
+/** Rate records exchanged by native derivative producers and mass reduction. */
 export namespace resolveAutoMovieBoneRates {
   /**
    * One rigid frame's velocity in the resolved bones' common coordinate frame.
-   * Angular and linear rates are simultaneous, with explicit zero vectors for
-   * a producer-proven fixed frame. Finite admission belongs to propagation.
+   * Angular and linear rates are simultaneous, with explicit zero vectors for a
+   * producer-proven fixed frame. Finite admission belongs to propagation.
    */
   export interface IRate {
     /** Velocity at the bone origin, common-frame metres per second. */
@@ -107,9 +118,9 @@ export namespace resolveAutoMovieBoneRates {
   }
 
   /**
-   * The FK root placement's instantaneous common-frame motion. Position is
-   * the actual pose.root translation, or the common origin for null placement;
-   * the derivative producer must independently prove its supplied rates.
+   * The FK root placement's instantaneous common-frame motion. Position is the
+   * actual pose.root translation, or the common origin for null placement; the
+   * derivative producer must independently prove its supplied rates.
    */
   export interface IRoot extends IRate {
     /** Reference point for linear velocity, common-frame metres. */
@@ -119,5 +130,9 @@ export namespace resolveAutoMovieBoneRates {
 
 /** Admit finite coordinates without normalizing, repairing or clamping them. */
 function finite(value: IAutoMovieVector3): boolean {
-  return Number.isFinite(value.x) && Number.isFinite(value.y) && Number.isFinite(value.z);
+  return (
+    Number.isFinite(value.x) &&
+    Number.isFinite(value.y) &&
+    Number.isFinite(value.z)
+  );
 }

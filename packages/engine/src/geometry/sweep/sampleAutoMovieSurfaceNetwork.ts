@@ -8,11 +8,11 @@ import { rigAutoMovieSurfaceNetwork } from "./rigAutoMovieSurfaceNetwork";
 /**
  * Sample a surface network into a quad control cage at one tier.
  *
- * This is the rest cage of `rigAutoMovieSurfaceNetwork` without bindings,
- * which states every fill rule, the welding identity, the topology guarantee,
- * the limit fit and which vertices it holds, the UV default and every
- * refusal. A caller that poses the network every frame compiles the rig once
- * and calls its `pose` instead of sampling a posed network again.
+ * This is the rest cage of `rigAutoMovieSurfaceNetwork` without bindings, which
+ * states every fill rule, the welding identity, the topology guarantee, the
+ * limit fit and which vertices it holds, the UV default and every refusal. A
+ * caller that poses the network every frame compiles the rig once and calls its
+ * `pose` instead of sampling a posed network again.
  *
  * @param props.network The network, only read.
  * @param props.tier The tier to sample.

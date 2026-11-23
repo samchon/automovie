@@ -14,7 +14,8 @@ import type { IAutoMovieArtifactPlan } from "@automovie/interface";
  *
  * @param keys The run's composed keys, in execution order.
  * @param stored Keys whose entries already exist in the store.
- * @param verifyEvery Positive integer sampling period for verification; omitted verifies nothing.
+ * @param verifyEvery Positive integer sampling period for verification; omitted
+ *   verifies nothing.
  * @returns One action per key and the action counts.
  */
 export function planAutoMovieArtifacts(

@@ -6,11 +6,11 @@ import type {
 /**
  * Evaluation of a relief's height field over its window.
  *
- * The window maps to the knot range of a clamped-free uniform cubic
- * B-spline in each direction: with `n` control points the parameter runs
- * over `[0, n - 3]` and control point `i` shapes the spans `i - 3 .. i`.
- * The three outer rings of control points being zero, the height and its
- * first and second derivatives vanish at and beyond the window's edge.
+ * The window maps to the knot range of a clamped-free uniform cubic B-spline in
+ * each direction: with `n` control points the parameter runs over `[0, n - 3]`
+ * and control point `i` shapes the spans `i - 3 .. i`. The three outer rings of
+ * control points being zero, the height and its first and second derivatives
+ * vanish at and beyond the window's edge.
  */
 export namespace AutoMovieLoftRelief {
   /**
@@ -58,12 +58,12 @@ export namespace AutoMovieLoftRelief {
   }
 
   /**
-   * Height with its first and second derivatives along station and phase,
-   * the lips' station map applied.
+   * Height with its first and second derivatives along station and phase, the
+   * lips' station map applied.
    *
-   * With the map `D`, the height is `d(s + D(s, t), t)`, so by the chain
-   * rule, `sigma = s + D` and `d_1`, `d_2` the field's partials in its
-   * station and phase:
+   * With the map `D`, the height is `d(s + D(s, t), t)`, so by the chain rule,
+   * `sigma = s + D` and `d_1`, `d_2` the field's partials in its station and
+   * phase:
    *
    * ```text
    * h_s  = d_1 (1 + D_s)
@@ -97,9 +97,9 @@ export namespace AutoMovieLoftRelief {
   }
 
   /**
-   * A tensor-product net over the window with its partials up to second
-   * order in station and phase, `[f, f_s, f_t, f_ss, f_st, f_tt]`, zero
-   * outside the window.
+   * A tensor-product net over the window with its partials up to second order
+   * in station and phase, `[f, f_s, f_t, f_ss, f_st, f_tt]`, zero outside the
+   * window.
    */
   function field(
     relief: IAutoMovieLoftRelief,
@@ -139,10 +139,10 @@ export namespace AutoMovieLoftRelief {
    * The world direction the relief's height moves a base point along at a
    * phase, with its first and second derivatives in phase.
    *
-   * A fixed axis is its own direction with zero derivatives. With `turn`,
-   * the direction is `e(t) = cos(t - c) axis + sin(t - c) turn` about the
-   * window's middle phase `c`, so `e' = -sin(t - c) axis + cos(t - c) turn`
-   * and `e'' = -e`. It does not depend on the station.
+   * A fixed axis is its own direction with zero derivatives. With `turn`, the
+   * direction is `e(t) = cos(t - c) axis + sin(t - c) turn` about the window's
+   * middle phase `c`, so `e' = -sin(t - c) axis + cos(t - c) turn` and `e'' =
+   * -e`. It does not depend on the station.
    *
    * @param relief Relief whose direction is read.
    * @param t Base phase, radians, any real value.
@@ -171,7 +171,8 @@ export namespace AutoMovieLoftRelief {
   }
 
   /**
-   * Phase width of a finite window, radians, in `(0, 2 pi]`; equal endpoints mean one turn.
+   * Phase width of a finite window, radians, in `(0, 2 pi]`; equal endpoints
+   * mean one turn.
    */
   export function width(relief: IAutoMovieLoftRelief): number {
     const w: number = wrap(relief.phases[1] - relief.phases[0]);
@@ -196,8 +197,8 @@ function second(
 }
 
 /**
- * First control index of the span holding parameter x, the span's four
- * weights and their derivatives with respect to x.
+ * First control index of the span holding parameter x, the span's four weights
+ * and their derivatives with respect to x.
  */
 function basis(x: number, count: number): [number, number[], number[]] {
   const i: number = Math.min(count - 4, Math.max(0, Math.floor(x)));

@@ -48,9 +48,9 @@ const WASTE_MEDIUM: string = "waste-water";
  * neither. What it adds is the obligations those three cannot state alone: that
  * a wet region is covered everywhere water can reach, that every handover to a
  * drier region is declared, that the floor actually falls, and that it falls to
- * a drain that really discharges waste.
- * Slope and membrane upturn are declared scalars; this gate does not measure
- * an actual floor gradient or infer waterproof construction from mesh geometry.
+ * a drain that really discharges waste. Slope and membrane upturn are declared
+ * scalars; this gate does not measure an actual floor gradient or infer
+ * waterproof construction from mesh geometry.
  */
 export const validateWetZones: (
   props: IAutoMovieValidateWetZones.IProps,

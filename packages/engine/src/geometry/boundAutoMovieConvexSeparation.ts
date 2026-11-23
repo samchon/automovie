@@ -18,8 +18,8 @@ import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSe
  * between its vertices' extrema. A positive projection gap divided by |d| is
  * therefore a lower bound on Euclidean separation by Cauchy-Schwarz. Each
  * subtraction, product, sum, square root and division is enclosed outward by
- * adjacent binary64 numbers. The direction's norm uses an upper enclosure.
- * No fixed spatial tolerance or approximate closest distance can create PASS.
+ * adjacent binary64 numbers. The direction's norm uses an upper enclosure. No
+ * fixed spatial tolerance or approximate closest distance can create PASS.
  * Input coordinates and differences must admit finite enclosing arithmetic;
  * overflow throws instead of returning an unqualified separation, as do an
  * empty run, a non-finite coordinate and a negative or NaN `sufficient`.
@@ -34,14 +34,14 @@ import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSe
  * query. In particular a triangle containing an allowed attachment point still
  * receives zero when another part crosses.
  *
- * `sufficient` stops once a direction already proves that nonnegative
- * requested separation. The returned bound can then be weaker than another
- * direction's; omitted or infinite `sufficient` examines all directions. This
- * cost control changes no admission: callers accept only a bound at least
- * their requested separation. `spend` is an optional caller-owned work
- * counter, invoked before each normal triple, each projection axis and each
- * pair calculation; the resident mesh separation query always supplies its
- * budget and passes its resident triangle as `b`.
+ * `sufficient` stops once a direction already proves that nonnegative requested
+ * separation. The returned bound can then be weaker than another direction's;
+ * omitted or infinite `sufficient` examines all directions. This cost control
+ * changes no admission: callers accept only a bound at least their requested
+ * separation. `spend` is an optional caller-owned work counter, invoked before
+ * each normal triple, each projection axis and each pair calculation; the
+ * resident mesh separation query always supplies its budget and passes its
+ * resident triangle as `b`.
  */
 export function boundAutoMovieConvexSeparation(
   a: readonly IAutoMovieVector3[],
@@ -118,8 +118,8 @@ export function boundAutoMovieConvexSeparation(
 }
 
 /**
- * Whether every slot of a run, holes included, holds a vertex with three
- * finite coordinates.
+ * Whether every slot of a run, holes included, holds a vertex with three finite
+ * coordinates.
  */
 const isFiniteRun = (run: readonly IAutoMovieVector3[]): boolean => {
   for (let index: number = 0; index < run.length; index++) {

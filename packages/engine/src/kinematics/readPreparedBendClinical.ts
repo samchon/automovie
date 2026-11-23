@@ -34,7 +34,8 @@ const AXES: readonly string[] = ["flexion", "abduction", "twist"];
  * Capture the current clinical words consumed by an ordinary elbow sweep.
  *
  * @param input Already selected bone names, axes and clinical ranges.
- * @returns Exact scalar words in their native order, or undefined if the known records cannot prove an own-data read.
+ * @returns Exact scalar words in their native order, or undefined if the known
+ *   records cannot prove an own-data read.
  */
 export function readPreparedBendClinical(
   input: IAutoMoviePreparedBendClinical,

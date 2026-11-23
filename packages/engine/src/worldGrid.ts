@@ -1,8 +1,6 @@
 import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
 
-/**
- * Copy a compact instance design with an authored rectangular-grid layout.
- */
+/** Copy a compact instance design with an authored rectangular-grid layout. */
 export const worldGrid: (
   base: Omit<IAutoMovieInstanceSetDesign, "layout">,
   layout: {

@@ -6,7 +6,10 @@ import { validateRotationArtifact } from "./validateRotationArtifact";
 import { validateVectorArtifact } from "./validateVectorArtifact";
 
 /**
- * Append shape and scalar findings for an unchecked translation/rotation/scale record. Every component must be finite, each scale axis strictly positive, and rotation's quaternion norm within 1e-6 of one. No value is normalized. Malformed nested fields are reported independently at their owning paths.
+ * Append shape and scalar findings for an unchecked translation/rotation/scale
+ * record. Every component must be finite, each scale axis strictly positive,
+ * and rotation's quaternion norm within 1e-6 of one. No value is normalized.
+ * Malformed nested fields are reported independently at their owning paths.
  *
  * @param props.transform The unchecked TRS record.
  * @param props.path Prefix of every structural or scalar finding.

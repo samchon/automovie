@@ -32,20 +32,39 @@ import { swingTwistRegion } from "./swingTwistRegion";
 const DEG: number = swingTwistBasis.DEG;
 
 /** The twist `swingTwist` gives where the projection vanishes: the identity. */
-const IDENTITY_TWIST: IAutoMovieQuaternion = Object.freeze(Quaternion.identity());
+const IDENTITY_TWIST: IAutoMovieQuaternion = Object.freeze(
+  Quaternion.identity(),
+);
 
 /** Original dimensionless disc coordinates and clinical-degree twist. */
 type IChart = ReturnType<typeof swingTwistRange.chart>;
 
 /**
- * The range of a ball joint read by swing and twist: where the limb's long
- * axis may point, and how far the limb may turn about it.
+ * The range of a ball joint read by swing and twist: where the limb's long axis
+ * may point, and how far the limb may turn about it.
  *
- * A joint rotation q, rest-relative in the bone's own frame, splits into a twist about its rest axis u (the joint's twist axis) taken first and a swing, the shortest turn carrying u to the limb's direction q u. The twist is that turn's angle about u, lifted to clinical degrees by the rest frame's twist map. Decomposition is singular only where the limb points at -u, the rest direction's antipode.
+ * A joint rotation q, rest-relative in the bone's own frame, splits into a
+ * twist about its rest axis u (the joint's twist axis) taken first and a swing,
+ * the shortest turn carrying u to the limb's direction q u. The twist is that
+ * turn's angle about u, lifted to clinical degrees by the rest frame's twist
+ * map. Decomposition is singular only where the limb points at -u, the rest
+ * direction's antipode.
  *
- * Swing is limited by directions the constraint's flexion/abduction intervals reach with no twist (and swingDeg, when present), taken as a star about rest: every direction between rest and a reached direction along their great circle. A three-angle chart pinches where two angles turn about one axis (a hip flexed 90 degrees, where abduction turns the thigh about itself); the star fills that pinch so the flexed hip may swing aside. Its radius is stored on swingTwistBasis.RAYS great circles leaving rest: the farthest reached swing, raised where its azimuth slope exceeds SLOPE (beside a ray-aligned edge with a jumping farthest reach), then linearly interpolated between rays. Outside directions return along their own great circle to that radius, continuously because the radius is continuous.
+ * Swing is limited by directions the constraint's flexion/abduction intervals
+ * reach with no twist (and swingDeg, when present), taken as a star about rest:
+ * every direction between rest and a reached direction along their great
+ * circle. A three-angle chart pinches where two angles turn about one axis (a
+ * hip flexed 90 degrees, where abduction turns the thigh about itself); the
+ * star fills that pinch so the flexed hip may swing aside. Its radius is stored
+ * on swingTwistBasis.RAYS great circles leaving rest: the farthest reached
+ * swing, raised where its azimuth slope exceeds SLOPE (beside a ray-aligned
+ * edge with a jumping farthest reach), then linearly interpolated between rays.
+ * Outside directions return along their own great circle to that radius,
+ * continuously because the radius is continuous.
  *
- * Twist is clamped to the constraint's swingTwist.twist interval. A circle-to-arc clamp must break somewhere: here at the turn farthest from the interval on either side, which no limb reaches.
+ * Twist is clamped to the constraint's swingTwist.twist interval. A
+ * circle-to-arc clamp must break somewhere: here at the turn farthest from the
+ * interval on either side, which no limb reaches.
  *
  * The construction is this module's; no published method is claimed for it.
  */
@@ -53,8 +72,8 @@ export namespace swingTwistRange {
   /**
    * The frame a rig's bone is read in: its clinical axes as the skeleton
    * resolves them (`skeletonJointAxes`, the bone's own declaration over the
-   * humanoid table) and the humanoid rest frame; the humanoid table's axes
-   * when no skeleton is given.
+   * humanoid table) and the humanoid rest frame; the humanoid table's axes when
+   * no skeleton is given.
    *
    * @param bone The bone.
    * @param skeleton The rig; the humanoid tables alone when absent.
@@ -77,7 +96,8 @@ export namespace swingTwistRange {
    *
    * @param bone The bone whose clinical rest frame applies.
    * @param axes Its resolved axes; undefined means there is no frame.
-   * @returns A fresh frame borrowing the axes and canonical rest frame, or undefined.
+   * @returns A fresh frame borrowing the axes and canonical rest frame, or
+   *   undefined.
    */
   export function fromAxes(
     bone: AutoMovieHumanoidBone,
@@ -95,7 +115,9 @@ export namespace swingTwistRange {
    * @param joint The unchanged frame borrowed by this operation.
    * @returns A fresh frozen frame wrapper, released with the operation.
    */
-  export function prepare(joint: IAutoMovieJointRotationFrame): IAutoMovieJointRotationFrame {
+  export function prepare(
+    joint: IAutoMovieJointRotationFrame,
+  ): IAutoMovieJointRotationFrame {
     return SwingTwistFramePreparation.of(joint);
   }
 
@@ -106,15 +128,20 @@ export namespace swingTwistRange {
    * @param joint The joint's axes and rest frame.
    * @returns The reading.
    */
-  export function read(q: IAutoMovieQuaternion, joint: IAutoMovieJointRotationFrame): IAutoMovieSwingTwistRange.IReading {
-    const basis: IAutoMovieSwingTwistBasis.IBasis = SwingTwistFramePreparation.basis(joint);
+  export function read(
+    q: IAutoMovieQuaternion,
+    joint: IAutoMovieJointRotationFrame,
+  ): IAutoMovieSwingTwistRange.IReading {
+    const basis: IAutoMovieSwingTwistBasis.IBasis =
+      SwingTwistFramePreparation.basis(joint);
     const unit: IAutoMovieQuaternion = Quaternion.normalize(q);
     const direction: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(unit, basis.u),
     );
     // The twist alone (`swingTwist.twist`): the swing is read from the
     // direction, so its product is not formed.
-    const twisted: IAutoMovieQuaternion = swingTwist.twist(unit, basis.u) ?? IDENTITY_TWIST;
+    const twisted: IAutoMovieQuaternion =
+      swingTwist.twist(unit, basis.u) ?? IDENTITY_TWIST;
     const rig: number =
       2 *
       Math.atan2(
@@ -162,8 +189,8 @@ export namespace swingTwistRange {
   /**
    * A rotation brought into a swing-twist range: its direction brought back
    * along its great circle from the rest direction to the region's radius
-   * there, and its twist clamped to its interval. A rotation inside is
-   * returned unchanged.
+   * there, and its twist clamped to its interval. A rotation inside is returned
+   * unchanged.
    *
    * @param q The joint's rest-relative rotation.
    * @param constraint The constraint, with `swingTwist`.
@@ -175,7 +202,8 @@ export namespace swingTwistRange {
     constraint: IAutoMovieJointConstraint,
     joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieQuaternion {
-    const basis: IAutoMovieSwingTwistBasis.IBasis = SwingTwistFramePreparation.basis(joint);
+    const basis: IAutoMovieSwingTwistBasis.IBasis =
+      SwingTwistFramePreparation.basis(joint);
     const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
     const interval: IAutoMovieAngleRange = constraint.swingTwist!.twist;
     const turned: number = nearestAngleAlias(reading.twist, interval);
@@ -251,17 +279,17 @@ export namespace swingTwistRange {
 
   /**
    * A rotation part of the way between two, blended in the range's chart
-   * (`chart`): the two places moved straight across the unit disc and the
-   * twist straight between the two. The disc and the interval are convex, so
-   * two ends inside the range give a blend inside it at every share; the
-   * chart is continuous and one to one over the region, so the blend is
-   * continuous in its share and in both ends, and meets each end exactly.
+   * (`chart`): the two places moved straight across the unit disc and the twist
+   * straight between the two. The disc and the interval are convex, so two ends
+   * inside the range give a blend inside it at every share; the chart is
+   * continuous and one to one over the region, so the blend is continuous in
+   * its share and in both ends, and meets each end exactly.
    *
    * A spherical interpolation of the two rotations leaves the region where it
    * is not convex: a shoulder carried from a hanging arm to a hand on the nape
    * ran 40 degrees outside it, and its projection onto a radius that rose from
-   * 68.5 to 106.7 degrees over 16 degrees of azimuth moved the elbow 200 to
-   * 690 mm in a frame.
+   * 68.5 to 106.7 degrees over 16 degrees of azimuth moved the elbow 200 to 690
+   * mm in a frame.
    *
    * @param a The joint's rest-relative rotation at share 0.
    * @param b The same at share 1.
@@ -296,8 +324,10 @@ export namespace swingTwistRange {
    * blend site; every share still runs the original coordinate blend/placed.
    */
   export function prepareBlend(
-    a: IAutoMovieQuaternion, b: IAutoMovieQuaternion,
-    constraint: IAutoMovieJointConstraint, joint: IAutoMovieJointRotationFrame,
+    a: IAutoMovieQuaternion,
+    b: IAutoMovieQuaternion,
+    constraint: IAutoMovieJointConstraint,
+    joint: IAutoMovieJointRotationFrame,
   ): (share: number) => IAutoMovieQuaternion {
     const from: IChart = chart(a, constraint, joint);
     const to: IChart = chart(b, constraint, joint);
@@ -307,10 +337,16 @@ export namespace swingTwistRange {
       blendCharts(from, to, share, constraint, joint, place);
   }
 
-  /** Original chart expressions, shared without a second interpolation algorithm. */
+  /**
+   * Original chart expressions, shared without a second interpolation
+   * algorithm.
+   */
   function blendCharts(
-    from: IChart, to: IChart, share: number,
-    constraint: IAutoMovieJointConstraint, joint: IAutoMovieJointRotationFrame,
+    from: IChart,
+    to: IChart,
+    share: number,
+    constraint: IAutoMovieJointConstraint,
+    joint: IAutoMovieJointRotationFrame,
     read?: (coordinate: IChart) => IAutoMovieQuaternion,
   ): IAutoMovieQuaternion {
     const coordinate: IChart = {
@@ -318,15 +354,18 @@ export namespace swingTwistRange {
       y: from.y + (to.y - from.y) * share,
       twist: from.twist + (to.twist - from.twist) * share,
     };
-    return read === undefined ? placed(coordinate, constraint, joint) : read(coordinate);
+    return read === undefined
+      ? placed(coordinate, constraint, joint)
+      : read(coordinate);
   }
   /**
-   * The swing region's radius on one great circle, degrees, read off the
-   * cached table by linear interpolation between its two nearest rays.
+   * The swing region's radius on one great circle, degrees, read off the cached
+   * table by linear interpolation between its two nearest rays.
    *
    * @param constraint The constraint.
    * @param joint The joint's axes and rest frame.
-   * @param azimuth The great circle, degrees about the rest direction from the flexion axis.
+   * @param azimuth The great circle, degrees about the rest direction from the
+   *   flexion axis.
    * @returns The radius, degrees.
    */
   export function radius(
@@ -343,4 +382,3 @@ export namespace swingTwistRange {
     return table[before]! + (table[after]! - table[before]!) * share;
   }
 }
-

@@ -16,9 +16,7 @@ const DIALOGUE_VISEMES: Set<"rest" | "aa" | "ih" | "ou" | "ee" | "oh"> =
     "rest",
   ]);
 
-/**
- * Join supplied receipt visemes to one explicit actor binding on emission time.
- */
+/** Join supplied receipt visemes to one explicit actor binding on emission time. */
 export const joinAutoMovieDialogueVisemes: (
   props: IAutoMovieJoinDialogueVisemes.IProps,
 ) => IAutoMovieDialogueVisemeCompilation = (

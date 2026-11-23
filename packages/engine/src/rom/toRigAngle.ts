@@ -15,11 +15,13 @@ const assertAxisFrame: (
 };
 
 /**
- * Convert clinical degrees to rig = (clinical - neutral) / sign. Null rest remains null and an absent frame preserves the angle; an invalid supplied sign/neutral throws when used.
- * prepare supplies a lazy operation reader for unchanged frame objects. Null
- * reads admit no frame; the first nonnull read validates and captures the
- * exact neutral/sign used by the original expression. Replacing the frame
- * admits it again, while unchanged identity reuses only those affine scalars.
+ * Convert clinical degrees to rig = (clinical - neutral) / sign. Null rest
+ * remains null and an absent frame preserves the angle; an invalid supplied
+ * sign/neutral throws when used. prepare supplies a lazy operation reader for
+ * unchanged frame objects. Null reads admit no frame; the first nonnull read
+ * validates and captures the exact neutral/sign used by the original
+ * expression. Replacing the frame admits it again, while unchanged identity
+ * reuses only those affine scalars.
  */
 export function toRigAngle(
   clinical: number | null,
@@ -52,7 +54,9 @@ function convert(
   if (clinical === null) return null;
   const known: IConversionState["reading"] = state?.reading;
   if (known !== undefined && known.frame === frame)
-    return frame === undefined ? clinical : (clinical - known.neutral) / known.sign;
+    return frame === undefined
+      ? clinical
+      : (clinical - known.neutral) / known.sign;
   assertAxisFrame("rest frame", frame);
   if (frame === undefined) {
     if (state !== undefined) state.reading = { frame, neutral: 0, sign: 1 };
@@ -66,9 +70,7 @@ function convert(
   return result;
 }
 
-/**
- * Lazy fixed-frame arithmetic for actual repeated joint composition.
- */
+/** Lazy fixed-frame arithmetic for actual repeated joint composition. */
 export namespace toRigAngle {
   /**
    * Prepare one lazy converter; construction reads no frame or angle. Null
@@ -81,7 +83,9 @@ export namespace toRigAngle {
     frame: IAutoMovieAxisFrame | undefined,
   ) => number | null {
     const state: IConversionState = {};
-    return (clinical: number | null, frame: IAutoMovieAxisFrame | undefined): number | null =>
-      convert(clinical, frame, state);
+    return (
+      clinical: number | null,
+      frame: IAutoMovieAxisFrame | undefined,
+    ): number | null => convert(clinical, frame, state);
   }
 }

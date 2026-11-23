@@ -21,7 +21,8 @@ import { getConstraint } from "../rom/getConstraint";
 import { derivePhysicalActuators } from "./derivePhysicalActuators";
 
 /**
- * Map actual rig-local clinical axes and degree limits into physical joint frames.
+ * Map actual rig-local clinical axes and degree limits into physical joint
+ * frames.
  */
 export function derivePhysicalModelJoints(
   model: IAutoMovieModel,

@@ -17,7 +17,8 @@ import { physicalCentroidalTask } from "./physicalCentroidalTask";
 import { physicalJointInertia } from "./physicalJointInertia";
 
 /**
- * Realize one bounded root demand through an external wrench, or under internal actuation as the root task of the motors' whole-body solve.
+ * Realize one bounded root demand through an external wrench, or under internal
+ * actuation as the root task of the motors' whole-body solve.
  */
 export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
   const {
@@ -200,7 +201,8 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
 }
 
 /**
- * Transient native state and explicit policy, without retained wrappers or provider-specific selectors.
+ * Transient native state and explicit policy, without retained wrappers or
+ * provider-specific selectors.
  */
 export namespace trackPhysicalRoot {
   /** The same pre-integration state used by endpoint and joint controllers. */
@@ -224,8 +226,9 @@ export namespace trackPhysicalRoot {
     /** Exact declared native tick time. */ seconds: number;
     /** Native integration duration. */ dt: number;
     /** The world whose motors' solve takes the root's task. */ world: AutoMovieXpbdWorld;
-    /** Every segment's sampled goal, with the balance's root offset; the momentum task's reference pose. */ goals: Readonly<
-      Record<string, IAutoMovieSamplePhysicalTarget.IResult>
-    >;
+    /**
+     * Every segment's sampled goal, with the balance's root offset; the
+     * momentum task's reference pose.
+     */ goals: Readonly<Record<string, IAutoMovieSamplePhysicalTarget.IResult>>;
   }
 }

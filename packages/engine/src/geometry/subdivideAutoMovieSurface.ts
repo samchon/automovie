@@ -50,7 +50,8 @@ const MAX_LEVELS: number = 6;
  *
  * @param props.cage The control cage, only read.
  * @param props.levels Number of refinement steps, an integer from 1 to 6.
- * @returns The refined quads, limit positions and normals, UVs and cage parameters.
+ * @returns The refined quads, limit positions and normals, UVs and cage
+ *   parameters.
  */
 export function subdivideAutoMovieSurface(
   props: IAutoMovieSubdivideSurface.IProps,

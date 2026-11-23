@@ -18,23 +18,25 @@ import { requiredAutoMovieMaterialTexturePurposes } from "./requiredAutoMovieMat
  * Close current and retained consumers over one renderer's texture allocations.
  * Raw uploads share only an actual Source and equivalent upload state. PMREM
  * output and sharp-background cubes share only the actual environment Texture
- * object. PBR DFG lookup and PMREM blur scratch belong to the renderer once.
- * A source disposal releases its environment derivatives, while scratch and
+ * object. PBR DFG lookup and PMREM blur scratch belong to the renderer once. A
+ * source disposal releases its environment derivatives, while scratch and
  * lookup survive until their host releases the context or replaces the scratch.
  * Environment factory sampling is an initialization-order union: configured
- * mip-linear uploads and temporary linear conversion uploads can occupy distinct
- * keys even after properties match. Count each possible state once with every
- * equivalent material/source consumer; this is an upper bound, not a census.
+ * mip-linear uploads and temporary linear conversion uploads can occupy
+ * distinct keys even after properties match. Count each possible state once
+ * with every equivalent material/source consumer; this is an upper bound, not a
+ * census.
  *
  * Missing object identities in a multi-resident closure leave required bytes
  * unknown. Legacy single-shot facts describe a fresh context. Opaque object
- * tokens are used only for equality; stable resident owners identify the result.
- * PMREM bounds follow r186: a half-float atlas is 3*max(cubeSize,112) by
- * 4*cubeSize, cubeSize=power-of-two floor(width/4). The background cube retains
- * six RGBA color faces of the inherited component type and a conservative
- * 32-bit depth face attachment. Raw channel/internal format does not own them.
- * DFG is a 16-by-16 RG half-float texture, with no mip chain. Driver overhead
- * and encoded/CPU source bytes are outside these uncompressed storage bounds.
+ * tokens are used only for equality; stable resident owners identify the
+ * result. PMREM bounds follow r186: a half-float atlas is 3_max(cubeSize,112)
+ * by 4_cubeSize, cubeSize=power-of-two floor(width/4). The background cube
+ * retains six RGBA color faces of the inherited component type and a
+ * conservative 32-bit depth face attachment. Raw channel/internal format does
+ * not own them. DFG is a 16-by-16 RG half-float texture, with no mip chain.
+ * Driver overhead and encoded/CPU source bytes are outside these uncompressed
+ * storage bounds.
  */
 export function measureAutoMovieRenderTextureClosure(
   props: IAutoMovieMeasureRenderTextureClosure.IProps,
@@ -640,7 +642,7 @@ export function measureAutoMovieRenderTextureClosure(
   );
 }
 
-/** r186 equirectangular conversion produces a two-dimensional half-float atlas. */
+/** R186 equirectangular conversion produces a two-dimensional half-float atlas. */
 const pmremBytes: (
   source: IAutoMovieRenderTextureSource | undefined,
 ) => number | null = (

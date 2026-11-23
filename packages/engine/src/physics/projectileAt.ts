@@ -30,13 +30,13 @@ const assertFiniteVector: (name: string, vector: IAutoMovieVector3) => void = (
 };
 
 /**
- * Evaluate a {@link IAutoMovieProjectile} at time `t` seconds. Without drag,
- * the closed form with no integration error: `p = origin + v·t + ½·g·t²`,
- * `v(t) = v + g·t`. With drag, the integrated flight of
- * {@link projectileDragFlight}, which holds the launch state before `t = 0`.
- * With an attitude, the state also carries the body's rotation: the model's
- * `+Z` turned onto the velocity, the launch rotation turned about the spin
- * axis by the rate times `t`, or the launch rotation kept.
+ * Evaluate a {@link IAutoMovieProjectile} at time `t` seconds. Without drag, the
+ * closed form with no integration error: `p = origin + v·t + ½·g·t²`, `v(t) = v
+ * + g·t`. With drag, the integrated flight of {@link projectileDragFlight},
+ * which holds the launch state before `t = 0`. With an attitude, the state also
+ * carries the body's rotation: the model's `+Z` turned onto the velocity, the
+ * launch rotation turned about the spin axis by the rate times `t`, or the
+ * launch rotation kept.
  */
 export const projectileAt: (
   p: IAutoMovieProjectile,

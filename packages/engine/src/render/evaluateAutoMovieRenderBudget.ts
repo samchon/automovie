@@ -273,10 +273,11 @@ const evaluate: (props: {
  * cost is their sum and it can never lose a cost-descending ranking: leaving it
  * in makes the first line of the table a constant, and for the outline pass it
  * makes that line a name no production declares and no author can open. So the
- * ranking is over `own` rows alone, while passes and shared runtime storage stay in the omitted count
- * and the omitted cost. Nothing is dropped: the contributors plus the omitted
- * cost still add up to everything the inventory attributed, and the totals the
- * report checks against a limit are the inventory's own, untouched.
+ * ranking is over `own` rows alone, while passes and shared runtime storage
+ * stay in the omitted count and the omitted cost. Nothing is dropped: the
+ * contributors plus the omitted cost still add up to everything the inventory
+ * attributed, and the totals the report checks against a limit are the
+ * inventory's own, untouched.
  *
  * The `instanceSlots` and `fluidCells` rankings never had this problem and do
  * not change: a resident cost is allocated once and reused by every pass, so no

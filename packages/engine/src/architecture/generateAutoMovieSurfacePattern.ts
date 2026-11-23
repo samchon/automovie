@@ -26,9 +26,7 @@ const VARIANT_DOMAIN: number = 0x7061_7474;
 /** Smallest square metre area counted as real coverage. */
 const AREA_EPSILON: number = 1e-12;
 
-/**
- * The inclusive span of a face-local outline on both axes, in metres.
- */
+/** The inclusive span of a face-local outline on both axes, in metres. */
 interface IPatternSpan {
   /** Least U coordinate. */
   minU: number;
@@ -46,7 +44,12 @@ interface IPatternSpan {
 /**
  * Lay one pattern and measure exactly what was laid.
  *
- * With stable input and a pure generator, the fixed sequence is repeatable in the same numerical runtime: zones in declaration order, rows outermost, columns innermost and candidates in generator order. Engine code samples neither clock nor `Math.random`; variants use {@link seededValue} with the pattern seed and an FNV-1a occurrence-id hash. The callback's own purity is a caller premise.
+ * With stable input and a pure generator, the fixed sequence is repeatable in
+ * the same numerical runtime: zones in declaration order, rows outermost,
+ * columns innermost and candidates in generator order. Engine code samples
+ * neither clock nor `Math.random`; variants use {@link seededValue} with the
+ * pattern seed and an FNV-1a occurrence-id hash. The callback's own purity is a
+ * caller premise.
  *
  * Every module is clipped to its own zone region, then measured against every
  * exclusion. A module the region rejects entirely is not a zero-area
@@ -57,10 +60,19 @@ interface IPatternSpan {
  * reported per zone and in total, and quality is judged by
  * {@link autoMoviePatternFindings}.
  *
- * Coordinates are the surface's planar (u, v) metres and angles are degrees. A malformed declaration throws an `Error` naming the field: blank or duplicate ids, non-finite or non-positive sizes, a non-convex region or exclusion, overlapping zones or exclusions, ambiguous surviving occurrence ids, a zone spanning more than `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells, non-safe-integer derived lattice bounds, or a generated module reaching beyond its cell's declared reach. Quality defects are not thrown; they are returned as `findings` (sliver, unsupported-piece, module-overlap, joint-deviation, grain-break).
+ * Coordinates are the surface's planar (u, v) metres and angles are degrees. A
+ * malformed declaration throws an `Error` naming the field: blank or duplicate
+ * ids, non-finite or non-positive sizes, a non-convex region or exclusion,
+ * overlapping zones or exclusions, ambiguous surviving occurrence ids, a zone
+ * spanning more than `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells,
+ * non-safe-integer derived lattice bounds, or a generated module reaching
+ * beyond its cell's declared reach. Quality defects are not thrown; they are
+ * returned as `findings` (sliver, unsupported-piece, module-overlap,
+ * joint-deviation, grain-break).
  *
  * @param props.pattern The declaration to lay.
- * @returns The pattern id, every surviving placement, the quantities, and the quality findings.
+ * @returns The pattern id, every surviving placement, the quantities, and the
+ *   quality findings.
  */
 export const generateAutoMovieSurfacePattern: (
   props: IAutoMovieGenerateSurfacePattern.IProps,

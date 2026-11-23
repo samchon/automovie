@@ -6,17 +6,17 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The same articulated tree held from another segment: every joint on the
- * path from the old root to the new one is inverted, so the new root is the
- * fixed base of a fixed-pivot solve and the old root moves through the
- * inverted joints.
+ * The same articulated tree held from another segment: every joint on the path
+ * from the old root to the new one is inverted, so the new root is the fixed
+ * base of a fixed-pivot solve and the old root moves through the inverted
+ * joints.
  *
  * Inverting a joint swaps its parent and child with their frames and mirrors
  * each axis range to `[-maximum, -minimum]`. This is exact for the solvers'
  * coordinates: a relative rotation is `normalize(tan(a_x / 2), tan(a_y / 2),
  * tan(a_z / 2), 1)` and its inverse negates the three vector parts, so the
- * inverted joint's coordinates are the negated originals and every ROM limit
- * is kept.
+ * inverted joint's coordinates are the negated originals and every ROM limit is
+ * kept.
  *
  * @param profile An admitted fixed-pivot tree.
  * @param root The segment to hold.

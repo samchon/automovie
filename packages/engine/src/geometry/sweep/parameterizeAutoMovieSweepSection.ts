@@ -6,20 +6,23 @@ import type {
 /**
  * Parameterize a section curve over one closed parameter interval.
  *
- * The parameter `t` runs over `[0, 1)` and wraps; the curve is split into
- * equal parameter spans, one per segment. A superellipse has four, one per
- * quadrant, its angle parameter `p = 2 pi t` as `IAutoMovieSweepSection`
- * defines. A B-spline has one per control point, evaluated with the uniform
- * cubic basis on the four control points around it (Piegl and Tiller, The
- * NURBS Book, 2nd ed., 1997, Section 2.2, for the uniform knot vector), so
- * `t = k / n` lies opposite control point `k`. A Bezier curve has one per
- * anchor, evaluated with the cubic Bernstein basis. A polygon has one per
- * side, linear between corners, so `t = k / n` is corner `k` exactly. Radial
- * sections are read by direction instead and are not accepted here.
+ * The parameter `t` runs over `[0, 1)` and wraps; the curve is split into equal
+ * parameter spans, one per segment. A superellipse has four, one per quadrant,
+ * its angle parameter `p = 2 pi t` as `IAutoMovieSweepSection` defines. A
+ * B-spline has one per control point, evaluated with the uniform cubic basis on
+ * the four control points around it (Piegl and Tiller, The NURBS Book, 2nd ed.,
+ * 1997, Section 2.2, for the uniform knot vector), so `t = k / n` lies opposite
+ * control point `k`. A Bezier curve has one per anchor, evaluated with the
+ * cubic Bernstein basis. A polygon has one per side, linear between corners, so
+ * `t = k / n` is corner `k` exactly. Radial sections are read by direction
+ * instead and are not accepted here.
  *
  * @param section The section, only read and retained by the returned closure.
  * @returns The point at a parameter, and the number of segments.
- * @throws Error when the section's numbers are not finite, a superellipse half-axis is not positive or an exponent lies outside 1 to 20, or a B-spline or polygon has fewer than three points, or a Bezier curve's point count is not a positive multiple of three.
+ * @throws Error when the section's numbers are not finite, a superellipse
+ *   half-axis is not positive or an exponent lies outside 1 to 20, or a
+ *   B-spline or polygon has fewer than three points, or a Bezier curve's point
+ *   count is not a positive multiple of three.
  */
 export const parameterizeAutoMovieSweepSection: (
   section: Exclude<IAutoMovieSweepSection, IAutoMovieSweepSection.IRadial>,

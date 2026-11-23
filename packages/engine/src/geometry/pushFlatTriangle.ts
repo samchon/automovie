@@ -17,8 +17,10 @@ import { Vector3 } from "../math/Vector3";
  * order seen from outside give an outward normal. A zero-area triangle has no
  * plane and receives the zero vector as its normal.
  *
- * @param target Buffers to append to; three vertices and one triangle are added.
- * @param corners Each corner's position in metres with its metric `u` and `v`, in winding order.
+ * @param target Buffers to append to; three vertices and one triangle are
+ *   added.
+ * @param corners Each corner's position in metres with its metric `u` and `v`,
+ *   in winding order.
  */
 export const pushFlatTriangle: (
   target: IAutoMovieMeshTarget,

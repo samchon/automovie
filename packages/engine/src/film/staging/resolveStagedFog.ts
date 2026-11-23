@@ -12,10 +12,11 @@ import { validateFogPlacement } from "./validateFogPlacement";
  * Admit the authored fog forms and produce the one canonical scene fog.
  *
  * Direct fog retains its object identity. A visibility reference solves the
- * FogExp2 equation with density = sqrt(-ln(transmittance)) / cameraDepthM.
- * This is a camera-axis cue for the renderer's squared-depth law. {@link https://www.weather.gov/media/epz/mesonet/CWOP-WMO8.pdf | WMO Guide No. 8, Chapter 9}
- * also defines optical range using a transmission reference,
- * but its physical measurement does not follow the FogExp2 law.
+ * FogExp2 equation with density = sqrt(-ln(transmittance)) / cameraDepthM. This
+ * is a camera-axis cue for the renderer's squared-depth law.
+ * {@link https://www.weather.gov/media/epz/mesonet/CWOP-WMO8.pdf | WMO Guide No. 8, Chapter 9}
+ * also defines optical range using a transmission reference, but its physical
+ * measurement does not follow the FogExp2 law.
  */
 export function resolveStagedFog(
   fog: IAutoMovieStage["fog"],

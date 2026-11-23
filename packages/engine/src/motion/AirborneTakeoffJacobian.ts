@@ -9,12 +9,12 @@ import { Quaternion } from "../math/Quaternion";
 /**
  * The endpoint angle Jacobian of a flight's integrated momentum tangents.
  *
- * For the requested frame's attitude Rx(phi) Rz(theta) Ry(psi), a body
- * rotation tangent v gives phi'=(cos(psi)v.x+sin(psi)v.z)/cos(theta),
- * theta'=-sin(psi)v.x+cos(psi)v.z and psi'=v.y+sin(theta)phi'.
- * The inverse of axes first carries the root-frame tangent into that frame.
- * This is the shooting solver's existing angle differential, factored from
- * its momentum search so it has one numeric owner.
+ * For the requested frame's attitude Rx(phi) Rz(theta) Ry(psi), a body rotation
+ * tangent v gives phi'=(cos(psi)v.x+sin(psi)v.z)/cos(theta),
+ * theta'=-sin(psi)v.x+cos(psi)v.z and psi'=v.y+sin(theta)phi'. The inverse of
+ * axes first carries the root-frame tangent into that frame. This is the
+ * shooting solver's existing angle differential, factored from its momentum
+ * search so it has one numeric owner.
  *
  * @param end Unwrapped endpoint angles in radians, in the requested frame.
  * @param axes The requested frame's unit orientation in the root frame.

@@ -5,9 +5,18 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
 /**
  * Name the building unit that owns a logical space.
  *
- * A work holds several independently placed building units, so "which building is this room in" is a real question rather than a constant. A building owns its root space and every space below it, so the owner is found by walking `parent` links up from the space to the first ancestor, the space itself included, that some building names as its root. Validation requires every building root to have no parent and every space to have exactly one owner, so in a validated record that ancestor is the top of the chain and the answer is unique; an unvalidated record whose building roots nest answers the nearest one, and a parent cycle ends the walk without an owner.
+ * A work holds several independently placed building units, so "which building
+ * is this room in" is a real question rather than a constant. A building owns
+ * its root space and every space below it, so the owner is found by walking
+ * `parent` links up from the space to the first ancestor, the space itself
+ * included, that some building names as its root. Validation requires every
+ * building root to have no parent and every space to have exactly one owner, so
+ * in a validated record that ancestor is the top of the chain and the answer is
+ * unique; an unvalidated record whose building roots nest answers the nearest
+ * one, and a parent cycle ends the walk without an owner.
  *
- * Throws for an undeclared space id and for a space no building unit owns, the same refusal validation makes for an unowned space.
+ * Throws for an undeclared space id and for a space no building unit owns, the
+ * same refusal validation makes for an unowned space.
  */
 export const builtEnvironmentBuildingOfSpace: (
   environment: IAutoMovieBuiltEnvironment,

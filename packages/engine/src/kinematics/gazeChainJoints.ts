@@ -83,23 +83,40 @@ export function gazeChainJoints(
   return resolved(props, headRom, neckRom);
 }
 
-/**
- * Fixed-rig preparation for the same canonical cervical distribution.
- */
+/** Fixed-rig preparation for the same canonical cervical distribution. */
 export namespace gazeChainJoints {
   /**
    * Bind one unchanged rig for repeated actual clinical-degree aims.
    *
-   * @param rig The unchanged resolved skeleton, or null for the original single-head policy.
-   * @returns Fresh parent-first joints at every flexion/twist pair. Rig structure and constraints are first demanded by an actual query; each axis and only its used min/max bound is captured on first actual need, after which that metadata must remain unchanged.
+   * @param rig The unchanged resolved skeleton, or null for the original
+   *   single-head policy.
+   * @returns Fresh parent-first joints at every flexion/twist pair. Rig
+   *   structure and constraints are first demanded by an actual query; each
+   *   axis and only its used min/max bound is captured on first actual need,
+   *   after which that metadata must remain unchanged.
    *
-   * Defines fixed rig/ROM lifetime, degree signs inherited from gazeChainJoints, lazy first-use admission, original fallback and fresh outputs.
-   * The same greedy head-first capacity and unclamped residual owner distributes every current axis. Fixed topology selects the same head/neck/default constraints, with null axes immobile and a missing or disconnected chain retaining the single-head result.
-   * One lazy cervical source preparation feeds the shared raw numerical owner; private lazy range snapshots preserve first-needed axis/bound order without a second split algorithm.
-   * Original null/fallback/parent rules, shareOf formulas, residuals, nullable neck axes and output order remain. Unused bounds are not eagerly read, failed field reads are not retained, and no aim is clamped to hide insufficient combined range.
-   * Two O(B) bone searches and constraint selection run once across Q aims; at most four axis references and eight min/max scalar observations are prepared lazily. Each query retains fixed scalar arithmetic and fresh output joints, with no measured speedup claim.
-   * This explicit API requires the rig/default cervical metadata to stay unchanged. Only topology and first-observed range prerequisites are shared; each flexion/twist request is evaluated afresh and no joint, pose, direction, target or time answer is reused.
-   * The caller owns one reader, its fixed rig and at most two constraints/four range snapshots/eight bound scalars until release. Queries add no retained aim, output, dynamic workspace or growing history.
+   *   Defines fixed rig/ROM lifetime, degree signs inherited from
+   *   gazeChainJoints, lazy first-use admission, original fallback and fresh
+   *   outputs. The same greedy head-first capacity and unclamped residual owner
+   *   distributes every current axis. Fixed topology selects the same
+   *   head/neck/default constraints, with null axes immobile and a missing or
+   *   disconnected chain retaining the single-head result. One lazy cervical
+   *   source preparation feeds the shared raw numerical owner; private lazy
+   *   range snapshots preserve first-needed axis/bound order without a second
+   *   split algorithm. Original null/fallback/parent rules, shareOf formulas,
+   *   residuals, nullable neck axes and output order remain. Unused bounds are
+   *   not eagerly read, failed field reads are not retained, and no aim is
+   *   clamped to hide insufficient combined range. Two O(B) bone searches and
+   *   constraint selection run once across Q aims; at most four axis references
+   *   and eight min/max scalar observations are prepared lazily. Each query
+   *   retains fixed scalar arithmetic and fresh output joints, with no measured
+   *   speedup claim. This explicit API requires the rig/default cervical
+   *   metadata to stay unchanged. Only topology and first-observed range
+   *   prerequisites are shared; each flexion/twist request is evaluated afresh
+   *   and no joint, pose, direction, target or time answer is reused. The
+   *   caller owns one reader, its fixed rig and at most two constraints/four
+   *   range snapshots/eight bound scalars until release. Queries add no
+   *   retained aim, output, dynamic workspace or growing history.
    */
   export function prepare(
     rig: IAutoMovieSkeleton | null,
@@ -125,7 +142,10 @@ export namespace gazeChainJoints {
   }
 }
 
-/** Original degree inputs, read only when the selected branch actually needs them. */
+/**
+ * Original degree inputs, read only when the selected branch actually needs
+ * them.
+ */
 interface IAngles {
   flexionDeg: number;
   twistDeg: number;

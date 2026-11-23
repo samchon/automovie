@@ -38,15 +38,22 @@ interface INode extends resolveAutoMovieMomentum.IPosed {
     /** The same actual posed node's aggregate root-frame tensor. */
     matrix: number[][];
 
-    /** A complete valid derivative reduction, or explicit unavailable stencil selection. */
+    /**
+     * A complete valid derivative reduction, or explicit unavailable stencil
+     * selection.
+     */
     relative: IAutoMovieVector3 | undefined;
   };
 }
 
 /** Only actual numeric instants issued by this factory have prepared ownership. */
-const PRINCIPAL: WeakMap<IInstant, IPrincipalOwner | IPrincipalInverse> = new WeakMap();
+const PRINCIPAL: WeakMap<IInstant, IPrincipalOwner | IPrincipalInverse> =
+  new WeakMap();
 
-/** Only native readers issued by this pure-history owner may opt into stage reuse. */
+/**
+ * Only native readers issued by this pure-history owner may opt into stage
+ * reuse.
+ */
 const HISTORIES: WeakSet<IHistory> = new WeakSet();
 
 /** One shape epoch can share an unchanged adjacent principal rotation. */
@@ -58,7 +65,10 @@ interface IPrincipalOwner {
   previous?: IPrincipalInverse;
 }
 
-/** A copied scalar dependency key prevents caller edits from certifying stale work. */
+/**
+ * A copied scalar dependency key prevents caller edits from certifying stale
+ * work.
+ */
 interface IPrincipalInverse {
   /** Distinguishes an actual computed inverse from its lazy owner. */
   kind: "inverse";
@@ -76,59 +86,83 @@ interface IPrincipalInverse {
 /**
  * Reduce pure root-frame shapes to exact-time inertia and relative momentum.
  *
- * Difference is the existing central half-interval in seconds. A span moves
- * its stencil inside the flight and preserves the quadratic one-sided
- * correction at either boundary. The model and pure shape stay unchanged
- * throughout the reuse epoch. An optional prepared model is borrowed; its
- * caller releases it after clearing this history, including on refusal.
- * An optional native observer records cumulative owner-event populations;
- * omitted, no counter record or per-query instrumentation value is allocated.
- * An explicit instantaneous-rate producer receives these same current bones;
- * complete mass-bearing rates use the shared centroidal reducer, while an
- * unavailable or incomplete declaration preserves the original stencil.
- * Every rated node assesses derivatives during its first actual shape read,
- * including stencil neighbors, and retains only the numeric result or its
- * unavailability. Later query order cannot change its derivative path.
+ * Difference is the existing central half-interval in seconds. A span moves its
+ * stencil inside the flight and preserves the quadratic one-sided correction at
+ * either boundary. The model and pure shape stay unchanged throughout the reuse
+ * epoch. An optional prepared model is borrowed; its caller releases it after
+ * clearing this history, including on refusal. An optional native observer
+ * records cumulative owner-event populations; omitted, no counter record or
+ * per-query instrumentation value is allocated. An explicit instantaneous-rate
+ * producer receives these same current bones; complete mass-bearing rates use
+ * the shared centroidal reducer, while an unavailable or incomplete declaration
+ * preserves the original stencil. Every rated node assesses derivatives during
+ * its first actual shape read, including stencil neighbors, and retains only
+ * the numeric result or its unavailability. Later query order cannot change its
+ * derivative path.
  */
 export function AirborneShapeHistory(
-  model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
-  shape: (seconds: number) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  model:
+    | IAutoMovieResolveCenterOfMass.IModel
+    | prepareAutoMovieMassModel.IPrepared,
+  shape: (
+    seconds: number,
+  ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   difference: number,
   span?: { from: number; to: number },
   observation?: AirborneShapeStatistics.IObserver,
   analytic?: AirborneShapeHistory.IRates,
 ): ICachedHistory {
-  const statistics: AirborneShapeStatistics.IStatistics | undefined = AirborneShapeStatistics.borrow(observation);
+  const statistics: AirborneShapeStatistics.IStatistics | undefined =
+    AirborneShapeStatistics.borrow(observation);
   const instants: Map<number, IInstant> = new Map();
   const poses: Map<number, INode> = new Map();
   const intrinsicMoments: (IAutoMovieVector3 | undefined)[] = [];
   const principalRotations: (IAutoMovieQuaternion | undefined)[] = [];
   const principal: IPrincipalOwner = { kind: "owner" };
-  const limits: typeof span = span === undefined ? undefined : { to: span.to, from: span.from };
-  const delta: number = limits === undefined
-    ? difference
-    : Math.min(difference, (limits.to - limits.from) / 2);
-  const stencil: {
-    from: number;
-    to: number;
-    lower: number;
-    upper: number;
-  } | undefined = limits === undefined ? undefined : {
-    from: limits.from,
-    to: limits.to,
-    lower: limits.from + delta,
-    upper: limits.to - delta,
-  };
+  const limits: typeof span =
+    span === undefined ? undefined : { to: span.to, from: span.from };
+  const delta: number =
+    limits === undefined
+      ? difference
+      : Math.min(difference, (limits.to - limits.from) / 2);
+  const stencil:
+    | {
+        from: number;
+        to: number;
+        lower: number;
+        upper: number;
+      }
+    | undefined =
+    limits === undefined
+      ? undefined
+      : {
+          from: limits.from,
+          to: limits.to,
+          lower: limits.from + delta,
+          upper: limits.to - delta,
+        };
   // The mass snapshot and its reductions are selected together
   // (`AirborneShapeReduction`), which also refuses a released token here;
   // its admission keeps the original zero/NaN refusal before rate or
   // stencil callbacks.
-  const { pose, between: interval, tensor, admit }: AirborneShapeReduction.IReduction =
-    AirborneShapeReduction(model);
-  const required: ReadonlySet<AutoMovieHumanoidBone> | undefined = analytic === undefined
-    ? undefined : "segments" in model
-      ? new Set(model.segments.map((segment: IAutoMovieResolveCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone))
-      : prepareAutoMovieMassModel.bones(model);
+  const {
+    pose,
+    between: interval,
+    tensor,
+    admit,
+  }: AirborneShapeReduction.IReduction = AirborneShapeReduction(model);
+  const required: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+    analytic === undefined
+      ? undefined
+      : "segments" in model
+        ? new Set(
+            model.segments.map(
+              (
+                segment: IAutoMovieResolveCenterOfMass.ISegment,
+              ): AutoMovieHumanoidBone => segment.bone,
+            ),
+          )
+        : prepareAutoMovieMassModel.bones(model);
 
   // Only the two boundary stencils recur at different query times.
   // Their numeric moments are sufficient; their bones need not survive.
@@ -143,7 +177,8 @@ export function AirborneShapeHistory(
   const read: (at: number) => INode = (at: number): INode => {
     const known: INode | undefined = poses.get(at);
     if (known !== undefined) return known;
-    const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = shape(at);
+    const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      shape(at);
     const posed: resolveAutoMovieMomentum.IPosed = pose(bones);
 
     // Nodes never escape this history. Their fixed moments can share a
@@ -151,11 +186,15 @@ export function AirborneShapeHistory(
     intrinsicMoments.length = posed.parts.length;
     principalRotations.length = posed.parts.length;
     for (let i: number = 0; i < posed.parts.length; i++) {
-      const part: resolveAutoMovieMomentum.IPosed["parts"][number] = posed.parts[i]!;
+      const part: resolveAutoMovieMomentum.IPosed["parts"][number] =
+        posed.parts[i]!;
       let fixed: IAutoMovieVector3 | undefined = intrinsicMoments[i];
-      if (fixed === undefined ||
-          !Object.is(fixed.x, part.inertia.x) || !Object.is(fixed.y, part.inertia.y) ||
-          !Object.is(fixed.z, part.inertia.z)) {
+      if (
+        fixed === undefined ||
+        !Object.is(fixed.x, part.inertia.x) ||
+        !Object.is(fixed.y, part.inertia.y) ||
+        !Object.is(fixed.z, part.inertia.z)
+      ) {
         fixed = { x: part.inertia.x, y: part.inertia.y, z: part.inertia.z };
         intrinsicMoments[i] = fixed;
       }
@@ -164,7 +203,10 @@ export function AirborneShapeHistory(
       // Both actual pose producers create a fresh principal quaternion. It
       // can share an equal private predecessor without retaining raw bones.
       const rotation: IAutoMovieQuaternion | undefined = principalRotations[i];
-      if (rotation !== undefined && sameRotation(rotation, part.inertiaRotation))
+      if (
+        rotation !== undefined &&
+        sameRotation(rotation, part.inertiaRotation)
+      )
         part.inertiaRotation = rotation;
       else principalRotations[i] = part.inertiaRotation;
     }
@@ -173,15 +215,23 @@ export function AirborneShapeHistory(
       const matrix: number[][] = tensor(posed);
       admit(matrix);
       if (statistics !== undefined) statistics.analyticAttempts++;
-      const rates: ReturnType<AirborneShapeHistory.IRates> = analytic(at, bones);
+      const rates: ReturnType<AirborneShapeHistory.IRates> = analytic(
+        at,
+        bones,
+      );
       let complete: boolean = rates !== undefined;
       if (rates !== undefined && required !== undefined)
         for (const bone of required)
-          if (!rates.has(bone)) { complete = false; break; }
-      const instantaneous: IAutoMovieBodyMomentum | undefined = rates === undefined || !complete
-        ? undefined : "segments" in model
-          ? resolveAutoMovieMomentumRates(model, posed, bones, rates)
-          : prepareAutoMovieMassModel.rates(model, posed, bones, rates);
+          if (!rates.has(bone)) {
+            complete = false;
+            break;
+          }
+      const instantaneous: IAutoMovieBodyMomentum | undefined =
+        rates === undefined || !complete
+          ? undefined
+          : "segments" in model
+            ? resolveAutoMovieMomentumRates(model, posed, bones, rates)
+            : prepareAutoMovieMassModel.rates(model, posed, bones, rates);
       node.rated = { matrix, relative: instantaneous?.angular };
     }
     poses.set(at, node);
@@ -204,21 +254,30 @@ export function AirborneShapeHistory(
     if (node.rated === undefined) admit(matrix);
     if (node.rated !== undefined) {
       if (node.rated.relative !== undefined) {
-        const instant: IInstant = AirborneShapeInertia(matrix, node.rated.relative, statistics);
+        const instant: IInstant = AirborneShapeInertia(
+          matrix,
+          node.rated.relative,
+          statistics,
+        );
         if (statistics !== undefined) statistics.analyticAccepted++;
         return instant;
       }
       if (statistics !== undefined) statistics.analyticFallbacks++;
     }
     if (stencil === undefined)
-      return AirborneShapeInertia(matrix, momentum(seconds - difference, seconds + difference), statistics);
+      return AirborneShapeInertia(
+        matrix,
+        momentum(seconds - difference, seconds + difference),
+        statistics,
+      );
     const centre: number = Math.max(
       stencil.lower,
       Math.min(stencil.upper, seconds),
     );
     const a: number = Math.max(stencil.from, centre - delta);
     const b: number = Math.min(stencil.to, centre + delta);
-    if (centre === seconds) return AirborneShapeInertia(matrix, momentum(a, b), statistics);
+    if (centre === seconds)
+      return AirborneShapeInertia(matrix, momentum(a, b), statistics);
     let boundary:
       | { central: IAutoMovieVector3; change: IAutoMovieVector3 }
       | undefined = boundaries.get(centre);
@@ -229,7 +288,8 @@ export function AirborneShapeHistory(
       };
       boundaries.set(centre, boundary);
     }
-    return AirborneShapeInertia(matrix,
+    return AirborneShapeInertia(
+      matrix,
       Vector3.add(
         boundary.central,
         Vector3.scale(boundary.change, (2 * (seconds - centre)) / (b - a)),
@@ -266,82 +326,133 @@ export function AirborneShapeHistory(
   });
 }
 
-/**
- * Exact numeric prerequisites private to instants produced by this owner.
- */
+/** Exact numeric prerequisites private to instants produced by this owner. */
 export namespace AirborneShapeHistory {
-  /** Actual simultaneous common-frame bone-origin metres/second and angular radians/second, derived for these exact current bones. Undefined or missing mass-bearing rates retain the original stencil; supplied invalid numbers retain physical admission failure. No whole-curve invariant or derivative truth is inferred from callback identity. */
+  /**
+   * Actual simultaneous common-frame bone-origin metres/second and angular
+   * radians/second, derived for these exact current bones. Undefined or missing
+   * mass-bearing rates retain the original stencil; supplied invalid numbers
+   * retain physical admission failure. No whole-curve invariant or derivative
+   * truth is inferred from callback identity.
+   */
   export type IRates = (
     seconds: number,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ) => ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> | undefined;
+  ) =>
+    | ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>
+    | undefined;
 
   /**
    * Borrow the issued instant's tensor factor before public principal access.
    * Undefined preserves the principal path for foreign, observed, replaced or
    * non-SPD instants. Returned operators expose no mutable numerical storage.
-   *
    */
-  export function factor(instant: IInstant): physicalInertiaFactor.IPrepared | undefined {
+  export function factor(
+    instant: IInstant,
+  ): physicalInertiaFactor.IPrepared | undefined {
     return AirborneShapeInertia.factor(instant);
   }
 
   /**
    * Recognize this factory's native pure-history reader for operation-local
    * stage sharing. It proves construction, not smoothness or constant shape.
-   *
    */
   export function owned(history: IHistory): boolean {
-    return HISTORIES.has(history) || AirborneConstantShapeHistory.owned(history) ||
-      AirborneTabulatedShapeHistory.owned(history);
+    return (
+      HISTORIES.has(history) ||
+      AirborneConstantShapeHistory.owned(history) ||
+      AirborneTabulatedShapeHistory.owned(history)
+    );
   }
 
-  /** Constructor-owned fixed tensor with zero relative momentum over the whole requested live span; ordinary sampled histories return undefined. */
-  export function constant(history: IHistory, from: number, to: number): physicalInertiaFactor.IPrepared | undefined {
+  /**
+   * Constructor-owned fixed tensor with zero relative momentum over the whole
+   * requested live span; ordinary sampled histories return undefined.
+   */
+  export function constant(
+    history: IHistory,
+    from: number,
+    to: number,
+  ): physicalInertiaFactor.IPrepared | undefined {
     return AirborneConstantShapeHistory.constant(history, from, to);
   }
 
   /**
    * Read an issued instant's root-to-principal rotation, or leave a general
-   * history output to its existing computation. The returned internal value
-   * is borrowed and must not be mutated; its actual coordinates are checked
+   * history output to its existing computation. The returned internal value is
+   * borrowed and must not be mutated; its actual coordinates are checked
    * against the copied key on every read.
    *
-   * States frames, unissued-output absence, copied coordinate validation and borrowed immutable result ownership.
-   * Uses the existing Quaternion.inverse on the same principal rotation; this inverse is shape-only and is independent of the ODE's momentum, attitude and tangent directions.
-   * A private issued-instant registration lends its history's fixed-size last-value owner until the inverse is actually demanded; unissued outputs return undefined for the caller's original fallback.
-   * Instant identity establishes only private provenance; every copied quaternion coordinate must additionally match the actual requested principal rotation before reusing numeric work.
-   * One weak lookup and four scalar comparisons per read, with one inverse for a new rotation. New instants initially share their owner without per-instant state allocation; unchanged rotations share one computed numeric record.
-   * The history's existing exact-time I/h memo already selects the same issued instant across trials. Copied quaternion checks also detect mutation and signed zero; adjacent exact rotations share the owner's last inverse independently of momentum and target.
-   * Only the history's N issued numeric instants have weak registrations. clear deletes each registration and forgets the one last record in O(N), and dropping the history also releases its weak keys. No callback, body, model or posed history is retained by this numeric registry.
+   * States frames, unissued-output absence, copied coordinate validation and
+   * borrowed immutable result ownership. Uses the existing Quaternion.inverse
+   * on the same principal rotation; this inverse is shape-only and is
+   * independent of the ODE's momentum, attitude and tangent directions. A
+   * private issued-instant registration lends its history's fixed-size
+   * last-value owner until the inverse is actually demanded; unissued outputs
+   * return undefined for the caller's original fallback. Instant identity
+   * establishes only private provenance; every copied quaternion coordinate
+   * must additionally match the actual requested principal rotation before
+   * reusing numeric work. One weak lookup and four scalar comparisons per read,
+   * with one inverse for a new rotation. New instants initially share their
+   * owner without per-instant state allocation; unchanged rotations share one
+   * computed numeric record. The history's existing exact-time I/h memo already
+   * selects the same issued instant across trials. Copied quaternion checks
+   * also detect mutation and signed zero; adjacent exact rotations share the
+   * owner's last inverse independently of momentum and target. Only the
+   * history's N issued numeric instants have weak registrations. clear deletes
+   * each registration and forgets the one last record in O(N), and dropping the
+   * history also releases its weak keys. No callback, body, model or posed
+   * history is retained by this numeric registry.
    */
-  export function inverse(
-    instant: IInstant,
-  ): IAutoMovieQuaternion | undefined {
-    const current: IPrincipalOwner | IPrincipalInverse | undefined = PRINCIPAL.get(instant);
+  export function inverse(instant: IInstant): IAutoMovieQuaternion | undefined {
+    const current: IPrincipalOwner | IPrincipalInverse | undefined =
+      PRINCIPAL.get(instant);
     if (current === undefined) return undefined;
     const rotation: IAutoMovieQuaternion = instant.inertia.rotation;
-    if (current.kind === "inverse" && sameRotation(current.rotation, rotation)) {
+    if (
+      current.kind === "inverse" &&
+      sameRotation(current.rotation, rotation)
+    ) {
       current.owner.previous = current;
       return current.back;
     }
-    const owner: IPrincipalOwner = current.kind === "owner" ? current : current.owner;
+    const owner: IPrincipalOwner =
+      current.kind === "owner" ? current : current.owner;
     const previous: IPrincipalInverse | undefined = owner.previous;
     if (previous !== undefined && sameRotation(previous.rotation, rotation)) {
       PRINCIPAL.set(instant, previous);
       return previous.back;
     }
-    const copied: IAutoMovieQuaternion = { x: rotation.x, y: rotation.y, z: rotation.z, w: rotation.w };
-    const value: IPrincipalInverse = { kind: "inverse", owner, rotation: copied, back: Quaternion.inverse(copied) };
+    const copied: IAutoMovieQuaternion = {
+      x: rotation.x,
+      y: rotation.y,
+      z: rotation.z,
+      w: rotation.w,
+    };
+    const value: IPrincipalInverse = {
+      kind: "inverse",
+      owner,
+      rotation: copied,
+      back: Quaternion.inverse(copied),
+    };
     PRINCIPAL.set(instant, value);
     owner.previous = value;
     return value.back;
   }
 }
 
-/** Component identity preserves signed zeros and observes edits to mutable instant records. */
-function sameRotation(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): boolean {
-  return Object.is(a.x, b.x) && Object.is(a.y, b.y) && Object.is(a.z, b.z) && Object.is(a.w, b.w);
+/**
+ * Component identity preserves signed zeros and observes edits to mutable
+ * instant records.
+ */
+function sameRotation(
+  a: IAutoMovieQuaternion,
+  b: IAutoMovieQuaternion,
+): boolean {
+  return (
+    Object.is(a.x, b.x) &&
+    Object.is(a.y, b.y) &&
+    Object.is(a.z, b.z) &&
+    Object.is(a.w, b.w)
+  );
 }
-
-

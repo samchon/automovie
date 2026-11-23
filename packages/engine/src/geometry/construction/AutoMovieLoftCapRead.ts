@@ -15,13 +15,9 @@ import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
-/**
- * Actual original-cap value and independently available physical2 preparation.
- */
+/** Actual original-cap value and independently available physical2 preparation. */
 export namespace AutoMovieLoftCapRead {
-  /**
-   * Prepare original cap world values/phase tangents, or null on regular rows.
-   */
+  /** Prepare original cap world values/phase tangents, or null on regular rows. */
   export function phase(
     chain: IAutoMovieLoftChain,
     station: number,
@@ -84,7 +80,8 @@ export namespace AutoMovieLoftCapRead {
   }
 
   /**
-   * Prepare original positive-cap local2 and actual frame2, independently of Point0.
+   * Prepare original positive-cap local2 and actual frame2, independently of
+   * Point0.
    */
   export function jet(
     chain: IAutoMovieLoftChain,
@@ -127,7 +124,10 @@ export namespace AutoMovieLoftCapRead {
   }
 }
 
-/** Finite returned frame data is distinct from a callback throwing its own error. */
+/**
+ * Finite returned frame data is distinct from a callback throwing its own
+ * error.
+ */
 function finite(frame: IAutoMovieLoftSectionFrame): boolean {
   return [frame.origin, frame.u, frame.v].every(
     (row: number[]): boolean => row.length === 3 && row.every(Number.isFinite),

@@ -2,19 +2,21 @@ type Point<T> = { value: T; u: number; v: number };
 
 /**
  * Triangulate a parameter rectangle using its existing perimeter samples only.
- * The immutable perimeter starts at the bottom-left corner and traverses bottom,
- * right, top and left counterclockwise. Each side is monotone and includes its
- * corners. Equal numeric coordinates may carry distinct authoritative samples;
- * their perimeter order and object references remain intact.
+ * The immutable perimeter starts at the bottom-left corner and traverses
+ * bottom, right, top and left counterclockwise. Each side is monotone and
+ * includes its corners. Equal numeric coordinates may carry distinct
+ * authoritative samples; their perimeter order and object references remain
+ * intact.
  *
  * A monotone zipper joins the bottom and top chains. Additional left and right
  * samples split their owning exterior triangle edge. No analytic cell-center
  * point is introduced. Matching bottom/top u samples therefore retain vertical
- * fiber edges, including when those fibers have side subdivisions. For identical
- * translated curves this preserves extruded polygon face planes in exact arithmetic.
- * Unequal boundary sample sets and arbitrary curved fields have no normal-error
- * guarantee. The caller retains its field approximation and arithmetic diagnostics.
- * Zero-area parameter triangles remain for the caller to count and omit.
+ * fiber edges, including when those fibers have side subdivisions. For
+ * identical translated curves this preserves extruded polygon face planes in
+ * exact arithmetic. Unequal boundary sample sets and arbitrary curved fields
+ * have no normal-error guarantee. The caller retains its field approximation
+ * and arithmetic diagnostics. Zero-area parameter triangles remain for the
+ * caller to count and omit.
  */
 export function triangulateAutoMovieParameterCell64<T>(
   boundary: readonly T[],

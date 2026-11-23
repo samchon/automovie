@@ -7,7 +7,10 @@ import type {
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 
-/** The unchanged nearest-end inverse and physical normalization, without geometry. */
+/**
+ * The unchanged nearest-end inverse and physical normalization, without
+ * geometry.
+ */
 interface Inverse {
   /** Selected native clock. */ t: number;
   /** Selected chart reflection. */ reverse: boolean;
@@ -20,12 +23,12 @@ interface Inverse {
 }
 
 /**
- * The positive rational quadratic from (a,0) through corner (a,b) to (0,b), with middle weight w=r/(1-r). It is evaluated as that conic, without a polar polynomial approximation.
+ * The positive rational quadratic from (a,0) through corner (a,b) to (0,b),
+ * with middle weight w=r/(1-r). It is evaluated as that conic, without a polar
+ * polynomial approximation.
  */
 export namespace AutoMovieConicArc {
-  /**
-   * Endpoint geometric curvature at extent a across extent b.
-   */
+  /** Endpoint geometric curvature at extent a across extent b. */
   export function curvature(a: number, b: number, r: number): number {
     return AutoMovieConicArcField.curvature(
       AutoMovieConicFieldJet.NUMBER,
@@ -35,9 +38,7 @@ export namespace AutoMovieConicArc {
     );
   }
 
-  /**
-   * Native parameter of a ray at angle phi in [0,pi/2].
-   */
+  /** Native parameter of a ray at angle phi in [0,pi/2]. */
   export function parameter(
     a: number,
     b: number,
@@ -56,7 +57,8 @@ export namespace AutoMovieConicArc {
   }
 
   /**
-   * Native conic point as a polar guide, including its analytic first/second angle derivatives.
+   * Native conic point as a polar guide, including its analytic first/second
+   * angle derivatives.
    */
   export function guide(
     a: number,
@@ -97,7 +99,10 @@ export namespace AutoMovieConicArc {
     return interiorGuide(A, B, w, t, start, scale, geometry.point);
   }
 
-  /** Read the existing polar quotient arithmetic from an already evaluated normalized interior point. */
+  /**
+   * Read the existing polar quotient arithmetic from an already evaluated
+   * normalized interior point.
+   */
   function interiorGuide(
     A: number,
     B: number,
@@ -141,7 +146,8 @@ export namespace AutoMovieConicArc {
   }
 
   /**
-   * Exact-conic polar radius and two derivatives on one quarter, with reflected native evaluation near its second endpoint.
+   * Exact-conic polar radius and two derivatives on one quarter, with reflected
+   * native evaluation near its second endpoint.
    */
   export function radius(
     a: number,
@@ -152,9 +158,7 @@ export namespace AutoMovieConicArc {
     return locate(a, b, r, phi)?.radial ?? [NaN, NaN, NaN];
   }
 
-  /**
-   * Cartesian-to-polar analytic chain rule on a regular positive ray.
-   */
+  /** Cartesian-to-polar analytic chain rule on a regular positive ray. */
   export function polar(
     c: readonly [number, number, number, number, number, number],
   ): IAutoMoviePolarSector.Jet {
@@ -200,9 +204,7 @@ export namespace AutoMovieConicArc {
     ];
   }
 
-  /**
-   * Native rational-quadratic speed, in source length per unit parameter.
-   */
+  /** Native rational-quadratic speed, in source length per unit parameter. */
   export function speed(a: number, b: number, r: number, t: number): number {
     const velocity: readonly [number, number] = AutoMovieConicArcField.velocity(
       AutoMovieConicFieldJet.NUMBER,
@@ -214,16 +216,17 @@ export namespace AutoMovieConicArc {
     return Math.hypot(...velocity);
   }
 
-  /** Stable positive quadratic root in a ratio no greater than one; the result is the first-half native parameter. */
+  /**
+   * Stable positive quadratic root in a ratio no greater than one; the result
+   * is the first-half native parameter.
+   */
   function half(ratio: number, w: number): number {
     const q: number = w * (1 - ratio);
     const u: number = ratio / (q + Math.hypot(q, Math.sqrt(ratio)));
     return u / (1 + u);
   }
 
-  /**
-   * Locate a rational-quadratic ray once for numeric and source readers.
-   */
+  /** Locate a rational-quadratic ray once for numeric and source readers. */
   export function locate(
     a: number,
     b: number,
@@ -287,9 +290,7 @@ export namespace AutoMovieConicArc {
     };
   }
 
-  /**
-   * Same inverse and physical point, without tangent or polar derivatives.
-   */
+  /** Same inverse and physical point, without tangent or polar derivatives. */
   export function point(
     a: number,
     b: number,
@@ -311,9 +312,7 @@ export namespace AutoMovieConicArc {
     return selected.reverse ? [y, x] : [x, y];
   }
 
-  /**
-   * Radius value in the identical native inverse and normalization as locate.
-   */
+  /** Radius value in the identical native inverse and normalization as locate. */
   export function value(a: number, b: number, r: number, phi: number): number {
     const selected: Inverse | null = inverse(a, b, r, phi);
     if (selected === null) return NaN;

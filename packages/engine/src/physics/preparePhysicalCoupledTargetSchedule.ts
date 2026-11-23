@@ -185,10 +185,10 @@ function admitGroup(
 
 /**
  * Name a member policy the shared fit cannot honour for the whole interval.
- * Native tracking writes balance and support plans during each body's own
- * turn, so a group fit on an earlier member's turn would miss a later
- * member's plans and depend on body order. A contact-triggered release would
- * withdraw a member in the middle of the group.
+ * Native tracking writes balance and support plans during each body's own turn,
+ * so a group fit on an earlier member's turn would miss a later member's plans
+ * and depend on body order. A contact-triggered release would withdraw a member
+ * in the middle of the group.
  */
 function unsupportedMember(body: Body, target: Target): string | undefined {
   if (body.releaseOnContact !== undefined)

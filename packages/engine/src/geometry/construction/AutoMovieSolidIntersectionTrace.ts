@@ -26,15 +26,19 @@ type ICurve = IAutoMovieSolidIntersection.ICurve;
 const { norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
 /**
- * Existing trace orchestration and public host/domain adapters behind the original API.
+ * Existing trace orchestration and public host/domain adapters behind the
+ * original API.
  */
 export namespace AutoMovieSolidIntersectionTrace {
   /**
    * Trace the closed curve from its seed.
    *
-   * @param input The two surfaces, the seed, the parameter and the trace's limits.
-   * @param walkSteps Original public first-walk step multiplier, unchanged at 64.
-   * @param walkPoints Original public reference-point multiplier, unchanged at 4.
+   * @param input The two surfaces, the seed, the parameter and the trace's
+   *   limits.
+   * @param walkSteps Original public first-walk step multiplier, unchanged at
+   *   64.
+   * @param walkPoints Original public reference-point multiplier, unchanged at
+   *   4.
    * @param closingSteps Original public secant trial limit, unchanged at 6.
    * @returns The curve and its diagnostics.
    */
@@ -44,7 +48,10 @@ export namespace AutoMovieSolidIntersectionTrace {
     walkPoints: number,
     closingSteps: number,
   ): IAutoMovieSolidIntersection.IResult {
-    /** Read original top-level inputs in the same order before any surface callback. */
+    /**
+     * Read original top-level inputs in the same order before any surface
+     * callback.
+     */
     const {
       part,
       count,
@@ -94,7 +101,10 @@ export namespace AutoMovieSolidIntersectionTrace {
     /** Seed corrected by the existing law-specific solve. */
     let first: IPoint | null;
 
-    /** The last meeting attempt's refusal, named in the diagnostic when the seed or the trace is lost. */
+    /**
+     * The last meeting attempt's refusal, named in the diagnostic when the seed
+     * or the trace is lost.
+     */
     const attempt: AutoMovieSolidTraceObservation.IState = {
       failure: null,
       trial: null,
@@ -102,7 +112,10 @@ export namespace AutoMovieSolidIntersectionTrace {
       step: null,
     };
 
-    /** That refusal as text, where the solver recorded one: its guard, face, chart point, residual and crossings left. */
+    /**
+     * That refusal as text, where the solver recorded one: its guard, face,
+     * chart point, residual and crossings left.
+     */
     const refusal: () => string = (): string => {
       const last: AutoMovieSolidTraceObservation.IFailure | null =
         attempt.failure;
@@ -248,7 +261,10 @@ export namespace AutoMovieSolidIntersectionTrace {
         "the original closure metric has no admitted physical2",
       );
 
-    /** Original maximum chart displacement measured through local surface speeds. */
+    /**
+     * Original maximum chart displacement measured through local surface
+     * speeds.
+     */
     const closed: number = Math.max(
       Math.abs(current.s - first.s) * norm(a0.u),
       Math.abs(current.phi - partShift - first.phi) * norm(a0.v),
@@ -341,7 +357,8 @@ export namespace AutoMovieSolidIntersectionTrace {
    *
    * @param surface The surface.
    * @param u Its first chart parameter.
-   * @returns A description with the numbers, or null inside the domain or without one.
+   * @returns A description with the numbers, or null inside the domain or
+   *   without one.
    */
   export function beyond(
     surface: IAutoMovieSolidSurface,

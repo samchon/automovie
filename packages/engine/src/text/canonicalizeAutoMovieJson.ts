@@ -2,7 +2,8 @@ import { AutoMovieCanonicalJsonError } from "./AutoMovieCanonicalJsonError";
 import { compareCodeUnits } from "./compareCodeUnits";
 
 /**
- * Encode a supplied value under automovie.canonical-json.v2 for shared identity consumers.
+ * Encode a supplied value under automovie.canonical-json.v2 for shared identity
+ * consumers.
  */
 export const canonicalizeAutoMovieJson: (value: unknown) => string = (
   value: unknown,

@@ -49,7 +49,11 @@ interface ISegment {
 }
 
 /**
- * Bake an admitted in-place gait along an authored world XZ polyline, ignoring waypoint Y and sampling height from optional ground. Whole cycles nearest requested speed determine exact-arrival duration; yaw follows the tangent with a shortest-arc corner blend, and gait root bob/sway rotates with heading. Pathfinding is outside this operation.
+ * Bake an admitted in-place gait along an authored world XZ polyline, ignoring
+ * waypoint Y and sampling height from optional ground. Whole cycles nearest
+ * requested speed determine exact-arrival duration; yaw follows the tangent
+ * with a shortest-arc corner blend, and gait root bob/sway rotates with
+ * heading. Pathfinding is outside this operation.
  */
 export const followPathMotion: (
   props: IAutoMovieFollowPathMotion.IProps,

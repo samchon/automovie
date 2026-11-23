@@ -16,7 +16,8 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
- * Check bounded formation cues against participating compiled formations, runtime gait repertoire, finite state, layout and nonoverlapping intervals.
+ * Check bounded formation cues against participating compiled formations,
+ * runtime gait repertoire, finite state, layout and nonoverlapping intervals.
  */
 export const validateAutoMovieFormationMotions: (
   contract: IAutoMovieShotContract,

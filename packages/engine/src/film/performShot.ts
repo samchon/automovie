@@ -74,19 +74,46 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
 };
 
 /**
- * Fold one beat's action calls into an {@link IAutoMovieShot} through {@link compilePerformance}, gating both sides of the seam.
+ * Fold one beat's action calls into an {@link IAutoMovieShot} through
+ * {@link compilePerformance}, gating both sides of the seam.
  *
- * The performing list is `revise.final` when the revise pass produced one and `draft` otherwise. The stages run in order, and the first stage group that reports a violation returns every violation of that group and stops:
+ * The performing list is `revise.final` when the revise pass produced one and
+ * `draft` otherwise. The stages run in order, and the first stage group that
+ * reports a violation returns every violation of that group and stops:
  *
- * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged lights and its polygon body cues against staged rigs and practical surface tracks against the staged nodes and registered models, a planned beat, a positive duration, authored editorial markers, every action by {@link gatePerformShotActions}, the live camera's moves by {@link gatePerformShotFrameOverlaps}, same-actor content overlaps by {@link gatePerformShotRegionOverlaps}, the blocking by {@link gatePerformShotBlocking}, and the cameras by {@link gatePerformShotCamera}.
- * 2. Launches: each flight is solved and its recoil scheduled by {@link compilePerformShotLaunches}.
- * 3. Performance: the stage list compiles, stance feet are planted by {@link plantPerformShotStanceFeet}, every channel a region mask would drop is reported at the author's `region` (or `onHit`) field, and every clip must pass `validateMotion` against its rig.
- * 4. Coupling: per-beat `attachTo` handoffs and staged mounts are baked by {@link coupleObjects}.
+ * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged
+ *    lights and its polygon body cues against staged rigs and practical surface
+ *    tracks against the staged nodes and registered models, a planned beat, a
+ *    positive duration, authored editorial markers, every action by
+ *    {@link gatePerformShotActions}, the live camera's moves by
+ *    {@link gatePerformShotFrameOverlaps}, same-actor content overlaps by
+ *    {@link gatePerformShotRegionOverlaps}, the blocking by
+ *    {@link gatePerformShotBlocking}, and the cameras by
+ *    {@link gatePerformShotCamera}.
+ * 2. Launches: each flight is solved and its recoil scheduled by
+ *    {@link compilePerformShotLaunches}.
+ * 3. Performance: the stage list compiles, stance feet are planted by
+ *    {@link plantPerformShotStanceFeet}, every channel a region mask would drop
+ *    is reported at the author's `region` (or `onHit`) field, and every clip
+ *    must pass `validateMotion` against its rig.
+ * 4. Coupling: per-beat `attachTo` handoffs and staged mounts are baked by
+ *    {@link coupleObjects}.
  * 5. Authored object clips are gated by {@link gateAuthoredObjectMotions}.
- * 6. Practical lights bind staged emitters to the final object clips and share light channel admission with authored clips.
- * 7. Cameras: the live camera's move and each coverage take compile through the framing grammar, subjects measured by {@link createPerformShotSubjectFramer}, and any physical clearance envelope is checked by {@link compileCameraClearanceReports}.
+ * 6. Practical lights bind staged emitters to the final object clips and share
+ *    light channel admission with authored clips.
+ * 7. Cameras: the live camera's move and each coverage take compile through the
+ *    framing grammar, subjects measured by
+ *    {@link createPerformShotSubjectFramer}, and any physical clearance envelope
+ *    is checked by {@link compileCameraClearanceReports}.
  *
- * A shot with no frame action is locked off on the scene's first camera. Positional targets resolve against every staged placement, cameras included, so an actor may look down the lens, but a camera performs only frame. Only a camera subject may name a formation. The assembled artifact is checked independently and a failure throws as a compilation defect. This does not prove every possible authored failure was located earlier: typed outer containers, generated event-id collisions, mutable callbacks and downstream arithmetic remain distinct exception boundaries.
+ * A shot with no frame action is locked off on the scene's first camera.
+ * Positional targets resolve against every staged placement, cameras included,
+ * so an actor may look down the lens, but a camera performs only frame. Only a
+ * camera subject may name a formation. The assembled artifact is checked
+ * independently and a failure throws as a compilation defect. This does not
+ * prove every possible authored failure was located earlier: typed outer
+ * containers, generated event-id collisions, mutable callbacks and downstream
+ * arithmetic remain distinct exception boundaries.
  */
 export function performShot(
   props: IAutoMoviePerformShotProps,
@@ -435,7 +462,8 @@ export function performShot(
 }
 
 /**
- * Refuse duplicate script beat ids and answer the beat the performance names, the first declaration of its id.
+ * Refuse duplicate script beat ids and answer the beat the performance names,
+ * the first declaration of its id.
  */
 function gateScript(
   context: IAutoMovieEnginePerformShotGateContext,
@@ -460,7 +488,8 @@ function gateScript(
 }
 
 /**
- * The synthesizer once per action object and actor, with the prior beat state bound, so every stage that needs a clip shares one.
+ * The synthesizer once per action object and actor, with the prior beat state
+ * bound, so every stage that needs a clip shares one.
  */
 function memoizeSynthesis(
   synthesize: IAutoMovieActionSynthesizer,

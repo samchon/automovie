@@ -16,7 +16,12 @@ const AXIS_EPSILON: number = 1e-12;
  * door leaf and a lift car share this arithmetic, and a message that called a
  * car a panel would send its author looking through the openings for it.
  *
- * Axis components/computed length must be finite, length above 1e-12, and a revolute pivot finite. Rest-relative `min` must be finite and at most zero, `max` finite and at least zero, with `max > min`. Revolute span is capped at `2 * PI + AUTOMOVIE_FULL_TURN_EPSILON` radians for the swept-envelope solver. Prismatic values are metres and revolute values radians. Findings use `path`.
+ * Axis components/computed length must be finite, length above 1e-12, and a
+ * revolute pivot finite. Rest-relative `min` must be finite and at most zero,
+ * `max` finite and at least zero, with `max > min`. Revolute span is capped at
+ * `2 * PI + AUTOMOVIE_FULL_TURN_EPSILON` radians for the swept-envelope solver.
+ * Prismatic values are metres and revolute values radians. Findings use
+ * `path`.
  *
  * @param motion Travel to check.
  * @param path Violation path of the motion.

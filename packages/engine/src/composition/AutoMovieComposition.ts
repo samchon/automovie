@@ -9,8 +9,9 @@ export namespace AutoMovieComposition {
   /**
    * Normalize a part without copying an existing composition node.
    *
-   * A node-bearing chain contributes its node, a composition contributes itself,
-   * and a plain intent receives one intent wrapper. No schedule is resolved.
+   * A node-bearing chain contributes its node, a composition contributes
+   * itself, and a plain intent receives one intent wrapper. No schedule is
+   * resolved.
    */
   export function of(part: IAutoMovieComposition.Part): IAutoMovieComposition {
     if ("node" in part) return part.node;

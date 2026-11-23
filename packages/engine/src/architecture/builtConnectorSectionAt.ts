@@ -10,9 +10,14 @@ import { requireBuiltConnector } from "./requireBuiltConnector";
 /**
  * The usable section of a connector at one arc-length fraction of its route.
  *
- * A constant section answers the same pair everywhere; a varying one is read as the piecewise-linear function its stations describe, so a corridor that narrows between two stations narrows evenly rather than in a step nothing declared.
+ * A constant section answers the same pair everywhere; a varying one is read as
+ * the piecewise-linear function its stations describe, so a corridor that
+ * narrows between two stations narrows evenly rather than in a step nothing
+ * declared.
  *
- * Widths and clear heights are in metres. Throws when the connector does not exist, when `at` is non-finite or outside `[0, 1]`, and when the connector states no section.
+ * Widths and clear heights are in metres. Throws when the connector does not
+ * exist, when `at` is non-finite or outside `[0, 1]`, and when the connector
+ * states no section.
  */
 export const builtConnectorSectionAt: (
   environment: IAutoMovieBuiltEnvironment,

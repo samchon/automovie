@@ -4,9 +4,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
- * Create a call-owned bounds and running-mean fold for ascending slot points.
- */
+/** Create a call-owned bounds and running-mean fold for ascending slot points. */
 export function createCompiledSlotSummary(): IAutoMovieCreateCompiledSlotSummary.IResult {
   const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
   const max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };

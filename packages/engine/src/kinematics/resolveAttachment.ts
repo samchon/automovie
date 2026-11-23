@@ -41,8 +41,10 @@ import { resolvePose } from "./resolvePose";
  * @param attachment Bone to ride and the child's offset in that bone's frame.
  * @param jointAxes Per-bone clinical axes for forward kinematics.
  * @param restFrames Per-bone rest frames for reading the pose as clinical.
- * @param prepared Optional genuine fixed demand for this exact parent rig/mappings and attachment bone; omission retains raw full FK.
- * @param resolution Optional exact reader borrowed from the synchronous bake, never retained here.
+ * @param prepared Optional genuine fixed demand for this exact parent
+ *   rig/mappings and attachment bone; omission retains raw full FK.
+ * @param resolution Optional exact reader borrowed from the synchronous bake,
+ *   never retained here.
  */
 export const resolveAttachment: (
   parentPose: IAutoMoviePose,

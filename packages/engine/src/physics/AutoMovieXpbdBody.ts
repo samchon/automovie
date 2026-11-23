@@ -12,14 +12,13 @@ import { Vector3 } from "../math/Vector3";
  * (`AutoMovieXpbdWorld`; Mueller, Macklin, Chentanez, Jeschke and Kim 2020,
  * "Detailed Rigid Body Simulation with Extended Position Based Dynamics").
  *
- * The body frame's origin and rotation are the pose its readers see; the
- * centre of mass lies at `centerOfMass` in that frame, and the solver moves
- * the centre (`center`). Linear velocity is the centre's, angular velocity
- * is in world radians per second. A kinematic body has no inverse mass or
- * inertia: corrections never move it, and each step carries it to the pose
- * set for the step's end. Forces and torques accumulate until cleared and
- * act through the next integration. The world owns and mutates these
- * records during a step.
+ * The body frame's origin and rotation are the pose its readers see; the centre
+ * of mass lies at `centerOfMass` in that frame, and the solver moves the centre
+ * (`center`). Linear velocity is the centre's, angular velocity is in world
+ * radians per second. A kinematic body has no inverse mass or inertia:
+ * corrections never move it, and each step carries it to the pose set for the
+ * step's end. Forces and torques accumulate until cleared and act through the
+ * next integration. The world owns and mutates these records during a step.
  */
 export class AutoMovieXpbdBody {
   /** Its handle, unique in its world. */
@@ -69,7 +68,10 @@ export class AutoMovieXpbdBody {
   /** The world inverse inertia frozen for the current substep, row-major. */
   public frozen: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-  /** The body-frame pose a kinematic body reaches at the end of the next step; absent, it holds. */
+  /**
+   * The body-frame pose a kinematic body reaches at the end of the next step;
+   * absent, it holds.
+   */
   public next: IAutoMovieRigidTransform | undefined;
 
   /**
@@ -144,9 +146,9 @@ export class AutoMovieXpbdBody {
   }
 
   /**
-   * Set the mass properties, keeping the body frame's pose: the centre moves
-   * to the new body-frame centre and the previous centre follows it, so the
-   * change adds no velocity at the next derivation.
+   * Set the mass properties, keeping the body frame's pose: the centre moves to
+   * the new body-frame centre and the previous centre follows it, so the change
+   * adds no velocity at the next derivation.
    *
    * @param mass Kilograms.
    * @param centerOfMass Body-frame centre, metres.
@@ -178,8 +180,8 @@ export class AutoMovieXpbdBody {
   }
 
   /**
-   * Inverse mass the corrections use: zero for a kinematic body and for a
-   * body without positive mass.
+   * Inverse mass the corrections use: zero for a kinematic body and for a body
+   * without positive mass.
    *
    * @returns Per kilogram.
    */
@@ -188,9 +190,9 @@ export class AutoMovieXpbdBody {
   }
 
   /**
-   * The world inverse inertia applied to a world vector, `R I^-1 R^T v`,
-   * with `R` the body rotation times its inertia rotation; zero for a
-   * kinematic body.
+   * The world inverse inertia applied to a world vector, `R I^-1 R^T v`, with
+   * `R` the body rotation times its inertia rotation; zero for a kinematic
+   * body.
    *
    * A zero principal moment contributes zero on its axis.
    *
@@ -217,9 +219,9 @@ export class AutoMovieXpbdBody {
   /**
    * Freeze the world inverse inertia at the current orientation for the
    * substep's corrections: the world calls it once a substep, after the
-   * predicted pose, as solvers hold the effective inertia fixed over a
-   * step's constraint iterations. The matrix is row-major, its columns the
-   * map's images of the world axes.
+   * predicted pose, as solvers hold the effective inertia fixed over a step's
+   * constraint iterations. The matrix is row-major, its columns the map's
+   * images of the world axes.
    */
   public freezeInverseInertia(): void {
     const x: IAutoMovieVector3 = this.inverseInertia({ x: 1, y: 0, z: 0 });
@@ -246,8 +248,8 @@ export class AutoMovieXpbdBody {
   }
 
   /**
-   * The world inertia applied to a world vector, `R I R^T v`, with `R` the
-   * body rotation times its inertia rotation.
+   * The world inertia applied to a world vector, `R I R^T v`, with `R` the body
+   * rotation times its inertia rotation.
    *
    * @param v A world vector.
    * @returns The product, world frame, times kilogram square metres.
@@ -352,8 +354,8 @@ export class AutoMovieXpbdBody {
   }
 
   /**
-   * Accumulate a torque; it acts through the next integration and stays
-   * until `resetTorques`.
+   * Accumulate a torque; it acts through the next integration and stays until
+   * `resetTorques`.
    *
    * @param torque World newton metres.
    */
@@ -362,7 +364,8 @@ export class AutoMovieXpbdBody {
   }
 
   /**
-   * Accumulate a force at a world point: the force at the centre plus its moment about it.
+   * Accumulate a force at a world point: the force at the centre plus its
+   * moment about it.
    *
    * @param force World newtons.
    * @param point World metres.
@@ -375,16 +378,12 @@ export class AutoMovieXpbdBody {
     this.addTorque(Vector3.cross(Vector3.subtract(point, this.center), force));
   }
 
-  /**
-   * Clear the accumulated force to zero.
-   */
+  /** Clear the accumulated force to zero. */
   public resetForces(): void {
     this.force = { x: 0, y: 0, z: 0 };
   }
 
-  /**
-   * Clear the accumulated torque to zero.
-   */
+  /** Clear the accumulated torque to zero. */
   public resetTorques(): void {
     this.torque = { x: 0, y: 0, z: 0 };
   }
@@ -449,9 +448,8 @@ export class AutoMovieXpbdBody {
   }
 
   /**
-   * Turn the body frame about its origin, keeping its velocities; the
-   * previous pose follows, so the turn adds no velocity at the next
-   * derivation.
+   * Turn the body frame about its origin, keeping its velocities; the previous
+   * pose follows, so the turn adds no velocity at the next derivation.
    *
    * @param rotation World rotation; normalised here.
    */
@@ -462,9 +460,11 @@ export class AutoMovieXpbdBody {
   }
 
   /**
-   * The body-frame position a kinematic body reaches at the end of the next step.
+   * The body-frame position a kinematic body reaches at the end of the next
+   * step.
    *
-   * @returns A fresh vector, world metres; the current position when none is set.
+   * @returns A fresh vector, world metres; the current position when none is
+   *   set.
    */
   public nextTranslation(): IAutoMovieVector3 {
     return this.next ? { ...this.next.position } : this.translation();
@@ -480,9 +480,9 @@ export class AutoMovieXpbdBody {
   }
 
   /**
-   * Set the body-frame position a kinematic body reaches at the end of the
-   * next step; the set rotation, or the current one, is kept. The step
-   * consumes the pose.
+   * Set the body-frame position a kinematic body reaches at the end of the next
+   * step; the set rotation, or the current one, is kept. The step consumes the
+   * pose.
    *
    * @param position World metres.
    */
@@ -494,9 +494,8 @@ export class AutoMovieXpbdBody {
   }
 
   /**
-   * Set the rotation a kinematic body reaches at the end of the next step;
-   * the set position, or the current one, is kept. The step consumes the
-   * pose.
+   * Set the rotation a kinematic body reaches at the end of the next step; the
+   * set position, or the current one, is kept. The step consumes the pose.
    *
    * @param rotation World rotation.
    */

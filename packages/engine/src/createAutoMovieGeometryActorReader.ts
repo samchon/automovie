@@ -19,7 +19,8 @@ import { sampleMotion } from "./motion/sampleMotion";
 import { sampleClipSequence } from "./resolve/sampleClipSequence";
 
 /**
- * Read actor roots, bones and pose summaries from borrowed compiled shots at shot-local seconds; ambiguous actors and unresolved records throw.
+ * Read actor roots, bones and pose summaries from borrowed compiled shots at
+ * shot-local seconds; ambiguous actors and unresolved records throw.
  */
 export function createAutoMovieGeometryActorReader(
   shots: ReadonlyMap<string, IAutoMovieCompiledShotSource>,

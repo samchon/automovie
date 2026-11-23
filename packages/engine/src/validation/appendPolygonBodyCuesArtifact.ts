@@ -20,8 +20,8 @@ const BODY_PIVOTS: ReadonlySet<string> = new Set(
 
 /**
  * Append polygon body cue findings under `$input.polygonBodyCues`. Artifact
- * readers resolve placement IDs and humanoid bone names. Performance supplies
- * a skeleton resolver to require existing bones and disjoint target branches.
+ * readers resolve placement IDs and humanoid bone names. Performance supplies a
+ * skeleton resolver to require existing bones and disjoint target branches.
  */
 export function appendPolygonBodyCuesArtifact(
   cues: unknown,

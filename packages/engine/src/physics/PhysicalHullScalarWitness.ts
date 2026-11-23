@@ -22,7 +22,8 @@ interface IAutoMovieHullReceipt {
 const TOPOLOGY: WeakMap<IAutoMovieHull, IAutoMovieHullReceipt> = new WeakMap();
 
 /**
- * Operation-local validity proof for the exact faces read by scalar hull queries.
+ * Operation-local validity proof for the exact faces read by scalar hull
+ * queries.
  */
 export class PhysicalHullScalarWitness {
   /** The actual original topology and reached face indices of this operation. */
@@ -34,9 +35,7 @@ export class PhysicalHullScalarWitness {
   /** A single failed admission invalidates the entire operation. */
   #unproved: boolean = false;
 
-  /**
-   * Register the exact topology allocated by the original hull constructor.
-   */
+  /** Register the exact topology allocated by the original hull constructor. */
   public static topology(
     hull: IAutoMovieHull,
     faces: IAutoMovieHull["faces"],
@@ -49,9 +48,7 @@ export class PhysicalHullScalarWitness {
     TOPOLOGY.set(hull, { faces, entries });
   }
 
-  /**
-   * Record one actual scalar normal read after the original access.
-   */
+  /** Record one actual scalar normal read after the original access. */
   public read(
     hull: IAutoMovieHull,
     flatOwned: boolean,
@@ -79,14 +76,13 @@ export class PhysicalHullScalarWitness {
     entry.indices.add(index);
   }
 
-  /**
-   * Whether a scalar hull query supplied any actual operand.
-   */
+  /** Whether a scalar hull query supplied any actual operand. */
   public touched(): boolean {
     return this.#unproved || this.#reached.size > 0;
   }
   /**
-   * Check original topology and only the indices actually reached by the search.
+   * Check original topology and only the indices actually reached by the
+   * search.
    */
   public current(): boolean {
     if (this.#unproved) return false;

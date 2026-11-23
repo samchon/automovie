@@ -9,7 +9,8 @@ import type {
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 
 /**
- * Admit shared support geometry before tracking or recovery can dereference a carrier.
+ * Admit shared support geometry before tracking or recovery can dereference a
+ * carrier.
  */
 export function admitPhysicalSupportPattern(
   profile: IAutoMoviePhysicalProfile,

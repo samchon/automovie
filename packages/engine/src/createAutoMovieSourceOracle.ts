@@ -10,7 +10,8 @@ import { instanceSlot } from "./populationRuntime/instanceSlot";
 import { worldGroundHeight } from "./worldGroundHeight";
 
 /**
- * Build the deterministic helpers a shot source reads through its build context.
+ * Build the deterministic helpers a shot source reads through its build
+ * context.
  *
  * A shot source asks where one member of a formation or instance set stands
  * while the builder is still compiling the shot, so the answer has to be the
@@ -26,8 +27,8 @@ import { worldGroundHeight } from "./worldGroundHeight";
  * answer.
  *
  * The oracle keeps references to the three props, not copies, so it answers
- * from whatever those records hold when each method is called. Slot indices
- * are passed through to the slot regenerators, which own their range checks.
+ * from whatever those records hold when each method is called. Slot indices are
+ * passed through to the slot regenerators, which own their range checks.
  *
  * @param props.world World whose surfaces answer ground height.
  * @param props.formationRuntime Compiled formations by id.

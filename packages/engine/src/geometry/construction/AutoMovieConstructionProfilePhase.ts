@@ -19,16 +19,18 @@ type Chart = {
 };
 
 /**
- * Qualified phase readings of actual profile fields, independently of physical2.
+ * Qualified phase readings of actual profile fields, independently of
+ * physical2.
  *
  * At a fixed station the original plane is constant in the curve clock. Thus
  * its first and second phase derivatives multiply only the original local
- * derivatives, with the piece's actual affine clock scale and its square.
- * No station or frame derivatives are requested or invented.
+ * derivatives, with the piece's actual affine clock scale and its square. No
+ * station or frame derivatives are requested or invented.
  */
 export namespace AutoMovieConstructionProfilePhase {
   /**
-   * Borrow already admitted immutable originals; explicit null never falls back to total2.
+   * Borrow already admitted immutable originals; explicit null never falls back
+   * to total2.
    */
   export function create(
     source: IAutoMovieConstructionProfileSource,
@@ -126,7 +128,10 @@ function pair(value: readonly number[]): void {
     fail("Original phase reading requires two finite local components.");
 }
 
-/** Numeric/unavailable admission remains separate from original callback exceptions. */
+/**
+ * Numeric/unavailable admission remains separate from original callback
+ * exceptions.
+ */
 function fail(message: string): never {
   throw new AutoMovieLoftAdmissionError(message);
 }

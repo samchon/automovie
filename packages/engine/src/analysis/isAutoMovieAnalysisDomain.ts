@@ -10,7 +10,8 @@ import { AUTOMOVIE_ANALYSIS_DOMAINS } from "./constants/AUTOMOVIE_ANALYSIS_DOMAI
  * string, is false. The run validator reports a false result as an unknown
  * domain, and the report summary throws on it for a required domain.
  *
- * @param value Any value, typically a domain read from authored or received data.
+ * @param value Any value, typically a domain read from authored or received
+ *   data.
  * @returns Whether `value` is a known domain, narrowing its type when true.
  */
 export const isAutoMovieAnalysisDomain: (

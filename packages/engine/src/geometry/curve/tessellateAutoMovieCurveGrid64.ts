@@ -21,9 +21,21 @@ type Row = { interval: number; t: number; station: number };
 type SpanFamily = { grids: AutoMovieBernsteinGrid64[] };
 
 /**
- * Generate a metre mesh from complete corresponding cubic courses. Exact common-span restrictions feed componentwise PCHIP control fields and longitudinal Bernstein Hermite grids. Periodic fields use three copies and the central period, sharing the seam derivative. The representation preserves source courses before floating rounding; station interpolation is coefficientwise, not pointwise PCHIP or an injectivity guarantee.
+ * Generate a metre mesh from complete corresponding cubic courses. Exact
+ * common-span restrictions feed componentwise PCHIP control fields and
+ * longitudinal Bernstein Hermite grids. Periodic fields use three copies and
+ * the central period, sharing the seam derivative. The representation preserves
+ * source courses before floating rounding; station interpolation is
+ * coefficientwise, not pointwise PCHIP or an injectivity guarantee.
  *
- * Sampling uses course control-polygon length and longitudinal control displacement to choose requested display density, then includes declared guide parameters. It is not an adaptive surface-error bound and may miss an unrequested narrow feature. Normals come from generated triangles. Zero-area triangles are counted and omitted; zero or nonfinite accumulated vertex normals remain zero with explicit counts, retaining finite generated faces without inventing a normal. Other unresolved geometric arithmetic still rejects.
+ * Sampling uses course control-polygon length and longitudinal control
+ * displacement to choose requested display density, then includes declared
+ * guide parameters. It is not an adaptive surface-error bound and may miss an
+ * unrequested narrow feature. Normals come from generated triangles. Zero-area
+ * triangles are counted and omitted; zero or nonfinite accumulated vertex
+ * normals remain zero with explicit counts, retaining finite generated faces
+ * without inventing a normal. Other unresolved geometric arithmetic still
+ * rejects.
  */
 export function tessellateAutoMovieCurveGrid64(
   input: IAutoMovieCurveGrid64.Input,

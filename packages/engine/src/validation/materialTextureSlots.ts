@@ -5,7 +5,10 @@ import {
   type IAutoMovieMaterialTextureSlotsMaterialTextureSlot,
 } from "@automovie/interface";
 
-/** Own-slot order: base color, metallic-roughness, normal, detail normal, occlusion, emissive, then thickness. */
+/**
+ * Own-slot order: base color, metallic-roughness, normal, detail normal,
+ * occlusion, emissive, then thickness.
+ */
 const OWN_SLOTS: ReadonlyArray<{
   field:
     | "baseColorTexture"
@@ -27,7 +30,9 @@ const OWN_SLOTS: ReadonlyArray<{
 ];
 
 /**
- * Enumerate present baseColor, metalRough, normal, detailNormal, occlusion, emissive and thickness bindings, the anisotropy direction binding, then overlay color/normal bindings, carrying exact suffixes and decoding intent.
+ * Enumerate present baseColor, metalRough, normal, detailNormal, occlusion,
+ * emissive and thickness bindings, the anisotropy direction binding, then
+ * overlay color/normal bindings, carrying exact suffixes and decoding intent.
  */
 export const materialTextureSlots: (
   material: IAutoMovieMaterial,

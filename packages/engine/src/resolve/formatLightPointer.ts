@@ -1,7 +1,6 @@
 import type { AutoMovieLightProperty } from "@automovie/interface";
 
-/** The canonical pointer addressing one light's property.
- */
+/** The canonical pointer addressing one light's property. */
 export const formatLightPointer: (
   light: string,
   property: AutoMovieLightProperty,

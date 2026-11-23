@@ -1,8 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
- * One actor's window starts and world-ground locator.
- */
+/** One actor's window starts and world-ground locator. */
 export interface IStageGround {
   /** Exact shot-local changes to the set of eligible surfaces. */
   boundaries: readonly number[];
@@ -19,11 +17,14 @@ export interface IStageGround {
   indexAt: (time: number) => number;
 
   /**
-   * The admitted world height, null for ungrounded and undefined for explicitly suspended.
+   * The admitted world height, null for ungrounded and undefined for explicitly
+   * suspended.
    *
    * @param time The query in shot-local seconds.
-   * @param point The world point in metres. XZ selects coverage, and Y ranks overlapping surfaces.
-   * @returns The support height in world metres or the applicable absence result.
+   * @param point The world point in metres. XZ selects coverage, and Y ranks
+   *   overlapping surfaces.
+   * @returns The support height in world metres or the applicable absence
+   *   result.
    */
   at: (time: number, point: IAutoMovieVector3) => number | null | undefined;
 }

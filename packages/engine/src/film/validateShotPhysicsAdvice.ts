@@ -6,9 +6,16 @@ import type {
 import { compareCodeUnits } from "../text/compareCodeUnits";
 
 /**
- * Check a shot runtime's D010 physics advice before `compileDefinedShot` stages anything, returning every `contract-mismatch` diagnostic at once.
+ * Check a shot runtime's D010 physics advice before `compileDefinedShot` stages
+ * anything, returning every `contract-mismatch` diagnostic at once.
  *
- * Each id must be non-blank and unique, and each decision must match its payload: pending keeps `selected` and `rationale` null, `accepted` selects a response equal to the proposal, `modified` selects a different one, `rejected` selects none, and every decided item states a non-blank rationale. Responses are compared by value with object keys sorted, so key insertion order never decides between `accepted` and `modified`. An empty list means the advice is valid; the advice itself is never applied here.
+ * Each id must be non-blank and unique, and each decision must match its
+ * payload: pending keeps `selected` and `rationale` null, `accepted` selects a
+ * response equal to the proposal, `modified` selects a different one,
+ * `rejected` selects none, and every decided item states a non-blank rationale.
+ * Responses are compared by value with object keys sorted, so key insertion
+ * order never decides between `accepted` and `modified`. An empty list means
+ * the advice is valid; the advice itself is never applied here.
  */
 export function validateShotPhysicsAdvice(
   advice: readonly IAutoMovieShotPhysicsAdvice[],

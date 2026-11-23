@@ -4,7 +4,8 @@ import { pushViolation } from "./pushViolation";
 import { validateObjectArtifact } from "./validateObjectArtifact";
 
 /**
- * Require a shallow object and finite x/y/z components, appending each bad axis.
+ * Require a shallow object and finite x/y/z components, appending each bad
+ * axis.
  */
 export const validateVectorArtifact: (
   vector: unknown,

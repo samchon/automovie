@@ -15,29 +15,31 @@ import type { prepareChainFit } from "./prepareChainFit";
 import { prepareChainRigConstants } from "./prepareChainRigConstants";
 
 /**
- * Own lazy rig preparation for every target of one unchanged source chain.
- * Axes must already use skeleton-declared precedence, and a nonnull geometry
- * must belong to the same source root, ancestors, intermediate pose and rig.
- * Every getter is first called at the consumer's original admission site.
- * A supplied fixed rig belongs to the same immutable source without goal
- * fields; only source methods are borrowed, while reference and weight get
- * a new binding-local owner with their original first-use admission.
- * The members the rig alone fixes are `prepareChainRigConstants`'s: the
- * ones a chain placed from its rig constants carries
- * (`IPreparedChainPlant.rig`), or built here for this source.
+ * Own lazy rig preparation for every target of one unchanged source chain. Axes
+ * must already use skeleton-declared precedence, and a nonnull geometry must
+ * belong to the same source root, ancestors, intermediate pose and rig. Every
+ * getter is first called at the consumer's original admission site. A supplied
+ * fixed rig belongs to the same immutable source without goal fields; only
+ * source methods are borrowed, while reference and weight get a new
+ * binding-local owner with their original first-use admission. The members the
+ * rig alone fixes are `prepareChainRigConstants`'s: the ones a chain placed
+ * from its rig constants carries (`IPreparedChainPlant.rig`), or built here for
+ * this source.
  */
 export function prepareChainFitRig(
   props: Omit<IAutoMovieFitChainToTargetProps, "target">,
   prepared: IAutoMoviePreparedChainPlant | null,
   fixed?: prepareChainFit.IRig,
 ): prepareChainFit.IRig {
-  const reference: ReturnType<typeof prepareReferences> = prepareReferences(props);
-  if (fixed !== undefined) return {
-    ...fixed,
-    reference: (bone: AutoMovieHumanoidBone): IAutoMovieQuaternion | null =>
-      reference.rotation(bone, fixed),
-    referenceWeight: reference.weight,
-  };
+  const reference: ReturnType<typeof prepareReferences> =
+    prepareReferences(props);
+  if (fixed !== undefined)
+    return {
+      ...fixed,
+      reference: (bone: AutoMovieHumanoidBone): IAutoMovieQuaternion | null =>
+        reference.rotation(bone, fixed),
+      referenceWeight: reference.weight,
+    };
 
   // The rig-only members: those the chain's constants carry when it was
   // placed from them, else this source's own.
@@ -101,37 +103,62 @@ export function prepareChainFitRig(
     },
     hingedGeometry: (): hingedArmSwivel.IPrepared | null => {
       if (prepared === null) return null;
-      hingeGeometry ??= hingedArmSwivel.prepare({
-        upper: prepared.upper,
-        midOffset: prepared.lowerOffset,
-        midRest: prepared.lowerRotation,
-        endOffset: prepared.effectorOffset,
-        hinge: (props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES).flexion,
-      }, constant.span);
+      hingeGeometry ??= hingedArmSwivel.prepare(
+        {
+          upper: prepared.upper,
+          midOffset: prepared.lowerOffset,
+          midRest: prepared.lowerRotation,
+          endOffset: prepared.effectorOffset,
+          hinge: (props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES)
+            .flexion,
+        },
+        constant.span,
+      );
       return hingeGeometry;
     },
   };
   return rig;
 }
 
-/** Query-local first-record reference and weight; neither belongs to the fixed source rig. */
-function prepareReferences(props: Omit<IAutoMovieFitChainToTargetProps, "target">): {
-  rotation: (bone: AutoMovieHumanoidBone, rig: prepareChainFit.IRig) => IAutoMovieQuaternion | null;
+/**
+ * Query-local first-record reference and weight; neither belongs to the fixed
+ * source rig.
+ */
+function prepareReferences(
+  props: Omit<IAutoMovieFitChainToTargetProps, "target">,
+): {
+  rotation: (
+    bone: AutoMovieHumanoidBone,
+    rig: prepareChainFit.IRig,
+  ) => IAutoMovieQuaternion | null;
   weight: () => number;
 } {
-  const references: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion | null> = new Map();
+  const references: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion | null> =
+    new Map();
   let weight: number | undefined;
   return {
-    rotation: (bone: AutoMovieHumanoidBone, rig: prepareChainFit.IRig): IAutoMovieQuaternion | null => {
-      let reference: IAutoMovieQuaternion | null | undefined = references.get(bone);
+    rotation: (
+      bone: AutoMovieHumanoidBone,
+      rig: prepareChainFit.IRig,
+    ): IAutoMovieQuaternion | null => {
+      let reference: IAutoMovieQuaternion | null | undefined =
+        references.get(bone);
       if (reference === undefined) {
-        const joint: IAutoMovieJointPose | undefined = props.referencePose?.joints.find(
-          (candidate: IAutoMovieJointPose): boolean => candidate.bone === bone,
-        );
-        reference = joint === undefined ? null : Quaternion.normalize(
-          jointToQuaternionOnBasis(joint,
-            rig.jointBasis(bone, "jointToQuaternion axes"), props.restFrames?.[bone]),
-        );
+        const joint: IAutoMovieJointPose | undefined =
+          props.referencePose?.joints.find(
+            (candidate: IAutoMovieJointPose): boolean =>
+              candidate.bone === bone,
+          );
+        reference =
+          joint === undefined
+            ? null
+            : Quaternion.normalize(
+                jointToQuaternionOnBasis(
+                  joint,
+                  rig.jointBasis(bone, "jointToQuaternion axes"),
+                  props.restFrames?.[bone],
+                ),
+              );
         references.set(bone, reference);
       }
       return reference;
@@ -140,7 +167,9 @@ function prepareReferences(props: Omit<IAutoMovieFitChainToTargetProps, "target"
       if (weight === undefined) {
         const value: number = props.referenceWeight ?? 1;
         if (!Number.isFinite(value) || value < 0)
-          throw new Error(`fitChainToTarget referenceWeight must be finite and non-negative, but was ${value}`);
+          throw new Error(
+            `fitChainToTarget referenceWeight must be finite and non-negative, but was ${value}`,
+          );
         weight = value;
       }
       return weight;

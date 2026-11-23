@@ -10,10 +10,10 @@ import { Vector3 } from "../math/Vector3";
  * Project a motor's requested relative angular velocity onto the linearized
  * native twist-coordinate box for the next substep. For theta=2 atan2(qi,qw),
  * the exact differential includes the other quaternion components; projecting
- * only the named angular-velocity component fails at compound rotations.
- * Eight cyclic half-space passes bound work and preserve already admissible
- * requests. This constrains motor intent, not actual velocities or poses;
- * native constraints and the declared motor torque caps still govern motion.
+ * only the named angular-velocity component fails at compound rotations. Eight
+ * cyclic half-space passes bound work and preserve already admissible requests.
+ * This constrains motor intent, not actual velocities or poses; native
+ * constraints and the declared motor torque caps still govern motion.
  */
 export function projectPhysicalJointVelocity(
   current: IAutoMovieQuaternion,

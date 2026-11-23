@@ -19,15 +19,15 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  *
  * Each cell the plane passes through becomes one region with its page polygon
  * on the grid, its area and its finish, sorted by space and cell. A space's
- * finish is the one surface material every element realizing a boundary of
- * that space agrees on, or `null` when they disagree or name none, because a
- * finish plan that picked one wall's material would read as a specification.
+ * finish is the one surface material every element realizing a boundary of that
+ * space agrees on, or `null` when they disagree or name none, because a finish
+ * plan that picked one wall's material would read as a specification.
  *
- * What cannot be sectioned is counted for the caller's gaps instead of drawn:
- * a space stated as a closed shell (`shelled`, since only half-space cells are
+ * What cannot be sectioned is counted for the caller's gaps instead of drawn: a
+ * space stated as a closed shell (`shelled`, since only half-space cells are
  * cut), a cell its half-spaces leave unbounded (`unbounded`), and the ids of
- * included spaces declaring a faceted volume (`faceted`, sorted), whose
- * regions are drawn but stand for a curved region.
+ * included spaces declaring a faceted volume (`faceted`, sorted), whose regions
+ * are drawn but stand for a curved region.
  *
  * @param props.environment The validated design.
  * @param props.frame The cut view's page basis.

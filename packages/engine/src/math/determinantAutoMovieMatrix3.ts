@@ -8,13 +8,13 @@ const PRODUCTS: readonly (readonly [number, number, number, number])[] = [
 ];
 
 /**
- * Evaluate a finite row-major 3 by 3 determinant with an exact-sign fallback.
- * A conservative forward-error filter accepts a separated binary64 value.
+ * Evaluate a finite row-major 3 by 3 determinant with an exact-sign fallback. A
+ * conservative forward-error filter accepts a separated binary64 value.
  * Uncertain cancellation instead sums the six products of the input doubles as
  * exact signed binary integers and exponents. Its returned magnitude is rounded
- * to a representable double; zero is returned only for an exactly zero sum.
- * An unrepresentable nonzero magnitude refuses rather than becoming zero.
- * This proves the sign of the supplied doubles, not a physical measurement.
+ * to a representable double; zero is returned only for an exactly zero sum. An
+ * unrepresentable nonzero magnitude refuses rather than becoming zero. This
+ * proves the sign of the supplied doubles, not a physical measurement.
  */
 export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
   let finite: boolean = matrix.length === 9;

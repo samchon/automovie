@@ -3,7 +3,9 @@ import type { IAutoMovieRigidTransform } from "@automovie/interface";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 
 /**
- * Own one simultaneous native scene per controller tick. A later ownership write refreshes only its body's changed transforms, preserving snapshots already retained by fitted plans.
+ * Own one simultaneous native scene per controller tick. A later ownership
+ * write refreshes only its body's changed transforms, preserving snapshots
+ * already retained by fitted plans.
  */
 export function readPhysicalScene(
   bound: Bound,

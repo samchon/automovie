@@ -22,7 +22,8 @@ import { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeometry";
  */
 export namespace AutoMovieMotionAudit {
   /**
-   * Sample all bodies, support windows, speeds, floor clearances and pair contacts.
+   * Sample all bodies, support windows, speeds, floor clearances and pair
+   * contacts.
    */
   export async function run(
     input: IAutoMovieMotionAudit.IInput,

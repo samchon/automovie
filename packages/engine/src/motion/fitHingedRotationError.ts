@@ -33,8 +33,12 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @param prepared The matching chain preparation.
  * @param axes The mid bone's axes, below any skeleton-declared override.
  * @param rotation Requested model-frame effector rotation.
- * @param rig Optional lazy workspace rig under the same source, prepared frames and clinical mappings; target results remain scorer-local.
- * @returns A per-fit scorer of bone-local upper/lower rotations. Keep each candidate unchanged through its synchronous call; scalar edits between calls are reread. Its optional third input is the exact completed (prepared upper world * this upper) * fixed lower frame for the same candidate.
+ * @param rig Optional lazy workspace rig under the same source, prepared frames
+ *   and clinical mappings; target results remain scorer-local.
+ * @returns A per-fit scorer of bone-local upper/lower rotations. Keep each
+ *   candidate unchanged through its synchronous call; scalar edits between
+ *   calls are reread. Its optional third input is the exact completed (prepared
+ *   upper world * this upper) * fixed lower frame for the same candidate.
  */
 export function fitHingedRotationError(
   props: IAutoMovieFitChainToTargetProps,
@@ -42,7 +46,11 @@ export function fitHingedRotationError(
   axes: IAutoMovieJointAxes,
   rotation: IAutoMovieQuaternion,
   rig?: prepareChainFit.IRig,
-): (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion, preparedAbove?: IAutoMovieQuaternion) => number {
+): (
+  upper: IAutoMovieQuaternion,
+  lower: IAutoMovieQuaternion,
+  preparedAbove?: IAutoMovieQuaternion,
+) => number {
   const effector: AutoMovieHumanoidBone = props.chain.effector;
   const effectorBone: IAutoMovieBone | undefined =
     rig === undefined
@@ -93,10 +101,11 @@ export function fitHingedRotationError(
     });
   const restInverse: IAutoMovieQuaternion =
     rig?.effectorRestInverse() ?? Quaternion.inverse(rest);
-  const clamps: NonNullable<Parameters<typeof solveDistalTwist>[0]["clamps"]> = {
-    lower: clampLower,
-    effector: clampEffector,
-  };
+  const clamps: NonNullable<Parameters<typeof solveDistalTwist>[0]["clamps"]> =
+    {
+      lower: clampLower,
+      effector: clampEffector,
+    };
 
   // Own the successful scalar snapshot, so reused caller records can change
   // between queries and a failed conversion cannot mark old data as current.
@@ -105,7 +114,9 @@ export function fitHingedRotationError(
   let clamped: IAutoMovieQuaternion | undefined;
   let heldRotation: IAutoMovieQuaternion | undefined;
   let heldInverse: IAutoMovieQuaternion | undefined;
-  let composeLower: ReturnType<typeof jointToQuaternionOnBasis.prepare> | undefined;
+  let composeLower:
+    | ReturnType<typeof jointToQuaternionOnBasis.prepare>
+    | undefined;
   let preparedEffector: solveDistalTwist.IPrepared | undefined;
 
   /** Share pure lower-axis factors only inside this target's scorer. */
@@ -119,9 +130,15 @@ export function fitHingedRotationError(
   /** Prepare lazy raw readers once for this immutable lower record. */
   const prepareLowerReadings: (
     joint: IAutoMovieJointPose,
-  ) => Pick<Parameters<typeof solveDistalTwist>[0], "readArticulated" | "readUntwisted"> = (
+  ) => Pick<
+    Parameters<typeof solveDistalTwist>[0],
+    "readArticulated" | "readUntwisted"
+  > = (
     joint: IAutoMovieJointPose,
-  ): Pick<Parameters<typeof solveDistalTwist>[0], "readArticulated" | "readUntwisted"> => {
+  ): Pick<
+    Parameters<typeof solveDistalTwist>[0],
+    "readArticulated" | "readUntwisted"
+  > => {
     let articulated: IAutoMovieQuaternion | undefined;
     let untwisted: IAutoMovieQuaternion | undefined;
     return {
@@ -130,9 +147,11 @@ export function fitHingedRotationError(
         return articulated;
       },
       readUntwisted: (): IAutoMovieQuaternion => {
-        if (untwisted === undefined) untwisted = lowerRotation(
-          { ...joint, twist: toClinicalAngle(0, lowerFrame?.twist) },
-        );
+        if (untwisted === undefined)
+          untwisted = lowerRotation({
+            ...joint,
+            twist: toClinicalAngle(0, lowerFrame?.twist),
+          });
         return untwisted;
       },
     };
@@ -140,13 +159,16 @@ export function fitHingedRotationError(
   let lowerReadings: ReturnType<typeof prepareLowerReadings> | undefined;
 
   /** Read source-only held rotation at the solver's original first-use site. */
-  const readHeldRotation: () => IAutoMovieQuaternion = (): IAutoMovieQuaternion => {
-    if (rig !== undefined) return rig.heldRotation();
-    if (heldRotation === undefined) heldRotation = Quaternion.multiply(
-      rest, jointToQuaternionOnBasis(held, effectorBasis, effectorFrame),
-    );
-    return heldRotation;
-  };
+  const readHeldRotation: () => IAutoMovieQuaternion =
+    (): IAutoMovieQuaternion => {
+      if (rig !== undefined) return rig.heldRotation();
+      if (heldRotation === undefined)
+        heldRotation = Quaternion.multiply(
+          rest,
+          jointToQuaternionOnBasis(held, effectorBasis, effectorFrame),
+        );
+      return heldRotation;
+    };
 
   /** The actual held raw was read first; share only its unchanged inverse. */
   const readHeldInverse: (raw: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
@@ -156,31 +178,44 @@ export function fitHingedRotationError(
     if (heldInverse === undefined) heldInverse = Quaternion.inverse(raw);
     return heldInverse;
   };
-  return (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion, preparedAbove?: IAutoMovieQuaternion): number => {
-    const above: IAutoMovieQuaternion = preparedAbove ?? Quaternion.multiply(
-      Quaternion.multiply(prepared.upper.worldRotation, upper),
-      prepared.lowerRotation,
-    );
+  return (
+    upper: IAutoMovieQuaternion,
+    lower: IAutoMovieQuaternion,
+    preparedAbove?: IAutoMovieQuaternion,
+  ): number => {
+    const above: IAutoMovieQuaternion =
+      preparedAbove ??
+      Quaternion.multiply(
+        Quaternion.multiply(prepared.upper.worldRotation, upper),
+        prepared.lowerRotation,
+      );
     const x: number = lower.x;
     const y: number = lower.y;
     const z: number = lower.z;
     const w: number = lower.w;
-    if (lowerJoint === undefined || lowerComponents === undefined ||
-      !Object.is(lowerComponents[0], x) || !Object.is(lowerComponents[1], y) ||
-      !Object.is(lowerComponents[2], z) || !Object.is(lowerComponents[3], w)) {
-      const angles: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
-        lower,
-        lowerBasis,
-        lowerFrame,
-        prepared.lowerDomain,
-      );
-      const admitted: IAutoMovieJointPose = { bone: props.chain.lower, ...angles };
+    if (
+      lowerJoint === undefined ||
+      lowerComponents === undefined ||
+      !Object.is(lowerComponents[0], x) ||
+      !Object.is(lowerComponents[1], y) ||
+      !Object.is(lowerComponents[2], z) ||
+      !Object.is(lowerComponents[3], w)
+    ) {
+      const angles: IAutoMovieResolvedJointAngles =
+        decomposeJointRotationOnBasis(
+          lower,
+          lowerBasis,
+          lowerFrame,
+          prepared.lowerDomain,
+        );
+      const admitted: IAutoMovieJointPose = {
+        bone: props.chain.lower,
+        ...angles,
+      };
       const nextClamped: IAutoMovieQuaternion | undefined =
         lowerBasis.twistPlacement === "distal"
           ? undefined
-          : lowerRotation(
-              clampLower({ ...admitted }),
-            );
+          : lowerRotation(clampLower({ ...admitted }));
       lowerJoint = admitted;
       lowerReadings = undefined;
       clamped = nextClamped;
@@ -190,33 +225,36 @@ export function fitHingedRotationError(
     let projected: solveDistalTwist.IProjection | undefined;
     let lowerRotationResult: IAutoMovieQuaternion | undefined = clamped;
     if (lowerRotationResult === undefined) {
-      const result: solveDistalTwist.IResult =
-        solveDistalTwist.withProjection({
-          joint,
-          effector: held,
-          above,
-          lowerBasis,
-          lowerFrame,
-          effectorRest: rest,
-          effectorRestInverse: restInverse,
-          effectorBasis,
-          effectorFrame,
-          rotation,
-          skeleton: props.skeleton,
-          ...(props.near?.twist === undefined ? {} : { reference: props.near.twist }),
-          clamps,
-          projectEffector: project,
-          projectEffectorWithQuaternion: project.withQuaternion,
-          composeLower: lowerRotation,
-          preparedEffector: preparedEffector ??= rig?.distalTwist() ?? solveDistalTwist.prepare({
-              effectorRest: rest,
-              effectorBasis,
-              effectorFrame,
-          }),
-          ...(lowerReadings ??= prepareLowerReadings(joint)),
-          readHeldRotation,
-          readHeldInverse,
-        });
+      const result: solveDistalTwist.IResult = solveDistalTwist.withProjection({
+        joint,
+        effector: held,
+        above,
+        lowerBasis,
+        lowerFrame,
+        effectorRest: rest,
+        effectorRestInverse: restInverse,
+        effectorBasis,
+        effectorFrame,
+        rotation,
+        skeleton: props.skeleton,
+        ...(props.near?.twist === undefined
+          ? {}
+          : { reference: props.near.twist }),
+        clamps,
+        projectEffector: project,
+        projectEffectorWithQuaternion: project.withQuaternion,
+        composeLower: lowerRotation,
+        preparedEffector: (preparedEffector ??=
+          rig?.distalTwist() ??
+          solveDistalTwist.prepare({
+            effectorRest: rest,
+            effectorBasis,
+            effectorFrame,
+          })),
+        ...(lowerReadings ??= prepareLowerReadings(joint)),
+        readHeldRotation,
+        readHeldInverse,
+      });
       lowerRotationResult = lowerRotation(result.joint);
       projected = result.projection;
     }
@@ -245,8 +283,6 @@ export function fitHingedRotationError(
       Quaternion.multiply(mid, rest),
       selected,
     );
-    return (
-      (Quaternion.angleAfterNormalize(shown, wanted) * 180) / Math.PI
-    );
+    return (Quaternion.angleAfterNormalize(shown, wanted) * 180) / Math.PI;
   };
 }

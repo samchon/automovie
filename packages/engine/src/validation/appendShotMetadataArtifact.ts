@@ -10,7 +10,8 @@ import { appendShotCoverageArtifact } from "./appendShotCoverageArtifact";
 import { appendShotEventsArtifact } from "./appendShotEventsArtifact";
 
 /**
- * Inspect present shot events, editorial markers, camera intent, coverage and clearance evidence.
+ * Inspect present shot events, editorial markers, camera intent, coverage and
+ * clearance evidence.
  */
 export const appendShotMetadataArtifact: (
   shot: IAutoMovieAppendShotMetadataArtifact.IShot,

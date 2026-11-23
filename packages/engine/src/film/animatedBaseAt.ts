@@ -12,9 +12,15 @@ import { sampleMotion } from "../motion/sampleMotion";
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /**
- * A node's animated world position over shot time: its staged `base` plus the node-local root displacement `motion` carries at that instant, rotated into the world by the node's staged `facing`.
+ * A node's animated world position over shot time: its staged `base` plus the
+ * node-local root displacement `motion` carries at that instant, rotated into
+ * the world by the node's staged `facing`.
  *
- * This is the read a `follow` camera uses to track a walking actor and a `launch` uses to lead a moving target, under the same convention the renderer applies: the root is node-local and turns with the node's facing. A pose with no root holds the node at its base. The motion is sampled with the sampler's own loop and clamp rules at shot-local seconds.
+ * This is the read a `follow` camera uses to track a walking actor and a
+ * `launch` uses to lead a moving target, under the same convention the renderer
+ * applies: the root is node-local and turns with the node's facing. A pose with
+ * no root holds the node at its base. The motion is sampled with the sampler's
+ * own loop and clamp rules at shot-local seconds.
  *
  * @param base The node's staged world position, in metres.
  * @param facing The node's staged world rotation.

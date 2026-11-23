@@ -12,23 +12,23 @@ import { projectileDragDeparture } from "./projectileDragDeparture";
 /**
  * Establish departure from one already resolved fixed-plane contact.
  *
- * The opt-in id identifies that initial episode. Without it, or with a
- * rotating tail whose normal extent is not classified, the caller keeps
- * ordinary initial-contact reporting. No signed gap is relaxed.
+ * The opt-in id identifies that initial episode. Without it, or with a rotating
+ * tail whose normal extent is not classified, the caller keeps ordinary
+ * initial-contact reporting. No signed gap is relaxed.
  *
  * For a point or a fixed-attitude tail, normal clearance differs from the
  * centre's normal position only by a constant. Without drag, constant normal
  * acceleration makes outward motion monotone or gives it one maximum.
  *
  * A positive gap is a physical witness, not a time nudge. With inward gravity
- * the ballistic apex bounds the outward part. Search toward
- * that single maximum until a clear instant is found or adjacent binary64
- * times prevent further refinement; the resolver still owns its unchanged
- * scan and twenty-four TOI bisections after this witness.
- * With drag, the trajectory owner supplies its actual Hermite intervals.
- * Only intervals whose three projected derivative controls are nonnegative
- * may lead to a measured clearance witness. An uncertain interval preserves
- * initial contact; the differential equation alone never certifies departure.
+ * the ballistic apex bounds the outward part. Search toward that single maximum
+ * until a clear instant is found or adjacent binary64 times prevent further
+ * refinement; the resolver still owns its unchanged scan and twenty-four TOI
+ * bisections after this witness. With drag, the trajectory owner supplies its
+ * actual Hermite intervals. Only intervals whose three projected derivative
+ * controls are nonnegative may lead to a measured clearance witness. An
+ * uncertain interval preserves initial contact; the differential equation alone
+ * never certifies departure.
  */
 export function projectilePlaneDeparture(
   id: string,

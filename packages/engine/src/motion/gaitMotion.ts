@@ -7,11 +7,11 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
+import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 import { addPositiveModulo } from "../math/addPositiveModulo";
 import { positiveModulo } from "../math/positiveModulo";
 import { gaitLimbFlexion } from "./gaitLimbFlexion";
-import { Quaternion } from "../math/Quaternion";
-import { Transform } from "../math/Transform";
 
 /** Wrap a cycle position into `[0, 1)`. */
 const wrap01: (x: number) => number = (x: number): number =>
@@ -86,7 +86,10 @@ const assertUniqueGaitAxes: (limbs: readonly IAutoMovieGaitLimb[]) => void = (
 };
 
 /**
- * Bake one declarative gait cycle into samples+1 evenly timed clinical poses, including a closing copy of cycle phase. Optional phase is seconds into the cycle; gaitCycle records the wrapped seed, and rig-specific ROM validation remains the consumer's responsibility.
+ * Bake one declarative gait cycle into samples+1 evenly timed clinical poses,
+ * including a closing copy of cycle phase. Optional phase is seconds into the
+ * cycle; gaitCycle records the wrapped seed, and rig-specific ROM validation
+ * remains the consumer's responsibility.
  */
 export const gaitMotion: (
   id: string,

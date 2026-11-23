@@ -3,58 +3,54 @@ import type { IAutoMovieLoftSectionFrame } from "@automovie/interface";
 /**
  * Section planes of a chain: where each harmonic section lies in the world.
  *
- * A section's harmonic coefficients are planar coordinates `(x, z)` in mm.
- * A frame places them in the world:
+ * A section's harmonic coefficients are planar coordinates `(x, z)` in mm. A
+ * frame places them in the world:
  *
  * ```text
- * P = origin + x * u + z * v
+ * P = origin + x * u + z * v;
  * ```
  *
- * with orthonormal in-plane axes `u` and `v`. A chain's stations increase
- * along its length; the side of the plane they advance toward is a property
- * of the chain's layer sequence, not of the frame.
+ * With orthonormal in-plane axes `u` and `v`. A chain's stations increase along
+ * its length; the side of the plane they advance toward is a property of the
+ * chain's layer sequence, not of the frame.
  *
  * ## The horizontal default
  *
- * A layer without a frame lies in the horizontal plane at world height equal
- * to its station: origin `(0, s, 0)`, `u = +X`, `v = +Z`. Every recovered
- * trunk, limb and digit chain uses this default, which reproduces the world
- * height slicing of the saved loft.
+ * A layer without a frame lies in the horizontal plane at world height equal to
+ * its station: origin `(0, s, 0)`, `u = +X`, `v = +Z`. Every recovered trunk,
+ * limb and digit chain uses this default, which reproduces the world height
+ * slicing of the saved loft.
  *
  * ## Oriented layers
  *
- * A chain whose sections must turn, such as a foot leaving a horizontal
- * ankle section for sections across its length, or an ear leaving the head
- * surface, gives each principal layer its own frame. Between two layers:
+ * A chain whose sections must turn, such as a foot leaving a horizontal ankle
+ * section for sections across its length, or an ear leaving the head surface,
+ * gives each principal layer its own frame. Between two layers:
  *
- * - the origin follows a cubic Hermite curve whose end tangents are the
- *   Catmull-Rom differences of the neighbouring layer origins, so the
- *   origin path is C1 across layers;
- * - the orientation follows a cubic Hermite curve on the rotation group,
- *   whose end angular velocities are given per layer (the chain uses the
- *   same three-point differences of its neighbouring layer rotations on
- *   both sides of a layer), so the in-plane axes stay orthonormal and turn
- *   with an angular velocity that is continuous across layers.
+ * - The origin follows a cubic Hermite curve whose end tangents are the
+ *   Catmull-Rom differences of the neighbouring layer origins, so the origin
+ *   path is C1 across layers;
+ * - The orientation follows a cubic Hermite curve on the rotation group, whose
+ *   end angular velocities are given per layer (the chain uses the same
+ *   three-point differences of its neighbouring layer rotations on both sides
+ *   of a layer), so the in-plane axes stay orthonormal and turn with an angular
+ *   velocity that is continuous across layers.
  *
- * The angular velocity matters wherever the section plane turns. A point
- * at distance x from the turning axis moves out of the plane at x times the
+ * The angular velocity matters wherever the section plane turns. A point at
+ * distance x from the turning axis moves out of the plane at x times the
  * angular velocity; with the spherical linear interpolation (slerp) used
- * before, that speed jumped at every layer, and on skin lying across the
- * plane (the underside of the chin, the nape, the upper lip) each jump was a
- * crease of up to four degrees along the layer. Without angular velocities
- * the interpolation is slerp.
+ * before, that speed jumped at every layer, and on skin lying across the plane
+ * (the underside of the chin, the nape, the upper lip) each jump was a crease
+ * of up to four degrees along the layer. Without angular velocities the
+ * interpolation is slerp.
  */
 export namespace AutoMovieLoftFrame {
-  /**
-   * Horizontal frame at a world height in mm: the default of an unframed layer.
-   */
+  /** Horizontal frame at a world height in mm: the default of an unframed layer. */
   export function horizontal(y: number): IAutoMovieLoftSectionFrame {
     return { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] };
   }
 
-  /**
-   * World point of planar coordinates x/z in mm, preserving the supplied basis.
-   */
+  /** World point of planar coordinates x/z in mm, preserving the supplied basis. */
   export function place(
     frame: IAutoMovieLoftSectionFrame,
     x: number,
@@ -94,8 +90,8 @@ export namespace AutoMovieLoftFrame {
    * @param ta Origin tangent at `a` per unit parameter, mm.
    * @param tb Origin tangent at `b` per unit parameter, mm.
    * @param t Unit parameter of the interval.
-   * @param wa World angular velocity at `a` per unit parameter, rad;
-   *   absent with `wb` for the constant velocity of slerp.
+   * @param wa World angular velocity at `a` per unit parameter, rad; absent
+   *   with `wb` for the constant velocity of slerp.
    * @param wb World angular velocity at `b` per unit parameter, rad.
    */
   export function interpolate(
@@ -159,9 +155,9 @@ export namespace AutoMovieLoftFrame {
    * World angular velocity, rad per station unit, of the constant turn from
    * frame `a` to frame `b` over a station span.
    *
-   * The rotation vector of `Ra^T Rb` in world axes, divided by the span: a
-   * turn about a fixed axis leaves that axis in place, so the world vector
-   * is the same anywhere along the turn.
+   * The rotation vector of `Ra^T Rb` in world axes, divided by the span: a turn
+   * about a fixed axis leaves that axis in place, so the world vector is the
+   * same anywhere along the turn.
    */
   export function rate(
     a: IAutoMovieLoftSectionFrame,
@@ -270,8 +266,8 @@ export namespace AutoMovieLoftFrame {
   }
 
   /**
-   * Inverse right Jacobian of the rotation exponential at `p`, applied to x:
-   * `x + (p x x) / 2 + c p x (p x x)`, `c = 1/a^2 - (1 + cos a) / (2 a sin a)`.
+   * Inverse right Jacobian of the rotation exponential at `p`, applied to x: `x
+   * + (p x x) / 2 + c p x (p x x)`, `c = 1/a^2 - (1 + cos a) / (2 a sin a)`.
    */
   function inverseJacobian(
     p: readonly [number, number, number],
@@ -310,8 +306,8 @@ export namespace AutoMovieLoftFrame {
   }
 
   /**
-   * Unit quaternion `[w, x, y, z]` of a rotation matrix, by Shepperd's
-   * method: the largest diagonal combination keeps it stable.
+   * Unit quaternion `[w, x, y, z]` of a rotation matrix, by Shepperd's method:
+   * the largest diagonal combination keeps it stable.
    */
   function quaternionOf(m: number[][]): number[] {
     const m00: number = m[0]![0]!,

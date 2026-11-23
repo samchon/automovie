@@ -3,12 +3,11 @@ import type { IAutoMovieConstructionOutlineParameter } from "@automovie/interfac
 import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
 
 /**
- * Source parameter arithmetic shared by radial outlines and nonzero world-coordinate curves.
+ * Source parameter arithmetic shared by radial outlines and nonzero
+ * world-coordinate curves.
  */
 export namespace AutoMovieViewParameter {
-  /**
-   * Admit and copy parameter endpoints already converted to kernel millimetres.
-   */
+  /** Admit and copy parameter endpoints already converted to kernel millimetres. */
   export function prepare(
     parameter: IAutoMovieConstructionOutlineParameter | undefined,
   ): IAutoMovieConstructionOutlineParameter | undefined | string {
@@ -27,7 +26,10 @@ export namespace AutoMovieViewParameter {
   }
 
   /**
-   * Map a station; a station outside the domain by at most {@link AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE} of its span (of the root coordinate magnitude for a root map) reads as its endpoint, and nonfinite or farther requests return NaN.
+   * Map a station; a station outside the domain by at most
+   * {@link AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE} of its span (of the root
+   * coordinate magnitude for a root map) reads as its endpoint, and nonfinite
+   * or farther requests return NaN.
    */
   export function at(
     parameter: IAutoMovieConstructionOutlineParameter | undefined,
@@ -62,9 +64,7 @@ export namespace AutoMovieViewParameter {
       : Math.PI - 2 * Math.asin(Math.sqrt(b / span));
   }
 
-  /**
-   * Invert an admitted in-span source parameter.
-   */
+  /** Invert an admitted in-span source parameter. */
   export function station(
     parameter: IAutoMovieConstructionOutlineParameter | undefined,
     x: number,
@@ -79,7 +79,8 @@ export namespace AutoMovieViewParameter {
   }
 
   /**
-   * First/second parameter derivatives in station, absent at a singular parameter endpoint.
+   * First/second parameter derivatives in station, absent at a singular
+   * parameter endpoint.
    */
   export function jet(
     parameter: IAutoMovieConstructionOutlineParameter | undefined,
@@ -107,7 +108,8 @@ export namespace AutoMovieViewParameter {
   }
 
   /**
-   * First two derivatives of station in the selected coordinate, including its finite pole limit.
+   * First two derivatives of station in the selected coordinate, including its
+   * finite pole limit.
    */
   export function inverseJet(
     parameter: IAutoMovieConstructionOutlineParameter | undefined,
@@ -131,7 +133,8 @@ export namespace AutoMovieViewParameter {
   }
 
   /**
-   * Derivatives of one source coordinate in another coordinate at the same station.
+   * Derivatives of one source coordinate in another coordinate at the same
+   * station.
    */
   export function transferJet(
     source: IAutoMovieConstructionOutlineParameter | undefined,
@@ -216,7 +219,10 @@ function checked(jet: [number, number]): [number, number] | null {
   return jet.every(Number.isFinite) ? jet : null;
 }
 
-/** Exact map identity compares the actual endpoint data, allowing equal-value copies. */
+/**
+ * Exact map identity compares the actual endpoint data, allowing equal-value
+ * copies.
+ */
 function same(
   source: IAutoMovieConstructionOutlineParameter,
   target: IAutoMovieConstructionOutlineParameter | undefined,

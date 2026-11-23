@@ -24,7 +24,9 @@ import { validateUniqueBy } from "./validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
 
 /**
- * Admit shot/scene/camera references, performances, motion clips, polygon body cue and practical surface track shape and staged-node references, metadata and delivered-camera clearance correspondence.
+ * Admit shot/scene/camera references, performances, motion clips, polygon body
+ * cue and practical surface track shape and staged-node references, metadata
+ * and delivered-camera clearance correspondence.
  *
  * A replay host can pass its staged skeleton resolver to check polygon cue
  * pivots and branch overlap on the same rig it will draw. Without a resolver,
@@ -281,15 +283,18 @@ export const validateShotArtifact: (
  *
  * The light channel gate receives only the cross-reference index it needs.
  *
- * Nonrecords/non-string ids are omitted; duplicate ids use last map assignment and scene admission owns uniqueness.
+ * Nonrecords/non-string ids are omitted; duplicate ids use last map assignment
+ * and scene admission owns uniqueness.
  *
- * Missing/undefined kind is indistinguishable from absence to the downstream gate.
+ * Missing/undefined kind is indistinguishable from absence to the downstream
+ * gate.
  *
  * L lights cost O(L) traversal and O(U) map storage plus id hashing.
  *
  * One map serves all shot light track gates.
  *
- * The caller owns the map and borrowed kind values, with no staged renderer light acquired.
+ * The caller owns the map and borrowed kind values, with no staged renderer
+ * light acquired.
  */
 const stagedLightKinds: (scene: unknown) => ReadonlyMap<string, unknown> = (
   scene: unknown,

@@ -27,48 +27,49 @@ import { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegio
  * left toward +X). A region is defined by its bone, a station on the bone's
  * segment (a share of the way from the bone's joint toward a child joint, or
  * the centre of the bone's colliders) and an outward direction in the rest
- * frame; its point is where a ray from the station along the direction
- * leaves the bone's colliders (exact ray exits of spheres, capsules and boxes;
- * the colliders are convex and closed, so the union's exit is the largest and
- * a station on a face counts as inside), and its normal is the outward normal
- * of the collider it leaves there (surfaceNormal): the authored direction
- * only finds the point, as a contact frame's normal is the collision
- * geometry's. A normal read from the direction instead stood up to 44 degrees
- * off the surface (the nape's 24), so a palm laid flat on it sank its heel
- * 14.8 mm into the neck. This is how authored hit and touch locations are
- * placed on character physics bodies in game engines (a bone plus a local
- * offset on its collider), generalised so the offset comes from the body's
- * own shapes and fits any size. The palm, sole, heel and seat regions share
- * their sockets' points, and every digit's tip and pad ride its distal
- * phalanx (`AutoMovieHumanoidDigitSurfaces`): the tip the exit of a ray along
- * the phalanx, the pad that of a ray from its middle toward the palm.
- * Sockets of the foot, seat and back are read
- * from the exact axis bounds of their segment's colliders at rest (heel at
- * the back of the sole, ball under the toe joint, toe at the front, sole at
- * the middle, seat under the pelvis, back behind the thorax; when the profile
- * gives the toes their own segment, the toe socket is the front of the toes'
- * colliders on the sole's plane and rides the toes bone, so it bends at the
- * ball and bears when the heel rises about the toes' joint); the palm is the
- * ray exit below the palm's middle, the grip lies 0.025 m out from it, the
- * radius of a 50 mm handle, the power grip's optimal handle size (Grant,
- * Habes and Steward 1992), and the fist lies 0.012 m ahead of the middle
- * knuckle, the metacarpal head's radius.
+ * frame; its point is where a ray from the station along the direction leaves
+ * the bone's colliders (exact ray exits of spheres, capsules and boxes; the
+ * colliders are convex and closed, so the union's exit is the largest and a
+ * station on a face counts as inside), and its normal is the outward normal of
+ * the collider it leaves there (surfaceNormal): the authored direction only
+ * finds the point, as a contact frame's normal is the collision geometry's. A
+ * normal read from the direction instead stood up to 44 degrees off the surface
+ * (the nape's 24), so a palm laid flat on it sank its heel 14.8 mm into the
+ * neck. This is how authored hit and touch locations are placed on character
+ * physics bodies in game engines (a bone plus a local offset on its collider),
+ * generalised so the offset comes from the body's own shapes and fits any size.
+ * The palm, sole, heel and seat regions share their sockets' points, and every
+ * digit's tip and pad ride its distal phalanx
+ * (`AutoMovieHumanoidDigitSurfaces`): the tip the exit of a ray along the
+ * phalanx, the pad that of a ray from its middle toward the palm. Sockets of
+ * the foot, seat and back are read from the exact axis bounds of their
+ * segment's colliders at rest (heel at the back of the sole, ball under the toe
+ * joint, toe at the front, sole at the middle, seat under the pelvis, back
+ * behind the thorax; when the profile gives the toes their own segment, the toe
+ * socket is the front of the toes' colliders on the sole's plane and rides the
+ * toes bone, so it bends at the ball and bears when the heel rises about the
+ * toes' joint); the palm is the ray exit below the palm's middle, the grip lies
+ * 0.025 m out from it, the radius of a 50 mm handle, the power grip's optimal
+ * handle size (Grant, Habes and Steward 1992), and the fist lies 0.012 m ahead
+ * of the middle knuckle, the metacarpal head's radius.
  *
- * A frame is bone-local: `point` and `normal` (and a socket's `forward`)
- * are expressed in the bone's rest frame relative to its joint, so its world
- * frame under any pose is the bone's world position plus its world rotation
- * applied to them.
+ * A frame is bone-local: `point` and `normal` (and a socket's `forward`) are
+ * expressed in the bone's rest frame relative to its joint, so its world frame
+ * under any pose is the bone's world position plus its world rotation applied
+ * to them.
  *
  * The left side is the mirror of the right: a left region or socket (and the
  * spleen, the liver's twin) is its right twin's frame mirrored in the median
- * plane (`mirrored`), on the opposite bone, so a left act reads a frame that
- * is the mirror of the right one to the bit, as the rig's own rest is.
+ * plane (`mirrored`), on the opposite bone, so a left act reads a frame that is
+ * the mirror of the right one to the bit, as the rig's own rest is.
  *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile, segments keyed by rig bones.
- * @param neutral Optional genuine internal unchanged-profile bounds epoch, owned and released by measureAutoMovieHumanoidBody.withSurfaces.
+ * @param neutral Optional genuine internal unchanged-profile bounds epoch,
+ *   owned and released by measureAutoMovieHumanoidBody.withSurfaces.
  * @returns Every region and socket.
- * @throws {Error} When a bone or segment a definition needs is missing, or a ray misses its colliders.
+ * @throws {Error} When a bone or segment a definition needs is missing, or a
+ *   ray misses its colliders.
  */
 export function resolveAutoMovieHumanoidSurfaces(
   skeleton: IAutoMovieSkeleton,
@@ -243,22 +244,25 @@ export function resolveAutoMovieHumanoidSurfaces(
   return { regions, sockets };
 }
 
-/**
- * Companion types and helpers of {@link resolveAutoMovieHumanoidSurfaces}.
- */
+/** Companion types and helpers of {@link resolveAutoMovieHumanoidSurfaces}. */
 export namespace resolveAutoMovieHumanoidSurfaces {
-
   /**
-   * Fresh world point, metres, without normal/forward reads or rotations.
-   * Uses place's original local-to-world expression; inputs are admitted.
+   * Fresh world point, metres, without normal/forward reads or rotations. Uses
+   * place's original local-to-world expression; inputs are admitted.
    */
-  export const point: typeof AutoMovieHumanoidSurfacePlacement.point = AutoMovieHumanoidSurfacePlacement.point;
+  export const point: typeof AutoMovieHumanoidSurfacePlacement.point =
+    AutoMovieHumanoidSurfacePlacement.point;
 
   /** Fresh world normal without observing point, parent position or forward. */
-  export const normal: typeof AutoMovieHumanoidSurfacePlacement.normal = AutoMovieHumanoidSurfacePlacement.normal;
+  export const normal: typeof AutoMovieHumanoidSurfacePlacement.normal =
+    AutoMovieHumanoidSurfacePlacement.normal;
 
-  /** Fresh world point and normal, without observing an unused forward direction. */
-  export const pointNormal: typeof AutoMovieHumanoidSurfacePlacement.pointNormal = AutoMovieHumanoidSurfacePlacement.pointNormal;
+  /**
+   * Fresh world point and normal, without observing an unused forward
+   * direction.
+   */
+  export const pointNormal: typeof AutoMovieHumanoidSurfacePlacement.pointNormal =
+    AutoMovieHumanoidSurfacePlacement.pointNormal;
 
   /**
    * A surface frame's world point and normal under a posed bone.
@@ -278,7 +282,8 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * Whether a region is placed by a ray, so `offset` accepts it.
    *
    * @param region The region.
-   * @returns False for the palms, soles, heels, seat and the digits' tips and pads, which take a socket's point or a phalanx's line.
+   * @returns False for the palms, soles, heels, seat and the digits' tips and
+   *   pads, which take a socket's point or a phalanx's line.
    */
   export function rayed(region: AutoMovieHumanoidRegion): boolean {
     return AutoMovieHumanoidSurfaceRegions.TABLE[region] !== undefined;
@@ -289,17 +294,19 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    *
    * The region's ray leaves its station along its direction and meets the
    * colliders at the region's point. The offset names a point of the plane
-   * through that point, perpendicular to the direction. The result is where
-   * the ray from the same station through the offset point leaves the
-   * colliders, with the colliders' outward normal there, so it lies on the
-   * body's surface for any offset and equals the region's frame at zero.
+   * through that point, perpendicular to the direction. The result is where the
+   * ray from the same station through the offset point leaves the colliders,
+   * with the colliders' outward normal there, so it lies on the body's surface
+   * for any offset and equals the region's frame at zero.
    *
    * @param skeleton The canonical rig.
    * @param profile Its physical profile, segments keyed by rig bones.
-   * @param region A region placed by a ray: every region but the palms, soles, heels, seat and the digits' tips and pads.
+   * @param region A region placed by a ray: every region but the palms, soles,
+   *   heels, seat and the digits' tips and pads.
    * @param tangent The offset on the region's tangent plane.
    * @returns The bone-local frame of the surface point.
-   * @throws {Error} When the region is not placed by a ray, or a bone or segment it needs is missing.
+   * @throws {Error} When the region is not placed by a ray, or a bone or
+   *   segment it needs is missing.
    */
   export function offset(
     skeleton: IAutoMovieSkeleton,
@@ -348,8 +355,8 @@ export namespace resolveAutoMovieHumanoidSurfaces {
   }
 
   /**
-   * The right twin a left region is the mirror of: the same name on the
-   * right, and the liver for the spleen; none for a right or median region.
+   * The right twin a left region is the mirror of: the same name on the right,
+   * and the liver for the spleen; none for a right or median region.
    *
    * @param region The region.
    * @returns Its right twin, when it is a left region.
@@ -387,7 +394,9 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * @param frame The frame.
    * @returns The frame, its own mirror image.
    */
-  export function centred(frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieHumanoidSurfaces.IFrame {
+  export function centred(
+    frame: IAutoMovieHumanoidSurfaces.IFrame,
+  ): IAutoMovieHumanoidSurfaces.IFrame {
     const plane = (v: IAutoMovieVector3): IAutoMovieVector3 => ({
       x: 0,
       y: v.y,
@@ -402,16 +411,18 @@ export namespace resolveAutoMovieHumanoidSurfaces {
   }
 
   /**
-   * A frame's mirror image in the median plane: on the other side's bone,
-   * its point, normal and forward with their lateral component negated. A
-   * rest frame mirrored across the median plane (`M R M`) maps a bone-local
-   * vector to the same vector with its lateral component negated, so the
-   * mirror is exact.
+   * A frame's mirror image in the median plane: on the other side's bone, its
+   * point, normal and forward with their lateral component negated. A rest
+   * frame mirrored across the median plane (`M R M`) maps a bone-local vector
+   * to the same vector with its lateral component negated, so the mirror is
+   * exact.
    *
    * @param frame The frame.
    * @returns Its mirror image.
    */
-  export function mirrored(frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieHumanoidSurfaces.IFrame {
+  export function mirrored(
+    frame: IAutoMovieHumanoidSurfaces.IFrame,
+  ): IAutoMovieHumanoidSurfaces.IFrame {
     const flip = (v: IAutoMovieVector3): IAutoMovieVector3 => ({
       x: -v.x,
       y: v.y,
@@ -431,11 +442,21 @@ export namespace resolveAutoMovieHumanoidSurfaces {
   }
 }
 
-/** Radius of a 50 mm handle, the optimal power-grip size (Grant, Habes and Steward 1992), metres. */
+/**
+ * Radius of a 50 mm handle, the optimal power-grip size (Grant, Habes and
+ * Steward 1992), metres.
+ */
 const GRIP_RADIUS: number = 0.025;
 
-/** Radius of the third metacarpal head, the fist's striking surface ahead of the knuckle joint, metres. */
+/**
+ * Radius of the third metacarpal head, the fist's striking surface ahead of the
+ * knuckle joint, metres.
+ */
 const KNUCKLE_RADIUS: number = 0.012;
 
-/** Metres a station may sit outside a collider and still count as on it: the colliders are closed sets, so a station on a face or a cap must not miss by rounding. */
+/**
+ * Metres a station may sit outside a collider and still count as on it: the
+ * colliders are closed sets, so a station on a face or a cap must not miss by
+ * rounding.
+ */
 const BOUNDARY: number = 1e-9;

@@ -16,7 +16,10 @@ import { builtSpaceSubtree } from "../architecture/builtSpaceSubtree";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateFluidDomain } from "./validateFluidDomain";
 
-/** Closed authoring labels for water bindings; the module owns this fixed lookup and no solver behavior is selected by kind. */
+/**
+ * Closed authoring labels for water bindings; the module owns this fixed lookup
+ * and no solver behavior is selected by kind.
+ */
 const FEATURE_KINDS: ReadonlySet<string> = new Set([
   "pond",
   "channel",
@@ -26,7 +29,10 @@ const FEATURE_KINDS: ReadonlySet<string> = new Set([
   "other",
 ]);
 
-/** Accepted mode strings; lowerWaterFeature owns their clock interpretation, while this fixed module lookup only admits vocabulary. */
+/**
+ * Accepted mode strings; lowerWaterFeature owns their clock interpretation,
+ * while this fixed module lookup only admits vocabulary.
+ */
 const FEATURE_MODES: ReadonlySet<string> = new Set([
   "static",
   "flowing",
@@ -34,15 +40,30 @@ const FEATURE_MODES: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Validate bindings between independent fluid domains and a building's water features.
+ * Validate bindings between independent fluid domains and a building's water
+ * features.
  *
- * Joins a feature's environment, space, rim and domain ids without adding architecture fields to fluid domains. The supplied environment must already be structurally admitted; space and boundary maps resolve duplicate ids last-wins without validating those environment identities here. Rim membership uses the boundary's spaces list, and material checks reject blank ids without resolving a material catalogue.
+ * Joins a feature's environment, space, rim and domain ids without adding
+ * architecture fields to fluid domains. The supplied environment must already
+ * be structurally admitted; space and boundary maps resolve duplicate ids
+ * last-wins without validating those environment identities here. Rim
+ * membership uses the boundary's spaces list, and material checks reject blank
+ * ids without resolving a material catalogue.
  *
- * Every supplied domain is validated with validateFluidDomain, cited or not, and violations are re-pathed to $input.domains[i]. Duplicate domain ids are refused; features resolve both domain and validation verdict from the last record with that id.
+ * Every supplied domain is validated with validateFluidDomain, cited or not,
+ * and violations are re-pathed to $input.domains[i]. Duplicate domain ids are
+ * refused; features resolve both domain and validation verdict from the last
+ * record with that id.
  *
- * A volume-less root basin and a domain rejected by validateFluidDomain skip geometry. Other bindings test cell centres at origin.y + bed against the root/descendant spaces using builtSpaceContainsPoint's numerical tolerances. The test does not measure the full cell footprint or water height.
+ * A volume-less root basin and a domain rejected by validateFluidDomain skip
+ * geometry. Other bindings test cell centres at origin.y + bed against the
+ * root/descendant spaces using builtSpaceContainsPoint's numerical tolerances.
+ * The test does not measure the full cell footprint or water height.
  *
- * Every bed point is checked in row-major order, including in convex basins: arbitrary interior bed elevations need not lie in the corners' convex hull. This initial bed-centre check does not certify future solved surfaces fit the basin.
+ * Every bed point is checked in row-major order, including in convex basins:
+ * arbitrary interior bed elevations need not lie in the corners' convex hull.
+ * This initial bed-centre check does not certify future solved surfaces fit the
+ * basin.
  */
 export const validateWaterFeatures: (
   props: IAutoMovieValidateWaterFeatures.IProps,
@@ -231,9 +252,17 @@ export const validateWaterFeatures: (
 /**
  * The first bed point of the lattice standing outside the basin, or `null`.
  *
- * Measures origin plus every cell centre's X/Z and authored bed Y, not the depth-shifted water surface or cell footprint. A point is accepted when any root/descendant volume accepts it; subtree membership is built once and volume predicates retain their own numerical limits.
+ * Measures origin plus every cell centre's X/Z and authored bed Y, not the
+ * depth-shifted water surface or cell footprint. A point is accepted when any
+ * root/descendant volume accepts it; subtree membership is built once and
+ * volume predicates retain their own numerical limits.
  *
- * Walks every row-major cell once because arbitrary bed heights invalidate inference from corner points. The caller supplies a domain admitted by validateFluidDomain; local subtree records become collectible on return, while the returned stray point belongs to the caller. Work is subtree construction plus visited points times volume-predicate cost, with one point at a time and no axis-index arrays.
+ * Walks every row-major cell once because arbitrary bed heights invalidate
+ * inference from corner points. The caller supplies a domain admitted by
+ * validateFluidDomain; local subtree records become collectible on return,
+ * while the returned stray point belongs to the caller. Work is subtree
+ * construction plus visited points times volume-predicate cost, with one point
+ * at a time and no axis-index arrays.
  */
 const strayCell: (props: {
   environment: IAutoMovieBuiltEnvironment;

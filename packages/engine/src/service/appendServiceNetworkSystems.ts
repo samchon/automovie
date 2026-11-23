@@ -69,7 +69,9 @@ const MEDIUM_UNITS: Record<
   ],
 };
 
-/** Check system vocabulary, declared units and root port direction in source order.
+/**
+ * Check system vocabulary, declared units and root port direction in source
+ * order.
  */
 export function appendServiceNetworkSystems(
   network: IAutoMovieServiceNetwork,

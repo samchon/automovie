@@ -7,7 +7,8 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 
 /**
- * Resolve only provider-declared overlapping pivot neighbours, never all self contact.
+ * Resolve only provider-declared overlapping pivot neighbours, never all self
+ * contact.
  */
 export function isPhysicalPairExcluded(
   input: IAutoMoviePhysicalSimulationInput.IInput,

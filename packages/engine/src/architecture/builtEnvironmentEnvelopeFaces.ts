@@ -19,7 +19,13 @@ import { outlineCentroid } from "./outlineCentroid";
 /**
  * Every exposed separation of every building unit, placed in world space.
  *
- * A face is exposed when its boundary separates exactly one declared space. Each result carries placed vertices, shoelace centroid, owning building and a computed normal used for roof/underside/facade classification. Authored +Z flips only if the positive-offset centroid probe is inside the space; the opposite side is not tested. Off-volume faces, concave outlines and numerical limitations preclude a general outward-orientation certificate. Results sort by boundary id in code-unit order.
+ * A face is exposed when its boundary separates exactly one declared space.
+ * Each result carries placed vertices, shoelace centroid, owning building and a
+ * computed normal used for roof/underside/facade classification. Authored +Z
+ * flips only if the positive-offset centroid probe is inside the space; the
+ * opposite side is not tested. Off-volume faces, concave outlines and numerical
+ * limitations preclude a general outward-orientation certificate. Results sort
+ * by boundary id in code-unit order.
  *
  * Throws when an exposed face's space belongs to no building unit, which
  * validation refuses.

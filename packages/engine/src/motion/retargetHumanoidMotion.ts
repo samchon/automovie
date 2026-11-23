@@ -31,7 +31,13 @@ import { validateRetargetContacts } from "./validateRetargetContacts";
 const EPSILON: number = 1e-6;
 
 /**
- * Retarget an admitted clinical clip from one normalized rig to another, scaling root translation by positive explicit scale or target/source rest height and preserving root rotation. Source, rig/mapping and enabled static-contact failures return null motion/characterization with located validation; target-ROM failure also returns null. Dynamic ground callback failures propagate, and contact residual warnings may accompany a successful motion.
+ * Retarget an admitted clinical clip from one normalized rig to another,
+ * scaling root translation by positive explicit scale or target/source rest
+ * height and preserving root rotation. Source, rig/mapping and enabled
+ * static-contact failures return null motion/characterization with located
+ * validation; target-ROM failure also returns null. Dynamic ground callback
+ * failures propagate, and contact residual warnings may accompany a successful
+ * motion.
  */
 export const retargetHumanoidMotion: (
   props: IAutoMovieHumanoidRetargetProps,

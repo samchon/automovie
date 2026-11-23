@@ -15,17 +15,29 @@ import { validatePerformShotFraming } from "./validatePerformShotFraming";
 import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
- * Settle the shot's cameras once the live one is elected: fall back to a camera when no `frame` action elected one, gate the blocking's coverage angles, and gate every camera a move is compiled from.
+ * Settle the shot's cameras once the live one is elected: fall back to a camera
+ * when no `frame` action elected one, gate the blocking's coverage angles, and
+ * gate every camera a move is compiled from.
  *
- * 1. Without an elected camera, the scene's first camera is live and locked off, its id gated as non-blank because it becomes `shot.camera`; a scene with no camera cannot be framed.
- * 2. Each coverage intent must name a staged camera that is neither the live camera nor one an earlier intent named, state a usable framing and move, and favour a subject that resolves; a coverage camera never becomes a second live camera.
- * 3. The live camera, when a `frame` action moves it, and every coverage camera must have a vertical field of view in `(0, 180)` degrees and a finite position, because the framing solve divides by `tan(fovY / 2)`; a camera whose move is a `whip` must also carry a finite rotation, since a whip pans from it. An unused degenerate camera fails nothing.
+ * 1. Without an elected camera, the scene's first camera is live and locked off,
+ *    its id gated as non-blank because it becomes `shot.camera`; a scene with
+ *    no camera cannot be framed.
+ * 2. Each coverage intent must name a staged camera that is neither the live
+ *    camera nor one an earlier intent named, state a usable framing and move,
+ *    and favour a subject that resolves; a coverage camera never becomes a
+ *    second live camera.
+ * 3. The live camera, when a `frame` action moves it, and every coverage camera
+ *    must have a vertical field of view in `(0, 180)` degrees and a finite
+ *    position, because the framing solve divides by `tan(fovY / 2)`; a camera
+ *    whose move is a `whip` must also carry a finite rotation, since a whip
+ *    pans from it. An unused degenerate camera fails nothing.
  *
  * @param context The shot's staged tables and collector.
  * @param props.liveCamera The camera the frame actions elected, or null.
  * @param props.frames The frame jobs of the live camera.
  * @param props.coverage The blocking's coverage intents, or none.
- * @returns The live camera id, null only when the scene has no camera, and the coverage jobs that passed.
+ * @returns The live camera id, null only when the scene has no camera, and the
+ *   coverage jobs that passed.
  */
 export function gatePerformShotCamera(
   context: IAutoMovieEnginePerformShotGateContext,

@@ -10,7 +10,8 @@ const DEFAULT_POSITION_TOLERANCE: number = 0.05;
 const DEFAULT_FACING_TOLERANCE_DEG: number = 5;
 
 /**
- * Default position/facing tolerance to0.05m/5deg and admit finite nonnegative values, with facing<=180.
+ * Default position/facing tolerance to0.05m/5deg and admit finite nonnegative
+ * values, with facing<=180.
  */
 export const readContinuityTolerances: (
   position: number | undefined,

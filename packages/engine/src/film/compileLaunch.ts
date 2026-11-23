@@ -32,13 +32,29 @@ function firstActor(action: IAutoMovieLaunchAction): string | null {
 }
 
 /**
- * Compose the `launch` verb's engine primitives into one result: the projectile's flight and the struck target's reaction, timed to the engine-computed hit rather than a number the model had to guess.
+ * Compose the `launch` verb's engine primitives into one result: the
+ * projectile's flight and the struck target's reaction, timed to the
+ * engine-computed hit rather than a number the model had to guess.
  *
- * It {@link solveBallisticLaunch solves the aim} that connects `origin` to `target` at `action.speed`, {@link projectileTrajectory bakes the flight} into the projectile node's clip, and, when the launch carries an `onHit` and strikes a node, schedules that node's `react` at the contact. Pass `targetAt` to lead a moving target: the aim then solves through {@link solveMovingLaunch} against where the mover will be when the projectile arrives, and `target` only names the fallback sightline.
+ * It {@link solveBallisticLaunch solves the aim} that connects `origin` to
+ * `target` at `action.speed`, {@link projectileTrajectory bakes the flight} into
+ * the projectile node's clip, and, when the launch carries an `onHit` and
+ * strikes a node, schedules that node's `react` at the contact. Pass `targetAt`
+ * to lead a moving target: the aim then solves through {@link solveMovingLaunch}
+ * against where the mover will be when the projectile arrives, and `target`
+ * only names the fallback sightline.
  *
- * Times differ by output. The clip is flight-local, keyed over `[0, hitTime]` with id `trajectory:<projectile>`, and the caller shifts it by `action.start` onto the shot clock. The `react` start, the event times, and `targetAt`'s argument are shot-local seconds, so the hit lands at `action.start + hitTime`. The events are a `contact` always, a `hit` when a node is struck, and a `fall` when the react unbalances it; their `actionIndex` is null for the caller to stamp.
+ * Times differ by output. The clip is flight-local, keyed over `[0, hitTime]`
+ * with id `trajectory:<projectile>`, and the caller shifts it by `action.start`
+ * onto the shot clock. The `react` start, the event times, and `targetAt`'s
+ * argument are shot-local seconds, so the hit lands at `action.start +
+ * hitTime`. The events are a `contact` always, a `hit` when a node is struck,
+ * and a `fall` when the react unbalances it; their `actionIndex` is null for
+ * the caller to stamp.
  *
- * Returns null when the target is out of range at that speed. Throws `RangeError` when `onHit` has no non-blank `targetNode`, because no actor can perform that requested reaction.
+ * Returns null when the target is out of range at that speed. Throws
+ * `RangeError` when `onHit` has no non-blank `targetNode`, because no actor can
+ * perform that requested reaction.
  */
 export function compileLaunch(
   props: IAutoMovieCompileLaunch.IProps,

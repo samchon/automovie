@@ -1,7 +1,8 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
 /**
- * Reject nonfinite values and values below the supplied inclusive minimum, appending the caller's range path.
+ * Reject nonfinite values and values below the supplied inclusive minimum,
+ * appending the caller's range path.
  */
 export const finiteMinimum: (
   value: number,

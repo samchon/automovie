@@ -7,13 +7,17 @@ import { AutoMovieContourLoftCurves64 } from "./AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 } from "./AutoMovieCurveMath64";
 
 /**
- * Finds a fixed-seam periodic tiling and reports sheet qualification separately from displayable geometry.
- * The first seam lies on its exterior; the other starts at its nearest existing knot.
- * This discrete dynamic-program optimum does not certify a global cyclic optimum or injectivity.
- * Each walk may contain an explicitly doubled branch slit with distinct sheet ownership.
- * If no qualified path exists, its finite positive-area candidate remains displayable with an unqualified observation.
- * A zero-length slit retains distinct sheet identities; only its zero-area tiles are omitted, with explicit partial-output diagnostics.
- * The optional observer receives input sizes, search work, qualification and diagnostics; elapsed time is measured only when requested.
+ * Finds a fixed-seam periodic tiling and reports sheet qualification separately
+ * from displayable geometry. The first seam lies on its exterior; the other
+ * starts at its nearest existing knot. This discrete dynamic-program optimum
+ * does not certify a global cyclic optimum or injectivity. Each walk may
+ * contain an explicitly doubled branch slit with distinct sheet ownership. If
+ * no qualified path exists, its finite positive-area candidate remains
+ * displayable with an unqualified observation. A zero-length slit retains
+ * distinct sheet identities; only its zero-area tiles are omitted, with
+ * explicit partial-output diagnostics. The optional observer receives input
+ * sizes, search work, qualification and diagnostics; elapsed time is measured
+ * only when requested.
  */
 export function tessellateAutoMovieContourStrip64(
   rawA: AutoMovieVector3Tuple[],

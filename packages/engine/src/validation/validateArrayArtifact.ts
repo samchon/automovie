@@ -3,7 +3,8 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { pushViolation } from "./pushViolation";
 
 /**
- * Require Array.isArray and append a type fault for every other top-level shape.
+ * Require Array.isArray and append a type fault for every other top-level
+ * shape.
  */
 export const validateArrayArtifact: (
   value: unknown,

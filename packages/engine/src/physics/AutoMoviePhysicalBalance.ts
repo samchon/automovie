@@ -16,7 +16,8 @@ import { convexHull2D } from "../math/convexHull2D";
  */
 export namespace AutoMoviePhysicalBalance {
   /**
-   * Order reachable recovery supports by travel distance, then declared footfall phase.
+   * Order reachable recovery supports by travel distance, then declared
+   * footfall phase.
    */
   export function assess(
     input: IAutoMoviePhysicalBalance.IAssessInput,

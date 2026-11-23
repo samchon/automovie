@@ -23,7 +23,8 @@ const clearanceIntervalCount: (
 };
 
 /**
- * Inspect carried camera-clearance status, camera identity and sample-plan evidence.
+ * Inspect carried camera-clearance status, camera identity and sample-plan
+ * evidence.
  */
 
 export const appendCameraClearanceArtifact: (

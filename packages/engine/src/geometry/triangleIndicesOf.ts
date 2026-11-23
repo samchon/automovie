@@ -14,8 +14,10 @@ import { IAutoMovieMesh } from "@automovie/interface";
  *
  * @param mesh Mesh to read.
  * @param label Name the error messages give the mesh.
- * @returns The mesh's own `indices` array, not a copy, or a new consecutive run when it has none; callers must not mutate it.
- * @throws Error when positions are not whole xyz triples, indices are not whole triangles, or an index is not a safe integer inside the vertex range.
+ * @returns The mesh's own `indices` array, not a copy, or a new consecutive run
+ *   when it has none; callers must not mutate it.
+ * @throws Error when positions are not whole xyz triples, indices are not whole
+ *   triangles, or an index is not a safe integer inside the vertex range.
  */
 export const triangleIndicesOf: (
   mesh: IAutoMovieMesh,

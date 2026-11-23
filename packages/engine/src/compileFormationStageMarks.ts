@@ -14,19 +14,20 @@ import { formationSlotPosition } from "./formationSlotPosition";
  * Turn a level-stage mark sheet into ordinary sparse member-motion cues.
  *
  * Supply the fixed design with its admitted layout. Sets must be in
- * chronological order with no overlap. Marks use the design's local axes
- * and absolute coordinates from its anchor, including when the unit has a
- * nonzero heading or consists of blocks. The compiler returns ordinary slot cues
- * for the shot's `formationSlotMotions`; shot admission still owns duration,
- * cue limits, numeric bounds and coexistence with other source tracks. Use a fixed unit
- * layout and spacing for the named marks to describe exact destinations.
- * This compiles root placement. Existing gait and shot clearance checks
- * retain ownership of foot motion and clearance.
+ * chronological order with no overlap. Marks use the design's local axes and
+ * absolute coordinates from its anchor, including when the unit has a nonzero
+ * heading or consists of blocks. The compiler returns ordinary slot cues for
+ * the shot's `formationSlotMotions`; shot admission still owns duration, cue
+ * limits, numeric bounds and coexistence with other source tracks. Use a fixed
+ * unit layout and spacing for the named marks to describe exact destinations.
+ * This compiles root placement. Existing gait and shot clearance checks retain
+ * ownership of foot motion and clearance.
  *
  * @param design The admitted formation design that owns the named slots.
  * @param sets Chronological assignments in shot-local seconds.
  * @returns Fresh member cue records in set and mark order.
- * @throws {RangeError} For conflicting intervals or identity, missing or promoted slots, and nonfinite marks or offsets.
+ * @throws {RangeError} For conflicting intervals or identity, missing or
+ *   promoted slots, and nonfinite marks or offsets.
  */
 export function compileFormationStageMarks(
   design: IAutoMovieFormationDesign,

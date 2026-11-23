@@ -18,8 +18,8 @@ import { samplePoseVelocity } from "./samplePoseVelocity";
 const AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
 /**
- * Inertialize a transition between two poses: the target motion plays from
- * the cut, and the source's offset from it decays to zero.
+ * Inertialize a transition between two poses: the target motion plays from the
+ * cut, and the source's offset from it decays to zero.
  *
  * At the cut the displayed pose was the source; from then on it is the target
  * plus an offset. Every rotation's offset `q_s q_t^-1` (each joint's
@@ -27,40 +27,42 @@ const AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
  * axis, with the angular velocity offset, by {@link inertializeOffset} (Bollo,
  * GDC 2018), and is applied before the target rotation; the root translation
  * decays per axis the same way. Each is therefore continuous in value and
- * velocity at the cut, reaches the target exactly at its own clamped decay
- * time and never overshoots it.
+ * velocity at the cut, reaches the target exactly at its own clamped decay time
+ * and never overshoots it.
  *
  * A ball joint is blended as a rotation, never per clinical angle: its
  * `[flexion, abduction, twist]` is an Euler chart, and at the chart's gimbal
  * nearly equal rotations have far apart triples, whose per-angle blend swings
- * the bone through poses neither side holds. The blended rotation is lowered
- * to angles through the rig ({@link poseJointCodec}), in the chart its range
- * of motion admits best. A joint with no offset left returns the target's own
+ * the bone through poses neither side holds. The blended rotation is lowered to
+ * angles through the rig ({@link poseJointCodec}), in the chart its range of
+ * motion admits best. A joint with no offset left returns the target's own
  * angles untouched.
  *
  * A hinge or a two-axis joint (`poseJointCodec.ICodec.ball` false) is blended
  * per angle instead, each angle's offset decayed with its rate offset: the
- * rotations its angles span are a lower-dimensional set, and an offset
- * rotation applied to one of them leaves that set, which the lowering would
- * answer with motion on an axis the joint does not have. Its angles have no
- * gimbal inside their range, so the per-angle blend is the faithful one.
+ * rotations its angles span are a lower-dimensional set, and an offset rotation
+ * applied to one of them leaves that set, which the lowering would answer with
+ * motion on an axis the joint does not have. Its angles have no gimbal inside
+ * their range, so the per-angle blend is the faithful one.
  *
- * The result is a pure function of the elapsed time and the target pose at
- * that time, so a caller can evaluate it on any grid. Contact corrections
- * (foot planting, grips) belong after it: an inertialized planted foot would
- * slide in world space (Holden, Dead Blending, 2023).
+ * The result is a pure function of the elapsed time and the target pose at that
+ * time, so a caller can evaluate it on any grid. Contact corrections (foot
+ * planting, grips) belong after it: an inertialized planted foot would slide in
+ * world space (Holden, Dead Blending, 2023).
  *
  * @param source The displayed pose and its velocity at the cut.
  * @param target The target's pose and velocity at the cut.
  * @param duration Requested decay time, seconds; positive.
- * @param through Whether an offset heading to its target faster than the
- *   decay absorbs passes through it and returns, as `inertializeOffset`
- *   bounds, instead of stopping short of it within milliseconds: the "never
- *   overshoots" above is then given up for a bounded acceleration at the cut.
- * @param rig The rig the joints' angles are read through, the one both
- *   states' `spins` were sampled with; the default basis with rest-relative
- *   angles when omitted.
- * @param prepared Optional same-rig codec or lazy getter shared with the actual source/target rate sampling; the concrete codec retains the existing offset lifetime.
+ * @param through Whether an offset heading to its target faster than the decay
+ *   absorbs passes through it and returns, as `inertializeOffset` bounds,
+ *   instead of stopping short of it within milliseconds: the "never overshoots"
+ *   above is then given up for a bounded acceleration at the cut.
+ * @param rig The rig the joints' angles are read through, the one both states'
+ *   `spins` were sampled with; the default basis with rest-relative angles when
+ *   omitted.
+ * @param prepared Optional same-rig codec or lazy getter shared with the actual
+ *   source/target rate sampling; the concrete codec retains the existing offset
+ *   lifetime.
  * @returns The displayed pose for an elapsed time and the target pose at it.
  */
 export function inertializePose(
@@ -69,7 +71,9 @@ export function inertializePose(
   duration: number,
   through: boolean = false,
   rig?: IAutoMoviePoseRig,
-  prepared?: IAutoMoviePoseJointCodec.ICodec | (() => IAutoMoviePoseJointCodec.ICodec),
+  prepared?:
+    | IAutoMoviePoseJointCodec.ICodec
+    | (() => IAutoMoviePoseJointCodec.ICodec),
 ): (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose {
   const codec: IAutoMoviePoseJointCodec.ICodec =
     prepared === undefined
@@ -171,9 +175,30 @@ export function inertializePose(
       if (h !== undefined) {
         joints.push({
           bone,
-          flexion: hingedAngle(base[0], h.x[0], h.v[0], duration, elapsed, through),
-          abduction: hingedAngle(base[1], h.x[1], h.v[1], duration, elapsed, through),
-          twist: hingedAngle(base[2], h.x[2], h.v[2], duration, elapsed, through),
+          flexion: hingedAngle(
+            base[0],
+            h.x[0],
+            h.v[0],
+            duration,
+            elapsed,
+            through,
+          ),
+          abduction: hingedAngle(
+            base[1],
+            h.x[1],
+            h.v[1],
+            duration,
+            elapsed,
+            through,
+          ),
+          twist: hingedAngle(
+            base[2],
+            h.x[2],
+            h.v[2],
+            duration,
+            elapsed,
+            through,
+          ),
         });
         continue;
       }
@@ -210,7 +235,8 @@ export function inertializePose(
         through,
       ).value;
     const offset: IAutoMovieQuaternion =
-      decayed(rotation0, spin0, duration, elapsed, through) ?? Quaternion.identity();
+      decayed(rotation0, spin0, duration, elapsed, through) ??
+      Quaternion.identity();
     return {
       skeleton: pose.skeleton,
       root: {
@@ -223,7 +249,10 @@ export function inertializePose(
   };
 }
 
-/** Apply the same scalar hinge offset without creating a per-joint angle closure. */
+/**
+ * Apply the same scalar hinge offset without creating a per-joint angle
+ * closure.
+ */
 function hingedAngle(
   base: number,
   x: number,
@@ -235,7 +264,10 @@ function hingedAngle(
   return base + inertializeOffset(x, v, duration, elapsed, through).value;
 }
 
-/** The same decayed rotation-vector exponential, including the original near-zero branch. */
+/**
+ * The same decayed rotation-vector exponential, including the original
+ * near-zero branch.
+ */
 function decayed(
   x: IAutoMovieVector3,
   v: IAutoMovieVector3,

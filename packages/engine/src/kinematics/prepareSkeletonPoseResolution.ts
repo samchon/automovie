@@ -49,19 +49,28 @@ interface ISnapshot {
   axes: Readonly<Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>>;
 }
 
-/** Genuine rig provenance lends only private-node rest production, never public methods. */
+/**
+ * Genuine rig provenance lends only private-node rest production, never public
+ * methods.
+ */
 const REST_READERS: WeakMap<
   prepareSkeletonPoseResolution.IRig,
   () => IAutoMovieResolvedBone[]
 > = new WeakMap();
 
-/** Genuine original map callables prove this factory's complete-before-demand admission. */
+/**
+ * Genuine original map callables prove this factory's complete-before-demand
+ * admission.
+ */
 const SOURCE_READERS: WeakMap<
   prepareSkeletonPoseResolution.IRig,
   prepareSkeletonPoseResolution.IRig["resolveMap"]
 > = new WeakMap();
 
-/** A reading's rig and its private reader, which also takes the rig's bound indices. */
+/**
+ * A reading's rig and its private reader, which also takes the rig's bound
+ * indices.
+ */
 interface IOwnReading {
   /** The rig that admitted the pose. */
   rig: prepareSkeletonPoseResolution.IRig;
@@ -70,32 +79,36 @@ interface IOwnReading {
   read: preparePoseReading.IReading;
 }
 
-/** Each issued reading's private reader; a structural copy of a reading has none. */
+/**
+ * Each issued reading's private reader; a structural copy of a reading has
+ * none.
+ */
 const READINGS: WeakMap<prepareSkeletonPoseResolution.IReading, IOwnReading> =
   new WeakMap();
 
 /**
  * Snapshot a rig's static FK prerequisites once, then resolve changing poses
  * through operation-owned dependency rows. Rest translations and rotations,
- * axis precedence, clinical bases, affine frames and the reachable
- * parent order are copied here; later edits to the source rig/tables do not
- * change this snapshot. Reprepare explicitly to adopt such edits.
+ * axis precedence, clinical bases, affine frames and the reachable parent order
+ * are copied here; later edits to the source rig/tables do not change this
+ * snapshot. Reprepare explicitly to adopt such edits.
  *
  * Every authored joint is admitted in its original order, even an overwritten,
- * unreachable or undemanded record. Joint records are values: a record is
- * not edited after the rig admitted it, and a changed articulation is a new
- * record (a pose's list of records may change; the rig keeps no list). The rig reads a record it already admitted
- * as the value it admitted, without reading its coordinates again, so a
- * pose made of another's records (a limb's reduced pose, a fit merged
- * back) costs a lookup a shared record. A requested set limits returned bones and
- * the computed ancestor closure, preserving the full walk's relative order.
- * Omission returns all reachable bones. Root and rest scale remain ignored.
- * Root placement keeps the ordinary parent-first arithmetic; root-null reads
- * reuse the independent root-relative frames. Every output is fresh plain data.
- * prepareBones snapshots fixed output membership/order once. preparePose
- * actually admits a fixed source/root once, then accepts complete appended
- * edit lists; absent edits restore that source. Neither companion stores a
- * pose identity, target answer or query-result history.
+ * unreachable or undemanded record. Joint records are values: a record is not
+ * edited after the rig admitted it, and a changed articulation is a new record
+ * (a pose's list of records may change; the rig keeps no list). The rig reads a
+ * record it already admitted as the value it admitted, without reading its
+ * coordinates again, so a pose made of another's records (a limb's reduced
+ * pose, a fit merged back) costs a lookup a shared record. A requested set
+ * limits returned bones and the computed ancestor closure, preserving the full
+ * walk's relative order. Omission returns all reachable bones. Root and rest
+ * scale remain ignored. Root placement keeps the ordinary parent-first
+ * arithmetic; root-null reads reuse the independent root-relative frames. Every
+ * output is fresh plain data. prepareBones snapshots fixed output
+ * membership/order once. preparePose actually admits a fixed source/root once,
+ * then accepts complete appended edit lists; absent edits restore that source.
+ * Neither companion stores a pose identity, target answer or query-result
+ * history.
  */
 export function prepareSkeletonPoseResolution(
   skeleton: IAutoMovieSkeleton,
@@ -174,7 +187,10 @@ function snapshotRig(
   return { nodes, indices, conventions, fallback, axes: preparedAxes };
 }
 
-/** Runtime readers can reach only copied metadata, never the input-reading scope. */
+/**
+ * Runtime readers can reach only copied metadata, never the input-reading
+ * scope.
+ */
 function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
   const { nodes, indices, conventions, fallback } = snapshot;
 
@@ -289,7 +305,9 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
       // The frame reads take a row of the reading's own frames, which never
       // change once composed.
       const row: (index: number) => number = (index: number): number => {
-        if (!(Number.isInteger(index) && index >= 0 && index < read.names.length))
+        if (
+          !(Number.isInteger(index) && index >= 0 && index < read.names.length)
+        )
           throw new RangeError(`A reading has no bone row ${index}`);
         return index;
       };
@@ -298,8 +316,12 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
           requested?: ReadonlySet<AutoMovieHumanoidBone>,
         ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
           read(requested),
-        index: (bone: AutoMovieHumanoidBone): number => read.indices.get(bone) ?? -1,
-        position: (index: number, into: IAutoMovieVector3): IAutoMovieVector3 => {
+        index: (bone: AutoMovieHumanoidBone): number =>
+          read.indices.get(bone) ?? -1,
+        position: (
+          index: number,
+          into: IAutoMovieVector3,
+        ): IAutoMovieVector3 => {
           const at: number = 3 * row(index);
           const position: Float64Array = read.frames().position;
           into.x = position[at]!;
@@ -307,7 +329,10 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
           into.z = position[at + 2]!;
           return into;
         },
-        rotation: (index: number, into: IAutoMovieQuaternion): IAutoMovieQuaternion => {
+        rotation: (
+          index: number,
+          into: IAutoMovieQuaternion,
+        ): IAutoMovieQuaternion => {
           const at: number = 4 * row(index);
           const rotation: Float64Array = read.frames().rotation;
           into.x = rotation[at]!;
@@ -354,16 +379,15 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
   return rig;
 
   /**
-   * Run one read on the rig's own state, whatever operation it names: a
-   * state is a function of the pose it admits and keeps only what it
-   * composed, every read copies what it returns, and an overlay owns a
-   * state of its own after its preparation, so one state serves every read
-   * of the rig. A state of each operation's own admitted its first pose
-   * with nothing composed yet (a limb fit's new operation composed every
-   * joint of a pose the assembly had just composed). A read made while the
-   * state is lent (from inside another read's admission) takes a state of
-   * its own. The operation stays in the readers' signatures, which callers
-   * name; it selects nothing.
+   * Run one read on the rig's own state, whatever operation it names: a state
+   * is a function of the pose it admits and keeps only what it composed, every
+   * read copies what it returns, and an overlay owns a state of its own after
+   * its preparation, so one state serves every read of the rig. A state of each
+   * operation's own admitted its first pose with nothing composed yet (a limb
+   * fit's new operation composed every joint of a pose the assembly had just
+   * composed). A read made while the state is lent (from inside another read's
+   * admission) takes a state of its own. The operation stays in the readers'
+   * signatures, which callers name; it selects nothing.
    */
   function lend<T>(
     _operation: ReturnType<typeof preparePoseResolution> | undefined,
@@ -389,7 +413,10 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
   }
 }
 
-/** Actual fixed outputs determine exactly which authored articulations can affect them. */
+/**
+ * Actual fixed outputs determine exactly which authored articulations can
+ * affect them.
+ */
 function tupleAncestors(
   nodes: readonly INode[],
   demand: readonly number[],
@@ -407,34 +434,35 @@ function tupleAncestors(
   return names;
 }
 
-/**
- * Explicit immutable rig snapshot and its fresh-output demand resolver.
- */
+/** Explicit immutable rig snapshot and its fresh-output demand resolver. */
 export namespace prepareSkeletonPoseResolution {
   /**
-   * Admit a complete source/root without computing unused output frames,
-   * only through this factory's original own-data map callable. Unknown,
-   * copied, proxied, inherited or replaced readers decline without invoking
-   * a method/getter. A supported call performs the real ordered admission;
-   * its failures propagate and no source-validity flag/result is retained.
+   * Admit a complete source/root without computing unused output frames, only
+   * through this factory's original own-data map callable. Unknown, copied,
+   * proxied, inherited or replaced readers decline without invoking a
+   * method/getter. A supported call performs the real ordered admission; its
+   * failures propagate and no source-validity flag/result is retained.
    *
-   * @param rig Genuine fixed rig whose original resolveMap data method is still installed.
-   * @param pose Current complete source, with ordinary clinical degrees and root placement.
+   * @param rig Genuine fixed rig whose original resolveMap data method is still
+   *   installed.
+   * @param pose Current complete source, with ordinary clinical degrees and
+   *   root placement.
    * @param operation Same-operation dependency rows, when supplied.
-   * @returns Whether actual factory admission ran; false requires the consumer's ordinary reader fallback.
+   * @returns Whether actual factory admission ran; false requires the
+   *   consumer's ordinary reader fallback.
    *
-   * Private factory registration and an equal own data-property value prove
-   * the exact map whose complete admission precedes sparse output demand.
-   * An empty name set omits unused FK frames while retaining every joint/root
-   * check. No boolean, structural match or frozen wrapper proves admission.
+   *   Private factory registration and an equal own data-property value prove the
+   *   exact map whose complete admission precedes sparse output demand. An
+   *   empty name set omits unused FK frames while retaining every joint/root
+   *   check. No boolean, structural match or frozen wrapper proves admission.
    *
-   * One weak lookup and descriptor check precede unchanged O(J) admission;
-   * unknown readers decline in constant work. Every supported call reads its
-   * current source; matching fixed-source consumers own completion reuse and
-   * raw fallback. The weak registration retains only the original callable;
-   * descriptor/empty-set temporaries end with this call, without a source
-   * verdict, result history, strong registry, handle or task. Speedup is
-   * unmeasured.
+   *   One weak lookup and descriptor check precede unchanged O(J) admission;
+   *   unknown readers decline in constant work. Every supported call reads its
+   *   current source; matching fixed-source consumers own completion reuse and
+   *   raw fallback. The weak registration retains only the original callable;
+   *   descriptor/empty-set temporaries end with this call, without a source
+   *   verdict, result history, strong registry, handle or task. Speedup is
+   *   unmeasured.
    */
   export function admitSource(
     rig: IRig,
@@ -455,7 +483,10 @@ export namespace prepareSkeletonPoseResolution {
     return true;
   }
 
-  /** Root construction after tuple staging (`IAutoMovieSkeletonPoseResolution.ITupleRead`). */
+  /**
+   * Root construction after tuple staging
+   * (`IAutoMovieSkeletonPoseResolution.ITupleRead`).
+   */
   export type ITupleRead = IAutoMovieSkeletonPoseResolution.ITupleRead;
 
   /** Staged tuple reader (`IAutoMovieSkeletonPoseResolution.ITupleReader`). */
@@ -469,7 +500,8 @@ export namespace prepareSkeletonPoseResolution {
    * accepted. The original root-null, no-joint/no-scale FK produces lazy rest
    * once and shares it with ordinary neutral reads, preserving all arithmetic
    * grouping. Each O(B) output copy is fresh; private rows live with the rig,
-   * without an operation key, pose, authored callback, output history or strong registry.
+   * without an operation key, pose, authored callback, output history or strong
+   * registry.
    */
   export function rest(rig: IRig): IAutoMovieResolvedBone[] {
     const read: (() => IAutoMovieResolvedBone[]) | undefined =
@@ -481,12 +513,21 @@ export namespace prepareSkeletonPoseResolution {
     return read();
   }
 
-  /** Immutable prepared FK of one fixed rig (`IAutoMovieSkeletonPoseResolution.IRig`). */
+  /**
+   * Immutable prepared FK of one fixed rig
+   * (`IAutoMovieSkeletonPoseResolution.IRig`).
+   */
   export type IRig = IAutoMovieSkeletonPoseResolution.IRig;
 
-  /** One pose as this rig admitted it (`IAutoMovieSkeletonPoseResolution.IReading`). */
+  /**
+   * One pose as this rig admitted it
+   * (`IAutoMovieSkeletonPoseResolution.IReading`).
+   */
   export type IReading = IAutoMovieSkeletonPoseResolution.IReading;
 
-  /** A rig's fixed requested-bone snapshot (`IAutoMovieSkeletonPoseResolution.IBoneDemand`). */
+  /**
+   * A rig's fixed requested-bone snapshot
+   * (`IAutoMovieSkeletonPoseResolution.IBoneDemand`).
+   */
   export type IBoneDemand = IAutoMovieSkeletonPoseResolution.IBoneDemand;
 }

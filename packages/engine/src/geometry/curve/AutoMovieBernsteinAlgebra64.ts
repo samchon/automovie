@@ -6,13 +6,22 @@ import type {
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 
 /**
- * Bernstein coefficient algebra in binary64 with explicit degree. Coefficient arrays are nonempty and corresponding finite values unless a member states a different case; callers own degree/index admission, parameter domains and representable intermediate arithmetic. Construction does not certify a regular curve or positive rational denominator.
+ * Bernstein coefficient algebra in binary64 with explicit degree. Coefficient
+ * arrays are nonempty and corresponding finite values unless a member states a
+ * different case; callers own degree/index admission, parameter domains and
+ * representable intermediate arithmetic. Construction does not certify a
+ * regular curve or positive rational denominator.
  *
- * Degree elevation, multiplication, addition and differentiation preserve the algebraic polynomial before floating-point rounding; no sampled fit or cubic replacement is used. This internal algebra is shared by subdivision, longitudinal grids and the legacy public facade without circular initialization.
+ * Degree elevation, multiplication, addition and differentiation preserve the
+ * algebraic polynomial before floating-point rounding; no sampled fit or cubic
+ * replacement is used. This internal algebra is shared by subdivision,
+ * longitudinal grids and the legacy public facade without circular
+ * initialization.
  */
 export namespace AutoMovieBernsteinAlgebra64 {
   /**
-   * Return a binomial coefficient for integer indices 0<=k<=n; callers own finite representability of the multiplicative factors.
+   * Return a binomial coefficient for integer indices 0<=k<=n; callers own
+   * finite representability of the multiplicative factors.
    */
   export function choose(n: number, k: number): number {
     let v: number = 1;
@@ -20,7 +29,8 @@ export namespace AutoMovieBernsteinAlgebra64 {
     return v;
   }
   /**
-   * Evaluate scalar Bernstein coefficients, preserving supplied coefficients at t=0 and t=1.
+   * Evaluate scalar Bernstein coefficients, preserving supplied coefficients at
+   * t=0 and t=1.
    */
   export function scalar(c: readonly number[], t: number): number {
     if (t === 0) return c[0]!;
@@ -52,7 +62,8 @@ export namespace AutoMovieBernsteinAlgebra64 {
     return row[0]!;
   }
   /**
-   * Evaluate nonempty vector Bernstein coefficients with copied exact endpoints.
+   * Evaluate nonempty vector Bernstein coefficients with copied exact
+   * endpoints.
    */
   export function value(
     c: readonly AutoMovieVector3Tuple[],
@@ -71,7 +82,9 @@ export namespace AutoMovieBernsteinAlgebra64 {
     return row[0]!;
   }
   /**
-   * Differentiate vector coefficients and apply the caller chart-scale factor. A constant produces an empty vector coefficient array; evaluating that array is outside value()'s nonempty-input contract.
+   * Differentiate vector coefficients and apply the caller chart-scale factor.
+   * A constant produces an empty vector coefficient array; evaluating that
+   * array is outside value()'s nonempty-input contract.
    */
   export function tangent(
     c: readonly AutoMovieVector3Tuple[],
@@ -84,9 +97,7 @@ export namespace AutoMovieBernsteinAlgebra64 {
           V.scale(V.sub(p, c[i]!), (c.length - 1) * scale),
       );
   }
-  /**
-   * Differentiate scalar coefficients; a constant returns the zero constant.
-   */
+  /** Differentiate scalar coefficients; a constant returns the zero constant. */
   export function dScalar(c: readonly number[], scale: number = 1): number[] {
     return c.length === 1
       ? [0]
@@ -98,7 +109,8 @@ export namespace AutoMovieBernsteinAlgebra64 {
           );
   }
   /**
-   * Raise scalar degree without changing its polynomial; a requested reduction rejects.
+   * Raise scalar degree without changing its polynomial; a requested reduction
+   * rejects.
    */
   export function elevateScalar(
     c: readonly number[],
@@ -119,9 +131,7 @@ export namespace AutoMovieBernsteinAlgebra64 {
     }
     return out;
   }
-  /**
-   * Raise each vector coordinate to one common Bernstein degree.
-   */
+  /** Raise each vector coordinate to one common Bernstein degree. */
   export function elevate(
     c: readonly AutoMovieVector3Tuple[],
     degree: number,
@@ -137,9 +147,7 @@ export namespace AutoMovieBernsteinAlgebra64 {
         axes.map((a: number[]): number => a[i]!) as AutoMovieVector3Tuple,
     );
   }
-  /**
-   * Multiply scalar Bernstein polynomials using binomial-weighted convolution.
-   */
+  /** Multiply scalar Bernstein polynomials using binomial-weighted convolution. */
   export function product(
     a: readonly number[],
     b: readonly number[],
@@ -159,9 +167,7 @@ export namespace AutoMovieBernsteinAlgebra64 {
       },
     );
   }
-  /**
-   * Multiply each vector coordinate by a scalar Bernstein polynomial.
-   */
+  /** Multiply each vector coordinate by a scalar Bernstein polynomial. */
   export function productV(
     a: readonly number[],
     b: readonly AutoMovieVector3Tuple[],
@@ -177,9 +183,7 @@ export namespace AutoMovieBernsteinAlgebra64 {
         axes.map((p: number[]): number => p[i]!) as AutoMovieVector3Tuple,
     );
   }
-  /**
-   * Elevate to a common degree, then add the scaled vector polynomial.
-   */
+  /** Elevate to a common degree, then add the scaled vector polynomial. */
   export function add(
     a: readonly AutoMovieVector3Tuple[],
     b: readonly AutoMovieVector3Tuple[],
@@ -193,9 +197,7 @@ export namespace AutoMovieBernsteinAlgebra64 {
         V.add(p, V.scale(y[i]!, factor)),
     );
   }
-  /**
-   * Elevate to a common degree, then add the scaled scalar polynomial.
-   */
+  /** Elevate to a common degree, then add the scaled scalar polynomial. */
   export function addS(
     a: readonly number[],
     b: readonly number[],
@@ -207,7 +209,8 @@ export namespace AutoMovieBernsteinAlgebra64 {
     return x.map((p: number, i: number): number => p + factor * y[i]!);
   }
   /**
-   * Multiply every vector coefficient by the same scalar without changing degree.
+   * Multiply every vector coefficient by the same scalar without changing
+   * degree.
    */
   export function scale(
     a: readonly AutoMovieVector3Tuple[],

@@ -6,9 +6,9 @@ import { IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
  *
  * The corners are folded one point at a time rather than spread into
  * `Math.min`, so a list of any length, such as every vertex a space states,
- * returns a box instead of throwing a `RangeError` for too many call
- * arguments. A `NaN` coordinate propagates into the result. The box is new and
- * shares no object with the points.
+ * returns a box instead of throwing a `RangeError` for too many call arguments.
+ * A `NaN` coordinate propagates into the result. The box is new and shares no
+ * object with the points.
  */
 export const builtPointBounds: (
   points: readonly IAutoMovieVector3[],

@@ -1,7 +1,8 @@
 import type { IAutoMovieTextureImageFacts } from "@automovie/interface";
 
 /**
- * Probe PNG, JPEG, WebP and Radiance dimension headers in order, returning media/edge facts or null.
+ * Probe PNG, JPEG, WebP and Radiance dimension headers in order, returning
+ * media/edge facts or null.
  */
 export const readAutoMovieImageFacts: (
   bytes: Uint8Array | null | undefined,
@@ -22,7 +23,8 @@ const PNG_SIGNATURE: number[] = [
  *
  * Fixed offsets isolate this container's dimension extraction.
  *
- * Chunk length, CRC and pixel payload are not checked, so header facts do not prove a complete PNG.
+ * Chunk length, CRC and pixel payload are not checked, so header facts do not
+ * prove a complete PNG.
  *
  * The minimum prefix and media/dimension return versus null are explicit.
  *
@@ -63,17 +65,23 @@ const SOF_MARKERS: ReadonlySet<number> = new Set([
 ]);
 
 /**
- * Walk JPEG marker segments to the first admitted SOF marker and extract dimensions.
+ * Walk JPEG marker segments to the first admitted SOF marker and extract
+ * dimensions.
  *
- * Marker lengths advance one cursor; DRI state governs standalone restart-marker admission.
+ * Marker lengths advance one cursor; DRI state governs standalone
+ * restart-marker admission.
  *
- * SOF extraction only requires dimension bytes, not a complete valid frame segment or decodable scan payload.
+ * SOF extraction only requires dimension bytes, not a complete valid frame
+ * segment or decodable scan payload.
  *
- * Unsupported/truncated marker walks return null and recognized SOF returns header facts.
+ * Unsupported/truncated marker walks return null and recognized SOF returns
+ * header facts.
  *
- * Inspected bytes/marker segments drive linear scanning with constant working state.
+ * Inspected bytes/marker segments drive linear scanning with constant working
+ * state.
  *
- * SOF_MARKERS and endian readers are shared; no byte-identity cache is retained.
+ * SOF_MARKERS and endian readers are shared; no byte-identity cache is
+ * retained.
  *
  * Only a facts row escapes; no decoded pixel or source buffer is retained.
  */
@@ -130,7 +138,7 @@ const readJpeg: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
  *
  * Fixed bounded prefixes require constant reads and a small facts allocation.
  *
- * ascii and little-endian owners are shared across variants.
+ * Ascii and little-endian owners are shared across variants.
  *
  * No decoder/byte buffer is retained after returning scalar facts.
  */
@@ -170,19 +178,24 @@ const readWebp: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
 };
 
 /**
- * Inspect the capped ASCII header for the accepted Radiance signature and -Y/+X resolution line.
+ * Inspect the capped ASCII header for the accepted Radiance signature and -Y/+X
+ * resolution line.
  *
  * A bounded header regex avoids scanning or decoding radiance pixels.
  *
- * Only the supported axis spelling is recognized, and FORMAT/pixel payload completeness is not certified.
+ * Only the supported axis spelling is recognized, and FORMAT/pixel payload
+ * completeness is not certified.
  *
- * Null means no accepted dimension header, not proof of an invalid complete container.
+ * Null means no accepted dimension header, not proof of an invalid complete
+ * container.
  *
  * At most512 bytes are converted/searched, with bounded temporary text.
  *
- * ascii provides the shared byte-to-header conversion; current bytes are probed anew.
+ * Ascii provides the shared byte-to-header conversion; current bytes are probed
+ * anew.
  *
- * Only width/height facts escape; temporary header text releases without a decoder.
+ * Only width/height facts escape; temporary header text releases without a
+ * decoder.
  */
 const readHdr: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
   bytes: Uint8Array,
@@ -207,11 +220,13 @@ const readHdr: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
 };
 
 /**
- * Convert a bounded byte range to character codes for container header comparison.
+ * Convert a bounded byte range to character codes for container header
+ * comparison.
  *
  * A local loop avoids whole-buffer decoding for short magic/size headers.
  *
- * Offsets/counts are caller-owned admitted prefix bounds, not a generic file parser.
+ * Offsets/counts are caller-owned admitted prefix bounds, not a generic file
+ * parser.
  *
  * It returns fresh text from the requested byte interval.
  *
@@ -232,9 +247,11 @@ const ascii: (bytes: Uint8Array, offset: number, length: number) => string = (
  *
  * Byte-order arithmetic is shared by PNG dimension reads.
  *
- * The caller must establish four available bytes; missing input is not repaired.
+ * The caller must establish four available bytes; missing input is not
+ * repaired.
  *
- * Offset identifies the first byte and output represents an unsigned32-bit quantity.
+ * Offset identifies the first byte and output represents an unsigned32-bit
+ * quantity.
  *
  * Four reads and fixed arithmetic take constant work.
  *
@@ -296,7 +313,8 @@ const leUint16: (bytes: Uint8Array, offset: number) => number = (
  *
  * One fixed-width reader supports both canvas edges.
  *
- * Available prefix bytes are a caller premise rather than silently padded input.
+ * Available prefix bytes are a caller premise rather than silently padded
+ * input.
  *
  * The result is an unsigned24-bit header quantity before the caller adds one.
  *

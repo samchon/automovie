@@ -28,7 +28,13 @@ const SALT_LEAF_SCALE: number = 0x6c656166;
 
 const SALT_LEAF_ROLL: number = 0x726f6c6c;
 
-/** Derive recipe-local depth-first branches and leaves at one normalized growth stage. Level extension is clamp((stage-onset*level)/(1-onset*(levels-1)),0,1); child-path seeds fix jitter independently of traversal count. Analytic pruning cuts emitted branches, and declared branch/leaf caps throw during emission. Production planting validation consumes this geometry.
+/**
+ * Derive recipe-local depth-first branches and leaves at one normalized growth
+ * stage. Level extension is
+ * clamp((stage-onset_level)/(1-onset_(levels-1)),0,1); child-path seeds fix
+ * jitter independently of traversal count. Analytic pruning cuts emitted
+ * branches, and declared branch/leaf caps throw during emission. Production
+ * planting validation consumes this geometry.
  */
 export const growPlanting: (
   domain: IAutoMoviePlantingDomain,
@@ -39,7 +45,10 @@ export const growPlanting: (
   const branches: IAutoMoviePlantingBranch[] = [];
   const leaves: IAutoMoviePlantingLeaf[] = [];
   const span: number = 1 - domain.growth.onset * (structure.levels - 1);
-  /** Clamp this admitted level growth law to the normalized extension interval using the recipe-wide positive span. */
+  /**
+   * Clamp this admitted level growth law to the normalized extension interval
+   * using the recipe-wide positive span.
+   */
   const extension: (level: number) => number = (level: number): number => {
     const raw: number =
       (domain.growth.stage - domain.growth.onset * level) / span;
@@ -47,7 +56,11 @@ export const growPlanting: (
     return raw >= 1 ? 1 : raw;
   };
 
-  /** Emit one recipe-local branch, its leaf occurrences and surviving children in authored depth-first order, refusing declared cap overflow before publication. */
+  /**
+   * Emit one recipe-local branch, its leaf occurrences and surviving children
+   * in authored depth-first order, refusing declared cap overflow before
+   * publication.
+   */
 
   const emit: (props: {
     id: string;
@@ -293,7 +306,8 @@ const childAxis: (
  *
  * Duff et al., "Building an Orthonormal Basis, Revisited" (JCGT 2017). The sign
  * trick is what keeps `sign + axis.z` away from zero for every unit axis, so
- * the signed frame remains deterministic across all unit directions; its sign branch is not globally continuous.
+ * the signed frame remains deterministic across all unit directions; its sign
+ * branch is not globally continuous.
  */
 const perpendicularFrame: (axis: IAutoMovieVector3) => {
   u: IAutoMovieVector3;

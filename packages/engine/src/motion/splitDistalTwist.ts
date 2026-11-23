@@ -26,22 +26,26 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * the effector. The existing solveDistalTwist candidate law starts from the
  * current articulation, clamps the mid joint and ranks the effector rotation
  * its shared projector will actually show. It is not a global solve over both
- * joints. Bones without distal twist return unchanged. A fit continued from
- * a seed (`near`) that carries a twist continues it (`solveDistalTwist`'s
+ * joints. Bones without distal twist return unchanged. A fit continued from a
+ * seed (`near`) that carries a twist continues it (`solveDistalTwist`'s
  * `reference`), so the twist keeps its basin from frame to frame.
  *
  * The fixed effector frame includes intermediate rests and articulations.
  * Twisting leaves the effector point unchanged when the lower-to-effector
- * offset is parallel to the lower twist axis, as on the canonical limb rig;
- * an arbitrary offset does not satisfy that point-preservation premise.
+ * offset is parallel to the lower twist axis, as on the canonical limb rig; an
+ * arbitrary offset does not satisfy that point-preservation premise.
  *
  * @param props The fit request.
  * @param axes Merged actual clinical axes.
  * @param pose The fitted pose.
  * @param rotation Requested model-frame effector rotation.
- * @param prepared Matching preparation with unchanged root, non-chain pose and clinical mappings.
- * @param rig Optional lazy rig of the same unchanged source workspace, sharing basis, clamps, projector and prepared fixed inverse without sharing target results.
- * @returns The pose with the mid bone's twist set within the actual rig's limits.
+ * @param prepared Matching preparation with unchanged root, non-chain pose and
+ *   clinical mappings.
+ * @param rig Optional lazy rig of the same unchanged source workspace, sharing
+ *   basis, clamps, projector and prepared fixed inverse without sharing target
+ *   results.
+ * @returns The pose with the mid bone's twist set within the actual rig's
+ *   limits.
  */
 export function splitDistalTwist(
   props: IAutoMovieFitChainToTargetProps,
@@ -65,7 +69,8 @@ function split(
   paired: boolean,
 ): splitDistalTwist.IResult {
   const lowerAxes: IAutoMovieJointAxes | undefined = axes[props.chain.lower];
-  if (lowerAxes?.twistPlacement !== "distal") return { pose, projection: undefined };
+  if (lowerAxes?.twistPlacement !== "distal")
+    return { pose, projection: undefined };
   const map: ReturnType<typeof resolveBoneMap> | undefined =
     prepared === undefined
       ? resolveBoneMap(
@@ -111,7 +116,8 @@ function split(
     jointToQuaternionOnBasis.prepare(lowerBasis, lowerFrame);
   const articulated: IAutoMovieQuaternion = composeLower(current);
   const above: IAutoMovieQuaternion = Quaternion.multiply(
-    world.worldRotation, Quaternion.inverse(articulated),
+    world.worldRotation,
+    Quaternion.inverse(articulated),
   );
   const effectorBone: IAutoMovieBone | undefined =
     rig === undefined
@@ -137,10 +143,13 @@ function split(
     effectorRest: rest,
     readArticulated: (): IAutoMovieQuaternion => articulated,
     composeLower,
-    ...(rig !== undefined && prepared !== undefined && held === rig.held() ? {
-      readHeldRotation: (): IAutoMovieQuaternion => rig.heldRotation(),
-      readHeldInverse: (): IAutoMovieQuaternion => rig.heldRotationInverse(),
-    } : {}),
+    ...(rig !== undefined && prepared !== undefined && held === rig.held()
+      ? {
+          readHeldRotation: (): IAutoMovieQuaternion => rig.heldRotation(),
+          readHeldInverse: (): IAutoMovieQuaternion =>
+            rig.heldRotationInverse(),
+        }
+      : {}),
     effectorRestInverse:
       (prepared === undefined ? undefined : rig?.effectorRestInverse()) ??
       Quaternion.inverse(rest),
@@ -163,13 +172,18 @@ function split(
             effector: rig.clamp(props.chain.effector),
           },
           projectEffector: rig.effectorProjection(),
-          projectEffectorWithQuaternion: rig.effectorProjection().withQuaternion,
-          ...(prepared === undefined ? {} : { preparedEffector: rig.distalTwist() }),
+          projectEffectorWithQuaternion:
+            rig.effectorProjection().withQuaternion,
+          ...(prepared === undefined
+            ? {}
+            : { preparedEffector: rig.distalTwist() }),
         }),
   };
-  const solution: solveDistalTwist.IResult | undefined =
-    paired ? solveDistalTwist.withProjection(options) : undefined;
-  const lower: IAutoMovieJointPose = solution?.joint ?? solveDistalTwist(options);
+  const solution: solveDistalTwist.IResult | undefined = paired
+    ? solveDistalTwist.withProjection(options)
+    : undefined;
+  const lower: IAutoMovieJointPose =
+    solution?.joint ?? solveDistalTwist(options);
   return {
     pose: {
       ...pose,
@@ -185,9 +199,7 @@ function split(
   };
 }
 
-/**
- * A distal pose and its selected solve's completed effector projection.
- */
+/** A distal pose and its selected solve's completed effector projection. */
 export namespace splitDistalTwist {
   /** The ordinary split result plus one optional completed same-solve reading. */
   export interface IResult {
@@ -206,10 +218,10 @@ export namespace splitDistalTwist {
    *
    * Pose-only and paired entries share all FK, current lower/held reads,
    * candidates, ROM clamps and ties. Only the selected query's completed
-   * effector joint/raw quaternion/local target survive beside the pose.
-   * This constant reading can omit one final projector query after the exact
-   * match; no speedup is measured. The immediate consumer releases it and
-   * no target history, solver workspace, handles or tasks survive.
+   * effector joint/raw quaternion/local target survive beside the pose. This
+   * constant reading can omit one final projector query after the exact match;
+   * no speedup is measured. The immediate consumer releases it and no target
+   * history, solver workspace, handles or tasks survive.
    */
   export function withProjection(
     props: IAutoMovieFitChainToTargetProps,

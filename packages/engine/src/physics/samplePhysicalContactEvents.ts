@@ -6,7 +6,8 @@ import type {
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 
 /**
- * Admit causal contact quantities and flatten completed solver samples without promoting geometry to impulse authority.
+ * Admit causal contact quantities and flatten completed solver samples without
+ * promoting geometry to impulse authority.
  */
 export function samplePhysicalContactEvents(
   receipt: IAutoMovieContactReceipt,

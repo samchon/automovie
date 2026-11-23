@@ -16,16 +16,15 @@ import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
-/**
- * Value-only loft station samplers and the existing bounded lazy point cache.
- */
+/** Value-only loft station samplers and the existing bounded lazy point cache. */
 export namespace AutoMovieLoftPoint {
   /**
    * World point of the chain at station s as a function of phase.
    *
    * The section, plane and lift of a station cost as much as the whole chain's
    * order, so a caller reading a station at many separate phases takes them
-   * from here rather than through {@link AutoMovieLoftChain.ring} one phase at a time.
+   * from here rather than through {@link AutoMovieLoftChain.ring} one phase at a
+   * time.
    *
    * @param chain Chain to evaluate.
    * @param s Station within the chain; world height for horizontal layers.
@@ -77,10 +76,10 @@ export namespace AutoMovieLoftPoint {
 
   /**
    * One world point of the chain at station s and phase t. Readers of single
-   * points (a strip's columns, a trim loop's rim, a difference across a
-   * loop) meet the same few stations again and again, so the samplers of the
-   * last {@link RECENT} stations read per chain are kept; a chain is never
-   * changed once built, so a kept sampler stays its station's.
+   * points (a strip's columns, a trim loop's rim, a difference across a loop)
+   * meet the same few stations again and again, so the samplers of the last
+   * {@link RECENT} stations read per chain are kept; a chain is never changed
+   * once built, so a kept sampler stays its station's.
    *
    * @param chain Chain to evaluate.
    * @param s Station within the chain.
@@ -105,9 +104,7 @@ export namespace AutoMovieLoftPoint {
     return at(t);
   }
 
-  /**
-   * Actual world value and phase tangent without physical station2 admission.
-   */
+  /** Actual world value and phase tangent without physical station2 admission. */
   export function phaseSampler(
     chain: IAutoMovieLoftChain,
     s: number,
@@ -157,8 +154,9 @@ export namespace AutoMovieLoftPoint {
    * controls per coordinate at a phase, so a Newton step or a foot search that
    * meets a new station at a phase or two pays for those few controls instead
    * of the whole row. Each control is the same Hermite combination
-   * {@link AutoMovieLoftChain.coefficients} and {@link AutoMovieLoftChain.lift} write for the whole row, entry by
-   * entry, so every point is the sampler's to the bit.
+   * {@link AutoMovieLoftChain.coefficients} and {@link AutoMovieLoftChain.lift}
+   * write for the whole row, entry by entry, so every point is the sampler's to
+   * the bit.
    */
   function lazy(
     chain: IAutoMovieLoftChain,

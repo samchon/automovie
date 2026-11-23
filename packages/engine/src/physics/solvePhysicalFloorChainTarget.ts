@@ -13,7 +13,8 @@ import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTar
 
 /**
  * Fit endpoint goals and their floor constraints together using bounded native
- * joint coordinates. The residual retains unresolved endpoint and floor errors.
+ * joint coordinates. The residual retains unresolved endpoint and floor
+ * errors.
  */
 export function solvePhysicalFloorChainTarget(
   input: IAutoMovieSolvePhysicalFloorChainTarget.IInput,
@@ -77,7 +78,10 @@ export function solvePhysicalFloorChainTarget(
     },
   });
 
-  /** The nonlinear height witness follows the same complete convex patch as contact. */
+  /**
+   * The nonlinear height witness follows the same complete convex patch as
+   * contact.
+   */
   function measure(
     poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
     activeFloor?: boolean,

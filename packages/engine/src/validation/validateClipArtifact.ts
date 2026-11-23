@@ -17,7 +17,8 @@ import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 
 /**
- * Admit clip id/duration/loop, track uniqueness, channel shape and shared sampler track-shape faults.
+ * Admit clip id/duration/loop, track uniqueness, channel shape and shared
+ * sampler track-shape faults.
  */
 export const validateClipArtifact: (
   clip: unknown,

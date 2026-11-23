@@ -10,7 +10,8 @@ import { planPhysicalSupportTargets } from "./planPhysicalSupportTargets";
 import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
 
 /**
- * Correct support joint goals for the root's actual placement, so root tracking error does not become foot sliding.
+ * Correct support joint goals for the root's actual placement, so root tracking
+ * error does not become foot sliding.
  */
 export function planPhysicalRootSupportTargets(
   input: IAutoMoviePlanPhysicalRootSupportTargets.IInput,

@@ -12,7 +12,8 @@ import { surfaceHeightAt } from "../../space/surfaceHeightAt";
 import type { IStageGround } from "./IStageGround";
 
 /**
- * Prepare each cited footprint once for actor-scoped staging and performance queries.
+ * Prepare each cited footprint once for actor-scoped staging and performance
+ * queries.
  */
 export function prepareStageSupport(
   staged: IAutoMovieStagedSet.ISuccess,

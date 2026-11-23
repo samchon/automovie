@@ -20,7 +20,13 @@ import { resolveBoneMap } from "./resolveBoneMap";
 import { resolveChainEffectorBaseRotation } from "./resolveChainEffectorBaseRotation";
 
 /**
- * Prepare articulation-free frames and effective domains for one reachable descendant two-bone chain in the current pose's resolved model-metre frame. Missing bones or invalid ancestry return null; supplied topology and clinical mappings must match the unchanged skeleton. An optional resolution reader shares only exact completed FK work within the same synchronous fit. An explicit poseResolution must snapshot that exact rig/topology/mappings; its demand is the upper, lower and effector, while omission keeps raw full FK.
+ * Prepare articulation-free frames and effective domains for one reachable
+ * descendant two-bone chain in the current pose's resolved model-metre frame.
+ * Missing bones or invalid ancestry return null; supplied topology and clinical
+ * mappings must match the unchanged skeleton. An optional resolution reader
+ * shares only exact completed FK work within the same synchronous fit. An
+ * explicit poseResolution must snapshot that exact rig/topology/mappings; its
+ * demand is the upper, lower and effector, while omission keeps raw full FK.
  */
 export const prepareChainPlant: (
   props: Pick<

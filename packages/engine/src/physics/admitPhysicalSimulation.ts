@@ -6,7 +6,8 @@ import { admitPhysicalTargets } from "./admitPhysicalTargets";
 import { validatePhysicalProfile } from "./validatePhysicalProfile";
 
 /**
- * Admit complete populations and raw and derived finite scalars before identity or world allocation.
+ * Admit complete populations and raw and derived finite scalars before identity
+ * or world allocation.
  */
 export function admitPhysicalSimulation(
   input: IAutoMoviePhysicalSimulationInput.IInput,

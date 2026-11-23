@@ -10,24 +10,25 @@ interface Dyadic {
 }
 
 /**
- * Exact in-circle sign of a fourth represented binary64 chart point against
- * the circle through three others.
+ * Exact in-circle sign of a fourth represented binary64 chart point against the
+ * circle through three others.
  *
- * The determinant is Lawson's and Guibas–Stolfi's lifted test,
- * `| a-d, |a-d|^2 ; b-d, |b-d|^2 ; c-d, |c-d|^2 |`, positive when `d` lies
- * strictly inside the circle through a counter-clockwise `(a, b, c)`. A
- * conservative floating filter (Shewchuk 1997's first-stage bound, here
- * widened to `16 eps` times the permanent) accepts a determinant separated
- * from its rounding error; every other case, including inputs near the
- * underflow range, is evaluated as an integer determinant after the eight
- * inputs are placed on one common dyadic grid. This decides the represented
- * points, without a geometric tolerance, rounding or snapping.
+ * The determinant is Lawson's and Guibas–Stolfi's lifted test, `| a-d, |a-d|^2
+ * ; b-d, |b-d|^2 ; c-d, |c-d|^2 |`, positive when `d` lies strictly inside the
+ * circle through a counter-clockwise `(a, b, c)`. A conservative floating
+ * filter (Shewchuk 1997's first-stage bound, here widened to `16 eps` times the
+ * permanent) accepts a determinant separated from its rounding error; every
+ * other case, including inputs near the underflow range, is evaluated as an
+ * integer determinant after the eight inputs are placed on one common dyadic
+ * grid. This decides the represented points, without a geometric tolerance,
+ * rounding or snapping.
  *
  * @param a First circle point.
  * @param b Second circle point, counter-clockwise after `a`.
  * @param c Third circle point, counter-clockwise after `b`.
  * @param d The point tested.
- * @returns +1 inside, -1 outside and 0 exactly on the circle; for a clockwise `(a, b, c)` the sign is reversed.
+ * @returns +1 inside, -1 outside and 0 exactly on the circle; for a clockwise
+ *   `(a, b, c)` the sign is reversed.
  * @throws RangeError for a nonfinite input coordinate.
  */
 export function incircleAutoMovieSolidChart(
@@ -97,7 +98,10 @@ export function incircleAutoMovieSolidChart(
   return exact > 0n ? 1 : exact < 0n ? -1 : 0;
 }
 
-/** Decode a finite double without arithmetic on its significand. Calls are synchronous and have no callbacks. */
+/**
+ * Decode a finite double without arithmetic on its significand. Calls are
+ * synchronous and have no callbacks.
+ */
 function decode(value: number): Dyadic {
   VIEW.setFloat64(0, value, false);
   const bits: bigint = VIEW.getBigUint64(0, false);
@@ -110,10 +114,17 @@ function decode(value: number): Dyadic {
   };
 }
 
-/** Smallest nonzero difference the filter accepts: a fourth power stays above 2^-800, inside the normal range; a representation boundary, not a geometry tolerance. */
+/**
+ * Smallest nonzero difference the filter accepts: a fourth power stays above
+ * 2^-800, inside the normal range; a representation boundary, not a geometry
+ * tolerance.
+ */
 const SMALLEST: number = 2 ** -200;
 
-/** Largest difference the filter accepts: a fourth power stays below 2^800, inside the finite range. */
+/**
+ * Largest difference the filter accepts: a fourth power stays below 2^800,
+ * inside the finite range.
+ */
 const LARGEST: number = 2 ** 200;
 
 /** Fixed decoding storage, never exposed or retained by an input/result. */

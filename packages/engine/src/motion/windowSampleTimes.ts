@@ -1,5 +1,7 @@
 /**
- * Sample a finite ordered seconds window at a finite positive Hz rate, retaining both endpoints and removing an exactly duplicated final instant. A zero-width window returns one instant; the caller owns the new array.
+ * Sample a finite ordered seconds window at a finite positive Hz rate,
+ * retaining both endpoints and removing an exactly duplicated final instant. A
+ * zero-width window returns one instant; the caller owns the new array.
  */
 export const windowSampleTimes: (
   start: number,

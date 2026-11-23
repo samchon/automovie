@@ -20,9 +20,9 @@ import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
  * tessellator rather than by a table of formulas: a table would be a second
  * source of truth for how many triangles a sphere has, and the day the
  * tessellator's ring count changes, the budget would still be checking the old
- * number.
- * Bicubic recipes use the same retained finite engine geometry as display;
- * geometryRealization records their incomplete processing independently of cost.
+ * number. Bicubic recipes use the same retained finite engine geometry as
+ * display; geometryRealization records their incomplete processing
+ * independently of cost.
  */
 export const measure: (
   model: IAutoMovieModel,

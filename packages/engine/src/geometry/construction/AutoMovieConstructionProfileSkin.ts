@@ -12,9 +12,9 @@ import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
  *
  * Every ring arc must still occur in its own face's actual open mesh record,
  * and every tip address must remain in the analytic kept region. A complete
- * removed tip stays absent; a cutting loop meeting the original cap strip or
- * a partial or missing original ring is diagnosed
- * without a replacement fan. The actual tip Point0 requires no physical2.
+ * removed tip stays absent; a cutting loop meeting the original cap strip or a
+ * partial or missing original ring is diagnosed without a replacement fan. The
+ * actual tip Point0 requires no physical2.
  */
 export function AutoMovieConstructionProfileSkin(
   body: IAutoMovieSolidBody.IBody,

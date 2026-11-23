@@ -44,15 +44,32 @@ import { sectionAutoMovieDrawingSpaces } from "./sectionAutoMovieDrawingSpaces";
 /**
  * Derive one drawing from one design and one view.
  *
- * Throws an `Error` when the design fails `validateBuiltEnvironment`, naming the first violation, because a drawing of a graph that does not resolve would be a picture of nothing handed on as evidence. Throws when the view is degenerate, as `autoMovieDrawingFrame` describes, and when it declares two dimensions or two annotations with one id, since a consumer addresses them by id.
+ * Throws an `Error` when the design fails `validateBuiltEnvironment`, naming
+ * the first violation, because a drawing of a graph that does not resolve would
+ * be a picture of nothing handed on as evidence. Throws when the view is
+ * degenerate, as `autoMovieDrawingFrame` describes, and when it declares two
+ * dimensions or two annotations with one id, since a consumer addresses them by
+ * id.
  *
- * Everything is computed from the design: lines from element and face-only boundary geometry in each element's current operating state, regions from the cells a cutting view passes through, opening marks from each opening's void or fill, and dimensions and notes from the features their targets pin. Nothing produced here may be read back into the design. What cannot be computed is reported in {@link IAutoMovieDrawing.gaps} rather than omitted, because a sheet that silently leaves something out reads as a building without it. Openings are marked whatever the kind filter says, because the schedule counts them all, and only the space filter selects them.
+ * Everything is computed from the design: lines from element and face-only
+ * boundary geometry in each element's current operating state, regions from the
+ * cells a cutting view passes through, opening marks from each opening's void
+ * or fill, and dimensions and notes from the features their targets pin.
+ * Nothing produced here may be read back into the design. What cannot be
+ * computed is reported in {@link IAutoMovieDrawing.gaps} rather than omitted,
+ * because a sheet that silently leaves something out reads as a building
+ * without it. Openings are marked whatever the kind filter says, because the
+ * schedule counts them all, and only the space filter selects them.
  *
- * The digest is SHA-256 over the canonical JSON of every other field. Identical canonical payloads give identical digests; a shared digest does not prove field equality because SHA-256 collisions are possible.
+ * The digest is SHA-256 over the canonical JSON of every other field. Identical
+ * canonical payloads give identical digests; a shared digest does not prove
+ * field equality because SHA-256 collisions are possible.
  *
  * @param props.environment Design the drawing is taken from.
- * @param props.view View that decides the cut, the direction, the filters and the targets.
- * @returns The drawing, with sorted lines, regions, openings and gaps and the view's own dimension and note order.
+ * @param props.view View that decides the cut, the direction, the filters and
+ *   the targets.
+ * @returns The drawing, with sorted lines, regions, openings and gaps and the
+ *   view's own dimension and note order.
  */
 export const deriveAutoMovieDrawing: (
   props: IAutoMovieDeriveDrawing.IProps,
@@ -244,7 +261,12 @@ const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
   },
 ];
 
-/** Check one view list's exact ids with a set, throwing at its first repeat without renaming entries. O(N) expected work/O(N) temporary ids preserve authored order; the set releases on return or throw and neither ids nor a verdict are cached. */
+/**
+ * Check one view list's exact ids with a set, throwing at its first repeat
+ * without renaming entries. O(N) expected work/O(N) temporary ids preserve
+ * authored order; the set releases on return or throw and neither ids nor a
+ * verdict are cached.
+ */
 const requireUniqueIds: (
   view: IAutoMovieDrawingView,
   label: string,
@@ -265,9 +287,14 @@ const requireUniqueIds: (
 };
 
 /**
- * Delegate cell sectioning and translate its faceted ids, omitted shells and unbounded-cell counts into caller-owned gaps, returning the actual regions unchanged. The validated design/frame and optional inclusion set are shared with drafting; no shell section or curved correction is invented here.
+ * Delegate cell sectioning and translate its faceted ids, omitted shells and
+ * unbounded-cell counts into caller-owned gaps, returning the actual regions
+ * unchanged. The validated design/frame and optional inclusion set are shared
+ * with drafting; no shell section or curved correction is invented here.
  *
- * Cost follows the full section owner, including per-cell plane clipping and region sorting; gap additions are constant except formatting faceted ids, and no section data survives except the returned regions/gaps.
+ * Cost follows the full section owner, including per-cell plane clipping and
+ * region sorting; gap additions are constant except formatting faceted ids, and
+ * no section data survives except the returned regions/gaps.
  */
 const sectionRegions: (
   environment: IAutoMovieBuiltEnvironment,
@@ -318,9 +345,14 @@ const sectionRegions: (
 };
 
 /**
- * Select openings through any host-boundary space, derive profile/fill/absent marks, and state missing geometry, substituted fill size, chorded arcs and unperformed host subtraction as gaps. The element-kind filter deliberately does not choose openings.
+ * Select openings through any host-boundary space, derive profile/fill/absent
+ * marks, and state missing geometry, substituted fill size, chorded arcs and
+ * unperformed host subtraction as gaps. The element-kind filter deliberately
+ * does not choose openings.
  *
- * One opening walk reuses the design index's staging/tessellation; a few linear basis counts and O(O log O) id sort follow. The returned marks and caller-owned gap sink survive, with no cross-view cache.
+ * One opening walk reuses the design index's staging/tessellation; a few linear
+ * basis counts and O(O log O) id sort follow. The returned marks and
+ * caller-owned gap sink survive, with no cross-view cache.
  */
 const markOpenings: (
   environment: IAutoMovieBuiltEnvironment,
@@ -407,9 +439,14 @@ const markOpenings: (
 };
 
 /**
- * Resolve both pinned features against the shared current design, propagating the first stale reason with null endpoints/value. Otherwise round page endpoints and measure either raw world distance or distance between those rounded page points, then round the scalar result.
+ * Resolve both pinned features against the shared current design, propagating
+ * the first stale reason with null endpoints/value. Otherwise round page
+ * endpoints and measure either raw world distance or distance between those
+ * rounded page points, then round the scalar result.
  *
- * Cost is both feature resolutions, which can place/weld/sort model geometry despite shared part tessellation; only one new dimension record escapes and no previous measurement is retained.
+ * Cost is both feature resolutions, which can place/weld/sort model geometry
+ * despite shared part tessellation; only one new dimension record escapes and
+ * no previous measurement is retained.
  */
 const dimensionOf: (
   environment: IAutoMovieBuiltEnvironment,

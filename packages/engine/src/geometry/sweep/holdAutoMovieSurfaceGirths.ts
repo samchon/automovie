@@ -11,7 +11,10 @@ const MAX_ITERATIONS: number = 24;
 /** Largest perimeter error the solve accepts, relative to the perimeter. */
 const TOLERANCE: number = 1e-9;
 
-/** Gauss-Legendre nodes on 0 to 1 and their weights, five points: exact for polynomials of degree nine. */
+/**
+ * Gauss-Legendre nodes on 0 to 1 and their weights, five points: exact for
+ * polynomials of degree nine.
+ */
 const GAUSS: ReadonlyArray<readonly [number, number]> = [
   [0.5 - 0.453089922969332, 0.118463442528095],
   [0.5 - 0.269234655052841, 0.239314335249683],
@@ -21,33 +24,33 @@ const GAUSS: ReadonlyArray<readonly [number, number]> = [
 ];
 
 /**
- * Hold the limit perimeter of a surface network's girth rings, the rings
- * that declare `perimeter`, by solving a radial factor along each sweep.
+ * Hold the limit perimeter of a surface network's girth rings, the rings that
+ * declare `perimeter`, by solving a radial factor along each sweep.
  *
  * A girth ring runs once round one sweep at one `u`. Along a row of
- * valence-four vertices whose loop neighbours lie opposite, beside rows of
- * such vertices, the Catmull-Clark limit is the tensor-product cubic
- * B-spline, so the limit along the row is the periodic uniform cubic B-spline
- * whose control points are `(A + 4 P + B) / 6` for each vertex `P` and its
- * two neighbours `A` and `B` across the row; its perimeter is integrated by
- * five-point Gauss-Legendre quadrature on every span. Each sweep's factor is
- * the sampled-overshoot-policy spline of `interpolateAutoMovieSpline` through 1 at the sweep's
- * other rings at one `u`, which meet neighbouring parts and stay, and through
- * a value at each girth ring, holding its end values beyond the outermost
- * knots; `IAutoMovieSweepRig.girth` folds it into the scale. The girth
- * values solve the system "every measured perimeter equals its declaration"
- * jointly by Broyden's method (Broyden 1965, Mathematics of Computation
- * 19(92):577-593), one rest fit per step: the Jacobian starts diagonal, each
- * perimeter in proportion to its own factor, which is exact where the fit
- * interpolates the row and no neighbouring sample reads another factor, and
- * each step's rank-one update learns how neighbouring rings couple through
- * the spline, cell averages or a least-squares fit, so rings close together
- * converge together where updating each alone would oscillate or crawl; a
- * step that would make a factor non-positive is halved. It stops when every
- * perimeter is within 1e-9 of its declaration and refuses after 24 fits.
+ * valence-four vertices whose loop neighbours lie opposite, beside rows of such
+ * vertices, the Catmull-Clark limit is the tensor-product cubic B-spline, so
+ * the limit along the row is the periodic uniform cubic B-spline whose control
+ * points are `(A + 4 P + B) / 6` for each vertex `P` and its two neighbours `A`
+ * and `B` across the row; its perimeter is integrated by five-point
+ * Gauss-Legendre quadrature on every span. Each sweep's factor is the
+ * sampled-overshoot-policy spline of `interpolateAutoMovieSpline` through 1 at
+ * the sweep's other rings at one `u`, which meet neighbouring parts and stay,
+ * and through a value at each girth ring, holding its end values beyond the
+ * outermost knots; `IAutoMovieSweepRig.girth` folds it into the scale. The
+ * girth values solve the system "every measured perimeter equals its
+ * declaration" jointly by Broyden's method (Broyden 1965, Mathematics of
+ * Computation 19(92):577-593), one rest fit per step: the Jacobian starts
+ * diagonal, each perimeter in proportion to its own factor, which is exact
+ * where the fit interpolates the row and no neighbouring sample reads another
+ * factor, and each step's rank-one update learns how neighbouring rings couple
+ * through the spline, cell averages or a least-squares fit, so rings close
+ * together converge together where updating each alone would oscillate or
+ * crawl; a step that would make a factor non-positive is halved. It stops when
+ * every perimeter is within 1e-9 of its declaration and refuses after 24 fits.
  * Non-finite measurements/steps and zero representable progress are refused
- * before a factor update can enter nonterminating positivity backtracking.
- * The initial diagonal uses each measured perimeter directly, without
+ * before a factor update can enter nonterminating positivity backtracking. The
+ * initial diagonal uses each measured perimeter directly, without
  * reconstructing it from a potentially cancellation-dominated residual.
  *
  * @param props.network The network, only read.
@@ -55,9 +58,16 @@ const GAUSS: ReadonlyArray<readonly [number, number]> = [
  * @param props.faces The cage's quads, only read.
  * @param props.vertices Number of cage vertices.
  * @param props.sweepRig The rig of a sweep by name, sealed.
- * @param props.rest Evaluates the network at rest and writes the fitted control positions into `positions`.
- * @param props.positions Receives the rest control positions, `3 * vertices` numbers.
- * @throws Error when a girth ring's perimeter is not positive and finite, it also has positions, it does not run once round one sweep at one `u`, a vertex on or beside it is not a regular interior vertex, two rings of one sweep share a `u`, a measured perimeter is non-positive or non-finite, a computed step is non-finite, no representable progress is possible, or the solve does not converge.
+ * @param props.rest Evaluates the network at rest and writes the fitted control
+ *   positions into `positions`.
+ * @param props.positions Receives the rest control positions, `3 * vertices`
+ *   numbers.
+ * @throws Error when a girth ring's perimeter is not positive and finite, it
+ *   also has positions, it does not run once round one sweep at one `u`, a
+ *   vertex on or beside it is not a regular interior vertex, two rings of one
+ *   sweep share a `u`, a measured perimeter is non-positive or non-finite, a
+ *   computed step is non-finite, no representable progress is possible, or the
+ *   solve does not converge.
  */
 export const holdAutoMovieSurfaceGirths: (
   props: IAutoMovieHoldSurfaceGirths.IProps,
@@ -325,7 +335,10 @@ export const holdAutoMovieSurfaceGirths: (
   );
 };
 
-/** Solve the dense system `a x = b` of order `n` by Gaussian elimination with partial pivoting, into `x`; `a` and `b` are left intact. */
+/**
+ * Solve the dense system `a x = b` of order `n` by Gaussian elimination with
+ * partial pivoting, into `x`; `a` and `b` are left intact.
+ */
 function solve(
   a: Float64Array,
   b: Float64Array,

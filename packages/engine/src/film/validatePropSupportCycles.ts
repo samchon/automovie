@@ -9,7 +9,12 @@ import {
  * Refuse a prop that transitively rests on, plugs into, or hangs from itself
  * through `prop-affordance` relations.
  *
- * Only props whose node is declared once take part, and a relation citing an unresolved, ambiguous or self-same prop is skipped, because `validatePropPlacements` already refuses those by name. Each encountered DFS back edge is reported at its closing relation under `$input.props[i].placement.relations[j].target.prop`, visiting props in declaration order.
+ * Only props whose node is declared once take part, and a relation citing an
+ * unresolved, ambiguous or self-same prop is skipped, because
+ * `validatePropPlacements` already refuses those by name. Each encountered DFS
+ * back edge is reported at its closing relation under
+ * `$input.props[i].placement.relations[j].target.prop`, visiting props in
+ * declaration order.
  *
  * @param props The prop registry in declaration order.
  * @param out Collector the violations are appended to.

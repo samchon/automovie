@@ -56,7 +56,10 @@ export function AutoMovieConstructionProfileRealize(
   }
 }
 
-/** Pure AST equality ignores omitted optional undefined properties, preserving array order and every actual scalar value. */
+/**
+ * Pure AST equality ignores omitted optional undefined properties, preserving
+ * array order and every actual scalar value.
+ */
 function equal(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (

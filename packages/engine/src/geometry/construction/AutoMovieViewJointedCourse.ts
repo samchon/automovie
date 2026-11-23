@@ -11,12 +11,11 @@ import { AutoMovieAxisDirection } from "./AutoMovieAxisDirection";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
 
-/**
- * The admitted jointed course's Rodrigues transport and analytic frame jets.
- */
+/** The admitted jointed course's Rodrigues transport and analytic frame jets. */
 export namespace AutoMovieViewJointedCourse {
   /**
-   * Prepare the original centreline admission and setback integral shared by both consumers.
+   * Prepare the original centreline admission and setback integral shared by
+   * both consumers.
    */
   export function prepare(
     centres: readonly AutoMovieVector3Tuple[],
@@ -93,7 +92,8 @@ export namespace AutoMovieViewJointedCourse {
   }
 
   /**
-   * Evaluate one immutable admitted course from its first origin, tangent and chart axis.
+   * Evaluate one immutable admitted course from its first origin, tangent and
+   * chart axis.
    */
   export function create(
     origin: AutoMovieVector3Tuple,
@@ -196,7 +196,10 @@ export namespace AutoMovieViewJointedCourse {
     };
   }
 
-  /** One value-only course walk; derivative vectors are allocated only by the analytic jet query. */
+  /**
+   * One value-only course walk; derivative vectors are allocated only by the
+   * analytic jet query.
+   */
   interface ISample {
     /** Actual quadrature-origin frame value. */
     value: IAutoMovieLoftSectionFrame;
@@ -211,9 +214,7 @@ export namespace AutoMovieViewJointedCourse {
     offset: number;
   }
 
-  /**
-   * Integral of one admitted turn's tangent over an arclength from its start.
-   */
+  /** Integral of one admitted turn's tangent over an arclength from its start. */
   export function integrate(
     tangent: AutoMovieVector3Tuple,
     turn: IAutoMovieViewJointedCourse.ITurn,

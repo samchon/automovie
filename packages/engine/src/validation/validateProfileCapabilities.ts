@@ -7,7 +7,8 @@ import {
 import { ViolationCollector } from "./ViolationCollector";
 
 /**
- * Admit profile id/name uniqueness and mountable/destructible trait fields: seats/payload, durability and impact-body coefficients.
+ * Admit profile id/name uniqueness and mountable/destructible trait fields:
+ * seats/payload, durability and impact-body coefficients.
  */
 export const validateProfileCapabilities: (
   props: IAutoMovieValidateProfileCapabilities.IProps,
@@ -128,7 +129,8 @@ const nonBlank: (
  *
  * One caller-owned set shares first-seen identity within its declared scope.
  *
- * The caller owns/releases the set and diagnostics; no global registry is created.
+ * The caller owns/releases the set and diagnostics; no global registry is
+ * created.
  */
 const unique: (
   seen: Set<string>,
@@ -186,7 +188,8 @@ const positive: (
 /**
  * Require finite coefficients in(0,1] as resolveImpact admits.
  *
- * The trait gate aligns its hardness/penetrability domain with the response owner.
+ * The trait gate aligns its hardness/penetrability domain with the response
+ * owner.
  *
  * Zero is excluded by the response contract, not a fixture adjustment.
  *
@@ -221,7 +224,8 @@ const unitPositive: (
 /**
  * Delegate a finite inclusive scalar interval to collector.range.
  *
- * The field owner supplies restitution's interval and this wrapper preserves diagnostics.
+ * The field owner supplies restitution's interval and this wrapper preserves
+ * diagnostics.
  *
  * No clamping or default changes invalid authored values.
  *

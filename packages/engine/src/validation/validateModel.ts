@@ -12,13 +12,14 @@ import type {
 
 /**
  * Assemble the model validation result in stable diagnostic order. IDs and
- * references precede parts, rigs, body/profile/affordance metadata and materials.
- * Cohesive leaf owners check their typed inputs and append to this one local
- * collector. Caller models are read-only; validation reports faults rather than
- * repairing geometry or binding external resources. Model generators,
- * authoring builders and static exporters all consume this same public entry.
- * Moving a leaf must preserve predicate arithmetic, paths and ordering because
- * downstream correction rounds present these diagnostics to the author.
+ * references precede parts, rigs, body/profile/affordance metadata and
+ * materials. Cohesive leaf owners check their typed inputs and append to this
+ * one local collector. Caller models are read-only; validation reports faults
+ * rather than repairing geometry or binding external resources. Model
+ * generators, authoring builders and static exporters all consume this same
+ * public entry. Moving a leaf must preserve predicate arithmetic, paths and
+ * ordering because downstream correction rounds present these diagnostics to
+ * the author.
  */
 
 import { admitAutoMovieBicubicAtlas } from "../geometry/admitAutoMovieBicubicAtlas";
@@ -46,7 +47,9 @@ import { validateTransformScalars } from "./validateTransformScalars";
 import { validateUniqueValues } from "./validateUniqueValues";
 
 /**
- * Assemble id/reference, primitive/mesh, skeleton (with declared joint axes), gaze, transform, body/profile/affordance and material checks in stable order.
+ * Assemble id/reference, primitive/mesh, skeleton (with declared joint axes),
+ * gaze, transform, body/profile/affordance and material checks in stable
+ * order.
  */
 export const validateModel: (
   props: IAutoMovieValidateModel.IProps,

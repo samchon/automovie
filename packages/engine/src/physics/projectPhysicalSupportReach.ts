@@ -7,8 +7,8 @@ import { Vector3 } from "../math/Vector3";
 
 /**
  * Bounded cyclic projection of a common root translation onto support-reach
- * balls. Each limb origin translates equally; support goals remain fixed.
- * This produces a kinematic seed, never teleports a simulated body. Convex
+ * balls. Each limb origin translates equally; support goals remain fixed. This
+ * produces a kinematic seed, never teleports a simulated body. Convex
  * projection can exhaust its finite budget or meet incompatible balls; the
  * original residual remains observable and no goal is moved to hide it.
  */

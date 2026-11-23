@@ -11,11 +11,16 @@ import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 import { evaluateAutoMovieBernstein64 } from "./evaluateAutoMovieBernstein64";
 
 /**
- * Evaluate a millimetre primitive in its declared phase chart. Piecewise derivatives are divided by the selected positive phase width; analytic oval derivatives are per turn. Interior seams choose the following piece, and the final endpoint chooses the final piece at local t=1.
+ * Evaluate a millimetre primitive in its declared phase chart. Piecewise
+ * derivatives are divided by the selected positive phase width; analytic oval
+ * derivatives are per turn. Interior seams choose the following piece, and the
+ * final endpoint chooses the final piece at local t=1.
  *
  * @param curve Complete generating coefficients and their physical phase chart.
- * @param parameter Finite value from 0 through the sum of phase widths, or through 1 turn for an oval.
- * @throws Error when admission, domain selection or represented arithmetic is unresolved.
+ * @param parameter Finite value from 0 through the sum of phase widths, or
+ *   through 1 turn for an oval.
+ * @throws Error when admission, domain selection or represented arithmetic is
+ *   unresolved.
  */
 export function evaluateAutoMovieCurve64(
   curve: IAutoMovieCurvePrimitive64,

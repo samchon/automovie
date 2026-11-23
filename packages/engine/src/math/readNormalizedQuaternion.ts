@@ -12,33 +12,53 @@ const ORDINARY_SQUARED_MAX: number = 2 ** 1000;
  * quaternion and caller context. Context transfers existing inputs without
  * constructing a per-call closure or wrapper. Zero length reads identity and
  * nonfinite propagation stays unchanged. An extreme input still creates the
- * original scaled record. The visitor owns its returned result.
- * Visitor errors propagate after normalization; nothing is retained.
- * fromScalars accepts four already completed components and visits normalized
- * X/Y/Z/W followed by caller context only, without manufacturing an input or
- * extreme scaled record. Inverse, angle and slerp reuse their static visitors.
+ * original scaled record. The visitor owns its returned result. Visitor errors
+ * propagate after normalization; nothing is retained. fromScalars accepts four
+ * already completed components and visits normalized X/Y/Z/W followed by caller
+ * context only, without manufacturing an input or extreme scaled record.
+ * Inverse, angle and slerp reuse their static visitors.
  */
 export function readNormalizedQuaternion<Result, Context>(
   q: IAutoMovieQuaternion,
-  read: (x: number, y: number, z: number, w: number,
-    raw: IAutoMovieQuaternion, context: Context) => Result,
+  read: (
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+    raw: IAutoMovieQuaternion,
+    context: Context,
+  ) => Result,
   context: Context,
 ): Result {
   const divisor: number = quaternionNormalizationDivisor(q.x, q.y, q.z, q.w);
-  const value: IAutoMovieQuaternion = divisor === 1 ? q : {
-    x: q.x / divisor, y: q.y / divisor, z: q.z / divisor, w: q.w / divisor,
-  };
+  const value: IAutoMovieQuaternion =
+    divisor === 1
+      ? q
+      : {
+          x: q.x / divisor,
+          y: q.y / divisor,
+          z: q.z / divisor,
+          w: q.w / divisor,
+        };
   const len: number = Math.sqrt(
-    value.x * value.x + value.y * value.y + value.z * value.z + value.w * value.w,
+    value.x * value.x +
+      value.y * value.y +
+      value.z * value.z +
+      value.w * value.w,
   );
   if (len === 0) return read(0, 0, 0, 1, q, context);
   const inv: number = 1 / len;
-  return read(value.x * inv, value.y * inv, value.z * inv, value.w * inv, q, context);
+  return read(
+    value.x * inv,
+    value.y * inv,
+    value.z * inv,
+    value.w * inv,
+    q,
+    context,
+  );
 }
 
-/**
- * Normalization of four already completed scalar components.
- */
+/** Normalization of four already completed scalar components. */
 export namespace readNormalizedQuaternion {
   /**
    * Read the same normalized X/Y/Z/W from completed scalar inputs. Zero length
@@ -46,8 +66,17 @@ export namespace readNormalizedQuaternion {
    * runs once synchronously and owns its result. No source record is created.
    */
   export function fromScalars<Result, Context>(
-    x: number, y: number, z: number, w: number,
-    read: (x: number, y: number, z: number, w: number, context: Context) => Result,
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+    read: (
+      x: number,
+      y: number,
+      z: number,
+      w: number,
+      context: Context,
+    ) => Result,
     context: Context,
   ): Result {
     let a: number = x;

@@ -22,8 +22,8 @@ interface Corner {
  * original ID and cover lift agree. All other vertices, including collinear
  * subdivisions on a proposed diagonal, block the ear. Cover-aware output may
  * span half a phase period; indexed output requires strictly less because it
- * discards the lifts. Exhausted searches return a named failure with
- * the remaining prepared occurrences and edge turns, without another source query.
+ * discards the lifts. Exhausted searches return a named failure with the
+ * remaining prepared occurrences and edge turns, without another source query.
  *
  * This is the same convex-ear principle used by the repository's trianglesOf,
  * with a different admission boundary: native mixed-unit charts use exact
@@ -34,11 +34,11 @@ interface Corner {
  * integer key. A periodic cut additionally stays within the maximum phase
  * travel of two adjacent primitives in the supplied original walk, including
  * its bridges. This sampling-locality limit prevents unconstrained long fans;
- * it neither changes a coordinate nor ranks near-equal coordinate groups.
- * Equal keys retain the first occurrence in the supplied linear walk, so
- * arbitrary weak-walk rotation is not promised. Identical occurrence order,
- * IDs/lifts and all admission decisions imply identical integer selections
- * at every length unit. Rounded geometric admission can still differ.
+ * it neither changes a coordinate nor ranks near-equal coordinate groups. Equal
+ * keys retain the first occurrence in the supplied linear walk, so arbitrary
+ * weak-walk rotation is not promised. Identical occurrence order, IDs/lifts and
+ * all admission decisions imply identical integer selections at every length
+ * unit. Rounded geometric admission can still differ.
  *
  * Locality remains a bounded heuristic: long primitives/bridges can make it
  * loose, and a valid walk needing a longer diagonal can be refused. It is
@@ -190,7 +190,10 @@ export function triangulateAutoMovieSolidBoundary(
   return triangles;
 }
 
-/** A positive ear retains every other original boundary occurrence on or inside its triangle. */
+/**
+ * A positive ear retains every other original boundary occurrence on or inside
+ * its triangle.
+ */
 function ear(
   corners: readonly Corner[],
   working: readonly number[],
@@ -246,7 +249,10 @@ function ear(
   });
 }
 
-/** Two adjacent supplied primitives define sampling locality without moving points or inventing a length tolerance. */
+/**
+ * Two adjacent supplied primitives define sampling locality without moving
+ * points or inventing a length tolerance.
+ */
 function locality(corners: readonly Corner[]): number {
   let limit: number = 0;
   for (let k: number = 0; k < corners.length; k++) {
@@ -258,7 +264,10 @@ function locality(corners: readonly Corner[]): number {
   return limit;
 }
 
-/** Equal keys keep the first supplied occurrence, preserving the weak-walk tie premise. */
+/**
+ * Equal keys keep the first supplied occurrence, preserving the weak-walk tie
+ * premise.
+ */
 function precedes(a: readonly number[], b: readonly number[]): boolean {
   for (let k: number = 0; k < a.length; k++) {
     if (a[k]! < b[k]!) return true;
@@ -267,7 +276,10 @@ function precedes(a: readonly number[], b: readonly number[]): boolean {
   return false;
 }
 
-/** Do not cut a boxed original point off behind a diagonal with no represented strict triangle. */
+/**
+ * Do not cut a boxed original point off behind a diagonal with no represented
+ * strict triangle.
+ */
 function separable(
   a: Corner,
   b: Corner,
@@ -290,7 +302,10 @@ function separable(
     : represented(b, a, point, period, indexed, phaseLimit);
 }
 
-/** A straight global mesh edge cannot represent two different periodic homotopies. */
+/**
+ * A straight global mesh edge cannot represent two different periodic
+ * homotopies.
+ */
 function identity(a: Corner, b: Corner): [string, number] {
   return a.id === b.id
     ? [`${a.id}/${b.id}`, Math.abs(b.lift - a.lift)]
@@ -299,7 +314,10 @@ function identity(a: Corner, b: Corner): [string, number] {
       : [`${b.id}/${a.id}`, a.lift - b.lift];
 }
 
-/** Test the actual output cover, preserving every vertex rather than clipping an unrepresentable sliver. */
+/**
+ * Test the actual output cover, preserving every vertex rather than clipping an
+ * unrepresentable sliver.
+ */
 function represented(
   a: Corner,
   b: Corner,

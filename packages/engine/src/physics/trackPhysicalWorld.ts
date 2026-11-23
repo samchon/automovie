@@ -41,7 +41,8 @@ import { trackPhysicalRootSupportTargets } from "./trackPhysicalRootSupportTarge
 import { trackPhysicalSupports } from "./trackPhysicalSupports";
 
 /**
- * Apply bounded PD forces and equal-opposite joint torques before the fixed step.
+ * Apply bounded PD forces and equal-opposite joint torques before the fixed
+ * step.
  */
 export function trackPhysicalWorld(
   world: AutoMovieXpbdWorld,

@@ -37,17 +37,26 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  * `integrateAutoMovieSweepVolume`, equals the rest volume. Without either the
  * scale stays the rest profile. A girth factor set by `girth` then multiplies
  * every scale slot, at rest and after settling, so the settled volume is the
- * rest volume before that correction. Shapes before scale come directly from the shared shape evaluator and are
- * read once at registration; no scaled result is divided back into a shape.
- * Parameter-correspondence cells average actual signed section coordinates; radial cells retain radius averaging about their authored direction. Valid Cartesian cancellation at the origin is allowed.
- * Unrepresentable nonzero cell averages, scaled samples and girth products
- * are refused. Girth admission stages every factor, product and probe before committing.
+ * rest volume before that correction. Shapes before scale come directly from
+ * the shared shape evaluator and are read once at registration; no scaled
+ * result is divided back into a shape. Parameter-correspondence cells average
+ * actual signed section coordinates; radial cells retain radius averaging about
+ * their authored direction. Valid Cartesian cancellation at the origin is
+ * allowed. Unrepresentable nonzero cell averages, scaled samples and girth
+ * products are refused. Girth admission stages every factor, product and probe
+ * before committing.
  *
- * @param props.sweep The sweep, only read and retained through its compiled surface.
- * @param props.binding Bone indices of its spine points and stations, as `IAutoMovieSweepBinding` names them; omitted, the sweep stays at rest.
- * @param props.preserveVolume Whether posing restores the rest volume at joint stations.
+ * @param props.sweep The sweep, only read and retained through its compiled
+ *   surface.
+ * @param props.binding Bone indices of its spine points and stations, as
+ *   `IAutoMovieSweepBinding` names them; omitted, the sweep stays at rest.
+ * @param props.preserveVolume Whether posing restores the rest volume at joint
+ *   stations.
  * @returns The rig, open for registration.
- * @throws Error when `compileAutoMovieSweep` refuses the sweep, the binding does not align with it, a slot is registered after `seal`, or a probe cell is negative or nonfinite; and from `pose` whatever the spine transport refuses.
+ * @throws Error when `compileAutoMovieSweep` refuses the sweep, the binding
+ *   does not align with it, a slot is registered after `seal`, or a probe cell
+ *   is negative or nonfinite; and from `pose` whatever the spine transport
+ *   refuses.
  */
 export const rigAutoMovieSweep: (
   props: IAutoMovieRigSweep.IProps,
@@ -448,7 +457,10 @@ export const rigAutoMovieSweep: (
   return rig;
 };
 
-/** One fixed-footprint differential probe; writers own only precompiled sampling terms. */
+/**
+ * One fixed-footprint differential probe; writers own only precompiled sampling
+ * terms.
+ */
 interface IProbe {
   points: Array<(out: Float64Array, at: number) => void>;
   span: number;

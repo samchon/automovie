@@ -3,17 +3,17 @@ import type { AutoMovieVector3Tuple } from "@automovie/interface";
 import { prepareLinearSystem } from "../../math/prepareLinearSystem";
 
 /**
- * The vector algebra the solid operators share: world vectors in millimetres
- * as fixed triples, and the 3 by 3 and 2 by 2 linear solves their Newton steps
+ * The vector algebra the solid operators share: world vectors in millimetres as
+ * fixed triples, and the 3 by 3 and 2 by 2 linear solves their Newton steps
  * take.
  *
- * Inputs are read without mutation; vector results are fresh tuples. The
- * fixed 2 by 2 and 3 by 3 solves use Cramer's rule, and the general solve
- * uses partial-pivot Gaussian elimination. Their relative rejection tests
- * identify numerically small determinants or pivots, not exact rank or a
- * certified error bound. Callers supply finite, consistently scaled values
- * whose intermediate products remain representable, and decide what a null
- * solve means for the contact or chart they are constructing.
+ * Inputs are read without mutation; vector results are fresh tuples. The fixed
+ * 2 by 2 and 3 by 3 solves use Cramer's rule, and the general solve uses
+ * partial-pivot Gaussian elimination. Their relative rejection tests identify
+ * numerically small determinants or pivots, not exact rank or a certified error
+ * bound. Callers supply finite, consistently scaled values whose intermediate
+ * products remain representable, and decide what a null solve means for the
+ * contact or chart they are constructing.
  */
 export namespace AutoMovieSolidVector {
   /**
@@ -23,7 +23,10 @@ export namespace AutoMovieSolidVector {
    * @param b Second vector.
    * @returns `a + b`.
    */
-  export function add(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
+  export function add(
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+  ): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
@@ -34,7 +37,10 @@ export namespace AutoMovieSolidVector {
    * @param b Second vector.
    * @returns `a - b`.
    */
-  export function sub(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
+  export function sub(
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+  ): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
@@ -45,7 +51,10 @@ export namespace AutoMovieSolidVector {
    * @param k The scalar.
    * @returns `k a`.
    */
-  export function scale(a: Readonly<AutoMovieVector3Tuple>, k: number): AutoMovieVector3Tuple {
+  export function scale(
+    a: Readonly<AutoMovieVector3Tuple>,
+    k: number,
+  ): AutoMovieVector3Tuple {
     return [a[0] * k, a[1] * k, a[2] * k];
   }
 
@@ -74,7 +83,10 @@ export namespace AutoMovieSolidVector {
    * @param b Second vector.
    * @returns `a . b`.
    */
-  export function dot(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): number {
+  export function dot(
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+  ): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
@@ -85,7 +97,10 @@ export namespace AutoMovieSolidVector {
    * @param b Second vector.
    * @returns `a x b`.
    */
-  export function cross(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
+  export function cross(
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+  ): AutoMovieVector3Tuple {
     return [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
@@ -106,13 +121,14 @@ export namespace AutoMovieSolidVector {
   /**
    * The unit vector along a vector.
    *
-   * @param a The vector.
-   * The unit-length result requires a finite representable positive norm;
-   * this routine does not apply max-component scaling for extreme inputs.
-   *
+   * @param a The vector. The unit-length result requires a finite representable
+   *   positive norm; this routine does not apply max-component scaling for
+   *   extreme inputs.
    * @returns `a / |a|` when the computed norm is positive, otherwise null.
    */
-  export function unit(a: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple | null {
+  export function unit(
+    a: Readonly<AutoMovieVector3Tuple>,
+  ): AutoMovieVector3Tuple | null {
     const l: number = norm(a);
     return l > 0 ? [a[0] / l, a[1] / l, a[2] / l] : null;
   }
@@ -125,8 +141,8 @@ export namespace AutoMovieSolidVector {
    * @param c1 Second column.
    * @param c2 Third column.
    * @param b Right-hand side.
-   * @returns `x`, or null when the determinant is under `1e-14` of the
-   *   product of the columns' lengths (the columns nearly coplanar).
+   * @returns `x`, or null when the determinant is under `1e-14` of the product
+   *   of the columns' lengths (the columns nearly coplanar).
    */
   export function solve3(
     c0: Readonly<AutoMovieVector3Tuple>,
@@ -145,16 +161,16 @@ export namespace AutoMovieSolidVector {
   }
 
   /**
-   * The solution of the symmetric or general 2 by 2 system
-   * `[[a, b], [c, d]] x = r` by Cramer's rule.
+   * The solution of the symmetric or general 2 by 2 system `[[a, b], [c, d]] x
+   * = r` by Cramer's rule.
    *
    * @param a Row 1, column 1.
    * @param b Row 1, column 2.
    * @param c Row 2, column 1.
    * @param d Row 2, column 2.
    * @param r Right-hand side.
-   * @returns `x`, or null when the determinant is under `1e-14` of
-   *   `|a d| + |b c|`.
+   * @returns `x`, or null when the determinant is under `1e-14` of `|a d| + |b
+   *   c|`.
    */
   export function solve2(
     a: number,
@@ -176,8 +192,8 @@ export namespace AutoMovieSolidVector {
    *
    * @param rows The matrix by rows, square; not modified.
    * @param b Right-hand side.
-   * @returns `x`, or null when a pivot falls under `1e-14` of the largest
-   *   entry of the matrix (the rows nearly dependent).
+   * @returns `x`, or null when a pivot falls under `1e-14` of the largest entry
+   *   of the matrix (the rows nearly dependent).
    */
   export function solve(
     rows: readonly (readonly number[])[],

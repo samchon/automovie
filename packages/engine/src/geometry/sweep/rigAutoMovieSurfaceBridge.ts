@@ -12,27 +12,31 @@ import type {
  * second by the cubic Hermite curve `h00 A + h10 m T_A + h01 B + h11 m T_B`,
  * `m` the tension times the chord, row `j` at `t = j / rows`. A loop point's
  * direction follows its loop's rule: at a sweep point the sweep's outward
- * normal for `normal`, its opposite for `inward`, and its unit derivative
- * along the spine, forward or backward, for `forward` and `backward`; at a
- * curve point the curve's declared direction. Under `across` the direction is
- * the normal, the sweep's or the curve's blended one, crossed with the loop's
- * chord between the points one first-row length, `m / rows`, before and
- * after it along the loop, at least reaching both neighbours. That chord is
- * the loop's tangent at the scale of the first row, so near a corner of the
- * loop the columns turn over the points within one row of it rather than at
- * the corner alone, and no column overtakes its neighbour.
+ * normal for `normal`, its opposite for `inward`, and its unit derivative along
+ * the spine, forward or backward, for `forward` and `backward`; at a curve
+ * point the curve's declared direction. Under `across` the direction is the
+ * normal, the sweep's or the curve's blended one, crossed with the loop's chord
+ * between the points one first-row length, `m / rows`, before and after it
+ * along the loop, at least reaching both neighbours. That chord is the loop's
+ * tangent at the scale of the first row, so near a corner of the loop the
+ * columns turn over the points within one row of it rather than at the corner
+ * alone, and no column overtakes its neighbour.
  *
- * @param props.from The first loop's points, in order; their `sweep` and `curve` decide directions.
+ * @param props.from The first loop's points, in order; their `sweep` and
+ *   `curve` decide directions.
  * @param props.to The second loop's points, the same count.
  * @param props.fromIndex Vertex index of each first-loop point.
  * @param props.toIndex Vertex index of each second-loop point.
  * @param props.fromRule The first loop's tangent rule.
  * @param props.toRule The second loop's tangent rule.
- * @param props.probes Probe slot of each sweep point of both loops, first loop then second, -1 for a curve point.
+ * @param props.probes Probe slot of each sweep point of both loops, first loop
+ *   then second, -1 for a curve point.
  * @param props.rows Faces along each column.
  * @param props.tension Tangent length over chord length.
- * @param props.interior Vertex index of row `j` of column `k` at `k * (rows - 1) + j - 1`.
- * @returns The writer, which reads the loops' vertices and writes the interior into the same buffer.
+ * @param props.interior Vertex index of row `j` of column `k` at `k * (rows -
+ *   1) + j - 1`.
+ * @returns The writer, which reads the loops' vertices and writes the interior
+ *   into the same buffer.
  */
 export const rigAutoMovieSurfaceBridge: (
   props: IAutoMovieRigSurfaceBridge.IProps,

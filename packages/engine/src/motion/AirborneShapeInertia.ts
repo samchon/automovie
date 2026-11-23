@@ -9,7 +9,8 @@ import { physicalPrincipalAxes } from "../physics/physicalPrincipalAxes";
 import type { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 
 /** Only this owner can issue an unobserved numeric tensor capability. */
-const OWNERS: WeakMap<IAutoMovieIntegrateAirborneRotation.IInstant, IState> = new WeakMap();
+const OWNERS: WeakMap<IAutoMovieIntegrateAirborneRotation.IInstant, IState> =
+  new WeakMap();
 
 /** One private tensor, its original accessor and an optional lazy factor. */
 interface IState {
@@ -47,7 +48,13 @@ export function AirborneShapeInertia(
   statistics?: AirborneShapeStatistics.IStatistics,
   factor?: physicalInertiaFactor.IPrepared | null,
 ): IAutoMovieIntegrateAirborneRotation.IInstant {
-  const state: IState = { matrix, get: undefined, set: undefined, observed: false, statistics };
+  const state: IState = {
+    matrix,
+    get: undefined,
+    set: undefined,
+    observed: false,
+    statistics,
+  };
   if (factor !== undefined) state.factor = factor;
   let principal: IAutoMoviePrincipalTensorFrame | undefined;
   const instant: IAutoMovieIntegrateAirborneRotation.IInstant = {
@@ -56,7 +63,9 @@ export function AirborneShapeInertia(
       state.factor = undefined;
       if (principal === undefined) {
         if (state.statistics !== undefined) state.statistics.publicJacobi++;
-        principal = physicalPrincipalAxes(matrix.map((row: number[]): number[] => [...row]));
+        principal = physicalPrincipalAxes(
+          matrix.map((row: number[]): number[] => [...row]),
+        );
       }
       return principal;
     },
@@ -67,27 +76,29 @@ export function AirborneShapeInertia(
     },
     relative,
   };
-  const descriptor: PropertyDescriptor = Object.getOwnPropertyDescriptor(instant, "inertia")!;
+  const descriptor: PropertyDescriptor = Object.getOwnPropertyDescriptor(
+    instant,
+    "inertia",
+  )!;
   state.get = descriptor.get;
   state.set = descriptor.set;
   OWNERS.set(instant, state);
   return instant;
 }
 
-/**
- * Numerical access belongs only to unchanged, unobserved issued instants.
- */
+/** Numerical access belongs only to unchanged, unobserved issued instants. */
 export namespace AirborneShapeInertia {
   /**
-   * Borrow the immutable factor only while the tensor is privately authoritative.
-   *
+   * Borrow the immutable factor only while the tensor is privately
+   * authoritative.
    */
   export function factor(
     instant: IAutoMovieIntegrateAirborneRotation.IInstant,
   ): physicalInertiaFactor.IPrepared | undefined {
     const state: IState | undefined = OWNERS.get(instant);
     if (state === undefined || state.observed) return undefined;
-    const descriptor: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(instant, "inertia");
+    const descriptor: PropertyDescriptor | undefined =
+      Object.getOwnPropertyDescriptor(instant, "inertia");
     if (descriptor?.get !== state.get || descriptor?.set !== state.set) {
       state.observed = true;
       state.factor = undefined;
@@ -100,11 +111,10 @@ export namespace AirborneShapeInertia {
     return state.factor ?? undefined;
   }
 
-  /**
-   * End numeric eligibility while leaving an issued public instant readable.
-   *
-   */
-  export function release(instant: IAutoMovieIntegrateAirborneRotation.IInstant): void {
+  /** End numeric eligibility while leaving an issued public instant readable. */
+  export function release(
+    instant: IAutoMovieIntegrateAirborneRotation.IInstant,
+  ): void {
     const state: IState | undefined = OWNERS.get(instant);
     if (state !== undefined) {
       state.factor = undefined;

@@ -4,14 +4,14 @@ import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3
 
 /**
  * Prepare fixed half-plane directions for independent changing-offset queries.
- * Copy the admitted finite unit normals and compute every exact nonparallel pair
- * once. A successful polygon supplies only a cyclic active-edge seed. Its next
- * intersections must satisfy every current inequality before that seed can be
- * reused; otherwise full pair enumeration replaces it. Bounded active normals
- * and feasible cyclic corners prove the seed polygon equals the intersection.
- * Every tight nonparallel pair still receives the weak-direction check.
- * A conservative fixed-normal range certificate admits lazy coordinates only
- * when every pair is finite; uncertified offsets retain full preflight.
+ * Copy the admitted finite unit normals and compute every exact nonparallel
+ * pair once. A successful polygon supplies only a cyclic active-edge seed. Its
+ * next intersections must satisfy every current inequality before that seed can
+ * be reused; otherwise full pair enumeration replaces it. Bounded active
+ * normals and feasible cyclic corners prove the seed polygon equals the
+ * intersection. Every tight nonparallel pair still receives the weak-direction
+ * check. A conservative fixed-normal range certificate admits lazy coordinates
+ * only when every pair is finite; uncertified offsets retain full preflight.
  * Offsets and output vertices are never cached or shared between queries.
  * Callers bound the plane population and supply bounded section charts.
  */

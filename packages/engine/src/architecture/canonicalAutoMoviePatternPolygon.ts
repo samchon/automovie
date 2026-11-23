@@ -9,7 +9,10 @@ import { convexHull2D } from "../math/convexHull2D";
  * Canonicalize an authored face-local polygon to a counter-clockwise convex
  * outline, or throw.
  *
- * Treats the input as an unordered point set and compares hull/input counts. Interior, duplicate and collinear points dropped by the hull cause refusal. Authored boundary order is discarded: even a self-crossing ordering of convex-position points can be accepted and reordered.
+ * Treats the input as an unordered point set and compares hull/input counts.
+ * Interior, duplicate and collinear points dropped by the hull cause refusal.
+ * Authored boundary order is discarded: even a self-crossing ordering of
+ * convex-position points can be accepted and reordered.
  *
  * Throws an `Error` prefixed with `label` for a non-finite corner, for fewer
  * than three non-collinear corners, and for any corner the hull drops.

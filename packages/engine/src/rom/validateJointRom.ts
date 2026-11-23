@@ -12,7 +12,10 @@ import { abductionRange } from "./abductionRange";
 import { scanJointRom } from "./scanJointRom";
 
 /**
- * Append axis range/ROM violations and a combined swing violation to the caller's collector. Null angles mean rest and contribute zero to swing; immobile axes admit null/zero. Field paths and degree overshoots preserve correction provenance, while constraint admission is separate.
+ * Append axis range/ROM violations and a combined swing violation to the
+ * caller's collector. Null angles mean rest and contribute zero to swing;
+ * immobile axes admit null/zero. Field paths and degree overshoots preserve
+ * correction provenance, while constraint admission is separate.
  */
 export const validateJointRom: (
   props: IAutoMovieValidateJointRom.IProps,

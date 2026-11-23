@@ -11,7 +11,10 @@ import { Vector3 } from "../math/Vector3";
 import { physicalHullFaces } from "./physicalHullFaces";
 
 /**
- * A collider's exact support surface in a specified bone-local outward direction. Capsule ties select the segment midpoint rather than an arbitrary cap; boxes select the face centre on tied coordinates; hulls select the mean of the tied vertices.
+ * A collider's exact support surface in a specified bone-local outward
+ * direction. Capsule ties select the segment midpoint rather than an arbitrary
+ * cap; boxes select the face centre on tied coordinates; hulls select the mean
+ * of the tied vertices.
  */
 export function physicalShapeSurfaceAnchor(
   pose: IAutoMovieRigidTransform,

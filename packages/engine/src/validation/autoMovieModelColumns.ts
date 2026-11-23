@@ -15,9 +15,7 @@ import {
 import { PRIMITIVE_RADIAL_SEGMENTS } from "../geometry/constants/PRIMITIVE_RADIAL_SEGMENTS";
 import { PRIMITIVE_SPHERE_RINGS } from "../geometry/constants/PRIMITIVE_SPHERE_RINGS";
 
-/**
- * Measure filled rest-axis cores of the engine's tessellated primitive solids.
- */
+/** Measure filled rest-axis cores of the engine's tessellated primitive solids. */
 export const autoMovieModelColumns: (
   model: Pick<IAutoMovieModel, "parts" | "skeleton">,
 ) => IAutoMovieModelColumn[] = (
@@ -43,9 +41,9 @@ export const autoMovieModelColumns: (
  * A bone is on that axis when it and every bone above it rest with no sideways
  * displacement and no turn out of the vertical, which is exactly when adding up
  * the chain's heights gives the bone's real resting height. A bone that fails
- * either test, has nonunit scale or nonisometric yaw, or has an omitted parent, is absent: its parts are
- * then not measured, which costs the gate a column and never gives it a wrong
- * one.
+ * either test, has nonunit scale or nonisometric yaw, or has an omitted parent,
+ * is absent: its parts are then not measured, which costs the gate a column and
+ * never gives it a wrong one.
  *
  * Resolved by repeated passes rather than by walking parents, because bones are
  * not required to be listed above their children, and a chain that never
@@ -147,7 +145,10 @@ const axialPartColumn: (
 /** The scale a part with no transform of its own is drawn at. */
 const UNIT_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
-/** Half-extents of the primitive envelope for scaled-envelope admission; the capsule's conservative admission requires a finite total H+2R. */
+/**
+ * Half-extents of the primitive envelope for scaled-envelope admission; the
+ * capsule's conservative admission requires a finite total H+2R.
+ */
 function primitiveOuterExtents(
   geometry: IAutoMovieGeometry,
 ): IAutoMovieVector3 | null {
@@ -212,7 +213,13 @@ const vertical: (value: { x: number; z: number }) => boolean = (value: {
   z: number;
 }): boolean => value.x === 0 && value.z === 0;
 
-/** A pure axial TRS matrix preserves horizontal lengths only when hypot(1-2*y*y,2*y*w) is one. Near-unit admission permits shrinkage or expansion, so those frames are omitted without an epsilon or quaternion repair. Binary64 equality can also omit a mathematically unit authored rotation after rounding. */
+/**
+ * A pure axial TRS matrix preserves horizontal lengths only when
+ * hypot(1-2_y_y,2_y_w) is one. Near-unit admission permits shrinkage or
+ * expansion, so those frames are omitted without an epsilon or quaternion
+ * repair. Binary64 equality can also omit a mathematically unit authored
+ * rotation after rounding.
+ */
 function axialIsometry(rotation: IAutoMovieQuaternion): boolean {
   return (
     vertical(rotation) &&

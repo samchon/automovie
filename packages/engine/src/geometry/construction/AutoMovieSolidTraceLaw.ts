@@ -10,19 +10,26 @@ import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 const { add, cross, dot, scale, sub } = AutoMovieSolidVector;
 
 /**
- * The parameter laws of an intersection trace (`AutoMovieSolidIntersection`): the fourth equation `g(P, phi, t) = 0` that fixes which point of the curve a parameter `t` names, with the derivatives the trace's Newton step and its second-order prediction read.
+ * The parameter laws of an intersection trace (`AutoMovieSolidIntersection`):
+ * the fourth equation `g(P, phi, t) = 0` that fixes which point of the curve a
+ * parameter `t` names, with the derivatives the trace's Newton step and its
+ * second-order prediction read.
  *
- * Phase gives g=phi-t; angle gives g=(P-c).m(t), a rotating plane equation whose branch is selected by the seed/continuation. Requested arc mode uses g=(P-Q(t)).Q'(t), the normal plane of a periodic spline through equal-chord walked points. That guide parameter approximates arclength rather than proving exact constant speed on the realized intersection.
+ * Phase gives g=phi-t; angle gives g=(P-c).m(t), a rotating plane equation
+ * whose branch is selected by the seed/continuation. Requested arc mode uses
+ * g=(P-Q(t)).Q'(t), the normal plane of a periodic spline through equal-chord
+ * walked points. That guide parameter approximates arclength rather than
+ * proving exact constant speed on the realized intersection.
  */
 export namespace AutoMovieSolidTraceLaw {
   /**
    * The reference-guide law used for requested arc parameterization through
-   * equal-chord walked points; it is not an exact arclength reparameterization. The
-   * periodic cubic B-spline `Q` through them (`AutoMovieSplineCurve`'s
-   * interpolation, component by component), and `g = (P - Q(t)) . Q'(t)`,
-   * whose zero is the point's foot on `Q`. With `P' = A_s s' + A_phi phi'`:
-   * `g_t = -Q' . Q' + (P - Q) . Q''` and, past the terms of `J x''` and
-   * `Q_A . Q'`, `d^2 g / dt^2` keeps `2 P' . Q'' - 3 Q' . Q'' + (P - Q) . Q'''`.
+   * equal-chord walked points; it is not an exact arclength reparameterization.
+   * The periodic cubic B-spline `Q` through them (`AutoMovieSplineCurve`'s
+   * interpolation, component by component), and `g = (P - Q(t)) . Q'(t)`, whose
+   * zero is the point's foot on `Q`. With `P' = A_s s' + A_phi phi'`: `g_t =
+   * -Q' . Q' + (P - Q) . Q''` and, past the terms of `J x''` and `Q_A . Q'`,
+   * `d^2 g / dt^2` keeps `2 P' . Q'' - 3 Q' . Q'' + (P - Q) . Q'''`.
    *
    * @param points The loop's equal-chord points, mm.
    * @returns The law.
@@ -119,7 +126,8 @@ export namespace AutoMovieSolidTraceLaw {
   }
 
   /**
-   * The law of the phase or the angle parameter; the arc parameter's law needs the walked loop ({@link arc}).
+   * The law of the phase or the angle parameter; the arc parameter's law needs
+   * the walked loop ({@link arc}).
    *
    * @param parameter The parameter.
    * @returns The law, or null for the arc parameter or a degenerate axis.

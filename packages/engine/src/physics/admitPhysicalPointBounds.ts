@@ -9,7 +9,8 @@ import type {
 import { isPhysicalActuatorChain } from "./isPhysicalActuatorChain";
 
 /**
- * Admit candidate-relative point intervals without inventing anatomy, axes or a goal point.
+ * Admit candidate-relative point intervals without inventing anatomy, axes or a
+ * goal point.
  */
 export function admitPhysicalPointBounds(
   profiles: Readonly<Record<string, IAutoMoviePhysicalProfile>>,

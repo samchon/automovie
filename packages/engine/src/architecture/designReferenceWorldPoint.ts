@@ -14,9 +14,17 @@ const AXIS_EPSILON: number = 1e-12;
 /**
  * Map one source-space point onto world metres through its frame.
  *
- * With `s` the settled metres-per-unit, the point becomes `origin` plus normalized `axisX` times `(x - anchor.x) * s` plus normalized `axisY` times `(y - anchor.y) * s`. Optional placement applies scale, normalized rotation, then translation. Non-orthogonal axes retain their skew. An axis no longer than `1e-12` is used unchanged: only a zero axis removes its coordinate contribution; `validateDesignReference` refuses these short axes. Finite inputs can still overflow intermediate subtraction, length or multiplication, so this mapping does not certify a finite result.
+ * With `s` the settled metres-per-unit, the point becomes `origin` plus
+ * normalized `axisX` times `(x - anchor.x) * s` plus normalized `axisY` times
+ * `(y - anchor.y) * s`. Optional placement applies scale, normalized rotation,
+ * then translation. Non-orthogonal axes retain their skew. An axis no longer
+ * than `1e-12` is used unchanged: only a zero axis removes its coordinate
+ * contribution; `validateDesignReference` refuses these short axes. Finite
+ * inputs can still overflow intermediate subtraction, length or multiplication,
+ * so this mapping does not certify a finite result.
  *
- * Throws an `Error` when the frame's scale is unsettled: producing a number there is the exact failure this whole graph exists to prevent.
+ * Throws an `Error` when the frame's scale is unsettled: producing a number
+ * there is the exact failure this whole graph exists to prevent.
  *
  * @param frame Frame the point was read in.
  * @param point Source-space point in the frame's own units.

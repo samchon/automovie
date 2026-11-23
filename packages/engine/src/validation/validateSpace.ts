@@ -24,11 +24,15 @@ const SURFACE_KINDS: readonly ["floor", "platform", "ramp"] = [
 ] as const;
 const MIN_RAMP_AXIS: number = 1e-9;
 
-/** Absolute double-plan-area admission threshold of 1e-9 square metres; very small nonzero rings are deliberately refused. */
+/**
+ * Absolute double-plan-area admission threshold of 1e-9 square metres; very
+ * small nonzero rings are deliberately refused.
+ */
 const MIN_RING_DOUBLE_AREA: number = 1e-9;
 
 /**
- * Admit ids and kinds, finite XZ footprint rings with strictly interior disjoint holes, one ground rule and optional opaque color.
+ * Admit ids and kinds, finite XZ footprint rings with strictly interior
+ * disjoint holes, one ground rule and optional opaque color.
  */
 export const validateSpace: (
   props: IAutoMovieValidateSpace.IProps,
@@ -89,7 +93,8 @@ export const validateSpace: (
 /**
  * Check the closed surface kind then delegate footprint and ground admission.
  *
- * Kind, footprint and height responsibilities are separated by the existing surface schema.
+ * Kind, footprint and height responsibilities are separated by the existing
+ * surface schema.
  *
  * Unknown kinds append an error without repairing the surface.
  *
@@ -144,11 +149,13 @@ const validateSurface: (
 };
 
 /**
- * Build an admitted outer ring and each hole, then require strict nesting and pairwise nonoverlap.
+ * Build an admitted outer ring and each hole, then require strict nesting and
+ * pairwise nonoverlap.
  *
  * Each ring is built once and reused for containment/contact comparisons.
  *
- * A touching hole is refused; concave outer footprints remain supported rather than convexified.
+ * A touching hole is refused; concave outer footprints remain supported rather
+ * than convexified.
  *
  * Hole paths identify outside/touching/overlapping authored rings.
  *
@@ -156,7 +163,8 @@ const validateSurface: (
  *
  * Admitted ring objects share geometric facts across all comparisons.
  *
- * Temporary ring/hole arrays release; the collector retains faults and borrowed authored rings.
+ * Temporary ring/hole arrays release; the collector retains faults and borrowed
+ * authored rings.
  */
 const validateSurfaceFootprint: (
   surface: IAutoMovieSurface,
@@ -209,17 +217,21 @@ const validateSurfaceFootprint: (
 };
 
 /**
- * Ask hole vertices against the outer ring and outer vertices against the hole for boundary classification.
+ * Ask hole vertices against the outer ring and outer vertices against the hole
+ * for boundary classification.
  *
- * Both directions catch flush hole edges and reflex outer vertices touching hole edges.
+ * Both directions catch flush hole edges and reflex outer vertices touching
+ * hole edges.
  *
- * Containment is a caller premise; this vertex-boundary test is not a generic segment intersection solver.
+ * Containment is a caller premise; this vertex-boundary test is not a generic
+ * segment intersection solver.
  *
  * The boolean answers contact between already nested admitted rings.
  *
  * H/O vertices each perform the other ring's classification, O(HO) worst-case.
  *
- * footprintRingPlacement shares the canonical boundary policy with space queries.
+ * FootprintRingPlacement shares the canonical boundary policy with space
+ * queries.
  *
  * Rings are borrowed and only a boolean escapes.
  */
@@ -240,11 +252,14 @@ const ringsTouch: (
   );
 
 /**
- * Check finite XZ coordinates, at least three points, absolute double area above1e-9 and polygon simplicity.
+ * Check finite XZ coordinates, at least three points, absolute double area
+ * above1e-9 and polygon simplicity.
  *
- * footprintRing produces plan/area once and polygonIsSimple owns crossing admission.
+ * FootprintRing produces plan/area once and polygonIsSimple owns crossing
+ * admission.
  *
- * Y is ignored and the fixed area threshold is an absolute square-metre policy, not exact zero classification.
+ * Y is ignored and the fixed area threshold is an absolute square-metre policy,
+ * not exact zero classification.
  *
  * Null prevents invalid rings from entering later containment comparisons.
  *
@@ -252,7 +267,8 @@ const ringsTouch: (
  *
  * The admitted ring is reused by containment/contact owners.
  *
- * Only a ring descriptor returns; points are borrowed and the collector owns faults.
+ * Only a ring descriptor returns; points are borrowed and the collector owns
+ * faults.
  */
 const validateRing: (
   points: readonly IAutoMovieVector3[],
@@ -311,17 +327,21 @@ const validateRing: (
 };
 
 /**
- * Require exactly one height rule or anchor/rampTo statement and check finite anchors/nondegenerate ramp axis.
+ * Require exactly one height rule or anchor/rampTo statement and check finite
+ * anchors/nondegenerate ramp axis.
  *
  * Height-rule and anchor owners retain their own scalar requirements.
  *
- * Squared XZ ramp distance below1e-9 is a fixed degeneracy policy, not a1nm linear threshold.
+ * Squared XZ ramp distance below1e-9 is a fixed degeneracy policy, not a1nm
+ * linear threshold.
  *
  * Missing/conflicting ground and exact field paths are documented.
  *
- * Rule lattice size drives delegated scans; anchor/ramp arithmetic is fixed-size.
+ * Rule lattice size drives delegated scans; anchor/ramp arithmetic is
+ * fixed-size.
  *
- * Height and finite-anchor helpers are reused rather than another ground evaluator.
+ * Height and finite-anchor helpers are reused rather than another ground
+ * evaluator.
  *
  * Only collector faults remain; no height sampler/cache or mesh is retained.
  */
@@ -386,9 +406,11 @@ const validateSurfaceGround: (
  *
  * Three finite tests cost constant work.
  *
- * Anchor and ramp endpoint share this admission rather than divergent vector checks.
+ * Anchor and ramp endpoint share this admission rather than divergent vector
+ * checks.
  *
- * Only caller-owned diagnostics remain; no anchor record is retained internally.
+ * Only caller-owned diagnostics remain; no anchor record is retained
+ * internally.
  */
 const validateAnchor: (
   anchor: IAutoMovieVector3,

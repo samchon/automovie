@@ -16,9 +16,7 @@ import { ViolationCollector } from "./ViolationCollector";
 
 const DEFAULT_MARGIN: number = 0.02;
 
-/**
- * Advise a topple when an XZ center lies beyond a support hull and margin.
- */
+/** Advise a topple when an XZ center lies beyond a support hull and margin. */
 export const detectSupportToppling: (
   props: IAutoMovieDetectSupportToppling.IProps,
 ) => IAutoMovieSupportResult = (

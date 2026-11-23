@@ -6,9 +6,7 @@ import type {
   IAutoMovieShotEventContract,
 } from "@automovie/interface";
 
-/**
- * Resolve adopted source trims against already retained picture events.
- */
+/** Resolve adopted source trims against already retained picture events. */
 export function resolveProductionSoundEventCues(
   props: IAutoMovieDeriveProductionSoundPlan.IProps,
   events: readonly IAutoMovieProductionSoundEvent[],

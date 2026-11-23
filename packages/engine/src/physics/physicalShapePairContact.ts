@@ -16,17 +16,17 @@ import { physicalShapePenetration } from "./physicalShapePenetration";
  * The contact between two convex colliders: their signed distance, the unit
  * normal from the first toward the second and each one's surface witness.
  *
- * Two convex solids come nearest on a vertex or an edge of one of them, or
- * on the axis of a round one (Ericson, "Real-Time Collision Detection",
- * 2005, ch. 5 and 9), so the contact is the least, over both shapes' wire
- * frames (`physicalShapePairDistance.wires`), of the wire's signed distance
- * to the other solid (`physicalShapeNearest`) less the wire's radius. The
- * witness on the other solid is its nearest surface point; the witness on
- * the wire's own shape lies one radius from the wire toward it. Overlapping,
- * a wire whose core lies inside the other solid bounds the depth only from
- * below, so the depth, direction and witnesses are the Expanding Polytope
- * Algorithm's (`physicalShapePenetration`); a round wire whose core stays
- * outside keeps the exact core distance less its radius.
+ * Two convex solids come nearest on a vertex or an edge of one of them, or on
+ * the axis of a round one (Ericson, "Real-Time Collision Detection", 2005, ch.
+ * 5 and 9), so the contact is the least, over both shapes' wire frames
+ * (`physicalShapePairDistance.wires`), of the wire's signed distance to the
+ * other solid (`physicalShapeNearest`) less the wire's radius. The witness on
+ * the other solid is its nearest surface point; the witness on the wire's own
+ * shape lies one radius from the wire toward it. Overlapping, a wire whose core
+ * lies inside the other solid bounds the depth only from below, so the depth,
+ * direction and witnesses are the Expanding Polytope Algorithm's
+ * (`physicalShapePenetration`); a round wire whose core stays outside keeps the
+ * exact core distance less its radius.
  *
  * @param poseA The first shape's parent pose, world metres.
  * @param shapeA The first shape.
@@ -107,9 +107,7 @@ export function physicalShapePairContact(
   return best!;
 }
 
-/**
- * Companion types of {@link physicalShapePairContact}.
- */
+/** Companion types of {@link physicalShapePairContact}. */
 export namespace physicalShapePairContact {
   /** A contact between two convex colliders, world metres. */
   export interface IResult {

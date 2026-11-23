@@ -23,10 +23,10 @@ import { validateDeclaredReferences } from "../validation/validateDeclaredRefere
  * stale, and refused, when its stamp names a revision other than `head`, an
  * unknown variant, a variant based on another revision, or an unknown phase;
  * when an input artifact was stamped differently; when it reads an input
- * subject carrying imported bytes without citing exactly that subject's
- * current digest once; or when it cites bytes of a subject that is not such an
- * input. The input graph must be acyclic. Within one decision, two artifacts
- * of the same kind stamped with that decision's alternatives must share a
+ * subject carrying imported bytes without citing exactly that subject's current
+ * digest once; or when it cites bytes of a subject that is not such an input.
+ * The input graph must be acyclic. Within one decision, two artifacts of the
+ * same kind stamped with that decision's alternatives must share a
  * configuration and a phase, because a comparison shot under two cameras
  * compares the cameras.
  *

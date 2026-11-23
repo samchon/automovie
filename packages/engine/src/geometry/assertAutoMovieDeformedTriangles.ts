@@ -1,22 +1,23 @@
 /**
  * Admit every emitted triangle of a deformed mesh by area and orientation.
  *
- * For each triangle of `indices`, the source and deformed area vectors over
- * the same three vertices must be finite and nonzero. The source unit normal
- * is transported through each corner's cofactor matrix (row-major, nine
- * entries per vertex) and must stay finite and nonzero there, its direction
- * kept by rescaling when only its norm overflows; the deformed normal must
- * agree positively with the sum of the three unit transported normals. Positions are flat XYZ in one frame. A failure throws and names the
- * triangle ordinal, and for a transport failure the vertex; inputs are read
- * only. Every index must address a vertex of all four arrays, which
- * `createAutoMovieMeshDeformer` checks before calling.
+ * For each triangle of `indices`, the source and deformed area vectors over the
+ * same three vertices must be finite and nonzero. The source unit normal is
+ * transported through each corner's cofactor matrix (row-major, nine entries
+ * per vertex) and must stay finite and nonzero there, its direction kept by
+ * rescaling when only its norm overflows; the deformed normal must agree
+ * positively with the sum of the three unit transported normals. Positions are
+ * flat XYZ in one frame. A failure throws and names the triangle ordinal, and
+ * for a transport failure the vertex; inputs are read only. Every index must
+ * address a vertex of all four arrays, which `createAutoMovieMeshDeformer`
+ * checks before calling.
  *
  * Compare a straight output face with the differential orientation of its
  * source face. Cofactors are det(J) * inverse(J)-transpose, so their positive
  * scalar does not alter orientation. Normalizing each transported face normal
  * before summation gives every corner equal weight, independent of local area
- * stretch. Comparing old and new area vectors directly would incorrectly
- * refuse an orientation-preserving bend that turns the face through 90 degrees.
+ * stretch. Comparing old and new area vectors directly would incorrectly refuse
+ * an orientation-preserving bend that turns the face through 90 degrees.
  *
  * Cross products have square-metre units; normalized orientation is unitless.
  * No absolute area epsilon excludes a small but representable triangle. A

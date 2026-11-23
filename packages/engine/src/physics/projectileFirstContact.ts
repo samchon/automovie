@@ -21,45 +21,48 @@ import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
 import { projectileShapeDeparture } from "./projectileShapeDeparture";
 
 /**
- * A projectile's first contact with any of several colliders over a span of
- * its flight: when, where on the struck surface, the surface's outward
- * normal there, and which collider.
+ * A projectile's first contact with any of several colliders over a span of its
+ * flight: when, where on the struck surface, the surface's outward normal
+ * there, and which collider.
  *
- * The projectile is a sphere about its flight's point, or a capsule from
- * that point to a tail fixed in its body (an arrow from its point back to
- * its nock), turned by its attitude. The sweep is the engine's one contact
- * resolver (`resolveAutoMovieContactEvents`) with the projectile as its
- * single weapon and each collider as a body measured by its own nearest-point
- * reading, so the scan, root refinement and the tie rule are the
- * resolver's. Its step is chosen from the flight so that the projectile
- * moves less than `thickness` in one step: `thickness` over the largest
- * speed any point of the projectile reaches in the span, which is the
- * larger end speed for a drag-free flight (the squared speed is convex in
- * time), including an explicit zero drag factor; positive drag uses the
- * flight's finite global bound (`projectileDragFlight.fastest`),
- * plus a spinning tail's turning speed. A collider thinner than `thickness`
- * can be crossed within one step: the stated blind spot, as the resolver
- * states its own. The point and the normal are the struck collider's
- * nearest-point reading against the projectile at the contact second. The
- * scan reads only signed separation and can defer the surface witness when
- * the collider supplies an equivalent scalar reader.
+ * The projectile is a sphere about its flight's point, or a capsule from that
+ * point to a tail fixed in its body (an arrow from its point back to its nock),
+ * turned by its attitude. The sweep is the engine's one contact resolver
+ * (`resolveAutoMovieContactEvents`) with the projectile as its single weapon
+ * and each collider as a body measured by its own nearest-point reading, so the
+ * scan, root refinement and the tie rule are the resolver's. Its step is chosen
+ * from the flight so that the projectile moves less than `thickness` in one
+ * step: `thickness` over the largest speed any point of the projectile reaches
+ * in the span, which is the larger end speed for a drag-free flight (the
+ * squared speed is convex in time), including an explicit zero drag factor;
+ * positive drag uses the flight's finite global bound
+ * (`projectileDragFlight.fastest`), plus a spinning tail's turning speed. A
+ * collider thinner than `thickness` can be crossed within one step: the stated
+ * blind spot, as the resolver states its own. The point and the normal are the
+ * struck collider's nearest-point reading against the projectile at the contact
+ * second. The scan reads only signed separation and can defer the surface
+ * witness when the collider supplies an equivalent scalar reader.
  *
  * Initial touch or penetration is reported by default. After resolving that
  * episode, `departing` names its collider. A fixed plane can then classify
- * departure for a sphere or fixed-attitude tail from the normal motion of
- * this flight, deferring only that pair until actual positive clearance or
- * proving no fresh entry in the span. Later reentry and other colliders keep
- * the original scan. A continuously bounded finite convex shape can certify
- * the same departure for a drag-free ball. Rotating tails and opaque
- * colliders retain initial reporting unless their physical model supplies a
- * certificate.
+ * departure for a sphere or fixed-attitude tail from the normal motion of this
+ * flight, deferring only that pair until actual positive clearance or proving
+ * no fresh entry in the span. Later reentry and other colliders keep the
+ * original scan. A continuously bounded finite convex shape can certify the
+ * same departure for a drag-free ball. Rotating tails and opaque colliders
+ * retain initial reporting unless their physical model supplies a certificate.
  *
  * @param projectile The flight.
- * @param colliders What it may meet; `projectileFirstContact.plane` and `projectileFirstContact.shape` build the common ones.
+ * @param colliders What it may meet; `projectileFirstContact.plane` and
+ *   `projectileFirstContact.shape` build the common ones.
  * @param span Seconds since launch the search covers.
- * @param options The projectile's radius and tail, thinnest collider and optional already-resolved initial collider.
- * @returns The first contact, or null when the flight meets nothing in the span.
- * @throws {RangeError} When the span is not finite and forward, thickness is not finite and positive, radius is not finite and non-negative, a tail lacks an attitude, or a departure certificate is invalid.
+ * @param options The projectile's radius and tail, thinnest collider and
+ *   optional already-resolved initial collider.
+ * @returns The first contact, or null when the flight meets nothing in the
+ *   span.
+ * @throws {RangeError} When the span is not finite and forward, thickness is
+ *   not finite and positive, radius is not finite and non-negative, a tail
+ *   lacks an attitude, or a departure certificate is invalid.
  */
 export function projectileFirstContact(
   projectile: IAutoMovieProjectile,
@@ -224,9 +227,7 @@ export function projectileFirstContact(
   };
 }
 
-/**
- * Companion types and collider builders of {@link projectileFirstContact}.
- */
+/** Companion types and collider builders of {@link projectileFirstContact}. */
 export namespace projectileFirstContact {
   /**
    * A fixed plane, solid on the side its normal points away from: the ground.
@@ -272,15 +273,16 @@ export namespace projectileFirstContact {
   }
 
   /**
-   * An admitted convex collider placed by a fixed frame or by a reading on
-   * the supplied flight clock. A continuous pose can certify an explicitly
-   * resolved departure for a positive-radius sphere on a drag-free flight.
-   * The proof only reaches an observed positive clearance for this pair.
-   * Missing continuous bounds preserve initial contact.
+   * An admitted convex collider placed by a fixed frame or by a reading on the
+   * supplied flight clock. A continuous pose can certify an explicitly resolved
+   * departure for a positive-radius sphere on a drag-free flight. The proof
+   * only reaches an observed positive clearance for this pair. Missing
+   * continuous bounds preserve initial contact.
    *
    * @param id The collider's id.
    * @param shape The shape, in its parent's frame.
-   * @param pose A fixed parent pose, an opaque pose reader or a continuously bounded pose path in launch seconds.
+   * @param pose A fixed parent pose, an opaque pose reader or a continuously
+   *   bounded pose path in launch seconds.
    * @returns The collider.
    */
   export function shape(

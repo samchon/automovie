@@ -11,28 +11,25 @@ type Point = (part: string, seconds: number) => IAutoMovieTransform;
 
 /**
  * Identity of an owned carrier clock and its stationary intervals. This
- * registry transports authored interval metadata and a same-time reader across the prop
- * adapter. It neither invokes unknown readers nor stores a fitted pose.
+ * registry transports authored interval metadata and a same-time reader across
+ * the prop adapter. It neither invokes unknown readers nor stores a fitted
+ * pose.
  */
 export namespace RigidCarrierSample {
-  /**
-   * The source clock and all parts are constant on this film interval.
-   */
+  /** The source clock and all parts are constant on this film interval. */
   export interface IHold {
     /** Lower film-clock bound, possibly negative infinity. */
     readonly from: number;
     /** Upper film-clock bound, possibly positive infinity. */
     readonly to: number;
     /**
-     * Test whether the film second belongs to this stationary domain, using
-     * the carrier producer's clock arithmetic for boundary inclusion.
+     * Test whether the film second belongs to this stationary domain, using the
+     * carrier producer's clock arithmetic for boundary inclusion.
      */
     contains(seconds: number): boolean;
   }
 
-  /**
-   * An independently callable root and socket reader with one owned clock.
-   */
+  /** An independently callable root and socket reader with one owned clock. */
   export interface IBinding {
     /** Rigid carrier frame in world space. */
     readonly motion: Motion;
@@ -40,15 +37,11 @@ export namespace RigidCarrierSample {
     readonly point: Point;
   }
 
-  /**
-   * Same-time outputs from one actual read of an authored carrier.
-   */
+  /** Same-time outputs from one actual read of an authored carrier. */
   export interface IRead {
     /** The carrier's actual world placement at this film second. */
     readonly frame: IAutoMovieRigidTransform;
-    /**
-     * A named material point in world space at the same film second.
-     */
+    /** A named material point in world space at the same film second. */
     point(id: string): IAutoMovieTransform;
   }
 
@@ -73,7 +66,8 @@ export namespace RigidCarrierSample {
   const adapted: WeakMap<IAutoMovieMotionHumanProp, IAdapted> = new WeakMap();
 
   /**
-   * Publish the producer's actual clock pair, its constant domains and any paired playback.
+   * Publish the producer's actual clock pair, its constant domains and any
+   * paired playback.
    */
   export function bind(
     model: object,
@@ -94,7 +88,8 @@ export namespace RigidCarrierSample {
   }
 
   /**
-   * Transfer domains and paired playback only for the actual callback pair from the same model.
+   * Transfer domains and paired playback only for the actual callback pair from
+   * the same model.
    */
   export function adapt(
     prop: IAutoMovieMotionHumanProp,
@@ -114,7 +109,8 @@ export namespace RigidCarrierSample {
   }
 
   /**
-   * Read source-authored domains while the adapted prop still owns both readers.
+   * Read source-authored domains while the adapted prop still owns both
+   * readers.
    */
   export function holds(
     prop: IAutoMovieMotionHumanProp,
@@ -123,8 +119,8 @@ export namespace RigidCarrierSample {
   }
 
   /**
-   * The producer's same-time playback body, when the current prop still
-   * owns its exact root and point reader pair. The caller chooses the second.
+   * The producer's same-time playback body, when the current prop still owns
+   * its exact root and point reader pair. The caller chooses the second.
    */
   export function playback(
     prop: IAutoMovieMotionHumanProp,
@@ -132,7 +128,10 @@ export namespace RigidCarrierSample {
     return current(prop)?.playback;
   }
 
-  /** The prop's still-current own callback pair, checked without calling getters. */
+  /**
+   * The prop's still-current own callback pair, checked without calling
+   * getters.
+   */
   function current(prop: IAutoMovieMotionHumanProp): IAdapted | undefined {
     const binding: IAdapted | undefined = adapted.get(prop);
     return binding !== undefined &&

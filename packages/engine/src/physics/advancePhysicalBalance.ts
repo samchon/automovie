@@ -56,15 +56,18 @@ export function advancePhysicalBalance(input: {
   /** Endpoint world velocities derived from the same sampled authored poses. */ velocities?: Readonly<
     Record<string, IAutoMovieVector3>
   >;
-  /** Authored reservations prohibit a new recovery swing on these endpoints; actual support contacts still count. */ unavailable?: readonly string[];
+  /**
+   * Authored reservations prohibit a new recovery swing on these endpoints;
+   * actual support contacts still count.
+   */ unavailable?: readonly string[];
   /** Current film second. */ seconds: number;
   /** Fixed seconds per step. */ dt: number;
   /** Positive downward gravity magnitude. */ gravity: number;
   /** Floor height, metres. */ floor: number;
-  /** Internal Cartesian endpoint demands accumulate into these bounded joint motor demands. */ actuation?: Map<
-    string,
-    IAutoMovieVector3
-  >;
+  /**
+   * Internal Cartesian endpoint demands accumulate into these bounded joint
+   * motor demands.
+   */ actuation?: Map<string, IAutoMovieVector3>;
   /** Reuse actual constraints and their independently measured load authority. */ supports?: readonly IAutoMovieCollectPhysicalSupports.ISupport[];
 }): IAutoMovieAdvancePhysicalBalance.IResult {
   const supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[] =
@@ -333,7 +336,10 @@ export function advancePhysicalBalance(input: {
   }
   return { rootStrength: exhausted ? 0 : 1, state, goals };
 
-  /** Compare authored and solved placements at the same declared support endpoint. */
+  /**
+   * Compare authored and solved placements at the same declared support
+   * endpoint.
+   */
   function authored(bone: string): IAutoMovieVector3 {
     return physicalSupportPoint(
       input.targets[bone]!,
@@ -344,7 +350,10 @@ export function advancePhysicalBalance(input: {
     );
   }
 
-  /** Read the actual endpoint without changing a native body's bone-origin frame. */
+  /**
+   * Read the actual endpoint without changing a native body's bone-origin
+   * frame.
+   */
   function actual(bone: string): IAutoMovieVector3 {
     const rigid: AutoMovieXpbdBody = input.segments.get(bone)!;
     return physicalSupportPoint(
@@ -356,7 +365,10 @@ export function advancePhysicalBalance(input: {
     );
   }
 
-  /** Preserve actual controller ownership intervals for replay, audio and support audits. */
+  /**
+   * Preserve actual controller ownership intervals for replay, audio and
+   * support audits.
+   */
   function resolveSwing(status: "landed" | "cancelled" | "failed"): void {
     const step: (typeof state.steps)[number] | undefined = [...state.steps]
       .reverse()
@@ -368,7 +380,10 @@ export function advancePhysicalBalance(input: {
     if (step) step.resolved = { seconds: input.seconds, status };
   }
 
-  /** Keep recovery forces on the declared actuator path, including internal actuation. */
+  /**
+   * Keep recovery forces on the declared actuator path, including internal
+   * actuation.
+   */
   function drive(
     bone: string,
     rigid: AutoMovieXpbdBody,

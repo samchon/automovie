@@ -32,7 +32,9 @@ type IPoint = Pick<IAutoMovieResolvedBone, "worldPosition">;
 const DEFAULT_TOLERANCE: number = 0.02;
 
 /**
- * Target model-unit drift at or below this absolute threshold skips another fit. Binary64 scaling and FK need not commute exactly, so this is a numerical no-op policy rather than a zero-residual or scale-relative error proof.
+ * Target model-unit drift at or below this absolute threshold skips another
+ * fit. Binary64 scaling and FK need not commute exactly, so this is a numerical
+ * no-op policy rather than a zero-residual or scale-relative error proof.
  */
 const NOOP_EPSILON: number = 1e-9;
 
@@ -45,7 +47,11 @@ interface IAutoMovieContactWindow {
 }
 
 /**
- * Correct a root-scaled retarget clip at its existing authored key times using each source frame's foot/declared hand contact mapped by rootScale. Source slides persist; ROM-limited residuals above tolerance*rootScale are collector warnings, while dynamic nonfinite ground or callback exceptions throw. Inputs have passed retarget admission and parallel source/target key times agree.
+ * Correct a root-scaled retarget clip at its existing authored key times using
+ * each source frame's foot/declared hand contact mapped by rootScale. Source
+ * slides persist; ROM-limited residuals above tolerance*rootScale are collector
+ * warnings, while dynamic nonfinite ground or callback exceptions throw. Inputs
+ * have passed retarget admission and parallel source/target key times agree.
  */
 export const preserveRetargetContacts: (
   props: IAutoMoviePreserveRetargetContacts.IProps,
@@ -292,7 +298,10 @@ const correctFrame: (props: {
     : { ...props.keyframe, pose };
 };
 
-/** Read the same current frame inputs at actual FK sites without a per-frame resolver closure. */
+/**
+ * Read the same current frame inputs at actual FK sites without a per-frame
+ * resolver closure.
+ */
 function readFrameEffectors(
   props: Parameters<typeof correctFrame>[0],
   pose: IAutoMoviePose,
@@ -309,7 +318,10 @@ function readFrameEffectors(
   );
 }
 
-/** Preserve complete raw admission, retaining only the owned positions this contact pass reads. */
+/**
+ * Preserve complete raw admission, retaining only the owned positions this
+ * contact pass reads.
+ */
 function resolveEffectors(
   skeleton: IAutoMovieSkeleton,
   pose: IAutoMoviePose,

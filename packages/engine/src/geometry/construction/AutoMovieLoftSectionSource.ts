@@ -9,12 +9,11 @@ import type {
 
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
-/**
- * Explicit original scalar ownership and numeric binding snapshots.
- */
+/** Explicit original scalar ownership and numeric binding snapshots. */
 export namespace AutoMovieLoftSectionSource {
   /**
-   * Bind original scalar ownership after ordinary/frame coefficient preparation.
+   * Bind original scalar ownership after ordinary/frame coefficient
+   * preparation.
    */
   export function retain(
     chain: IAutoMovieLoftChain,
@@ -33,7 +32,8 @@ export namespace AutoMovieLoftSectionSource {
   }
 
   /**
-   * Validate retained original ownership at the two rows of one station bracket.
+   * Validate retained original ownership at the two rows of one station
+   * bracket.
    */
   export function validate(
     chain: IAutoMovieLoftChain,
@@ -72,9 +72,7 @@ export namespace AutoMovieLoftSectionSource {
     return source;
   }
 
-  /**
-   * Read a changed endpoint's explicit family or its genuine absence.
-   */
+  /** Read a changed endpoint's explicit family or its genuine absence. */
   export function endpoint(
     layer: IAutoMovieLoftChain.ILayer,
     expectedWidth?: number,
@@ -95,9 +93,7 @@ export namespace AutoMovieLoftSectionSource {
     return source;
   }
 
-  /**
-   * Attach actual oriented endpoint data to a newly transformed layer.
-   */
+  /** Attach actual oriented endpoint data to a newly transformed layer. */
   export function bind(
     layer: IAutoMovieLoftChain.ILayer,
     field: IAutoMovieLoftSectionSourceFamily,
@@ -115,7 +111,8 @@ export namespace AutoMovieLoftSectionSource {
   }
 
   /**
-   * Presence/recorded availability of native physical2 at retained layer boundaries.
+   * Presence/recorded availability of native physical2 at retained layer
+   * boundaries.
    */
   export function regular(chain: IAutoMovieLoftChain): boolean {
     const source: IAutoMovieLoftSectionSource.ISource | undefined =
@@ -137,7 +134,10 @@ export namespace AutoMovieLoftSectionSource {
   }
 }
 
-/** Snapshot actual compatibility values; no missing physical jet is invented here. */
+/**
+ * Snapshot actual compatibility values; no missing physical jet is invented
+ * here.
+ */
 function remember(
   layer: IAutoMovieLoftChain.ILayer,
   unavailable: string | null,
@@ -151,7 +151,10 @@ function remember(
   };
 }
 
-/** Compare ordinary rows in their original getter order; every row must be dense finite data at the same output width. */
+/**
+ * Compare ordinary rows in their original getter order; every row must be dense
+ * finite data at the same output width.
+ */
 function fits(
   layer: IAutoMovieLoftChain.ILayer,
   binding: IAutoMovieLoftSectionSourceBinding,
@@ -201,7 +204,10 @@ function find(
   return rows[low]?.station === station ? rows[low]! : null;
 }
 
-/** Whole phase functions require either eight native source2 inputs or complete basis2 rows. */
+/**
+ * Whole phase functions require either eight native source2 inputs or complete
+ * basis2 rows.
+ */
 function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
   if (value === null || value === undefined) return false;
   if (value.kind === "basis")
@@ -238,7 +244,10 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
   );
 }
 
-/** Native/basis family vectors require own finite numeric entries; sparse arrays never become complete jets. */
+/**
+ * Native/basis family vectors require own finite numeric entries; sparse arrays
+ * never become complete jets.
+ */
 function finiteRow(value: unknown, width: number): boolean {
   if (!Array.isArray(value) || value.length !== width) return false;
   for (let q: number = 0; q < width; q++)
@@ -247,10 +256,11 @@ function finiteRow(value: unknown, width: number): boolean {
 }
 
 /**
- * Numeric rows and nested family tuples compare dense own entries in left/right order.
- * Matching array identity never skips admission. Optional undefined record fields
- * retain their existing absent-field meaning; unavailable curvature remains null.
- * First mismatch stops before later getters, while reached getter failures propagate.
+ * Numeric rows and nested family tuples compare dense own entries in left/right
+ * order. Matching array identity never skips admission. Optional undefined
+ * record fields retain their existing absent-field meaning; unavailable
+ * curvature remains null. First mismatch stops before later getters, while
+ * reached getter failures propagate.
  */
 function same(a: unknown, b: unknown, numeric: boolean = false): boolean {
   if (Array.isArray(a) || Array.isArray(b)) {

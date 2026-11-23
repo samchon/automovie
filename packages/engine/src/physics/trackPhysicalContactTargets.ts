@@ -16,8 +16,11 @@ import { readPhysicalScene } from "./readPhysicalScene";
 import { trackPhysicalCoupledTargets } from "./trackPhysicalCoupledTargets";
 
 /**
- * Resolve collider relationships once per cached interval from the actual simultaneous scene. Only motor goals change; root/support forces have already used their independently declared goals.
- * A target in an admitted coupled group takes its plan from one group fit, which `peers` lets read the other members.
+ * Resolve collider relationships once per cached interval from the actual
+ * simultaneous scene. Only motor goals change; root/support forces have already
+ * used their independently declared goals. A target in an admitted coupled
+ * group takes its plan from one group fit, which `peers` lets read the other
+ * members.
  */
 export function trackPhysicalContactTargets(
   input: IAutoMoviePhysicalSimulationInput.IInput,

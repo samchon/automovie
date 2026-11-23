@@ -1,11 +1,26 @@
 import type { IAutoMovieIntegrateRadialField } from "@automovie/interface";
 
 /**
- * Integrate a strongest-site equal-radius compact radial field over a convex planar domain.
+ * Integrate a strongest-site equal-radius compact radial field over a convex
+ * planar domain.
  *
- * Coordinates and radius use one common unit in an orthonormal plane frame; each site's z is its signed distance from that plane. The scalar is the strongest positive sphere section q^power, where q=1-distance²/radius². Equal radii make the strongest site a nearest-site half-plane partition. Green's theorem reduces each cell's radial polynomial to edge integrals: four-point Gauss-Legendre is exact for the interior degree-six polynomial in real arithmetic, and the exterior zero-divergence flux uses a signed angle. The returned gradient is the area integral of that scalar's physical planar derivative, not a normal-map or BRDF average.
+ * Coordinates and radius use one common unit in an orthonormal plane frame;
+ * each site's z is its signed distance from that plane. The scalar is the
+ * strongest positive sphere section q^power, where q=1-distance²/radius². Equal
+ * radii make the strongest site a nearest-site half-plane partition. Green's
+ * theorem reduces each cell's radial polynomial to edge integrals: four-point
+ * Gauss-Legendre is exact for the interior degree-six polynomial in real
+ * arithmetic, and the exterior zero-divergence flux uses a signed angle. The
+ * returned gradient is the area integral of that scalar's physical planar
+ * derivative, not a normal-map or BRDF average.
  *
- * The caller supplies the actual convex domain, rather than an extrapolation from a smaller domain. This operation neither enumerates sites nor chooses an application-specific field scale or eligibility. At most 512 sites bound quadratic cell clipping; larger requests fail explicitly. Floating-point cancellation near tangent circles or nearly coincident sites remains finite precision, not a directed-rounding certificate. Degenerate footprints return zero after input admission.
+ * The caller supplies the actual convex domain, rather than an extrapolation
+ * from a smaller domain. This operation neither enumerates sites nor chooses an
+ * application-specific field scale or eligibility. At most 512 sites bound
+ * quadratic cell clipping; larger requests fail explicitly. Floating-point
+ * cancellation near tangent circles or nearly coincident sites remains finite
+ * precision, not a directed-rounding certificate. Degenerate footprints return
+ * zero after input admission.
  */
 export function integrateAutoMovieRadialField(
   props: IAutoMovieIntegrateRadialField.IProps,
@@ -139,7 +154,10 @@ function clip(polygon: Point[], normal: Point, constant: number): Point[] {
   return result;
 }
 
-/** Four-node rule integrates the supported edge polynomials of degree at most six. */
+/**
+ * Four-node rule integrates the supported edge polynomials of degree at most
+ * six.
+ */
 function gauss(read: (t: number) => number, lo: number, hi: number): number {
   const middle: number = (lo + hi) / 2;
   const half: number = (hi - lo) / 2;
@@ -165,7 +183,10 @@ function flux(s: number, q0: number, radius2: number, power: 2 | 3): number {
         (t * t * t) / 8;
 }
 
-/** Integrate one sphere over its nearest-site cell, with zero field outside its disk. */
+/**
+ * Integrate one sphere over its nearest-site cell, with zero field outside its
+ * disk.
+ */
 function integrate(
   polygon: Point[],
   site: Site,

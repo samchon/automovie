@@ -14,7 +14,10 @@ import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
- * Preserve original enabled endpoint promises and explicitly stationary support patches. Recovery goals come from the declared trajectory, never an unmet fitted pose; moving or reserved endpoints retain XYZ without a planted-plane claim.
+ * Preserve original enabled endpoint promises and explicitly stationary support
+ * patches. Recovery goals come from the declared trajectory, never an unmet
+ * fitted pose; moving or reserved endpoints retain XYZ without a planted-plane
+ * claim.
  */
 export function physicalContactSupportGoals(
   body: IAutoMoviePhysicalSimulationInput.IBody,

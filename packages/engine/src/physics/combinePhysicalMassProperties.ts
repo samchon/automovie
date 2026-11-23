@@ -11,13 +11,17 @@ import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
 /**
  * Combine rotated inertia tensors using the parallel-axis theorem. A
  * dimensionless Jacobi solve (`physicalPrincipalAxes`) preserves relative
- * precision across SI scales.
- * Refuse nonfinite aggregates and nonpositive computed principal moments;
- * finite component admission does not promise arbitrary-precision arithmetic.
+ * precision across SI scales. Refuse nonfinite aggregates and nonpositive
+ * computed principal moments; finite component admission does not promise
+ * arbitrary-precision arithmetic.
  *
- * @param parts Rigid parts in one common frame, with positive finite SI masses and principal moments, finite centres and unit principal rotations within 1e-6 of unit length.
- * @returns Fresh aggregate mass properties in that same frame; moments are ascending.
- * @throws {Error} When parts are empty or invalid, or aggregate arithmetic produces nonfinite or nonpositive principal properties.
+ * @param parts Rigid parts in one common frame, with positive finite SI masses
+ *   and principal moments, finite centres and unit principal rotations within
+ *   1e-6 of unit length.
+ * @returns Fresh aggregate mass properties in that same frame; moments are
+ *   ascending.
+ * @throws {Error} When parts are empty or invalid, or aggregate arithmetic
+ *   produces nonfinite or nonpositive principal properties.
  */
 export function combinePhysicalMassProperties(
   parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[],
@@ -67,8 +71,7 @@ export function combinePhysicalMassProperties(
       if (!Number.isFinite(entry))
         throw new Error("Aggregate inertia tensor exceeds finite arithmetic");
 
-  const axes3: IAutoMoviePrincipalTensorFrame =
-    physicalPrincipalAxes(tensor);
+  const axes3: IAutoMoviePrincipalTensorFrame = physicalPrincipalAxes(tensor);
   const inertia: IAutoMovieVector3 = axes3.moments;
   const inertiaRotation: IAutoMovieQuaternion = axes3.rotation;
   if (!positiveMoments(inertia) || !finiteRotation(inertiaRotation))

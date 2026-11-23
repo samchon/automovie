@@ -15,33 +15,34 @@ import { projectileAt } from "./projectileAt";
  *
  * - `stick`: it stops at the contact, its point carried `depth` on along its
  *   velocity into the struck body, and rests there;
- * - `bounce`: it leaves on a new flight from the contact, its velocity's
- *   normal part reversed and scaled by the restitution and its tangential
- *   part reduced by Coulomb friction's impulse, `min(mu (1 + e) |v_n|,
- *   |v_t|)` (the rigid-body impact model of Brach, Mechanical Impact
- *   Dynamics, 1991, ch. 4); when `roll` is given and the rebound would rise
- *   less than the body's radius above the surface under gravity pressing
- *   toward the surface, it rolls instead;
+ * - `bounce`: it leaves on a new flight from the contact, its velocity's normal
+ *   part reversed and scaled by the restitution and its tangential part reduced
+ *   by Coulomb friction's impulse, `min(mu (1 + e) |v_n|, |v_t|)` (the
+ *   rigid-body impact model of Brach, Mechanical Impact Dynamics, 1991, ch. 4);
+ *   when `roll` is given and the rebound would rise less than the body's radius
+ *   above the surface under gravity pressing toward the surface, it rolls
+ *   instead;
  * - `roll`: it rolls along the surface with its velocity's tangential part,
- *   slowed at the rolling-resistance coefficient times the gravity pressing
- *   it on the surface, `a = c max(0, -g_n)`, to rest at `v^2 / (2 a)`;
- * - `pass`: it continues through on the same flight, losing a share of its
- *   speed.
+ *   slowed at the rolling-resistance coefficient times the gravity pressing it
+ *   on the surface, `a = c max(0, -g_n)`, to rest at `v^2 / (2 a)`;
+ * - `pass`: it continues through on the same flight, losing a share of its speed.
  *
  * Every coefficient is the caller's: the engine names no projectile.
  * Restitution and the lost-speed share are finite values in [0, 1]; friction,
  * rolling resistance and embedding depth remain finite and nonnegative.
- * Gravity's pull along a tilted surface is not modelled in a roll, so a roll
- * on a slope keeps the deceleration of a level one (stated, not hidden).
- * An explicit roll with outward normal gravity is rejected: an unbound
- * surface cannot hold that body against gravity. Neutral normal gravity
- * permits a zero-resistance roll; it does not turn a bounce into one.
+ * Gravity's pull along a tilted surface is not modelled in a roll, so a roll on
+ * a slope keeps the deceleration of a level one (stated, not hidden). An
+ * explicit roll with outward normal gravity is rejected: an unbound surface
+ * cannot hold that body against gravity. Neutral normal gravity permits a
+ * zero-resistance roll; it does not turn a bounce into one.
  *
  * @param projectile The flight that made contact.
  * @param hit Its contact, with the surface's normal.
  * @param outcome What happens.
  * @returns The segment that follows, timed from the original flight's launch.
- * @throws {RangeError} When the hit has no normal, a coefficient is negative or not finite, restitution or speed loss exceeds one, or an explicit roll would need a surface to pull against outward gravity.
+ * @throws {RangeError} When the hit has no normal, a coefficient is negative or
+ *   not finite, restitution or speed loss exceeds one, or an explicit roll
+ *   would need a surface to pull against outward gravity.
  */
 export function projectileContinue(
   projectile: IAutoMovieProjectile,
@@ -209,14 +210,12 @@ export function projectileContinue(
   }
 }
 
-/**
- * Companion types and the roll's reader of {@link projectileContinue}.
- */
+/** Companion types and the roll's reader of {@link projectileContinue}. */
 export namespace projectileContinue {
   /**
-   * A segment's centre and velocity at a second since the original launch:
-   * a flight read from its own time zero, a roll's constant deceleration to
-   * rest, a rest's place.
+   * A segment's centre and velocity at a second since the original launch: a
+   * flight read from its own time zero, a roll's constant deceleration to rest,
+   * a rest's place.
    *
    * @param segment The segment.
    * @param seconds Seconds since the original launch, at or after `from`.

@@ -17,9 +17,17 @@ type Vec3 = AutoMovieVector3Tuple;
 const { norm, scale, solve3, sub } = AutoMovieSolidVector;
 
 /**
- * A join's seed record as the trace's seed (`IAutoMovieSolidIntersection.IInput.seed`), in millimetres.
+ * A join's seed record as the trace's seed
+ * (`IAutoMovieSolidIntersection.IInput.seed`), in millimetres.
  *
- * A point seed is its two chart points. A search seed walks the part face's station line at its phase (or, with `phases`, each of that many lines round the part in turn, its phase's first) between its two shares, takes each step's foot on the host face and solves `P(s, phase) = H(y, theta)` for `(s, y, theta)` by safeguarded Newton. The first locally converged meeting inside the part shares and the actual host domain, on the first line that has one, is the seed, with that line's phase. This bounded local search does not certify every crossing or geometric absence.
+ * A point seed is its two chart points. A search seed walks the part face's
+ * station line at its phase (or, with `phases`, each of that many lines round
+ * the part in turn, its phase's first) between its two shares, takes each
+ * step's foot on the host face and solves `P(s, phase) = H(y, theta)` for `(s,
+ * y, theta)` by safeguarded Newton. The first locally converged meeting inside
+ * the part shares and the actual host domain, on the first line that has one,
+ * is the seed, with that line's phase. This bounded local search does not
+ * certify every crossing or geometric absence.
  */
 export namespace AutoMovieConstructionSeeds {
   /** Newton steps of one meeting solve. */
@@ -28,10 +36,16 @@ export namespace AutoMovieConstructionSeeds {
   /** Stations and phases of the coarse grid a step's first foot starts from. */
   export const GRID: [number, number] = [16, 32];
 
-  /** Twenty trial steps, starting at full weight, bound local safeguarding work; exhaustion is not a global absence result. */
+  /**
+   * Twenty trial steps, starting at full weight, bound local safeguarding work;
+   * exhaustion is not a global absence result.
+   */
   const BACKTRACKINGS: number = 20;
 
-  /** Conventional Armijo sufficient-decrease factor, matching PETSc SNESLINESEARCHBT's documented default rather than an anatomical fit. */
+  /**
+   * Conventional Armijo sufficient-decrease factor, matching PETSc
+   * SNESLINESEARCHBT's documented default rather than an anatomical fit.
+   */
   const DECREASE: number = 1e-4;
 
   /**
@@ -43,12 +57,14 @@ export namespace AutoMovieConstructionSeeds {
    * @param host The host face's surface.
    * @param face The host face's index in the host atlas.
    * @param tolerance Largest gap accepted at the meeting, mm.
-   * @param trace Optional nonthrowing observer of detached actual candidate/Newton states; absent, no snapshots are made.
+   * @param trace Optional nonthrowing observer of detached actual
+   *   candidate/Newton states; absent, no snapshots are made.
    * @returns The seed, or the premise the search broke.
    *
-   * Point mode converts chart lengths without checking a meeting. Search
-   * mode is a finite local search over one station line, or `phases` lines round the part in a fixed order; its failure names nonconvergence or
-   * inadmissible meetings rather than certifying absence of every crossing.
+   *   Point mode converts chart lengths without checking a meeting. Search mode
+   *   is a finite local search over one station line, or `phases` lines round
+   *   the part in a fixed order; its failure names nonconvergence or
+   *   inadmissible meetings rather than certifying absence of every crossing.
    */
   export function create(
     seed: IAutoMovieConstructionSeed,
@@ -114,10 +130,12 @@ export namespace AutoMovieConstructionSeeds {
   }
 
   /**
-   * One station line's search: the walk at `phase` from station `a` to station `b`, mm, one step per layer between them, each step's foot on
-   * the host and the meeting solved from it.
+   * One station line's search: the walk at `phase` from station `a` to station
+   * `b`, mm, one step per layer between them, each step's foot on the host and
+   * the meeting solved from it.
    *
-   * @returns The first admitted meeting, with `phase` as its phase, or the number of local starts tried when none was admitted.
+   * @returns The first admitted meeting, with `phase` as its phase, or the
+   *   number of local starts tried when none was admitted.
    */
   function along(
     a: number,
@@ -222,7 +240,15 @@ export namespace AutoMovieConstructionSeeds {
   /**
    * Armijo-Newton on the original physical residual P(s,phase)-H(y,theta).
    *
-   * For the exact Newton direction, the directional derivative of |F|^2/2 is -|F|^2. The equivalent gap test avoids squaring mm residuals: gapTrial <= gap*sqrt(1-2*c*alpha). Halving alpha keeps the geometry unchanged and follows the sufficient-decrease policy documented at https://petsc.org/release/manualpages/SNES/SNESLINESEARCHBT/. Forty updates and twenty trials per update are finite work limits, not a convergence certificate. Current and accepted trial jets are used before another query of their producer, and only constant-size local state survives between updates.
+   * For the exact Newton direction, the directional derivative of |F|^2/2 is
+   * -|F|^2. The equivalent gap test avoids squaring mm residuals: gapTrial <=
+   * gap_sqrt(1-2_c*alpha). Halving alpha keeps the geometry unchanged and
+   * follows the sufficient-decrease policy documented at
+   * https://petsc.org/release/manualpages/SNES/SNESLINESEARCHBT/. Forty updates
+   * and twenty trials per update are finite work limits, not a convergence
+   * certificate. Current and accepted trial jets are used before another query
+   * of their producer, and only constant-size local state survives between
+   * updates.
    */
   function meet(
     part: IAutoMovieSolidSurface,
@@ -381,7 +407,10 @@ export namespace AutoMovieConstructionSeeds {
     return gap <= tolerance ? x : null;
   }
 
-  /** The chart point of a coarse grid over the surface's domain nearest a world point. */
+  /**
+   * The chart point of a coarse grid over the surface's domain nearest a world
+   * point.
+   */
   function nearest(
     surface: IAutoMovieSolidSurface,
     p: Readonly<Vec3>,

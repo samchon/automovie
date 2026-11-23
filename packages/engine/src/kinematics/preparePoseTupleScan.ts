@@ -13,7 +13,10 @@ type ITuple = readonly [
   IAutoMovieJointPose["twist"],
 ];
 
-/** One private staged slot, populated only by the ordered name/F/A/T writer below. */
+/**
+ * One private staged slot, populated only by the ordered name/F/A/T writer
+ * below.
+ */
 type IStagedValue = AutoMovieHumanoidBone | IAutoMovieJointPose["flexion"];
 
 /** An actually empty entry snapshot has no admission events or scalar storage. */
@@ -34,15 +37,33 @@ export function preparePoseTupleScan(
   const values: IStagedValue[] = [];
   for (const entry of entries) {
     const tuple: ITuple | undefined = entry[1];
-    values.push(entry[0] as AutoMovieHumanoidBone, tuple![0], tuple![1], tuple![2]);
+    values.push(
+      entry[0] as AutoMovieHumanoidBone,
+      tuple![0],
+      tuple![1],
+      tuple![2],
+    );
   }
-  return (reader: Pick<preparePoseJointResolution.IReader, "admitValues" | "validateValues">): void => {
+  return (
+    reader: Pick<
+      preparePoseJointResolution.IReader,
+      "admitValues" | "validateValues"
+    >,
+  ): void => {
     for (let offset: number = 0; offset < values.length; offset += 4) {
       // These roles come from the actual ordered writer, not admission flags.
-      const bone: AutoMovieHumanoidBone = values[offset] as AutoMovieHumanoidBone;
-      const f: IAutoMovieJointPose["flexion"] = values[offset + 1] as IAutoMovieJointPose["flexion"];
-      const a: IAutoMovieJointPose["abduction"] = values[offset + 2] as IAutoMovieJointPose["abduction"];
-      const t: IAutoMovieJointPose["twist"] = values[offset + 3] as IAutoMovieJointPose["twist"];
+      const bone: AutoMovieHumanoidBone = values[
+        offset
+      ] as AutoMovieHumanoidBone;
+      const f: IAutoMovieJointPose["flexion"] = values[
+        offset + 1
+      ] as IAutoMovieJointPose["flexion"];
+      const a: IAutoMovieJointPose["abduction"] = values[
+        offset + 2
+      ] as IAutoMovieJointPose["abduction"];
+      const t: IAutoMovieJointPose["twist"] = values[
+        offset + 3
+      ] as IAutoMovieJointPose["twist"];
       if (ancestors === undefined || ancestors.has(bone))
         reader.admitValues(bone, f, a, t);
       else reader.validateValues(bone, f, a, t);
@@ -50,13 +71,19 @@ export function preparePoseTupleScan(
   };
 }
 
-/**
- * Authored tuple input and a staged, still-unadmitted scalar scan.
- */
+/** Authored tuple input and a staged, still-unadmitted scalar scan. */
 export namespace preparePoseTupleScan {
   /** Clinical tuples per bone (`IAutoMovieSkeletonPoseResolution.IJoints`). */
   export type IJoints = IAutoMovieSkeletonPoseResolution.IJoints;
 
-  /** Supply every staged value to actual private joint admission, never a public callback or reader key. */
-  export type IScan = (reader: Pick<preparePoseJointResolution.IReader, "admitValues" | "validateValues">) => void;
+  /**
+   * Supply every staged value to actual private joint admission, never a public
+   * callback or reader key.
+   */
+  export type IScan = (
+    reader: Pick<
+      preparePoseJointResolution.IReader,
+      "admitValues" | "validateValues"
+    >,
+  ) => void;
 }

@@ -1,6 +1,6 @@
 /**
- * Encode a plain data value as artifact bytes that `decodeAutoMovieArtifactJson`
- * restores exactly.
+ * Encode a plain data value as artifact bytes that
+ * `decodeAutoMovieArtifactJson` restores exactly.
  *
  * JSON alone loses `-0`, `NaN` and the infinities and silently flattens typed
  * arrays, maps and class instances, any of which would make a cached result
@@ -19,11 +19,12 @@
 export function encodeAutoMovieArtifactJson(value: unknown): Uint8Array {
   check(value, "$");
   return new TextEncoder().encode(
-      JSON.stringify(value, (_key: string, item: unknown): unknown =>
-        typeof item === "number" && (!Number.isFinite(item) || Object.is(item, -0))
-          ? { $number: Object.is(item, -0) ? "-0" : String(item) }
-          : item,
-      ),
+    JSON.stringify(value, (_key: string, item: unknown): unknown =>
+      typeof item === "number" &&
+      (!Number.isFinite(item) || Object.is(item, -0))
+        ? { $number: Object.is(item, -0) ? "-0" : String(item) }
+        : item,
+    ),
   );
 }
 
@@ -42,7 +43,9 @@ const check: (value: unknown, at: string) => void = (
   if (Array.isArray(value)) {
     for (let index: number = 0; index < value.length; ++index) {
       if (value[index] === undefined)
-        throw new Error(`Artifact JSON cannot hold undefined at ${at}[${index}]`);
+        throw new Error(
+          `Artifact JSON cannot hold undefined at ${at}[${index}]`,
+        );
       check(value[index], `${at}[${index}]`);
     }
     return;

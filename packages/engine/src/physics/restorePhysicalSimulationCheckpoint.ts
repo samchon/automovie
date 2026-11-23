@@ -7,12 +7,14 @@ import type {
 import { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 
 /**
- * Restore the complete solver and causal prefix selected by sampled-input equivalence.
+ * Restore the complete solver and causal prefix selected by sampled-input
+ * equivalence.
  *
  * The caller selects an equivalent completed cached interval and supplies empty
  * destination collections. Frames and completed receipts remain borrowed;
  * snapshot bytes, controller state and diagnostics are copied. A copy failure
- * leaves a partial destination that the failed run must discard, but builds no world. A successful return hands the caller its world.
+ * leaves a partial destination that the failed run must discard, but builds no
+ * world. A successful return hands the caller its world.
  */
 export function restorePhysicalSimulationCheckpoint(
   input: IAutoMoviePhysicalSimulationInput.IInput,

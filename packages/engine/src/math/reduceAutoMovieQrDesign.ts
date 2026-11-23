@@ -4,11 +4,11 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Compress original least-squares rows by streaming Givens rotations.
- * The returned upper design and transformed right side preserve the variable
- * dependent objective; the remaining orthogonal residual is a constant term.
- * No normal matrix, pivot-based rank claim or inverse is formed. The caller
- * must qualify the compressed original design independently before solving.
+ * Compress original least-squares rows by streaming Givens rotations. The
+ * returned upper design and transformed right side preserve the variable
+ * dependent objective; the remaining orthogonal residual is a constant term. No
+ * normal matrix, pivot-based rank claim or inverse is formed. The caller must
+ * qualify the compressed original design independently before solving.
  */
 export function reduceAutoMovieQrDesign(
   rows: readonly (readonly number[])[],

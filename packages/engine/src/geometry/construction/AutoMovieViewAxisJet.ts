@@ -8,11 +8,13 @@ import type {
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 
 /**
- * Analytic derivatives of an axis's own frame in station or a selected coordinate.
+ * Analytic derivatives of an axis's own frame in station or a selected
+ * coordinate.
  */
 export namespace AutoMovieViewAxisJet {
   /**
-   * Jet of fixed chart directions and an analytically differentiated moving origin.
+   * Jet of fixed chart directions and an analytically differentiated moving
+   * origin.
    */
   export function fixed(
     value: IAutoMovieLoftSectionFrame,
@@ -27,7 +29,8 @@ export namespace AutoMovieViewAxisJet {
   }
 
   /**
-   * Carry a regular station-frame jet into an explicitly selected root/angle coordinate.
+   * Carry a regular station-frame jet into an explicitly selected root/angle
+   * coordinate.
    */
   export function parameter(
     jet: IAutoMovieViewAxisJet.IJet,

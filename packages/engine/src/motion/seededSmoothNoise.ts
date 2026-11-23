@@ -4,19 +4,20 @@ import type { IAutoMovieRandom } from "@automovie/interface";
  * Smooth, seeded, band-limited variation over one window of an action, zero
  * with zero first and second derivatives at both ends.
  *
- * The signal is a sum of `terms` sines whose frequencies (uniform in
- * `[0.3, 1] * maxFrequency` hertz) and phases are drawn from the stream, each
- * weighted `1 / sqrt(terms)`, the procedural-noise construction of Perlin and
- * Goldberg's Improv (SIGGRAPH 1996) used for idle and path variation. It is
- * multiplied by the window `w(u) = (16 u^2 (1 - u)^2)^2`, which is 1 at the
- * middle and vanishes with its first three derivatives at `u = 0` and `u = 1`,
- * so variation added to a motion leaves its contacts, its cut points and its
+ * The signal is a sum of `terms` sines whose frequencies (uniform in `[0.3, 1]
+ * * maxFrequency` hertz) and phases are drawn from the stream, each weighted `1
+ * / sqrt(terms)`, the procedural-noise construction of Perlin and Goldberg's
+ * Improv (SIGGRAPH 1996) used for idle and path variation. It is multiplied by
+ * the window `w(u) = (16 u^2 (1 - u)^2)^2`, which is 1 at the middle and
+ * vanishes with its first three derivatives at `u = 0` and `u = 1`, so
+ * variation added to a motion leaves its contacts, its cut points and its
  * continuity untouched. The draws read stream indices `0 .. 2 terms - 1`, so
  * the same stream always yields the same signal.
  *
  * @param random The stream, keyed by the caller's stable ids.
  * @param u Normalized time within the window, in [0, 1]; outside is zero.
- * @param duration The window's length, seconds, which sets the frequencies' time scale.
+ * @param duration The window's length, seconds, which sets the frequencies'
+ *   time scale.
  * @param maxFrequency The highest frequency, hertz; positive.
  * @param terms Number of sines; 4 by default.
  * @returns The value, roughly in [-1, 1].
@@ -40,21 +41,21 @@ export function seededSmoothNoise(
 }
 
 /**
- * Explicit fixed-window spectrum preparation for repeated motion reads.
- * The ordinary function remains the direct one-shot evaluation.
+ * Explicit fixed-window spectrum preparation for repeated motion reads. The
+ * ordinary function remains the direct one-shot evaluation.
  */
 export namespace seededSmoothNoise {
   /**
-   * Bind one pure indexed stream and fixed window. Parameter admission stays
-   * at the first read, including an endpoint; endpoints/outside/NaN consume
-   * no draws. The first interior read draws indices 0..2*terms-1 in their
-   * original order and copies the exact angular rates and phases.
+   * Bind one pure indexed stream and fixed window. Parameter admission stays at
+   * the first read, including an endpoint; endpoints/outside/NaN consume no
+   * draws. The first interior read draws indices 0..2*terms-1 in their original
+   * order and copies the exact angular rates and phases.
    *
-   * Each later interior read uses the original left-associated rate*u*duration
-   * expression, term addition order, polynomial window and normalization.
-   * It performs every sine evaluation, keeps no time/output history and
-   * returns an independent number. Releasing the reader releases its O(T)
-   * spectrum and fixed stream reference.
+   * Each later interior read uses the original left-associated rate_u_duration
+   * expression, term addition order, polynomial window and normalization. It
+   * performs every sine evaluation, keeps no time/output history and returns an
+   * independent number. Releasing the reader releases its O(T) spectrum and
+   * fixed stream reference.
    *
    * @param random The same pure counter-based stream used by direct reads.
    * @param duration Fixed window seconds, with the direct entry's domain.
@@ -103,7 +104,7 @@ export namespace seededSmoothNoise {
 
 /** Copied spectral inputs; no current or previous motion value is stored. */
 interface ISpectrum {
-  /** Exact 2*pi*frequency products in original term order, radians/second. */
+  /** Exact 2_pi_frequency products in original term order, radians/second. */
   rates: readonly number[];
 
   /** Exact indexed phase products in original term order, radians. */

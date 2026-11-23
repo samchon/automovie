@@ -1,8 +1,8 @@
 import type { IAutoMovieMeshTarget } from "@automovie/interface";
 
 /**
- * Create four new, empty attribute buffers for a flat-shaded procedural
- * builder to append to.
+ * Create four new, empty attribute buffers for a flat-shaded procedural builder
+ * to append to.
  *
  * Each call returns arrays no other caller holds, so two builders running in
  * one call stack never write into each other's mesh. The builder returns the

@@ -19,15 +19,16 @@ import { signedArea } from "./signedArea";
  * report a gap may retain the message; a constructor can throw it verbatim.
  *
  * Each ring is checked in declaration order, outer ring first, for at least
- * three points, finite coordinates, no point repeated beside itself, a
- * nonzero area, no spike doubling back along its own edge, and no crossing
- * between non-neighbouring edges. Then every ring pair is checked for any
- * shared point, and finally every hole must lie inside the outer ring and
- * outside every other hole. Zero means within the absolute `PLANAR_EPSILON`
- * (1e-12) of square metres or metres. Messages name rings as `<label> outer
- * ring` and `<label> hole[i]`, with `label` defaulting to `polygon`.
+ * three points, finite coordinates, no point repeated beside itself, a nonzero
+ * area, no spike doubling back along its own edge, and no crossing between
+ * non-neighbouring edges. Then every ring pair is checked for any shared point,
+ * and finally every hole must lie inside the outer ring and outside every other
+ * hole. Zero means within the absolute `PLANAR_EPSILON` (1e-12) of square
+ * metres or metres. Messages name rings as `<label> outer ring` and `<label>
+ * hole[i]`, with `label` defaulting to `polygon`.
  *
- * @param props.outer Outer ring in any winding, the last point joined back to the first.
+ * @param props.outer Outer ring in any winding, the last point joined back to
+ *   the first.
  * @param props.holes Rings removed from the region; omitted means none.
  * @param props.label Name the messages give the region.
  * @returns The first failure message, or `null` for an admissible region.

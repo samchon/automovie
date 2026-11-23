@@ -7,7 +7,8 @@ import { isRecord } from "./isRecord";
 const MAXIMUM_OVERLAYS: number = 4;
 
 /**
- * Admit optional overlay lists, record entries, required color image, blend, strength and optional numeric factors.
+ * Admit optional overlay lists, record entries, required color image, blend,
+ * strength and optional numeric factors.
  */
 export const validateMaterialOverlays: (
   overlays: unknown,

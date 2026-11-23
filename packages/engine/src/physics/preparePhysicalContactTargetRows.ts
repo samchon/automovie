@@ -46,7 +46,8 @@ type IPrepared = {
 };
 
 /**
- * Prepare one body's geometry constraints against either its local pose map or a common scene candidate.
+ * Prepare one body's geometry constraints against either its local pose map or
+ * a common scene candidate.
  */
 export function preparePhysicalContactTargetRows(
   input: Input,

@@ -12,7 +12,8 @@ import { admitPhysicalTargetMotion } from "./admitPhysicalTargetMotion";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
 
 /**
- * Admit every sampled ownership, effort and world pose before target fitting or native allocation.
+ * Admit every sampled ownership, effort and world pose before target fitting or
+ * native allocation.
  */
 export function admitPhysicalTargets(
   input: IAutoMoviePhysicalSimulationInput.IInput,

@@ -9,11 +9,27 @@ import {
 import { sampleTimes } from "../motion/sampleTimes";
 
 /**
- * Build the clearance sample clock of one shot: a function from a take's camera motion to the strictly increasing shot-local seconds at which that take must be inspected.
+ * Build the clearance sample clock of one shot: a function from a take's camera
+ * motion to the strictly increasing shot-local seconds at which that take must
+ * be inspected.
  *
- * The clock is the endpoint-inclusive fixed clock of `sampleRate` over `duration`, refined by every key time of every actor motion, object clip and the take's camera clip that falls strictly inside the shot, repeated per cycle for a looping sequence. Each interval stays within one key segment. Under admitted motion inputs, linear, step and named non-overshooting easing keep translation and scale within their endpoint ranges; quaternion rotation follows an arc instead of that chord and needs the evaluator's separate rotation bound. This clock refuses `cubicBezier` actor easing, `cubicspline` clip tracks and an open loop seam on a channel the bound reads. It does not certify the evaluator's normalized-lerp or changing-scale limits.
+ * The clock is the endpoint-inclusive fixed clock of `sampleRate` over
+ * `duration`, refined by every key time of every actor motion, object clip and
+ * the take's camera clip that falls strictly inside the shot, repeated per
+ * cycle for a looping sequence. Each interval stays within one key segment.
+ * Under admitted motion inputs, linear, step and named non-overshooting easing
+ * keep translation and scale within their endpoint ranges; quaternion rotation
+ * follows an arc instead of that chord and needs the evaluator's separate
+ * rotation bound. This clock refuses `cubicBezier` actor easing, `cubicspline`
+ * clip tracks and an open loop seam on a channel the bound reads. It does not
+ * certify the evaluator's normalized-lerp or changing-scale limits.
  *
- * The actor/object part is computed once and each take adds its camera boundaries. Unboundable motion/clip interpolation or seams throw Error at the corresponding call; a loop cycle count must also be a non-negative safe integer so incrementing its enumeration index can progress. This representability gate is not a workload budget, and representable populations can still exhaust host resources.
+ * The actor/object part is computed once and each take adds its camera
+ * boundaries. Unboundable motion/clip interpolation or seams throw Error at the
+ * corresponding call; a loop cycle count must also be a non-negative safe
+ * integer so incrementing its enumeration index can progress. This
+ * representability gate is not a workload budget, and representable populations
+ * can still exhaust host resources.
  */
 export function cameraClearanceSampleTimes(
   props: IAutoMovieCameraClearanceSampleTimes.IProps,
@@ -61,9 +77,7 @@ export function cameraClearanceSampleTimes(
   };
 }
 
-/**
- * One motion sequence whose key boundaries refine the fixed clock.
- */
+/** One motion sequence whose key boundaries refine the fixed clock. */
 interface ISequence {
   /** Sequence length in seconds; one loop cycle when it loops. */
   duration: number;

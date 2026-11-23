@@ -7,13 +7,18 @@ import type {
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 
 /**
- * Longitudinal Bernstein grids: four-row Hermite construction from endpoint courses and complete derivative courses, outer-parameter evaluation and outer-parameter differentiation.
+ * Longitudinal Bernstein grids: four-row Hermite construction from endpoint
+ * courses and complete derivative courses, outer-parameter evaluation and
+ * outer-parameter differentiation.
  *
- * The inner (cross-course) coefficients of every row survive each operation, so a grid value or derivative is a complete polynomial course rather than sparse samples.
+ * The inner (cross-course) coefficients of every row survive each operation, so
+ * a grid value or derivative is a complete polynomial course rather than sparse
+ * samples.
  */
 export namespace AutoMovieBernsteinGrid64 {
   /**
-   * Build four longitudinal rows from endpoint curves and full derivatives over a physical chart length.
+   * Build four longitudinal rows from endpoint curves and full derivatives over
+   * a physical chart length.
    */
   export function hermite(
     a: readonly AutoMovieVector3Tuple[],
@@ -34,7 +39,8 @@ export namespace AutoMovieBernsteinGrid64 {
     ];
   }
   /**
-   * Evaluate the outer grid parameter while retaining the complete cross-course coefficients.
+   * Evaluate the outer grid parameter while retaining the complete cross-course
+   * coefficients.
    */
   export function gridValue(
     g: BernsteinGrid,
@@ -50,9 +56,7 @@ export namespace AutoMovieBernsteinGrid64 {
         ),
     );
   }
-  /**
-   * Differentiate the outer grid parameter using the supplied physical scale.
-   */
+  /** Differentiate the outer grid parameter using the supplied physical scale. */
   export function gridTangent(
     g: BernsteinGrid,
     scale: number = 1,

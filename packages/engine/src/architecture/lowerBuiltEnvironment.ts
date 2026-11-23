@@ -21,16 +21,33 @@ import { validateBuiltEnvironment } from "./validateBuiltEnvironment";
 /**
  * Lower one building record to ordinary subject contributions.
  *
- * Visible element transforms are composed parent-to-child and flattened into world-space set pieces because staged scene nodes are world TRS. The original hierarchy remains in `builtEnvironments` for spatial queries and evidence.
+ * Visible element transforms are composed parent-to-child and flattened into
+ * world-space set pieces because staged scene nodes are world TRS. The original
+ * hierarchy remains in `builtEnvironments` for spatial queries and evidence.
  *
- * An opening's current operating state contributes its joint displacement during lowering. A record without operations contributes no such displacement; its authored transforms still compose through the hierarchy.
+ * An opening's current operating state contributes its joint displacement
+ * during lowering. A record without operations contributes no such
+ * displacement; its authored transforms still compose through the hierarchy.
  *
- * A declared population leaves as the compact instance set it already is, never expanded into set pieces. That is what makes the building the one owner of its own repeated parts: the set the production world stages and the set a space query measures are the same record, so no second copy of a placement law can drift away from the first. The `instanceSets` key is omitted rather than emitted empty when the record has no population, so such a record merges exactly as it did before populations existed.
+ * A declared population leaves as the compact instance set it already is, never
+ * expanded into set pieces. That is what makes the building the one owner of
+ * its own repeated parts: the set the production world stages and the set a
+ * space query measures are the same record, so no second copy of a placement
+ * law can drift away from the first. The `instanceSets` key is omitted rather
+ * than emitted empty when the record has no population, so such a record merges
+ * exactly as it did before populations existed.
  *
- * Node ids are `<environment id>/<element id>` and stage space ids are `<environment id>/<space id>`; only elements with a model become set pieces, in element order. Each stage space carries its own surfaces in record order and the walkable ids among them in the record's walkable order. The returned contribution shares the environment's own model, surface and population objects rather than copying them. A record that fails `validateBuiltEnvironment` throws an `Error` naming its first violation.
+ * Node ids are `<environment id>/<element id>` and stage space ids are
+ * `<environment id>/<space id>`; only elements with a model become set pieces,
+ * in element order. Each stage space carries its own surfaces in record order
+ * and the walkable ids among them in the record's walkable order. The returned
+ * contribution shares the environment's own model, surface and population
+ * objects rather than copying them. A record that fails
+ * `validateBuiltEnvironment` throws an `Error` naming its first violation.
  *
  * @param environment Building record to lower.
- * @returns The models, set pieces, stage spaces, building record and compact populations the building contributes.
+ * @returns The models, set pieces, stage spaces, building record and compact
+ *   populations the building contributes.
  */
 export const lowerBuiltEnvironment: (
   environment: IAutoMovieBuiltEnvironment,

@@ -19,9 +19,7 @@ export const linearColorToSrgbHex: (
 ) => string = (color: Pick<IAutoMovieColor, "r" | "g" | "b">): string =>
   `#${srgbHexChannel(color.r)}${srgbHexChannel(color.g)}${srgbHexChannel(color.b)}`;
 
-/**
- * One linear component as its two lowercase hexadecimal display digits.
- */
+/** One linear component as its two lowercase hexadecimal display digits. */
 const srgbHexChannel: (component: number) => string = (
   component: number,
 ): string => {
@@ -37,8 +35,8 @@ const srgbHexChannel: (component: number) => string = (
 };
 
 /**
- * The inverse of {@link srgbChannelToLinear}, with the exact `1 / 2.4`
- * exponent rather than the truncated one three.js encodes with.
+ * The inverse of {@link srgbChannelToLinear}, with the exact `1 / 2.4` exponent
+ * rather than the truncated one three.js encodes with.
  */
 const linearChannelToSrgb: (component: number) => number = (
   component: number,

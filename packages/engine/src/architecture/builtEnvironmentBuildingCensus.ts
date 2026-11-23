@@ -20,9 +20,19 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
 /**
  * The complete observation topology of every building unit in one environment.
  *
- * This is the building aggregate a review counts against. A building is not the sum of the rooms a space tree happens to index, so the census carries the envelope, its corners, the openings cut through it, and the connectors that cross it beside the spaces, and every one of those populations is derived from the record rather than declared by whoever writes the review.
+ * This is the building aggregate a review counts against. A building is not the
+ * sum of the rooms a space tree happens to index, so the census carries the
+ * envelope, its corners, the openings cut through it, and the connectors that
+ * cross it beside the spaces, and every one of those populations is derived
+ * from the record rather than declared by whoever writes the review.
  *
- * Faces and corners are those of {@link builtEnvironmentEnvelopeFaces} and {@link builtEnvironmentEnvelopeCorners} owned by the building. Entrances are the openings on the building's exposed boundaries, spaces are the descendants of its root that state a volume, and connectors are those stopping at any descendant space, volume or not, each listed once. Every id list and the census itself are sorted in code-unit order. Throws when a building's root space is undeclared or an exposed face's space belongs to no building unit.
+ * Faces and corners are those of {@link builtEnvironmentEnvelopeFaces} and
+ * {@link builtEnvironmentEnvelopeCorners} owned by the building. Entrances are
+ * the openings on the building's exposed boundaries, spaces are the descendants
+ * of its root that state a volume, and connectors are those stopping at any
+ * descendant space, volume or not, each listed once. Every id list and the
+ * census itself are sorted in code-unit order. Throws when a building's root
+ * space is undeclared or an exposed face's space belongs to no building unit.
  */
 export const builtEnvironmentBuildingCensus: (
   environment: IAutoMovieBuiltEnvironment,

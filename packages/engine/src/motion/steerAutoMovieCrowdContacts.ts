@@ -22,7 +22,8 @@ import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
  * @param trajectory The integrated crowd.
  * @param from The interval's first second.
  * @param to The interval's last second.
- * @returns Each agent's arrival (null when it never arrives) and the contacts in knot order.
+ * @returns Each agent's arrival (null when it never arrives) and the contacts
+ *   in knot order.
  */
 export function steerAutoMovieCrowdContacts(
   agents: readonly IAutoMovieCrowdAgent[],
@@ -106,9 +107,7 @@ export function steerAutoMovieCrowdContacts(
   return { arrival, contacts };
 }
 
-/**
- * Companion types of {@link steerAutoMovieCrowdContacts}.
- */
+/** Companion types of {@link steerAutoMovieCrowdContacts}. */
 export namespace steerAutoMovieCrowdContacts {
   /** The pass's readings. */
   export interface IResult {

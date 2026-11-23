@@ -2,23 +2,26 @@ import { Quaternion } from "../math/Quaternion";
 
 /**
  * The spherical distance, degrees, from a unit direction to a rectangle of
- * latitudes and longitudes on the unit sphere: the directions
- * `d(f, a) = (-sin a, cos a sin f, cos a cos f)` with the middle angle `a`
- * inside one interval and the outer angle `f` inside another, which is the
- * set a joint with two free angles in a box carries one fixed axis to.
+ * latitudes and longitudes on the unit sphere: the directions `d(f, a) = (-sin
+ * a, cos a sin f, cos a cos f)` with the middle angle `a` inside one interval
+ * and the outer angle `f` inside another, which is the set a joint with two
+ * free angles in a box carries one fixed axis to.
  *
- * Inside the rectangle's longitudes the distance is the middle angle's
- * excess past its interval. Outside them the nearest point lies on one of
- * the two bounding meridians, where the direction's cosine with the meridian
- * point of middle angle `a` is `-x sin a + c cos a`, `c = y sin e + z cos e`
- * for the meridian at outer angle `e`, greatest at the middle angle nearest
- * `atan2(-x, c)`.
+ * Inside the rectangle's longitudes the distance is the middle angle's excess
+ * past its interval. Outside them the nearest point lies on one of the two
+ * bounding meridians, where the direction's cosine with the meridian point of
+ * middle angle `a` is `-x sin a + c cos a`, `c = y sin e + z cos e` for the
+ * meridian at outer angle `e`, greatest at the middle angle nearest `atan2(-x,
+ * c)`.
  *
- * @param x The direction's component on the pole axis, the one the middle angle's sine is the negative of.
+ * @param x The direction's component on the pole axis, the one the middle
+ *   angle's sine is the negative of.
  * @param y Its component on the axis the outer angle's sine multiplies.
  * @param z Its component on the axis the outer angle's cosine multiplies.
- * @param middle The middle angle's interval, degrees within a quarter turn either way.
- * @param outer The outer angle's interval, degrees; null when every outer angle is inside.
+ * @param middle The middle angle's interval, degrees within a quarter turn
+ *   either way.
+ * @param outer The outer angle's interval, degrees; null when every outer angle
+ *   is inside.
  * @returns The distance, degrees; zero inside the rectangle.
  */
 export function sphericalBoxMiss(
@@ -34,7 +37,8 @@ export function sphericalBoxMiss(
   const abduction: number = Math.asin(clamp(-x)) / D;
   const band: number = Math.max(0, lowest - abduction, abduction - highest);
   if (outer === null) return band;
-  const turned: number = (((Math.atan2(y, z) / D - outer[0]) % 360) + 360) % 360;
+  const turned: number =
+    (((Math.atan2(y, z) / D - outer[0]) % 360) + 360) % 360;
   if (turned <= outer[1] - outer[0]) return band;
   let least: number = Infinity;
   for (const end of outer) {
@@ -44,7 +48,8 @@ export function sphericalBoxMiss(
       -x * Math.sin(lowest * D) + c * Math.cos(lowest * D),
       -x * Math.sin(highest * D) + c * Math.cos(highest * D),
     );
-    if (peak >= lowest && peak <= highest) cosine = Math.max(cosine, Math.hypot(x, c));
+    if (peak >= lowest && peak <= highest)
+      cosine = Math.max(cosine, Math.hypot(x, c));
     least = Math.min(least, Math.acos(clamp(cosine)) / D);
   }
   return least;

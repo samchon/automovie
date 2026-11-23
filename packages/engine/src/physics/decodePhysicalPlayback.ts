@@ -8,7 +8,8 @@ import { admitPhysicalPlaybackMetadata } from "./admitPhysicalPlaybackMetadata";
 import { freezePhysicalRecord } from "./freezePhysicalRecord";
 
 /**
- * Admit one downloaded/archive byte sequence against the current authored input identity.
+ * Admit one downloaded/archive byte sequence against the current authored input
+ * identity.
  */
 export async function decodePhysicalPlayback(
   source: Uint8Array,

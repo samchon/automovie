@@ -6,9 +6,7 @@ import {
 
 import { transformFormationPoint } from "./transformFormationPoint";
 
-/**
- * Bound all eight transformed corners of a formation's axis-aligned box.
- */
+/** Bound all eight transformed corners of a formation's axis-aligned box. */
 export const transformFormationBounds: (
   bounds: IAutoMovieFormationBounds,
   anchor: IAutoMovieVector3,

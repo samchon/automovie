@@ -6,7 +6,11 @@ import type {
 /**
  * Resolve the shared source boundary of a precise adjacent same-shot hard cut.
  *
- * A cut is precise when either entry carries an explicit rate or exact symbolic source end. Returns undefined for a dissolve, a different shot, backwards source time or a source gap. Numeric trims may disagree with their mathematically contiguous successor by one rounding unit; symbolic ends must match exactly.
+ * A cut is precise when either entry carries an explicit rate or exact symbolic
+ * source end. Returns undefined for a dissolve, a different shot, backwards
+ * source time or a source gap. Numeric trims may disagree with their
+ * mathematically contiguous successor by one rounding unit; symbolic ends must
+ * match exactly.
  */
 export function exactPlaybackHardCut(
   sequence: IAutoMovieSequence,

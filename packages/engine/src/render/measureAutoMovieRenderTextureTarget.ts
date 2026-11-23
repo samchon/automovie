@@ -4,11 +4,12 @@ import { autoMovieTextureFormatBytes } from "./autoMovieTextureFormatBytes";
 import { measureAutoMovieTextureStorage } from "./measureAutoMovieTextureStorage";
 
 /**
- * Bound resolved color mips and color/depth sample attachments across target faces.
- * Four-byte depth bounds D24 and D24S8 storage; a reported custom depth width
- * replaces that profile. Unknown attachments and unsafe sums remain null.
+ * Bound resolved color mips and color/depth sample attachments across target
+ * faces. Four-byte depth bounds D24 and D24S8 storage; a reported custom depth
+ * width replaces that profile. Unknown attachments and unsafe sums remain null.
  * Driver allocation overhead and default-window framebuffer storage are outside
- * this target quantity. The requested sample count safely covers driver clamping.
+ * this target quantity. The requested sample count safely covers driver
+ * clamping.
  */
 export function measureAutoMovieRenderTextureTarget(
   target: IAutoMovieRenderTextureTarget,

@@ -11,7 +11,9 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { physicalJointMotorCommand } from "./physicalJointMotorCommand";
 
 /**
- * Apply one joint's bounded quaternion PD command ({@link physicalJointMotorCommand}) to its joint's implicit velocity motors, refusing non-finite values.
+ * Apply one joint's bounded quaternion PD command
+ * ({@link physicalJointMotorCommand}) to its joint's implicit velocity motors,
+ * refusing non-finite values.
  */
 export function configurePhysicalJointMotor(input: {
   world: AutoMovieXpbdWorld;

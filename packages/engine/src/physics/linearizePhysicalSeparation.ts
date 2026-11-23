@@ -12,29 +12,28 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
  * Freeze the current separating normal and the bone-local witnesses of the
- * contact patch for a Jacobian probe. Each patch point's separation moves by
- * n dot (Jb-Ja), as derived in Drake's CalcDistanceDerivatives (bdcd5ff,
+ * contact patch for a Jacobian probe. Each patch point's separation moves by n
+ * dot (Jb-Ja), as derived in Drake's CalcDistanceDerivatives (bdcd5ff,
  * distance_constraint_utilities.cc); the row is the least of them, the
- * separation of the patch point that presses deepest. Two faces touching
- * along a patch (Ericson, "Real-Time Collision Detection", 2005, sec. 5.5;
- * Gregorius, "Robust Contact Creation for Physics Simulations", GDC 2015)
- * deepen at the patch corner a relative turn drives in, which one witness
- * cannot see; a vertex or crossing-edge contact has one point and keeps its
- * exact derivative. The patch is `physicalShapeContactManifold`'s, counting
- * features tied up to the roundoff of the poses: the square root of the
- * double-precision epsilon times the metre scale of the pair's positions.
- * Without a patch point, the measured witnesses are the one point. When
- * pushing the pair apart the other way along the same axis needs the same
- * depth (two bars crossing at equal centres), the signed distance has a kink
- * there: the other side is modelled the same way and the row is the greater
- * of the two, the signed distance's own first-order form, a maximum over
- * separating directions. The row is piecewise linear in the poses where a
- * patch has several points or both sides tie; the articulated solver reads
- * its slope on each side (solvePhysicalTargetForest). Native
- * signed distance remains the nonlinear merit; this model neither moves a
- * body nor reports clearance or an impulse. Inactive pairs have a zero row.
- * A supplied measurement must belong to these exact colliders and poses;
- * null retains the already measured inactive pair without querying it again.
+ * separation of the patch point that presses deepest. Two faces touching along
+ * a patch (Ericson, "Real-Time Collision Detection", 2005, sec. 5.5; Gregorius,
+ * "Robust Contact Creation for Physics Simulations", GDC 2015) deepen at the
+ * patch corner a relative turn drives in, which one witness cannot see; a
+ * vertex or crossing-edge contact has one point and keeps its exact derivative.
+ * The patch is `physicalShapeContactManifold`'s, counting features tied up to
+ * the roundoff of the poses: the square root of the double-precision epsilon
+ * times the metre scale of the pair's positions. Without a patch point, the
+ * measured witnesses are the one point. When pushing the pair apart the other
+ * way along the same axis needs the same depth (two bars crossing at equal
+ * centres), the signed distance has a kink there: the other side is modelled
+ * the same way and the row is the greater of the two, the signed distance's own
+ * first-order form, a maximum over separating directions. The row is piecewise
+ * linear in the poses where a patch has several points or both sides tie; the
+ * articulated solver reads its slope on each side (solvePhysicalTargetForest).
+ * Native signed distance remains the nonlinear merit; this model neither moves
+ * a body nor reports clearance or an impulse. Inactive pairs have a zero row. A
+ * supplied measurement must belong to these exact colliders and poses; null
+ * retains the already measured inactive pair without querying it again.
  */
 export function linearizePhysicalSeparation(
   geometry: IAutoMoviePreparePhysicalGeometry.IQueries,
@@ -114,9 +113,7 @@ export function linearizePhysicalSeparation(
       ),
     );
 }
-/**
- * Companion types of {@link linearizePhysicalSeparation}.
- */
+/** Companion types of {@link linearizePhysicalSeparation}. */
 export namespace linearizePhysicalSeparation {
   /** One side of the contact: its normal, separation and frozen patch. */
   export interface ISide {
@@ -143,7 +140,10 @@ export namespace linearizePhysicalSeparation {
   }
 }
 
-/** One side's frozen patch along a normal; the given witnesses when the patch is empty. */
+/**
+ * One side's frozen patch along a normal; the given witnesses when the patch is
+ * empty.
+ */
 function side(
   a: IAutoMoviePreparePhysicalGeometry.ICollider,
   b: IAutoMoviePreparePhysicalGeometry.ICollider,

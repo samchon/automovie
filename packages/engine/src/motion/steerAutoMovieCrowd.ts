@@ -13,18 +13,93 @@ import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
 import { steerAutoMovieCrowdNeighbours } from "./steerAutoMovieCrowdNeighbours";
 
 /**
- * A crowd's ways planned once: every agent heads for its goals at its own desired speed and avoids the others and the obstacles by anticipation, the whole crowd integrated together on a fixed step and each agent's course read back by time.
+ * A crowd's ways planned once: every agent heads for its goals at its own
+ * desired speed and avoids the others and the obstacles by anticipation, the
+ * whole crowd integrated together on a fixed step and each agent's course read
+ * back by time.
  *
- * Each agent's acceleration is the social force model's driving term toward its desired velocity, `(v0 e0 - v) / tau` with the relaxation time `tau` (Helbing and Molnar 1995, Phys Rev E 51:4282), plus the anticipatory interaction of the universal power law (Karamouzas, Skinner and Guy 2014, Phys Rev Lett 113:238701): with every other agent and obstacle it would meet within the time to collision `t` at the current velocities, the force is minus the spatial gradient of `E(t) = k t^-2 exp(-t / t0)`, cut at the horizon: a contact predicted later than `t0` exerts nothing. The paper's `t0`, about 3 s, is its estimate of the interaction's intrinsic range, and its measured energy "quickly vanishes" past the observed range, "suggesting a truncation of the interaction when the time-to-collision is large"; the cut makes that truncation exact at `t0` (this repository's ruling: the paper's law itself decays smoothly and its simulation code could not be read). The cut makes the interaction local. Two discs `d` apart with summed radii `R` close their gap no faster than their relative speed `|v_i - v_j|`, so when `d - R > |v_i - v_j| t0` they cannot touch within the horizon and their term is exactly zero; such a pair's reciprocal half-plane is dropped with it, as van den Berg et al.'s RVO2 library keeps only the agents within its neighbour distance (Agent::computeNeighbors, 
-eighborDist). An obstacle is cut alike: when the agent's gap to its footprint exceeds `(max(|v|, maximum) + |w|) t0`, `w` the obstacle's velocity, the agent cannot reach it within the horizon at its speed or its cap, so the obstacle exerts nothing and adds no half-plane, as RVO2 keeps only the obstacles within 	imeHorizonObst * maxSpeed + radius. Each evaluation finds the pairs inside that bound with a uniform grid (`steerAutoMovieCrowdNeighbours`) whose cell is the largest reach any agent has, `max(NEIGHBOURHOOD, 2 (r_max + v_max t0))`, then tests each candidate exactly; candidates are visited in ascending order, the order of a full scan, so every sum is formed as before and the courses stay deterministic. That gradient is `k exp(-t / t0) t^-2 (2 / t + 1 / t0)` along the contact normal `n` at the predicted collision, divided by the closing speed along it, `-(n . u)`, so the push grows as a collision nears in time and is aimed away from where it would happen. The desired direction `e0` follows the goals as Reynolds's path following does (Reynolds 1999): toward the point `LOOKAHEAD` seconds of desired travel past the agent's nearest point on the polyline of its start and goals, slowed within `ARRIVAL` relaxation times of desired travel from its destination; with a herding share `p` it is `N[(1 - p) e0 + p <v_j> / v0]` (Helbing, Farkas and Vicsek 2000, Nature 407:487), `<v_j>` the mean velocity of the agents within `NEIGHBOURHOOD`, each weighted by Tukey's biweight kernel `(1 - (d / NEIGHBOURHOOD)^2)^2` (Beaton and Tukey 1974; the compactly supported smoothing kernels of SPH and Wendland's family are of the same kind): the paper's mean heading of the neighbours, read with a compact, continuously differentiable weight that falls to nothing at the neighbourhood's edge and a velocity that grows from rest, so the right-hand side is Lipschitz, which a well-posed integration needs (Picard and Lindelof), and no neighbour's entry or start jumps it. At each integration stage, the position rate comes from projecting the agent's own velocity into its `maximum` speed disc and the reciprocal avoidance half-planes over the horizon `t0` (van den Berg, Guy, Lin and Manocha 2011, `solveAutoMovieHalfPlaneProgram`): the anticipatory force steers, and the half-plane program supplies a projected position rate at each integration stage. The program can return a fallback when its constraints are infeasible. An obstacle takes part in the anticipatory push and also in the program. Its half-plane is the agent's own exit from the obstacle's velocity obstacle relative to its motion (Fiorini and Shiller 1998), so an obstacle that overtakes, meets or crosses the agent is anticipated by its velocity. The exit is the nearest the agent's speed can reach (`steerAutoMovieCrowdGeometry.obstacle`). The program keeps the obstacles' half-planes hard when it falls back, as van den Berg et al. keep theirs, so agents may crowd one another but do not give way into an obstacle. The sampled diagnostics cannot certify clearance between knots.
+ * Each agent's acceleration is the social force model's driving term toward its
+ * desired velocity, `(v0 e0 - v) / tau` with the relaxation time `tau` (Helbing
+ * and Molnar 1995, Phys Rev E 51:4282), plus the anticipatory interaction of
+ * the universal power law (Karamouzas, Skinner and Guy 2014, Phys Rev Lett
+ * 113:238701): with every other agent and obstacle it would meet within the
+ * time to collision `t` at the current velocities, the force is minus the
+ * spatial gradient of `E(t) = k t^-2 exp(-t / t0)`, cut at the horizon: a
+ * contact predicted later than `t0` exerts nothing. The paper's `t0`, about 3
+ * s, is its estimate of the interaction's intrinsic range, and its measured
+ * energy "quickly vanishes" past the observed range, "suggesting a truncation
+ * of the interaction when the time-to-collision is large"; the cut makes that
+ * truncation exact at `t0` (this repository's ruling: the paper's law itself
+ * decays smoothly and its simulation code could not be read). The cut makes the
+ * interaction local. Two discs `d` apart with summed radii `R` close their gap
+ * no faster than their relative speed `|v_i - v_j|`, so when `d - R > |v_i -
+ * v_j| t0` they cannot touch within the horizon and their term is exactly zero;
+ * such a pair's reciprocal half-plane is dropped with it, as van den Berg et
+ * al.'s RVO2 library keeps only the agents within its neighbour distance
+ * (Agent::computeNeighbors, eighborDist). An obstacle is cut alike: when the
+ * agent's gap to its footprint exceeds `(max(|v|, maximum) + |w|) t0`, `w` the
+ * obstacle's velocity, the agent cannot reach it within the horizon at its
+ * speed or its cap, so the obstacle exerts nothing and adds no half-plane, as
+ * RVO2 keeps only the obstacles within imeHorizonObst * maxSpeed + radius. Each
+ * evaluation finds the pairs inside that bound with a uniform grid
+ * (`steerAutoMovieCrowdNeighbours`) whose cell is the largest reach any agent
+ * has, `max(NEIGHBOURHOOD, 2 (r_max + v_max t0))`, then tests each candidate
+ * exactly; candidates are visited in ascending order, the order of a full scan,
+ * so every sum is formed as before and the courses stay deterministic. That
+ * gradient is `k exp(-t / t0) t^-2 (2 / t + 1 / t0)` along the contact normal
+ * `n` at the predicted collision, divided by the closing speed along it, `-(n .
+ * u)`, so the push grows as a collision nears in time and is aimed away from
+ * where it would happen. The desired direction `e0` follows the goals as
+ * Reynolds's path following does (Reynolds 1999): toward the point `LOOKAHEAD`
+ * seconds of desired travel past the agent's nearest point on the polyline of
+ * its start and goals, slowed within `ARRIVAL` relaxation times of desired
+ * travel from its destination; with a herding share `p` it is `N[(1 - p) e0 + p
+ * <v_j> / v0]` (Helbing, Farkas and Vicsek 2000, Nature 407:487), `<v_j>` the
+ * mean velocity of the agents within `NEIGHBOURHOOD`, each weighted by Tukey's
+ * biweight kernel `(1 - (d / NEIGHBOURHOOD)^2)^2` (Beaton and Tukey 1974; the
+ * compactly supported smoothing kernels of SPH and Wendland's family are of the
+ * same kind): the paper's mean heading of the neighbours, read with a compact,
+ * continuously differentiable weight that falls to nothing at the
+ * neighbourhood's edge and a velocity that grows from rest, so the right-hand
+ * side is Lipschitz, which a well-posed integration needs (Picard and
+ * Lindelof), and no neighbour's entry or start jumps it. At each integration
+ * stage, the position rate comes from projecting the agent's own velocity into
+ * its `maximum` speed disc and the reciprocal avoidance half-planes over the
+ * horizon `t0` (van den Berg, Guy, Lin and Manocha 2011,
+ * `solveAutoMovieHalfPlaneProgram`): the anticipatory force steers, and the
+ * half-plane program supplies a projected position rate at each integration
+ * stage. The program can return a fallback when its constraints are infeasible.
+ * An obstacle takes part in the anticipatory push and also in the program. Its
+ * half-plane is the agent's own exit from the obstacle's velocity obstacle
+ * relative to its motion (Fiorini and Shiller 1998), so an obstacle that
+ * overtakes, meets or crosses the agent is anticipated by its velocity. The
+ * exit is the nearest the agent's speed can reach
+ * (`steerAutoMovieCrowdGeometry.obstacle`). The program keeps the obstacles'
+ * half-planes hard when it falls back, as van den Berg et al. keep theirs, so
+ * agents may crowd one another but do not give way into an obstacle. The
+ * sampled diagnostics cannot certify clearance between knots.
  *
- * The state of the whole crowd is one vector handed to the engine's one fixed-step integrator, `integrateMotionTrajectory` (#3424), so every agent sees every other at the same instant (a synchronous update) and the courses are read back by its Hermite interpolation. Agents with distinct sort keys are integrated in a canonical order, so listing them in another order gives bit-identical courses. Interaction couples agents: adding one changes the others' courses. The pass is kinematic and reports a pair in `contacts` when the pair overlaps at two successive knots.
+ * The state of the whole crowd is one vector handed to the engine's one
+ * fixed-step integrator, `integrateMotionTrajectory` (#3424), so every agent
+ * sees every other at the same instant (a synchronous update) and the courses
+ * are read back by its Hermite interpolation. Agents with distinct sort keys
+ * are integrated in a canonical order, so listing them in another order gives
+ * bit-identical courses. Interaction couples agents: adding one changes the
+ * others' courses. The pass is kinematic and reports a pair in `contacts` when
+ * the pair overlaps at two successive knots.
  *
- * The force scale `K` is the energy's normalisation, which the paper fixes only up to units (E(1) = 1 in its figure); the published simulation's own constants, its force cap and its sensing range were searched for (the paper's supplement and the authors' page could not be read) and are provisional here, as is every other named constant marked so.
+ * The force scale `K` is the energy's normalisation, which the paper fixes only
+ * up to units (E(1) = 1 in its figure); the published simulation's own
+ * constants, its force cap and its sensing range were searched for (the paper's
+ * supplement and the authors' page could not be read) and are provisional here,
+ * as is every other named constant marked so.
  *
- * @param props The agents, the obstacles, the interval, the step and the law's two times.
+ * @param props The agents, the obstacles, the interval, the step and the law's
+ *   two times.
  * @returns Each agent's course in the order given, and the contacts.
- * @throws {Error} When an agent's radius, speed or start is not finite and positive where it must be, a goal list is empty, or the interval is not forward: a caller's defect.
+ * @throws {Error} When an agent's radius, speed or start is not finite and
+ *   positive where it must be, a goal list is empty, or the interval is not
+ *   forward: a caller's defect.
  */
 export function steerAutoMovieCrowd(
   props: IAutoMovieSteerCrowd.IProps,
@@ -142,7 +217,10 @@ export function steerAutoMovieCrowd(
       steerAutoMovieCrowdNeighbours(
         x,
         n,
-        Math.max(steerAutoMovieCrowd.NEIGHBOURHOOD, 2 * (widest + fastest * t0)),
+        Math.max(
+          steerAutoMovieCrowd.NEIGHBOURHOOD,
+          2 * (widest + fastest * t0),
+        ),
       );
     const dx: number[] = new Array<number>(4 * n).fill(0);
     const placed: IAutoMovieVector3[][] = obstacles.map(
@@ -494,31 +572,54 @@ export function steerAutoMovieCrowd(
   };
 }
 
-/**
- * Companion types and constants of {@link steerAutoMovieCrowd}.
- */
+/** Companion types and constants of {@link steerAutoMovieCrowd}. */
 export namespace steerAutoMovieCrowd {
   /** The relaxation time of the driving term, seconds (Helbing and Molnar 1995). */
   export const RELAXATION: number = 0.5;
 
-  /** The interaction's time horizon `t0`, seconds (Karamouzas, Skinner and Guy 2014: about 3 s). */
+  /**
+   * The interaction's time horizon `t0`, seconds (Karamouzas, Skinner and Guy
+   * 2014: about 3 s).
+   */
   export const HORIZON: number = 3;
 
-  /** The energy's scale `k`, square metres per second squared (provisional: the paper normalises it away; 1.5 is recalled from the authors' reference implementation, not read). */
+  /**
+   * The energy's scale `k`, square metres per second squared (provisional: the
+   * paper normalises it away; 1.5 is recalled from the authors' reference
+   * implementation, not read).
+   */
   export const K: number = 1.5;
 
-  /** The largest push, metres per second squared (provisional: caps the gradient's singularity at a grazing pass, which the implicit-crowds work of Karamouzas, Sohre, Narain and Guy 2017 describes). */
+  /**
+   * The largest push, metres per second squared (provisional: caps the
+   * gradient's singularity at a grazing pass, which the implicit-crowds work of
+   * Karamouzas, Sohre, Narain and Guy 2017 describes).
+   */
   export const CAP: number = 20;
 
-  /** Metres within which a neighbour's heading enters the herding mean (provisional: Helbing, Farkas and Vicsek 2000 say "a certain neighborhood"). */
+  /**
+   * Metres within which a neighbour's heading enters the herding mean
+   * (provisional: Helbing, Farkas and Vicsek 2000 say "a certain
+   * neighborhood").
+   */
   export const NEIGHBOURHOOD: number = 2;
 
-  /** Seconds of desired travel ahead of the nearest point of the goals' polyline that the agent heads for (provisional, after Reynolds 1999's path following). */
+  /**
+   * Seconds of desired travel ahead of the nearest point of the goals' polyline
+   * that the agent heads for (provisional, after Reynolds 1999's path
+   * following).
+   */
   export const LOOKAHEAD: number = 1;
 
-  /** Relaxation times of desired travel from the destination within which the desired speed falls linearly to 0 (provisional, Reynolds 1999's arrival). */
+  /**
+   * Relaxation times of desired travel from the destination within which the
+   * desired speed falls linearly to 0 (provisional, Reynolds 1999's arrival).
+   */
   export const ARRIVAL: number = 2;
 
-  /** The maximum speed over the desired one when an agent gives none (Helbing and Molnar 1995: 1.3). */
+  /**
+   * The maximum speed over the desired one when an agent gives none (Helbing
+   * and Molnar 1995: 1.3).
+   */
   export const MAXIMUM: number = 1.3;
 }

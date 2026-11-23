@@ -9,9 +9,9 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
 /**
- * The interval an admitted shape covers along a world direction: the lowest
- * and highest projections of its points onto a unit axis, metres from the
- * world origin. The shape is placed by its parent pose composed with its own
+ * The interval an admitted shape covers along a world direction: the lowest and
+ * highest projections of its points onto a unit axis, metres from the world
+ * origin. The shape is placed by its parent pose composed with its own
  * transform.
  *
  * @param pose The shape's parent pose, world metres.

@@ -16,42 +16,44 @@ import type {
 import { AutoMovieNaturalSpline } from "../construction/AutoMovieNaturalSpline";
 
 /**
- * Reverse extraction of sparse 2D lines from a dense triangle mesh: exact
- * plane sections at stations along a frame axis, with their chained loops,
- * extreme points in eight in-plane directions and artifact flags, and the
- * fewest cubic Hermite knots (value and slope on a run, point and tangent on
- * a closed loop) that hold a dense sampled line within a tolerance. It is an
- * analysis of an existing mesh, kept apart from construction, whose sources
- * are authored and never fitted to samples: a modeler reads a reference here,
- * corrects the result by eye, and authors the corrected knots as source.
- * {@link profileCurve} is the output adaptor for that hand-over: it turns
- * per-station knot loops (extracted or corrected) into the curve owner the
- * construction profile consumes, which is why this module imports the
- * profile source type and the natural spline; it evaluates the given knots
- * and fits nothing.
+ * Reverse extraction of sparse 2D lines from a dense triangle mesh: exact plane
+ * sections at stations along a frame axis, with their chained loops, extreme
+ * points in eight in-plane directions and artifact flags, and the fewest cubic
+ * Hermite knots (value and slope on a run, point and tangent on a closed loop)
+ * that hold a dense sampled line within a tolerance. It is an analysis of an
+ * existing mesh, kept apart from construction, whose sources are authored and
+ * never fitted to samples: a modeler reads a reference here, corrects the
+ * result by eye, and authors the corrected knots as source. {@link profileCurve}
+ * is the output adaptor for that hand-over: it turns per-station knot loops
+ * (extracted or corrected) into the curve owner the construction profile
+ * consumes, which is why this module imports the profile source type and the
+ * natural spline; it evaluates the given knots and fits nothing.
  */
 export namespace AutoMovieMeshExtract {
   /**
    * The exact plane sections of a mesh at stations along one frame axis: each
    * triangle edge crossing the plane `dot(p - origin, axis) = station` gives
-   * its exact crossing point (a vertex on the plane counts as just above it,
-   * so a triangle crosses on exactly zero or two edges and no edge lies in
-   * the plane). Each triangle's two crossings form one segment; segments are
+   * its exact crossing point (a vertex on the plane counts as just above it, so
+   * a triangle crosses on exactly zero or two edges and no edge lies in the
+   * plane). Each triangle's two crossings form one segment; segments are
    * chained through their shared edges into loops. A crossing used by other
-   * than two segments is a dangling end, and the sample is flagged "open".
-   * The extremes are taken over the crossings, which a polygonal section's
-   * extremes always are. An extreme leaving the mean of its two neighbouring
-   * stations' by more than the tolerance is flagged as a jump. The outer
-   * boundaries join open chains across gaps up to the bridge, each bridged
-   * gap flagged "bridged", chains still open flagged "unclosed", and drop the
-   * pieces enclosed by another (see {@link ISection.outer}).
+   * than two segments is a dangling end, and the sample is flagged "open". The
+   * extremes are taken over the crossings, which a polygonal section's extremes
+   * always are. An extreme leaving the mean of its two neighbouring stations'
+   * by more than the tolerance is flagged as a jump. The outer boundaries join
+   * open chains across gaps up to the bridge, each bridged gap flagged
+   * "bridged", chains still open flagged "unclosed", and drop the pieces
+   * enclosed by another (see {@link ISection.outer}).
    *
    * @param mesh The mesh.
    * @param frame The frame.
    * @param stations Stations along the frame axis, millimetres, in order.
    * @param axis Index of the station axis in `frame.axes`.
-   * @param tolerance Admitted departure of an extreme from its neighbours' mean, millimetres.
-   * @param bridge Longest gap between chain ends the outer boundaries close, millimetres (25 by default: wider than a mouth slit or a nostril, narrower than a limb).
+   * @param tolerance Admitted departure of an extreme from its neighbours'
+   *   mean, millimetres.
+   * @param bridge Longest gap between chain ends the outer boundaries close,
+   *   millimetres (25 by default: wider than a mouth slit or a nostril,
+   *   narrower than a limb).
    * @returns One section per station, in the given order.
    */
   export function outline(
@@ -217,8 +219,8 @@ export namespace AutoMovieMeshExtract {
   /**
    * Chains a section's segments through their shared crossings: chains start
    * first at crossings of other than two segments (the ends of open chains),
-   * then anywhere on what remains (closed loops). Consecutive coincident
-   * points (two edges meeting at a vertex just above the plane) are merged.
+   * then anywhere on what remains (closed loops). Consecutive coincident points
+   * (two edges meeting at a vertex just above the plane) are merged.
    */
   function chain(
     segments: readonly [string, string][],
@@ -289,10 +291,10 @@ export namespace AutoMovieMeshExtract {
    * A cut's outer boundaries. Open chains are joined end to end, always the
    * nearest pair of ends first while that gap stays within the bridge: first
    * only a chain's tail to a chain's head (the winding agrees, so the join
-   * continues the same contour), then any two ends with a chain reversed
-   * (an inconsistently wound reference). A chain whose own tail meets its
-   * head closes. The closed pieces enclosed by another (tested at their first
-   * point, even-odd) are dropped; the rest return, largest area first.
+   * continues the same contour), then any two ends with a chain reversed (an
+   * inconsistently wound reference). A chain whose own tail meets its head
+   * closes. The closed pieces enclosed by another (tested at their first point,
+   * even-odd) are dropped; the rest return, largest area first.
    */
   function enclose(
     pieces: readonly IAutoMovieMeshSectionChain[],
@@ -441,15 +443,15 @@ export namespace AutoMovieMeshExtract {
 
   /**
    * The fewest value-and-slope knots that hold a dense run within the
-   * tolerance. Every sample starts as a knot with its central-difference
-   * slope; knots are then removed one at a time, always the one whose removal
-   * deviates least, while that deviation stays within the tolerance. On each
-   * removal the two neighbouring knots' slopes are refitted by least squares
-   * to the dense samples of the three spans they shape (knot removal with a
-   * least-squares approximation, Lyche and Morken, Knot removal for
-   * parametric B-spline curves and surfaces, CAGD 4, 1987), so facet noise in
-   * the samples does not enter the slopes, and the deviation is the largest
-   * over those spans' samples. Knot values stay the samples' own.
+   * tolerance. Every sample starts as a knot with its central-difference slope;
+   * knots are then removed one at a time, always the one whose removal deviates
+   * least, while that deviation stays within the tolerance. On each removal the
+   * two neighbouring knots' slopes are refitted by least squares to the dense
+   * samples of the three spans they shape (knot removal with a least-squares
+   * approximation, Lyche and Morken, Knot removal for parametric B-spline
+   * curves and surfaces, CAGD 4, 1987), so facet noise in the samples does not
+   * enter the slopes, and the deviation is the largest over those spans'
+   * samples. Knot values stay the samples' own.
    *
    * Never removed: the ends, the pinned indices, and the prominent features: a
    * local extremum whose topographic prominence exceeds twice the tolerance
@@ -460,11 +462,15 @@ export namespace AutoMovieMeshExtract {
    * through the middle of a bump that high stays within the tolerance of both
    * its top and its foot without a knot of its own.
    *
-   * @param all Dense `[station, value]` points in strictly increasing station order.
-   * @param tolerance Largest admitted deviation, the values' units (0.5 mm by default).
+   * @param all Dense `[station, value]` points in strictly increasing station
+   *   order.
+   * @param tolerance Largest admitted deviation, the values' units (0.5 mm by
+   *   default).
    * @param pinned Indices of named landmarks to keep.
-   * @param excluded Indices of flagged samples to leave out of the fit and its error (holes, spikes, saw teeth).
-   * @returns The knots in station order and the largest deviation of any kept dense sample from its span.
+   * @param excluded Indices of flagged samples to leave out of the fit and its
+   *   error (holes, spikes, saw teeth).
+   * @returns The knots in station order and the largest deviation of any kept
+   *   dense sample from its span.
    */
   export function reduce(
     all: readonly (readonly [number, number])[],
@@ -567,20 +573,23 @@ export namespace AutoMovieMeshExtract {
   /**
    * The loop variant for top silhouettes and section loops: the dense closed
    * loop is parameterised by cumulative chord length, every point starts as a
-   * knot with its periodic central-difference tangent, and knots are removed
-   * as in {@link reduce}, the deviation being the Euclidean distance of a
-   * dense point from its span and both tangent components refitted. Never
-   * removed: the extremes along both axes (their axis component of tangent
-   * held at zero, so the curve's extreme is the sample's), the pinned indices
-   * and the prominent inflections (sign changes of the turn between bends
-   * whose sagittas exceed twice the tolerance after the weaker facet wiggles
-   * merge away); at least four knots remain.
+   * knot with its periodic central-difference tangent, and knots are removed as
+   * in {@link reduce}, the deviation being the Euclidean distance of a dense
+   * point from its span and both tangent components refitted. Never removed:
+   * the extremes along both axes (their axis component of tangent held at zero,
+   * so the curve's extreme is the sample's), the pinned indices and the
+   * prominent inflections (sign changes of the turn between bends whose
+   * sagittas exceed twice the tolerance after the weaker facet wiggles merge
+   * away); at least four knots remain.
    *
-   * @param all Dense closed loop, last point not repeated, no two consecutive points equal.
+   * @param all Dense closed loop, last point not repeated, no two consecutive
+   *   points equal.
    * @param tolerance Largest admitted distance (0.5 mm by default).
    * @param pinned Indices of named landmarks to keep.
-   * @param excluded Indices of flagged samples to leave out of the fit and its error.
-   * @returns The knots in loop order, the loop's chord length and the largest distance of any kept dense point from its span.
+   * @param excluded Indices of flagged samples to leave out of the fit and its
+   *   error.
+   * @returns The knots in loop order, the loop's chord length and the largest
+   *   distance of any kept dense point from its span.
    */
   export function reduceLoop(
     all: readonly (readonly [number, number])[],
@@ -715,18 +724,18 @@ export namespace AutoMovieMeshExtract {
    * A section family through reduced loops at several stations, in the shape
    * the engine's profile construction consumes
    * (`IAutoMovieConstructionProfileSource.ICurve`): `point(station, clock)`
-   * with its phase and total-order-two jet, in the loops' `[a, b]`
-   * millimetres. Nothing is fitted: each loop is its own periodic Hermite
-   * spline, and stations are joined by the natural cubic spline through the
-   * loops' values at the same clock.
+   * with its phase and total-order-two jet, in the loops' `[a, b]` millimetres.
+   * Nothing is fitted: each loop is its own periodic Hermite spline, and
+   * stations are joined by the natural cubic spline through the loops' values
+   * at the same clock.
    *
-   * The clock is each loop's chord length over its total, in [0, 1) with
-   * period 1, so equal clocks are equal fractions of the way round. Every
-   * loop is first turned counter-clockwise in `[a, b]` (positive shoelace
-   * area), and its clock starts at its knot farthest along `+a` (the extreme
-   * reduceLoop always keeps), so clock 0 is the `+a` side at every station.
-   * Station derivatives come from the natural spline's cardinal functions,
-   * clock derivatives from the Hermite spans, so all orders differentiate one
+   * The clock is each loop's chord length over its total, in [0, 1) with period
+   * 1, so equal clocks are equal fractions of the way round. Every loop is
+   * first turned counter-clockwise in `[a, b]` (positive shoelace area), and
+   * its clock starts at its knot farthest along `+a` (the extreme reduceLoop
+   * always keeps), so clock 0 is the `+a` side at every station. Station
+   * derivatives come from the natural spline's cardinal functions, clock
+   * derivatives from the Hermite spans, so all orders differentiate one
    * function; past the end stations the spline extends linearly.
    *
    * @param stations At least two loops, in strictly increasing station order.
@@ -809,14 +818,20 @@ export namespace AutoMovieMeshExtract {
     };
   }
 
-  /** A loop normalised to the unit clock: knot clocks from 0, points, and tangents per clock unit. */
+  /**
+   * A loop normalised to the unit clock: knot clocks from 0, points, and
+   * tangents per clock unit.
+   */
   interface IClockLoop {
     clocks: number[];
     points: [number, number][];
     tangents: [number, number][];
   }
 
-  /** Turns a reduced loop counter-clockwise, starts it at its +a extreme knot and rescales it to the unit clock. */
+  /**
+   * Turns a reduced loop counter-clockwise, starts it at its +a extreme knot
+   * and rescales it to the unit clock.
+   */
   function clockLoop(loop: {
     knots: readonly IAutoMoviePlanarHermiteKnot[];
     length: number;
@@ -883,7 +898,10 @@ export namespace AutoMovieMeshExtract {
     return { clocks, points, tangents };
   }
 
-  /** A normalised loop's point and its first and second clock derivatives at a clock, wrapped into [0, 1). */
+  /**
+   * A normalised loop's point and its first and second clock derivatives at a
+   * clock, wrapped into [0, 1).
+   */
   function readClock(
     loop: IClockLoop,
     clock: number,
@@ -935,8 +953,8 @@ export namespace AutoMovieMeshExtract {
 
   /**
    * The cubic Hermite through (s0, v0, m0) and (s1, v1, m1) at s: the span
-   * every knot pair of {@link reduce} and, per coordinate, of
-   * {@link reduceLoop} defines.
+   * every knot pair of {@link reduce} and, per coordinate, of {@link reduceLoop}
+   * defines.
    *
    * @param s0 Start station.
    * @param v0 Start value.
@@ -945,7 +963,8 @@ export namespace AutoMovieMeshExtract {
    * @param v1 End value.
    * @param m1 End slope.
    * @param s Station to read.
-   * @returns The span's value at `s`; outside `[s0, s1]` the same cubic extended.
+   * @returns The span's value at `s`; outside `[s0, s1]` the same cubic
+   *   extended.
    */
   export function hermite(
     s0: number,
@@ -961,14 +980,20 @@ export namespace AutoMovieMeshExtract {
     return h00 * v0 + h10 * h * m0 + h01 * v1 + h11 * h * m1;
   }
 
-  /** The cubic Hermite basis at normalised u: value at 0, slope at 0, value at 1, slope at 1. */
+  /**
+   * The cubic Hermite basis at normalised u: value at 0, slope at 0, value at
+   * 1, slope at 1.
+   */
   function basis(u: number): [number, number, number, number] {
     const u2: number = u * u;
     const u3: number = u2 * u;
     return [2 * u3 - 3 * u2 + 1, u3 - 2 * u2 + u, -2 * u3 + 3 * u2, u3 - u2];
   }
 
-  /** The parameter distance from sample i forward to sample j, one period added when j does not follow i. */
+  /**
+   * The parameter distance from sample i forward to sample j, one period added
+   * when j does not follow i.
+   */
   function forward(
     t: readonly number[],
     period: number | null,
@@ -993,7 +1018,10 @@ export namespace AutoMovieMeshExtract {
     slopes: number[][];
   }
 
-  /** The removal problem: spans plus the pins, the held slope components and the stop rule. */
+  /**
+   * The removal problem: spans plus the pins, the held slope components and the
+   * stop rule.
+   */
   interface IRemoval extends ISpans {
     /** Slope components held at their value (zero), per coordinate per sample. */
     fixed: readonly (readonly boolean[])[];
@@ -1009,8 +1037,8 @@ export namespace AutoMovieMeshExtract {
   }
 
   /**
-   * The samples strictly inside the span from i to j, with their span
-   * parameter u in (0, 1) and the span length h.
+   * The samples strictly inside the span from i to j, with their span parameter
+   * u in (0, 1) and the span length h.
    */
   function inside(
     spans: ISpans,
@@ -1029,7 +1057,10 @@ export namespace AutoMovieMeshExtract {
     return { k, u, h };
   }
 
-  /** The largest distance of a span's inner samples from the span, with the given slopes at its ends. */
+  /**
+   * The largest distance of a span's inner samples from the span, with the
+   * given slopes at its ends.
+   */
   function spanError(
     spans: ISpans,
     i: number,
@@ -1071,12 +1102,12 @@ export namespace AutoMovieMeshExtract {
 
   /**
    * The cost of removing a knot between alive neighbours a and b, with a0
-   * before a and b1 after b (null past an open run's ends): the slopes of a
-   * and b are refitted by least squares to the inner samples of the spans
-   * (a0, a), (a, b) and (b, b1), the slopes of a0 and b1 staying, a held
-   * component staying at its value; the cost is the largest deviation over
-   * those spans with the refitted slopes. Each coordinate is an independent
-   * two-unknown linear least squares, since the basis is shared.
+   * before a and b1 after b (null past an open run's ends): the slopes of a and
+   * b are refitted by least squares to the inner samples of the spans (a0, a),
+   * (a, b) and (b, b1), the slopes of a0 and b1 staying, a held component
+   * staying at its value; the cost is the largest deviation over those spans
+   * with the refitted slopes. Each coordinate is an independent two-unknown
+   * linear least squares, since the basis is shared.
    */
   function refit(
     problem: IRemoval,
@@ -1158,10 +1189,10 @@ export namespace AutoMovieMeshExtract {
   }
 
   /**
-   * Greedy knot removal: the alive knot whose refitted removal deviates
-   * least goes, while that deviation stays within the tolerance; the
-   * refitted slopes of its neighbours are written back. Returns the alive
-   * sample indices in order.
+   * Greedy knot removal: the alive knot whose refitted removal deviates least
+   * goes, while that deviation stays within the tolerance; the refitted slopes
+   * of its neighbours are written back. Returns the alive sample indices in
+   * order.
    */
   function remove(problem: IRemoval): number[] {
     const cyclic: boolean = problem.period !== null;
@@ -1228,8 +1259,8 @@ export namespace AutoMovieMeshExtract {
   }
 
   /**
-   * Topographic prominence of the local extremum at `i`: on each side, how
-   * far the run falls from it (rises, for a minimum) before it passes the
+   * Topographic prominence of the local extremum at `i`: on each side, how far
+   * the run falls from it (rises, for a minimum) before it passes the
    * extremum's value or ends; the smaller side.
    */
   function prominence(v: readonly number[], i: number): number {
@@ -1255,17 +1286,19 @@ export namespace AutoMovieMeshExtract {
   }
 
   /**
-   * The prominent inflections of a sequence of bends. Nonzero bends are
-   * grouped into runs of one sign; while the weakest run's sagitta stays
-   * within the noise threshold it is merged with its neighbours into their
-   * sign (topographic prominence applied to curvature), so facet-level
-   * wiggles dissolve into the bend they ride on. Each boundary between two
-   * surviving runs is an inflection: the middle of the zero bends between
-   * them, else the side whose bend is nearer zero.
+   * The prominent inflections of a sequence of bends. Nonzero bends are grouped
+   * into runs of one sign; while the weakest run's sagitta stays within the
+   * noise threshold it is merged with its neighbours into their sign
+   * (topographic prominence applied to curvature), so facet-level wiggles
+   * dissolve into the bend they ride on. Each boundary between two surviving
+   * runs is an inflection: the middle of the zero bends between them, else the
+   * side whose bend is nearer zero.
    *
    * @param bend Signed bend per sample; zero bends belong to no run.
-   * @param cyclic Whether the samples close into a loop; runs then wrap and use unwrapped indices.
-   * @param sagitta Signed sagitta of the run `first .. last` of bend sign `sign` against the chord between its outer neighbours.
+   * @param cyclic Whether the samples close into a loop; runs then wrap and use
+   *   unwrapped indices.
+   * @param sagitta Signed sagitta of the run `first .. last` of bend sign
+   *   `sign` against the chord between its outer neighbours.
    * @param noise Largest sagitta still treated as noise.
    */
   function inflections(

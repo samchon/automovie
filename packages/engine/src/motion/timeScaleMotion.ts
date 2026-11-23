@@ -7,7 +7,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Multiply an admitted clip's seconds clock by a positive finite factor. Keyframe times, duration and optional stride period/phase scale together; pose and expression values are borrowed and unchanged.
+ * Multiply an admitted clip's seconds clock by a positive finite factor.
+ * Keyframe times, duration and optional stride period/phase scale together;
+ * pose and expression values are borrowed and unchanged.
  */
 export const timeScaleMotion: (
   clip: IAutoMovieMotion,

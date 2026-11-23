@@ -3,9 +3,7 @@ import {
   IAutoMovieProductionViseme,
 } from "@automovie/interface";
 
-/**
- * Map supplied phoneme chunk sample timing to film-frame vowel/rest intervals.
- */
+/** Map supplied phoneme chunk sample timing to film-frame vowel/rest intervals. */
 export const productionPhonemesToVisemes: (
   props: IAutoMovieProductionPhonemesToVisemes.IProps,
 ) => IAutoMovieProductionViseme[] = (
@@ -66,7 +64,11 @@ export const productionPhonemesToVisemes: (
   return output;
 };
 
-/** Case-fold one normalized code point using en-US and match the fixed vowel groups in declared order; unknown symbols return rest and case expansions can contain a matching vowel. */
+/**
+ * Case-fold one normalized code point using en-US and match the fixed vowel
+ * groups in declared order; unknown symbols return rest and case expansions can
+ * contain a matching vowel.
+ */
 const phonemeViseme: (
   phoneme: string,
 ) => "rest" | "aa" | "ih" | "ou" | "ee" | "oh" = (

@@ -9,8 +9,8 @@ import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeErr
  * The production and film ids must be non-blank and both builder identities
  * must be exact lowercase SHA-256 content digests. The writer checks this
  * before it stamps a runtime and the sampler before it compares one, so a
- * malformed identity is refused as `film-effect-input-invalid` rather than
- * read as a stale match.
+ * malformed identity is refused as `film-effect-input-invalid` rather than read
+ * as a stale match.
  */
 export const validateProductionFilmEffectIdentity = (
   identity: IAutoMovieFilmEffectCurrentIdentity,

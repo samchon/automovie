@@ -11,12 +11,11 @@ import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";
 
 /**
- * Prepares, measures and diagnoses the actual conic/G2 source without replacing it.
+ * Prepares, measures and diagnoses the actual conic/G2 source without replacing
+ * it.
  */
 export namespace AutoMovieViewSectionConic {
-  /**
-   * Prepare shared guides and the retained native quadrature partition.
-   */
+  /** Prepare shared guides and the retained native quadrature partition. */
   export function prepare(
     box: IAutoMovieViewSection.IBox,
     shoulders: IAutoMovieViewSection.ISection["shoulders"],
@@ -45,9 +44,10 @@ export namespace AutoMovieViewSectionConic {
   }
 
   /**
-   * Actual native-piece arclength after a fixed diagonal map, in the same length unit.
+   * Actual native-piece arclength after a fixed diagonal map, in the same
+   * length unit.
    *
-   * axisScale is dimensionless, finite and nonzero; reflection has the same
+   * AxisScale is dimensionless, finite and nonzero; reflection has the same
    * norm. Source extents, controls, weights, native supports and partitions
    * remain unchanged. Only derivative/control differences enter the mapped
    * norm. tolerance is a positive native estimated target, default1e-7;
@@ -183,9 +183,7 @@ export namespace AutoMovieViewSectionConic {
     return Number.isFinite(total) && total > 0 ? total : NaN;
   }
 
-  /**
-   * Actual finite-source, curvature or support diagnostic, otherwise null.
-   */
+  /** Actual finite-source, curvature or support diagnostic, otherwise null. */
   export function fault(
     section: Pick<IAutoMovieViewSection.ISection, "conics" | "box" | "girth">,
   ): string | null {
@@ -221,7 +219,10 @@ export namespace AutoMovieViewSectionConic {
     speed: (t: number) => number;
   }
 
-  /** An invocation-owned pending native panel with its already computed integral. */
+  /**
+   * An invocation-owned pending native panel with its already computed
+   * integral.
+   */
   interface IPanel {
     /** Native interval's first parameter. */
     a: number;
@@ -239,7 +240,10 @@ export namespace AutoMovieViewSectionConic {
     depth: number;
   }
 
-  /** One convex rational subarc's normalized homogeneous controls and error share. */
+  /**
+   * One convex rational subarc's normalized homogeneous controls and error
+   * share.
+   */
   interface IEndPanel {
     /** Deficit/height coordinates times positive weight, then weight. */
     controls: readonly (readonly [number, number, number])[];

@@ -8,9 +8,7 @@ import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 import { weldMeshVertices } from "../math/weldMeshVertices";
 
-/**
- * Append shared welded edge-incidence, winding and optional boundary findings.
- */
+/** Append shared welded edge-incidence, winding and optional boundary findings. */
 export const appendMeshTopology: (
   mesh: IAutoMovieMesh,
   path: string,

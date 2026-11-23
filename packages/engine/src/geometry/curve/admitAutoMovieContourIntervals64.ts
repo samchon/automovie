@@ -6,9 +6,7 @@ import type {
 type Ring = IAutoMoviePlanContourSlabs64Props["rings"][number][number];
 type Slice = IAutoMoviePlanContourSlabs64Props["slices"][number];
 
-/**
- * Admit explicit adjacent intervals while retaining independent usable groups.
- */
+/** Admit explicit adjacent intervals while retaining independent usable groups. */
 export function admitAutoMovieContourIntervals64(
   props: IAutoMoviePlanContourSlabs64Props,
 ): Map<number, IAutoMovieContourLoft64.IInterval> | undefined {

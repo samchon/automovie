@@ -1,8 +1,6 @@
 import type { IAutoMoviePhysicalCoupledTargetFit } from "@automovie/interface";
 
-/**
- * A coupled target interval failed before a completed bake could be published.
- */
+/** A coupled target interval failed before a completed bake could be published. */
 export class AutoMoviePhysicalCoupledTargetError extends Error {
   /**
    * Keep the typed failure and form the ordinary message from its step, group,

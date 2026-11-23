@@ -12,15 +12,15 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * `axis` and answers the smallest and largest depth along `axis` at which a
  * triangle covers it, or `null` when none does. The query plane is Y/Z for
  * depth X, Z/X for depth Y and X/Y for depth Z, in the mesh-local metre frame.
- * An open surface may return equal depths, winding does not matter, and a
- * point on a shared edge belongs to both neighbours. A triangle whose
- * projection has zero area, one parallel to the query axis, is skipped, so the
- * sampler reports a surface envelope and not a closed-volume test.
+ * An open surface may return equal depths, winding does not matter, and a point
+ * on a shared edge belongs to both neighbours. A triangle whose projection has
+ * zero area, one parallel to the query axis, is skipped, so the sampler reports
+ * a surface envelope and not a closed-volume test.
  *
  * The mesh is copied into the index at creation, so later caller mutations
- * never change an answer. Creation throws on an invalid axis, a malformed
- * index buffer, a non-finite position, or projected area or extent arithmetic
- * that overflows; a query throws on a non-finite coordinate or depth.
+ * never change an answer. Creation throws on an invalid axis, a malformed index
+ * buffer, a non-finite position, or projected area or extent arithmetic that
+ * overflows; a query throws on a non-finite coordinate or depth.
  *
  * @param mesh Resident surface, snapshotted.
  * @param axis Depth axis.

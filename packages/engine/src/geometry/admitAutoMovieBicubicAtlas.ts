@@ -4,12 +4,13 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Admit the global recipe and identify its structurally usable patch occurrences.
- * Invalid coefficient or canonical-boundary declarations omit only incident patches and retain
- * exact diagnostics; valid independent patches remain available for display.
- * Producer source-fit qualifications are retained as diagnostics independently
- * of structural completeness and never suppress finite usable patches.
- * An empty declared patch array is an explicit incomplete generated domain.
+ * Admit the global recipe and identify its structurally usable patch
+ * occurrences. Invalid coefficient or canonical-boundary declarations omit only
+ * incident patches and retain exact diagnostics; valid independent patches
+ * remain available for display. Producer source-fit qualifications are retained
+ * as diagnostics independently of structural completeness and never suppress
+ * finite usable patches. An empty declared patch array is an explicit
+ * incomplete generated domain.
  */
 export function admitAutoMovieBicubicAtlas(
   input: IAutoMovieBicubicAtlasGeometry,

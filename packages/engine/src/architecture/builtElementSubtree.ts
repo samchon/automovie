@@ -4,11 +4,11 @@ import { IAutoMovieBuiltElement } from "@automovie/interface";
  * The ids of some elements and of every element below them through `parent`
  * links.
  *
- * The roots are always included, even when no declared element carries them,
- * so the caller decides whether an undeclared root is an error. A parent cycle
- * in an unvalidated record terminates, because each id enters the set once.
- * The set's iteration order is breadth-first discovery order from the roots in
- * the order given.
+ * The roots are always included, even when no declared element carries them, so
+ * the caller decides whether an undeclared root is an error. A parent cycle in
+ * an unvalidated record terminates, because each id enters the set once. The
+ * set's iteration order is breadth-first discovery order from the roots in the
+ * order given.
  *
  * @param elements Every element of one environment.
  * @param roots Element ids to start from.

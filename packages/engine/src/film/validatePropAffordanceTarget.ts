@@ -13,10 +13,11 @@ import {
  * its model must declare the cited affordance, and that affordance must have
  * the kind the relation needs: `stack-top` to rest on (`on-support`), `socket`
  * to attach, `hook` to hang (`suspended`). The first failing rule is reported
- * under `<path>.target.prop` or `<path>.target.affordance` and the rest are
- * not judged, because each depends on the one before.
+ * under `<path>.target.prop` or `<path>.target.affordance` and the rest are not
+ * judged, because each depends on the one before.
  *
- * @param props.relation The relation whose target is checked; its kind picks the affordance kind.
+ * @param props.relation The relation whose target is checked; its kind picks
+ *   the affordance kind.
  * @param props.target The relation's prop-affordance target.
  * @param props.path Violation path of the relation.
  * @param props.node Node id of the citing prop.

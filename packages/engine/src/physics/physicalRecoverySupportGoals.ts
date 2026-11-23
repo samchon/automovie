@@ -10,7 +10,9 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
 
 /**
- * Recover original declared world endpoints at a single clock. Accepted recovery offsets translate the declaration; a fitted, unmet output never becomes a new promise.
+ * Recover original declared world endpoints at a single clock. Accepted
+ * recovery offsets translate the declaration; a fitted, unmet output never
+ * becomes a new promise.
  */
 export function physicalRecoverySupportGoals(
   body: IAutoMoviePhysicalSimulationInput.IBody,

@@ -6,14 +6,14 @@ import type {
 import { Vector3 } from "../math/Vector3";
 
 /**
- * The rigid ring modules of a humanoid body, each a short stack of
- * eight-sided sections around one joint's segment, from the rest skeleton
- * alone: joint positions, tips and girth radii.
+ * The rigid ring modules of a humanoid body, each a short stack of eight-sided
+ * sections around one joint's segment, from the rest skeleton alone: joint
+ * positions, tips and girth radii.
  *
  * This is the one statement of the body's simple solid form. The polygon
  * drawing lofts a mesh through each module's rings and the physical profile
- * takes the convex hull of the same ring points as that segment's collider,
- * so what is seen and what collides cannot drift apart.
+ * takes the convex hull of the same ring points as that segment's collider, so
+ * what is seen and what collides cannot drift apart.
  *
  * The skeleton is in the Human frame at rest: +X forward, +Y up, +Z left,
  * metres. The trunk's modules share their boundary rings (pelvis floor, hip,
@@ -21,11 +21,11 @@ import { Vector3 } from "../math/Vector3";
  * spans; the neck runs from the neck joint to the head joint; the head widens
  * to its girth and closes on a pole at its tip; a palm runs from the wrist
  * toward the mean of the four finger roots as far as the farthest of them, so
- * no knuckle is bare beyond it; a foot is two modules through the
- * subtalar and midfoot joints to the toe roots; every other segment is three
- * round rings from its joint to its end, narrowing to the next segment or
- * bevelled at a leaf. Shoulder, scapula, foot, eye, jaw and atlas joints
- * drive others and carry no module.
+ * no knuckle is bare beyond it; a foot is two modules through the subtalar and
+ * midfoot joints to the toe roots; every other segment is three round rings
+ * from its joint to its end, narrowing to the next segment or bevelled at a
+ * leaf. Shoulder, scapula, foot, eye, jaw and atlas joints drive others and
+ * carry no module.
  *
  * @param bones The rest joints, parent before child, in the Human frame.
  * @returns The modules in drawing order: hips, spine, head, chest, neck, each
@@ -361,23 +361,38 @@ const vector = (
   z: tuple[2],
 });
 
-/** A section that keeps its girth circle's area pi r² when its lateral half width becomes `breadth`: depth = r²/breadth. */
+/**
+ * A section that keeps its girth circle's area pi r² when its lateral half
+ * width becomes `breadth`: depth = r²/breadth.
+ */
 const section = (
   centre: IAutoMovieVector3,
   radius: number,
   breadth: number,
 ): ISection => ({ centre, depth: (radius * radius) / breadth, breadth });
 
-/** Points per ring: the body's one level of detail, independent of its dimensions. */
+/**
+ * Points per ring: the body's one level of detail, independent of its
+ * dimensions.
+ */
 const SIDES: number = 8;
 
-/** Waist breadth over shoulder breadth (convention: adult waist breadth about three quarters of biacromial). */
+/**
+ * Waist breadth over shoulder breadth (convention: adult waist breadth about
+ * three quarters of biacromial).
+ */
 const WAIST_SHARE: number = 0.75;
 
-/** Chest breadth over shoulder breadth (convention: adult chest breadth about 0.85 of biacromial). */
+/**
+ * Chest breadth over shoulder breadth (convention: adult chest breadth about
+ * 0.85 of biacromial).
+ */
 const CHEST_SHARE: number = 0.85;
 
-/** A leaf segment's end ring over its girth radius, the display convention for a bevelled tip. */
+/**
+ * A leaf segment's end ring over its girth radius, the display convention for a
+ * bevelled tip.
+ */
 const TIP_BEVEL: number = 0.5;
 
 /** The upward axis of the Human frame. */

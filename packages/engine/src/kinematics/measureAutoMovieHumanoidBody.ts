@@ -27,18 +27,18 @@ import { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoidSurf
  * read from rest joint centres (sides averaged); segment lengths are
  * joint-to-joint distances; the stature, the head radius, the foot extents
  * (over the foot and, when the profile jointed them, the toes), the chest
- * extents and the limb radii are read from the colliders of the
- * matching profile segments by their exact axis bounds at rest
- * (`physicalShapeBounds`). The hand runs from the wrist to the farthest point
- * along the forearm of the hand segment's colliders and its finger segments'
- * when the profile has them, the middle fingertip. A limb radius is the
- * largest sphere or capsule radius on its segment, or half the smaller
- * transverse extent of a box. The eye height falls back to the head joint
- * when the rig has no eyes.
+ * extents and the limb radii are read from the colliders of the matching
+ * profile segments by their exact axis bounds at rest (`physicalShapeBounds`).
+ * The hand runs from the wrist to the farthest point along the forearm of the
+ * hand segment's colliders and its finger segments' when the profile has them,
+ * the middle fingertip. A limb radius is the largest sphere or capsule radius
+ * on its segment, or half the smaller transverse extent of a box. The eye
+ * height falls back to the head joint when the rig has no eyes.
  *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile, segments keyed by rig bones.
- * @param neutral Optional genuine internal bounds epoch for this unchanged profile; withSurfaces owns its preparation and release.
+ * @param neutral Optional genuine internal bounds epoch for this unchanged
+ *   profile; withSurfaces owns its preparation and release.
  * @returns The measure, metres and kilograms.
  * @throws {Error} When a bone or segment the measure needs is missing.
  */
@@ -50,7 +50,10 @@ export function measureAutoMovieHumanoidBody(
   const segments: Map<string, IAutoMoviePhysicalSegment> = new Map();
   for (const part of profile.segments)
     if (!segments.has(part.bone)) segments.set(part.bone, part);
-  const extents: Map<IAutoMoviePhysicalSegment, ReturnType<typeof physicalShapeBounds>> = new Map();
+  const extents: Map<
+    IAutoMoviePhysicalSegment,
+    ReturnType<typeof physicalShapeBounds>
+  > = new Map();
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
   for (const bone of skeleton.bones as IAutoMovieBone[])
     rest.set(
@@ -73,21 +76,29 @@ export function measureAutoMovieHumanoidBody(
     a: AutoMovieHumanoidBone,
     b: AutoMovieHumanoidBone,
   ): number => Vector3.length(Vector3.subtract(at(a), at(b)));
-  const segment: (name: AutoMovieHumanoidBone) => IAutoMoviePhysicalSegment = (name: AutoMovieHumanoidBone): IAutoMoviePhysicalSegment => {
+  const segment: (name: AutoMovieHumanoidBone) => IAutoMoviePhysicalSegment = (
+    name: AutoMovieHumanoidBone,
+  ): IAutoMoviePhysicalSegment => {
     const s: IAutoMoviePhysicalSegment | undefined = segments.get(name);
     if (s === undefined) throw new Error(`The humanoid profile lacks ${name}`);
     return s;
   };
-  const segmentBounds: (s: IAutoMoviePhysicalSegment) => ReturnType<typeof physicalShapeBounds> = (
+  const segmentBounds: (
+    s: IAutoMoviePhysicalSegment,
+  ) => ReturnType<typeof physicalShapeBounds> = (
     s: IAutoMoviePhysicalSegment,
   ): ReturnType<typeof physicalShapeBounds> => {
-    const known: ReturnType<typeof physicalShapeBounds> | undefined = extents.get(s);
+    const known: ReturnType<typeof physicalShapeBounds> | undefined =
+      extents.get(s);
     if (known !== undefined) return known;
-    const out: ReturnType<typeof physicalShapeBounds> = AutoMovieHumanoidNeutralBounds.read(profile, s, neutral);
+    const out: ReturnType<typeof physicalShapeBounds> =
+      AutoMovieHumanoidNeutralBounds.read(profile, s, neutral);
     extents.set(s, out);
     return out;
   };
-  const bounds: (name: AutoMovieHumanoidBone) => ReturnType<typeof physicalShapeBounds> = (
+  const bounds: (
+    name: AutoMovieHumanoidBone,
+  ) => ReturnType<typeof physicalShapeBounds> = (
     name: AutoMovieHumanoidBone,
   ): ReturnType<typeof physicalShapeBounds> => segmentBounds(segment(name));
   const radius = (name: AutoMovieHumanoidBone): number =>
@@ -104,7 +115,9 @@ export function measureAutoMovieHumanoidBody(
         if (shape.kind === "hull") {
           // Half the hull's least width: the narrowest slab between a face
           // plane and the vertex farthest behind it.
-          const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
+          const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
+            shape.points,
+          );
           let width: number = Infinity;
           for (const face of hull.faces) {
             let back: number = Infinity;
@@ -159,11 +172,17 @@ export function measureAutoMovieHumanoidBody(
   };
   // Length, heel and breadth read the same foot/toe union; keep its numeric
   // bounds once rather than rebuilding that fixed union for every measure.
-  const feet: Map<"left" | "right", ReturnType<typeof physicalShapeBounds>> = new Map();
-  const foot: (side: "left" | "right") => ReturnType<typeof physicalShapeBounds> = (
+  const feet: Map<
+    "left" | "right",
+    ReturnType<typeof physicalShapeBounds>
+  > = new Map();
+  const foot: (
+    side: "left" | "right",
+  ) => ReturnType<typeof physicalShapeBounds> = (
     side: "left" | "right",
   ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
-    const known: ReturnType<typeof physicalShapeBounds> | undefined = feet.get(side);
+    const known: ReturnType<typeof physicalShapeBounds> | undefined =
+      feet.get(side);
     if (known !== undefined) return known;
     const rear: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(
       bone(side, "Foot"),
@@ -253,24 +272,31 @@ export function measureAutoMovieHumanoidBody(
   };
 }
 
-/**
- * Sequential measure and surface derivation share only exact neutral bounds.
- */
+/** Sequential measure and surface derivation share only exact neutral bounds. */
 export namespace measureAutoMovieHumanoidBody {
   /**
    * Derive measure then surfaces with one synchronous unchanged-profile scope.
    * Bound preparation performs no shape work before its original observation;
-   * source geometry must remain unchanged for the duration of this call.
-   * Both returned records retain their ordinary independent ownership.
+   * source geometry must remain unchanged for the duration of this call. Both
+   * returned records retain their ordinary independent ownership.
    */
   export function withSurfaces(
     skeleton: IAutoMovieSkeleton,
     profile: IAutoMoviePhysicalProfile,
-  ): { measure: IAutoMovieBodyMeasure; surfaces: IAutoMovieHumanoidSurfaces.ISurfaces } {
-    const neutral: AutoMovieHumanoidNeutralBounds.IPrepared = AutoMovieHumanoidNeutralBounds.prepare(profile);
+  ): {
+    measure: IAutoMovieBodyMeasure;
+    surfaces: IAutoMovieHumanoidSurfaces.ISurfaces;
+  } {
+    const neutral: AutoMovieHumanoidNeutralBounds.IPrepared =
+      AutoMovieHumanoidNeutralBounds.prepare(profile);
     try {
-      const measure: IAutoMovieBodyMeasure = measureAutoMovieHumanoidBody(skeleton, profile, neutral);
-      const surfaces: IAutoMovieHumanoidSurfaces.ISurfaces = resolveAutoMovieHumanoidSurfaces(skeleton, profile, neutral);
+      const measure: IAutoMovieBodyMeasure = measureAutoMovieHumanoidBody(
+        skeleton,
+        profile,
+        neutral,
+      );
+      const surfaces: IAutoMovieHumanoidSurfaces.ISurfaces =
+        resolveAutoMovieHumanoidSurfaces(skeleton, profile, neutral);
       return { measure, surfaces };
     } finally {
       AutoMovieHumanoidNeutralBounds.release(neutral);

@@ -1,16 +1,17 @@
 /**
  * Select the articulations of one admitted pose on a rooted rig, as numbers.
  *
- * A query begins, writes each successfully admitted articulation by its
- * bone's row, a later write of a row winning, and completes. Completion
- * selects, for every row, the query's last write or, for a row the query did
- * not write, the fixed baseline (the identity without one), and says whether
- * any selected component differs from the selection before, signed zeros
- * told apart. A query that does not complete (its admission threw) leaves
- * the last completed selection as it is.
+ * A query begins, writes each successfully admitted articulation by its bone's
+ * row, a later write of a row winning, and completes. Completion selects, for
+ * every row, the query's last write or, for a row the query did not write, the
+ * fixed baseline (the identity without one), and says whether any selected
+ * component differs from the selection before, signed zeros told apart. A query
+ * that does not complete (its admission threw) leaves the last completed
+ * selection as it is.
  *
  * @param count The rig's rooted bones.
- * @param baseline The articulation a row no query writes is selected at, four numbers a row (x, y, z, w); the identity for every row when absent.
+ * @param baseline The articulation a row no query writes is selected at, four
+ *   numbers a row (x, y, z, w); the identity for every row when absent.
  * @returns The tracker.
  */
 export function preparePoseResolutionChanges(
@@ -23,13 +24,21 @@ export function preparePoseResolutionChanges(
   const staged: Float64Array = new Float64Array(4 * count);
   const selected: Float64Array = new Float64Array(4 * count);
   if (baseline !== undefined) selected.set(baseline);
-  else for (let index: number = 0; index < count; ++index) selected[4 * index + 3] = 1;
+  else
+    for (let index: number = 0; index < count; ++index)
+      selected[4 * index + 3] = 1;
   return {
     selected,
     begin: (): void => {
       ++generation;
     },
-    write: (index: number | undefined, x: number, y: number, z: number, w: number): void => {
+    write: (
+      index: number | undefined,
+      x: number,
+      y: number,
+      z: number,
+      w: number,
+    ): void => {
       if (index === undefined) return;
       const row: number = 4 * index;
       stamps[index] = generation;
@@ -62,22 +71,35 @@ export function preparePoseResolutionChanges(
   };
 }
 
-/**
- * The tracker's type.
- */
+/** The tracker's type. */
 export namespace preparePoseResolutionChanges {
   /** The selection of one live operation on an immutable rig. */
   export interface ITracker {
-    /** The completed selection, four numbers a row (x, y, z, w): read after `complete`, never written by a reader. */
+    /**
+     * The completed selection, four numbers a row (x, y, z, w): read after
+     * `complete`, never written by a reader.
+     */
     readonly selected: Float64Array;
 
     /** Start a query's writes without changing the completed selection. */
     begin(): void;
 
-    /** Record one admitted articulation's four components (x, y, z, w); a later write of its row wins, and an undefined row is ignored. */
-    write(index: number | undefined, x: number, y: number, z: number, w: number): void;
+    /**
+     * Record one admitted articulation's four components (x, y, z, w); a later
+     * write of its row wins, and an undefined row is ignored.
+     */
+    write(
+      index: number | undefined,
+      x: number,
+      y: number,
+      z: number,
+      w: number,
+    ): void;
 
-    /** Select every row's last write of this query, or its baseline, and advance the version when any component changed. */
+    /**
+     * Select every row's last write of this query, or its baseline, and advance
+     * the version when any component changed.
+     */
     complete(): void;
 
     /** The count of completions that changed the selection. */

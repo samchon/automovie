@@ -5,7 +5,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Sample one joined emission-clock mouth range beside the unchanged authored expression.
+ * Sample one joined emission-clock mouth range beside the unchanged authored
+ * expression.
  */
 export const sampleAutoMovieDialogueExpression: (
   props: IAutoMovieSampleDialogueExpression.IProps,

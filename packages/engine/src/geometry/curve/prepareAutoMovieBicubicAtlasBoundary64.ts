@@ -20,15 +20,16 @@ type Use = {
 };
 
 /**
- * Prepare declared canonical curves, coefficient identities and complete edge uses.
- * Matching four-ID tuples transport one explicit oriented interval to unbound
- * incident sides. Their legacy render-normal owner remains separate from explicit
- * normal fans. Every constructed coefficient is shared by its declared ID before
- * tessellation; independently evaluated conflicting assignments omit only incident
- * patches. Exact positions validate existing relations and never create identities.
- * Equal restricted nets with different named intervals retain their finite fields;
- * inter-authority tessellation sharing remains an explicit unqualified relation.
- * Inputs must remain immutable until the returned closures are released.
+ * Prepare declared canonical curves, coefficient identities and complete edge
+ * uses. Matching four-ID tuples transport one explicit oriented interval to
+ * unbound incident sides. Their legacy render-normal owner remains separate
+ * from explicit normal fans. Every constructed coefficient is shared by its
+ * declared ID before tessellation; independently evaluated conflicting
+ * assignments omit only incident patches. Exact positions validate existing
+ * relations and never create identities. Equal restricted nets with different
+ * named intervals retain their finite fields; inter-authority tessellation
+ * sharing remains an explicit unqualified relation. Inputs must remain
+ * immutable until the returned closures are released.
  */
 export function prepareAutoMovieBicubicAtlasBoundary64(
   input: IAutoMovieBicubicAtlasTessellation64.Input,

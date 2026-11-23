@@ -24,7 +24,8 @@ const DEFAULT_FOOT_BONES: readonly ["leftFoot", "rightFoot"] = [
 ] as const;
 
 /**
- * Sample FK and compare configured foot points and valid capsule endpoints to scalar/height-source ground minus tolerance.
+ * Sample FK and compare configured foot points and valid capsule endpoints to
+ * scalar/height-source ground minus tolerance.
  */
 export const validateGroundContact: (
   props: IAutoMovieValidateGroundContact.IProps,
@@ -176,19 +177,23 @@ export const validateGroundContact: (
 };
 
 /**
- * Carry an endpoint's surface height, admitted ground threshold and signed depth.
+ * Carry an endpoint's surface height, admitted ground threshold and signed
+ * depth.
  *
- * One row keeps the deepest capsule endpoint's actual and expected heights together.
+ * One row keeps the deepest capsule endpoint's actual and expected heights
+ * together.
  *
  * This is endpoint sampling, not a continuous curved-heightfield solution.
  *
- * All three fields use model/world metres; positive depth means below threshold.
+ * All three fields use model/world metres; positive depth means below
+ * threshold.
  *
  * A capsule endpoint creates one fixed scalar record.
  *
  * The endpoint reduction keeps the currently deepest row for reporting.
  *
- * Rows live only inside one sampled capsule reduction and no body resource is retained.
+ * Rows live only inside one sampled capsule reduction and no body resource is
+ * retained.
  */
 interface IPenetration {
   surfaceY: number;
@@ -197,17 +202,22 @@ interface IPenetration {
 }
 
 /**
- * Round a diagnostic quantity to three decimals with Math.round(value*1000)/1000.
+ * Round a diagnostic quantity to three decimals with
+ * Math.round(value*1000)/1000.
  *
- * The validateGroundContact owner applies presentation rounding after its actual predicate.
+ * The validateGroundContact owner applies presentation rounding after its
+ * actual predicate.
  *
- * Binary64 rounding is not an exact decimal serialization or decision tolerance.
+ * Binary64 rounding is not an exact decimal serialization or decision
+ * tolerance.
  *
- * Only displayed metre/second quantities are rounded, leaving comparison arithmetic unchanged.
+ * Only displayed metre/second quantities are rounded, leaving comparison
+ * arithmetic unchanged.
  *
  * Fixed scalar arithmetic takes constant work.
  *
- * Diagnostics reuse the same presentation rule within validateGroundContact, not cached measurements.
+ * Diagnostics reuse the same presentation rule within validateGroundContact,
+ * not cached measurements.
  *
  * Only a number returns and no sampled state is retained.
  */

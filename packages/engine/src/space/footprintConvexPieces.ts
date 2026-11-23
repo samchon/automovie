@@ -9,9 +9,7 @@ import { autoMoviePlanarRegionFailure } from "../geometry/autoMoviePlanarRegionF
 import { planarCross } from "../geometry/planarCross";
 import { convexHull2D } from "../math/convexHull2D";
 
-/**
- * Produce convex pieces for the footprint's exact-region contract.
- */
+/** Produce convex pieces for the footprint's exact-region contract. */
 export const footprintConvexPieces: (
   footprint: IAutoMovieFootprint,
 ) => IAutoMovieVector3[][] = (
@@ -34,7 +32,10 @@ export const footprintConvexPieces: (
   return slabPieces(footprint);
 };
 
-/** An admitted simple ring is convex when every nonzero turn follows its winding. */
+/**
+ * An admitted simple ring is convex when every nonzero turn follows its
+ * winding.
+ */
 const isConvexRing: (ring: IAutoMovieFootprintRing) => boolean = (
   ring: IAutoMovieFootprintRing,
 ): boolean => {
@@ -115,7 +116,10 @@ const slabPieces: (footprint: IAutoMovieFootprint) => IAutoMovieVector3[][] = (
   return pieces;
 };
 
-/** Plan z of the edge from its first point to its second at abscissa x, which it spans. */
+/**
+ * Plan z of the edge from its first point to its second at abscissa x, which it
+ * spans.
+ */
 const edgeZAt: (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,

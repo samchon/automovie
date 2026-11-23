@@ -13,10 +13,10 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
  * leaves standing.
  *
  * Each triangle is clipped against the plane, with corners within
- * {@link AUTOMOVIE_DRAWING_EPSILON} of it kept, and the surviving convex
- * polygon is re-fanned into triangles that keep the source winding.
- * New edges lying in the plane are exactly what the cut linework draws, and
- * the drafter drops their silhouette so no segment is drafted twice.
+ * {@link AUTOMOVIE_DRAWING_EPSILON} of it kept, and the surviving convex polygon
+ * is re-fanned into triangles that keep the source winding. New edges lying in
+ * the plane are exactly what the cut linework draws, and the drafter drops
+ * their silhouette so no segment is drafted twice.
  *
  * @param frame Page basis whose origin and normal define the cut plane.
  * @param triangles World triangles of one drawable.

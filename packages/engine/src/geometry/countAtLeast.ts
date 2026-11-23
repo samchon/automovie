@@ -2,9 +2,9 @@
  * Refuse a discrete sampling count that is not a safe integer of at least
  * `least`, such as the segment count of a revolved profile.
  *
- * `label` names the count in the thrown message, which reads
- * `<label> must be a safe integer >= <least>`. The check runs before the
- * builder allocates any buffer sized by the count.
+ * `label` names the count in the thrown message, which reads `<label> must be a
+ * safe integer >= <least>`. The check runs before the builder allocates any
+ * buffer sized by the count.
  *
  * @param value Count the author supplied.
  * @param least Smallest count the operation can build from.

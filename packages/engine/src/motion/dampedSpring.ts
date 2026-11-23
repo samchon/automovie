@@ -22,8 +22,10 @@ const assertFinite: (label: string, value: number) => void = (
  * `force = stiffness·(target − current) − damping·velocity`, integrated as
  * `velocity += force·dt; value += velocity·dt`. Unlike the world-space
  * {@link stepSpring} (VRM SpringBone, for the Node/Channel core), this works in
- * the humanoid pose path's angle space.
- * Finite inputs, nonnegative coefficients and positive dt are required. The caller chooses a timestep appropriate to the coefficients; the explicit step does not guarantee stability for arbitrary dt or prevent arithmetic overflow at extreme magnitudes.
+ * the humanoid pose path's angle space. Finite inputs, nonnegative coefficients
+ * and positive dt are required. The caller chooses a timestep appropriate to
+ * the coefficients; the explicit step does not guarantee stability for
+ * arbitrary dt or prevent arithmetic overflow at extreme magnitudes.
  */
 export const dampedSpring: (
   current: number,

@@ -653,9 +653,7 @@ type IPass = hingedSwivelSwept.IBranch<IScored> & {
   record: ISweep;
 };
 
-/**
- * Companion types of {@link hingedArmArticulation}.
- */
+/** Companion types of {@link hingedArmArticulation}. */
 export namespace hingedArmArticulation {
   /**
    * The solver's props: the interface chain and target with the engine's

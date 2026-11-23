@@ -23,16 +23,16 @@ const SLOPE_TOLERANCE: number = 1e-6;
 /**
  * Validate a connector's stations, section spelling, slope, and steps.
  *
- * Consecutive route stations must be more than 1e-9 m apart, and stated
- * station facings must match the route one for one as unit quaternions. A
- * connector states either a constant positive width and clear height or a
- * varying section, never both and never neither; a varying section needs at
- * least 2 stations from `at` 0 to 1, strictly increasing, each with a positive
- * width and clear height. A stated slope must be finite within [0, PI / 2]
- * radians, and stated steps need a whole count of at least 1 with positive
- * rise and run in metres. When the route is measurable, the slope must agree
- * with the route's `atan2(|rise|, run)` within 1e-6 rad and the steps must
- * climb and run what the route does within 1e-3 m, both measured by
+ * Consecutive route stations must be more than 1e-9 m apart, and stated station
+ * facings must match the route one for one as unit quaternions. A connector
+ * states either a constant positive width and clear height or a varying
+ * section, never both and never neither; a varying section needs at least 2
+ * stations from `at` 0 to 1, strictly increasing, each with a positive width
+ * and clear height. A stated slope must be finite within [0, PI / 2] radians,
+ * and stated steps need a whole count of at least 1 with positive rise and run
+ * in metres. When the route is measurable, the slope must agree with the
+ * route's `atan2(|rise|, run)` within 1e-6 rad and the steps must climb and run
+ * what the route does within 1e-3 m, both measured by
  * {@link builtConnectorGeometry}. The route is measurable when it has at least
  * two finite stations, at least one pair of them distinct, and `measured` is
  * true, which the caller sets only for the first connector bearing an id, the

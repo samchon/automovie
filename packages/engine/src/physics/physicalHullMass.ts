@@ -10,12 +10,12 @@ import { physicalHullFaces } from "./physicalHullFaces";
 import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
 
 /**
- * The volume, centroid and principal inertia of the uniform solid convex
- * hull of a point set.
+ * The volume, centroid and principal inertia of the uniform solid convex hull
+ * of a point set.
  *
  * Each face is fanned into triangles and each triangle joined to the hull's
- * mean vertex, so the solid is a sum of tetrahedra. A tetrahedron's volume
- * and centroid are closed forms, and its second moments are exact under the
+ * mean vertex, so the solid is a sum of tetrahedra. A tetrahedron's volume and
+ * centroid are closed forms, and its second moments are exact under the
  * quadrature that weighs each vertex by a twentieth of the volume and the
  * centroid by four fifths. The summed second moments move to the centroid by
  * the parallel-axis theorem and are diagonalized by `physicalPrincipalAxes`.

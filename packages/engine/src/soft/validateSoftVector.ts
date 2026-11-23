@@ -6,7 +6,8 @@ import {
 import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 
 /**
- * Validate three authored vector components through the shared finite-scalar policy.
+ * Validate three authored vector components through the shared finite-scalar
+ * policy.
  */
 export const validateSoftVector: (
   out: IAutoMovieViolationCollector,

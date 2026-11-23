@@ -9,7 +9,9 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
- * After raw poses/effort maps are admitted, validate their composed transforms, interval twists, COM transport and implicit motor damping before creating a native world.
+ * After raw poses/effort maps are admitted, validate their composed transforms,
+ * interval twists, COM transport and implicit motor damping before creating a
+ * native world.
  */
 export function admitPhysicalTargetMotion(
   input: IAutoMoviePhysicalSimulationInput.IInput,

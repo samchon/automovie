@@ -28,14 +28,15 @@ interface Halfedge {
  * Native-chart halfedge incidence after shared constraint subdivision.
  *
  * Every vertex retains all outgoing incidences. Counterclockwise angular order
- * and the clockwise successor of each twin walk the boundary on the left.
- * Walks are boundary components, not necessarily separate faces: disconnected
- * holes can belong to one face. A periodic walk can close in the surface while
+ * and the clockwise successor of each twin walk the boundary on the left. Walks
+ * are boundary components, not necessarily separate faces: disconnected holes
+ * can belong to one face. A periodic walk can close in the surface while
  * retaining a nonzero cover winding. Selection and triangulation belong later.
  */
 export namespace AutoMovieSolidMeshIncidence {
   /**
-   * Read every directed boundary component of an already split constraint graph.
+   * Read every directed boundary component of an already split constraint
+   * graph.
    */
   export function walks(
     vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -163,7 +164,10 @@ export namespace AutoMovieSolidMeshIncidence {
   }
 }
 
-/** Counterclockwise direction order without atan2 ties or coordinate normalization. */
+/**
+ * Counterclockwise direction order without atan2 ties or coordinate
+ * normalization.
+ */
 function order(
   origin: Readonly<AutoMovieVector2Tuple>,
   a: Readonly<AutoMovieVector2Tuple>,

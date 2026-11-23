@@ -23,9 +23,9 @@ const NO_JOINT_AXES: Partial<
  *
  * Returns `jointAxes` itself when no bone declares axes, and a shared frozen
  * empty table when it is also omitted, so the common case allocates nothing;
- * otherwise a new table that the caller owns. The declared axes are not validated here: `validateModel`
- * admits them, and `normalizeJointAxes` throws on a malformed basis where it
- * is used.
+ * otherwise a new table that the caller owns. The declared axes are not
+ * validated here: `validateModel` admits them, and `normalizeJointAxes` throws
+ * on a malformed basis where it is used.
  *
  * @param skeleton Rig whose bones may declare axes.
  * @param jointAxes Host table for the bones that declare none.

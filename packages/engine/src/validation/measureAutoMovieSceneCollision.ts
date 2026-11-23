@@ -29,7 +29,10 @@ interface IRegion {
 
 /** One independent part or an explicitly managed group. */
 interface IGroup extends IRegion {
-  /** Narrower envelopes inside this group: null without refinement, undefined until an external overlap needs them. */
+  /**
+   * Narrower envelopes inside this group: null without refinement, undefined
+   * until an external overlap needs them.
+   */
   regions: IRegion[] | null | undefined;
 }
 
@@ -44,7 +47,8 @@ interface IGroup extends IRegion {
  * uncertainty and any overlap involving an enclosing or proxy solid are
  * candidates; separation of an enclosing solid proves clearance.
  *
- * @param props Current world parts, local time, supplied convex query and work budget.
+ * @param props Current world parts, local time, supplied convex query and work
+ *   budget.
  * @returns Stable measured findings, comparison counts and remaining coverage.
  */
 export function measureAutoMovieSceneCollision(
@@ -173,7 +177,10 @@ export function measureAutoMovieSceneCollision(
       }
   };
 
-  /** Visit region pairs only when refinement was requested, building them on first overlap. */
+  /**
+   * Visit region pairs only when refinement was requested, building them on
+   * first overlap.
+   */
   const visitGroupPair = (left: IGroup, right: IGroup): void => {
     if (left.regions === null || right.regions === null) {
       visitParts(left, right);
@@ -284,7 +291,10 @@ function prepareGroups(
   );
 }
 
-/** Fold per-part bounds into the source's named regions for a second broad phase. */
+/**
+ * Fold per-part bounds into the source's named regions for a second broad
+ * phase.
+ */
 function regionsOf(parts: IPreparedPart[]): IRegion[] {
   const regions: Map<string, IPreparedPart[]> = new Map();
   for (const part of parts) {
@@ -365,7 +375,10 @@ function preparePart(part: Collision.IPart): IPreparedPart | null {
     : null;
 }
 
-/** Validate declared windows and retain the tightest active whole-part depth per pair. */
+/**
+ * Validate declared windows and retain the tightest active whole-part depth per
+ * pair.
+ */
 function activeAllowances(
   entries: readonly Collision.IAllowance[],
   seconds: number,

@@ -188,7 +188,10 @@ export function preparePhysicalContactBindingRows(
   );
 }
 
-/** Admission owns selector validity; the call-local fitter borrows declared geometry. */
+/**
+ * Admission owns selector validity; the call-local fitter borrows declared
+ * geometry.
+ */
 function shape(
   profile: IAutoMoviePhysicalProfile,
   selector: { bone: string; shape: string },

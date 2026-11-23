@@ -23,19 +23,20 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * placement, the placement `autoMovieModelPartMatrices` owns; a part with
  * neither keeps its coordinates exactly. Bicubic recipes use the canonical
  * engine's retained finite mesh, including declared partial output; primitives
- * and unrecognized geometry remain outside this mesh crossing query. A pair appears once, in model part order, only when at least
- * one triangle on either side is crossed, with each side's crossed triangle
- * count and their combined coplanar count. Touching is not crossing: the
- * underlying `measureAutoMovieMeshCrossings` test is strict, so shells meeting
- * along a seam do not report.
+ * and unrecognized geometry remain outside this mesh crossing query. A pair
+ * appears once, in model part order, only when at least one triangle on either
+ * side is crossed, with each side's crossed triangle count and their combined
+ * coplanar count. Touching is not crossing: the underlying
+ * `measureAutoMovieMeshCrossings` test is strict, so shells meeting along a
+ * seam do not report.
  *
- * An empty result does not mean a healthy model, nor a full one a broken one.
- * A layered character rests with shells inside each other on purpose: the
- * eyeball inside the lid, lashes rooted in skin, the tongue against the teeth.
- * What carries information is the change from a rest pose, so a caller
- * measures its own rest pose once and compares. The report is geometry, not
- * acceptance: crossed triangles hidden inside a closed shell and visible once
- * it opens look the same here, and that judgement stays with rendered review.
+ * An empty result does not mean a healthy model, nor a full one a broken one. A
+ * layered character rests with shells inside each other on purpose: the eyeball
+ * inside the lid, lashes rooted in skin, the tongue against the teeth. What
+ * carries information is the change from a rest pose, so a caller measures its
+ * own rest pose once and compares. The report is geometry, not acceptance:
+ * crossed triangles hidden inside a closed shell and visible once it opens look
+ * the same here, and that judgement stays with rendered review.
  *
  * `withinParts` also measures each part against itself, adding before that
  * part's pairs one entry whose `part` and `other` are both that part, counting

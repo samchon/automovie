@@ -16,12 +16,12 @@ import { ease } from "./motion/ease";
  * a formation cue allows is monotone, so an interval never covers negative
  * ground.
  *
- * A gap between cues covers nothing. The state a unit holds between two cues
- * is the earlier cue's exact `to`, and a jump from that state to the next
- * cue's `from` is a discontinuity the sampler already permits rather than
- * travel a member could walk, so it contributes seconds and no distance. The
- * gait is retained across it, because a unit that has stopped is still doing
- * whatever its last cue had it doing.
+ * A gap between cues covers nothing. The state a unit holds between two cues is
+ * the earlier cue's exact `to`, and a jump from that state to the next cue's
+ * `from` is a discontinuity the sampler already permits rather than travel a
+ * member could walk, so it contributes seconds and no distance. The gait is
+ * retained across it, because a unit that has stopped is still doing whatever
+ * its last cue had it doing.
  *
  * Turning is reported apart from travel because the two reach a member
  * differently: every member of a unit covers the unit's translation, while the

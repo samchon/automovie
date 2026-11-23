@@ -15,12 +15,15 @@ import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation
 import type { prepareChainFit } from "./prepareChainFit";
 
 /**
- * Solve one prepared two-bone chain for a model-metre target and bend normal. Return null when analytic articulation is unavailable; otherwise decompose upper and lower rotations through the same prepared clinical domains used by residual FK.
- * An optional rig context must belong to these exact unchanged axes, rest
- * frames, skeleton and source preparation; it shares basis admission, not a solve.
- * A supplied target must be the actual twoBoneChainArticulation.prepare
- * source's target reader for these exact unchanged resolved frames and point;
- * it shares completed geometric preparation, never a candidate articulation.
+ * Solve one prepared two-bone chain for a model-metre target and bend normal.
+ * Return null when analytic articulation is unavailable; otherwise decompose
+ * upper and lower rotations through the same prepared clinical domains used by
+ * residual FK. An optional rig context must belong to these exact unchanged
+ * axes, rest frames, skeleton and source preparation; it shares basis
+ * admission, not a solve. A supplied target must be the actual
+ * twoBoneChainArticulation.prepare source's target reader for these exact
+ * unchanged resolved frames and point; it shares completed geometric
+ * preparation, never a candidate articulation.
  */
 export const solvePreparedChainPlant: (
   props: IAutoMovieSolvePreparedChainPlantProps,
@@ -70,7 +73,10 @@ export const solvePreparedChainPlant: (
   };
 };
 
-/** Keep each clinical decomposition at its original post-geometry site without a new closure per candidate. */
+/**
+ * Keep each clinical decomposition at its original post-geometry site without a
+ * new closure per candidate.
+ */
 function angles(
   props: IAutoMovieSolvePreparedChainPlantProps,
   rig: prepareChainFit.IRig | undefined,

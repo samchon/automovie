@@ -1,5 +1,4 @@
-/** Require a finite solver influence within the closed unit interval.
- */
+/** Require a finite solver influence within the closed unit interval. */
 export const validateInfluence: (label: string, influence: number) => void = (
   label: string,
   influence: number,

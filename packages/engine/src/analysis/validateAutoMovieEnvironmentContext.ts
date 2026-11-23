@@ -30,14 +30,18 @@ const AXIS_EPSILON: number = 1e-12;
  * make two differently-authored contexts produce the same artifact and hide an
  * authoring mistake that a reader needs to see.
  *
- * Under the typed context-container premise, violations are returned with paths rooted at `$input`; resident instant and occluder slots are visited by index and absent records are refused at their slots. Other nested container shapes remain a caller premise.
+ * Under the typed context-container premise, violations are returned with paths
+ * rooted at `$input`; resident instant and occluder slots are visited by index
+ * and absent records are refused at their slots. Other nested container shapes
+ * remain a caller premise.
  *
- * Directions (north, ground up, each sun) must be finite and longer
- * than `1e-12` but need not be unit length; units must be `"meter"`, instant
- * times strictly increasing, illuminances finite and at or above zero, and an
- * outdoor relative humidity null or within `[0, 1]`. Occluder planes follow
+ * Directions (north, ground up, each sun) must be finite and longer than
+ * `1e-12` but need not be unit length; units must be `"meter"`, instant times
+ * strictly increasing, illuminances finite and at or above zero, and an outdoor
+ * relative humidity null or within `[0, 1]`. Occluder planes follow
  * `validateSolidPlanes`. The horizon rule is skipped while the sun or the
- * ground up has an unusable measured length. A nonfinite measured norm is a range violation; horizon arithmetic is skipped for that invalid direction.
+ * ground up has an unusable measured length. A nonfinite measured norm is a
+ * range violation; horizon arithmetic is skipped for that invalid direction.
  */
 export const validateAutoMovieEnvironmentContext: (
   props: IAutoMovieValidateEnvironmentContext.IProps,
@@ -211,7 +215,11 @@ export const validateAutoMovieEnvironmentContext: (
   return out.toValidation();
 };
 
-/** Gate horizon arithmetic on a finite norm above 1e-12; the collector independently reports every unusable direction. Retains no vector or verdict. */
+/**
+ * Gate horizon arithmetic on a finite norm above 1e-12; the collector
+ * independently reports every unusable direction. Retains no vector or
+ * verdict.
+ */
 const usable: (value: IAutoMovieVector3) => boolean = (
   value: IAutoMovieVector3,
 ): boolean => {

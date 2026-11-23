@@ -13,9 +13,25 @@ import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 /**
  * Apply one explicitly requested C2 material rotation to an admitted base axis.
  *
- * Input stations are millimetres. At `to`, the target's normal-plane components determine the shortest signed angle from base u towards v, with positive pi for the exact half turn. The shared scalar source's two knots have zero normalized first/second jets, giving the quintic 10t^3-15t^4+6t^5 without another interpolator. Before from the base frame is returned unchanged; after to its constant material rotation is transported by that same base axis. Origin and normal plane are preserved throughout.
+ * Input stations are millimetres. At `to`, the target's normal-plane components
+ * determine the shortest signed angle from base u towards v, with positive pi
+ * for the exact half turn. The shared scalar source's two knots have zero
+ * normalized first/second jets, giving the quintic 10t^3-15t^4+6t^5 without
+ * another interpolator. Before from the base frame is returned unchanged; after
+ * to its constant material rotation is transported by that same base axis.
+ * Origin and normal plane are preserved throughout.
  *
- * Direction admission reuses the jointed initial-up policy: relative normal projection must exceed 1e-9, limiting projection condition number to below 1e9. This rejects some finite nonparallel directions. For endpoint components (c,s), their first-order angle perturbation is bounded by hypot(dc,ds)/hypot(c,s); a small projected norm amplifies input, frame and dot-product error. This numerical conditioning policy is not an anatomical tolerance, an exact-zero test or a universal absolute angle-accuracy guarantee. The supplied base must already be an admitted orthonormal C2 axis. Its analytic-jet support, when present, is carried through the same rotation in station or a requested pole coordinate; this wrapper does not repair the base centreline. Queries use finite stations.
+ * Direction admission reuses the jointed initial-up policy: relative normal
+ * projection must exceed 1e-9, limiting projection condition number to below
+ * 1e9. This rejects some finite nonparallel directions. For endpoint components
+ * (c,s), their first-order angle perturbation is bounded by
+ * hypot(dc,ds)/hypot(c,s); a small projected norm amplifies input, frame and
+ * dot-product error. This numerical conditioning policy is not an anatomical
+ * tolerance, an exact-zero test or a universal absolute angle-accuracy
+ * guarantee. The supplied base must already be an admitted orthonormal C2 axis.
+ * Its analytic-jet support, when present, is carried through the same rotation
+ * in station or a requested pole coordinate; this wrapper does not repair the
+ * base centreline. Queries use finite stations.
  *
  * @param base Admitted C2 orthonormal frame function.
  * @param from Finite transition start station, mm.
@@ -86,7 +102,10 @@ export function rollAutoMovieViewAxis(
   if ("contract" in source)
     return `material roll ${source.contract}: ${source.detail}`;
 
-  /** Preserve the base origin/normal plane while reading the prepared rotation at a finite station. */
+  /**
+   * Preserve the base origin/normal plane while reading the prepared rotation
+   * at a finite station.
+   */
   const at: (station: number) => IAutoMovieLoftSectionFrame = (
     station: number,
   ): IAutoMovieLoftSectionFrame => {
@@ -195,5 +214,9 @@ export function rollAutoMovieViewAxis(
   };
 }
 
-/** Existing jointed initial-up conditioning policy: projected direction length must exceed this share of the target length. This is a numerical admission limit, not geometric parallelism or an anatomical constant. */
+/**
+ * Existing jointed initial-up conditioning policy: projected direction length
+ * must exceed this share of the target length. This is a numerical admission
+ * limit, not geometric parallelism or an anatomical constant.
+ */
 const MINIMUM_RELATIVE_NORMAL: number = 1e-9;

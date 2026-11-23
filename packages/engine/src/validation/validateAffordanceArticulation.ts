@@ -14,12 +14,19 @@ const ARTICULATIONS: ReadonlySet<IAutoMovieAffordance["kind"]> =
   AffordanceArticulation.KINDS;
 
 /**
- * Admit a model's articulation references: every `parts` id names a part of the model, sits on an articulation kind and is claimed once; every `rides` and every `follows` chain is independently acyclic; and each coupling names another articulation, gives one finite ratio or a table spanning its leader's range, stays within its follower's range, and is one-to-one when marked reversible.
+ * Admit a model's articulation references: every `parts` id names a part of the
+ * model, sits on an articulation kind and is claimed once; every `rides` and
+ * every `follows` chain is independently acyclic; and each coupling names
+ * another articulation, gives one finite ratio or a table spanning its leader's
+ * range, stays within its follower's range, and is one-to-one when marked
+ * reversible.
  *
  * @param affordances The model's affordances, in authored order.
  * @param parts The model's part ids.
- * @param path The caller-relative path of the affordance list, such as `$input.affordances`.
- * @param collector The caller's collector; each fault is appended at the offending field.
+ * @param path The caller-relative path of the affordance list, such as
+ *   `$input.affordances`.
+ * @param collector The caller's collector; each fault is appended at the
+ *   offending field.
  */
 export const validateAffordanceArticulation: (
   affordances: readonly IAutoMovieAffordance[],
@@ -116,7 +123,8 @@ export const validateAffordanceArticulation: (
 };
 
 /**
- * Admit one follower's coupling, its invertibility when requested, and its acyclic follows chain.
+ * Admit one follower's coupling, its invertibility when requested, and its
+ * acyclic follows chain.
  *
  * @param follower The affordance that declares `follows`.
  * @param byId The model's affordances by id.

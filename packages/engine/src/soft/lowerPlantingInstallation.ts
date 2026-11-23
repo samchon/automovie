@@ -10,7 +10,11 @@ import { growPlanting } from "./growPlanting";
 import { validatePlantingCluster } from "./validatePlantingCluster";
 import { validatePlantingDomain } from "./validatePlantingDomain";
 
-/** Join one typed installation, cluster and recipe into a derived plant, arrangement and explicit analysis. Invalid records or mismatched ids return not-run with null geometry; derivation cap/numeric failures may propagate. This public lowering API currently has test-only runtime reach.
+/**
+ * Join one typed installation, cluster and recipe into a derived plant,
+ * arrangement and explicit analysis. Invalid records or mismatched ids return
+ * not-run with null geometry; derivation cap/numeric failures may propagate.
+ * This public lowering API currently has test-only runtime reach.
  */
 export const lowerPlantingInstallation: (
   props: IAutoMovieLowerPlantingInstallation.IProps,
@@ -18,7 +22,10 @@ export const lowerPlantingInstallation: (
   props: IAutoMovieLowerPlantingInstallation.IProps,
 ): IAutoMoviePlantingFrame => {
   const { installation, cluster, domain }: typeof props = props;
-  /** Create one recipe-attributed planting derivation status without retaining a partial tree. */
+  /**
+   * Create one recipe-attributed planting derivation status without retaining a
+   * partial tree.
+   */
   const analysis: (
     status: AutoMovieSoftAnalysisStatus,
     reason: string | null,

@@ -30,7 +30,11 @@ import { sampleClipSequence } from "./sampleClipSequence";
 import { stepSpring } from "./stepSpring";
 
 /**
- * Resolve a numerical frame by sampling, profile binding, value driving, ordered clamping, matrix composition and world driving. Optional explicit spring state advances afterward; otherwise springs remain deferred. Results and state ownership are explicit, and a later failure is not rollback of earlier world/state effects.
+ * Resolve a numerical frame by sampling, profile binding, value driving,
+ * ordered clamping, matrix composition and world driving. Optional explicit
+ * spring state advances afterward; otherwise springs remain deferred. Results
+ * and state ownership are explicit, and a later failure is not rollback of
+ * earlier world/state effects.
  */
 export const resolveFrame: (
   input: IAutoMovieResolveInput,

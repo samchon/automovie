@@ -2,7 +2,8 @@
  * Find the exact sign of a sum of products of finite binary64 inputs.
  *
  * @param terms Additive terms, each a list of factors; an empty product is one.
- * @returns Negative, zero or positive sign, or undefined for a nonfinite factor.
+ * @returns Negative, zero or positive sign, or undefined for a nonfinite
+ *   factor.
  */
 export function binary64SumProductsSign(
   terms: readonly (readonly number[])[],

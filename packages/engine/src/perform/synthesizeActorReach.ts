@@ -36,56 +36,93 @@ interface IContext {
   frameAt: (seconds: number) => IAutoMovieActorWorldFrame;
 
   /** Original dynamic-path admission query; bones short-circuit it as before. */
-  actorFrameAt?: (actor: string, seconds: number) => IAutoMovieActorWorldFrame | null;
+  actorFrameAt?: (
+    actor: string,
+    seconds: number,
+  ) => IAutoMovieActorWorldFrame | null;
 }
 
 /** Gesture duration is read before target resolution; reaches read it afterward. */
-type IProps = IContext & (
-  | { kind: "point" | "strike"; action: Extract<IAutoMovieActionCall, { verb: "gesture" }>; duration: number }
-  | { kind: "reach"; action: Extract<IAutoMovieActionCall, { verb: "reach" }> }
-);
+type IProps = IContext &
+  (
+    | {
+        kind: "point" | "strike";
+        action: Extract<IAutoMovieActionCall, { verb: "gesture" }>;
+        duration: number;
+      }
+    | {
+        kind: "reach";
+        action: Extract<IAutoMovieActionCall, { verb: "reach" }>;
+      }
+  );
 
 /**
  * Synthesize native point, strike and reach arm targets for one actor action.
  * The selected gesture branch already admitted its rig; a reach retains its
  * original missing-rig refusal. Borrowed geometry and clinical mappings remain
- * live because target/frame callbacks can change them between samples.
- * Live target/actor-frame reads, absolute sample times and every target's
- * original candidate/ROM decisions remain live. No callback enters the clip.
+ * live because target/frame callbacks can change them between samples. Live
+ * target/actor-frame reads, absolute sample times and every target's original
+ * candidate/ROM decisions remain live. No callback enters the clip.
  */
 export function synthesizeActorReach(props: IProps): IAutoMovieMotion | null {
   const ctx: IAutoMovieActorContext = props.ctx;
   if (props.kind === "reach" && ctx.rig === undefined) return null;
 
-  const world: IAutoMovieVector3 | null = props.kind === "reach"
-    ? props.resolveTarget(props.action.to, props.nodes, props.action.start)
-    : props.action.at === undefined ? null
-      : props.resolveTarget(props.action.at, props.nodes, props.action.start);
+  const world: IAutoMovieVector3 | null =
+    props.kind === "reach"
+      ? props.resolveTarget(props.action.to, props.nodes, props.action.start)
+      : props.action.at === undefined
+        ? null
+        : props.resolveTarget(props.action.at, props.nodes, props.action.start);
   if (world === null) return null;
 
-  const duration: number = props.kind === "reach"
-    ? props.action.duration === "auto" ? 0.6 : props.action.duration
-    : props.duration;
+  const duration: number =
+    props.kind === "reach"
+      ? props.action.duration === "auto"
+        ? 0.6
+        : props.action.duration
+      : props.duration;
 
-  const liveBone: boolean = props.kind === "reach"
-    ? props.action.to.kind === "bone" : props.action.at?.kind === "bone";
-  if (liveBone || (props.actorFrameAt?.(props.actor, props.action.start) ?? null) !== null) {
-    const bake: typeof createDynamicActorExtendClip = props.kind === "strike"
-      ? createDynamicActorJabClip : createDynamicActorExtendClip;
+  const liveBone: boolean =
+    props.kind === "reach"
+      ? props.action.to.kind === "bone"
+      : props.action.at?.kind === "bone";
+  if (
+    liveBone ||
+    (props.actorFrameAt?.(props.actor, props.action.start) ?? null) !== null
+  ) {
+    const bake: typeof createDynamicActorExtendClip =
+      props.kind === "strike"
+        ? createDynamicActorJabClip
+        : createDynamicActorExtendClip;
     return bake({
       id: `${props.actor}:${props.kind}`,
       skeleton: ctx.skeleton,
       duration,
       poseAt: (time: number): IAutoMoviePose | null => {
-        const point: IAutoMovieVector3 | null = props.kind === "reach"
-          ? props.resolveTarget(props.action.to, props.nodes, props.action.start + time)
-          : props.resolveTarget(props.action.at!, props.nodes, props.action.start + time);
-        return point === null ? null : reachPose(
-          ctx.rig!,
-          props.kind === "reach" ? props.action.hand : "right",
-          actorPointInModelSpace(point, props.frameAt(props.action.start + time)),
-          ctx.restFrames,
-        );
+        const point: IAutoMovieVector3 | null =
+          props.kind === "reach"
+            ? props.resolveTarget(
+                props.action.to,
+                props.nodes,
+                props.action.start + time,
+              )
+            : props.resolveTarget(
+                props.action.at!,
+                props.nodes,
+                props.action.start + time,
+              );
+        return point === null
+          ? null
+          : reachPose(
+              ctx.rig!,
+              props.kind === "reach" ? props.action.hand : "right",
+              actorPointInModelSpace(
+                point,
+                props.frameAt(props.action.start + time),
+              ),
+              ctx.restFrames,
+            );
       },
     });
   }
@@ -100,6 +137,10 @@ export function synthesizeActorReach(props: IProps): IAutoMovieMotion | null {
 
   return props.kind === "strike"
     ? createActorJabClip(`${props.actor}:strike`, ctx.skeleton, pose, duration)
-    : createActorExtendClip(`${props.actor}:${props.kind}`, ctx.skeleton, pose, duration);
+    : createActorExtendClip(
+        `${props.actor}:${props.kind}`,
+        ctx.skeleton,
+        pose,
+        duration,
+      );
 }
-

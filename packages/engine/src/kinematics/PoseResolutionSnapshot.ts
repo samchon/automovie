@@ -13,14 +13,18 @@ import type {
  * admission owner; these copies do not certify valid axes or clinical maps.
  */
 export namespace PoseResolutionSnapshot {
-  /** The actual frozen records this owner allocated, including their owned vectors. */
+  /**
+   * The actual frozen records this owner allocated, including their owned
+   * vectors.
+   */
   const OWNED_AXES: WeakSet<IAutoMovieJointAxes> = new WeakSet();
 
   /**
    * Authenticate a frozen axes record and its three frozen direction vectors.
    *
    * @param input The current axes record of a prepared rig.
-   * @returns Whether the record came from this snapshot owner with copies of every object-valued direction.
+   * @returns Whether the record came from this snapshot owner with copies of
+   *   every object-valued direction.
    */
   export function ownsAxes(input: IAutoMovieJointAxes): boolean {
     return OWNED_AXES.has(input);
@@ -51,7 +55,8 @@ export namespace PoseResolutionSnapshot {
   }
 
   /**
-   * Compare actual quaternion components, including signed zero, without arithmetic.
+   * Compare actual quaternion components, including signed zero, without
+   * arithmetic.
    */
   export function sameQuaternion(
     left: IAutoMovieQuaternion,
@@ -66,9 +71,7 @@ export namespace PoseResolutionSnapshot {
     );
   }
 
-  /**
-   * Compare actual vector components, retaining signed-zero distinctions.
-   */
+  /** Compare actual vector components, retaining signed-zero distinctions. */
   export function sameVector(
     left: IAutoMovieVector3,
     right: IAutoMovieVector3,
@@ -81,9 +84,7 @@ export namespace PoseResolutionSnapshot {
     );
   }
 
-  /**
-   * Copy an unadmitted clinical basis and its exact optional twist placement.
-   */
+  /** Copy an unadmitted clinical basis and its exact optional twist placement. */
   export function axes(input: IAutoMovieJointAxes): IAutoMovieJointAxes {
     if (!hasProperties(input)) return input;
     const snapshot: IAutoMovieJointAxes = Object.freeze({
@@ -101,18 +102,14 @@ export namespace PoseResolutionSnapshot {
     return snapshot;
   }
 
-  /**
-   * Freeze three actual numerical properties in their existing frame and units.
-   */
+  /** Freeze three actual numerical properties in their existing frame and units. */
   export function vector(input: IAutoMovieVector3): IAutoMovieVector3 {
     return !hasProperties(input)
       ? input
       : Object.freeze({ x: input.x, y: input.y, z: input.z });
   }
 
-  /**
-   * Freeze exact quaternion components without normalization or enumeration.
-   */
+  /** Freeze exact quaternion components without normalization or enumeration. */
   export function quaternion(
     input: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion {
@@ -122,7 +119,8 @@ export namespace PoseResolutionSnapshot {
   }
 
   /**
-   * Copy optional affine clinical maps while preserving lazy null-angle admission.
+   * Copy optional affine clinical maps while preserving lazy null-angle
+   * admission.
    */
   export function frame(input: IAutoMovieRestFrame): IAutoMovieRestFrame {
     if (!hasProperties(input)) return input;
@@ -136,14 +134,20 @@ export namespace PoseResolutionSnapshot {
   }
 }
 
-/** Preserve malformed scalar/non-record entries for their ordinary toRigAngle refusal. */
+/**
+ * Preserve malformed scalar/non-record entries for their ordinary toRigAngle
+ * refusal.
+ */
 function axisFrame(input: IAutoMovieAxisFrame): IAutoMovieAxisFrame {
   return !hasProperties(input)
     ? input
     : Object.freeze({ sign: input.sign, neutral: input.neutral });
 }
 
-/** Structural numerical records can be ordinary objects or callables with properties. */
+/**
+ * Structural numerical records can be ordinary objects or callables with
+ * properties.
+ */
 function hasProperties(input: unknown): boolean {
   return (
     (typeof input === "object" && input !== null) || typeof input === "function"

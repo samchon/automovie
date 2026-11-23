@@ -1,4 +1,7 @@
-/** Admit and copy the authored ordered production live-soft id list. Nonarrays, blank/untrimmed strings and duplicates throw; id existence and moving-boundary compatibility belong to shot selection.
+/**
+ * Admit and copy the authored ordered production live-soft id list. Nonarrays,
+ * blank/untrimmed strings and duplicates throw; id existence and
+ * moving-boundary compatibility belong to shot selection.
  */
 export const readProductionLiveWearableSoftBodies: (
   selected: unknown,

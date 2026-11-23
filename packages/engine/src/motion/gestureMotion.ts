@@ -292,7 +292,10 @@ function jumpPose(
 }
 
 /**
- * Bake a supported generic gesture or jump over the requested duration using engine-authored clinical stops; targeted strike and unknown kinds return null. Angles fit the default humanoid ROM, while custom rig admission belongs to validateMotion. The caller supplies finite positive duration.
+ * Bake a supported generic gesture or jump over the requested duration using
+ * engine-authored clinical stops; targeted strike and unknown kinds return
+ * null. Angles fit the default humanoid ROM, while custom rig admission belongs
+ * to validateMotion. The caller supplies finite positive duration.
  */
 export const gestureMotion: (
   id: string,

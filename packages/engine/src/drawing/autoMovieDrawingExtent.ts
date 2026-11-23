@@ -9,13 +9,13 @@ import {
  * nothing is placed.
  *
  * Line ends, region and opening outline corners, resolved dimension ends and
- * resolved note anchors all count. Dimensions and notes are why this is not
- * the box around the linework: a dimension string is drawn beside the plan
- * and a note is led out past what it describes, and the serializer sizes the
- * page from this box, so anything outside it would fall outside the viewBox.
- * A note contributes its anchor, not its glyphs, which the derivation cannot
- * measure without font metrics and declares as a gap; a stale target has no
- * place on the page and contributes nothing.
+ * resolved note anchors all count. Dimensions and notes are why this is not the
+ * box around the linework: a dimension string is drawn beside the plan and a
+ * note is led out past what it describes, and the serializer sizes the page
+ * from this box, so anything outside it would fall outside the viewBox. A note
+ * contributes its anchor, not its glyphs, which the derivation cannot measure
+ * without font metrics and declares as a gap; a stale target has no place on
+ * the page and contributes nothing.
  *
  * @param drawing The drawing's placed content.
  * @returns The page box in metres, or `null`.

@@ -9,20 +9,34 @@ import { isRecord } from "./isRecord";
 import { readAutoMovieImageFacts } from "./readAutoMovieImageFacts";
 import { validateUniqueValues } from "./validateUniqueValues";
 
-/** RFC 4648 section 4 base64: the standard alphabet in padded four-character groups. */
+/**
+ * RFC 4648 section 4 base64: the standard alphabet in padded four-character
+ * groups.
+ */
 const BASE64: RegExp =
   /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
 
-/** Base64 characters that cover the signature and the whole IHDR chunk body (33 bytes). */
+/**
+ * Base64 characters that cover the signature and the whole IHDR chunk body (33
+ * bytes).
+ */
 const HEADER_CHARACTERS: number = 44;
 
 /** PNG colour types the viewer decodes: greyscale, RGB, greyscale-alpha, RGBA. */
 const COLOUR_TYPES: ReadonlySet<number> = new Set([0, 2, 4, 6]);
 
 /**
- * Admit the images a model carries: a list of records with nonblank unique ids, the PNG media type, strict base64 data, and a PNG header inside the subset the viewer decodes.
+ * Admit the images a model carries: a list of records with nonblank unique ids,
+ * the PNG media type, strict base64 data, and a PNG header inside the subset
+ * the viewer decodes.
  *
- * The header is the IHDR chunk (W3C PNG, 2nd edition, section 11.2.2): a 13-byte body whose bit depth must be 8, colour type 0, 2, 4 or 6, compression, filter and interlace methods 0, and whose edges must be positive and at most `AUTO_MOVIE_MAX_TEXTURE_EDGE`. Only the first 44 base64 characters are decoded, so a corrupt compressed stream or a wrong checksum after the header passes here and is refused when the viewer decodes the image.
+ * The header is the IHDR chunk (W3C PNG, 2nd edition, section 11.2.2): a
+ * 13-byte body whose bit depth must be 8, colour type 0, 2, 4 or 6,
+ * compression, filter and interlace methods 0, and whose edges must be positive
+ * and at most `AUTO_MOVIE_MAX_TEXTURE_EDGE`. Only the first 44 base64
+ * characters are decoded, so a corrupt compressed stream or a wrong checksum
+ * after the header passes here and is refused when the viewer decodes the
+ * image.
  */
 export const validateModelImages: (
   images: unknown,

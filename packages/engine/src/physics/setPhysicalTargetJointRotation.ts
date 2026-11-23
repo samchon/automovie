@@ -7,7 +7,9 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
 /**
- * Apply one admitted parent-joint-relative rotation to its declared descendant tree, preserving every rigid anchor. Motor targets are mutable working copies, never solved bodies.
+ * Apply one admitted parent-joint-relative rotation to its declared descendant
+ * tree, preserving every rigid anchor. Motor targets are mutable working
+ * copies, never solved bodies.
  */
 export function setPhysicalTargetJointRotation(
   targets: Record<string, IAutoMovieRigidTransform>,

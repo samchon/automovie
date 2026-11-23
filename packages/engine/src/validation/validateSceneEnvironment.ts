@@ -18,9 +18,16 @@ const SHADOW_TYPES: ReadonlySet<string> = new Set(["pcf", "pcfSoft", "vsm"]);
 /**
  * Admit environment image/background, intensity, exposure and shadow policy.
  *
- * Image ids are nonblank or null, and a declared image requires a null flat background. Color delegates to validateColor's linear RGBA and matching sRGB label contract. Intensity is finite and nonnegative, exposure finite and positive, and rotation finite degrees. Tone mapping is none or acesFilmic; shadows require a boolean enabled flag and pcf, pcfSoft or vsm filter.
+ * Image ids are nonblank or null, and a declared image requires a null flat
+ * background. Color delegates to validateColor's linear RGBA and matching sRGB
+ * label contract. Intensity is finite and nonnegative, exposure finite and
+ * positive, and rotation finite degrees. Tone mapping is none or acesFilmic;
+ * shadows require a boolean enabled flag and pcf, pcfSoft or vsm filter.
  *
- * Supplying admitted light traits also checks the supported shadow profile, retaining its original scene-light paths on refusal. With no light context, this function admits policy shape only. It collects all independent faults without changing input or requiring a renderer.
+ * Supplying admitted light traits also checks the supported shadow profile,
+ * retaining its original scene-light paths on refusal. With no light context,
+ * this function admits policy shape only. It collects all independent faults
+ * without changing input or requiring a renderer.
  */
 export function validateSceneEnvironment(
   props: IAutoMovieValidateSceneEnvironment.IProps,

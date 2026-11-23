@@ -7,7 +7,10 @@ import {
 import { channelKey } from "./channelKey";
 
 /**
- * Clamp one sampled channel component-wise and report crossed bounds with original values. Null bounds and omitted tails leave directions free; sparse/nonfinite supplied bounds and reversed intervals throw. This does not normalize a quaternion or impose coupled anatomical ROM.
+ * Clamp one sampled channel component-wise and report crossed bounds with
+ * original values. Null bounds and omitted tails leave directions free;
+ * sparse/nonfinite supplied bounds and reversed intervals throw. This does not
+ * normalize a quaternion or impose coupled anatomical ROM.
  */
 export const applyChannelLimit: (
   value: number[],

@@ -17,21 +17,25 @@ import { physicalShapePenetration } from "./physicalShapePenetration";
  * The contact phase of one extended position-based dynamics step (Mueller,
  * Macklin, Chentanez, Jeschke and Kim 2020, section 3.5 and 3.6).
  *
- * `detect` finds the overlapping collider pairs at the step's predicted
- * poses and keeps each one's witnesses in its bodies' frames. `positions`
- * resolves each contact's depth beyond the allowed error along its fixed
- * normal, as a compliant constraint whose stiffness is a spring of the
- * world's contact frequency on the pair's effective mass (Macklin, Mueller
- * and Chentanez 2016: compliance `alpha = 1 / k`), and removes its tangential slip up to the friction cone
- * `lambda_t <= mu lambda_n`, each point taking the share its own normal
- * multiplier allows. `velocities`, one Gauss-Seidel sweep over the points that the world
- * repeats as often as the position passes, applies dynamic friction, an
- * impulse against the slip of at most what the cone leaves over all
- * sweeps, `(mu lambda_n - lambda_t) / h`, and at most what stops the slip, then sets the normal velocity to the restitution of the pre-step approach when that approach is faster than gravity gives in two substeps, and to rest otherwise.
+ * `detect` finds the overlapping collider pairs at the step's predicted poses
+ * and keeps each one's witnesses in its bodies' frames. `positions` resolves
+ * each contact's depth beyond the allowed error along its fixed normal, as a
+ * compliant constraint whose stiffness is a spring of the world's contact
+ * frequency on the pair's effective mass (Macklin, Mueller and Chentanez 2016:
+ * compliance `alpha = 1 / k`), and removes its tangential slip up to the
+ * friction cone `lambda_t <= mu lambda_n`, each point taking the share its own
+ * normal multiplier allows. `velocities`, one Gauss-Seidel sweep over the
+ * points that the world repeats as often as the position passes, applies
+ * dynamic friction, an impulse against the slip of at most what the cone leaves
+ * over all sweeps, `(mu lambda_n - lambda_t) / h`, and at most what stops the
+ * slip, then sets the normal velocity to the restitution of the pre-step
+ * approach when that approach is faster than gravity gives in two substeps, and
+ * to rest otherwise.
  */
 export namespace solveXpbdContacts {
   /**
-   * One contact of a step: the pair, its normal and witnesses, and its multipliers.
+   * One contact of a step: the pair, its normal and witnesses, and its
+   * multipliers.
    */
   export interface IContact {
     /** The first collider. */
@@ -40,10 +44,16 @@ export namespace solveXpbdContacts {
     /** The second collider. */
     b: AutoMovieXpbdCollider;
 
-    /** Index of the collider pair among the step's touching pairs; the points of one manifold share it. */
+    /**
+     * Index of the collider pair among the step's touching pairs; the points of
+     * one manifold share it.
+     */
     pair: number;
 
-    /** Unit world normal from the first collider toward the second, fixed for the step. */
+    /**
+     * Unit world normal from the first collider toward the second, fixed for
+     * the step.
+     */
     normal: IAutoMovieVector3;
 
     /** The first witness in the first body's frame, from its centre, metres. */
@@ -61,12 +71,21 @@ export namespace solveXpbdContacts {
     /** Normal multiplier accumulated this step, newton seconds squared. */
     normalLambda: number;
 
-    /** Tangential multiplier vector accumulated this step, newton seconds squared. */
+    /**
+     * Tangential multiplier vector accumulated this step, newton seconds
+     * squared.
+     */
     tangentLambda: IAutoMovieVector3;
-    /** Dynamic friction impulse accumulated over this step's velocity passes, newton seconds. */
+    /**
+     * Dynamic friction impulse accumulated over this step's velocity passes,
+     * newton seconds.
+     */
     tangentImpulse: number;
 
-    /** The same dynamic friction as a vector, the impulse the first body received, newton seconds. */
+    /**
+     * The same dynamic friction as a vector, the impulse the first body
+     * received, newton seconds.
+     */
     frictionImpulse: IAutoMovieVector3;
 
     /** Normal approach speed at detection, metres per second; positive closing. */
@@ -75,15 +94,22 @@ export namespace solveXpbdContacts {
     /** Signed distance at the end of the step, metres. */
     separation: number;
 
-    /** Signed distance where the step found the contact, before any correction, metres. */
+    /**
+     * Signed distance where the step found the contact, before any correction,
+     * metres.
+     */
     detected: number;
 
-    /** Normal impulse of the velocity passes, newton seconds; positive pushing the pair apart. */
+    /**
+     * Normal impulse of the velocity passes, newton seconds; positive pushing
+     * the pair apart.
+     */
     velocityImpulse: number;
   }
 
   /**
-   * Whether two colliders may touch; false excludes the pair from response and overlap reports.
+   * Whether two colliders may touch; false excludes the pair from response and
+   * overlap reports.
    */
   export type Filter = (
     a: AutoMovieXpbdCollider,
@@ -91,8 +117,8 @@ export namespace solveXpbdContacts {
   ) => boolean;
 
   /**
-   * Find the overlapping pairs at the predicted poses and their manifolds:
-   * each responding pair contributes one contact per point of its patch
+   * Find the overlapping pairs at the predicted poses and their manifolds: each
+   * responding pair contributes one contact per point of its patch
    * (`physicalShapeContactManifold`, features within `band` of the deepest
    * plane), or its nearest-feature witnesses when the patch is a single
    * crossing; a pair with a sensor contributes one overlap record.
@@ -100,7 +126,8 @@ export namespace solveXpbdContacts {
    * @param colliders Every collider, in creation order.
    * @param filter The pair filter.
    * @param band Depth below a support plane still counted as touching, metres.
-   * @returns The contacts, in pair order; sensors included, flagged by their colliders.
+   * @returns The contacts, in pair order; sensors included, flagged by their
+   *   colliders.
    */
   export function detect(
     colliders: readonly AutoMovieXpbdCollider[],
@@ -408,8 +435,8 @@ export namespace solveXpbdContacts {
   }
 
   /**
-   * The responding contacts grouped by collider pair, in pair order;
-   * sensors are left out.
+   * The responding contacts grouped by collider pair, in pair order; sensors
+   * are left out.
    *
    * @param contacts The step's contacts, the points of one pair adjacent.
    * @returns One array per pair; the contacts are the given records.
@@ -438,11 +465,11 @@ export namespace solveXpbdContacts {
     );
   }
   /**
-   * The contact of two colliders, or null when they are apart. Two
-   * polytopes (boxes and hulls) are tested by GJK and, when they overlap,
-   * measured by EPA (physicalShapePenetration), which is exact for
-   * polytopes; a pair with a round shape takes its exact wire distance
-   * (physicalShapePairContact), whose round wire is one segment.
+   * The contact of two colliders, or null when they are apart. Two polytopes
+   * (boxes and hulls) are tested by GJK and, when they overlap, measured by EPA
+   * (physicalShapePenetration), which is exact for polytopes; a pair with a
+   * round shape takes its exact wire distance (physicalShapePairContact), whose
+   * round wire is one segment.
    */
   function measure(
     a: AutoMovieXpbdCollider,

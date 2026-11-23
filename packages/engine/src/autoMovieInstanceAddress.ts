@@ -8,9 +8,9 @@ import {
  *
  * An explicit layout member is `instance:<set>:<explicit id>`, the id its
  * author wrote; every other member is `instance:<set>:slot:<slot>` with the
- * slot zero-padded to six digits, so slot order and address order agree up to
- * a million members. The slot is not range-checked here; an explicit layout
- * with no transform for the slot falls back to the slot form.
+ * slot zero-padded to six digits, so slot order and address order agree up to a
+ * million members. The slot is not range-checked here; an explicit layout with
+ * no transform for the slot falls back to the slot form.
  *
  * @param set Compiled set the member belongs to.
  * @param slot Zero-based member slot.

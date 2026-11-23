@@ -6,14 +6,14 @@ import type {
 import { AutoMovieComposition } from "./AutoMovieComposition";
 
 /**
- * An immutable composition value with fluent combinators, the return type of
- * a production's subject methods: `a.jab().next(a.cross()).with(b.slip())`.
+ * An immutable composition value with fluent combinators, the return type of a
+ * production's subject methods: `a.jab().next(a.cross()).with(b.slip())`.
  *
  * `next` appends in sequence (not `then`, which would make every chain a
  * thenable that `await` unwraps) and `with` joins in parallel; each returns a
- * new chain of the same class through {@link derive} and never changes this
- * one, so a chain can be shared and reused. A production subclass adds its
- * own vocabulary methods that call `next` with its subject's intents, so
+ * new chain of the same class through {@link derive} and never changes this one,
+ * so a chain can be shared and reused. A production subclass adds its own
+ * vocabulary methods that call `next` with its subject's intents, so
  * `a.jab().cross()` keeps its vocabulary after every combinator; a subclass
  * whose constructor takes more than the node overrides `derive`. The engine
  * keeps no vocabulary.

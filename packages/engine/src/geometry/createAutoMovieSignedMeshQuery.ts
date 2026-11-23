@@ -25,13 +25,12 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * The mesh is snapshotted, so changing it later needs a new query. Vertices
  * that share exact coordinates are welded, joining UV-split copies without
  * moving them. Admission throws on a malformed or empty index buffer, a
- * non-finite position, a triangle without positive finite area, an edge used
- * by more than two triangles or by two with the same direction, and a vertex
- * whose incident triangles form more than one fan. A closed surface also
- * requires every edge to be paired. The caller still owns an embedded,
- * non-self-intersecting, outward-oriented surface, cavity walls included,
- * which this neither infers nor repairs; reversing every face reverses the
- * sign.
+ * non-finite position, a triangle without positive finite area, an edge used by
+ * more than two triangles or by two with the same direction, and a vertex whose
+ * incident triangles form more than one fan. A closed surface also requires
+ * every edge to be paired. The caller still owns an embedded,
+ * non-self-intersecting, outward-oriented surface, cavity walls included, which
+ * this neither infers nor repairs; reversing every face reverses the sign.
  *
  * With `boundary: "open"` an oriented sheet is admitted: an edge used by one
  * triangle takes that face's normal as its pseudonormal. A sheet's sign is
@@ -286,8 +285,8 @@ interface IEdge {
 
 /**
  * One directed triangle edge as a closed segment: welded start and end
- * identities, start point, end minus start, its squared length, and the
- * welded edge it lies on.
+ * identities, start point, end minus start, its squared length, and the welded
+ * edge it lies on.
  */
 interface ITriangleSegment {
   from: number;
@@ -299,8 +298,8 @@ interface ITriangleSegment {
 }
 
 /**
- * One admitted triangle: its original ordinal, first corner `a`, edges `ab`
- * and `ac`, unit winding normal, the Gram terms `aa`, `bb`, `abac` and their
+ * One admitted triangle: its original ordinal, first corner `a`, edges `ab` and
+ * `ac`, unit winding normal, the Gram terms `aa`, `bb`, `abac` and their
  * positive determinant for barycentric projection, and its three closed edge
  * segments in corner order.
  */
@@ -343,7 +342,8 @@ const unit = (vector: readonly number[]): number[] => {
  * is no farther than the running best, and its children's box distances are
  * measured once here and passed down, so the order and pruning match a
  * traversal that re-measured them on entry without the repeated work. Leaf
- * bounds stop only on strict excess; the current-point seed was already tested.
+ * bounds stop only on strict excess; the current-point seed was already
+ * tested.
  */
 function visit(
   node: IAutoMovieMeshQueryHierarchy<ITriangle>,

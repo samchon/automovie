@@ -40,8 +40,8 @@ const UNIT_QUATERNION_EPSILON: number = 1e-6;
  * A rotation is where riding along is free. A scale is not, and it is the one
  * case where carrying the atlas unchanged costs the set its unit. A metric set
  * says one unit is one metre of surface, and a scaled placement stretches the
- * surface while leaving the numbers where they were, so a member built at
- * unit size and placed at three times it reads one metre where the surface now
+ * surface while leaving the numbers where they were, so a member built at unit
+ * size and placed at three times it reads one metre where the surface now
  * measures three: the finish comes out three times too large, uniformly. A
  * non-uniform scale is worse than wrong by a constant, because each face takes
  * its own factor and the set stops being metric by any single number at all.
@@ -55,8 +55,12 @@ const UNIT_QUATERNION_EPSILON: number = 1e-6;
  *
  * @param mesh Unskinned mesh in its local metre frame; never modified.
  * @param transform Placement, each field defaulting to identity.
- * @returns A new mesh whose arrays share nothing with the input; its index buffer is always present.
- * @throws Error when the mesh is skinned, its indices are incomplete or out of range, its physical correspondence is malformed before or after placement, a placement field is not finite, the rotation is not unit within 1e-6, or a scale component is zero.
+ * @returns A new mesh whose arrays share nothing with the input; its index
+ *   buffer is always present.
+ * @throws Error when the mesh is skinned, its indices are incomplete or out of
+ *   range, its physical correspondence is malformed before or after placement,
+ *   a placement field is not finite, the rotation is not unit within 1e-6, or a
+ *   scale component is zero.
  */
 export const transformAutoMovieMesh: (
   mesh: IAutoMovieMesh,

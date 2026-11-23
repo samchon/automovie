@@ -18,13 +18,16 @@ import { validateSolidPlanes } from "./validateSolidPlanes";
  *
  * Throws an `Error` at the first blank id, the first id repeated within
  * `solids`, or the first plane violation of a solid, naming that solid and the
- * violation path. `label` names the kind of solid in every message and path, and
- * ids need to be unique only within this one list.
+ * violation path. `label` names the kind of solid in every message and path,
+ * and ids need to be unique only within this one list.
  *
- * Plane count and finite fields do not prove the intersection bounded or nonempty; validateSolidPlanes deliberately leaves those geometric properties unchecked.
+ * Plane count and finite fields do not prove the intersection bounded or
+ * nonempty; validateSolidPlanes deliberately leaves those geometric properties
+ * unchecked.
  *
  * @param solids Authored convex blockers, checked in list order.
- * @param label Kind of solid named in messages and paths, such as `shading solid`.
+ * @param label Kind of solid named in messages and paths, such as `shading
+ *   solid`.
  */
 export const assertAutoMovieAnalysisSolids: (
   solids: readonly IAutoMovieAnalysisSolid[],

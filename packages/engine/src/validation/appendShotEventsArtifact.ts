@@ -33,7 +33,8 @@ const EVENT_SOURCES: Set<string> = new Set([
 ]);
 
 /**
- * Append structural shot-event findings using the canonical shot-local clock policy.
+ * Append structural shot-event findings using the canonical shot-local clock
+ * policy.
  */
 export const appendShotEventsArtifact: (
   events: unknown,

@@ -1,19 +1,26 @@
 import type { IAutoMovieConstructionPortField } from "@automovie/interface";
+
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 
 /**
- * A periodic scalar on a port's clock, read with the two derivatives a band's jets need: a port curve's share between its columns, a
- * curved rail's station, the band's cross speed on each side and its correspondence to the part's phase.
+ * A periodic scalar on a port's clock, read with the two derivatives a band's
+ * jets need: a port curve's share between its columns, a curved rail's station,
+ * the band's cross speed on each side and its correspondence to the part's
+ * phase.
  */
 export namespace AutoMovieConstructionPortField {
   /**
-   * The periodic cubic spline through values at the clocks `2 pi j / m`: the unique C2 uniform periodic cubic interpolant (the curve
-   * `AutoMovieNaturalSpline.periodic` reads by its knot curvatures), here in its B-spline form, read with two derivatives.
+   * The periodic cubic spline through values at the clocks `2 pi j / m`: the
+   * unique C2 uniform periodic cubic interpolant (the curve
+   * `AutoMovieNaturalSpline.periodic` reads by its knot curvatures), here in
+   * its B-spline form, read with two derivatives.
    *
    * @param values The values, `m >= 3`.
    * @returns The field.
    */
-  export function periodic(values: readonly number[]): IAutoMovieConstructionPortField.IField {
+  export function periodic(
+    values: readonly number[],
+  ): IAutoMovieConstructionPortField.IField {
     const m: number = values.length;
     const controls: number[] = AutoMovieSplineCurve.interpolate(
       values.map((x: number): [number, number] => [x, 0]),
@@ -50,7 +57,8 @@ export namespace AutoMovieConstructionPortField {
         // Span j holds the clocks [j, j + 1) 2 pi / m and combines the controls j - 1 to j + 2 convexly.
         const first: number = Math.floor(Math.min(from, to) * scale);
         const last: number = Math.floor(Math.max(from, to) * scale);
-        if (!(last - first < m - 1)) return [Math.min(...own), Math.max(...own)];
+        if (!(last - first < m - 1))
+          return [Math.min(...own), Math.max(...own)];
         let least: number = Infinity;
         let most: number = -Infinity;
         for (let j: number = first - 1; j <= last + 2; ++j) {
@@ -69,7 +77,9 @@ export namespace AutoMovieConstructionPortField {
    * @param value The value.
    * @returns The field: the value, no derivative.
    */
-  export function constant(value: number): IAutoMovieConstructionPortField.IField {
+  export function constant(
+    value: number,
+  ): IAutoMovieConstructionPortField.IField {
     return {
       at: (): [number, number, number] => [value, 0, 0],
       bounds: [value, value],

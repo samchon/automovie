@@ -6,10 +6,11 @@ import { Quaternion } from "./Quaternion";
  * Fit a proper rotation and translation between corresponding mesh vertices.
  * The facial basis builder uses this to perform a shape-edited rigid component
  * without allowing expression targets to scale, shear or reflect its geometry.
- * Inputs are flat XYZ buffers in the same units, and a nonempty, unique selection
- * indexes both. No input is mutated. Apply the returned rotation to a point minus
- * referenceCenter, then add targetCenter. Centered application avoids cancellation
- * between a large translation and a rotated absolute coordinate.
+ * Inputs are flat XYZ buffers in the same units, and a nonempty, unique
+ * selection indexes both. No input is mutated. Apply the returned rotation to a
+ * point minus referenceCenter, then add targetCenter. Centered application
+ * avoids cancellation between a large translation and a rotated absolute
+ * coordinate.
  *
  * Horn's absolute-orientation method (JOSA A 4, 1987, pp. 629–642, section 4)
  * maximizes q^T N q for a unit quaternion. N is symmetric 4 by 4; its largest

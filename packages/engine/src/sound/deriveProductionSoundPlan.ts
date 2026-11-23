@@ -34,7 +34,8 @@ import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagati
 import { resolveProductionSoundEventCues } from "./resolveProductionSoundEventCues";
 
 /**
- * Lower semantic shot events and authored cues/dialogue onto one finished-film sound clock.
+ * Lower semantic shot events and authored cues/dialogue onto one finished-film
+ * sound clock.
  */
 export const deriveProductionSoundPlan: (
   props: IAutoMovieDeriveProductionSoundPlan.IProps,
@@ -225,11 +226,14 @@ export const deriveProductionSoundPlan: (
  * One subject's contribution to an event's sound source: where its members are
  * centered, how many there are, and how far they lie from that center.
  *
- * Variance is a modeled mean squared radius in square metres; group values
- * use a uniform-box approximation and combine by the parallel-axis identity.
+ * Variance is a modeled mean squared radius in square metres; group values use
+ * a uniform-box approximation and combine by the parallel-axis identity.
  */
 interface IAutoMovieSoundMass {
-  /** Modeled centre in the shot's world metre frame; temporary subject records may borrow it. */
+  /**
+   * Modeled centre in the shot's world metre frame; temporary subject records
+   * may borrow it.
+   */
   centroid: IAutoMovieVector3;
 
   /** Equal-source member count supplied by the compiled subject. */
@@ -438,7 +442,11 @@ const cloneAcousticProfile: (
           : { provider: { ...profile.provider } }),
       };
 
-/** Fold UTF-16 code units through 32bit FNV arithmetic to seed the procedural palette; collisions are allowed and this value does not certify plan or asset identity. */
+/**
+ * Fold UTF-16 code units through 32bit FNV arithmetic to seed the procedural
+ * palette; collisions are allowed and this value does not certify plan or asset
+ * identity.
+ */
 const soundSeed: (value: string) => number = (value: string): number => {
   let hash: number = 0x811c9dc5;
   for (let index: number = 0; index < value.length; ++index) {
@@ -448,7 +456,11 @@ const soundSeed: (value: string) => number = (value: string): number => {
   return hash >>> 0;
 };
 
-/** Clip the calculated pan to the declared scalar interval; NaN remains NaN for malformed spatial arithmetic rather than being replaced by a plausible direction. */
+/**
+ * Clip the calculated pan to the declared scalar interval; NaN remains NaN for
+ * malformed spatial arithmetic rather than being replaced by a plausible
+ * direction.
+ */
 const clamp: (value: number, minimum: number, maximum: number) => number = (
   value: number,
   minimum: number,

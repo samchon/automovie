@@ -6,12 +6,11 @@ import type {
 import { Vector3 } from "../math/Vector3";
 
 /**
- * SO(3) exponential coordinates and their left-Jacobian inverse retain the actual angular derivative at a pose handoff, including compound rotations.
+ * SO(3) exponential coordinates and their left-Jacobian inverse retain the
+ * actual angular derivative at a pose handoff, including compound rotations.
  */
 export namespace PhysicalRotationVector {
-  /**
-   * Shortest rotation vector in radians, canonical across quaternion sign.
-   */
+  /** Shortest rotation vector in radians, canonical across quaternion sign. */
   export function log(rotation: IAutoMovieQuaternion): IAutoMovieVector3 {
     const norm: number = Math.hypot(rotation.x, rotation.y, rotation.z);
     const sign: number = rotation.w < 0 ? -1 : 1;
@@ -26,7 +25,8 @@ export namespace PhysicalRotationVector {
     };
   }
   /**
-   * Exponentiate a finite rotation vector, without an Euler-angle decomposition.
+   * Exponentiate a finite rotation vector, without an Euler-angle
+   * decomposition.
    */
   export function exp(vector: IAutoMovieVector3): IAutoMovieQuaternion {
     const angle: number = Vector3.length(vector);
@@ -39,7 +39,8 @@ export namespace PhysicalRotationVector {
     };
   }
   /**
-   * Convert a spatial angular velocity into the derivative of a shortest rotation vector. The cot(theta/2) form stays finite at pi.
+   * Convert a spatial angular velocity into the derivative of a shortest
+   * rotation vector. The cot(theta/2) form stays finite at pi.
    */
   export function derivative(
     vector: IAutoMovieVector3,
@@ -57,7 +58,8 @@ export namespace PhysicalRotationVector {
     );
   }
   /**
-   * Left-Jacobian action converts exponential-coordinate derivatives back to spatial angular velocity.
+   * Left-Jacobian action converts exponential-coordinate derivatives back to
+   * spatial angular velocity.
    */
   export function velocity(
     vector: IAutoMovieVector3,

@@ -12,16 +12,15 @@ import { Vector3 } from "../math/Vector3";
 
 /**
  * The extent of every region of a body: the radius of the disc about the
- * region's point that is still that region, read from the body's own rest
- * pose. A named region of the skin reaches until the next one begins, so
- * its disc reaches half way to the nearest other region that faces the
- * same way (two discs overlap on the surface only where they face it from
- * one side, so a palm and the back of the same hand, a chest and an upper
- * back, are never each other's bound), and no farther than half its
- * segment's least breadth, so the disc stays on the face of the segment it
- * lies on (a forearm's disc does not wrap round to the arm's other side).
- * No region is smaller than the 10 mm a pressed skin gives, the contact
- * tolerance a hand on it is read against.
+ * region's point that is still that region, read from the body's own rest pose.
+ * A named region of the skin reaches until the next one begins, so its disc
+ * reaches half way to the nearest other region that faces the same way (two
+ * discs overlap on the surface only where they face it from one side, so a palm
+ * and the back of the same hand, a chest and an upper back, are never each
+ * other's bound), and no farther than half its segment's least breadth, so the
+ * disc stays on the face of the segment it lies on (a forearm's disc does not
+ * wrap round to the arm's other side). No region is smaller than the 10 mm a
+ * pressed skin gives, the contact tolerance a hand on it is read against.
  */
 export function AutoMovieHumanoidSurfaceExtents(
   regions: Readonly<
@@ -35,7 +34,10 @@ export function AutoMovieHumanoidSurfaceExtents(
       const bone: IAutoMovieResolvedBone = at(frame.bone);
       const frameBone: AutoMovieHumanoidBone = frame.bone;
       const origin: IAutoMovieVector3 = bone.worldPosition;
-      const point: IAutoMovieVector3 = Quaternion.rotateVector(bone.worldRotation, frame.point);
+      const point: IAutoMovieVector3 = Quaternion.rotateVector(
+        bone.worldRotation,
+        frame.point,
+      );
       point.x = origin.x + point.x;
       point.y = origin.y + point.y;
       point.z = origin.z + point.z;
@@ -62,7 +64,10 @@ export function AutoMovieHumanoidSurfaceExtents(
       }
     }
   }
-  const out: Record<AutoMovieHumanoidRegion, number> = {} as Record<AutoMovieHumanoidRegion, number>;
+  const out: Record<AutoMovieHumanoidRegion, number> = {} as Record<
+    AutoMovieHumanoidRegion,
+    number
+  >;
   for (let i: number = 0; i < placed.length; i++) {
     const region: IPlaced = placed[i]!;
     const box: ReturnType<typeof bounds> = bounds(region.bone);
@@ -71,7 +76,10 @@ export function AutoMovieHumanoidSurfaceExtents(
       box.max.y - box.min.y,
       box.max.z - box.min.z,
     );
-    out[region.name] = Math.max(CONTACT, Math.min(nearest[i]! / 2, breadth / 2));
+    out[region.name] = Math.max(
+      CONTACT,
+      Math.min(nearest[i]! / 2, breadth / 2),
+    );
   }
   return out;
 }
@@ -91,5 +99,8 @@ interface IPlaced {
   normal: IAutoMovieVector3;
 }
 
-/** The least extent of a region, metres: the 10 mm a pressed skin gives, the tolerance a contact on it is read against. */
+/**
+ * The least extent of a region, metres: the 10 mm a pressed skin gives, the
+ * tolerance a contact on it is read against.
+ */
 const CONTACT: number = 0.01;

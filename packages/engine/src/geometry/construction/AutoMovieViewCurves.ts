@@ -9,13 +9,20 @@ import type {
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 
 /**
- * The four original view edges, evaluated independently of section/fullness admission and of final coefficient interpolation.
+ * The four original view edges, evaluated independently of section/fullness
+ * admission and of final coefficient interpolation.
  *
- * A world point uses the supplied axis's actual `at(station)` frame, not the natural spline of frames stored on emitted layers. Scalar station jets therefore describe the source outline only; this API does not claim world derivatives without an axis jet contract. A zero outline at a pole reads the axis origin even when the loft emits no section there. Malformed outlines remain named diagnostics while the other source curves survive.
+ * A world point uses the supplied axis's actual `at(station)` frame, not the
+ * natural spline of frames stored on emitted layers. Scalar station jets
+ * therefore describe the source outline only; this API does not claim world
+ * derivatives without an axis jet contract. A zero outline at a pole reads the
+ * axis origin even when the loft emits no section there. Malformed outlines
+ * remain named diagnostics while the other source curves survive.
  */
 export namespace AutoMovieViewCurves {
   /**
-   * Prepare all original edges without reading the fullness owner or emitting a section.
+   * Prepare all original edges without reading the fullness owner or emitting a
+   * section.
    */
   export function create(
     part: IAutoMovieViewPart,
@@ -53,7 +60,8 @@ export namespace AutoMovieViewCurves {
   }
 
   /**
-   * Locate one source edge; invalid input stays an explicit failure and is never connected across by this owner.
+   * Locate one source edge; invalid input stays an explicit failure and is
+   * never connected across by this owner.
    */
   export function at(
     curve: IAutoMovieViewCurves.ICurve,

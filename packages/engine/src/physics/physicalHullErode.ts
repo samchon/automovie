@@ -8,12 +8,12 @@ import { physicalHullFaces } from "./physicalHullFaces";
 
 /**
  * The vertices of a convex hull shrunk inward by a depth: every face plane
- * moves inward by `depth`, and the eroded solid is what remains behind all
- * of them.
+ * moves inward by `depth`, and the eroded solid is what remains behind all of
+ * them.
  *
- * A vertex of the eroded solid is the meeting point of three moved planes
- * that lies behind every other moved plane, so each triple of faces is
- * solved by Cramer's rule and kept when it does.
+ * A vertex of the eroded solid is the meeting point of three moved planes that
+ * lies behind every other moved plane, so each triple of faces is solved by
+ * Cramer's rule and kept when it does.
  *
  * @param points The hull's shape-local points, metres, spanning a volume.
  * @param depth The inward offset, metres; below the hull's `depth` about its

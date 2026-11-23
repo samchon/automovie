@@ -12,18 +12,17 @@ import { validateJointAxesBasis } from "./validateJointAxesBasis";
  *
  * The axes must pass {@link validateJointAxesBasis}: finite, non-zero and
  * mutually orthogonal, with a supported rotation order and compatible twist
- * placement. Otherwise the first issue
- * is thrown as `<path> <expected>`, such as
- * `jointToQuaternion axes.twist must have non-zero length`. The result has
- * unit axes and any declared placement and rotation order. It is
- * frozen and may be shared between calls on the same axes record.
+ * placement. Otherwise the first issue is thrown as `<path> <expected>`, such
+ * as `jointToQuaternion axes.twist must have non-zero length`. The result has
+ * unit axes and any declared placement and rotation order. It is frozen and may
+ * be shared between calls on the same axes record.
  *
- * A rig's axes are a handful of constant records read for every bone of
- * every pose, so the admitted basis is remembered per record. A remembered
- * basis is returned only while the record still holds the nine components and
- * the placement and order it was admitted with, compared exactly, so a record edited
- * since is validated again; a basis that fails is never remembered, and the
- * path, which only words a failure, plays no part in the result.
+ * A rig's axes are a handful of constant records read for every bone of every
+ * pose, so the admitted basis is remembered per record. A remembered basis is
+ * returned only while the record still holds the nine components and the
+ * placement and order it was admitted with, compared exactly, so a record
+ * edited since is validated again; a basis that fails is never remembered, and
+ * the path, which only words a failure, plays no part in the result.
  *
  * @param axes Basis to check; read, never modified.
  * @param path Diagnostic path prefix naming the caller's input.
@@ -71,9 +70,7 @@ export function normalizeJointAxes(
   return basis;
 }
 
-/**
- * Immutable-output provenance of {@link normalizeJointAxes}.
- */
+/** Immutable-output provenance of {@link normalizeJointAxes}. */
 export namespace normalizeJointAxes {
   /**
    * Whether this exact record is an immutable own-data output of this producer.
@@ -107,7 +104,11 @@ const ADMITTED: WeakMap<IAutoMovieJointAxes, IRemembered> = new WeakMap();
 /** Only this module's successfully created, frozen own-data basis records. */
 const OWNED: WeakSet<IAutoMovieJointAxes> = new WeakSet();
 
-/** Whether a record still holds the values its remembered basis was admitted from, compared exactly (`Object.is`, so a NaN or a signed zero counts as itself). */
+/**
+ * Whether a record still holds the values its remembered basis was admitted
+ * from, compared exactly (`Object.is`, so a NaN or a signed zero counts as
+ * itself).
+ */
 const same: (known: IRemembered, axes: IAutoMovieJointAxes) => boolean = (
   known: IRemembered,
   axes: IAutoMovieJointAxes,

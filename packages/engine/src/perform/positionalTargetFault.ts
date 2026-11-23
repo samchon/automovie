@@ -8,11 +8,21 @@ function targetKindName(target: unknown): string {
 }
 
 /**
- * Why a positional target did not resolve to a world point, phrased as the clause after "but".
+ * Why a positional target did not resolve to a world point, phrased as the
+ * clause after "but".
  *
- * The discriminator is the fault only for a relative or unknown kind. A `node` or `group` target names a legal kind and an id that is not placed, so echoing the kind made one sentence list a node target as valid and reject it at the same time, leaving the correction round nothing it could act on (#1294). Name the id instead: it is the only thing the author can fix.
+ * The discriminator is the fault only for a relative or unknown kind. A `node`
+ * or `group` target names a legal kind and an id that is not placed, so echoing
+ * the kind made one sentence list a node target as valid and reject it at the
+ * same time, leaving the correction round nothing it could act on (#1294). Name
+ * the id instead: it is the only thing the author can fix.
  *
- * Accepts ordinary unknown payloads because callers differ in how much they have already validated: the perform gate reaches here past shape checks, while production geometry queries may supply malformed records. Identity conversion failures produce `an uninspectable value` instead of throwing; property accessors that throw and nonterminating conversion hooks remain outside this guarantee.
+ * Accepts ordinary unknown payloads because callers differ in how much they
+ * have already validated: the perform gate reaches here past shape checks,
+ * while production geometry queries may supply malformed records. Identity
+ * conversion failures produce `an uninspectable value` instead of throwing;
+ * property accessors that throw and nonterminating conversion hooks remain
+ * outside this guarantee.
  */
 export function positionalTargetFault(target: unknown): string {
   if (isRecord(target)) {

@@ -9,7 +9,11 @@ import { STATIC_SUPPORT_HEIGHT_EPSILON } from "./constants/STATIC_SUPPORT_HEIGHT
 import { contactMask } from "./contactMask";
 
 /**
- * Group each leg's stance into inclusive runs and assign one fixed model-frame contact per run. On a timed support change, the prior target survives while it remains supported at the same height. A run beginning at frame zero resumes an authoritative opening target; otherwise its first foot supplies XZ and sampled ground supplies Y. Parallel times/FK arrays are caller-admitted.
+ * Group each leg's stance into inclusive runs and assign one fixed model-frame
+ * contact per run. On a timed support change, the prior target survives while
+ * it remains supported at the same height. A run beginning at frame zero
+ * resumes an authoritative opening target; otherwise its first foot supplies XZ
+ * and sampled ground supplies Y. Parallel times/FK arrays are caller-admitted.
  */
 export const pinStanceTargets: (
   props: IAutoMoviePinStanceTargets.IProps,
@@ -66,7 +70,10 @@ export const pinStanceTargets: (
   return { plants, targets };
 };
 
-/** Track each contacting foot on the scope clock and reuse a pin while its surface remains eligible. */
+/**
+ * Track each contacting foot on the scope clock and reuse a pin while its
+ * surface remains eligible.
+ */
 function pinTimedStanceTargets(
   props: IAutoMoviePinStanceTargets.IProps,
   support: NonNullable<IAutoMoviePinStanceTargets.IProps["support"]>,

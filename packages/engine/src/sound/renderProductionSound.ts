@@ -21,8 +21,9 @@ import { productionScoreDuckingEnvelope } from "./productionScoreDuckingEnvelope
 import { productionSoundEventTone } from "./productionSoundEventTone";
 
 /**
- * Mix semantic events, authored cue trims and supplied dialogue into a fresh stereo master.
- * When enabled, score ducking attenuates the music bus around the placed dialogue with adopted PCM, before the master limiter.
+ * Mix semantic events, authored cue trims and supplied dialogue into a fresh
+ * stereo master. When enabled, score ducking attenuates the music bus around
+ * the placed dialogue with adopted PCM, before the master limiter.
  */
 export const renderProductionSound: (
   props: IAutoMovieRenderProductionSound.IProps,
@@ -148,7 +149,11 @@ const assertFiniteProductionPcm: (
       );
 };
 
-/** Mix the selected fixed event tone from emission or declared arrival, skipping segment-trimmed events; per-event pan/filter/density gains feed the same Float32 accumulation order. */
+/**
+ * Mix the selected fixed event tone from emission or declared arrival, skipping
+ * segment-trimmed events; per-event pan/filter/density gains feed the same
+ * Float32 accumulation order.
+ */
 const mixEvent: (
   pcm: Float32Array<ArrayBufferLike>,
   plan: IAutoMovieProductionSoundPlan,
@@ -219,7 +224,11 @@ const mixEvent: (
   }
 };
 
-/** Read the admitted source trim at unit sample rate with authored fades, or use the bus stand-in when the asset is absent; no rate reconciliation extends the trim. */
+/**
+ * Read the admitted source trim at unit sample rate with authored fades, or use
+ * the bus stand-in when the asset is absent; no rate reconciliation extends the
+ * trim.
+ */
 const mixCue: (
   pcm: Float32Array<ArrayBufferLike>,
   plan: IAutoMovieProductionSoundPlan,
@@ -342,7 +351,11 @@ const cueSampleRanges: (
   };
 };
 
-/** Fit adopted mono samples by endpoint-aligned linear interpolation and Float32 rounding; singleton sources fill the output, and a one-sample output selects the first source sample. */
+/**
+ * Fit adopted mono samples by endpoint-aligned linear interpolation and Float32
+ * rounding; singleton sources fill the output, and a one-sample output selects
+ * the first source sample.
+ */
 const resampleMono: (
   source: Float32Array<ArrayBufferLike>,
   length: number,
@@ -369,7 +382,10 @@ const resampleMono: (
   return output;
 };
 
-/** Delegate a frame boundary to the shared rational film-clock nearest-tick rule at the plan's sample rate, including its numeric admission failures. */
+/**
+ * Delegate a frame boundary to the shared rational film-clock nearest-tick rule
+ * at the plan's sample rate, including its numeric admission failures.
+ */
 const frameToSample: (
   plan: IAutoMovieProductionSoundPlan,
   frame: number,
@@ -381,7 +397,10 @@ const frameToSample: (
     rounding: "nearest",
   });
 
-/** Return the lesser of unity and the two edge-distance ratios for the fixed positive edge length; the last included sample need not reach exact zero. */
+/**
+ * Return the lesser of unity and the two edge-distance ratios for the fixed
+ * positive edge length; the last included sample need not reach exact zero.
+ */
 const edgeEnvelope: (index: number, length: number, edge: number) => number = (
   index: number,
   length: number,
@@ -391,7 +410,11 @@ const edgeEnvelope: (index: number, length: number, edge: number) => number = (
 /** Each cue seed's pinned counter-based stream, keyed once. */
 const noiseStreams: Map<number, IAutoMovieRandom> = new Map();
 
-/** One stateless signed noise sample in (-1, 1): the cue seed's pinned Philox stream (`createAutoMovieRandom`) read at the sample index; this seed stream is not content identity. */
+/**
+ * One stateless signed noise sample in (-1, 1): the cue seed's pinned Philox
+ * stream (`createAutoMovieRandom`) read at the sample index; this seed stream
+ * is not content identity.
+ */
 const seededNoise: (seed: number, index: number) => number = (
   seed: number,
   index: number,

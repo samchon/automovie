@@ -16,23 +16,35 @@ interface IProps extends Pick<
   IAutoMovieSolvePreparedChainPlantProps,
   "prepared" | "jointAxes" | "restFrames"
 > {
-  /** Authored order is significant: the last record of each bone wins as in resolvePose. */
+  /**
+   * Authored order is significant: the last record of each bone wins as in
+   * resolvePose.
+   */
   joints: readonly IAutoMovieJointPose[];
 
-  /** Optional lazy basis owner of this same prepared rig; record admission order is unchanged. */
+  /**
+   * Optional lazy basis owner of this same prepared rig; record admission order
+   * is unchanged.
+   */
   rig?: prepareChainFit.IRig;
 }
 
 /** Mid and effector world frames in the prepared model-metre frame. */
 interface IFrames {
-  /** Mid frame used to recover its articulation-free parent and orient the effector. */
+  /**
+   * Mid frame used to recover its articulation-free parent and orient the
+   * effector.
+   */
   lower: IAutoMovieChainBone;
 
   /** Actual effector frame, including its own current articulation. */
   effector: IAutoMovieChainBone;
 }
 
-/** Completed ordered admission and the shared lower prefix; no effector frame is assembled here. */
+/**
+ * Completed ordered admission and the shared lower prefix; no effector frame is
+ * assembled here.
+ */
 interface IReading {
   /** Fresh lower world frame composed from the admitted last articulations. */
   lower: IAutoMovieChainBone;
@@ -48,10 +60,11 @@ interface IReading {
 }
 
 /**
- * Read a fitted chain's mid and effector frames without walking unrelated bones.
- * The root transform, ancestor pose and fixed intermediate joints must match
- * preparation; only the three chain articulations may differ. Clinical tables
- * must be the actual skeleton-merged tables used to prepare and fit the chain.
+ * Read a fitted chain's mid and effector frames without walking unrelated
+ * bones. The root transform, ancestor pose and fixed intermediate joints must
+ * match preparation; only the three chain articulations may differ. Clinical
+ * tables must be the actual skeleton-merged tables used to prepare and fit the
+ * chain.
  */
 export function resolvePreparedChainFrames(props: IProps): IFrames {
   const reading: IReading = read(props);
@@ -80,14 +93,15 @@ export function resolvePreparedChainFrames(props: IProps): IFrames {
 }
 
 /**
- * Complete frames, a lower frame or an effector rotation after the same admission.
+ * Complete frames, a lower frame or an effector rotation after the same
+ * admission.
  */
 export namespace resolvePreparedChainFrames {
   /**
    * Read only the lower frame after admitting every chain record, including
-   * overwritten or otherwise unused end records, in authored order.
-   * The preparation, root, non-chain pose and clinical mapping premises of
-   * the complete-frame entry apply unchanged. Returns one fresh lower frame.
+   * overwritten or otherwise unused end records, in authored order. The
+   * preparation, root, non-chain pose and clinical mapping premises of the
+   * complete-frame entry apply unchanged. Returns one fresh lower frame.
    */
   export function lower(props: IProps): IAutoMovieChainBone {
     return read(props).lower;
@@ -103,7 +117,10 @@ export namespace resolvePreparedChainFrames {
   }
 }
 
-/** Compose the actual end articulation through the same captured fixed frame for every rotation reader. */
+/**
+ * Compose the actual end articulation through the same captured fixed frame for
+ * every rotation reader.
+ */
 function effectorRotation(
   props: IProps,
   reading: IReading,

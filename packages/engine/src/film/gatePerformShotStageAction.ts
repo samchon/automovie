@@ -20,21 +20,36 @@ import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
- * Gate the verb-specific fields of one non-`frame` action, and record the `launch` and `attachTo` jobs that pass.
+ * Gate the verb-specific fields of one non-`frame` action, and record the
+ * `launch` and `attachTo` jobs that pass.
  *
  * Per verb, at `<base>[i]`:
  *
- * - `locomote`: a gait the actor's own context lists, when gaits were supplied, and a non-relative destination that resolves at the action's start and leaves each staged actor horizontal travel, since a vertical-only move is not a walk.
- * - `launch`: a positive finite speed, an `onHit` force in `[0, 1]`, a staged projectile that is not one of the launching actors, an aim that resolves and is not the projectile itself; `onHit` needs a node or bone aim naming a staged scene node, because a point or group identifies no struck actor and a camera cannot perform the injected recoil.
+ * - `locomote`: a gait the actor's own context lists, when gaits were supplied,
+ *   and a non-relative destination that resolves at the action's start and
+ *   leaves each staged actor horizontal travel, since a vertical-only move is
+ *   not a walk.
+ * - `launch`: a positive finite speed, an `onHit` force in `[0, 1]`, a staged
+ *   projectile that is not one of the launching actors, an aim that resolves
+ *   and is not the projectile itself; `onHit` needs a node or bone aim naming a
+ *   staged scene node, because a point or group identifies no struck actor and
+ *   a camera cannot perform the injected recoil.
  * - `enact`: a non-blank clip id, since an empty one can never resolve.
- * - `react`: a force in `[0, 1]` and a blow source that resolves, because the reference synthesizer otherwise snaps the body back as if struck from the front.
+ * - `react`: a force in `[0, 1]` and a blow source that resolves, because the
+ *   reference synthesizer otherwise snaps the body back as if struck from the
+ *   front.
  * - `emote`: an intensity in `[0, 1]`.
- * - `lookAt` and `reach`: a target that resolves; `reach` also needs a rig whose elbow can bend the named arm.
- * - `point` and `strike` gestures: a right arm that can bend, because the reference synthesizer solves that arm, and an aim that resolves.
- * - `attachTo`: a child distinct from its rigged parent, a bone on that rig and, when supplied, an offset with a finite position and a unit rotation.
+ * - `lookAt` and `reach`: a target that resolves; `reach` also needs a rig whose
+ *   elbow can bend the named arm.
+ * - `point` and `strike` gestures: a right arm that can bend, because the
+ *   reference synthesizer solves that arm, and an aim that resolves.
+ * - `attachTo`: a child distinct from its rigged parent, a bone on that rig and,
+ *   when supplied, an offset with a finite position and a unit rotation.
  * - `hold`: nothing beyond the shared checks.
  *
- * An unbendable arm is refused here because the synthesizer answers such a verb with `null` and the builder skips a `null` clip, so the shot would otherwise succeed having performed nothing.
+ * An unbendable arm is refused here because the synthesizer answers such a verb
+ * with `null` and the builder skips a `null` clip, so the shot would otherwise
+ * succeed having performed nothing.
  *
  * @param context The shot's staged tables and collector.
  * @param plan The plan being built; passing launches and attachments join it.

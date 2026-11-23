@@ -23,8 +23,8 @@ interface Side {
  * Existing points on each side are retained in order. A new sampling point
  * inside a trim segment is omitted; it would otherwise split one side of a
  * shared seam with an index that its neighbour never received. An exact
- * existing boundary point is reused before requesting a new grid point.
- * The callback extends only the caller's local point catalogue, not a mesh.
+ * existing boundary point is reused before requesting a new grid point. The
+ * callback extends only the caller's local point catalogue, not a mesh.
  */
 export function domainAutoMovieSolidMesh(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -72,7 +72,10 @@ export function domainAutoMovieSolidMesh(
   return result;
 }
 
-/** Order one finite side; its stored point values are never normalized or overwritten. */
+/**
+ * Order one finite side; its stored point values are never normalized or
+ * overwritten.
+ */
 function row(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
   trim: readonly IAutoMovieSolidMeshConstraints.ISegment[],

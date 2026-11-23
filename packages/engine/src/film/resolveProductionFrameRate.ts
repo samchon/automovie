@@ -6,13 +6,22 @@ import type {
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
 
 /**
- * The exact frame rate a record carries beside its `fps` display scalar, in lowest terms.
+ * The exact frame rate a record carries beside its `fps` display scalar, in
+ * lowest terms.
  *
- * When `frameRate` is present it is the identity, reduced by {@link canonicalProductionFrameRate}, and `fps` must equal its quotient exactly as a double; when it is absent, `fps` must be a positive safe integer and reads as `fps/1`. A fractional rate therefore always travels as an explicit numerator and denominator, because a decimal such as `29.97` does not identify `30000/1001`.
+ * When `frameRate` is present it is the identity, reduced by
+ * {@link canonicalProductionFrameRate}, and `fps` must equal its quotient
+ * exactly as a double; when it is absent, `fps` must be a positive safe integer
+ * and reads as `fps/1`. A fractional rate therefore always travels as an
+ * explicit numerator and denominator, because a decimal such as `29.97` does
+ * not identify `30000/1001`.
  *
- * @param props Any record carrying `fps` and an optional exact `frameRate`, such as a film timeline, a frame format or a sound plan.
+ * @param props Any record carrying `fps` and an optional exact `frameRate`,
+ *   such as a film timeline, a frame format or a sound plan.
  * @returns The reduced numerator and denominator.
- * @throws {Error} When the exact rate has non-positive or non-safe-integer terms, when `fps` alone is not a positive safe integer, or when `fps` disagrees with the exact rate.
+ * @throws {Error} When the exact rate has non-positive or non-safe-integer
+ *   terms, when `fps` alone is not a positive safe integer, or when `fps`
+ *   disagrees with the exact rate.
  */
 export function resolveProductionFrameRate(
   props: IAutoMovieResolveProductionFrameRate.IProps,

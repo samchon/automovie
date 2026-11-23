@@ -1,5 +1,6 @@
 /**
- * Round an exact signed production tick to nearest, choosing the higher tick on a tie.
+ * Round an exact signed production tick to nearest, choosing the higher tick on
+ * a tie.
  */
 export function roundProductionGridTick(
   numerator: bigint,

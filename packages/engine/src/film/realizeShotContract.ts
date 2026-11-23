@@ -35,18 +35,42 @@ type ICameraOutcome = IAutoMovieCompiledContractRealization["camera"][number];
 /** One graded opening or closing state of the realization record. */
 type IStateOutcome = IAutoMovieCompiledContractRealization["opening"][number];
 
-/** Vector-component and absolute quaternion-dot comparison tolerance; the metrics differ. */
+/**
+ * Vector-component and absolute quaternion-dot comparison tolerance; the
+ * metrics differ.
+ */
 const TRANSFORM_TOLERANCE: number = 1e-9;
 
 /**
- * Grade a shot contract against the compiled artifacts that claim to realize it, measuring every outcome from the compiled scene, motions, camera and event samples rather than from the contract's own prose.
+ * Grade a shot contract against the compiled artifacts that claim to realize
+ * it, measuring every outcome from the compiled scene, motions, camera and
+ * event samples rather than from the contract's own prose.
  *
- * Opening states are graded at second 0 and closing states at `durationSeconds`. Each event is graded at its source sample's time and passes only when every declared subject resolves, its sample exists and is finite inside its window, and its predicates pass; the sample list itself must name every contract event exactly once. The camera is sampled at 0, every review frame and `durationSeconds`, deduplicated and ascending, and a sample passes only when every required subject resolves, its box intersects the clipped view frustum of the cropped raster, and the box's depth range satisfies the camera's depth-precision constraint. A formation participant must materialize its designed count in contiguous chunks, and, once a production is supplied, every promoted hero node exactly; an actor participant must be a performed scene node; every builder-reported slot collision fails.
+ * Opening states are graded at second 0 and closing states at
+ * `durationSeconds`. Each event is graded at its source sample's time and
+ * passes only when every declared subject resolves, its sample exists and is
+ * finite inside its window, and its predicates pass; the sample list itself
+ * must name every contract event exactly once. The camera is sampled at 0,
+ * every review frame and `durationSeconds`, deduplicated and ascending, and a
+ * sample passes only when every required subject resolves, its box intersects
+ * the clipped view frustum of the cropped raster, and the box's depth range
+ * satisfies the camera's depth-precision constraint. A formation participant
+ * must materialize its designed count in contiguous chunks, and, once a
+ * production is supplied, every promoted hero node exactly; an actor
+ * participant must be a performed scene node; every builder-reported slot
+ * collision fails.
  *
- * A reference that cannot be resolved, such as an absent node, rig, bone, motion, landmark or formation, makes the predicate or camera subject that named it fail; nothing is substituted for it. Contract clocks must already be admitted. Camera resolution runs outside the per-subject catch, so an invalid review time or malformed moving-camera sample can throw here.
+ * A reference that cannot be resolved, such as an absent node, rig, bone,
+ * motion, landmark or formation, makes the predicate or camera subject that
+ * named it fail; nothing is substituted for it. Contract clocks must already be
+ * admitted. Camera resolution runs outside the per-subject catch, so an invalid
+ * review time or malformed moving-camera sample can throw here.
  *
  * @param props The contract, the compiled artifacts, and the design context.
- * @returns The realization record, and one `contract-realization-failed` diagnostic per slot collision, failing state, mismatched sample list, failing event, camera sample, formation and actor, in that order; an empty list means the contract is realized.
+ * @returns The realization record, and one `contract-realization-failed`
+ *   diagnostic per slot collision, failing state, mismatched sample list,
+ *   failing event, camera sample, formation and actor, in that order; an empty
+ *   list means the contract is realized.
  */
 export function realizeShotContract(
   props: IAutoMovieRealizeShotContractProps,
@@ -244,7 +268,9 @@ export function realizeShotContract(
 }
 
 /**
- * Whether a compiled formation is the one compact runtime its design asks for: the designed count, split between anonymous slots and heroes, and chunks indexed in order that tile `[0, count)` without gaps.
+ * Whether a compiled formation is the one compact runtime its design asks for:
+ * the designed count, split between anonymous slots and heroes, and chunks
+ * indexed in order that tile `[0, count)` without gaps.
  */
 function compactFormationPasses(
   design: IAutoMovieFormationDesign,
@@ -271,7 +297,8 @@ function compactFormationPasses(
 }
 
 /**
- * Whether every promoted hero has a scene node within the declared transform comparison tolerance, built from the design's model group.
+ * Whether every promoted hero has a scene node within the declared transform
+ * comparison tolerance, built from the design's model group.
  */
 function heroesMaterialized(
   reader: IAutoMovieShotContractSubjectReader,
@@ -293,7 +320,9 @@ function heroesMaterialized(
 }
 
 /**
- * Grade the live camera at one shot-local second against the contract's required subjects. Without a live camera or a raster the sample fails with a not-a-number depth report.
+ * Grade the live camera at one shot-local second against the contract's
+ * required subjects. Without a live camera or a raster the sample fails with a
+ * not-a-number depth report.
  */
 function cameraOutcome(
   props: IAutoMovieRealizeShotContractProps,
@@ -430,7 +459,9 @@ function vectorClose(
 }
 
 /**
- * Whether two unit quaternions name the same rotation within the tolerance; `q` and `-q` are the same rotation, so the absolute dot product is compared with one.
+ * Whether two unit quaternions name the same rotation within the tolerance; `q`
+ * and `-q` are the same rotation, so the absolute dot product is compared with
+ * one.
  */
 function quaternionClose(
   left: IAutoMovieTransform["rotation"],

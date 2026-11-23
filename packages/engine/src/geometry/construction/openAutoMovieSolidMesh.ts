@@ -13,9 +13,7 @@ interface Edge extends IAutoMovieSolidMeshConstraints.ISegment {
   /** Whether this exposed edge belongs only to the sampling domain. */ domain: boolean;
 }
 
-/**
- * Read exposed source-domain cycles from the complete positive index plan.
- */
+/** Read exposed source-domain cycles from the complete positive index plan. */
 export function openAutoMovieSolidMesh(
   chart: ReadonlyMap<number, readonly [number, number]>,
   triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[],

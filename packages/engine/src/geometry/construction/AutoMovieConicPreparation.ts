@@ -16,9 +16,7 @@ interface Own<T> {
   after: T[];
 }
 
-/**
- * Internal conic assembly shared by the existing public preparation wrappers.
- */
+/** Internal conic assembly shared by the existing public preparation wrappers. */
 export namespace AutoMovieConicPreparation {
   /**
    * Prepare copied station tuples with the fixed pure source-Hessian algebra.
@@ -40,9 +38,7 @@ export namespace AutoMovieConicPreparation {
     return build(ops, extents, shoulders, shared, own);
   }
 
-  /**
-   * Preserve independent generic guide calculations and callback order.
-   */
+  /** Preserve independent generic guide calculations and callback order. */
   export function curvatures<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
@@ -51,9 +47,7 @@ export namespace AutoMovieConicPreparation {
     return policy(ops, extents, shoulders, null);
   }
 
-  /**
-   * Preserve public generic quarter admission and end callback sequencing.
-   */
+  /** Preserve public generic quarter admission and end callback sequencing. */
   export function geometry<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
@@ -64,8 +58,9 @@ export namespace AutoMovieConicPreparation {
   }
 
   /**
-   * Apply the existing G2 formula to the own curvature computed by this invocation.
-   * Internal callers either just computed own or use source's fixed pure AD plan.
+   * Apply the existing G2 formula to the own curvature computed by this
+   * invocation. Internal callers either just computed own or use source's fixed
+   * pure AD plan.
    */
   export function end<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
@@ -183,7 +178,10 @@ export namespace AutoMovieConicPreparation {
     };
   }
 
-  /** Retain own values only for the fixed-AD assembly; generic calls preserve their original effects. */
+  /**
+   * Retain own values only for the fixed-AD assembly; generic calls preserve
+   * their original effects.
+   */
   function policy<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
@@ -216,7 +214,10 @@ export namespace AutoMovieConicPreparation {
     }) as [T, T, T, T];
   }
 
-  /** Build one invocation's quarters; null own preserves independent generic end calculations. */
+  /**
+   * Build one invocation's quarters; null own preserves independent generic end
+   * calculations.
+   */
   function build<T>(
     ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],

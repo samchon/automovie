@@ -1,6 +1,9 @@
 import type { IAutoMovieSpline } from "@automovie/interface";
 
-/** Tension below which a segment is evaluated as the plain cubic, where the hyperbolic form loses precision. */
+/**
+ * Tension below which a segment is evaluated as the plain cubic, where the
+ * hyperbolic form loses precision.
+ */
 const CUBIC: number = 1e-4;
 
 /** Largest tension tried by the fixed sampled-search policy. */
@@ -14,31 +17,34 @@ const SAMPLES: number = 16;
 
 /**
  * The interpolating spline under tension on caller-owned arrays: one shared
- * tension chosen per profile by a sampled overshoot policy, the coefficients solved in
- * place and evaluation without allocation.
+ * tension chosen per profile by a sampled overshoot policy, the coefficients
+ * solved in place and evaluation without allocation.
  *
- * Segment `k` of width `h` between knots `x_k` and `x_k+1` is
- * `s = h^2 (M_k sinh(tau (1 - t)) + M_k+1 sinh(tau t)) / (tau^2 sinh tau) + (y_k - M_k h^2 / tau^2)(1 - t) + (y_k+1 - M_k+1 h^2 / tau^2) t`
- * at `t = (x - x_k) / h`, the spline under tension of Schweikert (1966, J.
- * Math. Phys. 45:312-317) as Cline wrote it (1974, Comm. ACM 17(4):218-220)
- * with tension `sigma = tau / h`; `M` is its second derivative at the knots,
- * so the curve is C2 for every tension, a cubic spline at tension 0 and the
- * piecewise-linear interpolant in the limit. An open profile has natural
- * ends, second derivative 0, and holds its end values outside its knots; a
- * periodic one closes across its period.
+ * Segment `k` of width `h` between knots `x_k` and `x_k+1` is `s = h^2 (M_k
+ * sinh(tau (1 - t)) + M_k+1 sinh(tau t)) / (tau^2 sinh tau) + (y_k - M_k h^2 /
+ * tau^2)(1 - t) + (y_k+1 - M_k+1 h^2 / tau^2) t` at `t = (x - x_k) / h`, the
+ * spline under tension of Schweikert (1966, J. Math. Phys. 45:312-317) as Cline
+ * wrote it (1974, Comm. ACM 17(4):218-220) with tension `sigma = tau / h`; `M`
+ * is its second derivative at the knots, so the curve is C2 for every tension,
+ * a cubic spline at tension 0 and the piecewise-linear interpolant in the
+ * limit. An open profile has natural ends, second derivative 0, and holds its
+ * end values outside its knots; a periodic one closes across its period.
  *
- * `fit` first tries tension 0. It checks fifteen interior locations per
- * segment against the knot range expanded by a tenth of the largest value
- * step within two segments. If that scan fails, it doubles tension from
- * 1/2, then bisects the rejected/accepted bracket ten times, up to 64.
- * The scan does not bound extrema between probes, and reaching 64 returns
- * that tension even if the scan still fails. Positive values need not stay
- * positive between knots. Unlike a monotone cubic, the spline preserves
- * curvature continuity at interior knots; its constant open-end extension
- * need not preserve the endpoint's first derivative.
+ * `fit` first tries tension 0. It checks fifteen interior locations per segment
+ * against the knot range expanded by a tenth of the largest value step within
+ * two segments. If that scan fails, it doubles tension from 1/2, then bisects
+ * the rejected/accepted bracket ten times, up to 64. The scan does not bound
+ * extrema between probes, and reaching 64 returns that tension even if the scan
+ * still fails. Positive values need not stay positive between knots. Unlike a
+ * monotone cubic, the spline preserves curvature continuity at interior knots;
+ * its constant open-end extension need not preserve the endpoint's first
+ * derivative.
  */
 export namespace AutoMovieSpline {
-  /** Allowed overshoot of a segment beyond its knots' range, as a fraction of the local variation. */
+  /**
+   * Allowed overshoot of a segment beyond its knots' range, as a fraction of
+   * the local variation.
+   */
   export const BOUND: number = 0.1;
 
   /**
@@ -136,7 +142,10 @@ export namespace AutoMovieSpline {
     );
   }
 
-  /** Whether the spline at a tension meets the overshoot bound, leaving its coefficients in `m`. */
+  /**
+   * Whether the spline at a tension meets the overshoot bound, leaving its
+   * coefficients in `m`.
+   */
   function admits(
     xs: ArrayLike<number>,
     ys: ArrayLike<number>,
@@ -195,7 +204,10 @@ export namespace AutoMovieSpline {
     return k < n - 1 ? xs[k + 1]! - xs[k]! : xs[0]! + period - xs[n - 1]!;
   }
 
-  /** The two coefficients of a segment of width `h` in the continuity system: its own and its neighbour's. */
+  /**
+   * The two coefficients of a segment of width `h` in the continuity system:
+   * its own and its neighbour's.
+   */
   function own(h: number, tension: number): number {
     return tension < CUBIC
       ? h / 3
@@ -210,10 +222,11 @@ export namespace AutoMovieSpline {
   }
 
   /**
-   * Solve the knots' second derivatives at one tension: natural ends, or cyclic for a period by the
-   * Sherman-Morrison correction (Press et al., Numerical Recipes, section 2.7). `scratch` holds the
-   * sub-diagonal, diagonal, super-diagonal and right side from 0, n, 2n and 3n, the elimination's
-   * work from 4n and 5n, and the correction column from 6n.
+   * Solve the knots' second derivatives at one tension: natural ends, or cyclic
+   * for a period by the Sherman-Morrison correction (Press et al., Numerical
+   * Recipes, section 2.7). `scratch` holds the sub-diagonal, diagonal,
+   * super-diagonal and right side from 0, n, 2n and 3n, the elimination's work
+   * from 4n and 5n, and the correction column from 6n.
    */
   function solve(
     xs: ArrayLike<number>,
@@ -276,8 +289,9 @@ export namespace AutoMovieSpline {
   }
 
   /**
-   * Solve the tridiagonal rows held in `scratch` (sub-diagonal from 0, diagonal from `n`, super-diagonal
-   * from `2n`, right side from `rhs`) into `out` from `offset`, by elimination using `scratch` from `4n`.
+   * Solve the tridiagonal rows held in `scratch` (sub-diagonal from 0, diagonal
+   * from `n`, super-diagonal from `2n`, right side from `rhs`) into `out` from
+   * `offset`, by elimination using `scratch` from `4n`.
    */
   function eliminate(
     count: number,
@@ -305,7 +319,10 @@ export namespace AutoMovieSpline {
         scratch[dp + r]! - scratch[cp + r]! * out[offset + r + 1]!;
   }
 
-  /** Whether the sampled fractions of every segment stay within the knot range plus the allowed local variation. */
+  /**
+   * Whether the sampled fractions of every segment stay within the knot range
+   * plus the allowed local variation.
+   */
   function within(
     xs: ArrayLike<number>,
     ys: ArrayLike<number>,

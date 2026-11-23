@@ -5,7 +5,11 @@ import {
   IAutoMoviePlantingStructure,
 } from "@automovie/interface";
 
-/** Measure a planting recipe's complete-tree branch/leaf upper counts and optional requested member products without deriving geometry. Callers admit bounded depth first; numeric products can overflow for unsupported huge ungated values.
+/**
+ * Measure a planting recipe's complete-tree branch/leaf upper counts and
+ * optional requested member products without deriving geometry. Callers admit
+ * bounded depth first; numeric products can overflow for unsupported huge
+ * ungated values.
  */
 export const plantingBudget: (
   props: IAutoMoviePlantingBudgetInput,

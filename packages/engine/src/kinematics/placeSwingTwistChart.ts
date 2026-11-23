@@ -47,30 +47,33 @@ export function placeSwingTwistChart(
   radius: IRadius,
   state?: IState,
 ): IAutoMovieQuaternion {
-  const basis: IAutoMovieSwingTwistBasis.IBasis = state?.basis ??
-    SwingTwistFramePreparation.basis(joint);
+  const basis: IAutoMovieSwingTwistBasis.IBasis =
+    state?.basis ?? SwingTwistFramePreparation.basis(joint);
   if (state !== undefined) state.basis = basis;
   const k: number = Math.hypot(place.x, place.y);
-  const azimuth: number = k > 1e-12
-    ? Math.atan2(place.y, place.x) * swingTwistBasis.DEG : 0;
+  const azimuth: number =
+    k > 1e-12 ? Math.atan2(place.y, place.x) * swingTwistBasis.DEG : 0;
   const direction: IAutoMovieVector3 = swingTwistBasis.direction(
-    basis, k * radius(constraint, joint, azimuth), azimuth,
+    basis,
+    k * radius(constraint, joint, azimuth),
+    azimuth,
   );
-  const aimed: IAutoMovieQuaternion = state === undefined
-    ? rotationBetween(basis.u, direction)
-    : (state.aim ??= rotationBetween.prepare(basis.u))(direction);
-  const angle: number = state === undefined
-    ? toRigAngle(place.twist, joint.frame?.twist)!
-    : (state.rig ??= toRigAngle.prepare())(place.twist, joint.frame?.twist)!;
-  const turned: IAutoMovieQuaternion = state === undefined
-    ? Quaternion.fromAxisAngle(basis.u, angle)
-    : (state.turn ??= Quaternion.prepareAxisAngle(basis.u))(angle);
+  const aimed: IAutoMovieQuaternion =
+    state === undefined
+      ? rotationBetween(basis.u, direction)
+      : (state.aim ??= rotationBetween.prepare(basis.u))(direction);
+  const angle: number =
+    state === undefined
+      ? toRigAngle(place.twist, joint.frame?.twist)!
+      : (state.rig ??= toRigAngle.prepare())(place.twist, joint.frame?.twist)!;
+  const turned: IAutoMovieQuaternion =
+    state === undefined
+      ? Quaternion.fromAxisAngle(basis.u, angle)
+      : (state.turn ??= Quaternion.prepareAxisAngle(basis.u))(angle);
   return Quaternion.normalize(Quaternion.multiply(aimed, turned));
 }
 
-/**
- * Private numerical preparation for the actual fixed-endpoint chart blender.
- */
+/** Private numerical preparation for the actual fixed-endpoint chart blender. */
 export namespace placeSwingTwistChart {
   /** Release this lazy reader with its fixed endpoint pair and unchanged rig. */
   export function prepare(

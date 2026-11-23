@@ -13,7 +13,11 @@ import { lowerSkeletonNodes } from "./lowerSkeletonNodes";
 import { placementNodePrefix } from "./placementNodePrefix";
 
 /**
- * Lower scene rest placements, cameras/lights and registered skeleton/prop-articulation subtrees into general nodes. Supplied registries must resolve each required model and may not conflict; explicit partial-model callers retain placements while omitting unregistered subtrees. composeScene separately rejects duplicate ids, missing parents and cycles.
+ * Lower scene rest placements, cameras/lights and registered
+ * skeleton/prop-articulation subtrees into general nodes. Supplied registries
+ * must resolve each required model and may not conflict; explicit partial-model
+ * callers retain placements while omitting unregistered subtrees. composeScene
+ * separately rejects duplicate ids, missing parents and cycles.
  */
 export const sceneToNodes: (
   props: IAutoMovieSceneToNodes.IProps,

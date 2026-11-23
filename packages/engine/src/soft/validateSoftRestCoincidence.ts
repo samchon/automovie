@@ -3,9 +3,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
- * Report a structural rest edge whose squared displacement vanishes.
- */
+/** Report a structural rest edge whose squared displacement vanishes. */
 export const validateSoftRestCoincidence: (
   out: IAutoMovieViolationCollector,
   root: string,

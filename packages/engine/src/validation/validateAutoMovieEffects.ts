@@ -11,7 +11,10 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
- * Validate cue ids, intervals, intensities, compiled stream correspondence, event inclusion and same-zone ordering. Each source cue must match its unique materialized stream's envelope and event binding. Event times must be finite and inside the cue's half-open shot interval.
+ * Validate cue ids, intervals, intensities, compiled stream correspondence,
+ * event inclusion and same-zone ordering. Each source cue must match its unique
+ * materialized stream's envelope and event binding. Event times must be finite
+ * and inside the cue's half-open shot interval.
  */
 export const validateAutoMovieEffects: (
   contract: IAutoMovieShotContract,

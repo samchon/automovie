@@ -3,18 +3,20 @@ import type { IAutoMovieSubdivisionStencil } from "@automovie/interface";
 /**
  * Build the Catmull-Clark limit stencil of every vertex of a quad cage.
  *
- * An interior vertex of valence `n` goes to `(n^2 P + 4 sum E + sum D) / (n (n + 5))`,
- * its edge neighbours `E` and the opposite corners `D` of its quads
+ * An interior vertex of valence `n` goes to `(n^2 P + 4 sum E + sum D) / (n (n
+ * + 5))`, its edge neighbours `E` and the opposite corners `D` of its quads
  * (Halstead, Kass and DeRose 1993, SIGGRAPH, "Efficient, fair interpolation
  * using Catmull-Clark surfaces"); a boundary vertex, whose boundary is an
  * infinitely sharp crease, goes to `(A + 4 P + B) / 6` along its two boundary
  * neighbours, the cubic B-spline limit `subdivideAutoMovieSurface` gives
  * boundaries.
  *
- * @param faces Quads as four vertex indices, a manifold with consistent winding; only read.
+ * @param faces Quads as four vertex indices, a manifold with consistent
+ *   winding; only read.
  * @param count Number of vertices.
  * @returns The stencils.
- * @throws Error when a face is not a quad, an index is out of range, a vertex belongs to no face, or a vertex has other than zero or two boundary edges.
+ * @throws Error when a face is not a quad, an index is out of range, a vertex
+ *   belongs to no face, or a vertex has other than zero or two boundary edges.
  */
 export const stencilAutoMovieSubdivisionLimit: (
   faces: ReadonlyArray<readonly number[]>,

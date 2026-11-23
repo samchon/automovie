@@ -9,7 +9,9 @@ import {
 import { serviceSystemLoad } from "./serviceSystemLoad";
 import { serviceSystemReach } from "./serviceSystemReach";
 
-/** Append declared capacity and root-reach findings in system then node declaration order.
+/**
+ * Append declared capacity and root-reach findings in system then node
+ * declaration order.
  */
 export function appendServiceNetworkCapacity(
   network: IAutoMovieServiceNetwork,

@@ -6,13 +6,18 @@ import type {
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 
 /**
- * Exact De Casteljau subdivision of Bernstein coefficient arrays: splitting at one parameter, restricting to an ordered subinterval and partitioning into three consecutive parameter thirds, for vector and scalar polynomials.
+ * Exact De Casteljau subdivision of Bernstein coefficient arrays: splitting at
+ * one parameter, restricting to an ordered subinterval and partitioning into
+ * three consecutive parameter thirds, for vector and scalar polynomials.
  *
- * Every operation preserves the algebraic polynomial on each child domain before floating-point rounding; none samples, fits or reduces degree. Callers own parameter-domain admission beyond the stated ordered-interval check.
+ * Every operation preserves the algebraic polynomial on each child domain
+ * before floating-point rounding; none samples, fits or reduces degree. Callers
+ * own parameter-domain admission beyond the stated ordered-interval check.
  */
 export namespace AutoMovieBernsteinSubdivision64 {
   /**
-   * Split a nonempty vector polynomial, preserving exact endpoint restrictions at t=0 and t=1.
+   * Split a nonempty vector polynomial, preserving exact endpoint restrictions
+   * at t=0 and t=1.
    */
   export function split(
     c: readonly AutoMovieVector3Tuple[],
@@ -43,9 +48,7 @@ export namespace AutoMovieBernsteinSubdivision64 {
     }
     return [a, b.reverse()];
   }
-  /**
-   * Split a scalar polynomial using the same De Casteljau restriction.
-   */
+  /** Split a scalar polynomial using the same De Casteljau restriction. */
   export function splitS(
     c: readonly number[],
     t: number,
@@ -62,7 +65,8 @@ export namespace AutoMovieBernsteinSubdivision64 {
     ) as [number[], number[]];
   }
   /**
-   * Return the exact algebraic restriction to ordered local endpoints inside [0,1].
+   * Return the exact algebraic restriction to ordered local endpoints inside
+   * [0,1].
    */
   export function restrict(
     c: readonly AutoMovieVector3Tuple[],
@@ -76,7 +80,8 @@ export namespace AutoMovieBernsteinSubdivision64 {
     return a === 0 ? left : split(left, a / b)[1];
   }
   /**
-   * Restrict scalar coefficients while preserving their original chart authority.
+   * Restrict scalar coefficients while preserving their original chart
+   * authority.
    */
   export function restrictS(
     c: readonly number[],
@@ -89,9 +94,7 @@ export namespace AutoMovieBernsteinSubdivision64 {
       b,
     ).map((p: AutoMovieVector3Tuple): number => p[0]);
   }
-  /**
-   * Partition one vector course into three exact consecutive restrictions.
-   */
+  /** Partition one vector course into three exact consecutive restrictions. */
   export function thirds(
     c: readonly AutoMovieVector3Tuple[],
   ): AutoMovieBernsteinPolynomial64[] {
@@ -103,9 +106,7 @@ export namespace AutoMovieBernsteinSubdivision64 {
         split(first[1], 0.5);
     return [first[0], ...rest];
   }
-  /**
-   * Partition one scalar course into three exact consecutive restrictions.
-   */
+  /** Partition one scalar course into three exact consecutive restrictions. */
   export function thirdsS(c: readonly number[]): number[][] {
     return thirds(c.map((x: number): AutoMovieVector3Tuple => [x, 0, 0])).map(
       (p: AutoMovieBernsteinPolynomial64): number[] =>

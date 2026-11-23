@@ -1,8 +1,6 @@
 import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
 
-/**
- * Copy a compact instance design with an authored disk-scatter layout.
- */
+/** Copy a compact instance design with an authored disk-scatter layout. */
 export const worldScatter: (
   base: Omit<IAutoMovieInstanceSetDesign, "layout">,
   layout: { kind: "scatter"; radius: number },

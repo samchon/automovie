@@ -4,8 +4,8 @@ import {
 } from "@automovie/interface";
 
 /**
- * The design variant one id names, or a thrown `Error` naming both the
- * lineage and the missing id.
+ * The design variant one id names, or a thrown `Error` naming both the lineage
+ * and the missing id.
  *
  * The first variant declared under the id is returned; duplicate ids are a
  * contradiction `validateDesignLineage` refuses, not one this lookup

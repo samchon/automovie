@@ -16,12 +16,15 @@ import { samplePoseVelocity } from "./samplePoseVelocity";
  * trajectory boundary copies every quaternion before returning it.
  */
 export namespace MotionTrajectoryQuaternion {
-  /**
-   * Project fixed knots through a cubic with exact endpoint body derivatives.
-   */
-  export function fixed(props: MotionTrajectoryRead.IFixed): (time: number) => IAutoMovieQuaternion | null {
-    const { t0, t1, h, times, qs, ks, oriented }: MotionTrajectoryRead.IFixed = props;
-    let interval: { index: number; vector: IAutoMovieVector3; slope: IAutoMovieVector3 } | undefined;
+  /** Project fixed knots through a cubic with exact endpoint body derivatives. */
+  export function fixed(
+    props: MotionTrajectoryRead.IFixed,
+  ): (time: number) => IAutoMovieQuaternion | null {
+    const { t0, t1, h, times, qs, ks, oriented }: MotionTrajectoryRead.IFixed =
+      props;
+    let interval:
+      | { index: number; vector: IAutoMovieVector3; slope: IAutoMovieVector3 }
+      | undefined;
     return remembered((time: number): IAutoMovieQuaternion | null => {
       if (!oriented) return null;
       const t: number = Math.max(t0, Math.min(t1, time));
@@ -33,8 +36,14 @@ export namespace MotionTrajectoryQuaternion {
         const vector: IAutoMovieVector3 = samplePoseVelocity.rotationVector(
           Quaternion.multiply(Quaternion.inverse(qs[i]!), qs[i + 1]!),
         );
-        const slope: IAutoMovieVector3 | null = rotationVectorJacobian.inverse(vector, ks[i + 1]!.w!);
-        if (slope === null) throw new Error("The fixed orientation's endpoint differential is not representable");
+        const slope: IAutoMovieVector3 | null = rotationVectorJacobian.inverse(
+          vector,
+          ks[i + 1]!.w!,
+        );
+        if (slope === null)
+          throw new Error(
+            "The fixed orientation's endpoint differential is not representable",
+          );
         interval = { index: i, vector, slope };
       }
       const u2: number = u * u;
@@ -53,24 +62,28 @@ export namespace MotionTrajectoryQuaternion {
     });
   }
 
-  /**
-   * Project accepted dense rotation coefficients without the vector block.
-   */
+  /** Project accepted dense rotation coefficients without the vector block. */
   export function dense(
-    locate: ReturnType<typeof MotionTrajectoryInterval>, end: IAutoMovieQuaternion | null,
+    locate: ReturnType<typeof MotionTrajectoryInterval>,
+    end: IAutoMovieQuaternion | null,
   ): (time: number) => IAutoMovieQuaternion | null {
     return remembered((time: number): IAutoMovieQuaternion | null => {
       const located: ReturnType<typeof locate> = locate(time);
       if (located === undefined) return end;
       const { step, u }: typeof located = located;
-      return step.q === null ? null : MotionTrajectoryRotation.turn(
-        step.q, MotionTrajectoryRotation.curve(step.turns, u),
-      );
+      return step.q === null
+        ? null
+        : MotionTrajectoryRotation.turn(
+            step.q,
+            MotionTrajectoryRotation.curve(step.turns, u),
+          );
     });
   }
 
   /** Lend one exact requested time; the public owner always copies the result. */
-  function remembered(read: (time: number) => IAutoMovieQuaternion | null): (time: number) => IAutoMovieQuaternion | null {
+  function remembered(
+    read: (time: number) => IAutoMovieQuaternion | null,
+  ): (time: number) => IAutoMovieQuaternion | null {
     let previous: number | undefined;
     let value: IAutoMovieQuaternion | null | undefined;
     return (time: number): IAutoMovieQuaternion | null => {

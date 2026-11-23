@@ -12,15 +12,15 @@ import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram
 import { polishAutoMovieQuadraticProgram } from "./polishAutoMovieQuadraticProgram";
 
 /**
- * Polish a Solved native diagonal convex QP in its original coordinates.
- * Exact coefficient copies retain intersected interval metadata; every original
- * row remains in final feasibility, stationarity and complementarity checks.
+ * Polish a Solved native diagonal convex QP in its original coordinates. Exact
+ * coefficient copies retain intersected interval metadata; every original row
+ * remains in final feasibility, stationarity and complementarity checks.
  * Independently feasible and complementary native values first retain their
  * primal while signed-dual coordinate corrections seek original stationarity.
- * Otherwise exact interval intersections supply compatible active endpoint equations
- * for corrections near the original native primal and signed dual. Only
- * identical coefficients share an equation; every original row and endpoint
- * remains in independent final admission.
+ * Otherwise exact interval intersections supply compatible active endpoint
+ * equations for corrections near the original native primal and signed dual.
+ * Only identical coefficients share an equation; every original row and
+ * endpoint remains in independent final admission.
  *
  * Only a finite candidate satisfying every original KKT condition at the
  * caller's unchanged tolerance replaces the preceding native primal and dual.
@@ -30,8 +30,8 @@ import { polishAutoMovieQuadraticProgram } from "./polishAutoMovieQuadraticProgr
  * amplification or permanent ridge is introduced. One selected path owns the
  * caller's existing correction budget; no failed path adds a second budget.
  *
- * Stellato et al. (2020), section 4, describe active-set polishing and correction
- * against the unregularized KKT:
+ * Stellato et al. (2020), section 4, describe active-set polishing and
+ * correction against the unregularized KKT:
  * https://cse.lab.imtlucca.it/~bemporad/publications/papers/osqp-paper.pdf
  * Float64, finite numerical factors and the existing work budget do not imply
  * uniform accuracy or convergence. Original KKT admission remains independent

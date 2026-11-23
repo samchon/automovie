@@ -10,7 +10,10 @@ import { Quaternion } from "../math/Quaternion";
 /** The available cardinal coordinates in quaternion-vector order. */
 const AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
-/** Enclose signed sector tests made from rounded endpoint and direction components. */
+/**
+ * Enclose signed sector tests made from rounded endpoint and direction
+ * components.
+ */
 const SECTOR_ROUNDOFF: number = 32 * Number.EPSILON;
 
 /** Enclose evaluated dot ceilings and the displayed cardinal factor composition. */
@@ -18,16 +21,17 @@ const DOT_ROUNDOFF: number = 128 * Number.EPSILON;
 
 /**
  * Prepare a squared chord lower bound on the local wrist rotation error for
- * exactly cardinal crossed flexion and abduction axes with zero rig twist.
- * The original rotation is abduction times flexion in either factor order
- * once the twist is identity. With abduction axis n and flexion axis v,
- * R(v) lies on the abduction arc and R⁻¹(n) on the flexion arc. Each
- * direction's chord to its permitted arc bounds the full rotation angle.
+ * exactly cardinal crossed flexion and abduction axes with zero rig twist. The
+ * original rotation is abduction times flexion in either factor order once the
+ * twist is identity. With abduction axis n and flexion axis v, R(v) lies on the
+ * abduction arc and R⁻¹(n) on the flexion arc. Each direction's chord to its
+ * permitted arc bounds the full rotation angle.
  *
  * @param basis The projector's admitted cardinal joint axes.
  * @param flexion The actual sorted rig flexion interval, degrees.
  * @param abduction The actual sorted rig abduction interval, degrees.
- * @returns A squared chord bound for a finite local demand, or undefined for unsupported axes or intervals.
+ * @returns A squared chord bound for a finite local demand, or undefined for
+ *   unsupported axes or intervals.
  */
 export function prepareCardinalWristChord(
   basis: IAutoMovieJointAxes,

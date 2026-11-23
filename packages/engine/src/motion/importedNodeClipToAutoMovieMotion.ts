@@ -25,7 +25,12 @@ import { getConstraint } from "../rom/getConstraint";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 
 /**
- * Lower admitted imported node tracks into clinical keyframes at the sorted union of source key times. Every mapped node needs a rotation track; only hips translation is supported, all tracks share step or linear interpolation, and unsupported/missing/duplicate/nonfinite content throws. Key orientations are retained within clinical inversion tolerance; inter-key linear clinical interpolation generally differs from quaternion slerp.
+ * Lower admitted imported node tracks into clinical keyframes at the sorted
+ * union of source key times. Every mapped node needs a rotation track; only
+ * hips translation is supported, all tracks share step or linear interpolation,
+ * and unsupported/missing/duplicate/nonfinite content throws. Key orientations
+ * are retained within clinical inversion tolerance; inter-key linear clinical
+ * interpolation generally differs from quaternion slerp.
  */
 export const importedNodeClipToAutoMovieMotion: (
   props: IAutoMovieImportedNodeMotionProps,

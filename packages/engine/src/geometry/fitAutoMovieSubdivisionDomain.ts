@@ -18,23 +18,24 @@ import { stencilAutoMovieSubdivisionLimit } from "./sweep/stencilAutoMovieSubdiv
  *
  * Two uniform Catmull-Clark steps introduce fitting freedom, as in the
  * refinement principle of Halstead, Kass and DeRose (1993), section 5. The
- * objective is instead the frozen discrete cotangent bending norm documented
- * by subdivisionBendingRows, not that paper's analytic plate integral.
+ * objective is instead the frozen discrete cotangent bending norm documented by
+ * subdivisionBendingRows, not that paper's analytic plate integral.
  * https://www.eecs.umich.edu/courses/eecs598-1/halstead.pdf
  *
  * Coordinates are hierarchical: Q = R P + D, with D zero at retained original
- * indices. Source control anchors constrain P. Independent source limit
- * targets constrain the limit of Q; an index may carry both equations. Fine
- * controls wholly supported by anchored P have zero detail. Outside regionFaces
- * the refined original control surface is fixed, preserving the consumer's
+ * indices. Source control anchors constrain P. Independent source limit targets
+ * constrain the limit of Q; an index may carry both equations. Fine controls
+ * wholly supported by anchored P have zero detail. Outside regionFaces the
+ * refined original control surface is fixed, preserving the consumer's
  * neighbouring surface rather than an isolated patch's boundary rule.
  *
  * The input is a manifold quad crop with a caller-owned support collar. Active
  * limit targets incident to an interior sharp edge are refused because their
  * limit masks are not smooth/boundary masks. Other support creases retain their
- * actual affine refinement and sharpness. The caller must validate support against the whole joined
- * consumer and preserve physical measurements not implied by point equations.
- * No embedding, no-fold, clinical measurement, or pose guarantee is made.
+ * actual affine refinement and sharpness. The caller must validate support
+ * against the whole joined consumer and preserve physical measurements not
+ * implied by point equations. No embedding, no-fold, clinical measurement, or
+ * pose guarantee is made.
  */
 export function fitAutoMovieSubdivisionDomain(
   props: IAutoMovieFitSubdivisionDomain.IProps,

@@ -20,8 +20,8 @@ import { primitiveVolume } from "./primitiveVolume";
  * Uniform density is assumed: each primitive part contributes its analytic
  * solid volume (scaled by its part transform) at its transformed centroid.
  * Attached parts are carried by their bone's neutral model-frame transform.
- * Skeleton rest scale is omitted consistently with the engine's pose FK.
- * Mesh parts and zero-volume primitives (a plane, or a non-positive scale)
+ * Skeleton rest scale is omitted consistently with the engine's pose FK. Mesh
+ * parts and zero-volume primitives (a plane, or a non-positive scale)
  * contribute nothing. Returns `null` when the model has no primitive volume to
  * weigh (a mesh-only or all-degenerate model), which is the caller's signal
  * that `centerOfMass` must be declared explicitly.

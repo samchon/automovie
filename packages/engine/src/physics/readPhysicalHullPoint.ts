@@ -22,9 +22,7 @@ export function readPhysicalHullPoint(
   details: boolean,
 ): IAutoMoviePhysicalHullNearest.IResult | number;
 
-/**
- * Compute the original nearest hull point or signed distance.
- */
+/** Compute the original nearest hull point or signed distance. */
 export function readPhysicalHullPoint(
   points: readonly IAutoMovieVector3[],
   p: IAutoMovieVector3,
@@ -143,10 +141,10 @@ export function readPhysicalHullPoint(
 const EDGE: number = 11;
 
 /**
- * A hull's planes and edges as flat arrays: per face its normal and offset;
- * per edge, in its face's loop order, its start, its vector, its squared
- * length, its inward direction in the face (normal cross edge) and that
- * direction's product with the start; `starts` bounds each face's edges.
+ * A hull's planes and edges as flat arrays: per face its normal and offset; per
+ * edge, in its face's loop order, its start, its vector, its squared length,
+ * its inward direction in the face (normal cross edge) and that direction's
+ * product with the start; `starts` bounds each face's edges.
  */
 interface IFlat {
   /** Whether the private packed operands reached only native typed operations. */

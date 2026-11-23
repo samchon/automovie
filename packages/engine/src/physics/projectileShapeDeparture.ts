@@ -17,22 +17,22 @@ import { projectileAt } from "./projectileAt";
 /**
  * Certify a separating prefix for one resolved sphere and finite convex shape.
  *
- * Let `u` be the initial centre minus a point carried by the collider, and
- * `v` the initial projectile velocity minus the caller's reference velocity.
- * Every fixed unit axis `m` that can separate the ball by time `h` must satisfy
- * `m · u > radius - M h`, where `M` bounds the speed of that relative point.
- * Scale `u` by an upper bound `s` on its norm. The possible axes then lie in
- * a cone about `u / s`. Cauchy-Schwarz bounds their loss of projected opening
- * by the cone's chord radius times `|v|`. Subtract the translation's velocity
+ * Let `u` be the initial centre minus a point carried by the collider, and `v`
+ * the initial projectile velocity minus the caller's reference velocity. Every
+ * fixed unit axis `m` that can separate the ball by time `h` must satisfy `m ·
+ * u > radius - M h`, where `M` bounds the speed of that relative point. Scale
+ * `u` by an upper bound `s` on its norm. The possible axes then lie in a cone
+ * about `u / s`. Cauchy-Schwarz bounds their loss of projected opening by the
+ * cone's chord radius times `|v|`. Subtract the translation's velocity
  * uncertainty and maximum rotational point speed to bound how fast support
  * advances. With strictly positive remaining opening, every axis that clears
  * within the prefix stays clear through it, even from a shallow overlap.
  *
  * The rotational speed bound is angular speed times reach about the parent
  * pivot, including the shape's local offset. This is the directional motion
- * bound used by conservative advancement (Catto, Continuous Collision,
- * GDC 2013, slides 20–23). Completeness after the positive witness is the
- * ordinary contact scan's guarantee.
+ * bound used by conservative advancement (Catto, Continuous Collision, GDC
+ * 2013, slides 20–23). Completeness after the positive witness is the ordinary
+ * contact scan's guarantee.
  */
 export function projectileShapeDeparture(
   id: string,
@@ -146,9 +146,7 @@ export function projectileShapeDeparture(
     : undefined;
 }
 
-/**
- * Frame admission for bounded finite projectile colliders.
- */
+/** Frame admission for bounded finite projectile colliders. */
 export namespace projectileShapeDeparture {
   /**
    * Admit a sampled rigid frame before the actual shape query uses it. The

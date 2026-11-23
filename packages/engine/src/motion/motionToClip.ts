@@ -23,7 +23,12 @@ import { sampleTimes } from "./sampleTimes";
 const DEFAULT_SAMPLE_RATE: number = 24;
 
 /**
- * Bake admitted clinical motion into general node tracks at a positive sample rate, default24Hz, with matching rig clinical tables. Full local bone rotations and rigid root translation/rotation reproduce FK at bake times; bone/root scale is ignored as in resolvePose, expressions are omitted, and inter-sample quaternion interpolation approximates clinical easing rather than preserving it exactly.
+ * Bake admitted clinical motion into general node tracks at a positive sample
+ * rate, default24Hz, with matching rig clinical tables. Full local bone
+ * rotations and rigid root translation/rotation reproduce FK at bake times;
+ * bone/root scale is ignored as in resolvePose, expressions are omitted, and
+ * inter-sample quaternion interpolation approximates clinical easing rather
+ * than preserving it exactly.
  */
 export const motionToClip: (
   props: IAutoMovieMotionToClip.IProps,

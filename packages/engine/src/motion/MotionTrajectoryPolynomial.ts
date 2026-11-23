@@ -19,11 +19,14 @@ export namespace MotionTrajectoryPolynomial {
   /** Nonzero determinant of the two distinct interior derivative constraints. */
   const determinant: number = first[0] * second[1] - first[1] * second[0];
 
-  /**
-   * Read an increment at share u, preserving the original quartic association.
-   */
+  /** Read an increment at share u, preserving the original quartic association. */
   export function value(
-    u: number, a: number, b: number, c: number, d: number, e?: number,
+    u: number,
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    e?: number,
   ): number {
     const w: number = 1 - u;
     return e === undefined
@@ -31,30 +34,42 @@ export namespace MotionTrajectoryPolynomial {
       : u * (a + w * (b + u * (c + w * (d + u * e))));
   }
 
-  /**
-   * Differentiate that same increment with respect to its dimensionless share.
-   */
+  /** Differentiate that same increment with respect to its dimensionless share. */
   export function slope(
-    u: number, a: number, b: number, c: number, d: number, e?: number,
+    u: number,
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    e?: number,
   ): number {
     const u2: number = u * u;
     const u3: number = u2 * u;
-    const base: number = a + (1 - 2 * u) * b + (2 * u - 3 * u2) * c
-      + (2 * u - 6 * u2 + 4 * u3) * d;
+    const base: number =
+      a +
+      (1 - 2 * u) * b +
+      (2 * u - 3 * u2) * c +
+      (2 * u - 6 * u2 + 4 * u3) * d;
     return e === undefined ? base : base + (3 * u2 - 8 * u3 + 5 * u3 * u) * e;
   }
 
-  /**
-   * Complete a C1 cubic with the cited two interior derivatives.
-   */
+  /** Complete a C1 cubic with the cited two interior derivatives. */
   export function fit(
-    a: number, b: number, c: number, firstRate: number, secondRate: number,
+    a: number,
+    b: number,
+    c: number,
+    firstRate: number,
+    secondRate: number,
   ): number[] {
     const left: number = firstRate - slope(NODES[0], a, b, c, 0);
     const right: number = secondRate - slope(NODES[1], a, b, c, 0);
-    return [a, b, c,
+    return [
+      a,
+      b,
+      c,
       (left * second[1] - right * first[1]) / determinant,
-      (first[0] * right - second[0] * left) / determinant];
+      (first[0] * right - second[0] * left) / determinant,
+    ];
   }
 
   /** The two endpoint-vanishing basis functions' derivative weights. */

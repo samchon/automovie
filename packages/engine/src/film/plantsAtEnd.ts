@@ -4,9 +4,19 @@ import {
 } from "@automovie/interface";
 
 /**
- * The stance plant each foot holds at `localTime`, the contact the next beat keeps that foot on.
+ * The stance plant each foot holds at `localTime`, the contact the next beat
+ * keeps that foot on.
  *
- * For admitted finite times and stance bounds, a plant is held when `start <= localTime <= end`, both bounds inclusive. When one foot has several held plants, the one with the latest `start` wins, and a later entry wins an equal-start tie. Feet appear in the order their first held plant appears in `plants`, and each returned plant is the input object itself. `undefined` plants, meaning no plant data was supplied, and a cut where no plant is held both answer `null`. `resolveBeatEnd` and `resolveBeatOpening` store the result as an actor's `footPlants`. This selector does not itself validate interval values; NaN comparisons do not establish the stated containment rule.
+ * For admitted finite times and stance bounds, a plant is held when `start <=
+ * localTime <= end`, both bounds inclusive. When one foot has several held
+ * plants, the one with the latest `start` wins, and a later entry wins an
+ * equal-start tie. Feet appear in the order their first held plant appears in
+ * `plants`, and each returned plant is the input object itself. `undefined`
+ * plants, meaning no plant data was supplied, and a cut where no plant is held
+ * both answer `null`. `resolveBeatEnd` and `resolveBeatOpening` store the
+ * result as an actor's `footPlants`. This selector does not itself validate
+ * interval values; NaN comparisons do not establish the stated containment
+ * rule.
  *
  * @param plants Stance runs on the ended beat's local clock, or `undefined`.
  * @param localTime The cut instant on the same clock, in seconds.

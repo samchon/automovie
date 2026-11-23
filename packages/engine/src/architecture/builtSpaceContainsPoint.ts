@@ -17,9 +17,18 @@ const CONTAINMENT_EPSILON: number = 1e-9;
 /**
  * Does one logical space's own stated volume contain a point?
  *
- * A celled space is the union of its half-space cells, a shelled space uses its closed boundary, and a space with neither spelling contains nothing. Descendant containment, room visibility, prop occupancy and basin containment share this per-space reader.
+ * A celled space is the union of its half-space cells, a shelled space uses its
+ * closed boundary, and a space with neither spelling contains nothing.
+ * Descendant containment, room visibility, prop occupancy and basin containment
+ * share this per-space reader.
  *
- * Boundary points are intended inside. Cell slack is 1e-9 in the plane's scale, measured in metres only for unit normals. Shell surface admission uses a plane-distance check and oriented edge tests with one area-scaled slack, then winding distinguishes the outer region from inward-wound voids. Raw binary64 products and sums can overflow or lose accuracy for extreme or nearly degenerate inputs; the returned Boolean is not an exact containment certificate.
+ * Boundary points are intended inside. Cell slack is 1e-9 in the plane's scale,
+ * measured in metres only for unit normals. Shell surface admission uses a
+ * plane-distance check and oriented edge tests with one area-scaled slack, then
+ * winding distinguishes the outer region from inward-wound voids. Raw binary64
+ * products and sums can overflow or lose accuracy for extreme or nearly
+ * degenerate inputs; the returned Boolean is not an exact containment
+ * certificate.
  *
  * @param space Logical space whose stated volume is tested.
  * @param point World point, in metres.
@@ -48,9 +57,15 @@ export const builtSpaceContainsPoint: (
 /**
  * Is a point inside a closed shell?
  *
- * Sums signed solid angles without choosing a ray direction. For closed consistently wound surfaces in exact arithmetic, inward void contributions cancel the outer winding in the void; this implementation evaluates that sum in binary64 and compares its absolute value with 2π.
+ * Sums signed solid angles without choosing a ray direction. For closed
+ * consistently wound surfaces in exact arithmetic, inward void contributions
+ * cancel the outer winding in the void; this implementation evaluates that sum
+ * in binary64 and compares its absolute value with 2π.
  *
- * Tests triangle surfaces before solid angles because angles are singular at vertices and have boundary-dependent limits on faces and edges. Missing indexed vertices and trailing incomplete index triples are skipped; malformed topology is a validation concern.
+ * Tests triangle surfaces before solid angles because angles are singular at
+ * vertices and have boundary-dependent limits on faces and edges. Missing
+ * indexed vertices and trailing incomplete index triples are skipped; malformed
+ * topology is a validation concern.
  */
 const spaceShellContainsPoint: (
   shell: IAutoMovieSpaceShell,

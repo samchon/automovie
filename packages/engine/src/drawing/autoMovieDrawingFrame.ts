@@ -10,11 +10,11 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
 /**
  * Validate one view's placement and resolve its orthonormal page basis.
  *
- * One rule serves every projection: the plane normal points back at the
- * viewer (`-direction`, normalized), the page right axis is `up x normal`, and
- * the page up axis is re-orthogonalized as `normal x right`, so an author may
- * write a nearby cardinal direction instead of an exact in-plane vector. The
- * origin is the view's own origin and is where the cut plane passes.
+ * One rule serves every projection: the plane normal points back at the viewer
+ * (`-direction`, normalized), the page right axis is `up x normal`, and the
+ * page up axis is re-orthogonalized as `normal x right`, so an author may write
+ * a nearby cardinal direction instead of an exact in-plane vector. The origin
+ * is the view's own origin and is where the cut plane passes.
  *
  * A reflected ceiling plan negates the page right axis, and that single
  * negation is the whole reflection: a coffer then lands on the same page point

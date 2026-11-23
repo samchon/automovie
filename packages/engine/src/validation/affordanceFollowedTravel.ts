@@ -1,9 +1,13 @@
 import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 
 /**
- * A follower's travel at its leader's travel, by the rule its `follows` declares: the leader's travel times `ratio`, or the piecewise-linear interpolation of `table`.
+ * A follower's travel at its leader's travel, by the rule its `follows`
+ * declares: the leader's travel times `ratio`, or the piecewise-linear
+ * interpolation of `table`.
  *
- * A leader's travel outside the table's first and last inputs takes the nearer end's output; engine admission requires a table to cover the leader's whole range, so an admitted model never reaches that case.
+ * A leader's travel outside the table's first and last inputs takes the nearer
+ * end's output; engine admission requires a table to cover the leader's whole
+ * range, so an admitted model never reaches that case.
  *
  * @param follows The follower's rule.
  * @param leader The leader's travel, in its kind's unit.

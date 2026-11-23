@@ -28,7 +28,9 @@ const NODE_KINDS: readonly [
   "valve",
 ] as const;
 
-/** Check node placement and ports while retaining first declaration paths for later connectivity diagnostics.
+/**
+ * Check node placement and ports while retaining first declaration paths for
+ * later connectivity diagnostics.
  */
 export function appendServiceNetworkNodes(
   props: IAutoMovieAppendServiceNetworkNodes.IProps,

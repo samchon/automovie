@@ -29,14 +29,15 @@ import { triangulateRegion } from "./triangulateRegion";
  * counter-clockwise and every hole clockwise, whichever way each was authored,
  * because which ring bounds the region and which is a void is settled by
  * containment and not by the order the points were typed in. The emitted
- * triangles are counter-clockwise, so the region faces +Z.
- * `sourceIndices` retains every canonical point's index in the original outer
- * then hole population. Winding changes ordering, never point identity.
+ * triangles are counter-clockwise, so the region faces +Z. `sourceIndices`
+ * retains every canonical point's index in the original outer then hole
+ * population. Winding changes ordering, never point identity.
  *
  * @param props.outer Outer boundary in any winding.
  * @param props.holes Voids inside the outer boundary; omitted means none.
  * @returns A new triangulation whose points are copies of the input.
- * @throws Error with the first ring diagnostic named `polygon`, or when floating-point search finds no hole bridge or ear.
+ * @throws Error with the first ring diagnostic named `polygon`, or when
+ *   floating-point search finds no hole bridge or ear.
  */
 export const triangulateAutoMovieRegion: (
   props: IAutoMovieTriangulateRegion.IProps,

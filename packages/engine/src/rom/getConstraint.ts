@@ -6,7 +6,9 @@ import {
 import { DEFAULT_HUMANOID_ROM } from "./constants/DEFAULT_HUMANOID_ROM";
 
 /**
- * Borrow a nonnull supplied override, otherwise the default humanoid constraint, otherwise null. Null override means fallback rather than explicit disablement; this lookup validates no numerical bounds.
+ * Borrow a nonnull supplied override, otherwise the default humanoid
+ * constraint, otherwise null. Null override means fallback rather than explicit
+ * disablement; this lookup validates no numerical bounds.
  */
 export const getConstraint: (
   bone: AutoMovieHumanoidBone,

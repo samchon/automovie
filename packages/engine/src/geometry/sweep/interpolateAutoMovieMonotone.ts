@@ -12,26 +12,29 @@ import { AutoMovieMonotone } from "./AutoMovieMonotone";
  * and invents no bulge or dip between distant knots, which a plain cubic spline
  * or Catmull-Rom curve does. Slopes follow Fritsch and Carlson (1980, SIAM J.
  * Numer. Anal. 17(2):238-246): each interior slope starts as the mean of the
- * secants on its two sides, or zero where they differ in sign or either is
- * zero (a local extremum or a flat run); each segment whose slope ratios
- * `alpha = m_k / d_k` and `beta = m_{k+1} / d_k` leave the circle of radius 3
- * has both slopes scaled back onto it. The result is C1.
+ * secants on its two sides, or zero where they differ in sign or either is zero
+ * (a local extremum or a flat run); each segment whose slope ratios `alpha =
+ * m_k / d_k` and `beta = m_{k+1} / d_k` leave the circle of radius 3 has both
+ * slopes scaled back onto it. The result is C1.
  *
  * Open knots extrapolate flat: below the first knot the curve holds the first
  * value and above the last it holds the last. An open curve's end slopes are
  * the adjacent secants, limited by the same rule. Periodic knots wrap: `period`
- * is the length after which the curve repeats, every knot lies in
- * `[0, period)`, and the segment from the last knot to the first plus one
- * period closes the loop with slopes taken across the wrap.
+ * is the length after which the curve repeats, every knot lies in `[0,
+ * period)`, and the segment from the last knot to the first plus one period
+ * closes the loop with slopes taken across the wrap.
  *
  * A single knot gives a constant curve. Knots must be finite and strictly
  * increasing, with one value per knot.
  *
  * @param props.knots Abscissae, finite and strictly increasing.
  * @param props.values Ordinates, one per knot, finite.
- * @param props.period Repeat length of a periodic curve; omitted, the curve is open.
- * @returns The interpolant, which evaluates in constant time after a binary search over the knots.
- * @throws Error when the knots are empty, unsorted or not finite, the values do not match them, or a period does not exceed the knot span.
+ * @param props.period Repeat length of a periodic curve; omitted, the curve is
+ *   open.
+ * @returns The interpolant, which evaluates in constant time after a binary
+ *   search over the knots.
+ * @throws Error when the knots are empty, unsorted or not finite, the values do
+ *   not match them, or a period does not exceed the knot span.
  */
 export const interpolateAutoMovieMonotone: (
   props: IAutoMovieInterpolateMonotone.IProps,

@@ -6,18 +6,23 @@ import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
  * @param t0 The held left endpoint, seconds.
  * @param t1 The held right endpoint, seconds.
  * @param steps Completed forward steps, sorted by their actual start times.
- * @returns An integration-free reader of raw requested seconds. A held right end or NaN returns undefined; other reads lend one mutable location for synchronous use. Both consumers immediately read its step/share and never retain it in public output.
+ * @returns An integration-free reader of raw requested seconds. A held right
+ *   end or NaN returns undefined; other reads lend one mutable location for
+ *   synchronous use. Both consumers immediately read its step/share and never
+ *   retain it in public output.
  */
 export function MotionTrajectoryInterval(
   t0: number,
   t1: number,
   steps: readonly MotionTrajectoryRead.IDenseStep[],
-): (time: number) => {
-  /** The internally borrowed accepted step. */
-  step: MotionTrajectoryRead.IDenseStep;
-  /** The requested time's dimensionless share of that step. */
-  u: number;
-} | undefined {
+): (time: number) =>
+  | {
+      /** The internally borrowed accepted step. */
+      step: MotionTrajectoryRead.IDenseStep;
+      /** The requested time's dimensionless share of that step. */
+      u: number;
+    }
+  | undefined {
   let previous: number | undefined;
   let entered: boolean = false;
   let value: { step: MotionTrajectoryRead.IDenseStep; u: number } | undefined;

@@ -13,7 +13,11 @@ import { parseLightPointer } from "./parseLightPointer";
 import { sampleClip } from "./sampleClip";
 
 /**
- * Sample admitted shot light clips and apply their canonical light-pointer channels to staged lights. Output preserves staging order and untouched light identity; touched light wrappers borrow unanimated fields. Missing/unsupported targets throw and shot admission forbids repeated properties across the clip list.
+ * Sample admitted shot light clips and apply their canonical light-pointer
+ * channels to staged lights. Output preserves staging order and untouched light
+ * identity; touched light wrappers borrow unanimated fields.
+ * Missing/unsupported targets throw and shot admission forbids repeated
+ * properties across the clip list.
  */
 export const resolveShotLighting: (
   input: IAutoMovieShotLightingInput,

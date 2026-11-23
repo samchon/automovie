@@ -22,7 +22,10 @@ const assertFiniteVector: (label: string, vector: IAutoMovieVector3) => void = (
 };
 
 /**
- * Carry an admitted gait over a positive metre distance in a finite nonzero direction at a requested positive speed. Whole cycles determine duration; a trip shorter than half a nominal stride compresses one cycle, and optional faceTravel aligns model +Z with the horizontal heading.
+ * Carry an admitted gait over a positive metre distance in a finite nonzero
+ * direction at a requested positive speed. Whole cycles determine duration; a
+ * trip shorter than half a nominal stride compresses one cycle, and optional
+ * faceTravel aligns model +Z with the horizontal heading.
  */
 export const locomoteMotion: (
   id: string,

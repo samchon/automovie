@@ -7,7 +7,9 @@ import type {
 import { physicalHullFaces } from "./physicalHullFaces";
 
 /**
- * Admit geometry and observed frames without borrowing the native mass/tree contract. Every collider still has a finite solid shape, material, local frame and known joint carriers.
+ * Admit geometry and observed frames without borrowing the native mass/tree
+ * contract. Every collider still has a finite solid shape, material, local
+ * frame and known joint carriers.
  */
 export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
   const name: (value: string) => boolean = (value: string): boolean =>

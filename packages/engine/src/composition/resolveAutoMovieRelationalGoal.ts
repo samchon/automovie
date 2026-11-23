@@ -11,11 +11,11 @@ import { fitPhysicalWholeBodyTarget } from "../physics/fitPhysicalWholeBodyTarge
 
 /**
  * Realize a relational goal at one instant: read the target subject's region
- * from its actual pose (at the window's start for `freeze`, at the instant
- * for `track`), then bend the performer's prior pose toward it by the
- * whole-body fit ({@link fitPhysicalWholeBodyTarget}) from its held support,
- * inside every declared ROM, with an optional approach for the effector.
- * Outside the window the prior is returned unchanged with no residual.
+ * from its actual pose (at the window's start for `freeze`, at the instant for
+ * `track`), then bend the performer's prior pose toward it by the whole-body
+ * fit ({@link fitPhysicalWholeBodyTarget}) from its held support, inside every
+ * declared ROM, with an optional approach for the effector. Outside the window
+ * the prior is returned unchanged with no residual.
  *
  * Bodies are engine-level: a physical profile, a pose at any instant (the
  * production's shape prior, such as an authored or keyed pose) and named

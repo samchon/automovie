@@ -11,15 +11,15 @@ import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTim
 /**
  * Map one shot-local review time to its only realized film frame.
  *
- * A shot page and a review capture know a shot and a second, not a film
- * frame. The second is first mapped to the source frame that owns it, the
- * largest frame whose exact boundary time is at or before it; film-owned state
- * at that second exists only when the edit realizes that source frame of the
- * shot exactly once, so an absent or repeated occurrence answers `null` rather
- * than choosing one occurrence. A negative, non-finite or unrepresentable time
- * also answers `null`, while an inconsistent clock throws
- * `AutoMovieFilmEffectRuntimeError` with `film-effect-input-invalid`. The answer
- * depends only on the compiled timeline, never on whether a render has
+ * A shot page and a review capture know a shot and a second, not a film frame.
+ * The second is first mapped to the source frame that owns it, the largest
+ * frame whose exact boundary time is at or before it; film-owned state at that
+ * second exists only when the edit realizes that source frame of the shot
+ * exactly once, so an absent or repeated occurrence answers `null` rather than
+ * choosing one occurrence. A negative, non-finite or unrepresentable time also
+ * answers `null`, while an inconsistent clock throws
+ * `AutoMovieFilmEffectRuntimeError` with `film-effect-input-invalid`. The
+ * answer depends only on the compiled timeline, never on whether a render has
  * prepared any other runtime.
  */
 export const productionFilmFrameForShotTime = (

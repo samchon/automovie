@@ -38,22 +38,22 @@ interface IDrawable {
  * Draft every line one view draws of one validated design, classified by its
  * relation to the cut plane, deduplicated and in canonical order.
  *
- * Drawables are the elements with an environment-owned model and the
- * boundaries that carry a face and are realized by no element, each kept only
- * when `drawn` accepts its kind and space; a boundary is accepted through any
- * space it separates and carries its first space, so a party wall reads the
- * same on both rooms' sheets. An element citing a builder-owned runtime model
- * cannot be drawn and is counted in `unresolvedModels` for the caller's gap.
+ * Drawables are the elements with an environment-owned model and the boundaries
+ * that carry a face and are realized by no element, each kept only when `drawn`
+ * accepts its kind and space; a boundary is accepted through any space it
+ * separates and carries its first space, so a party wall reads the same on both
+ * rooms' sheets. An element citing a builder-owned runtime model cannot be
+ * drawn and is counted in `unresolvedModels` for the caller's gap.
  *
  * Each drawable is classified by its nearest and deepest corner: wholly on the
  * viewer's side of a cut it is `overhead` while within `view.overhead` and
  * omitted beyond it; wholly deeper than `view.depth` it is `hidden`; otherwise
  * a cut view drafts its section as `cut` and the silhouette of what stands
  * beyond the plane as `projected`. Silhouettes lying in the cut plane are
- * dropped because the cut already draws them. Points are rounded onto the
- * grid, zero-length strokes are dropped, each stroke runs from its smaller
- * point, identical strokes are merged, and the result is sorted by role order,
- * layer, owner and points.
+ * dropped because the cut already draws them. Points are rounded onto the grid,
+ * zero-length strokes are dropped, each stroke runs from its smaller point,
+ * identical strokes are merged, and the result is sorted by role order, layer,
+ * owner and points.
  *
  * @param props.environment The validated design.
  * @param props.view The view whose depth bands apply.

@@ -29,7 +29,8 @@ type Sample = IAutoMovieBicubicAtlas64.Sample;
 type Edge = IAutoMovieBicubicAtlas64.Edge;
 
 /**
- * Emit planned atlas patches with unchanged yield, allocation and cleanup order.
+ * Emit planned atlas patches with unchanged yield, allocation and cleanup
+ * order.
  */
 export function* AutoMovieBicubicAtlasEmit64(
   input: IAutoMovieBicubicAtlasTessellation64.Input,

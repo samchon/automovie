@@ -7,9 +7,7 @@ import {
 
 import { autoMovieStoryTime } from "./autoMovieStoryTime";
 
-/**
- * One addressed event's measurement, with why it has no story time.
- */
+/** One addressed event's measurement, with why it has no story time. */
 interface IStorySyncEntry {
   /** The event as reported in the outcome. */
   point: IAutoMovieStorySyncPoint;
@@ -21,9 +19,21 @@ interface IStorySyncEntry {
 /**
  * Measure one cross-shot simultaneity claim on the production story clock.
  *
- * Each addressed event is taken at its realized shot-local time, mapped through its own shot's pin by {@link autoMovieStoryTime}, and the widest gap between any two resulting story times is compared against the tolerance, inclusive. Nothing here consults the edit: two shots cut minutes apart pass when their pins put the events together, and two adjacent shots fail when their pins do not.
+ * Each addressed event is taken at its realized shot-local time, mapped through
+ * its own shot's pin by {@link autoMovieStoryTime}, and the widest gap between
+ * any two resulting story times is compared against the tolerance, inclusive.
+ * Nothing here consults the edit: two shots cut minutes apart pass when their
+ * pins put the events together, and two adjacent shots fail when their pins do
+ * not.
  *
- * The verdict is refusable. An unpinned shot, a missing or non-finite realization, or a story time that is not finite leaves an operand unresolved, and the claim then fails with a summary naming the first such operand and why, because a claim nobody can measure is not a claim that holds. An empty event list fails too. Otherwise the summary names the earliest and latest events, where a tie for latest names the later-listed event so a simultaneous claim quotes two distinct events. Every point is reported in declared order either way.
+ * The verdict is refusable. An unpinned shot, a missing or non-finite
+ * realization, or a story time that is not finite leaves an operand unresolved,
+ * and the claim then fails with a summary naming the first such operand and
+ * why, because a claim nobody can measure is not a claim that holds. An empty
+ * event list fails too. Otherwise the summary names the earliest and latest
+ * events, where a tie for latest names the later-listed event so a simultaneous
+ * claim quotes two distinct events. Every point is reported in declared order
+ * either way.
  */
 export function evaluateAutoMovieStorySync(
   props: IAutoMovieEvaluateStorySync.IProps,

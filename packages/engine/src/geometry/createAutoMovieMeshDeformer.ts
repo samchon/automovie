@@ -16,25 +16,23 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
 /**
  * Compile compact deformation fields into an operation that deforms a mesh.
  *
- * Each field moves points inside its axis-aligned ellipsoid by its
- * displacement plus its stretch times the offset from its centre, weighted by
- * `(1 - r^2)^3` of the normalized radius `r` and zero outside. Every vertex
- * uses the same summed map, and normals are transported by its analytic
- * cofactor (inverse-transpose) matrix, so splitting one skin into material
- * regions cannot open a lighting seam. UVs, triangle identities and skin
- * bindings are kept; physical source correspondence is copied and checked
- * before and after, so a vertex-specific influence cannot separate declared
- * aliases, while a mesh without it keeps welding by current position. Fields
- * are copied at compile time; meshes and influences are only read, and each
- * call returns a new mesh.
+ * Each field moves points inside its axis-aligned ellipsoid by its displacement
+ * plus its stretch times the offset from its centre, weighted by `(1 - r^2)^3`
+ * of the normalized radius `r` and zero outside. Every vertex uses the same
+ * summed map, and normals are transported by its analytic cofactor
+ * (inverse-transpose) matrix, so splitting one skin into material regions
+ * cannot open a lighting seam. UVs, triangle identities and skin bindings are
+ * kept; physical source correspondence is copied and checked before and after,
+ * so a vertex-specific influence cannot separate declared aliases, while a mesh
+ * without it keeps welding by current position. Fields are copied at compile
+ * time; meshes and influences are only read, and each call returns a new mesh.
  *
  * An optional influence supplies, per vertex, a mask weight `f` in [0, 1] and
- * its gradient in inverse metres. For displacement `d` the composed map is
- * `p + f d` with Jacobian `I + f (J - I) + outer(d, grad f)`. Apply an
- * attachment mask here, before the orientation checks, rather than scaling
- * the returned displacement afterwards and invalidating the checked geometry.
- * The caller owns the samples' provenance and their behaviour between
- * vertices.
+ * its gradient in inverse metres. For displacement `d` the composed map is `p +
+ * f d` with Jacobian `I + f (J - I) + outer(d, grad f)`. Apply an attachment
+ * mask here, before the orientation checks, rather than scaling the returned
+ * displacement afterwards and invalidating the checked geometry. The caller
+ * owns the samples' provenance and their behaviour between vertices.
  *
  * Compilation throws on a non-finite field vector or a nonpositive radius. A
  * call throws on a malformed index buffer, a non-finite position or normal, a

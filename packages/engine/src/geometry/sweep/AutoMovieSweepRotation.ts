@@ -6,16 +6,14 @@ import { QUATERNION_NLERP_DOT_THRESHOLD } from "../../math/constants/QUATERNION_
  * Quaternion operations on caller-owned arrays, `[x, y, z, w]` at an offset,
  * for sweeps posed every frame without allocating.
  *
- * Each operation reads its inputs fully before writing, so an output may
- * share storage with an input. They follow `Quaternion`'s conventions: the
- * Hamilton product `a b` applies `b` first, a basis maps `+X`, `+Y`, `+Z` to
- * its three columns, and slerp takes the shorter arc and switches to
- * normalized linear interpolation above the shared near-parallel threshold.
+ * Each operation reads its inputs fully before writing, so an output may share
+ * storage with an input. They follow `Quaternion`'s conventions: the Hamilton
+ * product `a b` applies `b` first, a basis maps `+X`, `+Y`, `+Z` to its three
+ * columns, and slerp takes the shorter arc and switches to normalized linear
+ * interpolation above the shared near-parallel threshold.
  */
 export namespace AutoMovieSweepRotation {
-  /**
-   * Write the product `a b`.
-   */
+  /** Write the product `a b`. */
   export const multiply = (
     a: ArrayLike<number>,
     ai: number,
@@ -39,7 +37,8 @@ export namespace AutoMovieSweepRotation {
   };
 
   /**
-   * Scale a quaternion to unit length in place; a zero quaternion becomes the identity.
+   * Scale a quaternion to unit length in place; a zero quaternion becomes the
+   * identity.
    */
   export const normalize = (
     q: IAutoMovieSweepRotation.INormalizeQ,
@@ -56,9 +55,7 @@ export namespace AutoMovieSweepRotation {
     for (let k: number = 0; k < 4; ++k) q[i + k] = q[i + k]! / size;
   };
 
-  /**
-   * Write the inverse of a unit quaternion, its conjugate.
-   */
+  /** Write the inverse of a unit quaternion, its conjugate. */
   export const conjugate = (
     q: ArrayLike<number>,
     i: number,
@@ -75,7 +72,8 @@ export namespace AutoMovieSweepRotation {
   };
 
   /**
-   * Write the unit quaternion of the rotation taking `+X`, `+Y`, `+Z` to three orthonormal columns stored at `xi`, `yi` and `zi`.
+   * Write the unit quaternion of the rotation taking `+X`, `+Y`, `+Z` to three
+   * orthonormal columns stored at `xi`, `yi` and `zi`.
    */
   export const fromBasis = (
     m: ArrayLike<number>,
@@ -123,9 +121,7 @@ export namespace AutoMovieSweepRotation {
     normalize(out, oi);
   };
 
-  /**
-   * Write a vector rotated by a unit quaternion.
-   */
+  /** Write a vector rotated by a unit quaternion. */
   export const rotate = (
     q: ArrayLike<number>,
     qi: number,
@@ -150,7 +146,8 @@ export namespace AutoMovieSweepRotation {
   };
 
   /**
-   * Write the spherical interpolation from `a` to `b` at `t`, along the shorter arc.
+   * Write the spherical interpolation from `a` to `b` at `t`, along the shorter
+   * arc.
    */
   export const slerp = (
     a: ArrayLike<number>,

@@ -27,9 +27,18 @@ const COVERAGE_EPSILON: number = 1e-12;
  * than `jointTolerance`, and a `grain-break` when the grain turns by more than
  * `grainToleranceDeg`, unless that tolerance is null.
  *
- * Candidate pairs share a centre bucket or one of its eight neighbours. The cell width is the largest module diagonal plus adjacency. With finite, well-scaled generated convex geometry, Euclidean-near pieces fit this broad phase because each lies within half its module diagonal of its centre. Partners are sorted by placement index before measurement.
+ * Candidate pairs share a centre bucket or one of its eight neighbours. The
+ * cell width is the largest module diagonal plus adjacency. With finite,
+ * well-scaled generated convex geometry, Euclidean-near pieces fit this broad
+ * phase because each lies within half its module diagonal of its centre.
+ * Partners are sorted by placement index before measurement.
  *
- * The narrow phase uses the largest edge-normal projection gap, not Euclidean distance. A diagonally distant pair inside neighbouring buckets can therefore still report a small joint; a projection-close pair outside those buckets is not tested. Findings describe this combined bucket/projection policy, not exhaustive Euclidean or projection-gap neighbourhoods. Measurements use clipped outlines rather than uncut module rectangles.
+ * The narrow phase uses the largest edge-normal projection gap, not Euclidean
+ * distance. A diagonally distant pair inside neighbouring buckets can therefore
+ * still report a small joint; a projection-close pair outside those buckets is
+ * not tested. Findings describe this combined bucket/projection policy, not
+ * exhaustive Euclidean or projection-gap neighbourhoods. Measurements use
+ * clipped outlines rather than uncut module rectangles.
  *
  * @param pattern The validated declaration whose limits are applied.
  * @param placements The run's placements, in run order.

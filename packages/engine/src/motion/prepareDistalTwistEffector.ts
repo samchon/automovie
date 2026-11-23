@@ -16,7 +16,10 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * frame. No numerical admission runs until the original first-use reader.
  */
 export function prepareDistalTwistEffector(
-  props: Pick<Parameters<typeof solveDistalTwist>[0], "effectorRest" | "effectorBasis" | "effectorFrame">,
+  props: Pick<
+    Parameters<typeof solveDistalTwist>[0],
+    "effectorRest" | "effectorBasis" | "effectorFrame"
+  >,
 ): solveDistalTwist.IPrepared {
   const rest: IAutoMovieQuaternion = props.effectorRest;
   const basis: IAutoMovieJointAxes = props.effectorBasis;
@@ -36,7 +39,12 @@ export function prepareDistalTwistEffector(
     zero: (): solveDistalTwist.IZero => {
       if (zero === undefined) {
         const handed: number =
-          Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0 ? 1 : -1;
+          Vector3.dot(
+            basis.twist,
+            Vector3.cross(basis.flexion, basis.abduction),
+          ) >= 0
+            ? 1
+            : -1;
         const phi: number =
           (handed * (toRigAngle(0, frame?.twist) ?? 0) * Math.PI) / 180;
         zero = { cosine: Math.cos(phi), sine: Math.sin(phi) };

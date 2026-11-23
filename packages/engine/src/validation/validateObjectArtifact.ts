@@ -4,7 +4,8 @@ import { isRecord } from "./isRecord";
 import { pushViolation } from "./pushViolation";
 
 /**
- * Require the shallow non-null non-array object shape and append a labeled type fault otherwise.
+ * Require the shallow non-null non-array object shape and append a labeled type
+ * fault otherwise.
  */
 export const validateObjectArtifact: (
   value: unknown,

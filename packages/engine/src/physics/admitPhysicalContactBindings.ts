@@ -17,7 +17,8 @@ import { isPhysicalActuatorChain } from "./isPhysicalActuatorChain";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 
 /**
- * Both relationship populations share identities, residual rows and articulated coordinate budgets before solver allocation.
+ * Both relationship populations share identities, residual rows and articulated
+ * coordinate budgets before solver allocation.
  */
 export function admitPhysicalContactBindings(
   input: IAutoMoviePhysicalSimulationInput.IInput,

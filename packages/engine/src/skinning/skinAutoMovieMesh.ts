@@ -11,17 +11,17 @@ import {
 import { Quaternion } from "../math/Quaternion";
 
 /**
- * Skin a mesh's vertices from its rest pose into a resolved pose, by the
- * method its skin declares, with the formula the viewer's shader draws.
+ * Skin a mesh's vertices from its rest pose into a resolved pose, by the method
+ * its skin declares, with the formula the viewer's shader draws.
  *
  * Each joint `j` moves its vertices by the rigid transform `C_j = P_j R_j^-1`,
  * where `R_j` is its rest frame and `P_j` its posed frame. `"linear"` (also an
  * omitted method) returns `sum(w_k C_k v) / sum(w_k)`, the matrix blend that
- * `THREE.SkinnedMesh` computes after normalizing the weights. `"dual-quaternion"`
- * turns each `C_j` into a unit dual quaternion, negates any whose rotation lies
- * in the other hemisphere from the vertex's largest-weight joint (the lowest
- * slot on a tie), sums them by weight, divides by the length of the rotation
- * part and applies that rigid transform (Kavan et al. 2008).
+ * `THREE.SkinnedMesh` computes after normalizing the weights.
+ * `"dual-quaternion"` turns each `C_j` into a unit dual quaternion, negates any
+ * whose rotation lies in the other hemisphere from the vertex's largest-weight
+ * joint (the lowest slot on a tie), sums them by weight, divides by the length
+ * of the rotation part and applies that rigid transform (Kavan et al. 2008).
  *
  * Positions are read in the frame the rest bones are expressed in: model space
  * for `resolvePose` output, so a part with a transform has it applied to the
@@ -30,21 +30,21 @@ import { Quaternion } from "../math/Quaternion";
  * result is in the posed bones' frame, so passing bones resolved with a pose
  * root places the vertices by that root as well.
  *
- * Morph targets named in `morphWeights` displace the rest positions first,
- * `p + sum(w_t * positions_t)`, as the viewer applies relative morph targets
- * before skinning; a name the mesh does not carry is ignored, as an expression
- * ignores a channel a mesh lacks.
+ * Morph targets named in `morphWeights` displace the rest positions first, `p +
+ * sum(w_t * positions_t)`, as the viewer applies relative morph targets before
+ * skinning; a name the mesh does not carry is ignored, as an expression ignores
+ * a channel a mesh lacks.
  *
  * Throws when the mesh has no skin or a skin joint is missing from either bone
  * list.
  *
  * @param mesh Admitted mesh with a skin.
- * @param rest Bones at rest, such as `resolvePose` of a pose with no joints
- *   and a null root.
+ * @param rest Bones at rest, such as `resolvePose` of a pose with no joints and
+ *   a null root.
  * @param posed Bones in the pose to skin into, from `resolvePose`.
  * @param morphWeights Target weights by name, such as
- *   `resolveMorphTargetWeights` output merged with expression weights;
- *   omitted, no target displaces the mesh.
+ *   `resolveMorphTargetWeights` output merged with expression weights; omitted,
+ *   no target displaces the mesh.
  * @returns Flat skinned positions `[x,y,z,...]` in metres, aligned with
  *   `mesh.positions`.
  */
@@ -114,7 +114,10 @@ interface IJointTransform {
   dual: IAutoMovieQuaternion;
 }
 
-/** Map each skin joint to its rigid transform `P R^-1`, throwing for a joint absent from either bone list. */
+/**
+ * Map each skin joint to its rigid transform `P R^-1`, throwing for a joint
+ * absent from either bone list.
+ */
 const jointTransforms: (
   joints: readonly AutoMovieHumanoidBone[],
   rest: readonly IAutoMovieResolvedBone[],
@@ -177,7 +180,10 @@ const jointTransforms: (
   });
 };
 
-/** Weighted matrix blend divided by the weight sum, as `THREE.SkinnedMesh` draws after normalizing its weights. */
+/**
+ * Weighted matrix blend divided by the weight sum, as `THREE.SkinnedMesh` draws
+ * after normalizing its weights.
+ */
 const blendLinear: (
   skin: IAutoMovieMeshSkin,
   joints: readonly IJointTransform[],
@@ -209,7 +215,10 @@ const blendLinear: (
   return { x: x / total, y: y / total, z: z / total };
 };
 
-/** Hemisphere-aligned weighted dual quaternion sum, normalized by its rotation part and applied to one point. */
+/**
+ * Hemisphere-aligned weighted dual quaternion sum, normalized by its rotation
+ * part and applied to one point.
+ */
 const blendDualQuaternion: (
   skin: IAutoMovieMeshSkin,
   joints: readonly IJointTransform[],

@@ -17,13 +17,9 @@ const dist: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (
   b: AutoMovieVector3Tuple,
 ): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
-/**
- * Continuous closest-segment slit construction for declared contour walks.
- */
+/** Continuous closest-segment slit construction for declared contour walks. */
 export namespace AutoMovieContourSlit64 {
-  /**
-   * Open oriented loops along one closest continuous segment-to-segment slit.
-   */
+  /** Open oriented loops along one closest continuous segment-to-segment slit. */
   export function join(
     a: AutoMovieVector3Tuple[],
     b: AutoMovieVector3Tuple[],
@@ -104,9 +100,7 @@ export namespace AutoMovieContourSlit64 {
     return [...open(a, ai, ta), ...open(b, bi, tb)];
   }
 
-  /**
-   * Projects onto a finite segment; a zero-length segment remains its endpoint.
-   */
+  /** Projects onto a finite segment; a zero-length segment remains its endpoint. */
   export function closest(
     p: AutoMovieVector3Tuple,
     a: AutoMovieVector3Tuple,

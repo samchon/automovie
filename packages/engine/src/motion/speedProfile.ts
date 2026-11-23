@@ -1,15 +1,38 @@
 import type { IAutoMovieSpeedProfile } from "@automovie/interface";
 
 /**
- * Progress along a path in time from speed marks: how far a moving thing has gone and how fast it goes at any film second, with its acceleration and braking bounded, in closed form.
+ * Progress along a path in time from speed marks: how far a moving thing has
+ * gone and how fast it goes at any film second, with its acceleration and
+ * braking bounded, in closed form.
  *
- * The path is cut into stretches, each ending at a speed mark. A distance stretch covers a stated length and ends at its mark: from the speed it enters at, the mover accelerates at the profile's acceleration toward the stretch's cap, holds it, and brakes at the profile's deceleration so as to reach the mark exactly at the stretch's end; a stretch too short to reach its cap peaks where accelerating and braking meet. A seconds stretch lasts a stated time and changes speed at a constant rate from its entry to its mark, the one profile two speeds and a duration fix. The mover may start already moving and end still moving, and it holds at the path's start until the profile's first second. A distance stretch entered and left at its cap holds that speed throughout and reads neither rate, so a path run at one speed needs none; a stretch that changes speed needs the rates it uses. Every phase therefore has a constant acceleration, so distance is quadratic in time and time a square root of distance.
+ * The path is cut into stretches, each ending at a speed mark. A distance
+ * stretch covers a stated length and ends at its mark: from the speed it enters
+ * at, the mover accelerates at the profile's acceleration toward the stretch's
+ * cap, holds it, and brakes at the profile's deceleration so as to reach the
+ * mark exactly at the stretch's end; a stretch too short to reach its cap peaks
+ * where accelerating and braking meet. A seconds stretch lasts a stated time
+ * and changes speed at a constant rate from its entry to its mark, the one
+ * profile two speeds and a duration fix. The mover may start already moving and
+ * end still moving, and it holds at the path's start until the profile's first
+ * second. A distance stretch entered and left at its cap holds that speed
+ * throughout and reads neither rate, so a path run at one speed needs none; a
+ * stretch that changes speed needs the rates it uses. Every phase therefore has
+ * a constant acceleration, so distance is quadratic in time and time a square
+ * root of distance.
  *
- * A braking phase is evaluated back from its end, so a distance stretch ends at its stretch's length and its mark exactly, with no rounding carried in from the phases before it.
+ * A braking phase is evaluated back from its end, so a distance stretch ends at
+ * its stretch's length and its mark exactly, with no rounding carried in from
+ * the phases before it.
  *
  * @param props The start, the rates and the stretches.
  * @returns The profile.
- * @throws {Error} When the start, a given rate, a speed, a length, a duration or a cap is not finite or not in its range, a stretch that changes speed lacks a rate it needs, a distance stretch's mark lies outside what its length can reach from its entry speed (`speedProfile.reach`), its cap is below its entry or its mark, or a seconds stretch changes speed faster than the rates allow: a caller's defect, since a caller admits its own input with its own refusals.
+ * @throws {Error} When the start, a given rate, a speed, a length, a duration
+ *   or a cap is not finite or not in its range, a stretch that changes speed
+ *   lacks a rate it needs, a distance stretch's mark lies outside what its
+ *   length can reach from its entry speed (`speedProfile.reach`), its cap is
+ *   below its entry or its mark, or a seconds stretch changes speed faster than
+ *   the rates allow: a caller's defect, since a caller admits its own input
+ *   with its own refusals.
  */
 export function speedProfile(
   props: IAutoMovieSpeedProfile.IProps,
@@ -260,19 +283,18 @@ export function speedProfile(
   };
 }
 
-/**
- * Companion types and the reach rule of {@link speedProfile}.
- */
+/** Companion types and the reach rule of {@link speedProfile}. */
 export namespace speedProfile {
   /**
-   * The speeds a stretch of a length can end at from an entry speed under the rates: from braking all the way to accelerating all the way.
+   * The speeds a stretch of a length can end at from an entry speed under the
+   * rates: from braking all the way to accelerating all the way.
    *
    * @param speed The entry speed, metres per second.
    * @param length The stretch's length, metres.
    * @param acceleration The acceleration, metres per second squared.
    * @param deceleration The braking, metres per second squared.
-   * @returns The least and greatest end speed, metres per second; the least is 0 when the stretch is long enough to stop in.
-   *
+   * @returns The least and greatest end speed, metres per second; the least is
+   *   0 when the stretch is long enough to stop in.
    */
   export function reach(
     speed: number,

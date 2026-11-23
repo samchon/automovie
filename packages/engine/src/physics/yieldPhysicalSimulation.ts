@@ -1,5 +1,6 @@
 /**
- * Observe completed work and cooperatively release the host at the declared interval.
+ * Observe completed work and cooperatively release the host at the declared
+ * interval.
  */
 export async function yieldPhysicalSimulation(
   step: number,

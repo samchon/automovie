@@ -8,35 +8,46 @@ import { physicalShapeBounds } from "../physics/physicalShapeBounds";
 
 /**
  * Operation-owned exact neutral segment bounds for sequential body derivation.
- * Ordinary reads are fresh; an optional producer-issued handle shares only
- * its live profile's actual segments. Geometry stays unchanged until release.
+ * Ordinary reads are fresh; an optional producer-issued handle shares only its
+ * live profile's actual segments. Geometry stays unchanged until release.
  */
 export namespace AutoMovieHumanoidNeutralBounds {
-  /**
-   * Opaque ownership of one synchronous unchanged-profile epoch.
-   */
+  /** Opaque ownership of one synchronous unchanged-profile epoch. */
   export interface IPrepared {
     /** Private nominal producer identity, also admitted by the live map. */
     readonly [BRAND]: true;
   }
 
   /**
-   * Start a bounds epoch without calculating geometry or changing refusal order.
+   * Start a bounds epoch without calculating geometry or changing refusal
+   * order.
    */
   export function prepare(profile: P): IPrepared {
     const handle: IPrepared = { [BRAND]: true };
-    LIVE.set(handle, { profile, segments: new Set(profile.segments), bounds: new Map() });
+    LIVE.set(handle, {
+      profile,
+      segments: new Set(profile.segments),
+      bounds: new Map(),
+    });
     return handle;
   }
 
-  /**
-   * Read fresh independent vectors, optionally sharing a genuine epoch.
-   */
-  export function read(profile: P, segment: IAutoMoviePhysicalSegment, handle?: IPrepared): IBounds {
+  /** Read fresh independent vectors, optionally sharing a genuine epoch. */
+  export function read(
+    profile: P,
+    segment: IAutoMoviePhysicalSegment,
+    handle?: IPrepared,
+  ): IBounds {
     if (handle === undefined) return calculate(segment);
     const state: IState | undefined = LIVE.get(handle);
-    if (state === undefined || state.profile !== profile || !state.segments.has(segment))
-      throw new Error("Neutral bounds need their live unchanged profile and segment");
+    if (
+      state === undefined ||
+      state.profile !== profile ||
+      !state.segments.has(segment)
+    )
+      throw new Error(
+        "Neutral bounds need their live unchanged profile and segment",
+      );
     let bounds: IBounds | undefined = state.bounds.get(segment);
     if (bounds === undefined) {
       bounds = calculate(segment);
@@ -46,7 +57,8 @@ export namespace AutoMovieHumanoidNeutralBounds {
   }
 
   /**
-   * End the epoch and invalidate every later read; repeated release is harmless.
+   * End the epoch and invalidate every later read; repeated release is
+   * harmless.
    */
   export function release(handle: IPrepared): void {
     LIVE.delete(handle);
@@ -78,7 +90,8 @@ interface IState {
 }
 
 /** No strong module-owned profile or operation population remains after release. */
-const LIVE: WeakMap<AutoMovieHumanoidNeutralBounds.IPrepared, IState> = new WeakMap();
+const LIVE: WeakMap<AutoMovieHumanoidNeutralBounds.IPrepared, IState> =
+  new WeakMap();
 
 /** Preserve the original component update order without a per-shape axis array. */
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];

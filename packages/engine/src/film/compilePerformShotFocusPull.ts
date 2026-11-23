@@ -21,10 +21,10 @@ import { animatedBaseAt } from "./animatedBaseAt";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 
 /**
- * Admit and resolve one frame action's two focus marks in world metres.
- * The caller consumes located findings before publishing the shot. An
- * automatic frame ends at the next frame's start or the shot end. An explicit
- * frame can end earlier. Both are bounded by the next frame start.
+ * Admit and resolve one frame action's two focus marks in world metres. The
+ * caller consumes located findings before publishing the shot. An automatic
+ * frame ends at the next frame's start or the shot end. An explicit frame can
+ * end earlier. Both are bounded by the next frame start.
  */
 export function compilePerformShotFocusPull(
   context: IAutoMovieEnginePerformShotGateContext,

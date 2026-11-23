@@ -20,7 +20,10 @@ type Frames = readonly [
 /** Three world coordinates, in the order retained by the original frame. */
 type Vector = readonly [number, number, number];
 
-/** A captured whole native generating family, independent of compatibility density. */
+/**
+ * A captured whole native generating family, independent of compatibility
+ * density.
+ */
 type Native = Extract<
   IAutoMovieLoftSectionSource.IEndpoint["field"],
   { kind: "native" }
@@ -30,14 +33,14 @@ type Native = Extract<
  * Admit already matching native ends without rewriting either chain.
  *
  * Complete native scalar2 and signed frame2 determine every phase and mixed
- * derivative by the existing native and world product rules. Compatibility
- * rows are validated at their own density and remain unchanged. The admitted
+ * derivative by the existing native and world product rules. Compatibility rows
+ * are validated at their own density and remain unchanged. The admitted
  * additional displacement is absent or phase-constant lift2; reliefs and
  * phase-dependent lifts require another whole-boundary certificate.
  *
  * Regularity uses a sufficient analytic condition: the frame's first axis
- * derivatives lie in the section plane, and the complete station velocity has
- * a nonzero normal component. Thus it cannot be parallel to any nonzero native
+ * derivatives lie in the section plane, and the complete station velocity has a
+ * nonzero normal component. Thus it cannot be parallel to any nonzero native
  * phase tangent. A turning plane is explicitly unsupported by this admission.
  * Every compatibility row is checked, with the existing source/span lookup
  * costs, before constant-size boundary preparation. Temporary source/frame
@@ -153,7 +156,10 @@ function end(
   return chain.layers[side === "bottom" ? 0 : chain.layers.length - 1]!;
 }
 
-/** Read complete numeric frame2 and verify any retained callable against its snapshot. */
+/**
+ * Read complete numeric frame2 and verify any retained callable against its
+ * snapshot.
+ */
 function frames(layer: IAutoMovieLoftChain.ILayer): Frames | string {
   AutoMovieLoftFrameSource.validate(layer);
   if (
@@ -189,7 +195,10 @@ function frames(layer: IAutoMovieLoftChain.ILayer): Frames | string {
   return result;
 }
 
-/** Absence means the declared zero displacement; present lift needs all actual orders. */
+/**
+ * Absence means the declared zero displacement; present lift needs all actual
+ * orders.
+ */
 function lift(
   layer: IAutoMovieLoftChain.ILayer,
   order: number,
@@ -213,7 +222,10 @@ function lift(
   return result;
 }
 
-/** Native admission plus nonzero transverse speed certifies every phase of this planar ring. */
+/**
+ * Native admission plus nonzero transverse speed certifies every phase of this
+ * planar ring.
+ */
 function regular(
   field: Native,
   frame: Frames,
@@ -246,7 +258,10 @@ function regular(
   return null;
 }
 
-/** Permit only binary64 evaluation noise, independently of tessellation or a fit budget. */
+/**
+ * Permit only binary64 evaluation noise, independently of tessellation or a fit
+ * budget.
+ */
 function close(a: number, b: number): boolean {
   return (
     Number.isFinite(a) &&

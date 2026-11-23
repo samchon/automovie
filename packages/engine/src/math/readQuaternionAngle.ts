@@ -4,22 +4,26 @@ import { readNormalizedQuaternion } from "./readNormalizedQuaternion";
 
 /**
  * Read inverse(a) * b's geodesic angle through the original scalar arithmetic.
- * afterNormalization first performs the separate normalize(a) boundary used
- * by actual chain errors. Both entries retain inverse's conjugate normalization
- * and the Hamilton/atan2 formula; neither constructs an intermediate quaternion.
+ * afterNormalization first performs the separate normalize(a) boundary used by
+ * actual chain errors. Both entries retain inverse's conjugate normalization
+ * and the Hamilton/atan2 formula; neither constructs an intermediate
+ * quaternion.
  */
 export function readQuaternionAngle(
   a: IAutoMovieQuaternion,
   b: IAutoMovieQuaternion,
 ): number {
   return readNormalizedQuaternion.fromScalars(
-    -a.x, -a.y, -a.z, a.w, relativeAngle, b,
+    -a.x,
+    -a.y,
+    -a.z,
+    a.w,
+    relativeAngle,
+    b,
   );
 }
 
-/**
- * A separate first normalization followed by the same relative-angle reading.
- */
+/** A separate first normalization followed by the same relative-angle reading. */
 export namespace readQuaternionAngle {
   /** Normalize a first, then read the same angle; b is read only afterward. */
   export function afterNormalization(
@@ -30,17 +34,27 @@ export namespace readQuaternionAngle {
   }
 }
 
-/** Transfer the completed first normalization into the original inverse boundary. */
+/**
+ * Transfer the completed first normalization into the original inverse
+ * boundary.
+ */
 function normalizedFirst(
-  x: number, y: number, z: number, w: number,
-  _raw: IAutoMovieQuaternion, b: IAutoMovieQuaternion,
+  x: number,
+  y: number,
+  z: number,
+  w: number,
+  _raw: IAutoMovieQuaternion,
+  b: IAutoMovieQuaternion,
 ): number {
   return readNormalizedQuaternion.fromScalars(-x, -y, -z, w, relativeAngle, b);
 }
 
 /** Original Hamilton component association and stable relative-angle formula. */
 function relativeAngle(
-  ax: number, ay: number, az: number, aw: number,
+  ax: number,
+  ay: number,
+  az: number,
+  aw: number,
   b: IAutoMovieQuaternion,
 ): number {
   const x: number = aw * b.x + ax * b.w + ay * b.z - az * b.y;

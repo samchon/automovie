@@ -11,9 +11,9 @@ import { ease } from "./motion/ease";
  * Matching cues sort by start and code-unit id; the first active cue wins.
  * Identity precedes the first cue, completed targets remain between cues and
  * reform progress survives cues without a new layout. A new layout starts at
- * the previous completed arrangement; the first starts at the design.
- * Retained translation,
- * spacing and layout records alias authored inputs and must be treated read-only.
+ * the previous completed arrangement; the first starts at the design. Retained
+ * translation, spacing and layout records alias authored inputs and must be
+ * treated read-only.
  */
 export const sampleFormationMotion: (
   motions: readonly IAutoMovieFormationMotion[],

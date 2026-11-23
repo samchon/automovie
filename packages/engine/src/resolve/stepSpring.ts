@@ -14,7 +14,11 @@ import { readLocal } from "./readLocal";
 import { readWorld } from "./readWorld";
 
 /**
- * Advance non-root spring joints with Verlet inertia, gravity, stiffness and length projection, then sphere collision projection. Caller state and world positions mutate in place; joint rotation/scale remain unchanged. Each centre/ordered-chain tuple transports its own previous translation, and collision projection can stretch the length projected earlier in the step.
+ * Advance non-root spring joints with Verlet inertia, gravity, stiffness and
+ * length projection, then sphere collision projection. Caller state and world
+ * positions mutate in place; joint rotation/scale remain unchanged. Each
+ * centre/ordered-chain tuple transports its own previous translation, and
+ * collision projection can stretch the length projected earlier in the step.
  */
 export const stepSpring: (
   d: IAutoMovieSpringDriver,

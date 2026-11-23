@@ -41,7 +41,11 @@ const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
 );
 
 /**
- * Sample admitted motion on a fixed clock plus any authored support boundaries. Detect finite model-frame stance contacts, pin each run and fit targeted leg chains under the same clinical mappings and rig ROM. Unreachable or constrained pins retain the best allowed pose and may leave residual contact error. Opening plants resume authoritative targets during opening stance.
+ * Sample admitted motion on a fixed clock plus any authored support boundaries.
+ * Detect finite model-frame stance contacts, pin each run and fit targeted leg
+ * chains under the same clinical mappings and rig ROM. Unreachable or
+ * constrained pins retain the best allowed pose and may leave residual contact
+ * error. Opening plants resume authoritative targets during opening stance.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States model frame, dense clock, shared clinical semantics, opening pin precedence, input failure and residual limitations instead of promising exact contact for arbitrary rig constraints.
  */
@@ -150,15 +154,14 @@ export const plantStanceFeet: (
   return assemblePlantedFeet(props.motion, keyframes, plants);
 };
 
-/**
- * Companion types of {@link plantStanceFeet}.
- */
+/** Companion types of {@link plantStanceFeet}. */
 export namespace plantStanceFeet {
-  /**
-   * The planting props with an optional prepared rig.
-   */
+  /** The planting props with an optional prepared rig. */
   export interface IProps extends IAutoMoviePlantStanceFeet.IProps {
-    /** Explicit immutable snapshot of this exact rig and clinical tables; omitted keeps full raw FK admission. */
+    /**
+     * Explicit immutable snapshot of this exact rig and clinical tables;
+     * omitted keeps full raw FK admission.
+     */
     poseResolution?: prepareSkeletonPoseResolution.IRig;
   }
 }

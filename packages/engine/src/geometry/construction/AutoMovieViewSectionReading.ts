@@ -12,13 +12,11 @@ import { AutoMovieConicHermiteField } from "./AutoMovieConicHermiteField";
 /** Full source Hessian [value,s,p,ss,sp,pp]; p is not the polar clock. */
 type Source = IAutoMovieConicFieldJet.IJet;
 
-/**
- * Internal validation and fixed-clock reading of the existing section data.
- */
+/** Internal validation and fixed-clock reading of the existing section data. */
 export namespace AutoMovieViewSectionReading {
   /**
-   * Check explicit source data against its copied numeric geometry.
-   * Null certifies this metadata check, not pole regularity or derivative accuracy.
+   * Check explicit source data against its copied numeric geometry. Null
+   * certifies this metadata check, not pole regularity or derivative accuracy.
    */
   export function validate(
     prepared: IAutoMovieViewSectionField.IPrepared,
@@ -92,7 +90,8 @@ export namespace AutoMovieViewSectionReading {
 
   /**
    * Evaluate one descriptor after this preparation's metadata validation.
-   * Public Field validates now; Native holds the same unexposed copied records.
+   * Public Field validates now; Native holds the same unexposed copied
+   * records.
    */
   export function evaluate(
     prepared: IAutoMovieViewSectionField.IPrepared,
@@ -159,7 +158,10 @@ function failure(detail: string): IAutoMovieConicArcField.IFailure {
   return { kind: "failure", detail };
 }
 
-/** Required source jets are finite; auxiliary branch tuples retain the original primal-only rule. */
+/**
+ * Required source jets are finite; auxiliary branch tuples retain the original
+ * primal-only rule.
+ */
 function sourceJet(value: unknown, full: boolean): value is Source {
   return (
     Array.isArray(value) &&
@@ -169,14 +171,20 @@ function sourceJet(value: unknown, full: boolean): value is Source {
   );
 }
 
-/** Compare one explicit tuple primal with the numeric snapshot, preserving required-jet admission. */
+/**
+ * Compare one explicit tuple primal with the numeric snapshot, preserving
+ * required-jet admission.
+ */
 function same(value: unknown, numeric: number, full: boolean = false): boolean {
   return (
     sourceJet(value, full) && Number.isFinite(numeric) && value[0] === numeric
   );
 }
 
-/** Check the fixed control/weight snapshot without requiring unused auxiliary Hessians. */
+/**
+ * Check the fixed control/weight snapshot without requiring unused auxiliary
+ * Hessians.
+ */
 function patchMatches(
   a: IAutoMovieConicHermite.IPatch<Source> | null,
   b: IAutoMovieConicHermite.IPatch | null,
@@ -218,7 +226,10 @@ function patchMatches(
   return true;
 }
 
-/** Keep signed curvature products in logarithmic scale until the original final exponential. */
+/**
+ * Keep signed curvature products in logarithmic scale until the original final
+ * exponential.
+ */
 function curvatureProduct(
   logCurvature: number,
   a: number,

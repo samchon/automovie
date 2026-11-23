@@ -14,7 +14,8 @@ import { gridAutoMovieSolidMesh } from "./gridAutoMovieSolidMesh";
 import { openAutoMovieSolidMesh } from "./openAutoMovieSolidMesh";
 
 /**
- * Prepare one complete source partition, then append its admitted face atomically.
+ * Prepare one complete source partition, then append its admitted face
+ * atomically.
  *
  * Named planning refusals call onFailure and return no face, or throw when no
  * callback was supplied. Source/keeps/callback exceptions propagate unchanged.
@@ -45,7 +46,10 @@ export function faceAutoMovieSolidMesh(
   const { occupied, directed }: ILedger = incidence(mesh);
   const fresh: Set<string> = new Set();
 
-  /** Last actual predicate reading; recording it neither changes nor repeats successful queries. */
+  /**
+   * Last actual predicate reading; recording it neither changes nor repeats
+   * successful queries.
+   */
   const reading: { u: number; v: number; kept: boolean } = {
     u: NaN,
     v: NaN,
@@ -221,7 +225,10 @@ export function faceAutoMovieSolidMesh(
   return open;
 }
 
-/** A mesh's edge incidence as its faces read it, with the index prefix it was read from. */
+/**
+ * A mesh's edge incidence as its faces read it, with the index prefix it was
+ * read from.
+ */
 interface ILedger {
   /** The mesh's indices as last read, a copy. */
   seen: number[];
@@ -229,7 +236,10 @@ interface ILedger {
   /** Unoriented endpoint pairs `minID/maxID` of the read triangles. */
   occupied: Set<string>;
 
-  /** How many read triangles hold each unoriented pair, so a pair leaves `occupied` with its last triangle. */
+  /**
+   * How many read triangles hold each unoriented pair, so a pair leaves
+   * `occupied` with its last triangle.
+   */
   pairs: Map<string, number>;
 
   /** How many read triangles hold each directed edge `a/b`. */
@@ -242,11 +252,14 @@ const LEDGERS: WeakMap<IAutoMovieSolidMesh.IMesh, ILedger> = new WeakMap();
 /**
  * The edge incidence of every triangle a mesh holds now.
  *
- * Each face needs the pairs and directed edges of all earlier faces. Reading them from the whole index buffer for every face cost the
- * triangle count once per face in string keys, most of a body's realization once it had dozens of faces. The ledger keeps what it read: it
- * finds the first index at which the buffer differs from its copy, takes back the triangles it read from there on, since a checkpoint
- * restore truncates the buffer and later faces refill it, and reads the triangles the buffer now holds from there. The comparison is one
- * pass of numbers; only changed triangles cost keys.
+ * Each face needs the pairs and directed edges of all earlier faces. Reading
+ * them from the whole index buffer for every face cost the triangle count once
+ * per face in string keys, most of a body's realization once it had dozens of
+ * faces. The ledger keeps what it read: it finds the first index at which the
+ * buffer differs from its copy, takes back the triangles it read from there on,
+ * since a checkpoint restore truncates the buffer and later faces refill it,
+ * and reads the triangles the buffer now holds from there. The comparison is
+ * one pass of numbers; only changed triangles cost keys.
  */
 function incidence(mesh: IAutoMovieSolidMesh.IMesh): ILedger {
   let ledger: ILedger | undefined = LEDGERS.get(mesh);
@@ -295,7 +308,10 @@ function incidence(mesh: IAutoMovieSolidMesh.IMesh): ILedger {
   return ledger;
 }
 
-/** Explain a failed reading against the unchanged polyline source, without another surface jet or altered admission. */
+/**
+ * Explain a failed reading against the unchanged polyline source, without
+ * another surface jet or altered admission.
+ */
 function membership(
   input: IAutoMovieSolidMesh.IFace,
   source: (u: number, v: number) => boolean,
@@ -360,7 +376,10 @@ function membership(
   });
 }
 
-/** Named planning refusal differs from arbitrary user/source callback exceptions. */
+/**
+ * Named planning refusal differs from arbitrary user/source callback
+ * exceptions.
+ */
 function refuse(
   input: IAutoMovieSolidMesh.IFace,
   detail: string,

@@ -1,11 +1,11 @@
 import type { IAutoMovieSubdivisionLevel } from "@automovie/interface";
 
 /**
- * Frozen-metric discrete bending residuals M^(-1/2) C on a quad cage.
- * C is cotangent stiffness and M barycentric area mass. The diagonal 0–2
- * matches the emitted render triangles. This discrete norm approximates
- * bending; it is not the analytic plate integral of Halstead et al. (1993).
- * Zero-area triangles or zero vertex mass are refused, with no regularizer.
+ * Frozen-metric discrete bending residuals M^(-1/2) C on a quad cage. C is
+ * cotangent stiffness and M barycentric area mass. The diagonal 0–2 matches the
+ * emitted render triangles. This discrete norm approximates bending; it is not
+ * the analytic plate integral of Halstead et al. (1993). Zero-area triangles or
+ * zero vertex mass are refused, with no regularizer.
  */
 export function subdivisionBendingRows(
   level: IAutoMovieSubdivisionLevel,

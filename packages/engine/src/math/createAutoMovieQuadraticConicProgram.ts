@@ -3,9 +3,9 @@ import type { IAutoMovieQuadraticConicProgram } from "@automovie/interface";
 import { AUTOMOVIE_QUADRATIC_INFINITY } from "../constants/AUTOMOVIE_QUADRATIC_INFINITY";
 
 /**
- * Expand admitted interval CSC into the engine's zero/nonnegative standard form.
- * Equalities precede finite upper/lower sides; a lower side negates A and b.
- * Original-row signed dual reconstruction uses the returned mapping. Caller
+ * Expand admitted interval CSC into the engine's zero/nonnegative standard
+ * form. Equalities precede finite upper/lower sides; a lower side negates A and
+ * b. Original-row signed dual reconstruction uses the returned mapping. Caller
  * arrays are copied before subsequent numerical scaling; initial is ignored.
  */
 export function createAutoMovieQuadraticConicProgram(

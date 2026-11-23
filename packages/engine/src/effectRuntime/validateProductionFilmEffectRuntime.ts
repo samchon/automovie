@@ -11,11 +11,22 @@ import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeErr
 import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";
 
 /**
- * Check semantic integrity of a structurally admitted persisted film-effect runtime.
+ * Check semantic integrity of a structurally admitted persisted film-effect
+ * runtime.
  *
- * Version, owner, clock, half-open safe-integer interval, reduced frame rate, inner effect id, zone and constant intensity in [0,1], both content digests, and the exact frame clock of the inner stream must match. Production's persisted JSON parser owns schema admission first; direct typed callers must supply populated outer/effect/intensity records and string identities. Under that premise the explicit refusals use film-effect-runtime-invalid, including canonical-JSON failures. Malformed host shapes and unexpected accessors can throw outside that named boundary. Identity currentness is checked separately against independently established facts.
+ * Version, owner, clock, half-open safe-integer interval, reduced frame rate,
+ * inner effect id, zone and constant intensity in [0,1], both content digests,
+ * and the exact frame clock of the inner stream must match. Production's
+ * persisted JSON parser owns schema admission first; direct typed callers must
+ * supply populated outer/effect/intensity records and string identities. Under
+ * that premise the explicit refusals use film-effect-runtime-invalid, including
+ * canonical-JSON failures. Malformed host shapes and unexpected accessors can
+ * throw outside that named boundary. Identity currentness is checked separately
+ * against independently established facts.
  *
- * Both digests are recomputed with the engine's canonical JSON and pure SHA-256, which produce the same bytes and digest as the Node builder path, so a browser and the builder accept or refuse the same persisted runtime.
+ * Both digests are recomputed with the engine's canonical JSON and pure
+ * SHA-256, which produce the same bytes and digest as the Node builder path, so
+ * a browser and the builder accept or refuse the same persisted runtime.
  */
 export function validateProductionFilmEffectRuntime(
   runtime: IAutoMovieCompiledFilmEffect,

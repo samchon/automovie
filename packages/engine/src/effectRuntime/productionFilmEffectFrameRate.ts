@@ -11,8 +11,8 @@ import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeErr
  * reports a malformed rate as `film-effect-input-invalid` and the reader
  * reports it as `film-effect-runtime-invalid`, while both reduce through the
  * one engine rate identity rather than a second rational rule. Any failure of
- * the reduction, including a persisted rate that is not an object, becomes
- * that one coded refusal.
+ * the reduction, including a persisted rate that is not an object, becomes that
+ * one coded refusal.
  */
 export const productionFilmEffectFrameRate = (
   frameRate: number | IAutoMovieProductionFrameRate,

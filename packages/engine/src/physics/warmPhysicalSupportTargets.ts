@@ -11,7 +11,11 @@ import { resolvePhysicalSupportRedundancy } from "./resolvePhysicalSupportRedund
 import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation";
 
 /**
- * Carry the previous local support correction through an authored change instead of selecting a fresh straight-chain bend branch, then return its support-task null space to the authored posture so unconstrained swivel or patch yaw cannot accumulate across steps. The original world endpoints, root intent and ROM remain the fitting constraints.
+ * Carry the previous local support correction through an authored change
+ * instead of selecting a fresh straight-chain bend branch, then return its
+ * support-task null space to the authored posture so unconstrained swivel or
+ * patch yaw cannot accumulate across steps. The original world endpoints, root
+ * intent and ROM remain the fitting constraints.
  */
 export function warmPhysicalSupportTargets(
   input: IAutoMovieWarmPhysicalSupportTargets.IInput,

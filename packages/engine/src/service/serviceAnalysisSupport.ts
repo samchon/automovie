@@ -22,9 +22,10 @@ import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
  * whose partitions are names with no cells cannot be asked where a run left a
  * room; a sleeve is placed on its boundary's own face, so a boundary written
  * before faces existed cannot be asked where its holes are. Saying `supported`
- * in either case would be the dressing-up this report exists to prevent.
- * This is capability metadata, not a record that validation ran. No current
- * production report consumes these rows; topology tests exercise their wording.
+ * in either case would be the dressing-up this report exists to prevent. This
+ * is capability metadata, not a record that validation ran. No current
+ * production report consumes these rows; topology tests exercise their
+ * wording.
  */
 export const serviceAnalysisSupport: (
   props: IAutoMovieServiceAnalysisSupport.IProps,

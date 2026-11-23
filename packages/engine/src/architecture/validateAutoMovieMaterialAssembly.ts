@@ -36,8 +36,8 @@ const THICKNESS_EPSILON: number = 1e-9;
  * The checks fall into three groups the requirement names separately. Layer
  * conflicts are contradictions inside a layer: a cavity that carries a
  * substance, a solid with no thickness, a substance id that resolves to
- * nothing. Finish defects are contradictions between the stack and the faces
- * it presents: an exposed face with nothing finishing it, a finish laid over
+ * nothing. Finish defects are contradictions between the stack and the faces it
+ * presents: an exposed face with nothing finishing it, a finish laid over
  * another finish, a finish buried where it will never be seen, a finish spent
  * on a concealed face. Dimension conflicts are contradictions with the host: a
  * build-up whose layers do not sum to the thickness the host was drawn at.
@@ -47,11 +47,11 @@ const THICKNESS_EPSILON: number = 1e-9;
  *
  * A wrapping layer must belong to the run of wrapping layers starting at one
  * face; one behind a non-wrapping layer is refused. Ids must be non-blank and
- * unique within the assembly, the axis, sense, exposures and substances must
- * be known words, the offset finite, and at least one layer present. Every
- * finding is reported at once with a `$input` path, and none throws. With
- * `host`, the summed thickness must equal the host's within 1e-9 m; with
- * `substances`, every non-cavity layer's material must name one of them by id.
+ * unique within the assembly, the axis, sense, exposures and substances must be
+ * known words, the offset finite, and at least one layer present. Every finding
+ * is reported at once with a `$input` path, and none throws. With `host`, the
+ * summed thickness must equal the host's within 1e-9 m; with `substances`,
+ * every non-cavity layer's material must name one of them by id.
  *
  * @param props.assembly Layered build-up to judge.
  * @param props.substances Substances the layers may cite, or omitted.

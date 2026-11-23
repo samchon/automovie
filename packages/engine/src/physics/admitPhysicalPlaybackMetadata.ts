@@ -9,7 +9,8 @@ import type {
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 
 /**
- * Refuse malformed causal metadata even when an archive has a valid integrity trailer.
+ * Refuse malformed causal metadata even when an archive has a valid integrity
+ * trailer.
  */
 export function admitPhysicalPlaybackMetadata(
   header: IAutoMoviePhysicalPlayback.IHeader,

@@ -20,7 +20,9 @@ import { Vector3 } from "./math/Vector3";
 import { validatePose } from "./validation/validatePose";
 
 /**
- * Measure each available arm's rest-chain reach gap in model metres at shot-local seconds; report solved-pose ROM separately and refuse degenerate node scale or absent arm chains.
+ * Measure each available arm's rest-chain reach gap in model metres at
+ * shot-local seconds; report solved-pose ROM separately and refuse degenerate
+ * node scale or absent arm chains.
  */
 export function measureAutoMovieGeometryReach(
   props: IAutoMovieGeometryMeasurementInput,

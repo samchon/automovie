@@ -1,17 +1,17 @@
 import type { IAutoMovieAngleRange } from "@automovie/interface";
 
 /**
- * The full-turn alias of an angle nearest an interval: one inside it when
- * any is, the angle itself first; otherwise the alias with the least
- * overshoot, the lower one on a tie. A `null` interval is the immobile one,
- * which admits only 0. No angle is clamped.
+ * The full-turn alias of an angle nearest an interval: one inside it when any
+ * is, the angle itself first; otherwise the alias with the least overshoot, the
+ * lower one on a tie. A `null` interval is the immobile one, which admits only
+ * 0. No angle is clamped.
  *
  * The nearest alias matters for an interval no alias can hit exactly. An
- * immobile axis admits only 0, and an extraction returns its half turn as
- * 180 degrees less a rounding error, so the alternate chart's 360 degrees
- * less that error has no alias at exactly 0; left unaliased it would score a
- * full turn of overshoot and lose a chart choice to a far worse chart, on
- * rounding noise alone.
+ * immobile axis admits only 0, and an extraction returns its half turn as 180
+ * degrees less a rounding error, so the alternate chart's 360 degrees less that
+ * error has no alias at exactly 0; left unaliased it would score a full turn of
+ * overshoot and lose a chart choice to a far worse chart, on rounding noise
+ * alone.
  *
  * @param angle Degrees.
  * @param range The interval, degrees; `null` for an immobile axis.

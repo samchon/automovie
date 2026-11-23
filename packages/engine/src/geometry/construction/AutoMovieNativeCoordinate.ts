@@ -18,9 +18,10 @@ import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
  */
 export namespace AutoMovieNativeCoordinate {
   /**
-   * Solve local x (component0) or z (component1) on a positive/negative other-coordinate half.
-   * A residual within32eps*max(1,input extents,target) is the numeric acceptance
-   * criterion, not an enclosure proof for every floating-point implementation.
+   * Solve local x (component0) or z (component1) on a positive/negative
+   * other-coordinate half. A residual within32eps*max(1,input extents,target)
+   * is the numeric acceptance criterion, not an enclosure proof for every
+   * floating-point implementation.
    */
   export function locate(
     inputs: IAutoMovieLoftViewRead.IValues,

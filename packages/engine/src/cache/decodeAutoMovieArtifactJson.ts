@@ -21,7 +21,10 @@ export function decodeAutoMovieArtifactJson<T>(bytes: Uint8Array): T {
       )
         return item;
       const tag: unknown = (item as { $number: unknown }).$number;
-      if (Object.keys(item).length !== 1 || !(typeof tag === "string" && tag in NUMBERS))
+      if (
+        Object.keys(item).length !== 1 ||
+        !(typeof tag === "string" && tag in NUMBERS)
+      )
         throw new Error(`Unknown artifact JSON number tag ${String(tag)}`);
       return NUMBERS[tag]!;
     },

@@ -24,15 +24,16 @@ import type {
 
 /**
  * Orchestrate conservative one-frame render costs for budgets and reports.
- * Create one model cache and resource closure, then count staged populations and
- * simulated drawables in order. Resolve materials/textures and resident geometry
- * only after both phases have named their resources. Finally add light, outline
- * and background passes before sorting attribution rows and emitting the report.
- * Each phase continues the previous counts without reordering floating-point
- * addition. Owned caches and owner rows are mutable; the input subject is not.
- * Null totals preserve declared analysis gaps rather than treating unknowns as
- * zero. Display geometry, resource bytes and whole-frame pass costs differ, so
- * changing one requires checking its consumer in the viewer and budget report.
+ * Create one model cache and resource closure, then count staged populations
+ * and simulated drawables in order. Resolve materials/textures and resident
+ * geometry only after both phases have named their resources. Finally add
+ * light, outline and background passes before sorting attribution rows and
+ * emitting the report. Each phase continues the previous counts without
+ * reordering floating-point addition. Owned caches and owner rows are mutable;
+ * the input subject is not. Null totals preserve declared analysis gaps rather
+ * than treating unknowns as zero. Display geometry, resource bytes and
+ * whole-frame pass costs differ, so changing one requires checking its consumer
+ * in the viewer and budget report.
  */
 
 import { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
@@ -51,9 +52,9 @@ import { sumAutoMovieRenderTextureAllocations } from "./sumAutoMovieRenderTextur
  * stated per metric rather than left to a reader:
  *
  * - Counts of nodes, lights, slots, chunks and materials are exact;
- * - Texture allocations use the conservative union of sampler, environment
- *   and shadow consumers. Uncertified identities/profiles or unsafe counts
- *   remain null rather than an invented exact native allocation population;
+ * - Texture allocations use the conservative union of sampler, environment and
+ *   shadow consumers. Uncertified identities/profiles or unsafe counts remain
+ *   null rather than an invented exact native allocation population;
  * - Triangles, vertices and draw calls for instanced sets are UPPER BOUNDS, taken
  *   over the most expensive level of detail and the most expensive prototype a
  *   slot could select, because level-of-detail selection and frustum culling
@@ -80,11 +81,12 @@ import { sumAutoMovieRenderTextureAllocations } from "./sumAutoMovieRenderTextur
  * their own carry a `material:`, `texture:` or `light:` identity instead.
  *
  * A row that is one further whole-frame pass over geometry the other rows
- * already counted, such as a shadow view's depth pass or the outline guide pass,
- * is marked `pass` rather than `own`. The pass belongs in the conservative
- * one-frame peak and its own identity is worth keeping, but its cost is the sum
- * of every drawable that preceded it rather than the owner's own complexity, so
- * the report keeps its attribution without ranking it as an editable owner.
+ * already counted, such as a shadow view's depth pass or the outline guide
+ * pass, is marked `pass` rather than `own`. The pass belongs in the
+ * conservative one-frame peak and its own identity is worth keeping, but its
+ * cost is the sum of every drawable that preceded it rather than the owner's
+ * own complexity, so the report keeps its attribution without ranking it as an
+ * editable owner.
  */
 export const measureAutoMovieRenderInventory: (
   props: IAutoMovieMeasureRenderInventory.IProps,

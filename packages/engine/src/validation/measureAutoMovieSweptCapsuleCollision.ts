@@ -65,8 +65,10 @@ const BITS: DataView = new DataView(new ArrayBuffer(8));
  * split into two cells. The existing segment query only chooses points to
  * verify. Its rounded distance cannot certify a clear interval.
  *
- * @param props A single admitted source interval with no interior trajectory or allowance knot.
- * @returns Clearance, one sampled violation with its local bracket, or explicitly incomplete coverage.
+ * @param props A single admitted source interval with no interior trajectory or
+ *   allowance knot.
+ * @returns Clearance, one sampled violation with its local bracket, or
+ *   explicitly incomplete coverage.
  */
 export function measureAutoMovieSweptCapsuleCollision(
   props: Sweep.IProps,
@@ -241,7 +243,10 @@ function blendBounds(a: IRange, b: IRange, at: number): IRange {
   };
 }
 
-/** Accumulate an outward-rounded lower squared distance between both swept boxes. */
+/**
+ * Accumulate an outward-rounded lower squared distance between both swept
+ * boxes.
+ */
 function squaredBoxGap(cell: ICell): number {
   let squared: number = 0;
   for (const axis of AXES) {

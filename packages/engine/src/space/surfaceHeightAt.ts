@@ -8,7 +8,8 @@ import {
 const MIN_RAMP_AXIS: number = 1e-9;
 
 /**
- * Evaluate the canonical surface height at XZ without checking footprint membership.
+ * Evaluate the canonical surface height at XZ without checking footprint
+ * membership.
  */
 export const surfaceHeightAt: (
   surface: IAutoMovieHeightSurface,

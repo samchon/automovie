@@ -20,9 +20,12 @@ import type {
  * products, positive weights and world coordinates are admitted before output
  * publication. A rejected write leaves the caller's output buffer unchanged.
  *
- * @param props The compiled unscaled surface, fixed footprint and live rig views
+ * @param props The compiled unscaled surface, fixed footprint and live rig
+ *   views
  * @returns The allocation-free writer in model metres
- * @throws Error for nonfinite source coordinates, invalid or unrepresentable cell reaches/weights, scale products, signed means or world coordinates; write failures preserve the output buffer.
+ * @throws Error for nonfinite source coordinates, invalid or unrepresentable
+ *   cell reaches/weights, scale products, signed means or world coordinates;
+ *   write failures preserve the output buffer.
  */
 export function sampleAutoMovieParameterSweep(
   props: IAutoMovieSampleParameterSweep.IProps,

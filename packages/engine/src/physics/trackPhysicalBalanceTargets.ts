@@ -24,7 +24,9 @@ import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
 import { warmPhysicalSupportTargets } from "./warmPhysicalSupportTargets";
 
 /**
- * Balance owns a coherent support posture independently of optional Cartesian endpoint actuators. Fitted interval poses and twists travel together; actual stationary stance takes priority over an incompatible authored-root posture.
+ * Balance owns a coherent support posture independently of optional Cartesian
+ * endpoint actuators. Fitted interval poses and twists travel together; actual
+ * stationary stance takes priority over an incompatible authored-root posture.
  */
 export function trackPhysicalBalanceTargets(input: {
   /** Admitted settings and provider. */ settings: IAutoMoviePhysicalSimulationInput.IInput;
@@ -39,7 +41,10 @@ export function trackPhysicalBalanceTargets(input: {
   >;
   /** Current declared ownership and effort. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
   /** Measured stance owners. */ planted: readonly string[];
-  /** Causal recovery trajectory and accepted placements; revisions invalidate an in-interval plan. */ state: IAutoMoviePhysicalRecoveryState;
+  /**
+   * Causal recovery trajectory and accepted placements; revisions invalidate an
+   * in-interval plan.
+   */ state: IAutoMoviePhysicalRecoveryState;
 }): IAutoMovieTrackPhysicalBalanceTargets.IResult {
   const { body, bound, goals }: typeof input = input;
   const policy: NonNullable<
