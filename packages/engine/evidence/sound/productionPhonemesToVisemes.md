@@ -1,29 +1,29 @@
 # src/sound/productionPhonemesToVisemes.ts#productionPhonemesToVisemes
 
+## @evidence contracts/development/common.md#meaningful-documentation
+
+The comment states the normalization, the longest-match tokenization through the IPA table, which marks take no share, the refusal and what it names, the equal-share rule with a worked case, and the result's clock.
+
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Chunk sample fractions map to floor/ceil frame spans, normalized Unicode nonspace code points populate at most one bin per available frame, and vowel groups map to the closed mouth targets; this coarse mapping is not speech recognition or a phonetic coarticulation model.
+A chunk reports one interval for its phoneme string, so no phoneme inside it has a measured time; equal shares in spoken order are the least assumption that keeps every phoneme inside its chunk, and finer timing enters only as finer chunks from a forced aligner, as #4054 specifies. Each symbol maps through `AUTOMOVIE_IPA_VISEMES`, which follows place and manner of articulation. Longest match first keeps affricates such as tʃ one phoneme.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The owner consumes an already produced phoneme/sample receipt and carries every token's text into an interval, while actor binding and final receipt admission remain separate joins.
+Timing and mapping stay in one function because both read the same tokens; film placement belongs to the join, which knows the rates.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Nonpositive source duration or frame span returns no intervals, empty phoneme text becomes rest and unknown symbols map to rest; fractional/malformed chunk clocks otherwise remain caller admission premises.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents source samples versus film frames, normalization, coarse binning, remainder text retention and empty/rest meanings without claiming synthesized audio provenance.
+No symbol falls back to a default viseme: anything outside the table is refused, naming it. The untimed marks are exactly the stress and length marks #4054 names.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-T normalized code points require proportional token/bin traversal and retained text storage; Unicode normalization and repeated concatenation of tail chunks also incur their string-processing costs, which are not bounded here by an independent text budget.
+Linear in the chunks' code points times the longest table entry (three code points).
 
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-One normalized chunk token list and computed frame span are reused for that chunk's bins; changed chunk timing or frame range is recalculated with no retained phoneme cache.
+A pure function of its chunks.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-The caller owns fresh scalar/text viseme rows; chunk objects and source audio are not retained, and no tokenizer model, network or decoder resource is acquired.
+It returns fresh records and holds no resource.

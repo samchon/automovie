@@ -1,17 +1,17 @@
 # src/production/sound/IAutoMovieDialogueVisemeTimeline.ts#IAutoMovieDialogueVisemeTimeline
 
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what the ranges cover and how the sampler treats the time outside them.
+
 ## @evidence contracts/development/design.md#principled-representation
 
-The join builds ordered half-open safe-integer emission ranges covering the line; the sampler selects the first containing interval and maps rest to neutral intensity zero.
+A line's placed visemes for one actor, from the first phoneme's start to the last's end, with pauses as `sil`.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Line and actor identity accompany one range array, keeping timing seekable without a mutable current-frame cursor.
+Written by the join, read by the samplers and the lip-sync measurement.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-These records neither synthesize phonemes nor prove actor lookup or mouth application; public join and sample APIs currently have test-only repository reach.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies emission timing, gap coverage and actor identity; callers must preserve the joined ordering when holding this mutable range array.
+Silence outside the line is implied by the sampler rather than stored as unbounded ranges.

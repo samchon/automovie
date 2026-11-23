@@ -1,16 +1,16 @@
 import {
   AUTOMOVIE_ARKIT_CHANNELS,
   AUTOMOVIE_EXPRESSION_PRESETS,
-  GAZE_PRESET_CHANNELS,
 } from "@automovie/engine";
-import {
-  AutoMovieArkitChannel,
-  AutoMovieExpressionPreset,
+import type {
   IAutoMovieExpression,
+  IAutoMovieHumanVisemeWeights,
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AUTOMOVIE_EXPRESSION_PRESET_CHANNELS } from "./AUTOMOVIE_EXPRESSION_PRESET_CHANNELS.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
+import { autoMovieVisemeChannelWeights } from "./autoMovieVisemeChannelWeights.js";
 import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
 
 // One list with engine admission, which refuses a pose-driven morph target
@@ -20,69 +20,6 @@ const EXPRESSION_RESET_NAMES: readonly string[] = [
   ...AUTOMOVIE_ARKIT_CHANNELS,
 ];
 
-const PRESET_CHANNELS: Partial<
-  Record<
-    AutoMovieExpressionPreset,
-    readonly (readonly [AutoMovieArkitChannel, number])[]
-  >
-> = {
-  happy: [
-    ["mouthSmileLeft", 1],
-    ["mouthSmileRight", 1],
-    ["cheekSquintLeft", 0.35],
-    ["cheekSquintRight", 0.35],
-  ],
-  angry: [
-    ["browDownLeft", 1],
-    ["browDownRight", 1],
-    ["eyeSquintLeft", 0.35],
-    ["eyeSquintRight", 0.35],
-  ],
-  sad: [
-    ["mouthFrownLeft", 0.75],
-    ["mouthFrownRight", 0.75],
-    ["browInnerUp", 0.45],
-  ],
-  relaxed: [
-    ["eyeSquintLeft", 0.25],
-    ["eyeSquintRight", 0.25],
-    ["mouthSmileLeft", 0.2],
-    ["mouthSmileRight", 0.2],
-  ],
-  surprised: [
-    ["browInnerUp", 1],
-    ["eyeWideLeft", 0.8],
-    ["eyeWideRight", 0.8],
-    ["jawOpen", 0.75],
-  ],
-  aa: [["jawOpen", 1]],
-  ih: [
-    ["jawOpen", 0.35],
-    ["mouthSmileLeft", 0.45],
-    ["mouthSmileRight", 0.45],
-  ],
-  ou: [
-    ["mouthFunnel", 0.8],
-    ["mouthPucker", 0.55],
-  ],
-  ee: [
-    ["mouthSmileLeft", 0.75],
-    ["mouthSmileRight", 0.75],
-  ],
-  oh: [
-    ["jawOpen", 0.6],
-    ["mouthFunnel", 0.75],
-  ],
-  blink: [
-    ["eyeBlinkLeft", 1],
-    ["eyeBlinkRight", 1],
-  ],
-  blinkLeft: [["eyeBlinkLeft", 1]],
-  blinkRight: [["eyeBlinkRight", 1]],
-  // The gaze rows are shared with the engine's eye-bone gaze.
-  ...GAZE_PRESET_CHANNELS,
-};
-
 /**
  * Apply a sampled automovie expression to a viewer model.
  *
@@ -91,15 +28,24 @@ const PRESET_CHANNELS: Partial<
  * case-insensitive matching names; generated primitive models simply no-op.
  * Skinned meshes then start a new pose revision, because morphs precede
  * skinning and move their bounds.
+ *
+ * Optional dialogue viseme weights layer over the authored expression: each
+ * MPEG-4 viseme maps onto one of the five mouth presets, and the presets' ARKit
+ * channels are summed by weight, so `{ aa: 0.5, O: 0.5 }` opens `jawOpen` to
+ * 0.5 × 1 + 0.5 × 0.6 = 0.8. The mouth layer's channels replace the authored
+ * values of the same channels.
  */
 export const applyExpression: (
   target: IAutoMovieModelObject,
   expression: IAutoMovieExpression | null,
+  visemes?: IAutoMovieHumanVisemeWeights,
 ) => void = (
   target: IAutoMovieModelObject,
   expression: IAutoMovieExpression | null,
+  visemes?: IAutoMovieHumanVisemeWeights,
 ): void => {
-  const weights: ReadonlyMap<string, number> = expressionWeights(expression);
+  const weights: Map<string, number> = expressionWeights(expression);
+  if (visemes !== undefined) layerVisemes(weights, visemes);
   applyMorphTargets(target.object, weights);
 
   // Morphs precede skinning, so a skinned mesh's bounds follow the new weights.
@@ -110,19 +56,36 @@ export const applyExpression: (
   }
 };
 
+/**
+ * Layer viseme weights over an expression's channels: the mouth layer's sums
+ * replace the authored values of every channel it sets.
+ */
+const layerVisemes: (
+  weights: Map<string, number>,
+  visemes: IAutoMovieHumanVisemeWeights,
+) => void = (
+  weights: Map<string, number>,
+  visemes: IAutoMovieHumanVisemeWeights,
+): void => {
+  for (const [name, weight] of autoMovieVisemeChannelWeights(visemes))
+    weights.set(name, clamp01(weight));
+};
+
 /** Convert a semantic expression into direct channel weights. */
 const expressionWeights: (
   expression: IAutoMovieExpression | null,
-) => ReadonlyMap<string, number> = (
+) => Map<string, number> = (
   expression: IAutoMovieExpression | null,
-): ReadonlyMap<string, number> => {
+): Map<string, number> => {
   const weights: Map<string, number> = new Map<string, number>();
   if (expression === null) return weights;
 
   const intensity: number = clamp01(expression.intensity);
   if (expression.preset !== "neutral") {
     setMax(weights, expression.preset, intensity);
-    for (const [channel, factor] of PRESET_CHANNELS[expression.preset] ?? [])
+    for (const [channel, factor] of AUTOMOVIE_EXPRESSION_PRESET_CHANNELS[
+      expression.preset
+    ] ?? [])
       setMax(weights, channel, intensity * factor);
   }
   for (const blendshape of expression.blendshapes ?? [])

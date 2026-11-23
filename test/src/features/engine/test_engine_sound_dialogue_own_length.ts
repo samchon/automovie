@@ -1,11 +1,13 @@
 import {
   deriveProductionSoundPlan,
+  joinAutoMovieDialogueVisemes,
   productionPhonemesToVisemes,
   productionSpeechEndFrame,
   renderProductionSound,
 } from "@automovie/engine";
 import { decodeProductionAudioAsset } from "@automovie/ingest";
 import type {
+  IAutoMovieDialogueVisemeTimeline,
   IAutoMovieFilmTimeline,
   IAutoMovieProductionSoundPlan,
   IAutoMovieProductionViseme,
@@ -226,14 +228,27 @@ export function test_engine_sound_dialogue_own_length(): void {
 
   const visemes: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({
     chunks: [{ phonemes: "a", startSample: 24_000, endSample: 48_000 }],
-    sourceSamples: 48_000,
-    startFrame: 0,
-    endFrame: 48,
   });
+  const mouthTimeline: IAutoMovieDialogueVisemeTimeline | null =
+    joinAutoMovieDialogueVisemes({
+      line: {
+        id: "line",
+        text: "line",
+        language: "en",
+        speaker: "ann",
+        startFrame: 0,
+        endFrame: 48,
+      },
+      bindings: [{ speaker: "ann", actor: "ann" }],
+      visemes,
+      sourceSampleRate: 24_000,
+      fps: 24,
+    }).timeline;
   TestValidator.predicate(
     "a chunk maps to frames at the line's real rate",
-    visemes.length === 1 &&
-      visemes[0]!.startFrame === 24 &&
-      visemes[0]!.endFrame === 48,
+    mouthTimeline !== null &&
+      mouthTimeline.ranges.length === 1 &&
+      mouthTimeline.ranges[0]!.startFrame === 24 &&
+      mouthTimeline.ranges[0]!.endFrame === 48,
   );
 }

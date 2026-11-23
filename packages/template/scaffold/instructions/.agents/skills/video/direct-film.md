@@ -38,7 +38,7 @@ Tag each color texture as color and each normal or roughness map as data.
 
 Use the representation's supported face, expressions and mouth shapes for scripted expression and speech. Check package APIs and report missing controls.
 
-Take accepted speech from [audio acquisition](../audio/acquisition.md). Drive visemes from service phoneme times or forced alignment of the line to that audio.
+Take accepted speech from [audio acquisition](../audio/acquisition.md). Record the speech model's IPA phoneme chunks in each line's receipt as `phonemeChunks`; the render times each phoneme as an equal share of its chunk and moves the bound speaker's mouth with coarticulated visemes. For finer timing, record a forced aligner's one-phoneme chunks instead and name the aligner in the receipt's `aligner`. A line without chunks opens its speaker's jaw from its own loudness.
 
 On stills, check that each shape the installed face performs lands on the frames of its sound, with the mouth closed where the line closes the lips. Ask the user to watch and listen to the sync as a whole, because stills cannot show it.
 

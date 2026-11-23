@@ -1,29 +1,29 @@
 # src/sound/sampleAutoMovieDialogueExpression.ts#sampleAutoMovieDialogueExpression
 
+## @evidence contracts/development/common.md#meaningful-documentation
+
+The comment states that the mouth layer is the coarticulated weights at the frame and that the authored layer is kept unchanged.
+
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A nonnegative safe frame selects the first half-open containing range; active closed visemes map to intensity one, while rest/outside maps to neutral intensity zero under the joined ordering premise.
+The mouth layers over the authored expression, so the two are returned apart and the consumer composes them.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The sampler returns separate authored/mouth layers without merging expression fields or changing the actor; timeline construction belongs to the join owner.
+It wraps `sampleAutoMovieDialogueVisemeWeights`, which owns the blend, beside the authored expression.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Authored emotion is borrowed unchanged, and no interpolated mouth strength, actor guess or audible-arrival shift is introduced; repository actor application remains unwired.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents nonnegative film frames, arbitrary seek, borrowed authored identity and fresh mouth/result ownership; hand-built malformed timelines are not revalidated here.
+The authored expression is passed by reference and never altered.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-R ranges require O(R) worst-case linear search and constant fresh output storage; the first matching range short-circuits traversal.
+The cost of one weight sample: linear in the line's ranges.
 
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-Prepared ranges are reused across independent frame queries, and no previous cursor or cached pose can alter a backward seek.
+Each call samples one frame; frames are independent.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-The caller owns the fresh wrapper/mouth pair, which retains the supplied authored expression reference until discarded; no scene, GPU or audio resource is retained.
+It returns fresh records and holds no resource.

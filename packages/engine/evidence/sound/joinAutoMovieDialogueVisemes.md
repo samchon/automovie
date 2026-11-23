@@ -1,29 +1,29 @@
 # src/sound/joinAutoMovieDialogueVisemes.ts#joinAutoMovieDialogueVisemes
 
+## @evidence contracts/development/common.md#meaningful-documentation
+
+The comment states the sample-to-frame rule and why it is the emission clock, that no propagation delay is added, how pauses become `sil`, and the composition with the authored expression; the props type lists the outcomes and refusals.
+
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Exactly one speaker match, a nonblank actor and ordered positive safe-integer half-open ranges are required; the linear cursor inserts explicit rest gaps and produces complete line coverage without sorting.
+The line's samples play at unit rate from its start frame's tick, so a sample's film time is the start frame plus its sample index over the model-native rate, in frames at the film rate. Frames stay fractional so the coarticulation sampler reads exact phoneme centres.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Binding admission and timeline construction stay together, while sampling is a separate cursor-free query; closed not-run reasons expose missing or ambiguous speaker resolution.
+Binding and placement live here; the timing of phonemes within chunks belongs to `productionPhonemesToVisemes` and the blending to `sampleAutoMovieDialogueVisemeWeights`.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No actor is guessed and no external phonemes or acoustic-arrival offset is synthesized. Final-byte provenance and actual compiled actor existence are caller prerequisites, not verified by this join's test-only repository reach.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents emission clock, gap-rest policy, ordering and throws for corrupt timing/targets; successful availability certifies this timing join rather than actor application.
+Unbound, unknown or ambiguous speakers return their own `not-run` reasons instead of guessing an actor; every malformed interval and an unknown viseme throw.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-B bindings and V visemes require O(B+V) time; the matching subset is temporary and successful output has at most 2V+1 ranges.
+Linear in the visemes and the bindings.
 
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-The completed fresh timeline can be sampled repeatedly under arbitrary seeks; changed receipt, line timing or binding requires joining again, without a mutable playback or actor registry.
+A pure function of its inputs.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-The caller owns the outcome and fresh ranges; input receipts and binding records are read but not retained, and no audio, scene node or host task is acquired.
+It returns fresh range records and holds no resource.

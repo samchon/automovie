@@ -1,19 +1,17 @@
-import type { AutoMovieExpressionPreset } from "../../expression/AutoMovieExpressionPreset";
 import type { IAutoMovieExpression } from "../../expression/IAutoMovieExpression";
+import type { IAutoMovieHumanVisemeWeights } from "../../human/expression/IAutoMovieHumanVisemeWeights";
 
 /**
- * Separate authored emotion from a sampled emission-clock mouth target.
+ * Authored emotion kept apart from the sampled dialogue mouth that layers over
+ * it (`mouth-layer-over-authored-expression`).
  */
 export interface IAutoMovieDialogueExpressionLayers {
   /** Unchanged authored expression layer. */
   authored: IAutoMovieExpression | null;
 
-  /** Derived mouth-only preset. */
+  /** The mouth at the sampled frame. */
   mouth: {
-    /** Mouth preset, with `neutral` representing receipt `rest`. */
-    preset: AutoMovieExpressionPreset;
-
-    /** Zero for rest and one for an active viseme. */
-    intensity: number;
+    /** Coarticulated MPEG-4 viseme weights, each in [0, 1] and summing to 1. */
+    visemes: IAutoMovieHumanVisemeWeights;
   };
 }

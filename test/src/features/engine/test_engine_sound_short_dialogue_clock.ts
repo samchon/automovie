@@ -19,8 +19,8 @@ import { nclose, throwsError } from "../internal/predicates";
  * 1. One-sample dialogue at 48000 Hz stays silent when missing, refuses a
  *    one-sample line whose edge fade leaves it below the absolute gate, and
  *    refuses a two-sample line, which no longer fits its span by resampling.
- * 2. A phoneme chunk at samples 100..101 of a two-frame line at 48 kHz and
- *    48 000 fps lies past the line's end and is refused at the join.
+ * 2. A phoneme chunk at samples 100..101 of a two-frame line at 48 kHz and 48 000
+ *    fps lies past the line's end and is refused at the join.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the actual production mixer for missing, one-sample and two-sample dialogue on a one-sample span, and the real phoneme timing and viseme join with a chunk past the line, observing zero peak, the levelling refusal and the join's refusal.
  * @evidence contracts/development/testing.md#independent-expectations A missing dialogue map supplies no samples and independently implies zero peak; a one-sample line is zero after the 240-sample edge fade, so it cannot pass the −70 LUFS absolute gate and is refused; a line with more samples than its span holds must be refused, because the mixer plays lines at unit rate. At 48 000 fps and 48 kHz a sample is a frame, so a chunk ending at sample 101 ends past frame 2.
@@ -86,7 +86,11 @@ export function test_engine_sound_short_dialogue_clock(): void {
       latePhonemeRefused: throwsError(
         () =>
           joinAutoMovieDialogueVisemes({
-            line: { ...oneSampleDialoguePlan.dialogue[0]!, speaker: "a", endFrame: 2 },
+            line: {
+              ...oneSampleDialoguePlan.dialogue[0]!,
+              speaker: "a",
+              endFrame: 2,
+            },
             bindings: [{ speaker: "a", actor: "a" }],
             visemes: visemeOverflow,
             sourceSampleRate: 48_000,

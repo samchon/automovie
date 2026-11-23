@@ -1,7 +1,11 @@
 import type { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
 
 /**
- * One actor's joined line intervals, including explicit rest gaps.
+ * One actor's timed visemes for one line, with `sil` filling pauses between
+ * phonemes.
+ *
+ * Before the first range and after the last the mouth is silent; engine's
+ * `sampleAutoMovieDialogueVisemeWeights` treats both as `sil` targets.
  */
 export interface IAutoMovieDialogueVisemeTimeline {
   /** Joined dialogue line identity. */
@@ -10,6 +14,9 @@ export interface IAutoMovieDialogueVisemeTimeline {
   /** Resolved actor node. */
   actor: string;
 
-  /** Gap-free ranges covering the line, including explicit rest. */
+  /**
+   * Ordered, nonoverlapping ranges from the first phoneme's start to the last
+   * phoneme's end.
+   */
   ranges: IAutoMovieDialogueMouthRange[];
 }

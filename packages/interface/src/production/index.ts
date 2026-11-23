@@ -188,6 +188,7 @@ export type { IAutoMovieProductionSoundPlan } from "./IAutoMovieProductionSoundP
 export type { IAutoMovieProductionTtsReceipt } from "./IAutoMovieProductionTtsReceipt";
 export type { IAutoMovieProductionVideoProbe } from "./IAutoMovieProductionVideoProbe";
 export type { IAutoMovieProductionViseme } from "./IAutoMovieProductionViseme";
+export type { AutoMovieViseme } from "./AutoMovieViseme";
 export type { IAutoMovieProductionVisualDeliveryLane } from "./IAutoMovieProductionVisualDeliveryLane";
 export type { IAutoMovieProductionWaveSourceFormat } from "./IAutoMovieProductionWaveSourceFormat";
 export type { IAutoMovieProductionWebVttCue } from "./IAutoMovieProductionWebVttCue";

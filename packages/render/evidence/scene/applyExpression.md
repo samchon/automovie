@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Expands semantic presets through the viewer's declared ARKit factor table, whose gaze rows are the engine's `GAZE_PRESET_CHANNELS` so morph and eye-bone gaze expand alike, clamps finite weights to [0,1] with nonfinite inputs treated as zero, lets explicit blendshapes override expanded channels and resolves morph names exact-first then case-insensitively; factors are illustrative expression mappings, not measured anatomical equivalence, and case-fold collisions depend on dictionary insertion order.
+Expands semantic presets through the viewer's declared ARKit factor table, `AUTOMOVIE_EXPRESSION_PRESET_CHANNELS`, whose gaze rows are the engine's `GAZE_PRESET_CHANNELS` so morph and eye-bone gaze expand alike, clamps finite weights to [0,1] with nonfinite inputs treated as zero, lets explicit blendshapes override expanded channels, lets optional dialogue viseme weights, summed onto the five mouth presets by `autoMovieVisemeChannelWeights`, replace the channels they set, and resolves morph names exact-first then case-insensitively; factors are illustrative expression mappings, not measured anatomical equivalence, and case-fold collisions depend on dictionary insertion order.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One channel-weight map feeds native morph influences and optional VRM-style sinks; private helpers own preset expansion, supported-channel reset and name lookup without modifying engine pose or model topology.
+One channel-weight map feeds native morph influences and optional VRM-style sinks; the shared preset table and viseme mapping are separate modules read by the lip-sync measurement too; private helpers own preset expansion, mouth layering, supported-channel reset and name lookup without modifying engine pose or model topology.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -14,7 +14,7 @@ Preset factors are explicit supported visual conventions rather than fixture-spe
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents sink/native-name paths and generated-model no-op; the implementation answer makes clamping, preset factor status, explicit override and folded-name collision limits explicit.
+Documents sink/native-name paths, generated-model no-op and the viseme mouth layer with a worked case; the implementation answer makes clamping, preset factor status, explicit override and folded-name collision limits explicit.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
