@@ -104,9 +104,17 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         ...body.rootTorque!,
       }),
     );
+    // Under internal actuation the servo acts on a saturated error
+    // (`physicalStanceBalance.saturate`).
     orientation = Tracking.torque(
       base.rotation(),
-      rootIntent.pose.rotation,
+      actuation
+        ? physicalStanceBalance.saturate(
+            base.rotation(),
+            rootIntent.pose.rotation,
+            physicalStanceBalance.TORSO_ERROR,
+          )
+        : rootIntent.pose.rotation,
       Vector3.subtract(base.angvel(), rootIntent.angularVelocity),
       axes,
       physicalJointInertia({ x: 0, y: 0, z: 0, w: 1 }, base),
@@ -232,13 +240,17 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
             ...(landed ? { landed } : {}),
             spin: shift,
             velocity: rootIntent.velocity,
-            // The swinging hip's reaction and the trunk's orientation servo,
-            // kept within the centre of pressure's room so the task never
-            // asks the floor for more than it can bear (Feng et al. 2013,
-            // Section III-B).
+            // The swinging hip's reaction and, in double support, the trunk's
+            // orientation servo, kept within the centre of pressure's room so
+            // the task never asks the floor for more than it can bear (Feng
+            // et al. 2013, Section III-B). The cascade ranks this task above
+            // the motors, the swing's among them (Herzog et al. 2016); in
+            // single support the trunk is left to its own joints, ranked with
+            // the swing, as Khadiv et al. 2017 rank posture below the swing
+            // (Table I), and it is restored once both feet bear.
             torque: Vector3.add(
               swingHip(body, segments, recoveryBone, actuation),
-              orientation,
+              recoveryBone === undefined ? orientation : { x: 0, y: 0, z: 0 },
             ),
             origin,
             strength: rootStrength,

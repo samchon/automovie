@@ -632,6 +632,193 @@ export namespace physicalStanceBalance {
   }
 
   /**
+   * The body's composite moment of inertia about horizontal axes through its
+   * centre of mass, kg m^2: the mean over the two horizontal axes of sum I_i +
+   * m_i d_i^2, each segment's principal moments turned into the world
+   * (parallel-axis theorem).
+   */
+  export function inertia(
+    profile: IAutoMoviePhysicalProfile,
+    segments: ReadonlyMap<string, AutoMovieXpbdBody>,
+    center: IAutoMovieVector3,
+  ): number {
+    let total: number = 0;
+    for (const axis of [
+      { x: 1, y: 0, z: 0 },
+      { x: 0, y: 0, z: 1 },
+    ])
+      for (const segment of profile.segments) {
+        const rigid: AutoMovieXpbdBody | undefined = segments.get(segment.bone);
+        if (!rigid) continue;
+        const local: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.inverse(
+            Quaternion.multiply(rigid.rotation(), segment.inertiaRotation),
+          ),
+          axis,
+        );
+        const arm: IAutoMovieVector3 = Vector3.subtract(
+          rigid.worldCom(),
+          center,
+        );
+        const along: number = Vector3.dot(arm, axis);
+        total +=
+          segment.inertia.x * local.x * local.x +
+          segment.inertia.y * local.y * local.y +
+          segment.inertia.z * local.z * local.z +
+          segment.mass * (Vector3.dot(arm, arm) - along * along);
+      }
+    return total / 2;
+  }
+
+  /**
+   * Whether the trunk will pass the hip strategy's range within a pendulum
+   * time: its tilt from the intended upright plus the whole body's rotation
+   * rate over omega, that rate read from the centroidal angular momentum,
+   *
+   * |k_h| / I_h, not from the trunk's own rate, which a landing's impact
+   *
+   * Swings back and forth (Stephens 2011, Table 4.1, Eqs. 3.23-3.26; Lee and
+   * Goswami 2012).
+   *
+   * @param input The tilt, radians; the horizontal momentum, kg m^2 / s; the
+   *   composite inertia, kg m^2; the pendulum frequency, per second; the range,
+   *   radians.
+   * @returns Whether a step is asked for.
+   */
+  export function tipping(input: {
+    tilt: number;
+    momentum: IAutoMovieVector3;
+    inertia: number;
+    omega: number;
+    range: number;
+  }): boolean {
+    const rate: number =
+      input.inertia > 0
+        ? Math.hypot(input.momentum.x, input.momentum.z) / input.inertia
+        : 0;
+    return input.tilt + rate / input.omega > input.range;
+  }
+
+  /**
+   * The longest a limb about to swing waits for the floor to stop carrying it
+   * before it lifts anyway, seconds: four fade windows (stated).
+   */
+  export const UNLOAD: number = 4 * FADE;
+
+  /**
+   * Whether a limb about to swing lifts: its bearing share has ramped out and
+   * the floor measurably carries it no more, its low-passed load under
+   * `RELEASE` of the weight, or it has waited `UNLOAD` since its step was
+   * committed. A foot lifted while the floor still carries it throws the body
+   * up off the leg that pushed (Pratt et al., M2V2, Section VII-A: the foot is
+   * unloaded before it swings; Herzog et al. 2016, Section 5.3).
+   *
+   * @param input The limb's bearing share, its measured load and the weight,
+   *   newtons, and the seconds since the step was committed.
+   * @returns Whether it lifts.
+   */
+  export function release(input: {
+    bearing: number;
+    load: number;
+    weight: number;
+    waited: number;
+  }): boolean {
+    return (
+      input.bearing <= 0 &&
+      (input.load <= RELEASE * input.weight || input.waited >= UNLOAD)
+    );
+  }
+
+  /**
+   * A lifted swing foot's early touchdown: its measured load above `TOUCH` of
+   * the weight held for `DWELL` before the swing's minimum phase is a contact,
+   * so the foot joins the support and the step is planned again; a single
+   * substep's scuff is not (Stephens 2011, Figure 4.6).
+   *
+   * @param input The foot's measured load and the weight, newtons; when its
+   *   load began, local seconds, if it is pressing; the present local seconds.
+   * @returns When its present load began, absent while it does not press, and
+   *   whether it has touched down.
+   */
+  export function touchdown(input: {
+    load: number;
+    weight: number;
+    since: number | undefined;
+    seconds: number;
+  }): { since?: number; landed: boolean } {
+    if (!(input.load > TOUCH * input.weight)) return { landed: false };
+    const since: number = input.since ?? input.seconds;
+    return { since, landed: input.seconds - since >= DWELL - 1e-9 };
+  }
+
+  /**
+   * Whether the next step may be decided: not before a landed foot's share has
+   * ramped in, since until then the landing's transient, not the new support,
+   * moves the capture point (Pratt et al., M2V2, Section IX-C), and then only
+   * once the capture point has stayed outside for `DWELL`, the first step's own
+   * test (Koolen et al., Corollary 3).
+   *
+   * @param input The landed foot's bearing share, if a foot landed and is
+   *   ramping in; when the capture point left the support, local seconds; the
+   *   present local seconds.
+   * @returns Whether a step may be asked for.
+   */
+  export function ready(input: {
+    landing?: number;
+    outside: number | undefined;
+    seconds: number;
+  }): boolean {
+    return (
+      (input.landing === undefined || input.landing >= 1) &&
+      input.outside !== undefined &&
+      input.seconds - input.outside >= DWELL - 1e-9
+    );
+  }
+
+  /**
+   * The trunk orientation error the root task's servo acts on at most, radians
+   * (stated).
+   */
+  export const TORSO_ERROR: number = 0.2;
+
+  /**
+   * The intended trunk orientation brought within `limit` of the actual one:
+   * the turn from actual to intended, shortened to `limit` about the same axis,
+   * so a servo on it acts on a saturated error (Feng et al. 2013, Section
+   * III-B).
+   *
+   * @param actual The trunk's actual world rotation.
+   * @param intended Its intended world rotation.
+   * @param limit The largest error kept, radians.
+   * @returns The rotation the servo aims at.
+   */
+  export function saturate(
+    actual: IAutoMovieQuaternion,
+    intended: IAutoMovieQuaternion,
+    limit: number,
+  ): IAutoMovieQuaternion {
+    let turn: IAutoMovieQuaternion = Quaternion.multiply(
+      intended,
+      Quaternion.inverse(actual),
+    );
+    if (turn.w < 0) turn = { x: -turn.x, y: -turn.y, z: -turn.z, w: -turn.w };
+    const sine: number = Math.hypot(turn.x, turn.y, turn.z);
+    const angle: number = 2 * Math.atan2(sine, turn.w);
+    if (angle <= limit || !(sine > 0)) return intended;
+    const half: number = limit / 2;
+    const scale: number = Math.sin(half) / sine;
+    return Quaternion.multiply(
+      {
+        x: turn.x * scale,
+        y: turn.y * scale,
+        z: turn.z * scale,
+        w: Math.cos(half),
+      },
+      actual,
+    );
+  }
+
+  /**
    * The support polygon the stance holds its centre of pressure within: the
    * limbs' bearing faces (`physicalSupportFootprint`) joined and shrunk by
    * `MARGIN`. The controller and the push bounds read the same one.

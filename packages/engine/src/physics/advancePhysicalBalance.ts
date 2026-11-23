@@ -133,10 +133,32 @@ export function advancePhysicalBalance(input: {
   // de Panne 2007, Section 3.1). A contact counts only after the minimum
   // phase, so a scuff early in the swing neither lands nor restarts it
   // (Stephens 2011, Figure 4.6); the limb lands where it bears.
+  // Before it, a lifted swing foot the floor carries for `DWELL` has touched
+  // down early: it joins the support and the step is planned again
+  // (`physicalStanceBalance.touchdown`).
+  let early: boolean = false;
   if (
     state.swing &&
-    input.seconds - state.swing.start >=
+    !state.seating?.[state.swing.bone] &&
+    input.seconds - state.swing.start <
       MINIMUM_PHASE * (state.swing.end - state.swing.start)
+  ) {
+    const touch: { since?: number; landed: boolean } =
+      physicalStanceBalance.touchdown({
+        load: measuredLoad(state.swing.bone),
+        weight: input.profile.mass * input.gravity,
+        since: state.touchdown,
+        seconds: input.seconds,
+      });
+    if (touch.since === undefined) delete state.touchdown;
+    else state.touchdown = touch.since;
+    early = touch.landed;
+  } else delete state.touchdown;
+  if (
+    state.swing &&
+    (early ||
+      input.seconds - state.swing.start >=
+        MINIMUM_PHASE * (state.swing.end - state.swing.start))
   ) {
     const bone: string = state.swing.bone;
     const position: IAutoMovieVector3 = actual(bone);
@@ -228,13 +250,24 @@ export function advancePhysicalBalance(input: {
       // stance's command shifting its load to the others, and lifts once it bears
       // nothing: a recovery step's unloading is that ramp alone (Pratt et
       // al., M2V2, Section VII-E1; Herzog et al. 2016, Section 5.3).
+      // It lifts only once the floor measurably carries it no more
+      // (`physicalStanceBalance.release`).
       const seat = state.seating?.[limb.bone];
       if (seat) {
         seat.bearing = Math.max(
           0,
           (seat.bearing ?? 1) - input.dt / physicalStanceBalance.FADE,
         );
-        if (seat.bearing <= 0) delete state.seating![limb.bone];
+        seat.load = lowPass(seat.load ?? 0, measuredLoad(limb.bone));
+        if (
+          physicalStanceBalance.release({
+            bearing: seat.bearing,
+            load: seat.load,
+            weight: input.profile.mass * input.gravity,
+            waited: input.seconds - (record()?.start ?? state.swing.start),
+          })
+        )
+          delete state.seating![limb.bone];
       }
       continue;
     }
@@ -276,15 +309,7 @@ export function advancePhysicalBalance(input: {
     // with hysteresis on that force. Only a foot the floor measurably carries
     // is given force; one that touches down fades in, and one whose load
     // falls away gives up its share at once.
-    const measured: number =
-      (supports.find(
-        (support: (typeof supports)[number]): boolean =>
-          support.bone === limb.bone,
-      )?.impulse ?? 0) / input.dt;
-    seat.load =
-      (seat.load ?? 0) +
-      (measured - (seat.load ?? 0)) *
-        Math.min(1, input.dt / physicalStanceBalance.LOAD_SECONDS);
+    seat.load = lowPass(seat.load ?? 0, measuredLoad(limb.bone));
     seat.touching = seat.touching
       ? seat.load > physicalStanceBalance.RELEASE * weight
       : seat.load > physicalStanceBalance.TOUCH * weight;
@@ -366,8 +391,13 @@ export function advancePhysicalBalance(input: {
   );
   // The body's rotation counts in its capture point (`physicalStanceBalance`
   // `.momentum`, `.spin`).
+  const angular: IAutoMovieVector3 = physicalStanceBalance.momentum(
+    input.profile,
+    input.segments,
+    center,
+  );
   const spin: IAutoMovieVector3 = physicalStanceBalance.spin(
-    physicalStanceBalance.momentum(input.profile, input.segments, center),
+    angular,
     omega,
     input.profile.mass,
     input.gravity,
@@ -379,9 +409,25 @@ export function advancePhysicalBalance(input: {
       length: leg.length,
       torque: leg.torque,
     }),
-  );  // The tilt guard: a step is asked for once the trunk would pass the hip
+  );
+  // The landed foot's bearing share while it ramps in after a step: until it
+  // is in, the next step is not decided (`physicalStanceBalance.ready`).
+  const landing: number | undefined = (() => {
+    const last = state.landings?.[state.landings.length - 1];
+    const seat = last ? state.seating?.[last.bone] : undefined;
+    // A foot the floor never takes up stops holding the decision back
+    // after `UNLOAD`, as a swing foot stops waiting to unload.
+    return last &&
+      seat &&
+      (seat.bearing ?? 1) < 1 &&
+      input.seconds - last.seconds < physicalStanceBalance.UNLOAD
+      ? (seat.bearing ?? 0)
+      : undefined;
+  })();
+  // The tilt guard: a step is asked for once the trunk would pass the hip
   // strategy's range within a pendulum time, even with the capture point
-  // inside (Stephens 2011, Table 4.1, Eqs. 3.23-3.26).
+  // inside, read from the centroidal momentum at the same time as the
+  // capture point (`physicalStanceBalance.tipping`).
   const rootSegment: IAutoMoviePhysicalSegment = input.profile.segments.find(
     (segment: IAutoMoviePhysicalSegment): boolean =>
       !input.profile.joints.some((joint) => joint.child === segment.bone),
@@ -399,9 +445,20 @@ export function advancePhysicalBalance(input: {
   const tilt: number = Math.acos(
     Math.max(-1, Math.min(1, Vector3.dot(upNow, upPlanned))),
   );
-  const turning: IAutoMovieVector3 = rootBody.angvel();
   const tipping: boolean =
-    tilt + Math.hypot(turning.x, turning.z) / omega > TIP;  const assessment: IAutoMoviePhysicalBalance.IResult = Balance.assess({
+    landing === undefined &&
+    physicalStanceBalance.tipping({
+      tilt,
+      momentum: angular,
+      inertia: physicalStanceBalance.inertia(
+        input.profile,
+        input.segments,
+        center,
+      ),
+      omega,
+      range: TIP,
+    });
+  const assessment: IAutoMoviePhysicalBalance.IResult = Balance.assess({
     center,
     velocity,
     gravity: input.gravity,
@@ -417,9 +474,30 @@ export function advancePhysicalBalance(input: {
       (state.outsideSince === undefined ? physicalStanceBalance.MARGIN : 0),
     swingSeconds: input.policy.duration,
     spin,
-    // The body's heading, the root's yaw: the side a stepping limb keeps.
+    // The stance feet's heading, as each was latched when its stance began:
+    // the frame a step is expressed in and the side a stepping limb keeps
+    // (Pratt et al., M2V2, Section VII-C), not the trunk's, which turns
+    // with a push. The authored stance faces +z; each foot's latched turn
+    // from its authored rotation turns that.
     heading: (() => {
-      // The authored stance faces +z; the root's turn from it turns that.
+      let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+      for (const limb of input.policy.pattern.limbs) {
+        const anchor = state.seating?.[limb.bone]?.anchor;
+        const goal: IAutoMovieRigidTransform | undefined =
+          input.targets[limb.bone];
+        if (!anchor || !goal || limb.bone === state.swing?.bone) continue;
+        sum = Vector3.add(
+          sum,
+          Quaternion.rotateVector(
+            Quaternion.multiply(
+              anchor.rotation,
+              Quaternion.inverse(goal.rotation),
+            ),
+            { x: 0, y: 0, z: 1 },
+          ),
+        );
+      }
+      if (Math.hypot(sum.x, sum.z) > 0) return { x: sum.x, y: 0, z: sum.z };
       const forward: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.multiply(
           rootBody.rotation(),
@@ -457,7 +535,10 @@ export function advancePhysicalBalance(input: {
     : state.swing
       ? "recovery"
       : assessment.state;
-  if (assessment.state === "supported") state.outsideSince = undefined;
+  // While a landed foot ramps in, the capture point's excursion is the
+  // landing's transient: its count starts once the foot is in.
+  if (assessment.state === "supported" || landing !== undefined)
+    state.outsideSince = undefined;
   else state.outsideSince ??= input.seconds;
   const retry: boolean =
     !!input.policy.bracing &&
@@ -466,10 +547,14 @@ export function advancePhysicalBalance(input: {
     (!state.failedLanding || retry) &&
     !state.swing &&
     assessment.step &&
-    // The capture point must stay outside for two steps, so one step's
-    // excursion does not start a swing.
-    input.seconds - state.outsideSince! >=
-      Math.max(input.policy.reactionSeconds ?? 0, 2 * input.dt)
+    // The capture point must stay outside for `DWELL`, after any landed
+    // foot is in, so one step's excursion does not start a swing.
+    physicalStanceBalance.ready({
+      ...(landing !== undefined ? { landing } : {}),
+      outside: state.outsideSince,
+      seconds: input.seconds,
+    }) &&
+    input.seconds - state.outsideSince! >= (input.policy.reactionSeconds ?? 0)
   ) {
     const bone: string = assessment.step.bone;
     const from: IAutoMovieVector3 = actual(bone);
@@ -690,6 +775,24 @@ export function advancePhysicalBalance(input: {
     };
   }
   return { rootStrength: exhausted ? 0 : 1, state, goals };
+
+  /** A limb's measured floor load this substep, newtons: its normal impulse over the substep. */
+  function measuredLoad(bone: string): number {
+    return (
+      (supports.find(
+        (support: (typeof supports)[number]): boolean => support.bone === bone,
+      )?.impulse ?? 0) / input.dt
+    );
+  }
+
+  /** A load low-passed over `physicalStanceBalance.LOAD_SECONDS`, so a single substep's flicker does not decide it. */
+  function lowPass(previous: number, measured: number): number {
+    return (
+      previous +
+      (measured - previous) *
+        Math.min(1, input.dt / physicalStanceBalance.LOAD_SECONDS)
+    );
+  }
 
   /** The spread of a foot carrier's sole vertices' actual heights, metres. */
   function soleSpread(bone: string): number {

@@ -44,6 +44,7 @@ export interface IAutoMoviePhysicalRecoveryState {
   /** A timed-out landing withdraws support rather than inventing a success. */ failedLanding?: boolean;
   /** Start of continuously unrecoverable support loss. */ lostSince?: number;
   /** Start of continuously out-of-support capture point, including initial contact settling. */ outsideSince?: number;
+  /** Start of a lifted swing foot's continuous measured floor load before its swing's minimum phase, local seconds. */ touchdown?: number;
   /** Monotone support-plan revision, used only to invalidate transient motor goals. */ revision?: number;
   /** Each stance foot's seating under edge-lift hysteresis: whether its sole is flat on its plant, the second its present seating, or the pending change to it, began, its bearing share in [0, 1], following its measured load, its flatness share in [0, 1], ramping toward whether the foot is grounded and seated, its low-passed measured floor load in newtons, whether that load holds it bearing under hysteresis, the sole's own height spread latched when its stance began, metres, and the foot's actual support point and rotation latched then, world frame. */ seating?: Record<
     string,

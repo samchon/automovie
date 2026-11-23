@@ -47,9 +47,11 @@ const REACH: number = 0.5;
  *
  *    - (xi - u0) e^(omega T), u0 the remaining foot's shrunken outline's point
  *         nearest xi, T = ramp + sqrt(max(5.77 d, 24 h) / a) for the step's
- *         distance d, inside the new support shrunk by the inset (Pratt et al.,
- *         M2V2, Section VII-E1); the foot keeps its own side, at least as wide
- *         as it stands, and never crosses toward the other (Section IX-G).
+ *         distance d: within reach the foot's middle lands on it, inside the
+ *         new support shrunk by the inset (Koolen et al., Section II-G; Pratt
+ *         et al., M2V2, Section VII-E1); the foot keeps its own side, at least
+ *         as wide as it stands, and never crosses toward the other (Section
+ *         IX-G).
  * 3. Reach and one-step capture (Koolen et al., Eq. 25): a capture point past the
  *    reach clamps the step to the reach; one past the one-step bound is still
  *    stepped to, clamped and marked not viable (Khadiv et al. 2017, Section
@@ -176,6 +178,19 @@ export function test_physical_balance_step_choice(): void {
     if (!(step.target.z > moving.position.z))
       failures.push(
         `step target z ${step.target.z} is not ahead of the foot's start`,
+      );
+    // Within reach the foot's middle lands on the capture point at landing,
+    // on its own side: not the shortest step that just brings it inside.
+    const width: number = Math.abs(moving.position.x - staying.position.x);
+    const aimed: number =
+      staying.position.x +
+      side * Math.max(side * (landing.x - staying.position.x), width);
+    if (
+      !(Math.abs(step.target.z - landing.z) < 1e-3) ||
+      !(Math.abs(step.target.x - aimed) < 1e-3)
+    )
+      failures.push(
+        `step target ${JSON.stringify(step.target)} is not the capture point at landing ${JSON.stringify(landing)} on its side`,
       );
     // The capture point at landing lies inside the new support, shrunk by
     // the inset.

@@ -262,10 +262,14 @@ export namespace AutoMoviePhysicalBalance {
               ),
             ]),
           );
-        // The shortest step that brings the capture point inside the new
-        // support: from where the limb stands toward it, forward, backward or
-        // aside, the limb kept on its own side so it never crosses over
-        // (Pratt et al., M2V2, Sections VII-E1 and IX-G).
+        // The step puts the foot's middle on the capture point at landing,
+        // the limb kept on its own side so it never crosses over: stopping
+        // puts the centre of pressure on the capture point (Koolen et al.,
+        // Section II-G), and the capture point then lies inside the new
+        // support by the foot's own margin rather than on its edge (Pratt et
+        // al., M2V2, Sections VII-C2, VII-E1 and IX-G). Out of reach, or when
+        // the side clamp leaves the capture point outside, the shortest step
+        // that still captures, forward, backward or aside.
         const keep = (p: IAutoMovieVector3): IAutoMovieVector3 => {
           const lateral: number = across(p);
           const fixed: number = sign * Math.max(sign * lateral, Math.abs(width));
@@ -285,6 +289,9 @@ export namespace AutoMoviePhysicalBalance {
             aim.x - support.position.x,
             aim.z - support.position.z,
           );
+          const aimed: IAutoMovieVector3 = { ...aim, y: support.position.y };
+          if (gap <= input.maximumStep && excess(after(aimed), xi) <= 0)
+            return aimed;
           const toward: IAutoMovieVector3 =
             gap > 0
               ? {
