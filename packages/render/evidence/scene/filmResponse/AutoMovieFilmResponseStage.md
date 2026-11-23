@@ -14,7 +14,7 @@ No member names a film or host; the display overlay rule is the toneMapped conve
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-The class comment lists the four steps in order, the overlay rule and its shadow limit, what absent optics draws, what is restored and the resource lifetime.
+The class comment lists the four steps in order, the overlay rule and its shadow limit, what absent optics draws, how `alpha` is carried through every step and to which colour the response is given, what is restored and the resource lifetime.
 # src/scene/filmResponse/AutoMovieFilmResponseStage.ts#AutoMovieFilmResponseStage.prototype.draw
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -23,7 +23,7 @@ States the props, the admission before drawing and the refusal.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Draws the scene into a linear target with the renderer's own curve and exposure neutral, blurs the glare kernels on a box pyramid, then one final pass applies glare, the engine's exposure and white-balance matrix, the curve, the sRGB encoding and the CDL grade, writing the linear depth so display overlays drawn last are occluded by the scene. Absent optics is one plain render, the pre-stage behaviour. Each linear render is followed by the medium pass, which marches a scene's medium in place; a scene with a medium and no optics is refused, since no other path can draw it. With `accumulated` the linear target already holds the average of the second's sub-frame samples and the scene draw is skipped, so the response, glare and overlays apply to that average.
+Draws the scene into a linear target with the renderer's own curve and exposure neutral, blurs the glare kernels on a box pyramid, then one final pass applies glare, the engine's exposure and white-balance matrix, the curve, the sRGB encoding and the CDL grade, writing the linear depth so display overlays drawn last are occluded by the scene. Absent optics is one plain render, the pre-stage behaviour. Each linear render is followed by the medium pass, which marches a scene's medium in place; a scene with a medium and no optics is refused, since no other path can draw it. With `accumulated` the linear target already holds the average of the second's sub-frame samples and the scene draw is skipped, so the response, glare and overlays apply to that average. With `alpha` the linear target's colour is associated with its coverage, as blending over a transparent clear leaves it: the glare and the medium, linear in it, act on colour and alpha alike, and the final pass divides by alpha before its nonlinear steps and multiplies back after, so exposure, white balance, the curve, the encoding and the grade change colour and never alpha (Porter and Duff 1984); without `alpha` the final uniform keeps the opaque path, whose colour arithmetic is the one before alpha was carried.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

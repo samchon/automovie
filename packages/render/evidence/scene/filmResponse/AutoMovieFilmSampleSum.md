@@ -24,7 +24,7 @@ States the caller's placement premise, the optional march hook run on each sampl
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-An equal-weight box average of the samples, the estimator of the accumulation buffer (Haeberli and Akeley 1990). Summing at unit weight and scaling once makes N equal samples average to exactly their value, so a static scene draws the same frame with and without a shutter; the average is written over the linear colour with the depth left as the last sample's.
+An equal-weight box average of the samples, the estimator of the accumulation buffer (Haeberli and Akeley 1990), of associated colour and alpha alike, a linear filter that is correct on associated colour (Porter and Duff 1984), so a moving edge over a transparent clear averages to its partial coverage. Summing at unit weight and scaling once makes N equal samples average to exactly their value, so a static scene draws the same frame with and without a shutter; the average is written over the linear colour and alpha with the depth left as the last sample's.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -2,6 +2,7 @@ import type { IAutoMovieMedium } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "../filmResponse/AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
+import type { AutoMovieFilmAlpha } from "../filmResponse/AutoMovieFilmAlpha.js";
 import type { IAutoMovieFilmResponseRenderer } from "../filmResponse/IAutoMovieFilmResponseRenderer.js";
 import { buildAutoMovieMediumShader } from "./buildAutoMovieMediumShader.js";
 import { collectAutoMovieMediumLights } from "./collectAutoMovieMediumLights.js";
@@ -19,11 +20,11 @@ const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
  * scene's lights and their drawn shadow maps, compiles or reuses the march
  * program for that light signature (`buildAutoMovieMediumShader`), marches into
  * its own half-float target reading the linear colour and depth, and copies the
- * result back over the linear colour, leaving the depth. The dither shift of
- * sample `index` is `index × 0.618…` modulo one, an additive recurrence that
- * spreads the accumulated samples' first steps evenly; a single draw uses index
- * 0. Nothing is reused from an earlier frame but compiled programs and the
- * target.
+ * result back over the linear colour and alpha, leaving the depth. The dither
+ * shift of sample `index` is `index × 0.618…` modulo one, an additive
+ * recurrence that spreads the accumulated samples' first steps evenly; a single
+ * draw uses index 0. Nothing is reused from an earlier frame but compiled
+ * programs and the target.
  *
  * The renderer's shadow maps are read only when its `shadowMap.enabled` is
  * true, because a disabled renderer leaves stale maps behind.
@@ -83,6 +84,12 @@ export class AutoMovieFilmMediumPass {
 
     /** The accumulation sample index, 0 for a single draw. */
     index: number;
+
+    /**
+     * How the picture's alpha is kept; absent marches an opaque picture, as
+     * `buildAutoMovieMediumShader` states for each.
+     */
+    alpha?: AutoMovieFilmAlpha;
   }): void {
     const medium: IAutoMovieMedium | null = readAutoMovieSceneMedium(
       props.scene,
@@ -118,6 +125,7 @@ export class AutoMovieFilmMediumPass {
       uExtinction: { value: medium.scattering + medium.absorption },
       uAnisotropy: { value: medium.anisotropy },
       uShift: { value: (props.index * GOLDEN) % 1 },
+      uMatte: { value: props.alpha === "coverage" ? 1 : 0 },
     };
     lights.forEach(
       (light: collectAutoMovieMediumLights.ILight, i: number): void => {

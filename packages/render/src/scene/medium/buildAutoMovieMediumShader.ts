@@ -28,6 +28,19 @@ import type { collectAutoMovieMediumLights } from "./collectAutoMovieMediumLight
  * A panel's `E` faces its centre and is not clipped to a horizon, since a plane
  * facing the panel's centre sees all of it unless it stands within the panel's
  * own extent.
+ *
+ * The linear colour is associated with its alpha `a`. With `T = exp(−σt × s)`
+ * the ray's transmittance and `L` its in-scattered light, the medium is a layer
+ * in front of the picture whose associated colour is `L` and whose alpha is `1
+ * − T`, the opacity of an emitting and absorbing segment (Max 1995), put over
+ * the picture by Porter and Duff's `over` (1984, "Compositing Digital Images",
+ * SIGGRAPH). That gives colour `T × colour + L` and alpha `1 − T × (1 − a)`, so
+ * in linear light compositing a transparent picture over any backdrop equals
+ * the opaque picture of that backdrop, and an opaque picture keeps alpha 1.
+ * With `uMatte` one, for the graphics plate, whose alpha is its graphics'
+ * coverage by contract, the medium dims and lights only what the picture
+ * covers: colour `T × colour + a × L` and alpha `a`, which at full coverage
+ * equals the beauty pass's pixel.
  */
 export function buildAutoMovieMediumShader(
   lights: readonly Pick<
@@ -81,6 +94,7 @@ uniform float uScattering;
 uniform float uExtinction;
 uniform float uAnisotropy;
 uniform float uShift;
+uniform int uMatte;
 ${uniforms.join("\n")}
 in vec2 vUv;
 out vec4 outColor;
@@ -139,8 +153,11 @@ void main() {
 ${terms.join("\n")}
     inscatter += exp(-uExtinction * s) * uScattering * ds * light;
   }
-  vec3 surface = texture(tColor, vUv).rgb * exp(-uExtinction * dist);
-  outColor = vec4(surface + inscatter, 1.0);
+  vec4 texel = texture(tColor, vUv);
+  vec3 surface = texel.rgb * exp(-uExtinction * dist);
+  float transmittance = exp(-uExtinction * dist);
+  if (uMatte == 1) outColor = vec4(surface + texel.a * inscatter, texel.a);
+  else outColor = vec4(surface + inscatter, 1.0 - (1.0 - texel.a) * transmittance);
 }
 `;
 }

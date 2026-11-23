@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import type { AutoMovieFilmAlpha } from "../scene/filmResponse/AutoMovieFilmAlpha.js";
 import type { AutoMovieFilmResponseStage } from "../scene/filmResponse/AutoMovieFilmResponseStage.js";
 import type { IAutoMovieFilmResponseRenderer } from "../scene/filmResponse/IAutoMovieFilmResponseRenderer.js";
 
@@ -71,6 +72,12 @@ export async function accumulateAutoMovieFilmSamples(props: {
   scratch: THREE.PerspectiveCamera;
 
   /**
+   * How the samples' alpha is kept, for a frame drawn over a transparent clear;
+   * absent accumulates an opaque frame.
+   */
+  alpha?: AutoMovieFilmAlpha;
+
+  /**
    * Optional wrapper of each sample's draw, given the sample's camera, second
    * and index: the film's indirect stage measures that sample's occlusion
    * around it. Absent, each sample is drawn directly.
@@ -109,6 +116,7 @@ export async function accumulateAutoMovieFilmSamples(props: {
         height: props.height,
         index,
         count: samples.length,
+        ...(props.alpha === undefined ? {} : { alpha: props.alpha }),
       });
     if (props.around === undefined) draw();
     else props.around({ camera, seconds: sample.seconds, index }, draw);

@@ -7,6 +7,18 @@
  * the stage's uniforms, never on an earlier frame. The final shader mirrors
  * `respondAutoMovieFilmColor`, the engine's CPU reference of the same response,
  * step for step.
+ *
+ * The linear frame holds colour associated with alpha, as blending over a
+ * cleared target leaves it. The pyramid, blur and accumulation steps are linear
+ * filters, which act on associated colour and alpha alike (Porter and Duff
+ * 1984, "Compositing Digital Images", SIGGRAPH; Blinn 1994, "Compositing, Part
+ * 1: Theory", IEEE CG&A 14(5)). The glare is one of them: it spreads a bright
+ * source's coverage with its light, so in linear light a glared transparent
+ * picture composited over a uniform backdrop equals the opaque picture of that
+ * backdrop glared, the normalized filter of `(1 − a) × backdrop` being
+ * `backdrop` minus the filter of `a × backdrop`. Their colour arithmetic is
+ * written separately from their alpha so an opaque frame's colour is computed
+ * exactly as before alpha was carried.
  */
 export const AUTOMOVIE_FILM_RESPONSE_SHADERS: {
   /**
@@ -32,13 +44,21 @@ export const AUTOMOVIE_FILM_RESPONSE_SHADERS: {
    * The final pass: glare, exposure and white balance, tone curve, clamp, sRGB
    * encoding and grade, with the linear frame's depth written so display
    * overlays drawn afterwards are occluded by the scene.
+   *
+   * With `uAlpha` zero the picture is opaque: alpha is written as 1 and colour
+   * is responded as it is held. With `uAlpha` one the glare spreads alpha with
+   * the colour, the colour is divided by that alpha into straight colour, the
+   * response's colour steps run on it, and the result is associated with the
+   * alpha again, which passes the response unchanged; colour is 0 where alpha
+   * is 0.
    */
   readonly final: string;
 
   /**
    * One accumulation step: the running sum `tSum`, or zero when `uFirst` is
-   * one, plus the sample `tSample`, times `uScale`. Summing at unit scale and
-   * scaling once at the end keeps the sum of equal samples exact.
+   * one, plus the sample `tSample`, times `uScale`, for associated colour and
+   * alpha alike. Summing at unit scale and scaling once at the end keeps the
+   * sum of equal samples exact.
    */
   readonly accumulate: string;
 } = {
@@ -58,7 +78,8 @@ uniform sampler2D tSource;
 in vec2 vUv;
 out vec4 outColor;
 void main() {
-  outColor = vec4(texture(tSource, vUv).rgb, 1.0);
+  vec4 texel = texture(tSource, vUv);
+  outColor = vec4(texel.rgb, texel.a);
 }
 `,
   blur: /* glsl */ `
@@ -70,13 +91,18 @@ uniform int uRadius;
 in vec2 vUv;
 out vec4 outColor;
 void main() {
-  vec3 sum = uWeights[0] * texture(tSource, vUv).rgb;
+  vec4 centre = texture(tSource, vUv);
+  vec3 sum = uWeights[0] * centre.rgb;
+  float alpha = uWeights[0] * centre.a;
   for (int k = 1; k < 32; ++k) {
     if (k > uRadius) break;
     vec2 offset = float(k) * uStep;
-    sum += uWeights[k] * (texture(tSource, vUv + offset).rgb + texture(tSource, vUv - offset).rgb);
+    vec4 ahead = texture(tSource, vUv + offset);
+    vec4 behind = texture(tSource, vUv - offset);
+    sum += uWeights[k] * (ahead.rgb + behind.rgb);
+    alpha += uWeights[k] * (ahead.a + behind.a);
   }
-  outColor = vec4(sum, 1.0);
+  outColor = vec4(sum, alpha);
 }
 `,
   final: /* glsl */ `
@@ -95,6 +121,7 @@ uniform vec3 uSlope;
 uniform vec3 uOffset;
 uniform vec3 uPower;
 uniform float uSaturation;
+uniform int uAlpha;
 in vec2 vUv;
 out vec4 outColor;
 
@@ -122,13 +149,25 @@ vec3 encodeSrgb(vec3 c) {
 }
 
 void main() {
-  vec3 c = texture(tLinear, vUv).rgb;
+  vec4 texel = texture(tLinear, vUv);
+  vec3 c = texel.rgb;
+  float alpha = texel.a;
   if (uGlareStrength > 0.0) {
-    vec3 spread = uGlareWeights.x * texture(tGlare0, vUv).rgb
-      + uGlareWeights.y * texture(tGlare1, vUv).rgb
-      + uGlareWeights.z * texture(tGlare2, vUv).rgb;
+    vec4 glare0 = texture(tGlare0, vUv);
+    vec4 glare1 = texture(tGlare1, vUv);
+    vec4 glare2 = texture(tGlare2, vUv);
+    vec3 spread = uGlareWeights.x * glare0.rgb
+      + uGlareWeights.y * glare1.rgb
+      + uGlareWeights.z * glare2.rgb;
+    float spreadAlpha = uGlareWeights.x * glare0.a
+      + uGlareWeights.y * glare1.a
+      + uGlareWeights.z * glare2.a;
     c = (1.0 - uGlareStrength) * c + uGlareStrength * spread;
+    alpha = (1.0 - uGlareStrength) * alpha + uGlareStrength * spreadAlpha;
   }
+  // Straight colour for the response's colour steps; alpha passes unchanged.
+  alpha = clamp(alpha, 0.0, 1.0);
+  if (uAlpha == 1) c = alpha > 0.0 ? c / alpha : vec3(0.0);
   c = uResponse * c;
   if (uCurve == 1) c = acesFilmic(c);
   c = encodeSrgb(clamp(c, 0.0, 1.0));
@@ -137,7 +176,7 @@ void main() {
     float luma = dot(graded, vec3(0.2126, 0.7152, 0.0722));
     c = vec3(luma) + uSaturation * (graded - vec3(luma));
   }
-  outColor = vec4(c, 1.0);
+  outColor = uAlpha == 1 ? vec4(c * alpha, alpha) : vec4(c, 1.0);
   gl_FragDepth = texture(tDepth, vUv).r;
 }
 `,
@@ -150,8 +189,10 @@ uniform float uScale;
 in vec2 vUv;
 out vec4 outColor;
 void main() {
-  vec3 sum = uFirst == 1 ? vec3(0.0) : texture(tSum, vUv).rgb;
-  outColor = vec4(uScale * (sum + texture(tSample, vUv).rgb), 1.0);
+  vec4 held = uFirst == 1 ? vec4(0.0) : texture(tSum, vUv);
+  vec4 drawn = texture(tSample, vUv);
+  vec3 sum = held.rgb;
+  outColor = vec4(uScale * (sum + drawn.rgb), uScale * (held.a + drawn.a));
 }
 `,
 };

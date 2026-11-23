@@ -9,12 +9,13 @@ import { collectAutoMovieFilmOverlays } from "./collectAutoMovieFilmOverlays.js"
  * stage averages for a shutter's motion blur and a lens's depth of field.
  *
  * Each `add` renders the scene's linear light into the stage's linear target,
- * exactly as the stage's single draw does, and adds it to a sum held in two
- * 32-bit float targets that ping-pong. Samples sum at unit weight and the last
- * `add` writes the sum times `1 / count` over the linear target's colour, so
- * `count` equal samples average to exactly their value and the linear target
- * keeps the last sample's depth. Sample 0 starts a new sum, so nothing of an
- * earlier second survives.
+ * exactly as the stage's single draw does, and adds its associated colour and
+ * alpha to a sum held in two 32-bit float targets that ping-pong, so a moving
+ * edge over a transparent clear averages to partial coverage. Samples sum at
+ * unit weight and the last `add` writes the sum times `1 / count` over the
+ * linear target's colour, so `count` equal samples average to exactly their
+ * value and the linear target keeps the last sample's depth. Sample 0 starts a
+ * new sum, so nothing of an earlier second survives.
  *
  * The float targets are made on the first `add` at a raster, remade when the
  * raster changes and released by `dispose`; a film without samples never

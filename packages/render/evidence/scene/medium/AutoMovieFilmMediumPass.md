@@ -6,7 +6,7 @@ One pass per film response stage owns the march target, the copy program and the
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The stage calls pply after each linear render and dispose with its own.
+The stage calls `apply` after each linear render, with its alpha mode, and `dispose` with its own.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -19,7 +19,7 @@ States when it acts, what it reads and writes, the dither shift per sample and t
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Marches into its own target from the linear colour and depth, then copies back over the colour so the rest of the stage reads one target; the dither shift is a golden-ratio additive recurrence per sample index, a fixed function of the index.
+Marches into its own target from the linear colour, alpha and depth, then copies colour and alpha back so the rest of the stage reads one target; the alpha mode selects the march's alpha rule, which `buildAutoMovieMediumShader` states. The dither shift is a golden-ratio additive recurrence per sample index, a fixed function of the index.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -31,7 +31,7 @@ The renderer's target and clear policy are restored in a finally block; shadow m
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the in-place effect, the no-medium case and what is restored.
+States the in-place effect, the alpha mode, the no-medium case and what is restored.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

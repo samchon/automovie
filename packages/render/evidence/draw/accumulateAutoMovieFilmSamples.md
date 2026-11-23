@@ -14,7 +14,7 @@ No subject or view is special-cased; an orthographic view draws unmoved because 
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the order, the shear formula, the orthographic case and the final placement.
+States the order, the shear formula, the orthographic case, the alpha mode handed to every sample and the final placement.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

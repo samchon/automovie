@@ -8,6 +8,7 @@ import * as THREE from "three";
 import { AutoMovieFilmMediumPass } from "../medium/AutoMovieFilmMediumPass.js";
 import { readAutoMovieSceneMedium } from "../medium/readAutoMovieSceneMedium.js";
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "./AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
+import type { AutoMovieFilmAlpha } from "./AutoMovieFilmAlpha.js";
 import { AutoMovieFilmSampleSum } from "./AutoMovieFilmSampleSum.js";
 import type { IAutoMovieFilmResponseRenderer } from "./IAutoMovieFilmResponseRenderer.js";
 import { allocateAutoMovieFilmTargets } from "./allocateAutoMovieFilmTargets.js";
@@ -43,6 +44,15 @@ import { freeAutoMovieFilmOverlayLayer } from "./freeAutoMovieFilmOverlayLayer.j
  * (`applySceneMedium`) is marched by `AutoMovieFilmMediumPass` right after each
  * linear render; without optics such a scene is refused, since only the linear
  * target can carry it.
+ *
+ * With `alpha`, for a picture over a transparent clear, the linear target's
+ * alpha is the scene's coverage and its colour is associated with it. Every
+ * step carries it as `AUTOMOVIE_FILM_RESPONSE_SHADERS` states: the samples'
+ * average, the glare and the medium act on associated colour and alpha, and the
+ * final pass gives exposure, white balance, the tone curve, the encoding and
+ * the grade to straight colour and writes it associated with the unchanged
+ * alpha, the convention the renderer's own canvas draws use. Without `alpha`
+ * the picture is opaque and drawn exactly as before.
  *
  * Without optics `draw` is one `renderer.render` into the current target,
  * exactly what the host drew before the stage existed. The renderer's target,
@@ -142,6 +152,7 @@ export class AutoMovieFilmResponseStage {
       uOffset: { value: new THREE.Vector3() },
       uPower: { value: new THREE.Vector3(1, 1, 1) },
       uSaturation: { value: 1 },
+      uAlpha: { value: 0 },
     });
     this.quad_ = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.final_);
     this.quad_.frustumCulled = false;
@@ -194,6 +205,13 @@ export class AutoMovieFilmResponseStage {
      * the scene once.
      */
     accumulated?: boolean;
+
+    /**
+     * How the picture's alpha is kept, for a picture drawn over a transparent
+     * clear; absent writes an opaque picture, alpha 1, as before alpha was
+     * carried.
+     */
+    alpha?: AutoMovieFilmAlpha;
   }): void {
     const { renderer, scene, camera, optics } = props;
     if (optics === undefined) {
@@ -210,6 +228,7 @@ export class AutoMovieFilmResponseStage {
       props.height,
       optics,
     );
+    this.final_.uniforms.uAlpha!.value = props.alpha === undefined ? 0 : 1;
     const prior: {
       target: THREE.WebGLRenderTarget | null;
       toneMapping: THREE.ToneMapping;
