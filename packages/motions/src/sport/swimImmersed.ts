@@ -52,8 +52,8 @@ export const swimImmersed: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanS
       const body: IAutoMovieMotionHumanBody = context.body;
       const params: IAutoMovieMotionHumanSwimImmersed = context.params;
       const duration: number = HumanBound.above(
-        "seconds",
-        params.seconds,
+        "duration",
+        params.duration,
         0,
         "s",
       );

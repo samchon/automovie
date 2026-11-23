@@ -6,11 +6,6 @@ import type { IAutoMovieSupportLoftPlan64 } from "./IAutoMovieSupportLoftPlan64"
  * Mesh and construction emission from a planned cubic support loft.
  *
  * Positions and boundary disagreement are model-local metres; analytic normals are unit vectors, and physical incidence is distinct from normal-fan identity. The caller supplies an admitted plan, nonblank topology domain and positive safe-integer vertex budget; emission refuses exhausted budgets, collapsed sections, nonfinite normals and unresolved boundary disagreement.
- *
- * @evidence contracts/development/design.md#principled-representation Positions and boundary disagreement are model-local metres; analytic normals are unit vectors, and physical incidence is distinct from normal-fan identity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface emitAutoMovieSupportLoft64 consumes planAutoMovieSupportLoft64 output inside realizeAutoMovieConvexSupportLoft.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies an admitted plan, nonblank topology domain and positive safe-integer vertex budget; emission refuses exhausted budgets, collapsed sections, nonfinite normals and unresolved boundary disagreement.
- * @evidence contracts/development/common.md#meaningful-documentation Mesh and construction emission from a planned cubic support loft. Positions and boundary disagreement are model-local metres; analytic normals are unit vectors, and physical incidence is distinct from normal-fan identity.
  */
 export namespace IAutoMovieEmitSupportLoft64 {
   /**
@@ -20,11 +15,6 @@ export namespace IAutoMovieEmitSupportLoft64 {
    * Plane-pair identity and algebraic event incidence own shared positions;
    * distinct faces retain their normal fans. Exact collapsed triangles are omitted.
    * Endpoint roundoff is checked separately from the requested chord tolerance.
-   *
-   * @evidence contracts/development/design.md#principled-representation Positions and boundary disagreement are model-local metres; analytic normals are unit vectors, and physical incidence is distinct from normal-fan identity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface emitAutoMovieSupportLoft64 consumes planAutoMovieSupportLoft64 output inside realizeAutoMovieConvexSupportLoft.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies an admitted plan, nonblank topology domain and positive safe-integer vertex budget; emission refuses exhausted budgets, collapsed sections, nonfinite normals and unresolved boundary disagreement.
-   * @evidence contracts/development/common.md#meaningful-documentation Mesh and construction emission from a planned cubic support loft. Positions and boundary disagreement are model-local metres; analytic normals are unit vectors, and physical incidence is distinct from normal-fan identity.
    */
   export type IInput = {
     /**
@@ -47,11 +37,6 @@ export namespace IAutoMovieEmitSupportLoft64 {
    * The emitted lateral mesh, generating construction and numerical boundary diagnostics from one completed plan.
    *
    * The returned mesh and construction belong to the caller. Construction point tuples can alias one another across shared stations, whereas mesh positions are copied numbers. The mesh has open ends; successful emission is not a certificate of source fit or event isolation.
-   *
-   * @evidence contracts/development/design.md#principled-representation Positions and boundary disagreement are model-local metres; analytic normals are unit vectors, and physical incidence is distinct from normal-fan identity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface emitAutoMovieSupportLoft64 consumes planAutoMovieSupportLoft64 output inside realizeAutoMovieConvexSupportLoft.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies an admitted plan, nonblank topology domain and positive safe-integer vertex budget; emission refuses exhausted budgets, collapsed sections, nonfinite normals and unresolved boundary disagreement.
-   * @evidence contracts/development/common.md#meaningful-documentation Mesh and construction emission from a planned cubic support loft. Positions and boundary disagreement are model-local metres; analytic normals are unit vectors, and physical incidence is distinct from normal-fan identity.
    */
   export type IResult = {
     /**

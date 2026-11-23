@@ -5,11 +5,6 @@ import type {
 
 /**
  * A construction tree's structural admission before work: every node of the closed union, every name used once, and every seed, continuation and trim naming a face of the right subtree. Declared views and explicit native source leaves produce chain part faces. Original profile leaves reserve qualified family/piece faces for atlas hosts and trims; chain-specific part joins and continuation remain restricted to chain leaves. Runtime availability is admitted at each leaf.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the four rules, which faces each reference may name and the refusal's form.
- * @evidence contracts/development/design.md#principled-representation Represents A construction tree's structural admission before work: every node of the closed union, every name used once, and every seed, continuation and trim naming a face of the right subtree: companion namespace of 3 members (`Names`, `admit`, `union`). It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionAdmission` in packages/engine/src/geometry/construction/AutoMovieConstructionAdmission.ts; its surface is the 3 members listed and the text shows 2 other files naming it, mostly packages/engine (2), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieConstructionAdmission {
   /** Structurally produced part leaves and all faces in one admitted subtree. */
@@ -26,14 +21,6 @@ export namespace AutoMovieConstructionAdmission {
    *
    * @param root The tree's root node.
    * @throws When the tree breaks a rule, naming the node and the rule.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Recursively builds each subtree's view/face name sets and checks references against the required side; one global seen set rejects repeated names before descending further.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A single structural walk owns union-kind, name-uniqueness and subtree-reference admission before realization mutates a body.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects the listed structural failures by throwing; this is not complete numeric/shape-field validation, which the typed node operators perform separately.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the subtree naming rules, the pre-realization role and the node/rule failure form.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For N nodes and depth D, copying descendant name sets costs O(ND) work in the worst case, including quadratic work for a skewed tree; no linear-total claim is made.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Computes each subtree's two sets once and reuses them for reference checks and the parent union rather than rewalking that subtree per reference.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The seen set, returned child sets, union temporaries and recursion stack are owned by this synchronous call and become unreachable on return/throw; no tree or name cache survives.
    */
   export function admit(root: IAutoMovieConstructionNode): void {
     const seen: Set<string> = new Set();
@@ -86,6 +73,14 @@ export namespace AutoMovieConstructionAdmission {
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s fair ${node.fair} m is not positive and finite`,
             );
+
+          // A mixed join's declared loop and each fold's reach (`IAutoMovieConstructionJoin.loop`, `IAutoMovieConstructionFoldWidth.reach`).
+          const loop: typeof node.loop = node.loop;
+          if (loop !== undefined && !(Number.isFinite(loop.centre[0]) && Number.isFinite(loop.centre[1]) && loop.semi[0] > 0 && loop.semi[1] > 0 && loop.semi[1] < Math.PI && (loop.sense === 1 || loop.sense === -1) && (loop.shape === undefined || (loop.shape.length === node.count && loop.shape.every((share: number): boolean => Number.isFinite(share) && share > 0)))))
+            throw new Error(`realizeAutoMovieConstruction: ${name}'s loop needs a finite centre, positive semi-axes with the phase one under pi, a sense of 1 or -1 and, when shaped, ${node.count} positive shares`);
+          for (const width of [node.partWidth, node.hostWidth])
+            if (width.type === "fold" && width.reach !== undefined && !(Number.isFinite(width.reach) && width.reach > 0))
+              throw new Error(`realizeAutoMovieConstruction: ${name}'s fold reach ${width.reach} m is not positive and finite`);
           return {
             views: union(host.views, part.views),
             faces: union(union(host.faces, part.faces), new Set([name])),
@@ -128,7 +123,21 @@ export namespace AutoMovieConstructionAdmission {
           const host: Names = check(node.host);
           need(host.views, node.hostFace, "host face");
           const [a, b]: [number, number] = node.seam;
+          // A composed end derives every seam's phases from its children (`IAutoMovieConstructionSplit.ICompose`), so the authored
+          // ones are not read and not admitted; its plane and rounding are.
+          const composed: boolean = node.compose !== undefined;
+          /** Refuse a declared plane that is not finite or has no normal, naming its holder. */
+          const flat: (plane: IAutoMovieConstructionSplit.IPlane, what: string) => void = (plane: IAutoMovieConstructionSplit.IPlane, what: string): void => {
+            if (!(plane.point.every(Number.isFinite) && plane.normal.every(Number.isFinite) && Math.hypot(...plane.normal) > 0))
+              refuse(`${what} plane (point [${plane.point.join(", ")}] m, normal [${plane.normal.join(", ")}]) is not finite with a nonzero normal`);
+          };
+          if (node.compose !== undefined) {
+            if (node.compose.frame !== "tree" && node.compose.frame !== "host") refuse(`compose frame ${String(node.compose.frame)} is neither tree nor host`);
+            flat(node.compose.plane, "compose");
+            if (node.compose.round !== undefined && !(Number.isFinite(node.compose.round) && node.compose.round > 0)) refuse(`compose round ${node.compose.round} m is not positive and finite`);
+          }
           if (
+            !composed &&
             !(
               Number.isFinite(a) &&
               Number.isFinite(b) &&
@@ -158,7 +167,11 @@ export namespace AutoMovieConstructionAdmission {
             profile: IAutoMovieConstructionSplit.IProfile | undefined,
           ): void => {
             if (profile === undefined) return;
-            if (profile.knots.length === 0) refuse("profile has no knot");
+            // A composed end derives each seam's valley and plane from its children, so authored knots or a heading would be a second
+            // definition of the same curve; the profile then carries only the ribbons' corner, reach, square and fair.
+            if (composed && profile.knots.length !== 0) refuse("profile knots conflict with compose, which derives the seam's valley from the children");
+            if (composed && profile.heading !== undefined) refuse("profile heading conflicts with compose, which derives the seam's plane from the children");
+            if (!composed && profile.knots.length === 0) refuse("profile has no knot");
             let previous: [number, number] = [0, 0];
             for (const [along, depth] of profile.knots) {
               if (
@@ -229,6 +242,7 @@ export namespace AutoMovieConstructionAdmission {
           for (const outer of node.outer ?? []) {
             const [oa, ob]: [number, number] = outer.seam;
             if (
+              !composed &&
               !(
                 Number.isFinite(oa) &&
                 Number.isFinite(ob) &&
@@ -256,6 +270,12 @@ export namespace AutoMovieConstructionAdmission {
               refuse(
                 `rail ${child.rail} m of ${child.partFace} is not positive`,
               );
+            if (child.cut !== undefined) {
+              if (child.cut.frame !== "tree" && child.cut.frame !== "host" && child.cut.frame !== "part") refuse(`cut frame ${String(child.cut.frame)} of ${child.partFace} is none of tree, host and part`);
+              if (child.cut.planes.length === 0) refuse(`cut of ${child.partFace} has no plane`);
+              for (const plane of child.cut.planes) flat(plane, `cut of ${child.partFace}'s`);
+              if (child.cut.round !== undefined && !(Number.isFinite(child.cut.round) && child.cut.round > 0)) refuse(`cut round ${child.cut.round} m of ${child.partFace} is not positive and finite`);
+            }
             const crease: typeof child.crease = child.crease;
             if (
               crease !== undefined &&

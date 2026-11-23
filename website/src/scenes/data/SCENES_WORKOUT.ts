@@ -30,18 +30,18 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     "dumbbell-corner",
     [
       person("ann", "f1", -1.8, 0, 0, [
-        act("curl", { reps: 2 }),
+        act("curl", { count: 2 }),
         act("fanSelf"),
-        act("tricepsExtension", { reps: 2 }),
+        act("tricepsExtension", { count: 2 }),
       ]),
       person("bud", "m1", 0, 0, 0, [
-        act("lateralRaise", { reps: 2 }),
+        act("lateralRaise", { count: 2 }),
         act("selfAction", { kind: "shoulderRoll" }),
-        act("frontRaise", { reps: 2 }),
+        act("frontRaise", { count: 2 }),
       ]),
       person("cid", "m2", 1.8, 0, 0, [
-        act("shrug", { reps: 3 }),
-        act("bentOverRow", { reps: 2 }),
+        act("shrug", { count: 3 }),
+        act("bentOverRow", { count: 2 }),
         act("selfAction", { kind: "neckRoll" }),
       ]),
     ],
@@ -60,23 +60,23 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     "barbell-platform",
     [
       person("dax", "m2", -2.4, 0, 0, [
-        act("frontSquat", { reps: 2 }),
-        act("gobletSquat", { reps: 2 }),
+        act("frontSquat", { count: 2 }),
+        act("gobletSquat", { count: 2 }),
       ]),
       person("eva", "f1", -0.8, 0, 0, [
-        act("romanianDeadlift", { reps: 2 }),
-        act("goodMorning", { reps: 2 }),
+        act("romanianDeadlift", { count: 2 }),
+        act("goodMorning", { count: 2 }),
       ]),
       person("fox", "m1", 0.8, 0, 0, [
-        act("powerClean", { reps: 1 }),
+        act("powerClean", { count: 1 }),
         act("selfAction", { kind: "shoulderRoll", count: 1 }),
-        act("snatch", { reps: 1 }),
+        act("snatch", { count: 1 }),
         act("selfAction", { kind: "fistPump", count: 1 }),
       ]),
       person("gia", "f2", 2.4, 0, 0, [
-        act("overheadPress", { reps: 2 }),
+        act("overheadPress", { count: 2 }),
         act("benchPress", {
-          reps: 2,
+          count: 2,
           on: { prop: "bench", affordance: "surface" },
         }),
       ]),
@@ -96,21 +96,21 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     "leg-day",
     [
       person("hap", "m1", -2.4, 0, 0, [
-        act("splitSquat", { reps: 2 }),
+        act("splitSquat", { count: 2 }),
         act("wallSit", { hold: 1.5, on: { prop: "wall", affordance: "face" } }),
-        act("quadStretch", { seconds: 0.5 }),
+        act("quadStretch", { hold: 0.5 }),
       ]),
       person("ike", "f2", -0.8, 0, 0, [
-        act("calfRaise", { reps: 3 }),
-        act("squats", { reps: 3 }),
+        act("calfRaise", { count: 3 }),
+        act("squats", { count: 3 }),
       ]),
       person("jem", "m2", 0.8, 0, 0, [
         act("stepUp", {
-          reps: 3,
+          count: 3,
           on: { prop: "box", affordance: "surface" },
         }),
-        act("highKnees", { reps: 4, tempo: [0.35, 0, 0.35] }),
-        act("stand", { seconds: 0.3 }),
+        act("highKnees", { count: 4, tempo: [0.35, 0, 0.35] }),
+        act("stand", { hold: 0.3 }),
         act("boxJump", {
           to: { x: BOX.x, y: BOX.height, z: BOX.z },
           on: "box",
@@ -118,10 +118,10 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       ]),
       person("kai", "f1", 2.4, 0, 0, [
         act("hipThrust", {
-          reps: 2,
+          count: 2,
           on: { prop: "bench", affordance: "edge" },
         }),
-        act("lunges", { reps: 2, tempo: [1.5, 0, 1] }),
+        act("lunges", { count: 2, tempo: [1.5, 0, 1] }),
       ]),
     ],
     [
@@ -147,31 +147,31 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     "push-up-ladder",
     [
       person("lia", "f1", -2.4, 0, 0, [
-        act("pushUp", { reps: 2 }),
-        act("widePushUp", { reps: 1 }),
+        act("pushUp", { count: 2 }),
+        act("widePushUp", { count: 1 }),
         act("selfAction", { kind: "shoulderRoll" }),
       ]),
       person("mo", "m1", -0.8, 0, 0, [
         act("inclinePushUp", {
-          reps: 2,
+          count: 2,
           on: { prop: "bench", affordance: "surface" },
         }),
         act("declinePushUp", {
-          reps: 1,
+          count: 1,
           on: { prop: "bench", affordance: "surface" },
         }),
-        act("shoulderStretch", { seconds: 0.3 }),
+        act("shoulderStretch", { hold: 0.3 }),
       ]),
       person("nat", "f2", 0.8, 0, 0, [
-        act("pikePushUp", { reps: 1 }),
+        act("pikePushUp", { count: 1 }),
         act("plank", { hold: 2 }),
         act("selfAction", { kind: "neckRoll", count: 3 }),
       ]),
       person("oz", "m2", 2.4, 0, 0, [
-        act("highKnees", { reps: 4, tempo: [0.35, 0, 0.35] }),
-        act("burpee", { reps: 4 }),
-        act("handsOnHips", { seconds: 1.2 }),
-        act("highKnees", { reps: 4, tempo: [0.35, 0, 0.35] }),
+        act("highKnees", { count: 4, tempo: [0.35, 0, 0.35] }),
+        act("burpee", { count: 4 }),
+        act("handsOnHips", { hold: 1.2 }),
+        act("highKnees", { count: 4, tempo: [0.35, 0, 0.35] }),
       ]),
     ],
     [object("bench", "createBench", "flat", -0.8, 1.1, 90)],
@@ -189,16 +189,16 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     "mat-work",
     [
       person("pam", "f1", -1.5, 0, 0, [
-        act("sitUp", { reps: 2, manner: { pace: 1.1 } }),
-        act("lyingLegRaise", { reps: 1, manner: { pace: 1.1 } }),
+        act("sitUp", { count: 2, manner: { pace: 1.1 } }),
+        act("lyingLegRaise", { count: 1, manner: { pace: 1.1 } }),
       ]),
       person("quin", "m1", 0, 0, 0, [
-        act("bicycleCrunch", { reps: 4 }),
-        act("russianTwist", { reps: 2, hold: 0.2 }),
+        act("bicycleCrunch", { count: 4 }),
+        act("russianTwist", { count: 2, hold: 0.2 }),
       ]),
       person("rio", "m2", 1.5, -1, 0, [
-        act("bearCrawl", { cycles: 2 }),
-        act("inchworm", { cycles: 1 }),
+        act("bearCrawl", { count: 2 }),
+        act("inchworm", { count: 1 }),
       ]),
     ],
   ),
@@ -216,17 +216,17 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     [
       person("sol", "m1", -0.8, 0, 0, [
         act("deadHang", { hold: 1, on: { prop: "barS", affordance: "bar" } }),
-        act("chinUp", { reps: 3, on: { prop: "barS", affordance: "bar" } }),
+        act("chinUp", { count: 3, on: { prop: "barS", affordance: "bar" } }),
         act("selfAction", { kind: "shoulderRoll" }),
       ]),
       person("tai", "f1", 0.8, 0, 0, [
         act("kneeRaise", {
-          reps: 4,
+          count: 4,
           on: { prop: "barT", affordance: "bar" },
           manner: { pace: 1.05 },
         }),
         act("barSwing", {
-          reps: 2,
+          count: 2,
           on: { prop: "barT", affordance: "bar" },
           manner: { pace: 1.05 },
         }),
@@ -250,27 +250,27 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     "cardio-corner",
     [
       person("uli", "m1", -2.4, 0, 0, [
-        act("rowing", { reps: 2 }),
+        act("rowing", { count: 2 }),
         act("cycling", {
-          reps: 3,
+          count: 3,
           on: { prop: "bike", affordance: "saddle" },
         }),
       ]),
       person("val", "f2", -0.8, 0, 0, [
-        act("jumpRope", { reps: 16 }),
-        act("highKnees", { reps: 4, tempo: [0.35, 0, 0.35] }),
-        act("jumpRope", { reps: 16 }),
+        act("jumpRope", { count: 16 }),
+        act("highKnees", { count: 4, tempo: [0.35, 0, 0.35] }),
+        act("jumpRope", { count: 16 }),
       ]),
       person("wil", "f1", 0.8, 0, 0, [
         act("stepTouch"),
-        act("boxStep", { beats: 12 }),
-        act("stepTouch", { beats: 7, side: "left" }),
+        act("boxStep", { count: 12 }),
+        act("stepTouch", { count: 7, side: "left" }),
       ]),
       person("xen", "m2", 2.4, -3, 0, [
         act("strides", { to: to(2.4, 4) }),
-        act("buttKicks", { reps: 4 }),
+        act("buttKicks", { count: 4 }),
         act("strides", { to: to(2.4, -3) }),
-        act("aSkip", { reps: 6, tempo: [0.35, 0, 0.35] }),
+        act("aSkip", { count: 6, tempo: [0.35, 0, 0.35] }),
       ]),
     ],
     [object("bike", "createBicycle", undefined, -2.4, 0.9)],
@@ -297,7 +297,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
         }),
         act("selfAction", { kind: "shoulderRoll" }),
         act("walk", { to: to(-1, -2) }),
-        act("handsOnHips", { seconds: 1 }),
+        act("handsOnHips", { hold: 1 }),
       ]),
       person("zed", "f1", 1, -2, 0, [
         act("farmersWalk", { to: to(1, 2) }),
@@ -305,7 +305,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
         act("selfAction", { kind: "shoulderRoll" }),
       ]),
     ],
-    [object("barrow", "createCart", "wheelbarrow", -1, -1.2)],
+    [object("barrow", "createWheelbarrow", undefined, -1, -1.2)],
   ),
   scene(
     {
@@ -329,7 +329,11 @@ export const SCENES_WORKOUT: readonly IScene[] = [
           { to: to(0, 2) },
           {
             over: [
-              act("farmersHold", { left: "bellL", right: "bellR", seconds: 3 }),
+              act("farmersHold", {
+                left: "bellL",
+                right: "bellR",
+                duration: 3,
+              }),
             ],
           },
         ),
@@ -357,17 +361,17 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       person("ama", "f1", -3.6, 0, 0, [
         act("crouch", { depth: "partial", hold: 1 }),
         act("kneel", { kind: "sitBack", hold: 2.5 }),
-        act("lieDown", { position: "supine", hold: 1 }),
+        act("lieDown", { kind: "supine", hold: 1 }),
       ]),
       person("bex", "m1", -1.2, 0, 0, [
         act("sunSalutation"),
         act("triangle", { hold: 1.5 }),
       ]),
       person("cas", "f2", 1.2, 0, 0, [
-        act("quadStretch", { seconds: 0.5 }),
-        act("neckStretch", { seconds: 0.5 }),
+        act("quadStretch", { hold: 0.5 }),
+        act("neckStretch", { hold: 0.5 }),
         act("chestStretch", { hold: 0.3 }),
-        act("lungeTwist", { reps: 2 }),
+        act("lungeTwist", { count: 2 }),
       ]),
       person("dov", "m2", 3.6, 0, 0, [
         act("seatedFold", { hold: 1.5, manner: { pace: 1.15 } }),

@@ -28,9 +28,9 @@ export function composeHumanStraightenTie<
     "touch",
     {
       target: { kind: "self", region: "sternum" },
-      side,
+      hand: side,
       kind: "rub",
-      with: "fingertips",
+      effector: "fingertips",
       tangent: "up",
       count: 1,
       hold: 0,

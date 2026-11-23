@@ -3,26 +3,19 @@ import type { IAutoMovieMotionHumanPursuit } from "./IAutoMovieMotionHumanPursui
 
 /**
  * Open parameters of the pursuit lexicon family, keyed by each runtime export name.
- * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
- * HumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
- * @evidence contracts/development/design.md#principled-representation The pursuit family is a closed export-name map with the exact Omit projection of each source law.
- * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the pursuit row parameter map used by the family registry and schema generator.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
 export interface IAutoMovieMotionHumanLexiconPursuitParams {
   /** Come up behind a person at the social distance, as a follower closes the gap. */
-  follow: Omit<IAutoMovieMotionHumanApproach.IParams, "side" | "at" | "track">;
+  follow: Omit<IAutoMovieMotionHumanApproach.IParams, "from" | "at" | "track">;
 
   /** Come to a person's left side at the personal distance, as an escort takes station. */
-  escort: Omit<IAutoMovieMotionHumanApproach.IParams, "side" | "at" | "track">;
+  escort: Omit<IAutoMovieMotionHumanApproach.IParams, "from" | "at" | "track">;
 
-  /** Close on a person fast, to arm's length, as a chase ends. */
-  chase: Omit<IAutoMovieMotionHumanApproach.IParams, "pace" | "at" | "track">;
+  /** Run after a person to arm's length of where they will be, as a chase ends: a row of `intercept`, so a chase runs. */
+  chase: IAutoMovieMotionHumanPursuit.IIntercept;
 
   /** Step up face to face, as a confrontation begins. */
-  confront: Omit<IAutoMovieMotionHumanApproach.IParams, "side" | "at">;
+  confront: Omit<IAutoMovieMotionHumanApproach.IParams, "from" | "at">;
 
   /**
    * Head a moving person off: a run to where they will be when the runner

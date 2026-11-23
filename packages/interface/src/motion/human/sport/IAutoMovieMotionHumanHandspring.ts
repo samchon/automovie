@@ -22,6 +22,13 @@ import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotion
  *    `LAND`, found by bisection, since the flight time itself grows with the
  *    rate the wheel throws the centre at.
  *
+ * No duration is authored. The wheel turns from rest to `RELEASE` (145 degrees)
+ * at constant angular acceleration, the flight lasts until the centre has
+ * fallen to the height of the arched stand at `LAND` (330 degrees), under
+ * gravity 9.80665 m/s2 (`handspring.RELEASE`, `handspring.LAND`, provisional);
+ * the landing takes the jump's absorption and rise (`jump.ABSORB` 0.3 s and
+ * `jump.RISE` 0.45 s).
+ *
  * Landing, the feet are planted where they came down, the body absorbs and
  * rises to stand over the jump's `ABSORB` and `RISE` seconds while its tip
  * comes up from `LAND`, the arched landing of the skill, with the root
@@ -38,22 +45,10 @@ import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotion
  *
  * Events: `handsDown`, `release` (the hands leave), `touchdown`, `settled`
  * and `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation lead: The leg that lunges; `left` when absent. height: The surface's height, world metres.
- * @evidence contracts/development/design.md#principled-representation lead: The leg that lunges; `left` when absent. height: The surface's height, world metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/handspring.ts (handspring.plan, context); sport/handspring.ts (handspring.over, context); sport/handspring.ts (handspring.over, surface).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanContactWindow.Support, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanHandspring {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The leading leg.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The value the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The leg that lunges; `left` when absent. */
@@ -62,11 +57,6 @@ export namespace IAutoMovieMotionHumanHandspring {
 
   /**
    * What the hands land on.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation A height, a support frame and a check of the place.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the vault gives the plan.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ISurface {
     /** The surface's height, world metres. */
@@ -80,14 +70,6 @@ export namespace IAutoMovieMotionHumanHandspring {
      *
      * @param point The hands' middle as they come down, world metres.
      * @throws {HumanRefusal} When the point is off the surface.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHandspring.ISurface.within: Refuse a place for the hands' middle off the surface.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHandspring.ISurface.within is used through packages/motions/src/sport/handspring.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHandspring.ISurface.within is used through packages/motions/src/sport/handspring.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandspring.ISurface.within is used through packages/motions/src/sport/handspring.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHandspring.ISurface.within is used through packages/motions/src/sport/handspring.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHandspring.ISurface.within is used through packages/motions/src/sport/handspring.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHandspring.ISurface.within is used through packages/motions/src/sport/handspring.ts.
      */
     within(point: IAutoMovieVector3): void;
   }

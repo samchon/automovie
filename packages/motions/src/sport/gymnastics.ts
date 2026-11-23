@@ -105,8 +105,8 @@ export namespace gymnastics {
     const p: IAutoMovieMotionHumanGymnastics.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const hold: number = p.seconds ?? 2;
-    HumanBound.least("seconds", hold, 0, "s");
+    const hold: number = p.hold ?? 2;
+    HumanBound.least("hold", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
@@ -202,13 +202,15 @@ export namespace gymnastics {
         channels: ["root", "trunk"],
         from: 0,
         to: clock.duration,
-        write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => {
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanPosture => {
           const folded: number = fold(s);
           const swung: number = swing(s);
           const pitched: IAutoMovieMotionHumanPosture = {
             ...posture,
-            pitch:
-              posture.pitch + DOWN * folded + (inverted - DOWN) * swung,
+            pitch: posture.pitch + DOWN * folded + (inverted - DOWN) * swung,
           };
 
           // The two places agree wherever the swing is nil and the fold full,
@@ -216,12 +218,16 @@ export namespace gymnastics {
           // continuous.
           return {
             ...pitched,
-            root: swung > 0
-              ? AutoMovieMotionHumanPlaced.root(pitched, girdle, shoulders)
-              : Vector3.subtract(
-                  Vector3.lerp(standing, down, folded),
-                  Quaternion.rotateVector(resolveHumanPosture.heading(pitched), hipsRest),
-                ),
+            root:
+              swung > 0
+                ? AutoMovieMotionHumanPlaced.root(pitched, girdle, shoulders)
+                : Vector3.subtract(
+                    Vector3.lerp(standing, down, folded),
+                    Quaternion.rotateVector(
+                      resolveHumanPosture.heading(pitched),
+                      hipsRest,
+                    ),
+                  ),
           };
         },
       },
@@ -235,7 +241,9 @@ export namespace gymnastics {
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
           weight: fold,
-          place: (posture: IAutoMovieMotionHumanPosture): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => ({
+          place: (
+            posture: IAutoMovieMotionHumanPosture,
+          ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => ({
             point: HumanFrame.point(
               { origin: hands, yaw: posture.yaw },
               {
@@ -266,7 +274,8 @@ export namespace gymnastics {
             s: number,
           ): IAutoMovieMotionHumanFoot.IPlacement => {
             // The straight leg's ankle and foot as the pitched body carries them.
-            const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
+            const turn: IAutoMovieQuaternion =
+              resolveHumanPosture.heading(posture);
             const carried: IAutoMovieMotionHumanFoot.IPlacement = {
               ankle: Vector3.add(
                 posture.root,

@@ -1,71 +1,38 @@
-import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDraw,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
-} from "../core";
-import { INSTRUMENT_BANDS } from "./INSTRUMENT_BANDS";
-import { KeyboardConstruction } from "./KeyboardConstruction";
-import { MarchingConstruction } from "./MarchingConstruction";
-import { StringedConstruction } from "./StringedConstruction";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
+import { InstrumentBuild } from "./InstrumentBuild";
+import { createBugle } from "./createBugle";
+import { createGuitar } from "./createGuitar";
+import { createSideDrum } from "./createSideDrum";
+import { createUprightPiano } from "./createUprightPiano";
+import { createViolin } from "./createViolin";
 
 /**
- * A musical instrument: an upright piano, a steel-string guitar, a violin, a side drum or a bugle, with the keys, frets and strings a hand plays numbered as contacts.
+ * Reads a saved instrument recipe using its canonical producer.
  *
- * - An upright piano stands with its back at the origin's `Z` and its keyboard toward `+Z`, the bass at `-X`. `key1` to `key88` are its keys from the bottom A and each is a `button` pressed down by its dip. `keybed` is the keyboard's top. `lid` hinges the fallboard from upright at rest to flat over the keys. The right foot meets the `damperPedal` plate on the moving `damperPedalHinge`. A production seats a player on a `createSeat` bench.
- * - A guitar and a violin lie on their backs with the neck toward `+X`, the body's neck end at the origin's `X`. `string1` to `string6` (four on a violin) run from the nut to the saddle or bridge, `string1` the highest on the `-Z` edge; a guitar's `fret1` to `fret20` are the places a fingertip stops the strings behind each fret, each a bar across the fingerboard whose sites run across the strings; `neck` is the neck the fretting hand grips; a guitar's `body` is where the strumming hand meets the strings. A violin's chinrest is absent. The bow is a separate model from createViolinBow.
- * - A side drum stands on its bottom head: `head` the batter head the sticks strike, `sling` the hook a sling or a carrier holds it by.
- * - A bugle lies on its side, its bell toward `+X`: `grip` where a hand holds it, `mouthpiece` the socket the lips meet.
+ * @param params The saved kind, optional identifier and any dimensions or choices the author supplied.
+ * @param seed The seed used by the selected producer.
+ * @returns The original model and its contacts.
+ * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
  *
- * Playing a note by finger, fret or key needs the finger campaign's laws (#3445, #3446); holding, carrying and the drummer's march do not.
- *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
- * @returns The instrument.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each kind lies or stands, every contact and its numbering, and which laws playing waits on.
- * @evidence contracts/development/implementation.md#principled-implementation Draws the kind's cited bands and hands them to its family's construction: `KeyboardConstruction` lays the 88 keys by the keyboard's pitch pattern, `StringedConstruction` places frets by equal temperament and strings from nut to bridge, `MarchingConstruction` builds the drum and the bugle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the kind, draw the dimensions, build the kind, state the mass.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every size no source gives is a named estimate of its construction; strings are contacts without parts.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the keys, frets and strings, ninety-odd parts for a piano.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the saved input and selected model.
+ * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and use its producer's bands and original seed domain.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the kind and call the corresponding public producer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The selected producer still validates the original dimensions and choices.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed kind table selects the producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls use the same construction.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createInstrument(
   params: createInstrument.IParams,
   seed?: number | string,
-): Archetype<createInstrument.Affordance, createInstrument.Dimension> {
-  const draw: ArchetypeDrawSession<createInstrument.Dimension> =
-    new ArchetypeDrawSession<createInstrument.Dimension>(
-      "instrument",
-      createInstrument.UNITS,
-      seed,
-      params,
-    );
+): AutoMovieArchetype<createInstrument.Affordance, createInstrument.Dimension> {
   const kind: createInstrument.Kind = ArchetypeDraw.choice(
     "instrument",
     "kind",
     params.kind,
     createInstrument.KINDS,
   );
-  const d: Partial<Record<createInstrument.Dimension, number>> =
-    draw.dimensions(createInstrument.BANDS[kind], createInstrument.BANDS);
-  const builder: ArchetypeBuilder<
-    createInstrument.Affordance,
-    createInstrument.Dimension
-  > = new ArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw,
-  });
-  if (kind === "uprightPiano") KeyboardConstruction.uprightPiano(builder, d);
-  else if (kind === "sideDrum" || kind === "bugle")
-    MarchingConstruction[kind](builder, d);
-  else StringedConstruction[kind](builder, d);
-  return builder.build(d.mass!);
+  return createInstrument.PRODUCERS[kind](params, seed);
 }
 
 /**
@@ -161,37 +128,7 @@ export namespace createInstrument {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
-    height: "m",
-    width: "m",
-    depth: "m",
-    keyHeight: "m",
-    octave: "m",
-    keyLength: "m",
-    blackLength: "m",
-    dip: "m",
-    blackRise: "m",
-    scale: "m",
-    nut: "m",
-    saddle: "m",
-    bodyLength: "m",
-    bodyWidth: "m",
-    bodyDepth: "m",
-    neck: "m",
-    upperBout: "m",
-    waist: "m",
-    lowerBout: "m",
-    rib: "m",
-    neckThickness: "m",
-    fingerboard: "m",
-    nutSpacing: "m",
-    bridgeSpacing: "m",
-    bridgeHeight: "m",
-    length: "m",
-    diameter: "m",
-    bell: "m",
-    mass: "kg",
-  };
+  export const UNITS: typeof InstrumentBuild.UNITS = InstrumentBuild.UNITS;
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -203,16 +140,32 @@ export namespace createInstrument {
   }
 
   /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = INSTRUMENT_BANDS;
-}
+  export const BANDS: typeof InstrumentBuild.BANDS = InstrumentBuild.BANDS;
 
-/** Each kind's readable name. */
-const NAMES: Readonly<Record<createInstrument.Kind, string>> = {
-  uprightPiano: "upright piano",
-  guitar: "guitar",
-  violin: "violin",
-  sideDrum: "side drum",
-  bugle: "bugle",
-};
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `uprightPiano` selector. */
+    uprightPiano: typeof createUprightPiano;
+
+    /** The named producer for the saved `guitar` selector. */
+    guitar: typeof createGuitar;
+
+    /** The named producer for the saved `violin` selector. */
+    violin: typeof createViolin;
+
+    /** The named producer for the saved `sideDrum` selector. */
+    sideDrum: typeof createSideDrum;
+
+    /** The named producer for the saved `bugle` selector. */
+    bugle: typeof createBugle;
+  }
+
+  /** The canonical producer for each saved kind. */
+  export const PRODUCERS: Readonly<IProducers> = {
+    uprightPiano: createUprightPiano,
+    guitar: createGuitar,
+    violin: createViolin,
+    sideDrum: createSideDrum,
+    bugle: createBugle,
+  };
+}

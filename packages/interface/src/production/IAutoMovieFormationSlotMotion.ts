@@ -9,11 +9,6 @@ import type { IAutoMovieFormationSlotState } from "./IAutoMovieFormationSlotStat
  * Sampled exactly as {@link IAutoMovieFormationMotion} is: a member holds the identity state before its first cue, interpolates inside a cue, and retains a cue's `to` state after it ends. So a member removed at four seconds by a cue whose `to` is absent stays absent for the rest of the shot without the author restating it, and a member that falls stays down.
  *
  * A named slot stays an instanced member. Promotion to a named actor is the other, dearer thing: it exists, it is capped, and this is deliberately not it.
- *
- * @evidence contracts/development/design.md#principled-representation Sparse cues name explicit unique slot indices and interpolate member-local state over half-open shot-local intervals; sampling holds identity before the first cue and retains the last endpoint afterward.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Shares timing and easing with formation-wide motion; stored exceptions scale with authored cues and slot references, while member-query and population execution costs remain with their consumers. Hero promotion stays separate.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Slot membership is explicit and range-validated; removal is the present channel rather than deletion of the designed slot or automatic promotion to a named actor.
- * @evidence contracts/development/common.md#meaningful-documentation Explains sparse ownership, retained endpoints, identity before cues, shared-slot timing and the distinction from hero actors; start and end use shot-local seconds.
  */
 export interface IAutoMovieFormationSlotMotion {
   /** Stable cue id, unique inside one shot. */

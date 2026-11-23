@@ -27,22 +27,10 @@ import type { IAutoMovieMotionObstacleAperture } from "../perform/IAutoMovieMoti
  * `aperture`, with the height needed). First pass: the legs are carried
  * round with the body and are not lifted over the sill, and the door's leaf
  * is taken as open.
- *
- * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds of the sitting down; `sit`'s own when absent.
- * @evidence contracts/development/design.md#principled-representation seconds: Seconds of the sitting down; `sit`'s own when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanTravelCar.ts (HumanTravelCar.getIn, context); lexicon/HumanTravelCar.ts (HumanTravelCar.getIn).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionObstacleAperture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanTravelCar {
   /**
    * Parameters of getting in.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds of the sitting down; `sit`'s own when absent.
-   * @evidence contracts/development/design.md#principled-representation seconds: Seconds of the sitting down; `sit`'s own when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanTravelCar.ts (HumanTravelCar.getIn, context); lexicon/HumanTravelCar.ts (HumanTravelCar.getIn).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionObstacleAperture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The seat sat on, as `HumanObject.seat` reads it from the car. */
@@ -52,6 +40,6 @@ export namespace IAutoMovieMotionHumanTravelCar {
     through: IAutoMovieMotionObstacleAperture;
 
     /** Seated hold forwarded to sit, seconds; sit's own when absent. */
-    seconds?: number;
+    hold?: number;
   }
 }

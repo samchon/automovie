@@ -1,20 +1,10 @@
 /**
  * Partition one unit UV square into an affine boundary collar and local leaves. Side knots are bottom, right, top and left, increasing in chart u or v. Every outer leaf edge lies within one supplied side interval. The initial partition has at most the four side span counts plus five leaves. This bound does not cover later splits, fitted controls or generated vertices. Roots are center, corner.bottom-left, corner.bottom-right, corner.top-left, corner.top-right, or bottom/right/top/left followed by their interval ordinal. A split replaces its leaf by .0 and .1 children in increasing axis order; parameter is a global UV coordinate, not a relative child parameter. Bounds are [u0,u1,v0,v1]. Thin positive spans remain present; their physical conditioning and quadrature representability belong to the consumer. Invalid input or an unrepresentable or over-budget partition throws without mutating input. No source, boundary authority or physical curve is inferred.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Four strict increasing unit knot arrays, including both endpoints. Positive safe bound on both the initial and every resulting leaf count.
- * @evidence contracts/development/design.md#principled-representation Four strict increasing unit knot arrays, including both endpoints.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartCollar, RecoveryChartLeafFit share IAutoMovieRecoveryChartCollar's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Four strict increasing unit knot arrays, including both endpoints.
  */
 
 export namespace IAutoMovieRecoveryChartCollar {
   /**
    * Partition one unit UV square into an affine boundary collar and local leaves. Side knots are bottom, right, top and left, increasing in chart u or v. Every outer leaf edge lies within one supplied side interval. The initial partition has at most the four side span counts plus five leaves. This bound does not cover later splits, fitted controls or generated vertices. Roots are center, corner.bottom-left, corner.bottom-right, corner.top-left, corner.top-right, or bottom/right/top/left followed by their interval ordinal. A split replaces its leaf by .0 and .1 children in increasing axis order; parameter is a global UV coordinate, not a relative child parameter. Bounds are [u0,u1,v0,v1]. Thin positive spans remain present; their physical conditioning and quadrature representability belong to the consumer. Invalid input or an unrepresentable or over-budget partition throws without mutating input. No source, boundary authority or physical curve is inferred.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Four strict increasing unit knot arrays, including both endpoints. Positive safe bound on both the initial and every resulting leaf count.
-   * @evidence contracts/development/design.md#principled-representation Four strict increasing unit knot arrays, including both endpoints.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartCollar, RecoveryChartLeafFit share IAutoMovieRecoveryChartCollar's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Four strict increasing unit knot arrays, including both endpoints.
    */
 
   export type Operation = (input: {

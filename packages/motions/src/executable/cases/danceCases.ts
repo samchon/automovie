@@ -77,7 +77,7 @@ export function danceCases(
           composition: HumanChain.subject("a").act("dance", {
             kind,
             bpm: 120,
-            beats: 8,
+            count: 8,
           }).node,
         });
       } catch (error) {

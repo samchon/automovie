@@ -44,10 +44,6 @@ Verify human motion only on polygon men generated at Human parameters, across th
 
 The motion families are under #3201 and the grammar and composed families under #3354.
 
-### Lexicon schemas
-
-When changing a lexicon row or law parameters, run `pnpm --filter @automovie/motions schemas`. Commit `HUMAN_LEXICON_SCHEMA_DATA.ts` with the change.
-
 ### Checks and capture
 
 The specification tests and the vocabulary's own report of its physical bounds decide whether an action is right here. Run the tests that concern the change by name.

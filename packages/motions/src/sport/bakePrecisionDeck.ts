@@ -1,0 +1,169 @@
+import {
+  AutoMovieGravity,
+  AutoMoviePhysicalSimulation,
+  Vector3,
+} from "@automovie/engine";
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMovieMotionHumanPrecisionDeck,
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+/** Cache rate for the finite deck result. */
+const RATE: number = 120;
+
+/** One completed solver sample of a contact receipt. */
+type ContactSample = NonNullable<IAutoMovieContactReceipt["samples"]>[number];
+
+/**
+ * Bake a released ball on its playing surface and its effect on loose
+ * targets: a bowling ball on the lane and its pins, a cue ball on the table
+ * and its object balls, a putt on the green.
+ *
+ * Read the ball and target frames from the shared native cache with its film
+ * clock offset. A delivery that touches no target has no target impact.
+ * Contact order and target motion follow the supplied profiles and materials.
+ *
+ * @param input The world release state, fixed surface, placed targets and simulation extent.
+ * @returns A fixed-step replay of the actual ball and target transforms and the first target contact, if any.
+ * @throws {RangeError} For invalid duration, release time or a non-rigid input. Engine admission owns profiles, coordinates and solver bounds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the input geometry, independently authored release state, optional result and playback clock.
+ * @evidence contracts/development/implementation.md#principled-implementation The surface remains kinematic; ball and targets are native dynamic bodies. A sampled pair with declared dynamic ownership supplies the ball's initial velocity at release. A positive solved impulse qualifies a ball-to-target result.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Profile placement and motion inputs are built once. AutoMoviePhysicalSimulation owns physical admission, simulation, and replay; each sport credits its result from the cache.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No synthetic target displacement, alternative launch path or precomputed outcome. A miss has no ball-to-target impulse witness.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Stores two input poses for the ball, one for a resting or fixed body. Then scans the completed receipts and their candidate positive samples once.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same snapshot, named bodies and physical receipts for all frame reads and the contact outcome.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only the completed cache and one small film-time event. The native world releases in its owning compute call.
+ */
+export async function bakePrecisionDeck(
+  input: IAutoMovieMotionHumanPrecisionDeck,
+): Promise<IAutoMovieMotionHumanPrecisionDeck.IResult> {
+  const steps: number = input.duration * RATE;
+  if (
+    !Number.isSafeInteger(steps) ||
+    steps < 1 ||
+    !Number.isSafeInteger(input.maximumSteps) ||
+    input.maximumSteps < steps ||
+    steps > 0xffffffff - 1
+  )
+    throw new RangeError(
+      "Deck duration must contain whole 120 Hz intervals inside its step budget",
+    );
+  if (
+    !Number.isFinite(input.release) ||
+    input.release < 0 ||
+    !Number.isFinite(input.release + input.duration)
+  )
+    throw new RangeError("Deck release must be a nonnegative film second");
+
+  const bodies: IAutoMoviePhysicalSimulationInput.IBody[] = [
+    placed(input.surface, steps, false),
+    placed(input.ball, steps, true, input.ball.velocity),
+    ...input.targets.map(
+      (
+        target: IAutoMovieMotionHumanPrecisionDeck.IRigid,
+      ): IAutoMoviePhysicalSimulationInput.IBody => placed(target, steps, true),
+    ),
+  ];
+  const simulation: IAutoMoviePhysicalSimulation =
+    await AutoMoviePhysicalSimulation.compute({
+      duration: input.duration,
+      rate: RATE,
+      substeps: 4,
+      gravity: AutoMovieGravity.DOWN,
+      floor: input.floor,
+      floorBounds: input.floorBounds,
+      bodies,
+      impulses: [],
+      checkpointEvery: RATE,
+      yieldEvery: RATE,
+      maximumSteps: input.maximumSteps,
+      maximumSegments: bodies.length,
+    });
+  const targetIds: ReadonlySet<string> = new Set(
+    input.targets.map(
+      (target: IAutoMovieMotionHumanPrecisionDeck.IRigid): string => target.id,
+    ),
+  );
+  let firstTarget:
+    | IAutoMovieMotionHumanPrecisionDeck.ITargetContact
+    | undefined;
+  for (const contact of simulation.cache.contacts) {
+    if (contact.source !== "solver" || (contact.impulse ?? 0) <= 0) continue;
+    const target: string =
+      contact.a.body === input.ball.id
+        ? contact.b.body
+        : contact.b.body === input.ball.id
+          ? contact.a.body
+          : "";
+    if (!targetIds.has(target)) continue;
+    const local: number =
+      contact.samples?.find(
+        (sample: ContactSample): boolean => sample.impulse > 0,
+      )?.seconds ?? contact.seconds;
+    const seconds: number = input.release + local;
+    if (firstTarget === undefined || seconds < firstTarget.seconds)
+      firstTarget = { id: target, seconds };
+  }
+  return {
+    release: input.release,
+    cache: simulation.cache,
+    ...(firstTarget === undefined ? {} : { firstTarget }),
+  };
+}
+
+/**
+ * Use the actual rigid model and its authored first velocity as native inputs.
+ *
+ * @param rigid The placed one-segment model.
+ * @param steps Number of cached physics intervals.
+ * @param dynamic Whether solver motion owns the object.
+ * @param velocity World metres per second at the release, at rest when absent.
+ * @returns A sampled body specification.
+ */
+function placed(
+  rigid: IAutoMovieMotionHumanPrecisionDeck.IRigid,
+  steps: number,
+  dynamic: boolean,
+  velocity?: IAutoMovieVector3,
+): IAutoMoviePhysicalSimulationInput.IBody {
+  const root: string | undefined = rigid.profile.segments[0]?.bone;
+  if (root === undefined || rigid.profile.segments.length !== 1)
+    throw new RangeError(`Deck object ${rigid.id} needs one rigid segment`);
+  const target: IAutoMoviePhysicalSimulationInput.ITarget = {
+    strength: 0,
+    ...(dynamic ? { dynamicSegments: [root] } : {}),
+    segments: { [root]: rigid.pose },
+  };
+  const targets: IAutoMoviePhysicalSimulationInput.ITarget[] =
+    new Array<IAutoMoviePhysicalSimulationInput.ITarget>(steps + 1).fill(
+      target,
+    );
+  if (velocity !== undefined)
+    targets[1] = {
+      ...target,
+      segments: {
+        [root]: {
+          ...rigid.pose,
+          position: Vector3.add(
+            rigid.pose.position,
+            Vector3.scale(velocity, 1 / RATE),
+          ),
+        },
+      },
+    };
+  return {
+    id: rigid.id,
+    profile: rigid.profile,
+    mode: { kind: dynamic ? "simulated" : "kinematic" },
+    targets,
+    rootStiffness: 0,
+    rootDamping: 0,
+    maximumRootForce: 0,
+    complianceSeconds: 0,
+    complianceStrength: 0,
+  };
+}

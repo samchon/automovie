@@ -6,42 +6,78 @@ import type {
 
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
-/** A containing triangle and the point's cover occurrence within it. */
-interface Hit {
-  /** Triangle index before this insertion. */ index: number;
-  /** Integer periods added to the stored point. */ lift: number;
-  /** Three exact represented-point edge signs. */ signs: [
-    number,
-    number,
-    number,
-  ];
+/** One directed cavity edge in the inserted point's period cover. */
+interface Boundary {
+  /** First original vertex ID. */
+  a: number;
+
+  /** Last original vertex ID. */
+  b: number;
+
+  /** Period lift of the first endpoint relative to the new point. */
+  first: number;
+
+  /** Period lift of the last endpoint relative to the new point. */
+  last: number;
 }
 
-/** A directed cavity edge, with lifts measured relative to the new point's stored sheet. */
-interface Boundary {
-  /** Original first endpoint. */ a: number;
-  /** Original second endpoint. */ b: number;
-  /** First endpoint's sheet relative to the inserted point. */ first: number;
-  /** Second endpoint's sheet relative to the inserted point. */ last: number;
+/** A containing triangle and its occurrence in the inserted point's own cover. */
+interface Hit {
+  /** Triangle index before this insertion. */ index: number;
+
+  /** The point's sheet in the triangle's stored cover: integer periods the stored cover adds to the point. */ lift: number;
+
+  /** Three exact edge signs of the point's stored coordinates against `chart`. */ signs: [number, number, number];
+
+  /** The triangle's corners in the point's cover: each stored phase plus its lift less `lift`, in periods. */ chart: Readonly<AutoMovieVector2Tuple>[];
 }
 
 /**
- * Insert admitted residual grid points without changing an existing boundary.
+ * Insert admitted residual grid points by splitting the triangles that contain them.
  *
- * Interior insertion starts from its containing triangle(s). If a new fan
- * would have no represented strict interior, only unconstrained neighbouring
- * triangles extend its visible cavity; source constraints and points stay fixed.
- * Constraint vertices are left with the boundary owner, including unused
- * redundant boundaries in removed regions. Distinct coincident identities and
- * a kept point outside the supplied triangulation fail explicitly.
+ * Each kept point is located by the exact orientation signs of its
+ * represented chart against every triangle occurrence. A point strictly
+ * inside one triangle splits it into three; a point exactly on the relative
+ * interior of a shared unconstrained diagonal splits the two triangles beside
+ * it into four. This is the insertion step of Lawson's incremental
+ * triangulation (Lawson 1977, Software for C1 surface interpolation) and of
+ * Guibas and Stolfi's InsertSite (1985, ACM Transactions on Graphics 4(2));
+ * de Berg et al. (2008, Computational Geometry, section 9.3) state the same
+ * two cases. The Delaunay property is restored afterwards by the planner's
+ * flips (`legalizeAutoMovieSolidMesh`), not here.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Uses exact edge signs to locate a point and extend a visible cavity across unconstrained shared diagonals until every new triangle has a represented strict interior in its actual output cover.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One index-only insertion follows boundary ear triangulation; source grid evaluation and boundary subdivision remain separate owners.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Constructs no point, weld or new source-boundary index. An unshared boundary hit, ambiguous cover, coincident identity or nonmanifold containing population returns a named failure before publishing a partial result.
- * @evidence contracts/development/common.md#meaningful-documentation Distinguishes constraint vertices, strict interior insertion and shared-diagonal insertion, with explicit cover/ownership failure.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each inserted point scans/indexes current triangles and adds each cavity triangle at most once, giving O(M(T+M)) location, adjacency and cavity work plus one keeps query per eligible point.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses original points and constraints, builds one diagonal adjacency table per insertion and visits each selected cavity triangle once; no resampling, snapping or source evaluation occurs.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Working/output triangles and identity sets have O(V+T+M) storage; input arrays/maps and the membership callback are not retained, and every returned triangle triple is caller-owned.
+ * Each new triangle is a containing triangle's side and the point, so its
+ * orientation is that side's nonzero location sign. When one has no
+ * represented strict centroid, a cavity may absorb adjacent triangles
+ * across unconstrained sides to make a strict fan. If it reaches an
+ * authored constraint, an open boundary or an original point it would
+ * remove, the exact split stands and the planner reads membership from
+ * its constraint-bounded region (regionAutoMovieSolidMesh).
+ *
+ * An exact predicate is consistent only on one fixed set of represented
+ * coordinates (Shewchuk 1997, Adaptive precision floating-point arithmetic
+ * and fast robust geometric predicates), and adding an integer number of
+ * periods to a phase rounds, so the same three points read in two covers are
+ * two sets. Every decision of one insertion is therefore read in one cover,
+ * the inserted point's own: the point keeps its stored phase and each corner
+ * stands at its lift relative to the point's sheet, a represented phase that
+ * depends only on the corner and that relative lift. Two triangles that meet
+ * the point in one sheet thus read their shared side at the same two
+ * represented points, so the point is on that side in both or in neither.
+ * Each new triangle is published in that same cover, the point first at lift
+ * zero, the cover every consumer reads it in: its orientation there is the
+ * location sign by construction and is not derived again. Locating in each
+ * triangle's stored cover and rechecking each split in a cover that began at
+ * the side's first corner read three covers: a grid node on a chord across
+ * the phase seam stood 2^-52 rad inside the chord in the first and exactly on
+ * it in the last, and the valid split was refused. The split triangles must
+ * still span less than half a period in that cover (not exactly half when
+ * indexed). Constraint vertices are left with the boundary owner. A point on
+ * a source constraint or an unshared boundary has no authoritative
+ * subdivision; a point on a vertex, outside the supplied triangles, in more
+ * than two of them or in incompatible sheets of one diagonal is refused by
+ * name, with its inserted chart and located triangles, before any result is
+ * published.
  */
 export function insertAutoMovieSolidMeshPoints(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -84,45 +120,105 @@ export function insertAutoMovieSolidMeshPoints(
     const [id, point]: [number, Readonly<AutoMovieVector2Tuple>] = entry;
     if (present.has(id) || constrained.has(id) || !keeps(point[0], point[1]))
       continue;
-    const hits: Hit[] | string = locate(vertices, result, point, period);
-    if (typeof hits === "string") return hits;
+    const located: Hit[] | string = locate(vertices, result, point, period);
+    const hits: Hit[] = typeof located === "string" ? [] : located;
+
+    /** A named refusal with the inserted point and the triangles that located it. */
+    const refuse: (detail: string) => string = (detail: string): string =>
+      describe(detail, vertices, result, hits, id, point, period, indexed);
+    if (typeof located === "string") return refuse(located);
     if (hits.length === 0 || hits.length > 2)
-      return "kept interior point has no unique manifold containing population";
+      return refuse("kept interior point has no unique manifold containing population");
+
+    // A zero sign names the side the point lies on; a strict interior point has none.
     const onEdges: number[] = hits.map((hit: Hit): number =>
       hit.signs.findIndex((sign: number): boolean => sign === 0),
     );
     if (hits.length === 1 && onEdges[0] !== -1)
-      return "interior point hits an unshared boundary without an authoritative subdivision";
+      return refuse("interior point hits an unshared boundary without an authoritative subdivision");
     if (
       hits.length === 2 &&
       (onEdges.some((edge: number): boolean => edge === -1) ||
         edgeKey(result[hits[0]!.index]!, onEdges[0]!) !==
           edgeKey(result[hits[1]!.index]!, onEdges[1]!))
     )
-      return "interior point does not share one original diagonal";
+      return refuse("interior point does not share one original diagonal");
     if (
       hits.length === 2 &&
       sourceEdges.has(edgeKey(result[hits[0]!.index]!, onEdges[0]!))
     )
-      return "interior point needs an authoritative source-edge subdivision";
-    const next: IAutoMovieSolidMeshPlan.ITriangle[] | string = cavity(
-      vertices,
-      result,
-      hits,
-      sourceEdges,
-      id,
-      point,
-      period,
-      indexed,
+      return refuse("interior point needs an authoritative source-edge subdivision");
+
+    // Both triangles must meet the point in one sheet: the diagonal's first endpoint in one is the second in the other, both relative to the point.
+    if (hits.length === 2) {
+      const first: IAutoMovieSolidMeshPlan.ITriangle = result[hits[0]!.index]!;
+      const second: IAutoMovieSolidMeshPlan.ITriangle = result[hits[1]!.index]!;
+      if (
+        first.lifts[onEdges[0]!]! - hits[0]!.lift !==
+        second.lifts[(onEdges[1]! + 1) % 3]! - hits[1]!.lift
+      )
+        return refuse("interior point meets one diagonal in incompatible point sheets");
+    }
+
+    // Every side but the one the point lies on joins the point: three triangles inside, two on each side of a diagonal.
+    const made: IAutoMovieSolidMeshPlan.ITriangle[] = [];
+    for (let h: number = 0; h < hits.length; h++)
+      for (let k: number = 0; k < 3; k++) {
+        if (k === onEdges[h]) continue;
+        const triangle: IAutoMovieSolidMeshPlan.ITriangle | string = side(
+          result[hits[h]!.index]!,
+          hits[h]!,
+          k,
+          id,
+          point,
+          period,
+          indexed,
+        );
+        if (typeof triangle === "string") return refuse(triangle);
+        made.push(triangle);
+      }
+    const split: Set<number> = new Set(
+      hits.map((hit: Hit): number => hit.index),
     );
-    if (typeof next === "string") return next;
-    result = next;
+    const thin: boolean = made.some(
+      (triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean =>
+        !admitted(
+          vertices,
+          {
+            a: triangle.vertices[1]!,
+            b: triangle.vertices[2]!,
+            first: triangle.lifts[1]!,
+            last: triangle.lifts[2]!,
+          },
+          point,
+          period,
+          indexed,
+        ),
+    );
+    const expanded: IAutoMovieSolidMeshPlan.ITriangle[] | string | null = thin
+      ? cavity(vertices, result, hits, sourceEdges, id, point, period, indexed)
+      : null;
+    if (typeof expanded === "string") return refuse(expanded);
+    // A strict cavity cannot cross a source constraint or erase an original point. Keep
+    // the exact split in that case; the planner reads its constraint region for membership.
+    result =
+      expanded ??
+      result
+        .filter(
+          (_: IAutoMovieSolidMeshPlan.ITriangle, index: number): boolean =>
+            !split.has(index),
+        )
+        .concat(made);
     present.add(id);
   }
   return result;
 }
 
-/** Locate every incident triangle with exact edge signs and represented cover arithmetic. */
+/**
+ * Locate every incident triangle by exact edge signs in the point's own cover: the point keeps its stored phase and each corner is
+ * read at its lift relative to the point's sheet in that triangle. A corner's represented phase there depends only on its identity
+ * and that relative lift, so two triangles that meet the point in one sheet read a shared side at the same two represented points.
+ */
 function locate(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
   triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[],
@@ -132,45 +228,106 @@ function locate(
   const hits: Hit[] = [];
   for (let index: number = 0; index < triangles.length; index++) {
     const triangle: IAutoMovieSolidMeshPlan.ITriangle = triangles[index]!;
-    const chart: Readonly<AutoMovieVector2Tuple>[] = triangle.vertices.map(
-      (id: number, k: number): Readonly<AutoMovieVector2Tuple> => [
-        vertices.get(id)![0],
-        vertices.get(id)![1] + triangle.lifts[k]! * (period ?? 0),
-      ],
-    );
+    const first: number =
+      vertices.get(triangle.vertices[0]!)![1] +
+      triangle.lifts[0]! * (period ?? 0);
     const nearest: number =
-      period === undefined ? 0 : Math.round((chart[0]![1] - point[1]) / period);
+      period === undefined ? 0 : Math.round((first - point[1]) / period);
     const images: number[] =
       period === undefined ? [0] : [nearest - 1, nearest, nearest + 1];
     let contained: boolean = false;
     for (const lift of images) {
-      const lifted: Readonly<AutoMovieVector2Tuple> = [
-        point[0],
-        point[1] + lift * (period ?? 0),
-      ];
+      const chart: Readonly<AutoMovieVector2Tuple>[] = triangle.vertices.map(
+        (id: number, k: number): Readonly<AutoMovieVector2Tuple> => [
+          vertices.get(id)![0],
+          vertices.get(id)![1] + (triangle.lifts[k]! - lift) * (period ?? 0),
+        ],
+      );
       if (
         !Number.isSafeInteger(lift) ||
-        !lifted.every(Number.isFinite) ||
-        !chart.every((corner: Readonly<AutoMovieVector2Tuple>): boolean =>
-          corner.every(Number.isFinite),
-        )
+        !triangle.lifts.every((corner: number): boolean =>
+          Number.isSafeInteger(corner - lift),
+        ) ||
+        !point.every(Number.isFinite) ||
+        !chart.every((corner: Readonly<AutoMovieVector2Tuple>): boolean => corner.every(Number.isFinite))
       )
         return "interior point cover is not representable";
       const signs: [number, number, number] = [
-        orientAutoMovieSolidChart(chart[0]!, chart[1]!, lifted),
-        orientAutoMovieSolidChart(chart[1]!, chart[2]!, lifted),
-        orientAutoMovieSolidChart(chart[2]!, chart[0]!, lifted),
+        orientAutoMovieSolidChart(chart[0]!, chart[1]!, point),
+        orientAutoMovieSolidChart(chart[1]!, chart[2]!, point),
+        orientAutoMovieSolidChart(chart[2]!, chart[0]!, point),
       ];
       if (signs.some((sign: number): boolean => sign < 0)) continue;
       if (contained)
         return "interior point has ambiguous periodic triangle occurrences";
       if (signs.filter((sign: number): boolean => sign === 0).length > 1)
         return "interior point coincides with another authoritative vertex";
-      hits.push({ index, lift, signs });
+      hits.push({ index, lift, signs, chart });
       contained = true;
     }
   }
   return hits;
+}
+
+/**
+ * The triangle from the point to a containing triangle's side `k`, published in the cover it was located in: the point first at
+ * lift zero, the side's two corners at their lifts relative to the point's sheet. Its orientation there is the side's location
+ * sign, already exactly positive, and its three represented corners are the located ones, so only the half-period span is read.
+ */
+function side(
+  triangle: IAutoMovieSolidMeshPlan.ITriangle,
+  hit: Hit,
+  k: number,
+  id: number,
+  point: Readonly<AutoMovieVector2Tuple>,
+  period: number | undefined,
+  indexed: boolean,
+): IAutoMovieSolidMeshPlan.ITriangle | string {
+  const next: number = (k + 1) % 3;
+  const phases: number[] = [point[1], hit.chart[k]![1], hit.chart[next]![1]];
+  const span: number = Math.max(...phases) - Math.min(...phases);
+  if (
+    period !== undefined &&
+    (span > period / 2 || (indexed && span === period / 2))
+  )
+    return "interior split triangle spans half a period in its output cover";
+  return {
+    vertices: [id, triangle.vertices[k]!, triangle.vertices[next]!],
+    lifts: [0, triangle.lifts[k]! - hit.lift, triangle.lifts[next]! - hit.lift],
+  };
+}
+
+/** A refusal with the inserted point's identity and chart and each located triangle with its signs; nonfinite numbers are spelled out. */
+function describe(
+  detail: string,
+  vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+  triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[],
+  hits: readonly Hit[],
+  id: number,
+  point: Readonly<AutoMovieVector2Tuple>,
+  period: number | undefined,
+  indexed: boolean,
+): string {
+  return detail + "; diagnostic=" + JSON.stringify({
+    inserted: { id, chart: [...point] },
+    period: period ?? null,
+    indexed,
+    hits: hits.map((hit: Hit): {
+      index: number; vertices: number[]; lifts: number[]; charts: number[][]; lift: number; signs: number[]; cover: number[][];
+    } => {
+      const triangle: IAutoMovieSolidMeshPlan.ITriangle = triangles[hit.index]!;
+      return {
+        index: hit.index,
+        vertices: [...triangle.vertices],
+        lifts: [...triangle.lifts],
+        charts: triangle.vertices.map((corner: number): number[] => [...vertices.get(corner)!]),
+        lift: hit.lift,
+        signs: [...hit.signs],
+        cover: hit.chart.map((corner: Readonly<AutoMovieVector2Tuple>): number[] => [...corner]),
+      };
+    }),
+  }, (_key: string, value: unknown): unknown =>
+    typeof value === "number" && !Number.isFinite(value) ? "nonfinite:" + String(value) : value);
 }
 
 /** Unoriented identity of the existing diagonal, including its relative cover. */
@@ -185,6 +342,15 @@ function edgeKey(
   return key(a, b, turn);
 }
 
+/** Canonical indexed edge identity retains the relative period turn. */
+function key(a: number, b: number, turn: number): string {
+  return a === b
+    ? `${a}/${b}/${Math.abs(turn)}`
+    : a < b
+      ? `${a}/${b}/${turn}`
+      : `${b}/${a}/${-turn}`;
+}
+
 /** Remove only unconstrained neighbours needed for a visible, representable insertion fan. */
 function cavity(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -195,7 +361,7 @@ function cavity(
   point: Readonly<AutoMovieVector2Tuple>,
   period: number | undefined,
   indexed: boolean,
-): IAutoMovieSolidMeshPlan.ITriangle[] | string {
+): IAutoMovieSolidMeshPlan.ITriangle[] | string | null {
   const adjacency: Map<string, number[]> = new Map();
   for (let index: number = 0; index < triangles.length; index++)
     for (let k: number = 0; k < 3; k++) {
@@ -206,13 +372,13 @@ function cavity(
         return "interior cavity needs manifold original diagonal incidence";
       adjacency.set(identity, owners);
     }
-  const selected: Map<number, Hit> = new Map();
+  const selected: Map<number, Pick<Hit, "index" | "lift">> = new Map();
   const boundary: Map<string, Boundary> = new Map();
   const pending: Boundary[] = [];
-  const add: (hit: Hit) => string | undefined = (
-    hit: Hit,
+  const add: (hit: Pick<Hit, "index" | "lift">) => string | undefined = (
+    hit: Pick<Hit, "index" | "lift">,
   ): string | undefined => {
-    const previousHit: Hit | undefined = selected.get(hit.index);
+    const previousHit: Pick<Hit, "index" | "lift"> | undefined = selected.get(hit.index);
     if (previousHit !== undefined)
       return previousHit.lift === hit.lift
         ? undefined
@@ -262,12 +428,12 @@ function cavity(
     )
       continue;
     if (constraints.has(identity))
-      return "interior point has no represented strict triangle against a source constraint";
+      return null;
     const next: number | undefined = adjacency
       .get(identity)
       ?.find((index: number): boolean => !selected.has(index));
     if (next === undefined)
-      return "interior cavity cannot cross an unshared boundary";
+      return null;
     const triangle: IAutoMovieSolidMeshPlan.ITriangle = triangles[next]!;
     const at: number = triangle.vertices.indexOf(edge.a);
     if (at < 0)
@@ -278,7 +444,6 @@ function cavity(
     const failure: string | undefined = add({
       index: next,
       lift,
-      signs: [0, 0, 0],
     });
     if (failure !== undefined) return failure;
   }
@@ -295,21 +460,17 @@ function cavity(
           `${triangle.vertices[k]}/${triangle.lifts[k]! - hit.lift}`,
         )
       )
-        return "interior cavity would remove an original point occurrence";
+        return null;
     }
   const result: IAutoMovieSolidMeshPlan.ITriangle[] = triangles.filter(
     (_: IAutoMovieSolidMeshPlan.ITriangle, index: number): boolean =>
       !selected.has(index),
   );
   for (const edge of boundary.values()) {
-    const lifts: [number, number, number] = [
-      0,
-      edge.last - edge.first,
-      -edge.first,
-    ];
+    const lifts: [number, number, number] = [0, edge.first, edge.last];
     if (!lifts.every(Number.isSafeInteger))
       return "interior cavity output cover is not representable";
-    result.push({ vertices: [edge.a, edge.b, id], lifts });
+    result.push({ vertices: [id, edge.a, edge.b], lifts });
   }
   return result;
 }
@@ -337,11 +498,7 @@ function admitted(
     orientAutoMovieSolidChart(visibleA, visibleB, point) <= 0
   )
     return false;
-  const points: Readonly<AutoMovieVector2Tuple>[] = [
-    a,
-    [b[0], b[1] + (edge.last - edge.first) * (period ?? 0)],
-    [point[0], point[1] - edge.first * (period ?? 0)],
-  ];
+  const points: Readonly<AutoMovieVector2Tuple>[] = [point, visibleA, visibleB];
   if (
     !points.every((value: Readonly<AutoMovieVector2Tuple>): boolean =>
       value.every(Number.isFinite),
@@ -367,13 +524,4 @@ function admitted(
         orientAutoMovieSolidChart(value, points[(index + 1) % 3]!, center) > 0,
     )
   );
-}
-
-/** Canonical indexed edge identity retains the relative period turn. */
-function key(a: number, b: number, turn: number): string {
-  return a === b
-    ? `${a}/${b}/${Math.abs(turn)}`
-    : a < b
-      ? `${a}/${b}/${turn}`
-      : `${b}/${a}/${-turn}`;
 }

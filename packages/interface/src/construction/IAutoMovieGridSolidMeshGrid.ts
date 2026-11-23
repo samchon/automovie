@@ -5,11 +5,6 @@ import type { IAutoMovieSolidMeshPlan } from "./IAutoMovieSolidMeshPlan";
 
 /**
  * Face-local grid, source partition and provisional point catalogue.
- *
- * @evidence contracts/development/design.md#principled-representation The face-local preparation separates provisional vertex IDs, native-chart constraints, retained triangles and original/residual membership; local metric returns shear and positive phase scale.
- * @evidence contracts/development/design.md#minimal-and-owned-surface gridAutoMovieSolidMesh produces this record for faceAutoMovieSolidMesh; shared sample, segment and triangle contracts keep one index vocabulary.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Maps and arrays do not enforce coindexing, positive metrics or source validity; grid preparation and the plan consumer own those checks.
- * @evidence contracts/development/common.md#meaningful-documentation Describes provisional ownership, membership boundaries and the world-derived metric.
  */
 export interface IAutoMovieGridSolidMeshGrid {
   /** Existing global vertex count before any face write. */
@@ -38,27 +33,11 @@ export interface IAutoMovieGridSolidMeshGrid {
 
   /**
    * Original kept source, independent of the sampling margin.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes original kept-source membership from the residual after retained full cells, in native chart coordinates.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable signature has no body; gridAutoMovieSolidMesh supplies the geometric evaluation described here.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The declaration exposes one reader; gridAutoMovieSolidMesh owns its preparation and helper decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature computes no fallback or fitted result; gridAutoMovieSolidMesh owns numerical admission and any documented metric fallback.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Runtime traversal and allocation belong to gridAutoMovieSolidMesh; a signature selects no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Prepared-data sharing is owned by gridAutoMovieSolidMesh and its caller, not this callable declaration.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller retains the prepared reader and dependencies until release; this signature acquires no resource.
    */
   source: (u: number, v: number) => boolean;
 
   /**
    * Original source minus already retained full cells.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes original kept-source membership from the residual after retained full cells, in native chart coordinates.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable signature has no body; gridAutoMovieSolidMesh supplies the geometric evaluation described here.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The declaration exposes one reader; gridAutoMovieSolidMesh owns its preparation and helper decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature computes no fallback or fitted result; gridAutoMovieSolidMesh owns numerical admission and any documented metric fallback.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Runtime traversal and allocation belong to gridAutoMovieSolidMesh; a signature selects no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Prepared-data sharing is owned by gridAutoMovieSolidMesh and its caller, not this callable declaration.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller retains the prepared reader and dependencies until release; this signature acquires no resource.
    */
   residual: (u: number, v: number) => boolean;
 
@@ -85,14 +64,6 @@ export interface IAutoMovieGridSolidMeshGrid {
    * holding the centroid, a band's corner column at f1's crotch fork, where
    * the band's columns converge within one cell, took the wrong diagonal and
    * folded 63 degrees. Missing skin points, a singular chart fit, or a nonfinite/nonpositive fitted metric use [0, metric], the face mean.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines matched vertex/chart inputs, shear/scale output and the world-derived local metric.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable signature has no body; gridAutoMovieSolidMesh supplies the geometric evaluation described here.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The declaration exposes one reader; gridAutoMovieSolidMesh owns its preparation and helper decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature computes no fallback or fitted result; gridAutoMovieSolidMesh owns numerical admission and any documented metric fallback.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Runtime traversal and allocation belong to gridAutoMovieSolidMesh; a signature selects no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Prepared-data sharing is owned by gridAutoMovieSolidMesh and its caller, not this callable declaration.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller retains the prepared reader and dependencies until release; this signature acquires no resource.
    */
   local: (
     ids: readonly number[],

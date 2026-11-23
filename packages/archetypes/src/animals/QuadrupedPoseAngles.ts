@@ -13,31 +13,25 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { QuadrupedBody } from "./QuadrupedBody";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
+import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /**
- * Prepare shared world-goal lowering for the actual quadruped rigid tree.
+ * Prepare shared world-goal lowering for the quadruped rigid tree.
  *
- * @param rig The admitted actual tree used to prepare reader.
+ * @param rig The admitted tree used to prepare reader.
  * @param reader That same tree's independently prepared generic FK reader.
  * @returns A time-independent resolver; omitted limbs preview the axial goals only.
  * @throws {RangeError} For mismatched vocabulary, unknown/incomplete goals, nonfinite/degenerate directions or inadmissible rigid root.
- * @evidence contracts/development/common.md#meaningful-documentation States same-tree admission, degree/world-metre frames, complete four-chain input, independent state, preview behavior and refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Visit the real parent-first tree. A direction goal shortest-arc aims the bar carried by its current parent; an orientation goal specifies its world quaternion. Inverse parent and neutral-local rotations yield the articulation quaternion, which the engine decomposes on the actual normalized axes before ordinary generic FK.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Snapshot/index graph metadata once, assemble current direction/orientation goals, lower them in admitted parent order and return fresh achieved FK frames.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species, humanoid slot, Euler sign table, copied clinical ROM, changed bar or previous-frame state supplies the rotation. Full physical endpoint closure remains the actual-model sampler's responsibility.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation is O(B); each query is O(B+G) with fresh maps for B bones and G goals. No hierarchy preparation or mesh generation occurs per query.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The same admitted reader, independent node metadata, normalized bases and parent order serve every preview/sample query.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains O(B) independent scalar metadata and the bounded reader for the resolver lifetime; each query owns its maps/records and no input goal, completed pose or external handle is retained.
  */
 export function QuadrupedPoseAngles(
-  rig: IAutoMovieArticulatedRig<QuadrupedBody.Bone>,
-  reader: IAutoMovieArticulatedRigReader<QuadrupedBody.Bone>,
+  rig: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>,
+  reader: IAutoMovieArticulatedRigReader<AutoMovieArchetypeQuadrupedBody.Bone>,
 ): QuadrupedPosePlan.Lowering {
   const nodes: Map<
-    QuadrupedBody.Bone,
-    IAutoMovieArticulatedRig<QuadrupedBody.Bone>["bones"][number]
+    AutoMovieArchetypeQuadrupedBody.Bone,
+    IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>["bones"][number]
   > = new Map();
   for (const input of rig.bones) {
     const node: typeof input = structuredClone(input);
@@ -45,10 +39,14 @@ export function QuadrupedPoseAngles(
     node.axes = normalizeJointAxes(node.axes, `${rig.id}/${node.bone}.axes`);
     nodes.set(node.bone, node);
   }
-  const order: readonly QuadrupedBody.Bone[] = [...reader.bones];
+  const order: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
+    ...reader.bones,
+  ];
   if (
     nodes.size !== order.length ||
-    order.some((bone: QuadrupedBody.Bone): boolean => !nodes.has(bone))
+    order.some(
+      (bone: AutoMovieArchetypeQuadrupedBody.Bone): boolean => !nodes.has(bone),
+    )
   )
     throw new RangeError(
       "Quadruped pose lowering requires the reader's actual rig",
@@ -59,18 +57,27 @@ export function QuadrupedPoseAngles(
     "neck",
     "head",
     "tail",
+    ...Object.values(QuadrupedScapula.BONES),
   ]);
   return resolve;
 
   /** Resolve one current set without retaining caller inputs or previous output. */
   function resolve(
     root?: IAutoMovieTransform,
-    limbs?: ReadonlyMap<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>,
+    limbs?: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Limb,
+      readonly IAutoMovieVector3[]
+    >,
     axial?: ReadonlyMap<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal>,
   ): QuadrupedPosePlan.IState {
-    const placed: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
-      checked(reader.read(undefined, root));
-    const goals: Map<QuadrupedBody.Bone, QuadrupedPosePlan.Goal> = new Map();
+    const placed: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    > = checked(reader.read(undefined, root));
+    const goals: Map<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      QuadrupedPosePlan.Goal
+    > = new Map();
     if (axial === null)
       throw new RangeError("Quadruped axial goals cannot be null");
     for (const [bone, goal] of axial ?? []) {
@@ -81,9 +88,9 @@ export function QuadrupedPoseAngles(
     if (limbs === null)
       throw new RangeError("Quadruped solved limbs cannot be null");
     if (limbs !== undefined) {
-      if (limbs.size !== QuadrupedBody.LIMBS.length)
+      if (limbs.size !== AutoMovieArchetypeQuadrupedBody.LIMBS.length)
         throw new RangeError("A quadruped pose requires all four solved limbs");
-      for (const limb of QuadrupedBody.LIMBS) {
+      for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
         const points: readonly IAutoMovieVector3[] | undefined =
           limbs.get(limb);
         if (points?.length !== 5)
@@ -95,7 +102,8 @@ export function QuadrupedPoseAngles(
             throw new RangeError(
               `Quadruped ${limb} goals must be finite world points`,
             );
-        const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
+        const chain: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
+          AutoMovieArchetypeQuadrupedBody.BONES[limb];
         for (let index: number = 0; index < chain.length; index++)
           goals.set(chain[index]!, {
             kind: "direction",
@@ -103,16 +111,21 @@ export function QuadrupedPoseAngles(
           });
       }
     }
-    const joints: Map<QuadrupedBody.Bone, QuadrupedPosePlan.Rotation> =
-      new Map();
+    const joints: Map<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      QuadrupedPosePlan.Rotation
+    > = new Map();
     if (goals.size === 0) return { joints, frames: placed };
-    const current: Map<QuadrupedBody.Bone, IAutoMovieQuaternion> = new Map();
+    const current: Map<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieQuaternion
+    > = new Map();
     const rootRotation: IAutoMovieQuaternion =
       root === undefined
         ? Quaternion.identity()
         : Quaternion.normalize(root.rotation);
     for (const bone of order) {
-      const node: IAutoMovieArticulatedRig<QuadrupedBody.Bone>["bones"][number] =
+      const node: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>["bones"][number] =
         nodes.get(bone)!;
       const parent: IAutoMovieQuaternion =
         node.parent === null ? rootRotation : current.get(node.parent)!;
@@ -173,8 +186,11 @@ export function QuadrupedPoseAngles(
 
   /** Finite inputs can still overflow derived world positions; they cannot be reported as achieved frames. */
   function checked(
-    frames: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
-  ): ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> {
+    frames: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    >,
+  ): ReadonlyMap<AutoMovieArchetypeQuadrupedBody.Bone, IAutoMovieTransform> {
     for (const [bone, frame] of frames)
       if (
         ![

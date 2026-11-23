@@ -7,19 +7,12 @@ import type { IAutoMovieMotionHumanThrowObjectLever } from "./IAutoMovieMotionHu
 
 /**
  * The parameters of a throw (`IAutoMovieMotionHumanThrowObjectParams`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
- * @evidence contracts/development/design.md#principled-representation The target union, a closed style, a hand, the thrown and the lengthening props, and the flight's attitude.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members `throwObject.plan` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No speed is typed by the author; a spin's rate is the act's, from the lever and the stand-off.
- *
- * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
  */
 export interface IAutoMovieMotionHumanThrowObjectParams {
   /** Where the object goes. */
-  at: IAutoMovieMotionTarget;
+  target: IAutoMovieMotionTarget;
 
-  /** The style; `overarm` when absent. */
+  /** The style; `overarm` when absent. It fixes the release angle, the windup and the trunk's turn and tilt ({@link IAutoMovieMotionHumanThrowObjectForm.Style} gives each style's angle and windup, provisional). The speed follows from the distance and the angle by the range equation, so a farther target is a faster throw. */
   style?: IAutoMovieMotionHumanThrowObjectForm.Style;
 
   /** The throwing hand; `right` when absent. */
@@ -32,13 +25,13 @@ export interface IAutoMovieMotionHumanThrowObjectParams {
    */
   prop?: string;
 
-  /** The release angle above the horizontal, degrees; the style's when absent. */
+  /** The release angle above the horizontal, degrees; the style's when absent (`throwObjectForm.ANGLE`). A target the angle cannot reach is refused. */
   angle?: number;
 
   /**
    * How the prop turns in flight (`IAutoMovieProjectile.attitude`): along
    * its velocity for a javelin; `turns` for a knife, whose spin the act
-   * chooses ({@link throwObjectLever.spin}); its release rotation kept when
+   * chooses (`throwObjectLever.spin`); its release rotation kept when
    * absent.
    */
   attitude?:

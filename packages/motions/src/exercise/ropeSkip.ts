@@ -148,7 +148,7 @@ export const ropeSkip = {
       });
 
     const stance: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: takeoff, sway: 0 } })
+      .plan({ ...context, params: { hold: takeoff, sway: 0 } })
       .posture(takeoff);
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...stance.joints };
     for (const side of SIDES) {

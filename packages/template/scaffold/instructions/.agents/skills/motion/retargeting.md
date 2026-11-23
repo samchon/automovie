@@ -1,6 +1,6 @@
 # Retargeting
 
-Retarget external motion before use and after proportion or rig changes. Read the source, [rig](../3d-modeling/rigging.md), screenplay and installed [import and kinematics APIs](../automovie/SKILL.md#reading-a-package). Derive timing, contacts and meaning from clip data.
+Retarget external motion before use and after proportion or rig changes. Read the source, [rig](../3d-modeling/rigging.md), screenplay and installed import and kinematics APIs. Derive timing, contacts and meaning from clip data.
 
 ## Source and target meanings
 

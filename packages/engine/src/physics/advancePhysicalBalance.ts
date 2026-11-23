@@ -15,17 +15,17 @@ import type {
   IAutoMovieSamplePhysicalRecoveryGoal,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { RigidBody, World } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance";
 import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracking";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
 import { physicalBalanceBracing } from "./physicalBalanceBracing";
 import { physicalBalanceExhaustion } from "./physicalBalanceExhaustion";
-import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
@@ -38,28 +38,23 @@ import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
  */
 const MINIMUM_PHASE: number = 0.5;
 
+/** The trunk tilt past which a step is asked for, radians: the hip strategy's range (Stephens 2011, Table 4.1). */
+const TIP: number = 0.5;
+
 /**
  * Advance one body's generic recovery controller from actual floor manifolds.
  * Root tracking is withdrawn on unrecoverable support loss. Recovery requests
  * use the shared support-swing interpolator and bounded endpoint motors; their
  * completed placements remain offsets on subsequent authored goals, so the
  * planner and physical support do not snap apart at landing.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Advance one body's generic recovery controller from actual floor manifolds) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Advance one body's generic recovery controller from actual floor manifolds) directly over its typed inputs (`input`) as nested iteration of depth 2 (for-of over input.profile.segments; for-of over input.unavailable ?? []; some over supports), delegating to `collectPhysicalSupports`, `Object.create`, `Vector3.add`, `Vector3.scale`, `rigid.translation`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literals 0.025, 0.1, whose basis this answer does not independently establish and a reviewer must confirm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 336 lines and 29 top-level statements that reuses `collectPhysicalSupports`, `Object.create`, `Vector3.add`, `Vector3.scale`, `rigid.translation` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 21 non-null assertion(s); these are the remaining shortcuts and are not justified here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 2 (for-of over input.profile.segments; for-of over input.unavailable ?? []; some over supports), performed once per call with 36 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 36 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function advancePhysicalBalance(input: {
-  /** Active solver, read before this step's integration. */ world: World;
+  /** Active solver, read before this step's integration. */ world: AutoMovieXpbdWorld;
   /** Scene body identity. */ body: string;
   /** Its actual provider profile. */ profile: IAutoMoviePhysicalProfile;
   /** Current world segment wrappers. */ segments: ReadonlyMap<
     string,
-    RigidBody
+    AutoMovieXpbdBody
   >;
   /** Shape identities, including the explicit floor. */ colliders: ReadonlyMap<
     number,
@@ -93,7 +88,7 @@ export function advancePhysicalBalance(input: {
   let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const segment of input.profile.segments) {
-    const rigid: RigidBody = input.segments.get(segment.bone)!;
+    const rigid: AutoMovieXpbdBody = input.segments.get(segment.bone)!;
     center = Vector3.add(
       center,
       Vector3.scale(
@@ -108,11 +103,9 @@ export function advancePhysicalBalance(input: {
       velocity,
       Vector3.scale(
         rigid.velocityAtPoint(
-          physicalNativeVector(
-            Vector3.add(
-              rigid.translation(),
-              Quaternion.rotateVector(rigid.rotation(), segment.centerOfMass),
-            ),
+          Vector3.add(
+            rigid.translation(),
+            Quaternion.rotateVector(rigid.rotation(), segment.centerOfMass),
           ),
         ),
         segment.mass / input.profile.mass,
@@ -184,11 +177,24 @@ export function advancePhysicalBalance(input: {
       // Every reference to the old stance is latched again at the landing:
       // each standing foot's support point, rotation and joint references,
       // as it stands now. A stale one pulls the legs back toward the stance
-      // the body left (Feng et al. 2013, Section II-E). The landed foot's own
-      // seat is latched when its stance begins.
+      // the body left (Feng et al. 2013, Section II-E). The landed foot is
+      // seated with its outline at once, its contact added with zero error
+      // at the pose it landed in; only its share of the force ramps in
+      // (Feng et al. 2013, Section II-E; Herzog et al. 2016, Section 5.3).
       for (const limb of input.policy.pattern.limbs) {
         const seat = state.seating?.[limb.bone];
         if (limb.bone !== bone && seat) seat.anchor = latch(limb);
+        if (limb.bone === bone)
+          (state.seating ??= {})[bone] = {
+            seated: true,
+            since: input.seconds,
+            bearing: 0,
+            flat: 1,
+            load: 0,
+            touching: false,
+            relief: soleSpread(bone),
+            anchor: latch(limb),
+          };
       }
       resolveSwing("landed");
       state.outsideSince = undefined;
@@ -219,7 +225,7 @@ export function advancePhysicalBalance(input: {
   for (const limb of input.policy.pattern.limbs) {
     if (limb.bone === state.swing?.bone) {
       // A limb about to swing gives up its share over the fade window, the
-      // stance solve shifting its load to the others, and lifts once it bears
+      // stance's command shifting its load to the others, and lifts once it bears
       // nothing: a recovery step's unloading is that ramp alone (Pratt et
       // al., M2V2, Section VII-E1; Herzog et al. 2016, Section 5.3).
       const seat = state.seating?.[limb.bone];
@@ -286,19 +292,21 @@ export function advancePhysicalBalance(input: {
     // contact skin of the floor.
     const grounded: boolean = (limb.contacts ?? [limb.bone]).some(
       (carrier: string): boolean => {
-        const rigid: RigidBody | undefined = input.segments.get(carrier);
+        const rigid: AutoMovieXpbdBody | undefined = input.segments.get(carrier);
         return (
           !!rigid &&
-          input.profile.segments
-            .find(
-              (segment: IAutoMoviePhysicalSegment): boolean =>
-                segment.bone === carrier,
-            )!
-            .shapes.some(
+          physicalSupportFootprint
+            .colliders(
+              input.profile.segments.find(
+                (segment: IAutoMoviePhysicalSegment): boolean =>
+                  segment.bone === carrier,
+              )!,
+            )
+            .some(
               (shape): boolean =>
                 physicalShapeBounds.lowest(
                   {
-                    position: physicalNativeVector(rigid.translation()),
+                    position: rigid.translation(),
                     rotation: rigid.rotation(),
                   },
                   shape,
@@ -337,25 +345,63 @@ export function advancePhysicalBalance(input: {
           ),
         )
       : input.floor;
-  // The swing's peak acceleration: what the stance can react while it keeps
-  // the trunk still (`physicalStanceBalance.swing`), under the policy's force
-  // bound over the heaviest leg less its weight.
+  // The swing's peak acceleration: the hip's declared torque at the endpoint
+  // (`physicalStanceBalance.swingBound`), under the policy's force bound over
+  // the heaviest leg less its weight; the swing lasts at least
+  // `Balance.MINIMUM_SWING`.
   const heaviest: number = Math.max(
     ...input.policy.pattern.limbs.map(
       (limb: (typeof input.policy.pattern.limbs)[number]): number =>
         legMass(limb),
     ),
   );
+  const legs = input.policy.pattern.limbs.map(
+    (limb: (typeof input.policy.pattern.limbs)[number]) =>
+      physicalStanceBalance.swingLeg(input.profile, input.segments, limb),
+  );
+  const leg = legs.reduce((a, b) => (b.mass > a.mass ? b : a));
+  const effective: number = leg.mass;
+  const omega: number = Math.sqrt(
+    input.gravity / Math.max(1e-6, center.y - plane),
+  );
+  // The body's rotation counts in its capture point (`physicalStanceBalance`
+  // `.momentum`, `.spin`).
+  const spin: IAutoMovieVector3 = physicalStanceBalance.spin(
+    physicalStanceBalance.momentum(input.profile, input.segments, center),
+    omega,
+    input.profile.mass,
+    input.gravity,
+  );
   const peak: number = Math.min(
     input.policy.maximumForce / heaviest - input.gravity,
-    physicalStanceBalance.swing(
-      input.profile.mass,
-      heaviest,
-      center.y - plane,
-      input.gravity,
-    ),
+    physicalStanceBalance.swingBound({
+      effective,
+      length: leg.length,
+      torque: leg.torque,
+    }),
+  );  // The tilt guard: a step is asked for once the trunk would pass the hip
+  // strategy's range within a pendulum time, even with the capture point
+  // inside (Stephens 2011, Table 4.1, Eqs. 3.23-3.26).
+  const rootSegment: IAutoMoviePhysicalSegment = input.profile.segments.find(
+    (segment: IAutoMoviePhysicalSegment): boolean =>
+      !input.profile.joints.some((joint) => joint.child === segment.bone),
+  )!;
+  const rootBody: AutoMovieXpbdBody = input.segments.get(rootSegment.bone)!;
+  const upNow: IAutoMovieVector3 = Quaternion.rotateVector(rootBody.rotation(), {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
+  const upPlanned: IAutoMovieVector3 = Quaternion.rotateVector(
+    input.targets[rootSegment.bone]!.rotation,
+    { x: 0, y: 1, z: 0 },
   );
-  const assessment: IAutoMoviePhysicalBalance.IResult = Balance.assess({
+  const tilt: number = Math.acos(
+    Math.max(-1, Math.min(1, Vector3.dot(upNow, upPlanned))),
+  );
+  const turning: IAutoMovieVector3 = rootBody.angvel();
+  const tipping: boolean =
+    tilt + Math.hypot(turning.x, turning.z) / omega > TIP;  const assessment: IAutoMoviePhysicalBalance.IResult = Balance.assess({
     center,
     velocity,
     gravity: input.gravity,
@@ -363,8 +409,27 @@ export function advancePhysicalBalance(input: {
     supports: planted,
     pattern: input.policy.pattern,
     maximumStep: input.policy.maximumStep,
-    margin: input.policy.margin,
+    // A hysteresis band of the stance margin: a capture point must pass the
+    // shrunken support by it before the trigger starts counting, and stays
+    // counted until it is back within the margin.
+    margin:
+      input.policy.margin +
+      (state.outsideSince === undefined ? physicalStanceBalance.MARGIN : 0),
     swingSeconds: input.policy.duration,
+    spin,
+    // The body's heading, the root's yaw: the side a stepping limb keeps.
+    heading: (() => {
+      // The authored stance faces +z; the root's turn from it turns that.
+      const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.multiply(
+          rootBody.rotation(),
+          Quaternion.inverse(input.targets[rootSegment.bone]!.rotation),
+        ),
+        { x: 0, y: 0, z: 1 },
+      );
+      return { x: forward.x, y: 0, z: forward.z };
+    })(),
+    ...(tipping ? { force: true } : {}),
     ...(peak > 0
       ? {
           swing: {
@@ -430,21 +495,13 @@ export function advancePhysicalBalance(input: {
     state.failedLanding = undefined;
     state.revision = (state.revision ?? 0) + 1;
   }
-  // A swing is held while its limb's share ramps out, only until it lifts:
-  // its start keeps moving with each step it waits, its planned time kept.
-  // A capture point back inside the support while the limb still bears
-  // cancels the step (Koolen et al., Corollary 3). Once under way, a touch
-  // of the floor by the moving limb does not restart it.
-  if (
-    state.swing &&
-    state.seating?.[state.swing.bone] &&
-    assessment.state === "supported"
-  ) {
-    resolveSwing("cancelled");
-    state.swing = undefined;
-    state.revision = (state.revision ?? 0) + 1;
-  }
-  const lifting: boolean = !!state.swing && !state.seating?.[state.swing.bone];
+  // A step is committed at its trigger: its limb's share ramps out and it
+  // lifts, and it is never cancelled; one swing at a time, the next only
+  // once this one lands. Its start keeps moving while it unloads, its
+  // planned time kept. Once under way, a touch of the floor by the moving
+  // limb does not restart it.
+  const lifting: boolean =
+    !!state.swing && !state.seating?.[state.swing.bone];
   if (state.swing && !lifting) {
     state.swing.end = input.seconds + (state.swing.end - state.swing.start);
     state.swing.start = input.seconds;
@@ -498,7 +555,7 @@ export function advancePhysicalBalance(input: {
         step.end = state.swing.end;
       }
     }
-    const rigid: RigidBody = input.segments.get(state.swing.bone)!;
+    const rigid: AutoMovieXpbdBody = input.segments.get(state.swing.bone)!;
     const leg: number = legMass(
       input.policy.pattern.limbs.find(
         (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
@@ -511,7 +568,14 @@ export function advancePhysicalBalance(input: {
     const rise: number = physicalStanceBalance.clearance(
       time,
       input.profile.mass,
-      leg,
+      physicalStanceBalance.swingMass(
+        input.profile,
+        input.segments,
+        input.policy.pattern.limbs.find(
+          (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
+            limb.bone === state.swing!.bone,
+        )!,
+      ),
       input.gravity,
       input.policy.height,
     );
@@ -533,8 +597,8 @@ export function advancePhysicalBalance(input: {
     // forward through the leg's mass, the feedback correcting what remains
     // (Khadiv et al. 2017, Section III-C), bounded by what the leg needs:
     // its weight and the peak of its path's acceleration over the swing time
-    // T, the minimum-jerk transfer's 5.77 d / T^2 or the clearance's 24 h /
-    // T^2, m_leg (g + max(5.77 d, 24 h) / T^2), under the policy's own bound.
+    // T, the minimum-jerk transfer's 5.77 d / T^2 or the clearance's 32 h /
+    // T^2, m_leg (g + max(5.77 d, 32 h) / T^2), under the policy's own bound.
     const span: number = Math.hypot(
       state.swing.to.point[0] - state.swing.from.point[0],
       state.swing.to.point[1] - state.swing.from.point[1],
@@ -568,7 +632,7 @@ export function advancePhysicalBalance(input: {
   }
   for (const [bone, offset] of Object.entries(state.offsets)) {
     if (state.swing?.bone === bone) continue;
-    const rigid: RigidBody = input.segments.get(bone)!;
+    const rigid: AutoMovieXpbdBody = input.segments.get(bone)!;
     const segment: IAutoMoviePhysicalSegment = input.profile.segments.find(
       (candidate: (typeof input.profile.segments)[number]): boolean =>
         candidate.bone === bone,
@@ -635,30 +699,14 @@ export function advancePhysicalBalance(input: {
           candidate.bone === bone,
       );
     const goal: IAutoMovieRigidTransform | undefined = input.targets[bone];
-    const rigid: RigidBody | undefined = input.segments.get(bone);
+    const rigid: AutoMovieXpbdBody | undefined = input.segments.get(bone);
     if (!segment || !goal || !rigid) return 0;
-    const vertices: IAutoMovieVector3[] = segment.shapes.flatMap(
-      (shape): IAutoMovieVector3[] =>
-        shape.kind === "hull"
-          ? shape.points.map(
-              (point: IAutoMovieVector3): IAutoMovieVector3 =>
-                physicalSupportPoint(shape.transform, point),
-            )
-          : shape.kind === "box"
-            ? [-1, 1].flatMap((x: number) =>
-                [-1, 1].flatMap((y: number) =>
-                  [-1, 1].map(
-                    (z: number): IAutoMovieVector3 =>
-                      physicalSupportPoint(shape.transform, {
-                        x: x * shape.halfExtents.x,
-                        y: y * shape.halfExtents.y,
-                        z: z * shape.halfExtents.z,
-                      }),
-                  ),
-                ),
-              )
-            : [],
-    );
+    const vertices: IAutoMovieVector3[] = physicalSupportFootprint
+      .colliders(segment)
+      .flatMap(
+        (shape): IAutoMovieVector3[] =>
+          physicalSupportFootprint.corners(shape) ?? [],
+      );
     if (vertices.length === 0) return 0;
     const planted: number[] = vertices.map(
       (vertex: IAutoMovieVector3): number =>
@@ -666,7 +714,7 @@ export function advancePhysicalBalance(input: {
     );
     const lowest: number = Math.min(...planted);
     const pose: IAutoMovieRigidTransform = {
-      position: physicalNativeVector(rigid.translation()),
+      position: rigid.translation(),
       rotation: rigid.rotation(),
     };
     const heights: number[] = vertices
@@ -770,15 +818,13 @@ export function advancePhysicalBalance(input: {
 
   /** Read the actual endpoint without changing a native body's bone-origin frame. */
   function actual(bone: string): IAutoMovieVector3 {
-    const rigid: RigidBody = input.segments.get(bone)!;
-    return physicalNativeVector(
-      physicalSupportPoint(
-        { position: rigid.translation(), rotation: rigid.rotation() },
-        input.policy.pattern.limbs.find(
-          (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
-            limb.bone === bone,
-        )!.localPoint,
-      ),
+    const rigid: AutoMovieXpbdBody = input.segments.get(bone)!;
+    return physicalSupportPoint(
+      { position: rigid.translation(), rotation: rigid.rotation() },
+      input.policy.pattern.limbs.find(
+        (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
+          limb.bone === bone,
+      )!.localPoint,
     );
   }
 
@@ -805,9 +851,38 @@ export function advancePhysicalBalance(input: {
   function footprint(
     limb: (typeof input.policy.pattern.limbs)[number],
   ): IAutoMoviePhysicalSupportPatch {
+    // A seated foot bears with its outline where it is planted: its authored
+    // pose moved by its landed offset. An unseated one bears on its face at
+    // its present pose, the edge it rolled onto (`physicalStanceBalance
+    // .support`).
+    const seat = state.seating?.[limb.bone];
+    const offset: IAutoMovieVector3 = state.offsets[limb.bone] ?? {
+      x: 0,
+      y: 0,
+      z: 0,
+    };
     const points: IAutoMovieVector3[] = physicalSupportFootprint(
       input.profile,
-      input.segments,
+      seat && (seat.flat ?? 1) > 0
+        ? Object.fromEntries(
+            (limb.contacts ?? [limb.bone]).flatMap((carrier: string) =>
+              input.targets[carrier]
+                ? [
+                    [
+                      carrier,
+                      {
+                        position: Vector3.add(
+                          input.targets[carrier]!.position,
+                          { x: offset.x, y: 0, z: offset.z },
+                        ),
+                        rotation: input.targets[carrier]!.rotation,
+                      },
+                    ],
+                  ]
+                : [],
+            ),
+          )
+        : input.segments,
       limb,
       input.floor,
     );
@@ -834,7 +909,7 @@ export function advancePhysicalBalance(input: {
   /** Keep recovery forces on the declared actuator path, including internal actuation. */
   function drive(
     bone: string,
-    rigid: RigidBody,
+    rigid: AutoMovieXpbdBody,
     point: IAutoMovieVector3,
     force: IAutoMovieVector3,
   ): void {
@@ -853,11 +928,6 @@ export function advancePhysicalBalance(input: {
         reverse: false,
         torques: input.actuation,
       });
-    else
-      rigid.addForceAtPoint(
-        physicalNativeVector(force),
-        physicalNativeVector(point),
-        true,
-      );
+    else rigid.addForceAtPoint(force, point);
   }
 }

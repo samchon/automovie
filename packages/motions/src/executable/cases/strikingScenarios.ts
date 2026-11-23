@@ -58,9 +58,9 @@ export function strikingScenarios(
     region: "face",
   };
   const guardA = (): IAutoMovieMotionHumanChain =>
-    HumanChain.subject("a").act("guard", { seconds: 0.8, facing: faceB });
+    HumanChain.subject("a").act("guard", { duration: 0.8, facing: faceB });
   const guardB = (seconds: number = 0.8): IAutoMovieMotionHumanChain =>
-    HumanChain.subject("b").act("guard", { seconds, facing: faceA });
+    HumanChain.subject("b").act("guard", { duration: seconds, facing: faceA });
   const arm = (body: IAutoMovieMotionHumanBody): number =>
     StrikingLimb.length(body, "leftHand", false);
   const leg = (body: IAutoMovieMotionHumanBody): number =>
@@ -124,7 +124,7 @@ export function strikingScenarios(
         "kickA",
       ),
       b: HumanChain.subject("b")
-        .act("guard", { seconds: 0.8, stance: "southpaw", facing: faceA })
+        .act("guard", { duration: 0.8, stance: "southpaw", facing: faceA })
         .act(
           "kick",
           {
@@ -179,7 +179,7 @@ export function strikingScenarios(
     }),
     "striking-air": (): strikingScenarios.IScenario => ({
       a: HumanChain.subject("a")
-        .act("guard", { seconds: 0.8 })
+        .act("guard", { duration: 0.8 })
         .act("punch", {
           technique: "straight",
           at: { kind: "none", line: "high" },

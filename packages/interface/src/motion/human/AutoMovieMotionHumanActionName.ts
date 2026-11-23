@@ -33,6 +33,8 @@
  * - `stagger`: one unplanned capture step after a push.
  * - `knockdown`: the legs giving way and the body going down to lie supine.
  * - `knee`: a knee driven onto a target, in the clinch or free.
+ * - `footStrike`: a side, back, hook, crescent, axe kick, a stomp or a leg sweep, spun or jumped.
+ * - `closeStrike`: an elbow, a spinning elbow or backfist, or a headbutt brought onto a target inside the punch's range.
  * - `touch`: a hand laid on a partner's or one's own region and moved on it by a kind of touch.
  * - `handToFace`: a hand-to-face task of daily living (drink, eat, phone, read, groom).
  * - `crouch`: a crouch or squat held over the planted feet, then standing again.
@@ -62,16 +64,12 @@
  * - `dance`: a solo dance step locked to a declared beat (bounce, sway, step-touch).
  * - `athletics`: the sprint start's crouch into the set position, held to the gun.
  * - `gymnastics`: a handstand kicked up from standing, held and stepped down.
+ * - `chiSau`: wing chun's rolling sticky hands with a partner.
  * - `martialArt`: a martial-art technique (horse stance, choku-zuki, tai chi push).
  * - `ballSport`: a team ball skill with an implied ball (dribble, dig, set, throw-in).
  * - `baseball`: a baseball position (catcher's crouch, ground ball, batting stance).
  * - `racket`: a racket or golf position without the stroke (ready position, split step, golf address).
  * - `swim`: swimming on a declared water plane (treading water, front crawl).
- *
- * @evidence contracts/development/common.md#meaningful-documentation Closed vocabulary of the human actions an author chains: every law the package ships has exactly one name here, and a chain, an interrupt table or a legality rule refers to actions only by these names. The list grows additively as laws land; a name is never repurposed.
- * @evidence contracts/development/design.md#principled-representation One closed action-name union keys the action parameter map, shipped law registry, chain calls and interrupt tables; the runtime registry is checked against the declared names.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/HUMAN_ACTIONS.ts (HUMAN_ACTIONS); actions/jump.ts (jump.name); actions/run.ts (run.name); actions/stand.ts (stand.name); actions/support.ts (support.name); actions/walk.ts (walk.name).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HUMAN_ACTIONS.
  */
 export type AutoMovieMotionHumanActionName =
   | "stand"
@@ -92,6 +90,8 @@ export type AutoMovieMotionHumanActionName =
   | "knockdown"
   | "perturb"
   | "knee"
+  | "closeStrike"
+  | "footStrike"
   | "sit"
   | "rise"
   | "shift"
@@ -134,6 +134,7 @@ export type AutoMovieMotionHumanActionName =
   | "athletics"
   | "gymnastics"
   | "martialArt"
+  | "chiSau"
   | "ballSport"
   | "baseball"
   | "racket"

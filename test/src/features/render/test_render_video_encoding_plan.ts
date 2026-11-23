@@ -23,12 +23,13 @@ const SPEC: IAutoMovieRenderSpec = {
  * 2. With a soundtrack, it is the second input, mapped as the first audio stream, padded and encoded as 48 kHz stereo AAC at 192 kb/s, and the output is still cut at 2 s.
  * 3. A clock of 2.01 s, 48.24 frames, is refused; so are zero seconds and more than a million frames.
  * 4. An odd raster, 1281 wide, is refused, and so is a blank soundtrack path.
+ * 5. NTSC and decimal 29.97 fps keep different exact clocks in both FFmpeg rate arguments.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans encodings through the exported planner and compares the whole vector; a planner that dropped the frame cap, the stream map, the clock cut or the soundtrack's padding, or admitted a fractional clock, fails.
  * @evidence contracts/development/testing.md#independent-expectations The expected vectors are written out argument by argument from the arguments the scaffold's delivery host passed to FFmpeg before #3314 moved it, which is the case matrix's requirement that `automovie render` plan the same encoder arguments; frame counts are seconds times fps.
  * @evidence contracts/development/testing.md#distinguishing-cases Silent against soundtrack, a whole clock against a fractional, empty and oversized one, an even raster against an odd one, and a blank soundtrack. Drawing and writing the frames is owned by `test_draw_drawn_video`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_render_video_encoding_plan`; it runs no FFmpeg.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_render_video_encoding_plan(): void {
   const base: string[] = [
@@ -75,6 +76,7 @@ export function test_render_video_encoding_plan(): void {
     }),
     {
       frameCount: 48,
+      frameRate: [24, 1],
       args: [...base, ...video, "-an", "-t", "2", "out/film.mp4"],
     },
   );
@@ -158,4 +160,27 @@ export function test_render_video_encoding_plan(): void {
       "blank",
     ),
   );
+
+  // 5. Fractional frame rates.
+  for (const { fps, rate, argument } of [
+    { fps: 30000 / 1001, rate: [30000, 1001], argument: "30000/1001" },
+    { fps: 29.97, rate: [2997, 100], argument: "2997/100" },
+  ] as const) {
+    const plan = planAutoMovieVideoEncoding({
+      spec: { ...SPEC, frameFormat: { ...SPEC.frameFormat, fps } },
+      durationSeconds: 1 / fps,
+      frameDir: "f",
+      outputPath: "o.mp4",
+      audio: null,
+    });
+    TestValidator.equals("exact rate for " + argument, plan.frameRate, rate);
+    TestValidator.equals(
+      "encoder and audit share " + argument,
+      [
+        plan.args[plan.args.indexOf("-framerate") + 1],
+        plan.args[plan.args.indexOf("-r") + 1],
+      ],
+      [argument, argument],
+    );
+  }
 }

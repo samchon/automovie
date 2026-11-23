@@ -1,6 +1,6 @@
 # Implementation
 
-Each exported function and class method answers this checklist and [common](common.md) in its doc comment. Use evidence from its body, callees and callers. Its input and result types answer [design](design.md).
+Each exported function and class method answers this checklist and [common](common.md) in its [evidence document](../SKILL.md). Use evidence from its body, callees and callers. Its input and result types answer [design](design.md).
 
 ## Principled implementation
 

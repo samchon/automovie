@@ -1,4 +1,4 @@
-import { ArchetypeUnits, createCue } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createCue } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,17 +33,17 @@ export function test_archetype_cue(): void {
   near(
     "the cue's length",
     archetypeExtent(cue, "x").size,
-    58 * ArchetypeUnits.INCH,
+    58 * AutoMovieArchetypeUnits.INCH,
   );
   near(
     "the butt",
     archetypeExtent(cue, "x", ["butt"]).size,
-    29 * ArchetypeUnits.INCH,
+    29 * AutoMovieArchetypeUnits.INCH,
   );
   near(
     "the shaft",
     archetypeExtent(cue, "x", ["shaft-back", "shaft-front"]).size,
-    29 * ArchetypeUnits.INCH,
+    29 * AutoMovieArchetypeUnits.INCH,
   );
   findings.push(
     ...archetypeModelSweep([
@@ -59,8 +59,8 @@ export function test_archetype_cue(): void {
         },
         models: [1.205, 1.25, 1.295].flatMap((inch: number): number[][] =>
           [11.5, 12, 12.5, 13].map((mm: number): number[] => [
-            inch * ArchetypeUnits.INCH,
-            mm * ArchetypeUnits.MILLIMETRE,
+            inch * AutoMovieArchetypeUnits.INCH,
+            mm * AutoMovieArchetypeUnits.MILLIMETRE,
           ]),
         ),
         source: "Viking butts and McDermott shafts",
@@ -70,8 +70,8 @@ export function test_archetype_cue(): void {
       {
         name: "cue mass",
         measure: (seed: number): number => createCue({}, seed).body.mass,
-        minimum: 18 * ArchetypeUnits.OUNCE,
-        maximum: 21 * ArchetypeUnits.OUNCE,
+        minimum: 18 * AutoMovieArchetypeUnits.OUNCE,
+        maximum: 21 * AutoMovieArchetypeUnits.OUNCE,
         source: "Viking and McDermott",
       },
     ]),
@@ -82,16 +82,20 @@ export function test_archetype_cue(): void {
     archetypeExtent(cue, "y", ["butt"]).size,
   );
   const tip: IAutoMovieAffordance = cue.affordance("tip");
-  near("the tip's place", tip.frame.translation.x, 29 * ArchetypeUnits.INCH);
+  near(
+    "the tip's place",
+    tip.frame.translation.x,
+    29 * AutoMovieArchetypeUnits.INCH,
+  );
   for (const [id, x] of [
-    ["butt", -14.5 * ArchetypeUnits.INCH],
-    ["shaft", 14.5 * ArchetypeUnits.INCH],
+    ["butt", -14.5 * AutoMovieArchetypeUnits.INCH],
+    ["shaft", 14.5 * AutoMovieArchetypeUnits.INCH],
   ] as const) {
     near(`the ${id}'s middle`, cue.affordance(id).frame.translation.x, x);
     near(
       `the ${id}'s length`,
       cue.affordance(id).length!,
-      29 * ArchetypeUnits.INCH,
+      29 * AutoMovieArchetypeUnits.INCH,
     );
   }
   TestValidator.equals("a pool cue is the makers' cue", findings, []);

@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanFormation } from "../ensemble/IAutoMovieMotionHumanFormation";
+import type { IAutoMovieMotionHumanGait } from "../next/IAutoMovieMotionHumanGait";
 import type { IAutoMovieMotionHumanWalkCadence } from "./IAutoMovieMotionHumanWalkCadence";
 import type { IAutoMovieMotionHumanWalkFacing } from "./IAutoMovieMotionHumanWalkFacing";
 
@@ -8,20 +9,28 @@ import type { IAutoMovieMotionHumanWalkFacing } from "./IAutoMovieMotionHumanWal
  * The walk's parameters (`IAutoMovieMotionHumanWalkParams`): where it goes and by which way,
  * how it faces, its Effort hooks and manner, a formation slot it keeps, a
  * beat it keeps step to, and a moving support it walks on.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, frame, range and default.
- * @evidence contracts/development/design.md#principled-representation World metres and degrees about +Y; bounded scales as `HumanUnit.Bounded`; a station, a cadence and a support as their owners' records.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `walk.locomote`, the styled gaits and the rows read, split from `walk` so the law's file holds its planning.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No member names one gait: every walk-family law reads the same record.
- *
- * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
  */
 export interface IAutoMovieMotionHumanWalkParams {
   /** The floor point to stop at, world metres. */
   to: IAutoMovieVector3;
 
-  /** The pace; `normal` when absent. */
-  pace?: "slow" | "normal" | "fast";
+  /**
+   * The gait, which fixes the speed (`walk.FROUDE`; the speed model is
+   * {@link IAutoMovieMotionHumanGait}). No step exceeds 0.75 m
+   * (`walk.longestStep`):
+   *
+   * - `slow`: about 0.82 m/s, about 85 steps a minute; a stroll, a weary,
+   *   sad or cautious walk.
+   * - `normal`: about 1.5 m/s, about 120 steps a minute; ordinary walking.
+   * - `fast`: about 1.72 m/s, about 138 steps a minute; hurrying, a brisk
+   *   errand. A quicker way is a `run` jog.
+   *
+   * `normal` when absent. `normal` is the metabolic minimum of ordinary
+   * limbs (PMID 21653821); `slow` and `fast` are the slow and the fast
+   * outdoor paces of healthy adults at the reference hip (Murtagh, Mair,
+   * Aguiar, Tudor-Locke and Murphy 2021, Sports Med 51:125).
+   */
+  pace?: IAutoMovieMotionHumanGait.WalkPace;
 
   /** Floor points passed in order before `to`, world metres. */
   via?: IAutoMovieVector3[];
@@ -32,27 +41,25 @@ export interface IAutoMovieMotionHumanWalkParams {
   /** Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent. */
   facing?: IAutoMovieMotionHumanWalkFacing.IFacing;
 
-  /** Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent.
-   * Inclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   */
+  /** Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed. */
   stride?: number;
 
-  /** Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent.
-   * Inclusive range [0, 2]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   */
+  /** Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way). */
   armSwing?: number;
 
-  /** Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.
-   * Inclusive range [0, 30]; schema default 0; unit "degrees". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   */
+  /** Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent. */
   elbows?: number;
 
   /**
    * How the walk is performed (`AutoMovieMotionManner`), a preset such as
    * `weary` or `brisk` or a manner of its own: its step factor scales the
    * step with `stride`, its swing factor the arm swing with `armSwing`, and
-   * its tempo slows the speed at that step, so the cadence falls with it.
-   * Neutral when absent.
+   * its tempo divides the speed. `pace: 1.5` makes the speed 1.5 times the
+   * `pace` gait's (a normal walk at the reference hip: about 2.3 m/s in
+   * steps of at most 0.75 m, so about 180 steps a minute); `pace: 0.8` makes
+   * it 0.8 times. An Effort `time` factor makes the speed
+   * `1 / (1 - 0.3 time)` times (`HumanEffort.modifiers`). Neutral when
+   * absent.
    */
   manner?: IAutoMovieMotionManner;
 

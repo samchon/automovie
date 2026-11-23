@@ -16,11 +16,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
+  AutoMovieMotionHumanSupport,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  stand,
-  supportTransfer,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -67,18 +67,18 @@ export function railShuttlePassenger(
   const crossing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSupportTransfer> =
     {
       name: "railDockTransfer",
-      interrupts: stand.interrupts,
-      plan: supportTransfer,
+      interrupts: AutoMovieMotionHumanStance.stand.interrupts,
+      plan: AutoMovieMotionHumanSupport.supportTransfer,
     };
   const wait: IAutoMovieMotionHumanActionLaw = {
     name: "railCarWait",
-    interrupts: stand.interrupts,
+    interrupts: AutoMovieMotionHumanStance.stand.interrupts,
     plan: (context) =>
-      stand.plan({
+      AutoMovieMotionHumanStance.stand.plan({
         ...context,
         params: {
           sway: 0,
-          seconds: exitFrom - context.start,
+          hold: exitFrom - context.start,
           on: { prop: carrier },
         },
       }),
@@ -102,7 +102,7 @@ export function railShuttlePassenger(
       },
     ],
     composition: HumanChain.subject(actor.node)
-      .stand({ seconds: 0.8, sway: 0, on: { prop: origin.prop.subject } })
+      .stand({ hold: 0.8, sway: 0, on: { prop: origin.prop.subject } })
       .registered(crossing.name, {
         from: { prop: origin.prop.subject, surface: "floor" },
         to: threshold,
@@ -134,7 +134,7 @@ export function railShuttlePassenger(
         lead: "right",
         seconds: 2,
       })
-      .stand({ seconds: 0.8, sway: 0, on: { prop: destination.prop.subject } })
+      .stand({ hold: 0.8, sway: 0, on: { prop: destination.prop.subject } })
       .node,
   });
   return { film, actor };

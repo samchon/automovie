@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `run`, the pipe stub's length either side of the valve as a share of the height; `rim`, the handwheel rim's thickness; `body`, the bonnet's diameter as a share of the bore. */
@@ -21,12 +21,12 @@ const ESTIMATES: Readonly<{ run: number; rim: number; body: number }> = {
  *
  * The pipe runs along `X` lying on the floor, its axis a bore's radius up over the origin; the valve's bonnet and stem rise along `+Y` to the handwheel, which lies level at the valve's height open above the pipe's axis. It is one of the maker's two valves read, whole: the model given, or one drawn from the seed. `wheel` is the handwheel, a wheel turned about `+Y`; it states no travel, since no source read gives its turns from open to closed.
  *
- * It rests on its iron pipe: steel on concrete (`ArchetypeFriction`).
+ * It rests on its iron pipe: steel on concrete (`AutoMovieArchetypeFriction`).
  *
  * @param params The model and any dimension the author fixes.
  * @param seed The seed that draws the model when it is not given and every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The valve.
- * @throws {ArchetypeRefusal} For a model the sheet does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a model the sheet does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, how the model is chosen, its contact and why it states no travel.
  * @evidence contracts/development/implementation.md#principled-implementation One read valve whole: its handwheel's diameter and its height open above the pipe's axis as the sheet gives them; the pipe at its nominal bore.
@@ -39,9 +39,9 @@ const ESTIMATES: Readonly<{ run: number; rim: number; body: number }> = {
 export function createValve(
   params: createValve.IParams = {},
   seed?: number | string,
-): Archetype<createValve.Affordance, createValve.Dimension> {
-  const draw: ArchetypeDrawSession<createValve.Dimension> =
-    new ArchetypeDrawSession<createValve.Dimension>(
+): AutoMovieArchetype<createValve.Affordance, createValve.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createValve.Dimension> =
+    new AutoMovieArchetypeDrawSession<createValve.Dimension>(
       "valve",
       createValve.UNITS,
       seed,
@@ -57,10 +57,10 @@ export function createValve(
     height: model.figures.height!,
     wheel: model.figures.wheel!,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createValve.Affordance,
     createValve.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: `gate valve ${model.name}`,
@@ -113,7 +113,7 @@ export function createValve(
   builder.affordance({
     id: "wheel",
     kind: "wheel",
-    frame: ArchetypeFrame.upright(v(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, height, 0)),
     extent: null,
     grip: "power",
     radius,
@@ -155,7 +155,9 @@ export namespace createValve {
   export type Dimension = "bore" | "height" | "wheel" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     bore: "m",
     height: "m",
     wheel: "m",
@@ -172,7 +174,13 @@ export namespace createValve {
   }
 
   /** The band of the free dimension. */
-  export const BANDS: Readonly<Record<"mass", IArchetypeBand>> = {
-    mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
+  export const BANDS: Readonly<Record<"mass", IAutoMovieArchetypeBand>> = {
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      40,
+      90,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

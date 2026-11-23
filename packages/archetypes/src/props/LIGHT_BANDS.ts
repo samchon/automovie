@@ -1,4 +1,8 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createLight } from "./createLight";
 
 /** Taper candles, seen only in search results. */
@@ -35,50 +39,50 @@ const LANTERN: string =
 export const LIGHT_BANDS: Readonly<
   Record<
     createLight.Kind,
-    Readonly<Partial<Record<createLight.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createLight.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   candle: {
-    length: ArchetypeBand.metres(0.25, 0.26, TAPER, true),
-    diameter: ArchetypeBand.metres(0.022, 0.022, TAPER, true),
-    mass: ArchetypeBand.of("kg", 0.0645, 0.0645, TAPER, true),
+    length: AutoMovieArchetypeBand.metres(0.25, 0.26, TAPER, true),
+    diameter: AutoMovieArchetypeBand.metres(0.022, 0.022, TAPER, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.0645, 0.0645, TAPER, true),
   },
   fireTorch: {
-    length: ArchetypeBand.metres(
-      16 * ArchetypeUnits.INCH,
-      24 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      16 * AutoMovieArchetypeUnits.INCH,
+      24 * AutoMovieArchetypeUnits.INCH,
       TORCH,
       true,
     ),
-    diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-    headDiameter: ArchetypeBand.metres(0.065, 0.065, TORCH, true),
-    mass: ArchetypeBand.of("kg", 0.205, 0.265, TORCH, true),
+    diameter: AutoMovieArchetypeBand.metres(0.03, 0.04, POWER, true),
+    headDiameter: AutoMovieArchetypeBand.metres(0.065, 0.065, TORCH, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.205, 0.265, TORCH, true),
   },
   pendant: {
-    height: ArchetypeBand.metres(
-      11 * ArchetypeUnits.INCH,
-      11 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      11 * AutoMovieArchetypeUnits.INCH,
+      11 * AutoMovieArchetypeUnits.INCH,
       PENDANT,
     ),
-    shade: ArchetypeBand.metres(
-      15 * ArchetypeUnits.INCH,
-      15 * ArchetypeUnits.INCH,
+    shade: AutoMovieArchetypeBand.metres(
+      15 * AutoMovieArchetypeUnits.INCH,
+      15 * AutoMovieArchetypeUnits.INCH,
       PENDANT,
     ),
-    cord: ArchetypeBand.metres(
-      4 * ArchetypeUnits.FOOT + 11 * ArchetypeUnits.INCH,
-      4 * ArchetypeUnits.FOOT + 11 * ArchetypeUnits.INCH,
+    cord: AutoMovieArchetypeBand.metres(
+      4 * AutoMovieArchetypeUnits.FOOT + 11 * AutoMovieArchetypeUnits.INCH,
+      4 * AutoMovieArchetypeUnits.FOOT + 11 * AutoMovieArchetypeUnits.INCH,
       PENDANT,
     ),
-    mass: ArchetypeBand.of("kg", 1.35, 1.37, PENDANT, true),
+    mass: AutoMovieArchetypeBand.of("kg", 1.35, 1.37, PENDANT, true),
   },
   tableLamp: {
-    overall: ArchetypeBand.metres(0.41, 0.41, TABLE_LAMP),
-    stem: ArchetypeBand.metres(0.3, 0.3, TABLE_LAMP),
-    base: ArchetypeBand.metres(0.15, 0.15, TABLE_LAMP),
-    height: ArchetypeBand.metres(0.15, 0.15, TABLE_LAMP),
-    shade: ArchetypeBand.metres(0.19, 0.19, TABLE_LAMP),
-    mass: ArchetypeBand.of(
+    overall: AutoMovieArchetypeBand.metres(0.41, 0.41, TABLE_LAMP),
+    stem: AutoMovieArchetypeBand.metres(0.3, 0.3, TABLE_LAMP),
+    base: AutoMovieArchetypeBand.metres(0.15, 0.15, TABLE_LAMP),
+    height: AutoMovieArchetypeBand.metres(0.15, 0.15, TABLE_LAMP),
+    shade: AutoMovieArchetypeBand.metres(0.19, 0.19, TABLE_LAMP),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       0.62 + 0.19,
       0.62 + 0.19,
@@ -87,12 +91,12 @@ export const LIGHT_BANDS: Readonly<
     ),
   },
   floorLamp: {
-    overall: ArchetypeBand.metres(1.53, 1.53, FLOOR_LAMP),
-    stem: ArchetypeBand.metres(1.3, 1.3, FLOOR_LAMP),
-    base: ArchetypeBand.metres(0.29, 0.29, FLOOR_LAMP),
-    height: ArchetypeBand.metres(0.31, 0.31, FLOOR_LAMP),
-    shade: ArchetypeBand.metres(0.42, 0.42, FLOOR_LAMP),
-    mass: ArchetypeBand.of(
+    overall: AutoMovieArchetypeBand.metres(1.53, 1.53, FLOOR_LAMP),
+    stem: AutoMovieArchetypeBand.metres(1.3, 1.3, FLOOR_LAMP),
+    base: AutoMovieArchetypeBand.metres(0.29, 0.29, FLOOR_LAMP),
+    height: AutoMovieArchetypeBand.metres(0.31, 0.31, FLOOR_LAMP),
+    shade: AutoMovieArchetypeBand.metres(0.42, 0.42, FLOOR_LAMP),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       3.06 + 0.49,
       3.06 + 0.49,
@@ -100,35 +104,35 @@ export const LIGHT_BANDS: Readonly<
     ),
   },
   lantern: {
-    overall: ArchetypeBand.metres(
-      12 * ArchetypeUnits.INCH,
-      12 * ArchetypeUnits.INCH,
+    overall: AutoMovieArchetypeBand.metres(
+      12 * AutoMovieArchetypeUnits.INCH,
+      12 * AutoMovieArchetypeUnits.INCH,
       LANTERN,
     ),
-    bail: ArchetypeBand.metres(
-      16 * ArchetypeUnits.INCH,
-      16 * ArchetypeUnits.INCH,
+    bail: AutoMovieArchetypeBand.metres(
+      16 * AutoMovieArchetypeUnits.INCH,
+      16 * AutoMovieArchetypeUnits.INCH,
       LANTERN,
     ),
-    base: ArchetypeBand.metres(
-      (5 + 1 / 4) * ArchetypeUnits.INCH,
-      (5 + 1 / 4) * ArchetypeUnits.INCH,
+    base: AutoMovieArchetypeBand.metres(
+      (5 + 1 / 4) * AutoMovieArchetypeUnits.INCH,
+      (5 + 1 / 4) * AutoMovieArchetypeUnits.INCH,
       LANTERN,
     ),
-    height: ArchetypeBand.metres(
-      (5 + 1 / 2) * ArchetypeUnits.INCH,
-      (5 + 1 / 2) * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      (5 + 1 / 2) * AutoMovieArchetypeUnits.INCH,
+      (5 + 1 / 2) * AutoMovieArchetypeUnits.INCH,
       LANTERN,
     ),
-    shade: ArchetypeBand.metres(
-      (2 + 13 / 16) * ArchetypeUnits.INCH,
-      (2 + 13 / 16) * ArchetypeUnits.INCH,
+    shade: AutoMovieArchetypeBand.metres(
+      (2 + 13 / 16) * AutoMovieArchetypeUnits.INCH,
+      (2 + 13 / 16) * AutoMovieArchetypeUnits.INCH,
       LANTERN,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      2 * ArchetypeUnits.POUND,
-      2 * ArchetypeUnits.POUND,
+      2 * AutoMovieArchetypeUnits.POUND,
+      2 * AutoMovieArchetypeUnits.POUND,
       LANTERN,
     ),
   },

@@ -27,28 +27,16 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * that all rise to the `stroke` instant and fall to the end on the clock's envelope. A guard or a
  * defence may cancel it from the peak on, a stagger or a knockdown at any
  * time.
- *
- * @evidence contracts/development/common.md#meaningful-documentation from: Where the threat comes from; a place ahead of the performer when absent. intensity: How strong, in (0, 1]; 1 when absent.
- * @evidence contracts/development/design.md#principled-representation from: Where the threat comes from; a place ahead of the performer when absent. intensity: How strong, in (0, 1]; 1 when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.flinch, params); reaction/flinch.ts (flinch.plan, context); reaction/flinch.ts (flinch.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanFlinch {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members state the threat target/default, intensity range/default and shared manner's explicit intensity precedence.
-   * @evidence contracts/development/design.md#principled-representation The threat is the existing target union; optional intensity and shared manner feed the original modifier admission rather than another reaction-specific parameter record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Plan reads all three inputs: threat, optional top-level intensity and optional shared manner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target union and shared manner contract without a performer-specific threat or replacement intensity rule.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** Where the threat comes from; a place ahead of the performer when absent. */
-    from?: IAutoMovieMotionTarget;
+    target?: IAutoMovieMotionTarget;
 
-    /** How strong, in (0, 1]; 1 when absent. */
+    /** How strong, in (0, 1]; 1 when absent. It scales the size and not the time: at 1 the trunk leans a quarter of the reach's lean limit, the hips shift 1.8 % of the stature and the neck ducks lightly (`flinch.LEAN`, `flinch.SHIFT`, `flinch.DUCK`, provisional); the peak comes at 0.2 s and the body is back by 0.6 s (Landis and Hunt 1939). 1 fits a start or a near miss; less fits a small twitch. */
     intensity?: number;
 
     /** How it is performed; its intensity is `intensity` unless it states one. */

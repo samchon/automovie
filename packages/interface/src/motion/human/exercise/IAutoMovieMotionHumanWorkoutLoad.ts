@@ -44,22 +44,10 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * whatever the key, so a one-sided or turned carry is not written; the
  * holding hand's turn about the bar is the straight wrist's, whatever the
  * lift (no hook or mixed grip).
- *
- * @evidence contracts/development/common.md#meaningful-documentation hand: The hand that holds it; `right` when absent. other: The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. handle: The prop's affordance the holding hand took, which with `other` gives the bar's own line; the line from the hand's grip to `other` when absent, which leaves a bar a few degrees out of level by the palm's depth.
- * @evidence contracts/development/design.md#principled-representation hand: The hand that holds it; `right` when absent. other: The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. handle: The prop's affordance the holding hand took, which with `other` gives the bar's own line; the line from the hand's grip to `other` when absent, which leaves a bar a few degrees out of level by the palm's depth.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/WorkoutLoad.ts (WorkoutLoad.of, return); exercise/WorkoutLoad.ts (WorkoutLoad.of, load); exercise/workout.ts (workout.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionPropHold identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanWorkoutLoad {
   /**
    * The load's parameters.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation hand: The hand that holds it; `right` when absent. other: The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. handle: The prop's affordance the holding hand took, which with `other` gives the bar's own line; the line from the hand's grip to `other` when absent, which leaves a bar a few degrees out of level by the palm's depth.
-   * @evidence contracts/development/design.md#principled-representation hand: The hand that holds it; `right` when absent. other: The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. handle: The prop's affordance the holding hand took, which with `other` gives the bar's own line; the line from the hand's grip to `other` when absent, which leaves a bar a few degrees out of level by the palm's depth.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/WorkoutLoad.ts (WorkoutLoad.of, load).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The held prop's subject id. */
@@ -77,11 +65,6 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
 
   /**
    * What a load gives the workout's plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation apply: The posture with its hands on the load. contacts: The grip's contact window. holds: The hold the action leaves as it found it.
-   * @evidence contracts/development/design.md#principled-representation apply: The posture with its hands on the load. contacts: The grip's contact window. holds: The hold the action leaves as it found it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/WorkoutLoad.ts (WorkoutLoad.of, return); exercise/workout.ts (workout.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionPropHold, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ILoad {
     /**
@@ -91,20 +74,23 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
      * @param resolution Optional FK source borrowed from this same synchronous write.
      * @param projection Optional genuine same-body ROM metadata from that write.
      * @returns The same posture with the holding arms' goals.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-     * @evidence contracts/development/implementation.md#principled-implementation The key places the body and the holding hand; this turns the hand to level the load and lays the other hand on its handle.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One call per evaluated posture.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A one-handed load changes the holding hand's fingers only, stated on the namespace.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
      */
-    apply(posture: IAutoMovieMotionHumanPosture,
+    apply(
+      posture: IAutoMovieMotionHumanPosture,
       resolution?: IAutoMoviePoseResolution.ISource,
-      projection?: (pose: IAutoMoviePose) => IAutoMoviePose): IAutoMovieMotionHumanPosture;
+      projection?: (pose: IAutoMoviePose) => IAutoMoviePose,
+    ): IAutoMovieMotionHumanPosture;
 
-    /** The grip's contact window. */
+    /**
+     * Check the support grip in the resolved posture of a two-handed phase.
+     * The load owner supplies the check only for a two-handed prop.
+     *
+     * @param posture The loaded posture before transition offsets.
+     * @throws {HumanRefusal} When either arm cannot keep the support grip in its measured frame.
+     */
+    admit?(posture: IAutoMovieMotionHumanPosture): void;
+
+    /** The grip contacts, including the support hand when specified. */
     contacts: IAutoMovieMotionHumanContactWindow[];
 
     /** The hold the action leaves as it found it. */

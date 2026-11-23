@@ -78,7 +78,7 @@ export function fitPianoScoreContact(
       const tip: IAutoMovieVector3 = HumanHand.frame(
         body,
         bones,
-        score.side,
+        score.hand,
         `${score.digit}Tip` as IAutoMovieMotionHumanHand.DigitSurface,
       ).point;
       const miss: number = Vector3.length(Vector3.subtract(tip, goal.point));

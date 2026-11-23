@@ -34,7 +34,7 @@ export const SCENES_FIELD: readonly IScene[] = [
     [
       person("ali", "m1", -3, -5.4, 0, [
         act("jog", { to: to(-3, 0), face: 90 }),
-        act("look", { with: "trunk", target: at("bea", "face") }),
+        act("look", { recruit: "trunk", target: at("bea", "face") }),
         act("gesture", { kind: "point", target: at("cyr", "face") }),
         act("throwIn", {}, { anchor: "fs-throw" }),
         act("jog", { to: to(-1.5, 1.5) }),
@@ -43,7 +43,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       person("bea", "f1", 2.5, -2, 270, [
         act("jog", { to: to(0.5, -3) }),
         act("jog", { to: to(0, 0), face: 270 }),
-        act("gesture", { kind: "raiseHand", side: "left" }),
+        act("gesture", { kind: "raiseHand", hand: "left" }),
         act(
           "header",
           {},
@@ -63,7 +63,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       person("cyr", "m2", 2, 1, 0, [
         act("jog", { to: to(2.3, 4) }),
         act("jog", { to: to(0, 3), face: 0 }),
-        act("gesture", { kind: "raiseHand", side: "left" }),
+        act("gesture", { kind: "raiseHand", hand: "left" }),
         act(
           "chestTrap",
           {},
@@ -95,7 +95,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       ]),
     ],
     // The ball at the striker's feet, ahead of where the support foot plants.
-    [object("ball", "createBall", "football", 0, 3.3)],
+    [object("ball", "createSphericalBall", "football", 0, 3.3)],
   ),
   scene(
     {
@@ -113,7 +113,7 @@ export const SCENES_FIELD: readonly IScene[] = [
         act("gesture", { kind: "clap", count: 3 }),
         act("jog", { to: to(0, 1.2), face: 0 }),
         act("pickUp", { prop: "ball", handle: "grip", lift: 0.15 }),
-        act("look", { with: "trunk", target: at("fen", "face") }),
+        act("look", { recruit: "trunk", target: at("fen", "face") }),
         act(
           "ballSport",
           {
@@ -139,7 +139,7 @@ export const SCENES_FIELD: readonly IScene[] = [
           },
         ),
         act("look", {
-          with: "trunk",
+          recruit: "trunk",
           cue: "seen",
           target: {
             kind: "point",
@@ -152,10 +152,10 @@ export const SCENES_FIELD: readonly IScene[] = [
       person("fen", "m1", 2.4, 5.2, 270, [
         act("jog", { to: to(1.6, 6.6) }),
         act("jog", { to: to(0, 4), face: 180 }),
-        act("gesture", { kind: "raiseHand", side: "left" }),
+        act("gesture", { kind: "raiseHand", hand: "left" }),
         act(
           "stageCatch",
-          { from: "chest", ball: "ball", intercept: 0.42 },
+          { partner: "chest", ball: "ball", intercept: 0.42 },
           { sync: { of: "chest" } },
         ),
         // Both players' strokes use the same pass cue. The ring centre is
@@ -182,9 +182,9 @@ export const SCENES_FIELD: readonly IScene[] = [
       ]),
     ],
     [
-      object("ball", "createBall", "basketball", 0, 1.69),
+      object("ball", "createSphericalBall", "basketball", 0, 1.69),
       {
-        ...object("hoop", "createGoal", "basketballHoop", 0, -0.85, 0, 0, {
+        ...object("hoop", "createBasketballHoop", undefined, 0, -0.85, 0, 0, {
           ring: 0.45,
           thickness: 0.013,
         }),
@@ -219,7 +219,7 @@ export const SCENES_FIELD: readonly IScene[] = [
         act("gesture", { kind: "raiseHand" }),
         act("cartwheelRight"),
         act("roundOffRight"),
-        act("stand", { seconds: 0.3 }),
+        act("stand", { hold: 0.3 }),
         act("frontHandspring"),
         act("handstand"),
         act("gesture", { kind: "cheer" }),
@@ -257,30 +257,30 @@ export const SCENES_FIELD: readonly IScene[] = [
     "swim-strokes",
     [
       person("hed", "f1", -1.2, -4.5, 0, [
-        act("breaststroke", { cycles: 6, water: SWIM_POOL.water }),
-        act("treadWater", { cycles: 3, water: SWIM_POOL.water }),
-        act("backstroke", { cycles: 3, water: SWIM_POOL.water }),
+        act("breaststroke", { count: 6, water: SWIM_POOL.water }),
+        act("treadWater", { count: 3, water: SWIM_POOL.water }),
+        act("backstroke", { count: 3, water: SWIM_POOL.water }),
       ]),
       person("ivo", "m1", 0, 4.5, 0, [
-        act("backstroke", { cycles: 6, water: SWIM_POOL.water }),
-        act("treadWater", { cycles: 2, water: SWIM_POOL.water }),
-        act("frontCrawl", { cycles: 3, water: SWIM_POOL.water }),
+        act("backstroke", { count: 6, water: SWIM_POOL.water }),
+        act("treadWater", { count: 2, water: SWIM_POOL.water }),
+        act("frontCrawl", { count: 3, water: SWIM_POOL.water }),
       ]),
       person("jul", "f2", 1.2, -4.5, 0, [
-        act("treadWater", { cycles: 2, water: SWIM_POOL.water }),
-        act("floating", { cycles: 3, water: SWIM_POOL.water }),
-        act("treadWater", { cycles: 2, water: SWIM_POOL.water }),
-        act("breaststroke", { cycles: 4, water: SWIM_POOL.water }),
+        act("treadWater", { count: 2, water: SWIM_POOL.water }),
+        act("floating", { count: 3, water: SWIM_POOL.water }),
+        act("treadWater", { count: 2, water: SWIM_POOL.water }),
+        act("breaststroke", { count: 4, water: SWIM_POOL.water }),
       ]),
       person("kip", "m2", 2.4, -4.5, 0, [
-        act("frontCrawl", { cycles: 6, water: SWIM_POOL.water }),
-        act("treadWater", { cycles: 2, water: SWIM_POOL.water }),
-        act("backstroke", { cycles: 3, water: SWIM_POOL.water }),
+        act("frontCrawl", { count: 6, water: SWIM_POOL.water }),
+        act("treadWater", { count: 2, water: SWIM_POOL.water }),
+        act("backstroke", { count: 3, water: SWIM_POOL.water }),
       ]),
       person("lum", "f1", 3.6, -4.5, 0, [
-        act("treadWater", { cycles: 3, water: SWIM_POOL.water }),
-        act("frontCrawl", { cycles: 5, water: SWIM_POOL.water }),
-        act("treadWater", { cycles: 5, water: SWIM_POOL.water }),
+        act("treadWater", { count: 3, water: SWIM_POOL.water }),
+        act("frontCrawl", { count: 5, water: SWIM_POOL.water }),
+        act("treadWater", { count: 5, water: SWIM_POOL.water }),
       ]),
     ],
     [

@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
   createCannon,
 } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
@@ -40,8 +40,10 @@ const PITCH: number = IN / 10;
  */
 export function test_archetype_cannon_elevation(): void {
   const findings: string[] = [];
-  const gun: Archetype<createCannon.Affordance, createCannon.Dimension> =
-    createCannon({ kind: "fieldGun" });
+  const gun: AutoMovieArchetype<
+    createCannon.Affordance,
+    createCannon.Dimension
+  > = createCannon({ kind: "fieldGun" });
   const sinking: (degrees: number) => number = (degrees: number): number => {
     const turn: number = (degrees * Math.PI) / 180;
     return BEHIND * Math.sin(turn) - RING * (1 - Math.cos(turn));
@@ -57,9 +59,11 @@ export function test_archetype_cannon_elevation(): void {
         : degrees === 12
           ? gun.affordance("screw").travel!
           : (sinking(degrees) / PITCH) * 360;
-    const posed: Archetype<createCannon.Affordance, createCannon.Dimension> =
-      gun.articulate({ screw });
-    const byElevation: Archetype<
+    const posed: AutoMovieArchetype<
+      createCannon.Affordance,
+      createCannon.Dimension
+    > = gun.articulate({ screw });
+    const byElevation: AutoMovieArchetype<
       createCannon.Affordance,
       createCannon.Dimension
     > = gun.articulate({ elevation: degrees });
@@ -104,7 +108,7 @@ export function test_archetype_cannon_elevation(): void {
       )
     )
       findings.push(`at ${degrees} the handle does not ride the screw's head`);
-    const rise: IAutoMovieVector3 = ArchetypeFrame.axis(
+    const rise: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
       posed.affordance("muzzle").frame,
       "y",
     );
@@ -130,7 +134,7 @@ export function test_archetype_cannon_elevation(): void {
   } catch (error) {
     refused = error;
   }
-  if (!(refused instanceof ArchetypeRefusal))
+  if (!(refused instanceof AutoMovieArchetypeRefusal))
     findings.push("two inputs drive the same screw");
   TestValidator.equals(
     "the screw drives the elevation and preserves desired-elevation inputs",

@@ -125,7 +125,7 @@ export function everydayCases(
             target: { kind: "person", subject: "b", region: "sternum" },
             at: "personal",
           })
-          .with(HumanChain.subject("b").stand({ seconds: 8 })),
+          .with(HumanChain.subject("b").stand({ hold: 8 })),
       );
       const walking = performance.segments("a")[0]!;
       const sternum = (subject: string, t: number): IAutoMovieVector3 =>
@@ -192,8 +192,8 @@ export function everydayCases(
       );
       const performance: IAutoMovieMotionHumanPerformance = one(
         HumanChain.subject("a")
-          .look({ target: targets[0]!, seconds: 1.2 })
-          .look({ target: targets[1]!, seconds: 1.2 }),
+          .look({ target: targets[0]!, duration: 1.2 })
+          .look({ target: targets[1]!, duration: 1.2 }),
       );
       const verdicts: IMotionCaptureCase.IVerdict[] = [];
       const times: IMotionCaptureCase.ITime[] = [
@@ -254,7 +254,7 @@ export function everydayCases(
       ];
       let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a");
       for (const [left, right] of places)
-        chain = chain.rest({ left, right, seconds: 1.5 });
+        chain = chain.rest({ left, right, hold: 1.5 });
       const performance: IAutoMovieMotionHumanPerformance = one(chain);
       const verdicts: IMotionCaptureCase.IVerdict[] = everydayVerdicts.standard(
         performance,
@@ -304,7 +304,7 @@ export function everydayCases(
     if (wants("brace")) {
       const performance: IAutoMovieMotionHumanPerformance = one(
         HumanChain.subject("a").brace({
-          toward: { kind: "point", at: { x: 0, y: 1.2, z: 2 }, frame: "world" },
+          target: { kind: "point", at: { x: 0, y: 1.2, z: 2 }, frame: "world" },
           kind: "push",
         }),
       );

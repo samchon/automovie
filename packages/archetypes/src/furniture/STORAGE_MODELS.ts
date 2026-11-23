@@ -1,4 +1,4 @@
-import { ArchetypeUnits } from "../core";
+import { AutoMovieArchetypeUnits } from "../core";
 import type { createStorage } from "./createStorage";
 
 /**
@@ -24,34 +24,34 @@ export const STORAGE_MODELS: Readonly<
     "CLIP top 110": { swing: 110 },
   },
   chest: {
-    "3832-E12": { travel: 12 * ArchetypeUnits.INCH },
-    "3832-E14": { travel: 14 * ArchetypeUnits.INCH },
-    "3832-E16": { travel: 16 * ArchetypeUnits.INCH },
+    "3832-E12": { travel: 12 * AutoMovieArchetypeUnits.INCH },
+    "3832-E14": { travel: 14 * AutoMovieArchetypeUnits.INCH },
+    "3832-E16": { travel: 16 * AutoMovieArchetypeUnits.INCH },
   },
   locker: {
     "12x12": {
-      width: 12 * ArchetypeUnits.INCH,
-      depth: 12 * ArchetypeUnits.INCH,
+      width: 12 * AutoMovieArchetypeUnits.INCH,
+      depth: 12 * AutoMovieArchetypeUnits.INCH,
     },
     "12x15": {
-      width: 12 * ArchetypeUnits.INCH,
-      depth: 15 * ArchetypeUnits.INCH,
+      width: 12 * AutoMovieArchetypeUnits.INCH,
+      depth: 15 * AutoMovieArchetypeUnits.INCH,
     },
     "12x18": {
-      width: 12 * ArchetypeUnits.INCH,
-      depth: 18 * ArchetypeUnits.INCH,
+      width: 12 * AutoMovieArchetypeUnits.INCH,
+      depth: 18 * AutoMovieArchetypeUnits.INCH,
     },
     "15x18": {
-      width: 15 * ArchetypeUnits.INCH,
-      depth: 18 * ArchetypeUnits.INCH,
+      width: 15 * AutoMovieArchetypeUnits.INCH,
+      depth: 18 * AutoMovieArchetypeUnits.INCH,
     },
     "18x18": {
-      width: 18 * ArchetypeUnits.INCH,
-      depth: 18 * ArchetypeUnits.INCH,
+      width: 18 * AutoMovieArchetypeUnits.INCH,
+      depth: 18 * AutoMovieArchetypeUnits.INCH,
     },
     "18x21": {
-      width: 18 * ArchetypeUnits.INCH,
-      depth: 21 * ArchetypeUnits.INCH,
+      width: 18 * AutoMovieArchetypeUnits.INCH,
+      depth: 21 * AutoMovieArchetypeUnits.INCH,
     },
   },
 };

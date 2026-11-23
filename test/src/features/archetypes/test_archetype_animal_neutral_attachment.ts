@@ -1,5 +1,5 @@
 import {
-  QuadrupedJoints,
+  AutoMovieArchetypeQuadrupedJoints,
   createDog,
   createQuadruped,
 } from "@automovie/archetypes";
@@ -90,7 +90,9 @@ export function test_archetype_animal_neutral_attachment(): void {
           query.limbs.leftFore[0]!.x += 100;
           query.attachments.leftFore.parentLocal.y += 100;
           if (
-            JSON.stringify(QuadrupedJoints.read(model.parts)) !== beforeQuery ||
+            JSON.stringify(
+              AutoMovieArchetypeQuadrupedJoints.read(model.parts),
+            ) !== beforeQuery ||
             JSON.stringify(model) !== original
           )
             findings.push(
@@ -260,7 +262,7 @@ function refusals(findings: string[]): void {
   for (const [label, parts] of bad) {
     const before: string = snapshot(parts);
     try {
-      QuadrupedJoints.read(parts);
+      AutoMovieArchetypeQuadrupedJoints.read(parts);
       findings.push(`${label}: invalid real source was admitted`);
     } catch (error) {
       if (!(error instanceof RangeError))
@@ -286,7 +288,7 @@ function refusals(findings: string[]): void {
   );
   const beforeRounded: string = snapshot(rounded);
   try {
-    QuadrupedJoints.read(rounded);
+    AutoMovieArchetypeQuadrupedJoints.read(rounded);
   } catch (error) {
     findings.push(`Binary64 closure noise was refused: ${String(error)}`);
   }
@@ -331,12 +333,13 @@ function tack(
       "leftRein",
       "rightRein",
       "lead",
+      "mane",
     ];
     expected =
       params.tack === "harness"
         ? ["hitch"]
         : params.tack === "pack"
-          ? ["lead", "leftLoad", "rightLoad"]
+          ? ["lead", "leftLoad", "rightLoad", "tie"]
           : params.tack === "both"
             ? [...saddle, "hitch"]
             : saddle;
@@ -345,7 +348,7 @@ function tack(
       params.kind === "dog"
         ? ["lead"]
         : params.kind === "ox"
-          ? ["lead", "hitch"]
+          ? ["lead", "hitch", "head", "horns", "hind"]
           : params.kind === "camel"
             ? ["lead", "leftLoad", "rightLoad"]
             : [];

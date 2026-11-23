@@ -4,22 +4,23 @@ import { PhysicalDisturbance } from "../internal/PhysicalDisturbance";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
 /**
- * The independent four-support primitive, under the same internal actuation
- * as the Human, keeps its stance against a 0.1 s push half its in-place
- * bound, forward and sideways, recovers in place or by one step from a
- * forward one in the middle of its one-step window, and falls for real from one one and a half
- * times its any-step bound, every push stated from its own inverted pendulum
- * (`PhysicalDisturbance`).
+ * The independent four-support primitive, under the same internal actuation as
+ * the Human, keeps its stance against a 0.1 s push half its in-place bound,
+ * forward and sideways, recovers in place or by one step from a forward one in
+ * the middle of its one-step window, and is never captured from one one and a
+ * half times its any-step bound, every push stated from its own inverted
+ * pendulum (`PhysicalDisturbance`).
  *
  * Scenarios:
- * 1. Sustained, forward and sideways: no step, still supported and not
- *    tipped, every support flat throughout, the height kept and the floor
- *    load back at the weight.
- * 2. Recover: in place or after one recovery step the body is captured
- *    again, its settled root not tipped, on flat supports alone at its height.
- * 3. Fall: the stance is declared unrecoverable, the body loses its height,
- *    a part other than a support meets the floor and no support wrench
- *    exceeded the force bound.
+ *
+ * 1. Sustained, forward and sideways: no step, still supported and not tipped,
+ *    every support flat throughout, the height kept and the floor load back at
+ *    the weight.
+ * 2. Recover: in place or after one recovery step the body is captured again, its
+ *    settled root not tipped, on flat supports alone at its height.
+ * 3. Fall: past the any-step bound the body is never captured after the push,
+ *    whether it falls or keeps stepping, and no support wrench exceeded the
+ *    force bound.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three pushes and what each outcome must show.
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation.compute` on the maintained four-support fixture and reads the recovery record, cache frames, contact receipts and support wrenches.

@@ -1,4 +1,4 @@
-import { ArchetypeFrame, createShield } from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, createShield } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -52,8 +52,16 @@ export function test_archetype_shield_slung(): void {
         `${label}: slung at ${JSON.stringify(at)}, the rearmost face at z ${back}`,
       );
     if (
-      !close(ArchetypeFrame.axis(slung.frame, "y"), { x: 0, y: 0, z: -1 }) ||
-      !close(ArchetypeFrame.axis(slung.frame, "x"), { x: 1, y: 0, z: 0 })
+      !close(AutoMovieArchetypeFrame.axis(slung.frame, "y"), {
+        x: 0,
+        y: 0,
+        z: -1,
+      }) ||
+      !close(AutoMovieArchetypeFrame.axis(slung.frame, "x"), {
+        x: 1,
+        y: 0,
+        z: 0,
+      })
     )
       findings.push(
         `${label}: slung faces ${JSON.stringify(slung.frame.rotation)}`,

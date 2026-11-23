@@ -384,6 +384,7 @@ export async function test_evidence_package(): Promise<void> {
         " * @evidence contracts/development/common.md#meaningful-documentation The comment names the quantity and its unit.",
         ...implementation,
         " * @evidence contracts/development/behaviors.md#studied-laws The half-stance step is the value docs/research/footwork/lead-step.md records.",
+        " * @evidence contracts/development/behaviors.md#realization-comments The comment ties the half-stance step to docs/research/footwork/lead-step.md and says it takes half the stance width from it.",
         ...relational,
         " * @evidence contracts/development/behaviors.md#deterministic-evaluation The result depends only on its argument.",
         " */",
@@ -440,11 +441,11 @@ export async function test_evidence_package(): Promise<void> {
       "src/composition/scenes/bout/002-count/count.ts",
       [
         "/** Composes count.",
-        " * @evidence contracts/development/common.md#meaningful-documentation The comment names what is composed.",
         ...implementation,
         " * @evidence contracts/development/composition.md#screenplay-realization The cited decisions are composed.",
         " * @evidence contracts/development/composition.md#composition-only Only capabilities are combined.",
         " * @evidence contracts/development/composition.md#living-scene Every presence keeps its role behavior.",
+        " * @evidence contracts/development/composition.md#realization-comments The comment ties each composed value to the screenplay beat it realizes.",
         " * @evidence docs/body/screenplay/bout/002-count.md The scene realizes the count.",
         " */",
         'export function count(): string { return "count"; }',
@@ -453,11 +454,11 @@ export async function test_evidence_package(): Promise<void> {
     const compose = (name: string, citation: string): string =>
       [
         `/** Composes ${name}.`,
-        " * @evidence contracts/development/common.md#meaningful-documentation The comment names what is composed.",
         ...implementation,
         " * @evidence contracts/development/composition.md#screenplay-realization The cited decisions are composed.",
         " * @evidence contracts/development/composition.md#composition-only Only capabilities are combined.",
         " * @evidence contracts/development/composition.md#living-scene Every presence keeps its role behavior.",
+        " * @evidence contracts/development/composition.md#realization-comments The comment ties each composed value to the screenplay beat it realizes.",
         citation,
         " */",
         `export function ${name}(): string { return "${name}"; }`,

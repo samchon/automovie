@@ -1,7 +1,4 @@
-import {
-  convexHull2D,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { convexHull2D, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMeasure,
@@ -42,8 +39,8 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * @evidence contracts/development/implementation.md#principled-implementation Static equilibrium of a still body with each support force at a centre of pressure inside its contact patch: the resultant's line meets the floor inside the load-weighted Minkowski sum of the patches, a convex set built as the hull of the weighted sums of the patches' hull corners; the held test is Hof's extrapolated centre against the same bound.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One predicate for the instants read, one weighted region, one walk of the grid.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An instant is skipped only by its declared windows and its own motion, never by its reading.
- * @evidence contracts/development/implementation.md#efficient-algorithms One centre of mass per grid instant and its two neighbours; the Minkowski sum is folded window by window and reduced to its hull after each, so it stays at the size of a hull.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most one centre of mass per grid instant, placed only at held instants and their two neighbours; the mass model is the body's own (`body.massModel`), read only once an instant is held; the Minkowski sum is folded window by window and reduced to its hull after each, so it stays at the size of a hull.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each grid instant's centre is placed once and shared by the held test of its neighbours and its own reading, keyed by the grid index of the motion's unchanged bones.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditStatics {
@@ -69,8 +66,6 @@ export namespace AutoMovieMotionHumanAuditStatics {
   ): IAutoMovieMotionHumanAuditMeasure {
     const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
       HumanAuditMotion.windows(motion, subject);
-    const model: IAutoMovieResolveCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const lead: number =
       1 /
       resolveAutoMovieCenterOfMass.frequency(
@@ -78,8 +73,24 @@ export namespace AutoMovieMotionHumanAuditStatics {
       );
     const bound: number = SHARE * body.measure.stature;
     const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
-    const centre = (t: number): IAutoMovieVector3 =>
-      resolveAutoMovieCenterOfMass.place(model, motion.bones(subject, t));
+
+    // The body's own mass model, read only once an instant is held, and each
+    // grid instant's centre placed once: consecutive held instants share
+    // their neighbours' centres.
+    let model: IAutoMovieResolveCenterOfMass.IModel | undefined;
+    const centres: Map<number, IAutoMovieVector3> = new Map();
+    const centre = (i: number): IAutoMovieVector3 => {
+      let found: IAutoMovieVector3 | undefined = centres.get(i);
+      if (found === undefined) {
+        model ??= body.massModel;
+        found = resolveAutoMovieCenterOfMass.place(
+          model,
+          motion.bones(subject, times[i]!),
+        );
+        centres.set(i, found);
+      }
+      return found;
+    };
     let worst: IAutoMovieMotionHumanAuditMeasure = {
       value: 0,
       seconds: 0,
@@ -105,11 +116,11 @@ export namespace AutoMovieMotionHumanAuditStatics {
         continue;
 
       // Held: the extrapolated centre stays within the bound of the centre.
-      const before: number = times[Math.max(0, i - 1)]!;
-      const after: number = times[Math.min(times.length - 1, i + 1)]!;
+      const before: number = Math.max(0, i - 1);
+      const after: number = Math.min(times.length - 1, i + 1);
       const a: IAutoMovieVector3 = centre(before);
       const b: IAutoMovieVector3 = centre(after);
-      const span: number = after - before;
+      const span: number = times[after]! - times[before]!;
       const speed: number =
         span > 0 ? Math.hypot(b.x - a.x, b.z - a.z) / span : 0;
       if (speed * lead > bound) continue;
@@ -117,7 +128,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
       const value: number = Math.max(
         0,
         -resolveAutoMovieCenterOfMass.margin(
-          centre(t),
+          centre(i),
           region(body, motion.bones(subject, t), open),
         ),
       );

@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -19,7 +19,7 @@ import {
  * @param params The kind, a yoga mat's length and any dimension the author fixes.
  * @param seed The seed that draws a yoga mat's length when it is not given and every dimension left free inside its band; absent, the first length and the middle of each band.
  * @returns The mat.
- * @throws {ArchetypeRefusal} For a length Manduka does not list with a mass, or one named for a gym mat, a fixed dimension outside its band, or one only the other kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a length Manduka does not list with a mass, or one named for a gym mat, a fixed dimension outside its band, or one only the other kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the mat lies and its contact.
  * @evidence contracts/development/implementation.md#principled-implementation One box of the length, width and thickness; a yoga mat's length and mass are one of Manduka's mats whole.
@@ -32,9 +32,12 @@ import {
 export function createExerciseMat(
   params: createExerciseMat.IParams,
   seed?: number | string,
-): Archetype<createExerciseMat.Affordance, createExerciseMat.Dimension> {
-  const draw: ArchetypeDrawSession<createExerciseMat.Dimension> =
-    new ArchetypeDrawSession<createExerciseMat.Dimension>(
+): AutoMovieArchetype<
+  createExerciseMat.Affordance,
+  createExerciseMat.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createExerciseMat.Dimension> =
+    new AutoMovieArchetypeDrawSession<createExerciseMat.Dimension>(
       "exerciseMat",
       createExerciseMat.UNITS,
       seed,
@@ -61,10 +64,10 @@ export function createExerciseMat(
   const length: number = d.length!;
   const width: number = d.width!;
   const thickness: number = d.thickness!;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createExerciseMat.Affordance,
     createExerciseMat.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "foam",
     id: params.id,
     name: size.name === undefined ? `${kind} mat` : `${kind} mat ${size.name}`,
@@ -79,7 +82,7 @@ export function createExerciseMat(
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, thickness, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, thickness, 0)),
     extent: null,
     width,
     depth: length,
@@ -114,7 +117,9 @@ export namespace createExerciseMat {
   export type Dimension = "length" | "width" | "thickness" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     thickness: "m",
@@ -134,8 +139,8 @@ export namespace createExerciseMat {
     >
   > = {
     yoga: {
-      "71in": { length: 71 * ArchetypeUnits.INCH, mass: 3.4 },
-      "85in": { length: 85 * ArchetypeUnits.INCH, mass: 4.3 },
+      "71in": { length: 71 * AutoMovieArchetypeUnits.INCH, mass: 3.4 },
+      "85in": { length: 85 * AutoMovieArchetypeUnits.INCH, mass: 4.3 },
     },
   };
 
@@ -161,32 +166,32 @@ export namespace createExerciseMat {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     yoga: {
-      width: ArchetypeBand.metres(0.66, 0.66, MANDUKA),
-      thickness: ArchetypeBand.metres(0.006, 0.006, MANDUKA),
+      width: AutoMovieArchetypeBand.metres(0.66, 0.66, MANDUKA),
+      thickness: AutoMovieArchetypeBand.metres(0.006, 0.006, MANDUKA),
     },
     gym: {
-      length: ArchetypeBand.metres(
-        73.2 * ArchetypeUnits.INCH,
-        74 * ArchetypeUnits.INCH,
+      length: AutoMovieArchetypeBand.metres(
+        73.2 * AutoMovieArchetypeUnits.INCH,
+        74 * AutoMovieArchetypeUnits.INCH,
         THICK,
       ),
-      width: ArchetypeBand.metres(
-        24 * ArchetypeUnits.INCH,
-        24.3 * ArchetypeUnits.INCH,
+      width: AutoMovieArchetypeBand.metres(
+        24 * AutoMovieArchetypeUnits.INCH,
+        24.3 * AutoMovieArchetypeUnits.INCH,
         THICK,
       ),
-      thickness: ArchetypeBand.metres(
-        0.5 * ArchetypeUnits.INCH,
-        0.5 * ArchetypeUnits.INCH,
+      thickness: AutoMovieArchetypeBand.metres(
+        0.5 * AutoMovieArchetypeUnits.INCH,
+        0.5 * AutoMovieArchetypeUnits.INCH,
         THICK,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
-        2.2 * ArchetypeUnits.POUND,
-        2.2 * ArchetypeUnits.POUND,
+        2.2 * AutoMovieArchetypeUnits.POUND,
+        2.2 * AutoMovieArchetypeUnits.POUND,
         THICK,
       ),
     },

@@ -1,18 +1,10 @@
-import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
+import { SceneBuild } from "./SceneBuild";
 import { SceneTakes } from "./SceneTakes";
 
-/** A region of another person, as a motion target. */
-function at(subject: string, region: string): Record<string, unknown> {
-  return { kind: "person", subject, region };
-}
+const { at, to }: typeof SceneBuild = SceneBuild;
 
-/** A floor point, as a destination. */
-function to(x: number, z: number): Record<string, number> {
-  return { x, y: 0, z };
-}
-
-const MEETING: IPlaygroundComposition = {
+const MEETING: SceneBuild.Composition = {
   version: 1,
   seed: "meeting",
   performers: [
@@ -25,7 +17,7 @@ const MEETING: IPlaygroundComposition = {
       proficiency: "trained",
       actions: [
         { name: "walk", params: { to: to(0, 1.25) } },
-        { name: "stand", params: { seconds: 0.6 } },
+        { name: "stand", params: { hold: 0.6 } },
         {
           name: "handshake",
           params: { partner: "ben" },
@@ -35,13 +27,13 @@ const MEETING: IPlaygroundComposition = {
         { name: "highFive", params: { partner: "ben" } },
         {
           name: "look",
-          params: { target: at("cal", "face"), cue: "signal", seconds: 1 },
+          params: { target: at("cal", "face"), cue: "signal", duration: 1 },
           anchor: "mt-look",
         },
         { name: "gesture", params: { kind: "wave" } },
         { name: "gesture", params: { kind: "nod" } },
         { name: "gesture", params: { kind: "palmsUp" } },
-        { name: "stand", params: { seconds: 0.6 } },
+        { name: "stand", params: { hold: 0.6 } },
       ],
     },
     {
@@ -52,9 +44,9 @@ const MEETING: IPlaygroundComposition = {
       yaw: 180,
       proficiency: "trained",
       actions: [
-        { name: "look", params: { target: at("ana", "face"), seconds: 0.8 } },
+        { name: "look", params: { target: at("ana", "face"), duration: 0.8 } },
         { name: "gesture", params: { kind: "nod" } },
-        { name: "stand", params: { seconds: 2 } },
+        { name: "stand", params: { hold: 2 } },
         {
           name: "handshake",
           params: { partner: "ana" },
@@ -65,7 +57,7 @@ const MEETING: IPlaygroundComposition = {
         { name: "gesture", params: { kind: "shrug" } },
         {
           name: "look",
-          params: { target: at("cal", "face"), cue: "signal", seconds: 1 },
+          params: { target: at("cal", "face"), cue: "signal", duration: 1 },
         },
         { name: "gesture", params: { kind: "raiseHand" } },
         { name: "gesture", params: { kind: "nod" } },
@@ -80,12 +72,12 @@ const MEETING: IPlaygroundComposition = {
       yaw: 0,
       proficiency: "trained",
       actions: [
-        { name: "checkPhone", params: { seconds: 1.5 } },
+        { name: "checkPhone", params: { hold: 1.5 } },
         {
           name: "approach",
           params: { target: at("ben", "face"), at: "social" },
         },
-        { name: "stand", params: { seconds: 3 } },
+        { name: "stand", params: { hold: 3 } },
         {
           name: "gesture",
           params: { kind: "wave" },
@@ -98,7 +90,7 @@ const MEETING: IPlaygroundComposition = {
         },
         {
           name: "rest",
-          params: { left: "pocket", right: "hip", seconds: 1.4 },
+          params: { left: "pocket", right: "hip", hold: 1.4 },
         },
         { name: "gesture", params: { kind: "palmsUp" } },
         { name: "gesture", params: { kind: "nod" } },
@@ -108,7 +100,7 @@ const MEETING: IPlaygroundComposition = {
   mutuals: [],
 };
 
-const FALL: IPlaygroundComposition = {
+const FALL: SceneBuild.Composition = {
   version: 1,
   seed: "fall",
   performers: [
@@ -121,8 +113,9 @@ const FALL: IPlaygroundComposition = {
       proficiency: "trained",
       actions: [
         { name: "walk", params: { to: to(0, 1) } },
-        { name: "stagger", params: { speed: 1.2 } },
-        { name: "knockdown", params: { seconds: 1 } },
+        // The swapped body's recovery limit on this approach is 0.85 m/s.
+        { name: "stagger", params: { speed: 0.8 } },
+        { name: "knockdown", params: { hold: 1 } },
         { name: "getUp", params: {} },
       ],
     },
@@ -134,14 +127,17 @@ const FALL: IPlaygroundComposition = {
       yaw: 270,
       proficiency: "trained",
       actions: [
-        { name: "stand", params: { seconds: 1.2 } },
-        { name: "brace", params: { kind: "impact", seconds: 0.6 } },
+        { name: "stand", params: { hold: 1.2 } },
+        { name: "brace", params: { kind: "impact", hold: 0.6 } },
         { name: "crouch", params: { hold: 1 } },
         { name: "kneel", params: { kind: "one", hold: 1.2 } },
         {
           name: "touch",
           params: {
             target: { kind: "self", region: "hipRight" },
+            // A lower aim lets the palm close against the hip on both bodies.
+            site: { up: -0.035 },
+            hand: "right",
             kind: "hold",
           },
         },
@@ -153,7 +149,7 @@ const FALL: IPlaygroundComposition = {
               at: { x: -0.15, y: 0.85, z: 0.3 },
               frame: "performer",
             },
-            cycles: 2,
+            count: 2,
           },
         },
       ],
@@ -163,18 +159,18 @@ const FALL: IPlaygroundComposition = {
 };
 
 /** Every site body standing side by side, for the Human page's lineup. */
-const LINEUP: IPlaygroundComposition = {
+const LINEUP: SceneBuild.Composition = {
   version: 1,
   seed: "lineup",
   performers: ["f1", "f2", "m1", "m2"].map(
-    (body: string, index: number): IPlaygroundComposition.IPerformer => ({
+    (body: string, index: number): SceneBuild.Performer => ({
       subject: body,
       body,
       x: (index - 1.5) * 0.9,
       z: 0,
       yaw: 0,
       proficiency: "trained",
-      actions: [{ name: "stand", params: { seconds: 2 } }],
+      actions: [{ name: "stand", params: { hold: 2 } }],
     }),
   ),
   mutuals: [],
@@ -213,7 +209,6 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     takes: SceneTakes.of(FALL),
     camera: { view: "three-quarter" },
     needs: [],
-    refusedUntil: 3544,
   },
   {
     id: "lineup",
@@ -221,7 +216,7 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     summary: "Every body the site performs with, standing side by side.",
     setting: "everyday",
     cast: LINEUP.performers.map(
-      (performer: IPlaygroundComposition.IPerformer): IScene.ICast => ({
+      (performer: SceneBuild.Performer): IScene.ICast => ({
         subject: performer.subject,
         role: performer.body,
       }),

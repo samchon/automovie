@@ -11,14 +11,14 @@ const { act, at, object, person, scene, to }: typeof SceneBuild = SceneBuild;
  * @param z Forward.
  * @returns The target.
  */
-const point = (x: number, y: number, z: number): Record<string, unknown> => ({
+const point = (x: number, y: number, z: number): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y, z },
   frame: "world",
 });
 
 /** Inside the stove counter's saucepan, where the cook's spoon stirs. */
-const PAN: Record<string, unknown> = {
+const PAN: SceneBuild.PropTarget = {
   kind: "prop",
   subject: "pan",
   point: "inside",
@@ -47,21 +47,21 @@ export const SCENES_LABOUR: readonly IScene[] = [
         act("stir", { prop: "spoon", on: PAN }),
         act("look", { target: at("lev", "face"), cue: "seen" }),
         act("gesture", { kind: "nod" }),
-        act("stir", { prop: "spoon", on: PAN, cycles: 6 }),
+        act("stir", { prop: "spoon", on: PAN, count: 6 }),
         act("look", { target: at("mak", "face"), cue: "seen" }),
-        act("stir", { prop: "spoon", on: PAN, cycles: 6 }),
+        act("stir", { prop: "spoon", on: PAN, count: 6 }),
       ]),
       person("lev", "m2", 0, 0.12, 0, [
         act("scrub", { on: point(0, SceneBuild.COUNTER_TOP, 0.45) }),
         act("gesture", { kind: "touchFace" }),
         act("wipe", {
           on: point(-0.1, SceneBuild.COUNTER_TOP, 0.42),
-          cycles: 3,
+          count: 3,
         }),
         act("gesture", { kind: "squareShoulders" }),
         act("wipe", {
           on: point(-0.2, SceneBuild.COUNTER_TOP, 0.4),
-          cycles: 1,
+          count: 1,
         }),
       ]),
       person("mak", "m2", 2, -1, 0, [
@@ -77,10 +77,10 @@ export const SCENES_LABOUR: readonly IScene[] = [
         act("checkWatch"),
         act("gesture", { kind: "rubHands" }),
         act("gesture", { kind: "raiseHand" }),
-        act("stand", { seconds: 1.5 }),
+        act("stand", { hold: 1.5 }),
         act(
           "hurl",
-          { at: at("mak", "sternum") },
+          { target: at("mak", "sternum") },
           {
             sync: {
               of: "ky-ready",
@@ -98,7 +98,7 @@ export const SCENES_LABOUR: readonly IScene[] = [
       object("stove", "createTable", "counter", -2, 0.6, 180),
       object(
         "pan",
-        "createVessel",
+        "createCookingPot",
         "saucepan",
         -1.95,
         0.5,
@@ -106,13 +106,13 @@ export const SCENES_LABOUR: readonly IScene[] = [
         SceneBuild.COUNTER_TOP,
       ),
       // The spoon lies level on the counter by the pan, its bowl toward the
-      // far side: `createTool` stands a tool along +Y from the butt of its
+      // far side: `createSpoon` stands the spoon along +Y from the butt of its
       // handle, so it is turned a quarter turn about +X.
       {
         ...object(
           "spoon",
-          "createTool",
-          "spoon",
+          "createSpoon",
+          undefined,
           -2.2,
           0.34,
           0,

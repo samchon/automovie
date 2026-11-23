@@ -14,11 +14,6 @@ import { AutoMovieScheduleError } from "./AutoMovieScheduleError";
  * readings of it every placement shares: the instants an anchor or a cue
  * track offers, the names placed so far, the instant an event names and the
  * intent a part begins with.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the walk keeps and what each reading answers.
- * @evidence contracts/development/design.md#principled-representation The placed entries, the anchors' contact instants, the cuts' successors, the anchored entries and the cue tracks are the five things a later placement reads of an earlier one.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record and four readings, used by the cut, the intent, the `at` placement and the walk itself.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No law and no composition is named; every reading refuses with an `AutoMovieScheduleError`.
  */
 export namespace AutoMovieScheduleWalk {
   /**
@@ -26,14 +21,6 @@ export namespace AutoMovieScheduleWalk {
    *
    * @param laws The production's laws.
    * @returns The walk.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and that nothing is placed.
-   * @evidence contracts/development/implementation.md#principled-implementation The tracks are the laws' own cues.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The record lives as long as the walk.
    */
   export function create(
     laws: IAutoMovieScheduleLaws,
@@ -55,14 +42,6 @@ export namespace AutoMovieScheduleWalk {
    * @param walk The walk.
    * @param of The anchor or track.
    * @returns The instants, or undefined when nothing of that name is placed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two sources and the start and end added.
-   * @evidence contracts/development/implementation.md#principled-implementation An entry always offers its start and its end unless its events name them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one list.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the anchor's events.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function instants(
     walk: IAutoMovieScheduleWalk.IWalk,
@@ -89,14 +68,6 @@ export namespace AutoMovieScheduleWalk {
    *
    * @param walk The walk.
    * @returns The anchors and the tracks.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is listed.
-   * @evidence contracts/development/implementation.md#principled-implementation The names an error offers as alternatives.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One list.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the names.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function placed(walk: IAutoMovieScheduleWalk.IWalk): string[] {
     return [...walk.anchored.keys(), ...walk.tracks.keys()];
@@ -112,14 +83,6 @@ export namespace AutoMovieScheduleWalk {
    * @param by The intent that asks, for the error.
    * @returns Film seconds.
    * @throws {AutoMovieScheduleError} When there is no event of that name or that many.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the two refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Events of one name are taken in order, as a score repeats a beat.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter and two refusals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing event or index is refused with the alternatives, not defaulted.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the events.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function instant(
     of: string,
@@ -169,14 +132,6 @@ export namespace AutoMovieScheduleWalk {
    *
    * @param node The part.
    * @returns The first intent of a sequence or group, an intent itself, or undefined for an `at` or an empty group.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each node kind gives.
-   * @evidence contracts/development/implementation.md#principled-implementation The first part is followed down; an `at` begins where its anchor puts it, so it names none.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One recursion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the depth.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leading(
     node: IAutoMovieComposition,

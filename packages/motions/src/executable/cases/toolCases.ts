@@ -80,7 +80,7 @@ export function toolCases(
           "tool",
           [{ subject: "a", body: who.body }],
           HumanChain.subject("a")
-            .stand({ seconds: 0.3 })
+            .stand({ hold: 0.3 })
             .pickUp({
               prop: "tool",
               handle: "grip",

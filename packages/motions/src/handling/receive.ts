@@ -74,9 +74,21 @@ export namespace receive {
   /** Cancel table: once taken the prop is held. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["taken", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["taken", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
-    walk: [{ window: ["taken", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
+    walk: [
+      {
+        window: ["taken", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
+    ],
   };
 
   /** How far the carrying forearm may be raised above level, degrees, level first (provisional: up to the half right angle, a cup held toward the chest). */
@@ -103,9 +115,11 @@ export namespace receive {
     const body: IAutoMovieMotionHumanBody = context.body;
     const held: IAutoMovieMotionHumanPosture = context.entry.posture;
     const giver: IAutoMovieMotionHumanPerformerReader = context.performer(
-      context.params.from,
+      context.params.partner,
     );
-    const prop: IAutoMovieMotionHumanPropReader = context.prop(context.params.prop);
+    const prop: IAutoMovieMotionHumanPropReader = context.prop(
+      context.params.prop,
+    );
     const giverSide: AutoMovieHumanSide = context.params.giverHand ?? "right";
     // The place both partners read from one meeting record.
     const met: IAutoMovieMotionMeeting = context.meeting(
@@ -118,21 +132,32 @@ export namespace receive {
         exchange: HumanHandover.EXCHANGE,
       }),
       HumanHandoverMeeting.RECEIVER,
-      { role: HumanHandoverMeeting.GIVER, subject: context.params.from },
+      { role: HumanHandoverMeeting.GIVER, subject: context.params.partner },
     );
     const shared: IAutoMovieMotionHumanHandover.IPlan = HumanHandover.plan({
       meet: HumanFrame.point(met.frame, met.contacts.meet!),
       giver: {
         body: giver.body,
         side: giverSide,
-        bones: giver.bones(context.start, new Set<AutoMovieHumanoidBone>([`${giverSide}Hand`])),
+        bones: giver.bones(
+          context.start,
+          new Set<AutoMovieHumanoidBone>([`${giverSide}Hand`]),
+        ),
       },
       receiver: {
         body,
         side,
-        bones: context.performer(context.subject).bones(context.start, new Set<AutoMovieHumanoidBone>([
-          "hips", "leftFoot", "rightFoot", `${side}Hand`,
-        ])),
+        bones: context
+          .performer(context.subject)
+          .bones(
+            context.start,
+            new Set<AutoMovieHumanoidBone>([
+              "hips",
+              "leftFoot",
+              "rightFoot",
+              `${side}Hand`,
+            ]),
+          ),
       },
       prop: prop.prop,
       frame: prop.frame(context.start),
@@ -156,7 +181,10 @@ export namespace receive {
     const shoulder: IAutoMovieVector3 = entered.get(
       `${side}UpperArm`,
     )!.worldPosition;
-    const lean: { share: number; joints: IAutoMovieMotionHumanSeatedReach.IJoint[]; } =
+    const lean: {
+      share: number;
+      joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
+    } =
       shared.outcome === "decline"
         ? { share: 0, joints: [] }
         : HumanSeatedReach.need(
@@ -167,7 +195,8 @@ export namespace receive {
               posture: held,
               bones: entered,
               seated: context.entry.supports.some(
-                (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
+                (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+                  s.kind === "seat",
               ),
             },
             shoulder,
@@ -182,14 +211,15 @@ export namespace receive {
       Vector3.scale(shared.target.approach, setback),
     );
     const arrive: IAutoMovieVector3 = takes ? shared.receiverAt.point : short;
-    const out: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
-      shared.receiverFrom.point,
-      arrive,
-      shared.target.approach,
-      takes ? setback : 0,
-      { from: shared.receiverFrom.rotation, to: shared.receiverAt.rotation },
-      shared.reach,
-    );
+    const out: IAutoMovieMotionHumanPrehension.ITransport =
+      HumanPrehension.transport(
+        shared.receiverFrom.point,
+        arrive,
+        shared.target.approach,
+        takes ? setback : 0,
+        { from: shared.receiverFrom.rotation, to: shared.receiverAt.rotation },
+        shared.reach,
+      );
 
     // After the transfer: the carrying place in front of the body, or home.
     // The forearm is raised as far of `PITCHES` as the arm needs to hold the
@@ -203,11 +233,17 @@ export namespace receive {
     );
     let carry: IAutoMovieVector3 = shared.receiverFrom.point;
     if (takes) {
-      const carryAt: (pitch?: number) => IAutoMovieVector3 = (pitch: number = 0): IAutoMovieVector3 =>
-        HumanHandover.carried(body, held, side, pitch);
+      const carryAt: (pitch?: number) => IAutoMovieVector3 = (
+        pitch: number = 0,
+      ): IAutoMovieVector3 => HumanHandover.carried(body, held, side, pitch);
       carry = carryAt();
-      const tipped: (goal: IAutoMovieHumanLimbGoal) => number = (goal: IAutoMovieHumanLimbGoal): number =>
-        HumanHandover.tipped(body, side, { ...held, limbs: { ...held.limbs, [`${side}Arm`]: goal } });
+      const tipped: (goal: IAutoMovieHumanLimbGoal) => number = (
+        goal: IAutoMovieHumanLimbGoal,
+      ): number =>
+        HumanHandover.tipped(body, side, {
+          ...held,
+          limbs: { ...held.limbs, [`${side}Arm`]: goal },
+        });
       let least: number = Infinity;
       for (const pitch of PITCHES) {
         const place: IAutoMovieVector3 = carryAt(pitch);
@@ -236,21 +272,22 @@ export namespace receive {
       ? HumanPrehension.carry(travel)
       : HumanPrehension.nominal(travel, 0);
 
-    const home: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
-      arrive,
-      end,
-      { x: 0, y: 0, z: 0 },
-      0,
-      {
-        from: takes
-          ? shared.receiverShown.rotation
-          : shared.receiverAt.rotation,
-        to: takes
-          ? shared.receiverShown.rotation
-          : shared.receiverFrom.rotation,
-      },
-      back,
-    );
+    const home: IAutoMovieMotionHumanPrehension.ITransport =
+      HumanPrehension.transport(
+        arrive,
+        end,
+        { x: 0, y: 0, z: 0 },
+        0,
+        {
+          from: takes
+            ? shared.receiverShown.rotation
+            : shared.receiverAt.rotation,
+          to: takes
+            ? shared.receiverShown.rotation
+            : shared.receiverFrom.rotation,
+        },
+        back,
+      );
     const leave: number = takes ? shared.release : shared.gripClosed;
     const duration: number =
       shared.outcome === "decline" ? shared.release : leave + back;
@@ -276,9 +313,16 @@ export namespace receive {
       open,
       closed,
     };
-    const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(shapes, peak);
-    const returnShape: ReturnType<typeof HumanPrehension.prepareShape> | undefined = takes
-      ? undefined : HumanPrehension.prepareShape({ entry: open, open: shapes.entry, closed: shapes.entry }, 1);
+    const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> =
+      HumanPrehension.prepareShape(shapes, peak);
+    const returnShape:
+      | ReturnType<typeof HumanPrehension.prepareShape>
+      | undefined = takes
+      ? undefined
+      : HumanPrehension.prepareShape(
+          { entry: open, open: shapes.entry, closed: shapes.entry },
+          1,
+        );
 
     // The body at a second with the carried hand turned by a yaw, degrees,
     // about the world's up: a hand that took the prop keeps the rotation it
@@ -287,7 +331,9 @@ export namespace receive {
     // the turn about the vertical, which the take-away chooses
     // (`HumanHandoverUpright`). Each original yaw callback re-reads its raw
     // transport, digits, direct body and complete other goals.
-    const frameAt: (seconds: number) => HumanHandoverUpright.IFrame = (seconds: number): HumanHandoverUpright.IFrame => {
+    const frameAt: (seconds: number) => HumanHandoverUpright.IFrame = (
+      seconds: number,
+    ): HumanHandoverUpright.IFrame => {
       const t: number = Math.min(duration, Math.max(0, seconds));
       let wrist: IAutoMovieVector3;
       let rotation: IAutoMovieQuaternion;
@@ -310,9 +356,7 @@ export namespace receive {
       } else {
         share = 1 - Math.min(1, minimumJerk.share((t - leave) / back));
         wrist = home.wrist(t - leave);
-        rotation = takes
-          ? shared.receiverShown.rotation
-          : home.turn(t - leave);
+        rotation = takes ? shared.receiverShown.rotation : home.turn(t - leave);
         digits = takes
           ? closed
           : returnShape!(minimumJerk.share((t - leave) / back));
@@ -351,15 +395,25 @@ export namespace receive {
             ? { planted: true }
             : {}),
         },
-        rotation: (yaw: number): IAutoMovieQuaternion => takes && t > leave
-          ? Quaternion.multiply(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw), rotation)
-          : rotation,
+        rotation: (yaw: number): IAutoMovieQuaternion =>
+          takes && t > leave
+            ? Quaternion.multiply(
+                Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+                rotation,
+              )
+            : rotation,
       };
     };
     const turn: (seconds: number) => number = takes
-      ? HumanHandover.upright(body, side,
-          (seconds: number, yaw: number): IAutoMovieMotionHumanPosture => HumanHandoverUpright.posed(frameAt(seconds), side, yaw),
-          leave, duration, [0, undefined])
+      ? HumanHandover.upright(
+          body,
+          side,
+          (seconds: number, yaw: number): IAutoMovieMotionHumanPosture =>
+            HumanHandoverUpright.posed(frameAt(seconds), side, yaw),
+          leave,
+          duration,
+          [0, undefined],
+        )
       : (): number => 0;
 
     const part: IAutoMovieMotionHumanContactWindow["part"] =
@@ -417,7 +471,8 @@ export namespace receive {
         : {}),
       hands: [side],
       contact: shared.gripClosed,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => HumanHandoverUpright.posed(frameAt(seconds), side, turn(seconds)),
+      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+        HumanHandoverUpright.posed(frameAt(seconds), side, turn(seconds)),
     };
   }
 }

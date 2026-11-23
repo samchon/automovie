@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 
@@ -22,7 +22,7 @@ const TRAVEL: string = "switch travel, not read at a source";
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The control.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States where the control is, which way it faces and what moves.
  * @evidence contracts/development/implementation.md#principled-implementation A plate box and one moving face bound to a `button` whose frame faces out of the wall.
@@ -35,9 +35,9 @@ const TRAVEL: string = "switch travel, not read at a source";
 export function createSwitch(
   params: createSwitch.IParams,
   seed?: number | string,
-): Archetype<createSwitch.Affordance, createSwitch.Dimension> {
-  const draw: ArchetypeDrawSession<createSwitch.Dimension> =
-    new ArchetypeDrawSession<createSwitch.Dimension>(
+): AutoMovieArchetype<createSwitch.Affordance, createSwitch.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createSwitch.Dimension> =
+    new AutoMovieArchetypeDrawSession<createSwitch.Dimension>(
       "switch",
       createSwitch.UNITS,
       seed,
@@ -53,10 +53,10 @@ export function createSwitch(
     createSwitch.BANDS[kind],
     createSwitch.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createSwitch.Affordance,
     createSwitch.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: kind === "rocker" ? "light switch" : "call button",
@@ -86,7 +86,7 @@ export function createSwitch(
   builder.affordance({
     id: "press",
     kind: "button",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, d.height, 0.01),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -128,7 +128,9 @@ export namespace createSwitch {
   export type Dimension = "height" | "size" | "width" | "travel" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     size: "m",
     width: "m",
@@ -147,50 +149,62 @@ export namespace createSwitch {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     rocker: {
-      height: ArchetypeBand.metres(
+      height: AutoMovieArchetypeBand.metres(
         1.065,
         ADA_RANGES.reach.high,
         `${ADA_RANGES.reach.source}; the upper part of the range, where switches are mounted`,
         true,
       ),
-      size: ArchetypeBand.metres(
+      size: AutoMovieArchetypeBand.metres(
         0.103,
         0.107,
         "Leviton Decora rocker face, retailer listings seen only in search results",
         true,
       ),
-      width: ArchetypeBand.metres(
+      width: AutoMovieArchetypeBand.metres(
         0.036,
         0.045,
         "Leviton Decora rocker face, retailer listings seen only in search results",
         true,
       ),
-      travel: ArchetypeBand.metres(0.002, 0.004, TRAVEL, true),
-      mass: ArchetypeBand.of("kg", 0.05, 0.1, ArchetypeBand.TYPICAL_MASS, true),
+      travel: AutoMovieArchetypeBand.metres(0.002, 0.004, TRAVEL, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        0.05,
+        0.1,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     button: {
-      height: ArchetypeBand.metres(
+      height: AutoMovieArchetypeBand.metres(
         ADA_RANGES.reach.low,
         ADA_RANGES.reach.high,
         `2010 ADA Standards 407.2.1.1, call buttons within the reach ranges of 308 (https://www.access-board.gov/ada/chapter/ch04/); ${ADA_RANGES.reach.source}`,
       ),
-      size: ArchetypeBand.metres(
+      size: AutoMovieArchetypeBand.metres(
         0.019,
         0.03,
         "2010 ADA Standards 407.2.1.2, call buttons at least 3/4 in (19 mm) across (https://www.access-board.gov/ada/chapter/ch04/); the upper end is an estimate",
         true,
       ),
-      width: ArchetypeBand.metres(
+      width: AutoMovieArchetypeBand.metres(
         0.019,
         0.03,
         "2010 ADA Standards 407.2.1.2, as for the size",
         true,
       ),
-      travel: ArchetypeBand.metres(0.001, 0.003, TRAVEL, true),
-      mass: ArchetypeBand.of("kg", 0.05, 0.1, ArchetypeBand.TYPICAL_MASS, true),
+      travel: AutoMovieArchetypeBand.metres(0.001, 0.003, TRAVEL, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        0.05,
+        0.1,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
   };
 }

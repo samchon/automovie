@@ -1,3 +1,6 @@
+import type { IAutoMovieRandom } from "../../../core/IAutoMovieRandom";
+import type { IAutoMovieMotionHumanGaze } from "../next/IAutoMovieMotionHumanGaze";
+
 /**
  * Where a person in a conversation looks: at the partner's face for
  * seeded glances, away between them, more while listening than while
@@ -20,19 +23,108 @@
  * cuts the bodies' actions. In a group, each span can name a different
  * addressee so the gaze follows the authored exchange.
  *
- * @evidence contracts/development/common.md#meaningful-documentation speaker: The speaker's subject id. from: Film second the turn starts. to: Film second the turn ends.
- * @evidence contracts/development/design.md#principled-representation speaker: The speaker's subject id. from: Film second the turn starts. to: Film second the turn ends.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanConversation.ts (HumanConversation.gaze, turns).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanConversation.gaze.
+ * The behaviour is a reader: its methods return the gaze layer requests (or
+ * a share of them), not a chain, so it has no `Chain` parameter and the
+ * runtime namespace holds plain functions.
+ *
+ */
+export interface IAutoMovieMotionHumanConversation {
+  /**
+   * A participant's gaze requests through a conversation with one partner.
+   *
+   * @param params The `subject`, `partner`, `turns`, `random` and `eyes` of `IAutoMovieMotionHumanConversation.IGaze`.
+   * @returns Gaze layer requests in time order.
+   * @throws {HumanRefusal} For a turn that does not start at a finite film second, at least 0, or does not end at a finite second after its start.
+   */
+  gaze(
+    params: IAutoMovieMotionHumanConversation.IGaze,
+  ): IAutoMovieMotionHumanConversation.IGlances;
+
+  /**
+   * A participant's gaze requests through a group conversation: at each turn start the listeners look toward the speaker and the speaker toward the authored addressee.
+   *
+   * @param params The `subject`, `participants`, `turns`, `random` and `eyes` of `IAutoMovieMotionHumanConversation.IGroupGaze`.
+   * @returns Gaze layer requests in time order; the last request of each span releases at its end.
+   * @throws When a subject, span, or eye height falls outside the stated bounds.
+   */
+  groupGaze(
+    params: IAutoMovieMotionHumanConversation.IGroupGaze,
+  ): IAutoMovieMotionHumanConversation.IGlances;
+
+  /**
+   * The share of a film span in which the requests target a person's face. A request ends at its release or the next request, whichever comes first.
+   *
+   * @param params The `requests`, `from` and `to` of `IAutoMovieMotionHumanConversation.IShare`.
+   * @returns The share in [0, 1].
+   */
+  share(params: IAutoMovieMotionHumanConversation.IShare): number;
+}
+
+/**
+ * The parameter and result types of the Conversation methods.
  */
 export namespace IAutoMovieMotionHumanConversation {
   /**
+   * The gaze requests a conversation reader returns: the Gaze family's layer requests, in time order.
+   */
+  export type IGlances = IAutoMovieMotionHumanGaze.ILayer[];
+
+  /**
+   * The parameters of `gaze`.
+   */
+  export interface IGaze {
+    /** The participant's subject id. */
+    subject: string;
+
+    /** The other participant's subject id; the gaze goes to their face. */
+    partner: string;
+
+    /** The turns, in time order. */
+    turns: readonly ITurn[];
+
+    /** The participant's stream. */
+    random: IAutoMovieRandom;
+
+    /** The participant's eye height, metres, the height a look away turns from. */
+    eyes: number;
+  }
+
+  /**
+   * The parameters of `groupGaze`.
+   */
+  export interface IGroupGaze {
+    /** The participant whose gaze is being authored. */
+    subject: string;
+
+    /** Distinct nonempty subject ids, including silent listeners. */
+    participants: readonly string[];
+
+    /** Ordered, non-overlapping speaking spans, in film seconds. */
+    turns: readonly IGroupTurn[];
+
+    /** The participant's seeded stream. */
+    random: IAutoMovieRandom;
+
+    /** The eye height, metres, in the performer's frame. */
+    eyes: number;
+  }
+
+  /**
+   * The parameters of `share`.
+   */
+  export interface IShare {
+    /** Gaze requests in chronological order. */
+    requests: readonly IAutoMovieMotionHumanGaze.ILayer[];
+
+    /** Span start, film seconds. */
+    from: number;
+
+    /** Span end, film seconds, greater than `from`. */
+    to: number;
+  }
+
+  /**
    * A participant's gaze requests through a conversation. One speaking turn.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation speaker: The speaker's subject id. from: Film second the turn starts. to: Film second the turn ends.
-   * @evidence contracts/development/design.md#principled-representation speaker: The speaker's subject id. from: Film second the turn starts. to: Film second the turn ends.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanConversation.ts (HumanConversation.gaze, turns).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanConversation.gaze.
    */
   export interface ITurn {
     /** The speaker's subject id. */
@@ -48,11 +140,6 @@ export namespace IAutoMovieMotionHumanConversation {
   /**
    * An authored speaking span with one addressed participant. An author
    * can divide a continuous utterance into spans as its addressee changes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Speaker and addressee identify scene subjects. Inherited from and to give the film-second boundaries.
-   * @evidence contracts/development/design.md#principled-representation Each span requires an explicit addressee. HumanConversation.groupGaze validates the roster, distinct roles, finite boundaries and non-overlap.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Adds only the addressee to ITurn for the speaker target read by HumanConversation.groupGaze.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the existing turn and subject identifiers for any group of performers.
    */
   export interface IGroupTurn extends ITurn {
     /** The addressed participant's subject ID. */

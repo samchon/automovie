@@ -24,6 +24,11 @@ export function readTestArguments(argv: readonly string[]): {
     );
     selection.include.push(...fragment.include);
     selection.exclude.push(...fragment.exclude);
+    if (fragment.shard !== undefined) {
+      if (selection.shard !== undefined)
+        throw new Error("--shard may occur only once.");
+      selection.shard = fragment.shard;
+    }
   }
 
   for (let index: number = 0; index < argv.length; index++) {

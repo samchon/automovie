@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The boxing rules, read. */
@@ -22,7 +22,7 @@ const IBA: string =
  * @param params The glove's weight and any dimension the author fixes.
  * @param seed The seed that draws the weight when it is not given and every dimension left free inside its band; absent, the first weight and the middle of each band.
  * @returns The glove.
- * @throws {ArchetypeRefusal} For a weight the rules do not set or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a weight the rules do not set or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the glove lies, where the hand goes in and which face strikes.
  * @evidence contracts/development/implementation.md#principled-implementation A fist box of the IBA appendix's length and height at the drawn width, and a cuff box behind it of the appendix's cuff length, narrower by the proportion its figure draws; the mass is one of the rules' three glove weights, whole.
@@ -35,9 +35,12 @@ const IBA: string =
 export function createBoxingGlove(
   params: createBoxingGlove.IParams = {},
   seed?: number | string,
-): Archetype<createBoxingGlove.Affordance, createBoxingGlove.Dimension> {
-  const draw: ArchetypeDrawSession<createBoxingGlove.Dimension> =
-    new ArchetypeDrawSession<createBoxingGlove.Dimension>(
+): AutoMovieArchetype<
+  createBoxingGlove.Affordance,
+  createBoxingGlove.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createBoxingGlove.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBoxingGlove.Dimension>(
       "boxingGlove",
       createBoxingGlove.UNITS,
       seed,
@@ -55,10 +58,10 @@ export function createBoxingGlove(
     ...draw.dimensions(createBoxingGlove.BANDS),
     mass: weight.figures.mass!,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createBoxingGlove.Affordance,
     createBoxingGlove.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `boxing glove ${weight.name}`,
@@ -83,7 +86,7 @@ export function createBoxingGlove(
   builder.affordance({
     id: "wear",
     kind: "socket",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, d.height / 2, d.length / 2),
       v(0, 0, -1),
       v(1, 0, 0),
@@ -94,7 +97,7 @@ export function createBoxingGlove(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, d.height / 2, d.length),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -138,7 +141,9 @@ export namespace createBoxingGlove {
   export type Dimension = "length" | "height" | "width" | "cuff" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     height: "m",
     width: "m",
@@ -153,9 +158,9 @@ export namespace createBoxingGlove {
   export const WEIGHTS: Readonly<
     Record<Weight, Readonly<Partial<Record<Dimension, number>>>>
   > = {
-    "8oz": { mass: 8 * ArchetypeUnits.OUNCE },
-    "10oz": { mass: 10 * ArchetypeUnits.OUNCE },
-    "12oz": { mass: 12 * ArchetypeUnits.OUNCE },
+    "8oz": { mass: 8 * AutoMovieArchetypeUnits.OUNCE },
+    "10oz": { mass: 10 * AutoMovieArchetypeUnits.OUNCE },
+    "12oz": { mass: 12 * AutoMovieArchetypeUnits.OUNCE },
   };
 
   /** The parameters: the weight, and any free dimension fixed to a value inside its band. */
@@ -171,25 +176,25 @@ export namespace createBoxingGlove {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<
-    Record<Exclude<Dimension, "mass">, IArchetypeBand>
+    Record<Exclude<Dimension, "mass">, IAutoMovieArchetypeBand>
   > = {
-    length: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(
       0.2,
       0.2,
       `${IBA}, Appendix 11: the glove 20 cm long`,
     ),
-    height: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(
       0.14,
       0.16,
       `${IBA}, Appendix 11: 14 to 16 cm`,
     ),
-    width: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(
       0.125,
       0.135,
       "Iron Body Fitness 12 oz training glove, 12.5 cm high and 13.5 cm deep, as a search result gives the retailer's listing; not read",
       true,
     ),
-    cuff: ArchetypeBand.metres(
+    cuff: AutoMovieArchetypeBand.metres(
       0.08,
       0.1,
       `${IBA}, Appendix 11: the cuff 8 to 10 cm`,

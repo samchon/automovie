@@ -6,11 +6,6 @@ import type { IAutoMovieWorldDesign } from "../production/IAutoMovieWorldDesign"
 
 /**
  * A prepared place's scene placements, compile runtime records and named frames.
- *
- * @evidence contracts/development/design.md#principled-representation Every scene placement and anchor carries world metres. Stage support retains each named patch and its walkability in one stage space. Clip clocks stay shot-local.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Stage and runtime records spread into the corresponding existing shot inputs. Architecture records retain topology for queries and prop placement. Named frames remain available for authored placement, paths and targets.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts This result is portable data. Actor, camera, timing, provider and rendering-host choices remain with the shot's existing owners.
- * @evidence contracts/development/common.md#meaningful-documentation States the destination of each output, the world frame, relative anchor keys and support omission.
  */
 export interface IAutoMovieEnvironment {
   /** The stage set and optional merged support space for the shot program. */

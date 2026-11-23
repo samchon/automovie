@@ -17,20 +17,10 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * drill was altered for the crew's safety; the 1864 Instruction for Field
  * Artillery is located but not read, and where it departs is recorded on
  * #3489.
- *
- * @evidence contracts/development/common.md#meaningful-documentation bore: How deep the bore runs from the muzzle to the breech, metres. vent: How deep the priming wire goes down the vent to the charge, metres. lay: How far the gunner turns the elevating screw to lay the gun, degrees.
- * @evidence contracts/development/design.md#principled-representation bore: How deep the bore runs from the muzzle to the breech, metres. vent: How deep the priming wire goes down the vent to the charge, metres. lay: How far the gunner turns the elevating screw to lay the gun, degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanGunCrew.ts (HumanGunCrew.drill, roles); lexicon/HumanGunCrew.ts (HumanGunCrew.drill, scene).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanGunCrew {
   /**
    * The crew's composition for one load and fire. The crew's performers by role.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation gunner: The gunner, who lays the gun and commands the fire. n1: No. 1, who sponges and rams. n2: No. 2, who places the charge.
-   * @evidence contracts/development/design.md#principled-representation gunner: The gunner, who lays the gun and commands the fire. n1: No. 1, who sponges and rams. n2: No. 2, who places the charge.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanGunCrew.ts (HumanGunCrew.drill, roles).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanGunCrew.drill.
    */
   export interface IRoles {
     /** The gunner, who lays the gun and commands the fire. */
@@ -54,11 +44,6 @@ export namespace IAutoMovieMotionHumanGunCrew {
 
   /**
    * The gun, its implements and the places the scene gives.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation bore: How deep the bore runs from the muzzle to the breech, metres. vent: How deep the priming wire goes down the vent to the charge, metres. lay: How far the gunner turns the elevating screw to lay the gun, degrees.
-   * @evidence contracts/development/design.md#principled-representation bore: How deep the bore runs from the muzzle to the breech, metres. vent: How deep the priming wire goes down the vent to the charge, metres. lay: How far the gunner turns the elevating screw to lay the gun, degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanGunCrew.ts (HumanGunCrew.drill, scene).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IScene {
     /** The gun's prop: its `muzzle`, `vent` and independently driven `screw`. */

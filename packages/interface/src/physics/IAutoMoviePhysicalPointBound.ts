@@ -4,11 +4,6 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * An interval for the world-axis projection of one articulated point relative to another.
  *
  * admitPhysicalPointBounds requires at least one finite interval end, ordered ends when both exist, a unit axis within 1e-6, a contiguous actuator chain and an existing reference carrier. It permits at most 256 bounds in a call and 1 through 32 updates per bound. The source/reference points are local metres; minimum, maximum and tolerance are metres after projection into the explicit world axis. An omitted end leaves that side unbounded. The fitter emits motor intent and retains unreachable residuals.
- *
- * @evidence contracts/development/design.md#principled-representation The reference union permits either one local point or one collider support point; the explicit axis and interval define the constraint without guessing a goal point.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Articulated point fitting and contact admission share this record, while the referenced profile continues to own bone hierarchy and collider geometry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts At least one interval end remains a runtime requirement; the type does not claim that any admitted interval is reachable or that fitting directly corrects a pose.
- * @evidence contracts/development/common.md#meaningful-documentation Defines both local and world frames, metre units, absent ends, numerical admission and residual behavior.
  */
 export interface IAutoMoviePhysicalPointBound {
   /** Unique relationship id within the sampled target, shared with collider bindings. */ id: string;

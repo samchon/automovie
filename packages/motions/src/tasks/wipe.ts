@@ -75,11 +75,28 @@ export namespace wipe {
   /** Cancel table: the hand lifts off and the body stands, walks or operates. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["relax", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["relax", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
-    walk: [{ window: ["relax", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
+    walk: [
+      {
+        window: ["relax", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
+    ],
     operate: [
-      { window: ["relax", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["relax", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
   };
 
@@ -133,7 +150,10 @@ export namespace wipe {
     cycles: number,
     progress: number,
   ): IAutoMovieVector3 {
-    return HumanFrame.point({ origin: centre, yaw }, localCircle(radius, cycles, progress));
+    return HumanFrame.point(
+      { origin: centre, yaw },
+      localCircle(radius, cycles, progress),
+    );
   }
 
   /**
@@ -159,8 +179,8 @@ export namespace wipe {
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
     // Three circles when the author names none, the contract's default
     // (`IAutoMovieMotionHumanWipe.IParams.cycles`).
-    const cycles: number = context.params.cycles ?? 3;
-    HumanBound.whole("cycles", cycles);
+    const cycles: number = context.params.count ?? 3;
+    HumanBound.whole("count", cycles);
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const centre: IAutoMovieVector3 = context.aim(
@@ -169,24 +189,39 @@ export namespace wipe {
     ).point;
     const radius: number = m.forearm / 4;
     const yaw: number = context.entry.posture.yaw;
-    const frame: HumanFrame.IPrepared = HumanFrame.prepare({ origin: centre, yaw });
-    const point: (progress: number) => IAutoMovieVector3 = (progress: number): IAutoMovieVector3 =>
-      frame.point(localCircle(radius, cycles, progress));
+    const frame: HumanFrame.IPrepared = HumanFrame.prepare({
+      origin: centre,
+      yaw,
+    });
+    const point: (progress: number) => IAutoMovieVector3 = (
+      progress: number,
+    ): IAutoMovieVector3 => frame.point(localCircle(radius, cycles, progress));
     const forward: IAutoMovieVector3 = frame.direction({ x: 0, y: 0, z: 1 });
     const targetAt: ReturnType<typeof AutoMovieMotionHumanTarget.prepareHand> =
-      AutoMovieMotionHumanTarget.prepareHand(body, side, { x: 0, y: 1, z: 0 },
-        { surface: "palm", shape: "flat", forward });
+      AutoMovieMotionHumanTarget.prepareHand(
+        body,
+        side,
+        { x: 0, y: 1, z: 0 },
+        { surface: "palm", shape: "flat", forward },
+      );
     const wristAt: ReturnType<typeof HumanHandTarget.prepareFrame> =
-      HumanHandTarget.prepareFrame(body, side, { x: 0, y: 1, z: 0 },
-        { surface: "palm", shape: "flat", forward });
-    const palm: (posture: IAutoMovieMotionHumanPosture, progress: number) => IAutoMovieMotionHumanArmTarget.ITarget = (
+      HumanHandTarget.prepareFrame(
+        body,
+        side,
+        { x: 0, y: 1, z: 0 },
+        { surface: "palm", shape: "flat", forward },
+      );
+    const palm: (
+      posture: IAutoMovieMotionHumanPosture,
+      progress: number,
+    ) => IAutoMovieMotionHumanArmTarget.ITarget = (
       posture: IAutoMovieMotionHumanPosture,
       progress: number,
     ): IAutoMovieMotionHumanArmTarget.ITarget =>
       targetAt(posture, point(progress));
     // The lean into a patch whose far side lies beyond the standing arm.
     const standing: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
+      .plan({ ...context, params: { hold: 1 } })
       .posture(0);
     const lean: IAutoMovieMotionHumanLeanInto.ILean =
       AutoMovieMotionHumanLeanInto.solve({
@@ -194,8 +229,10 @@ export namespace wipe {
         standing,
         side,
         share: reach(body),
-        wrist: (posture: IAutoMovieMotionHumanPosture, progress: number): IAutoMovieVector3 =>
-          wristAt(posture).place(point(progress)).point,
+        wrist: (
+          posture: IAutoMovieMotionHumanPosture,
+          progress: number,
+        ): IAutoMovieVector3 => wristAt(posture).place(point(progress)).point,
         // The arm on the circle's start, as the stroke lays the palm there.
         arm: (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal =>
           AutoMovieMotionHumanArm.goal(body, side, palm(posture, 0)),
@@ -209,7 +246,12 @@ export namespace wipe {
     const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
-        poseBones(body, context.entry.pose, undefined, HumanHand.frameBones(body, side, "palm")),
+        poseBones(
+          body,
+          context.entry.pose,
+          undefined,
+          HumanHand.frameBones(body, side, "palm"),
+        ),
         { origin: context.entry.posture.root, yaw },
         side,
         "palm",
@@ -304,7 +346,9 @@ export namespace wipe {
       const prepared: IAutoMovieMotionHumanActionPlan = compose(
         AutoMovieMotionHumanArmPhrase.preparedStroke(stroke),
       );
-      const sample: IAutoMovieMotionHumanPlayback.IPhase["sample"] = (...args) =>
+      const sample: IAutoMovieMotionHumanPlayback.IPhase["sample"] = (
+        ...args
+      ) =>
         createHumanBody.owns(body)
           ? { posture: prepared.posture(...args) }
           : undefined;
@@ -322,7 +366,11 @@ export namespace wipe {
 }
 
 /** The circle about the centre in the heading's floor frame: starting at its point nearest the performer, `cycles` turns over the progress. */
-function localCircle(radius: number, cycles: number, progress: number): IAutoMovieVector3 {
+function localCircle(
+  radius: number,
+  cycles: number,
+  progress: number,
+): IAutoMovieVector3 {
   const a: number = 2 * Math.PI * cycles * progress;
   return { x: radius * Math.sin(a), y: 0, z: -radius * Math.cos(a) };
 }

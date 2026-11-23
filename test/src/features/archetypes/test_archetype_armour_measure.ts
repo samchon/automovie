@@ -1,4 +1,4 @@
-import { ArchetypeRefusal, createArmour } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, createArmour } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type { IAutoMovieBodyMeasure } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -110,7 +110,7 @@ export function test_archetype_armour_measure(): void {
     try {
       createArmour({ kind, measure });
     } catch (error) {
-      return error instanceof ArchetypeRefusal && error.axis === axis;
+      return error instanceof AutoMovieArchetypeRefusal && error.axis === axis;
     }
     return false;
   }

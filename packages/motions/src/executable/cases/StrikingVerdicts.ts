@@ -49,6 +49,15 @@ export namespace StrikingVerdicts {
   /** What part of a body a strike met. */
   export type Class = "guard" | "head" | "trunk" | "leg";
 
+  /** The declared outcome a strike's parameters carry: a feint share, or the declared accuracy. */
+  export interface IDeclared {
+    /** A feint's share of the delivery, in (0, 1); none for a committed strike. */
+    feint?: number;
+
+    /** The declared accuracy (`hit`, `graze` or `miss`). */
+    accuracy?: unknown;
+  }
+
   /** One displayed strike under audit. */
   export interface IStrike {
     /** The performance it was shown in. */
@@ -167,7 +176,7 @@ export namespace StrikingVerdicts {
   export function contact(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment = strike.segment;
     const name: string = `${strike.id} ${g.id} contact`;
-    const params: { feint?: number | boolean; accuracy?: unknown } = g.params;
+    const params: StrikingVerdicts.IDeclared = g.params;
     if (g.plan.contact !== undefined && g.end < g.start + g.plan.contact - 1e-9)
       return {
         name,
@@ -179,7 +188,7 @@ export namespace StrikingVerdicts {
       };
     if (strike.other === undefined) return extension(strike);
     const declared: "feint" | "miss" | "graze" | undefined =
-      params.feint !== undefined && params.feint !== false
+      params.feint !== undefined
         ? "feint"
         : params.accuracy === "miss" || params.accuracy === "graze"
           ? params.accuracy

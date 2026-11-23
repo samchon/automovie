@@ -28,6 +28,8 @@ import { HumanCarriedCouplingLoad } from "./HumanCarriedCouplingLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";
 import type { HumanCarriedGripGaps } from "./HumanCarriedGripGaps";
+import { HumanCarriedNeckClear } from "./HumanCarriedNeckClear";
+import { HumanCarriedPitch } from "./HumanCarriedPitch";
 
 /** The borne regions held by the bearer's left and right hands. */
 type Grip = Parameters<typeof HumanCarriedCouplingFit.read>[3];
@@ -53,6 +55,13 @@ interface IBearingContact {
   role: string;
   region: AutoMovieHumanoidRegion;
   on: AutoMovieHumanoidRegion;
+}
+
+/** A borne hand that clings to a bearer: the bearer's role, the hand and the bearer's region it holds. */
+interface IClingContact {
+  role: string;
+  hand: AutoMovieHumanSide;
+  cling: AutoMovieHumanoidRegion;
 }
 
 /** A second bearer's anchor in the first bearer's anchor frame. */
@@ -194,10 +203,22 @@ export namespace HumanCarriedCouplingCouple {
         throw error;
       }
     };
+    const chosen: IGripFit = choose(0);
+    // The borne body is pitched forward over its supports where its centre
+    // lies behind all of them (`HumanCarriedPitch`), and then its pelvis set
+    // back off the bearer's neck where the pitched key rests it there
+    // (`HumanCarriedNeckClear`).
     const {
       read: { fit, mine, theirs },
       held,
-    }: IGripFit = choose(0);
+    }: IGripFit = {
+      ...chosen,
+      read: HumanCarriedNeckClear(
+        bearer,
+        borne,
+        HumanCarriedPitch(borne, row, chosen.held, chosen.read),
+      ),
+    };
     // The key frame is the bone the resting region rides on, so the borne
     // body goes with that bone wherever the bearer's action takes it.
     const anchor: AutoMovieHumanoidBone = HumanCarriedCouplingPose.anchor(
@@ -344,10 +365,38 @@ export namespace HumanCarriedCouplingCouple {
       if (lowest !== null)
         bearing.push({ role: rules.GROUND, region: lowest, on: lowest });
     }
-    const points: IAutoMovieVector3[] = bearing.map(
-      (b: IBearingContact): IAutoMovieVector3 =>
-        fit.place(HumanCarriedCouplingPose.region(borne, mine, b.region)),
+    // The clinging hands bear their share with the resting regions and the
+    // palms under the held ones: each is a point support at its palm in the
+    // same statics (`HumanCarriedCouplingLoad.shares`), so a borne centre
+    // that lies ahead of the seat is balanced by the hands that hold on,
+    // not put on the seat alone.
+    const clinging: IClingContact[] = besides.flatMap(
+      (side: IBearingSide): IClingContact[] =>
+        SIDES.flatMap(
+          (hand: AutoMovieHumanSide, index: number): IClingContact[] => {
+            const cling: HeldRegion = side.row.clings[index] ?? null;
+            return cling === null ? [] : [{ role: side.role, hand, cling }];
+          },
+        ),
     );
+    const palmOf = (hand: AutoMovieHumanSide): AutoMovieHumanoidRegion =>
+      hand === "left" ? "palmLeft" : "palmRight";
+    const points: IAutoMovieVector3[] = [
+      ...bearing.map(
+        (b: IBearingContact): IAutoMovieVector3 =>
+          fit.place(HumanCarriedCouplingPose.region(borne, mine, b.region)),
+      ),
+      // A clinging palm presses where it clings, on the first bearer's
+      // region (its goal there), not where the key's arm happens to hang.
+      ...clinging.map(
+        (c: IClingContact): IAutoMovieVector3 =>
+          c.role === rules.BEARER
+            ? HumanCarriedCouplingPose.region(bearer, theirs, c.cling)
+            : fit.place(
+                HumanCarriedCouplingPose.region(borne, mine, palmOf(c.hand)),
+              ),
+      ),
+    ];
     const loads: number[] = HumanCarriedCouplingLoad.shares(points, centre);
     const contacts: IAutoMovieMotionCoupling.IContact[] = bearing.map(
       (
@@ -362,18 +411,17 @@ export namespace HumanCarriedCouplingCouple {
         at: local(points[index]!),
       }),
     );
-    for (const side of besides)
-      SIDES.forEach((hand: AutoMovieHumanSide, index: number): void => {
-        const cling: HeldRegion = side.row.clings[index] ?? null;
-        if (cling !== null)
-          contacts.push({
-            part: hand === "left" ? "leftHand" : "rightHand",
-            region: hand === "left" ? "palmLeft" : "palmRight",
-            on: { role: side.role, region: cling },
-            kind: "grip",
-            load: 0,
-          });
+    clinging.forEach((c: IClingContact, k: number): void => {
+      const index: number = bearing.length + k;
+      contacts.push({
+        part: c.hand === "left" ? "leftHand" : "rightHand",
+        region: palmOf(c.hand),
+        on: { role: c.role, region: c.cling },
+        kind: "grip",
+        load: loads[index]!,
+        at: local(points[index]!),
       });
+    });
     const coupling: IAutoMovieMotionCoupling = {
       bearer: rules.BEARER,
       borne: rules.BORNE,

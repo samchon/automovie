@@ -1,5 +1,11 @@
 import { spawn } from "node:child_process";
 
+/** Optional consumers for a decoder that produces binary and text evidence. */
+interface IAutoMovieFfmpegOutput {
+  stdout?: (chunk: Buffer) => void;
+  stderr?: (chunk: string) => void;
+}
+
 /** Lines of FFmpeg's error output kept for a failure message. */
 const TAIL: number = 12;
 
@@ -8,36 +14,60 @@ const TAIL: number = 12;
  *
  * FFmpeg writes its log, including a probe of every input, to its error output, so that text is what callers read. By default only exit status 0 is accepted; a probe that names no output exits 1 by design and accepts it. A rejection names the binary, the exit status and the last lines of the log.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what is resolved, the acceptance rule and its default, and what a rejection names.
- * @evidence contracts/development/implementation.md#principled-implementation `child_process.spawn` without a shell passes each argument as it is, so a path with spaces or quotes needs no escaping.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Spawn, collect the error output, settle on exit.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A failed run is never retried, and a failure to start rejects with its cause.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the log FFmpeg writes.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each run is its own process.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The child process ends before the promise settles; its log is held until then.
+ * Output consumers, when provided, receive chunks as the child writes them. A
+ * consumer failure terminates the child and rejects after it has closed.
  */
 export function runAutoMovieFfmpeg(
   binary: string,
   args: readonly string[],
   accept: (code: number | null) => boolean = (code: number | null): boolean =>
     code === 0,
+  output?: IAutoMovieFfmpegOutput,
 ): Promise<string> {
   return new Promise<string>(
     (resolve: (log: string) => void, reject: (error: Error) => void): void => {
       const child: ReturnType<typeof spawn> = spawn(binary, [...args], {
-        stdio: ["ignore", "ignore", "pipe"],
+        stdio: [
+          "ignore",
+          output?.stdout === undefined ? "ignore" : "pipe",
+          "pipe",
+        ],
         windowsHide: true,
       });
       let log: string = "";
+      let refusal: Error | undefined;
+      const consume = <Chunk>(
+        stream: "stdout" | "stderr",
+        reader: ((chunk: Chunk) => void) | undefined,
+        chunk: Chunk,
+      ): void => {
+        if (reader === undefined || refusal !== undefined) return;
+        try {
+          reader(chunk);
+        } catch (cause) {
+          const reason = cause instanceof Error ? cause.message : String(cause);
+          refusal = new Error(
+            `FFmpeg ${binary} ${stream} consumer failed: ${reason}`,
+            { cause },
+          );
+          child.kill();
+        }
+      };
+      child.stdout?.on("data", (chunk: Buffer): void =>
+        consume("stdout", output?.stdout, chunk),
+      );
       child.stderr!.setEncoding("utf8");
       child.stderr!.on("data", (chunk: string): void => {
         log += chunk;
+        consume("stderr", output?.stderr, chunk);
       });
-      child.on("error", (error: Error): void =>
-        reject(new Error(`FFmpeg ${binary} did not start`, { cause: error })),
-      );
+      child.on("error", (error: Error): void => {
+        if (refusal === undefined)
+          reject(new Error(`FFmpeg ${binary} did not start`, { cause: error }));
+      });
       child.on("close", (code: number | null): void => {
-        if (accept(code)) resolve(log);
+        if (refusal !== undefined) reject(refusal);
+        else if (accept(code)) resolve(log);
         else
           reject(
             new Error(

@@ -34,7 +34,7 @@ import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import { touchPrimitive } from "../compose/touchPrimitive";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanVariationDraw } from "../compose/AutoMovieMotionHumanVariationDraw";
@@ -117,7 +117,12 @@ export namespace handToFace {
   export const overlay: boolean = true;
 
   /** The tasks' rows. */
-  export const ROWS: Readonly<Record<IAutoMovieMotionHumanHandToFaceRows.Task, IAutoMovieMotionHumanHandToFaceRows.IRow>> = handToFaceRows.ROWS;
+  export const ROWS: Readonly<
+    Record<
+      IAutoMovieMotionHumanHandToFaceRows.Task,
+      IAutoMovieMotionHumanHandToFaceRows.IRow
+    >
+  > = handToFaceRows.ROWS;
 
   /**
    * The region a row names for a hand: the right hand's region, mirrored for
@@ -166,12 +171,13 @@ export namespace handToFace {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandToFace.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanHandToFace.IParams = context.params;
-    const row: IAutoMovieMotionHumanHandToFaceRows.IRow = typeof p.task === "string" ? ROWS[p.task] : p.task;
+    const row: IAutoMovieMotionHumanHandToFaceRows.IRow =
+      typeof p.kind === "string" ? ROWS[p.kind] : p.kind;
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const count: number = p.count ?? row.count;
     let hold: number;
-    if (typeof p.seconds === "object") {
-      const [lower, upper] = p.seconds.between;
+    if (typeof p.hold === "object") {
+      const [lower, upper] = p.hold.between;
       HumanBound.least("seconds.between[0]", lower, 0, "s");
       HumanBound.least("seconds.between[1]", upper, lower, "s");
       hold =
@@ -181,12 +187,15 @@ export namespace handToFace {
             context.series("seconds"),
             1,
           )[0]!;
-    } else hold = HumanBound.least("seconds", p.seconds ?? row.hold, 0, "s");
+    } else hold = HumanBound.least("hold", p.hold ?? row.hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const bones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose);
-    const first: AutoMovieHumanSide = p.side ?? "right";
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      context.entry.pose,
+    );
+    const first: AutoMovieHumanSide = p.hand ?? "right";
 
     // The acting hand's effector: the row's implied tool, or the point of
     // the prop that hand holds.
@@ -209,7 +218,11 @@ export namespace handToFace {
             ],
           ]),
     ];
-    const region: ReturnType<typeof handToFaceRegion> = handToFaceRegion(context, row, bones);
+    const region: ReturnType<typeof handToFaceRegion> = handToFaceRegion(
+      context,
+      row,
+      bones,
+    );
 
     // The head turns as the hand arrives, or, drinking from a vessel, once
     // the vessel is at the lips: the head tips back with the vessel in the
@@ -230,13 +243,16 @@ export namespace handToFace {
     // the turn added to the entry's own head and neck as the pulse adds it.
     // A drinker's head turns after the vessel arrives, so the vessel must
     // also be held there (`turned`).
-    const turned: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanJoints.add({
-      channels: AutoMovieMotionHumanJoints.channels(turn),
-      from: 0,
-      to: 0,
-      delta: (): IAutoMovieMotionHumanJoints.Angles => turn,
-    }).write(entry, 0);
-    const atFace: IAutoMovieMotionHumanPosture = row.upright === true ? entry : turned;
+    const turned: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanJoints.add(
+      {
+        channels: AutoMovieMotionHumanJoints.channels(turn),
+        from: 0,
+        to: 0,
+        delta: (): IAutoMovieMotionHumanJoints.Angles => turn,
+      },
+    ).write(entry, 0);
+    const atFace: IAutoMovieMotionHumanPosture =
+      row.upright === true ? entry : turned;
 
     // A tool held as the grasp it was taken up by keeps that grasp's turn.
     const kept: IAutoMovieMotionHumanGrasp.IKey | null = HumanHeldUse.kept(
@@ -284,8 +300,16 @@ export namespace handToFace {
       ) => Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> =
         region(first, mirrored(row.region, first));
       if (row.upright !== true)
-        return HumanHeld.steadiest(context, row, first, subject, p.point,
-          atFace, at(atFace, 0), false);
+        return HumanHeld.steadiest(
+          context,
+          row,
+          first,
+          subject,
+          p.point,
+          atFace,
+          at(atFace, 0),
+          false,
+        );
       const vessel: handToFaceVessel.IVessel = handToFaceVessel.of(
         body,
         atFace,
@@ -315,7 +339,10 @@ export namespace handToFace {
     }
     // How each hand lies at the face, its elbow's hint and its reference.
     const arms: IAutoMovieMotionHumanHandToFaceArm.IArm[] = hands.map(
-      ([side, name]: (typeof hands)[number]): IAutoMovieMotionHumanHandToFaceArm.IArm =>
+      ([
+        side,
+        name,
+      ]: (typeof hands)[number]): IAutoMovieMotionHumanHandToFaceArm.IArm =>
         handToFaceArm.of({
           body,
           atFace,
@@ -393,9 +420,14 @@ export namespace handToFace {
     // Direct touches can share a trajectory. A tool's secondary grip is
     // prepared separately against the already posed holding arm.
     const together: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
-      AutoMovieMotionHumanArmPlanned.together(context.handover, true, context.tempo);
+      AutoMovieMotionHumanArmPlanned.together(
+        context.handover,
+        true,
+        context.tempo,
+      );
     for (const [index, [side, name]] of hands.entries()) {
-      const own: IAutoMovieMotionHumanGrasp.IKey | null = side === first ? kept : null;
+      const own: IAutoMovieMotionHumanGrasp.IKey | null =
+        side === first ? kept : null;
       const arm: IAutoMovieMotionHumanHandToFaceArm.IArm = arms[index]!;
       const { lay, bend, lean, facing } = arm;
       const stroke: IAutoMovieMotionHumanTouch.ITouch = {
@@ -414,7 +446,9 @@ export namespace handToFace {
         lay,
         ...(facing === undefined ? {} : { facing }),
         ...(lean === undefined ? {} : { lean }),
-        ...(own === null || drunk !== undefined ? {} : { held: own.wrist.rotation }),
+        ...(own === null || drunk !== undefined
+          ? {}
+          : { held: own.wrist.rotation }),
         entry,
         ...(together === undefined ? {} : { together }),
         ...(p.prop !== undefined && side === first
@@ -430,18 +464,19 @@ export namespace handToFace {
               },
             }),
       };
-      primitives.push(...AutoMovieMotionHumanTouch.touch(stroke));
+      primitives.push(...touchPrimitive(stroke));
     }
     const base: ReturnType<typeof AutoMovieMotionHumanBase.under> =
       AutoMovieMotionHumanBase.under(context, clock.duration);
     if (support && p.prop !== undefined && p.other !== undefined) {
       // Preparation publishes the lead group's course. The final composer
       // reuses that course and adds the independently admitted support.
-      const lead: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-        base,
-        clock,
-        primitives,
-      });
+      const lead: IAutoMovieMotionHumanActionPlan =
+        composeAutoMovieMotionHumanAction({
+          base,
+          clock,
+          primitives,
+        });
       const prepare: number = clock.at("strokeStart") - clock.at("ready");
       primitives.push(
         ...planHumanHeldSupport({
@@ -460,12 +495,13 @@ export namespace handToFace {
         }),
       );
     }
-    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      primitives,
-      contact: row.at,
-    });
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        primitives,
+        contact: row.at,
+      });
 
     // With a prop, the hand grips it through the whole task and keeps it after.
     return p.prop === undefined

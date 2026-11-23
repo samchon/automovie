@@ -18,11 +18,6 @@ import type { IAutoMovieModelPart } from "./IAutoMovieModelPart";
  * - An **object / prop** is a model with `skeleton: null`; it has geometry and materials but no joints, and is moved as a whole (placed in a scene, or parented to a character's bone as a held item).
  *
  * A model bundles its geometry (`parts`), its rig (`skeleton`, optional), and its `materials` behind one id; downstream layers cite it by `id` and never need to know whether it was generated from primitives or imported as a mesh (that is `origin`). The LLM authors parts, materials, and the skeleton's ROM or a deterministic mesh generator; opaque vertex arrays are not authored by hand.
- *
- * @evidence contracts/development/design.md#principled-representation Stable model identity joins parts, materials and an optional skeleton; validateModel checks their references and numeric domains, while imported appearances carry a compiler-sealed digest closure and authoritative bone indices rather than runtime name inference.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One model groups reusable geometry and capabilities separately from scene placement; each part owns a geometry representation, origin owns provenance, and optional body, contacts and profiles add their respective semantic inputs.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Generated meshes must come from reviewed generators, and imported visual bytes do not invent physics or inherit traits; the deterministic proxy and sealed asset ledger remain the owners of those distinct facts.
- * @evidence contracts/development/common.md#meaningful-documentation Explains rigged-versus-rigid subjects, optional gaze through eye bones, part, material and carried-image ownership, provenance, null physics and skeleton meanings, optional affordances and profiles, and compiler-owned asset digests and bone mapping.
  */
 export interface IAutoMovieModel {
   /** Stable model id cited by scene placements; poses and motions separately cite the skeleton id. */

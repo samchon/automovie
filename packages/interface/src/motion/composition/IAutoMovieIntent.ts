@@ -9,11 +9,6 @@ import type { IAutoMovieRelationalGoal } from "./IAutoMovieRelationalGoal";
  * vocabulary (a verb a subject can perform), so the same schedule machinery
  * serves any film. Timing, outcomes and state come from the production's
  * pure functions handed to `resolveAutoMovieSchedule`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents subject vocabulary, relation, anchor, producer parameters and each stopping form.
- * @evidence contracts/development/design.md#principled-representation until separates share, own event, external event and geometric proximity; AutoMovieScheduleCut validates selected shares and references, while the law validates proximity semantics.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Production builders own action vocabulary and parameter schemas; the scheduler reads timing and anchor/cut data without interpreting parameters.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The opaque parameter record is pre-existing producer-owned data, not a hidden implementation dependency; its runtime shape remains the production law's responsibility.
  */
 export interface IAutoMovieIntent {
   /** Stable id of the acting subject. */

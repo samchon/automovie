@@ -27,32 +27,15 @@
  * First pass: the take-off is not driven by the legs' push, the landing
  * does not absorb the fall through the arm, and a slide from a run starts
  * from the run's posture at rest, not its speed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation kind: A dive to the side or a slide forward; `dive` when absent. side: The side a dive goes to; `left` when absent; unread by a slide.
- * @evidence contracts/development/design.md#principled-representation kind: A dive to the side or a slide forward; `dive` when absent. side: The side a dive goes to; `left` when absent; unread by a slide.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: floor/dive.ts (dive.plan, context); floor/dive.ts (dive.SHAPES); floor/dive.ts (dive.REACH); floor/dive.ts (dive.TURN); floor/dive.ts (dive.PHASES); floor/dive.ts (dive.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in dive.plan.
  */
 export namespace IAutoMovieMotionHumanDive {
   /**
    * The kinds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The kinds.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "dive", "slide" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: floor/dive.ts (dive.SHAPES); floor/dive.ts (dive.REACH); floor/dive.ts (dive.TURN); floor/dive.ts (dive.PHASES); floor/dive.ts (dive.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in dive.SHAPES.
    */
   export type Kind = "dive" | "slide";
 
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The kind and, for a dive, its side.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed unions.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** A dive to the side or a slide forward; `dive` when absent. */

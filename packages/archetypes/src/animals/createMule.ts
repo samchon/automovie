@@ -1,29 +1,30 @@
 import {
-  type Archetype,
-  ArchetypeDrawSession,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
-import { EquidEarProfiles } from "./EquidEarProfiles";
+import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
+import { AutoMovieArchetypeEquineEarProfiles } from "./AutoMovieArchetypeEquineEarProfiles";
 import { HORSE_BANDS } from "./HORSE_BANDS";
 import { createHorse } from "./createHorse";
 
 /**
- * A mule with its tack: the horse's build (`createHorse.equid`) at a mule's size, under a riding saddle, in a driving harness or under a pack saddle, with the horse's contacts.
+ * A mule with its tack: the horse's build (`AutoMovieArchetypeEquine.equid`) at a mule's size, under a riding saddle, in a driving harness or under a pack saddle, with the horse's contacts.
  *
- * The mule is given or drawn whole by sex (`ArchetypeDrawSession.model`, its figures `MEASURES`): the mean female or male of 94 weighed working mules (Velásquez Mosquera et al. 2020), its height at the withers, heart girth and weighed mass all that sex's, so a mule is one sex's body, never a blend. Its bones are the horse's fractions of the height, provisional: no study measures a mule's segments. It rides the horse's measured gaits scaled to its height (`createQuadruped.SPECIES`).
+ * The mule is given or drawn whole by sex (`AutoMovieArchetypeDrawSession.model`, its figures `MEASURES`): the mean female or male of 94 weighed working mules (Velásquez Mosquera et al. 2020), its height at the withers, heart girth and weighed mass all that sex's, so a mule is one sex's body, never a blend. Its bones are the horse's fractions of the height, provisional: no study measures a mule's segments. It rides the horse's measured gaits scaled to its height (`createQuadruped.SPECIES`).
  * The added ear plates transfer a separate same-sex Araucan donor's paired
- * ear-length/breadth/height means, as EquidEarProfiles documents. Their thickness
+ * ear-length/breadth/height means, as AutoMovieArchetypeEquineEarProfiles documents. Their thickness
  * and diagonal neutral pose are authored rectangular proxies, not anatomy.
  *
  * @param params The sex, the tack and any dimension the author fixes.
  * @param seed The seed that draws the sex and every dimension left free inside its band; absent, the female, and each dimension the middle of its band.
  * @returns The mule.
- * @throws {ArchetypeRefusal} For a sex not in `MEASURES`, a fixed dimension outside its band (the height is the sex's own, so fixing it is refused), or a tack that is not one of `createHorse.TACKS`.
+ * @throws {AutoMovieArchetypeRefusal} For a sex not in `MEASURES`, a fixed dimension outside its band (the height is the sex's own, so fixing it is refused), or a tack that is not one of `AutoMovieArchetypeEquine.TACKS`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the mule shares with the horse, how its sex is chosen and where its size, mass and proportions come from.
  * @evidence contracts/development/implementation.md#principled-implementation The sex drawn whole over the weighed means, then the horse's equid builder on that sex's profile, whose read mass beats the equids' law. The law gives the female 255 kg and the male 282 kg against their weighed 275 and 299 kg; Yılmaz et al. 2012's 54 Turkish mules (125.5 cm, girth 152.3 cm) and FM 25-7's pack mule of 14 3/4 to 15 1/2 hands and 1,000 to 1,200 lb are checks.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the sex, then one call of `createHorse.equid` on its profile.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the sex, then one call of `AutoMovieArchetypeEquine.equid` on its profile.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing between the two body sexes is produced. Bone fractions, standing controls, shares and existing head/neck/tail dimensions stay unchanged. Ear L/W use the separate same-sex Araucan TableS1 donor with explicit provisional height transfer; thickness/pose are authored plates, never measured anatomy or an individual population band.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The equid builder's own.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the horse's builder, tack and gait table.
@@ -32,19 +33,22 @@ import { createHorse } from "./createHorse";
 export function createMule(
   params: createMule.IParams = {},
   seed?: number | string,
-): Archetype<createHorse.Affordance, createHorse.Dimension> {
-  const draw: ArchetypeDrawSession<createHorse.Dimension> =
-    new ArchetypeDrawSession<createHorse.Dimension>(
+): AutoMovieArchetype<
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeEquine.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeEquine.Dimension>(
       createMule.ARCHETYPE,
-      createHorse.UNITS,
+      AutoMovieArchetypeEquine.UNITS,
       seed,
       params,
     );
-  const sex: ArchetypeDrawSession.IModel<
+  const sex: AutoMovieArchetypeDrawSession.IModel<
     createMule.Sex,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Dimension
   > = draw.model<createMule.Sex>("sex", params.sex, createMule.MEASURES);
-  return createHorse.equid(
+  return AutoMovieArchetypeEquine.equid(
     createMule.profile(sex.figures, sex.name!),
     params,
     draw,
@@ -68,29 +72,32 @@ export namespace createMule {
 
   /** Each sex's read figures, the default first: Velásquez Mosquera, Corrales Alvarez and Bespalhok Jacometo 2020, Acta Sci Anim Sci 42:e46379, p. 3, Table 1, means of 55 females and 39 males, each weighed: height at the withers 130.40 and 135.28 cm, thoracic perimeter 147.85 and 152.58 cm, body weight 275.36 and 298.88 kg (https://www.redalyc.org/journal/3031/303162575011/303162575011.pdf). */
   export const MEASURES: Readonly<
-    Record<Sex, Readonly<Partial<Record<createHorse.Dimension, number>>>>
+    Record<
+      Sex,
+      Readonly<Partial<Record<AutoMovieArchetypeEquine.Dimension, number>>>
+    >
   > = {
     female: {
-      withersHeight: 130.4 * ArchetypeUnits.CENTIMETRE,
-      girth: 147.85 * ArchetypeUnits.CENTIMETRE,
+      withersHeight: 130.4 * AutoMovieArchetypeUnits.CENTIMETRE,
+      girth: 147.85 * AutoMovieArchetypeUnits.CENTIMETRE,
       mass: 275.36,
     },
     male: {
-      withersHeight: 135.28 * ArchetypeUnits.CENTIMETRE,
-      girth: 152.58 * ArchetypeUnits.CENTIMETRE,
+      withersHeight: 135.28 * AutoMovieArchetypeUnits.CENTIMETRE,
+      girth: 152.58 * AutoMovieArchetypeUnits.CENTIMETRE,
       mass: 298.88,
     },
   };
 
   /** The parameters: the sex, the tack, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends createHorse.IParams {
+  export interface IParams extends AutoMovieArchetypeEquine.IParams {
     /** The sex; drawn from the seed when absent. */
     sex?: Sex;
   }
 
   /** The band of each dimension a mule draws: the horse's tack and tempo, which the rider's hand and foot and the gait's spread set, not the mule's size; its height is its sex's (`MEASURES`). */
   export const BANDS: Readonly<
-    Partial<Record<createHorse.Free, IArchetypeBand>>
+    Partial<Record<AutoMovieArchetypeEquine.Free, IAutoMovieArchetypeBand>>
   > = {
     stirrupDrop: HORSE_BANDS.stirrupDrop,
     stirrupWidth: HORSE_BANDS.stirrupWidth,
@@ -106,9 +113,11 @@ export namespace createMule {
    * @returns The profile.
    */
   export function profile(
-    figures: Readonly<Partial<Record<createHorse.Dimension, number>>>,
+    figures: Readonly<
+      Partial<Record<AutoMovieArchetypeEquine.Dimension, number>>
+    >,
     sex: Sex = "female",
-  ): createHorse.IProfile {
+  ): AutoMovieArchetypeEquine.IProfile {
     return {
       archetype: ARCHETYPE,
       names: {
@@ -125,7 +134,7 @@ export namespace createMule {
         ...createHorse.BODY,
         head: {
           ...createHorse.BODY.head,
-          ears: EquidEarProfiles.mule(sex),
+          ears: AutoMovieArchetypeEquineEarProfiles.mule(sex),
         },
       },
     };

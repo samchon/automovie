@@ -106,7 +106,7 @@ function plan(
       prop: stick,
       tool: "hammer",
       on: { kind: "prop", subject: cymbal, point: "edge" },
-      cycles: 1,
+      count: 1,
     },
   });
 }

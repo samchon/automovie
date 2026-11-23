@@ -1,4 +1,4 @@
-import type { QuadrupedBody } from "./QuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
 
 /**
@@ -25,11 +25,11 @@ import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing body and head owners consume the same profile; the cat adds no mesh or alternative skeleton.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned profile owns its records and retains no external handles.
  */
-export function CatBody(): QuadrupedBody.IBody {
+export function CatBody(): AutoMovieArchetypeQuadrupedBody.IBody {
   const neck: number = 0.07;
   const head: number = 0.1258;
   const height: number = CatBody.REFERENCE.withers;
-  const body: QuadrupedBody.IBody = QuadrupedBodyProfile({
+  const body: AutoMovieArchetypeQuadrupedBody.IBody = QuadrupedBodyProfile({
     measures: {
       withers: height,
       girth: CatBody.REFERENCE.girth,

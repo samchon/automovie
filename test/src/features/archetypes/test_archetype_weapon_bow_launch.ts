@@ -1,6 +1,6 @@
 import {
-  ArchetypeRefusal,
-  ArchetypeUnits,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
   createBow,
 } from "@automovie/archetypes";
 import { AutoMovieGravity } from "@automovie/engine";
@@ -25,7 +25,7 @@ export function test_archetype_weapon_bow_launch(): void {
   const findings: string[] = [];
   // A pound-force in the order the band multiplies it, so a band end fixed here is the band's own float.
   const lbf: (pounds: number) => number = (pounds: number): number =>
-    pounds * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD;
+    pounds * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD;
   for (const pounds of [49, 54]) {
     const bow: ReturnType<typeof createBow> = createBow({
       kind: "recurve",
@@ -48,7 +48,8 @@ export function test_archetype_weapon_bow_launch(): void {
       0,
     );
   } catch (error) {
-    refused = error instanceof ArchetypeRefusal ? error.axis : String(error);
+    refused =
+      error instanceof AutoMovieArchetypeRefusal ? error.axis : String(error);
   }
   if (refused !== "draw")
     findings.push(

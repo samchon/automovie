@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The decks read. */
@@ -40,7 +40,7 @@ const ESTIMATES: Readonly<{ wheel: number; baseplate: number }> = {
  * @param params The deck and any dimension the author fixes.
  * @param seed The seed that draws the deck when it is not given and every dimension left free inside its band; absent, the first deck and the middle of each band.
  * @returns The skateboard.
- * @throws {ArchetypeRefusal} For a deck the maker's pages do not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a deck the maker's pages do not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the board stands, how its deck is chosen and where the contact readings are.
  * @evidence contracts/development/implementation.md#principled-implementation One of Powell Peralta's two decks whole, its width, length and wheelbase as the maker's page gives them; its thickness seven 1/16 in veneers, Powell Peralta's ply count times Roarockit's veneer; the deck's underside the Independent truck's 55 mm over the axle, the axle a 52 mm wheel's radius off the ground.
@@ -53,9 +53,9 @@ const ESTIMATES: Readonly<{ wheel: number; baseplate: number }> = {
 export function createSkateboard(
   params: createSkateboard.IParams = {},
   seed?: number | string,
-): Archetype<createSkateboard.Affordance, createSkateboard.Dimension> {
-  const draw: ArchetypeDrawSession<createSkateboard.Dimension> =
-    new ArchetypeDrawSession<createSkateboard.Dimension>(
+): AutoMovieArchetype<createSkateboard.Affordance, createSkateboard.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createSkateboard.Dimension> =
+    new AutoMovieArchetypeDrawSession<createSkateboard.Dimension>(
       "skateboard",
       createSkateboard.UNITS,
       seed,
@@ -75,10 +75,10 @@ export function createSkateboard(
     length: model.figures.length!,
     wheelbase: model.figures.wheelbase!,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createSkateboard.Affordance,
     createSkateboard.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `skateboard ${model.name}`,
@@ -125,7 +125,9 @@ export function createSkateboard(
       builder.affordance({
         id: `wheel-${end}-${side}`,
         kind: "ledge",
-        frame: ArchetypeFrame.upright(v(x * (width / 2 - E.wheel / 2), 0, z)),
+        frame: AutoMovieArchetypeFrame.upright(
+          v(x * (width / 2 - E.wheel / 2), 0, z),
+        ),
         extent: null,
         length: E.wheel,
       });
@@ -133,7 +135,7 @@ export function createSkateboard(
     builder.affordance({
       id: end === "front" ? "frontStance" : "rearStance",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, top, z)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, top, z)),
       extent: null,
       width,
       depth: E.baseplate,
@@ -142,7 +144,7 @@ export function createSkateboard(
   builder.affordance({
     id: "deck",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, top, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, top, 0)),
     extent: null,
     width,
     depth: length,
@@ -154,7 +156,7 @@ export function createSkateboard(
     builder.affordance({
       id,
       kind: "ledge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, top, (sign * length) / 2),
         v(0, 1, 0),
         v(sign, 0, 0),
@@ -165,9 +167,18 @@ export function createSkateboard(
   builder.affordance({
     id: "tailStrike",
     kind: "ledge",
-    frame: ArchetypeFrame.upright(v(0, under, length / 2)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, under, length / 2)),
     extent: null,
     length: width,
+  });
+  // Leave a half-wheel diameter between the ball of the foot and the rear edge.
+  builder.affordance({
+    id: "tailStance",
+    kind: "surface",
+    frame: AutoMovieArchetypeFrame.upright(v(0, top, length / 2 - radius)),
+    extent: null,
+    width,
+    depth: 2 * radius,
   });
   return builder.build(d.mass);
 }
@@ -189,14 +200,14 @@ export namespace createSkateboard {
     Record<Model, Readonly<Partial<Record<Dimension, number>>>>
   > = {
     "7.75x31.75": {
-      width: 7.75 * ArchetypeUnits.INCH,
-      length: 31.75 * ArchetypeUnits.INCH,
-      wheelbase: 14 * ArchetypeUnits.INCH,
+      width: 7.75 * AutoMovieArchetypeUnits.INCH,
+      length: 31.75 * AutoMovieArchetypeUnits.INCH,
+      wheelbase: 14 * AutoMovieArchetypeUnits.INCH,
     },
     "8.5x33.5": {
-      width: 8.5 * ArchetypeUnits.INCH,
-      length: 33.5 * ArchetypeUnits.INCH,
-      wheelbase: 15 * ArchetypeUnits.INCH,
+      width: 8.5 * AutoMovieArchetypeUnits.INCH,
+      length: 33.5 * AutoMovieArchetypeUnits.INCH,
+      wheelbase: 15 * AutoMovieArchetypeUnits.INCH,
     },
   };
 
@@ -207,6 +218,7 @@ export namespace createSkateboard {
    * - `nose`, `tail`: its ends on `-Z` and `+Z`, ledges along `X` with `+Z` out from the deck.
    * - `frontStance`, `rearStance`: the deck sites over the trucks.
    * - `tailStrike`: the underside rear edge.
+   * - `tailStance`: the ball-of-foot target above the rear edge for the pop.
    * - `wheel-front-left`, `wheel-front-right`, `wheel-back-left`, `wheel-back-right`: the local low lines across the wheels at rest.
    */
   export type Affordance =
@@ -216,6 +228,7 @@ export namespace createSkateboard {
     | "frontStance"
     | "rearStance"
     | "tailStrike"
+    | "tailStance"
     | `wheel-${"front" | "back"}-${"left" | "right"}`;
 
   /**
@@ -237,7 +250,9 @@ export namespace createSkateboard {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     length: "m",
     wheelbase: "m",
@@ -260,22 +275,28 @@ export namespace createSkateboard {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Free, IArchetypeBand>> = {
-    thickness: ArchetypeBand.metres(
-      (7 / 16) * ArchetypeUnits.INCH,
-      (7 / 16) * ArchetypeUnits.INCH,
+  export const BANDS: Readonly<Record<Free, IAutoMovieArchetypeBand>> = {
+    thickness: AutoMovieArchetypeBand.metres(
+      (7 / 16) * AutoMovieArchetypeUnits.INCH,
+      (7 / 16) * AutoMovieArchetypeUnits.INCH,
       `${POWELL}: seven plies, each 1/16 in by ${VENEER}`,
     ),
-    truck: ArchetypeBand.metres(
-      55 * ArchetypeUnits.MILLIMETRE,
-      55 * ArchetypeUnits.MILLIMETRE,
+    truck: AutoMovieArchetypeBand.metres(
+      55 * AutoMovieArchetypeUnits.MILLIMETRE,
+      55 * AutoMovieArchetypeUnits.MILLIMETRE,
       TRUCK,
     ),
-    wheel: ArchetypeBand.metres(
-      52 * ArchetypeUnits.MILLIMETRE,
-      52 * ArchetypeUnits.MILLIMETRE,
+    wheel: AutoMovieArchetypeBand.metres(
+      52 * AutoMovieArchetypeUnits.MILLIMETRE,
+      52 * AutoMovieArchetypeUnits.MILLIMETRE,
       WHEEL,
     ),
-    mass: ArchetypeBand.of("kg", 3, 4, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      3,
+      4,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

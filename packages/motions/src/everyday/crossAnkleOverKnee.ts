@@ -121,7 +121,7 @@ export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
 
       const hold: number = HumanBound.least(
         "seconds",
-        context.params.seconds ?? 1,
+        context.params.hold ?? 1,
         0,
         "s",
       );
@@ -131,7 +131,7 @@ export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       if (!(Number.isFinite(duration) && travel > 0 && release < duration))
         throw new HumanRefusal({
           kind: "parameter",
-          axis: "seconds",
+          axis: "hold",
           value: hold,
           feasible: null,
           reason: "the hold and travel must yield distinct finite times",
@@ -201,7 +201,7 @@ export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
             path.length - 2,
             Math.floor(share * (path.length - 1)),
           );
-          const amount = minimumJerk(share * (path.length - 1) - phase).s;
+          const amount = minimumJerk.share(share * (path.length - 1) - phase);
           const posed = fitSeatedAnkleCross.interpolate(
             path[phase]!,
             path[phase + 1]!,

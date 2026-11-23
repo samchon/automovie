@@ -10,22 +10,10 @@
  * `SETTLE` seconds and keep the walk's posture otherwise. The props stay in
  * the hands: the law grips them through its whole length and leaves them
  * held after.
- *
- * @evidence contracts/development/common.md#meaningful-documentation left: The prop the left hand holds; that arm is left to the walk when absent. right: The prop the right hand holds; that arm is left to the walk when absent. seconds: Seconds the carry lasts; 3 when absent.
- * @evidence contracts/development/design.md#principled-representation left: The prop the left hand holds; that arm is left to the walk when absent. right: The prop the right hand holds; that arm is left to the walk when absent. seconds: Seconds the carry lasts; 3 when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/carryHang.ts (carryHang.plan, context); handling/carryHang.ts (carryHang.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in carryHang.plan.
  */
 export namespace IAutoMovieMotionHumanCarryHang {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The props held in each hand and how long the carry lasts.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A hand with no prop is left to the walk.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The prop the left hand holds; that arm is left to the walk when absent. */
@@ -35,6 +23,6 @@ export namespace IAutoMovieMotionHumanCarryHang {
     right?: string;
 
     /** Seconds the carry lasts; 3 when absent. */
-    seconds?: number;
+    duration?: number;
   }
 }

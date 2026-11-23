@@ -18,20 +18,10 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * the bottom and at the mouth again, so the reversal at the bottom has no
  * jump in speed. Without it the depth is `depth p`, and the prop is left
  * home.
- *
- * @evidence contracts/development/common.md#meaningful-documentation tip: The held prop's working point that leads into the socket; `tip` when absent. depth: How far the working point goes in, metres; positive.
- * @evidence contracts/development/design.md#principled-representation tip: The held prop's working point that leads into the socket; `tip` when absent. depth: How far the working point goes in, metres; positive.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateInsert.ts (operateInsert.depth, mechanism); affordance/operateInsert.ts (operateInsert.travel, mechanism); affordance/operateInsert.ts (operateInsert.tool, mechanism); affordance/operateInsert.ts (operateInsert.target, mechanism); affordance/operateInsert.ts (operateInsert.target, socket).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanOperateInsert {
   /**
    * A held prop inserted into a socket.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation tip: The held prop's working point that leads into the socket; `tip` when absent. depth: How far the working point goes in, metres; positive.
-   * @evidence contracts/development/design.md#principled-representation tip: The held prop's working point that leads into the socket; `tip` when absent. depth: How far the working point goes in, metres; positive.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateInsert.ts (operateInsert.depth, mechanism); affordance/operateInsert.ts (operateInsert.travel, mechanism); affordance/operateInsert.ts (operateInsert.tool, mechanism); affordance/operateInsert.ts (operateInsert.target, mechanism).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IMechanism {
     /** The discriminator. */
@@ -46,8 +36,8 @@ export namespace IAutoMovieMotionHumanOperateInsert {
     /** The socket: its mouth, its normal pointing out along the axis. */
     into: IAutoMovieMotionTarget;
 
-    /** How far the working point goes in, metres; positive. */
-    depth: number;
+    /** How far the working point goes in, metres; positive. The socket's own declared depth (IAutoMovieAffordance.depth, a bore's length) when absent. */
+    depth?: number;
 
     /** Whether the prop is drawn back out over the stroke's second half. */
     withdraw?: boolean;
@@ -55,11 +45,6 @@ export namespace IAutoMovieMotionHumanOperateInsert {
 
   /**
    * The arm's goal at a progress of the stroke: the grip that puts the held prop's working point on the socket's axis at its depth, the prop's line along the axis. Input socket of operateInsert.target. The socket's mouth and outward normal, world.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation point: Socket contact point in world metres. normal: Outward socket normal in world coordinates; insertion follows its normalised opposite.
-   * @evidence contracts/development/design.md#principled-representation point: Socket contact point in world metres. normal: Outward socket normal in world coordinates; insertion follows its normalised opposite.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateInsert.ts (operateInsert.target, socket).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type ITargetSocket = {
     /** Socket contact point in world metres. */

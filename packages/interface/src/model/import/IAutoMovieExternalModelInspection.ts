@@ -8,11 +8,6 @@ import type { IAutoMovieExternalModelResource } from "./IAutoMovieExternalModelR
  * Byte-level facts the external-model builder accepts before materializing a source.
  *
  * `inspectAutoMovieExternalModelBytes` synchronously admits resident bytes against the selected profile and allocates this mutable result without retaining container or sidecar storage. Current repository callers exercise it through inspection and adoption tests. A host still needs its own loader to construct a render mesh; these facts do not certify complete glTF validity or image decoding.
- *
- * @evidence contracts/development/design.md#principled-representation The record reports only facts read from the declared JSON and checked against resident bytes: counts of the top-level arrays, the extension union, sidecar URIs, profile-proved humanoid slots with weight usage, and motion takes when the motion profile ran.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One inspection result serves every profile, with humanoidBones empty and motion absent where a profile does not compute them; adoption and inspection tests read this common report.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts `format` is a family label: a `.vrm` suffix or declared VRM extension produces `vrm`, while `vrm-humanoid-v1` separately checks VRM metadata; the label alone certifies no rig.
- * @evidence contracts/development/common.md#meaningful-documentation The comments state why inspection is synchronous, that hosts still load the render mesh themselves, how `format` is decided, the order of `extensions` and `resources`, how each profile fills `humanoidBones`, and when `motion` is present.
  */
 export interface IAutoMovieExternalModelInspection {
   /** Profile the caller selected and the inspection enforced. */
@@ -59,11 +54,6 @@ export namespace IAutoMovieExternalModelInspection {
    *
    * The ingest inspector throws on its first container, structural, resource or
    * profile violation; it does not repair data or certify complete glTF validity.
-   *
-   * @evidence contracts/development/design.md#principled-representation Container bytes and URI resolution share one synchronous lifetime; profile strings remain open so the runtime guard can diagnose unsupported selections.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface These are the four arguments the byte inspector reads; hosts own filesystem and asset-namespace policy.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No default profile, asynchronous fetch, fallback bytes or inferred container convention is introduced.
-   * @evidence contracts/development/common.md#meaningful-documentation States suffix selection, borrowed lifetimes, absent resolver behavior, callback frequency and error propagation.
    */
   export interface IProps {
     /** Source identity whose case-insensitive .gltf, .glb or .vrm suffix selects decoding; no file is opened or path normalized. */

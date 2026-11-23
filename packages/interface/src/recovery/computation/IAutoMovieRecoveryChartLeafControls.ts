@@ -1,20 +1,10 @@
 /**
  * Couple a complete axis-aligned unit-square leaf partition with C0 bicubics. axis 0 edges increase in u; axis 1 edges increase in v. Patch sides are bottom, right, top, left and all side parameters increase. Equal UV scalar endpoint identities share one control; this is parameter identity, not a physical coordinate weld. Each maximal containing interval owns one cubic. Nested fine intervals use de Casteljau restriction expressions in that cubic. Disjoint intervals, including those meeting only at endpoints, keep their own cubic handles. Every patch retains four independent interior controls. Atomic intervals verify one exterior incident and two opposed interior uses. Missing exterior coverage, nonnested overlaps, inconsistent corner equations, cycles, nonfinite arithmetic and control-budget exhaustion throw atomically. boundary contains only master exterior controls, with their nominal affine UV coefficient locations; physical fitted coefficients belong to the caller. Binary64 restriction is algebraically exact before rounding. Canonical point expressions own shared cut endpoints rather than separate restriction paths. This helper supplies coefficient coupling, not source coverage, G1 or a conforming generated mesh: the old four-ID-only engine cannot join unequal intervals without canonical interval sample ownership.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Unique named rectangles covering the unit UV square with disjoint interiors. Stable identity within the owning chart, boundary or occurrence registry; equal coordinates do not create identity.
- * @evidence contracts/development/design.md#principled-representation Unique named rectangles covering the unit UV square with disjoint interiors.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartLeafControls, RecoveryChartLeafFit share IAutoMovieRecoveryChartLeafControls's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Stable identity within the owning chart, boundary or occurrence registry; equal coordinates do not create identity.
  */
 
 export namespace IAutoMovieRecoveryChartLeafControls {
   /**
    * Input observations and explicit numerical policy for RecoveryChartLeafControls. Unique named rectangles covering the unit UV square with disjoint interiors.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Unique named rectangles covering the unit UV square with disjoint interiors. Stable identity within the owning chart, boundary or occurrence registry; equal coordinates do not create identity.
-   * @evidence contracts/development/design.md#principled-representation Unique named rectangles covering the unit UV square with disjoint interiors.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartLeafControls, RecoveryChartLeafFit share IAutoMovieRecoveryChartLeafControls's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stable identity within the owning chart, boundary or occurrence registry; equal coordinates do not create identity.
    */
 
   export type Input = {
@@ -33,11 +23,6 @@ export namespace IAutoMovieRecoveryChartLeafControls {
 
   /**
    * Returned coefficient or observation state from RecoveryChartLeafControls. Master outer coefficients only; never dependent fine-edge controls.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Number of original IDs for the relation resolver and fitter. Sixteen original control IDs per patch, v rows with u varying fastest.
-   * @evidence contracts/development/design.md#principled-representation Normalized chart axis: 0 selects u and 1 selects v.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartLeafControls, RecoveryChartLeafFit share IAutoMovieRecoveryChartLeafControls's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stable identity within the owning chart, boundary or occurrence registry; equal coordinates do not create identity.
    */
 
   export type Result = {
@@ -117,11 +102,6 @@ export namespace IAutoMovieRecoveryChartLeafControls {
 
   /**
    * Couple a complete axis-aligned unit-square leaf partition with C0 bicubics. axis 0 edges increase in u; axis 1 edges increase in v. Patch sides are bottom, right, top, left and all side parameters increase. Equal UV scalar endpoint identities share one control; this is parameter identity, not a physical coordinate weld. Each maximal containing interval owns one cubic. Nested fine intervals use de Casteljau restriction expressions in that cubic. Disjoint intervals, including those meeting only at endpoints, keep their own cubic handles. Every patch retains four independent interior controls. Atomic intervals verify one exterior incident and two opposed interior uses. Missing exterior coverage, nonnested overlaps, inconsistent corner equations, cycles, nonfinite arithmetic and control-budget exhaustion throw atomically. boundary contains only master exterior controls, with their nominal affine UV coefficient locations; physical fitted coefficients belong to the caller. Binary64 restriction is algebraically exact before rounding. Canonical point expressions own shared cut endpoints rather than separate restriction paths. This helper supplies coefficient coupling, not source coverage, G1 or a conforming generated mesh: the old four-ID-only engine cannot join unequal intervals without canonical interval sample ownership.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Couple a complete axis-aligned unit-square leaf partition with C0 bicubics. axis 0 edges increase in u; axis 1 edges increase in v. Patch sides are
-   * @evidence contracts/development/design.md#principled-representation Couple a complete axis-aligned unit-square leaf partition with C0 bicubics. axis 0 edges increase in u; axis 1 edges increase in v. Patch sides are
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartLeafControls, RecoveryChartLeafFit share IAutoMovieRecoveryChartLeafControls's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
    */
 
   export type Operation = (

@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeSpan,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeSpan,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3, validateModel } from "@automovie/engine";
 import type {
@@ -29,26 +29,30 @@ interface Options {
 }
 
 /** Build the actual already-rotated target and its independent hand contact. */
-function builder(options: Options = {}): ArchetypeBuilder<"hand", never> {
+function builder(
+  options: Options = {},
+): AutoMovieArchetypeBuilder<"hand", never> {
   const target: IAutoMovieVector3 = options.target ?? {
     x: 1.9,
     y: 1.2,
     z: 0.3,
   };
-  const result: ArchetypeBuilder<"hand", never> = new ArchetypeBuilder<
-    "hand",
-    never
-  >({
-    name: "held line fixture",
-    material: "steel",
-    draw: new ArchetypeDrawSession<never>("held-line", {}, undefined),
-  }).box(
-    "target",
-    { x: 0.6, y: 0.6, z: 0.8 },
-    { x: target.x + 0.1, y: target.y - 0.2, z: target.z - 0.3 },
-    { rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90) },
-  );
-  const frame: IAutoMovieTransform = ArchetypeFrame.upright({
+  const result: AutoMovieArchetypeBuilder<"hand", never> =
+    new AutoMovieArchetypeBuilder<"hand", never>({
+      name: "held line fixture",
+      material: "steel",
+      draw: new AutoMovieArchetypeDrawSession<never>(
+        "held-line",
+        {},
+        undefined,
+      ),
+    }).box(
+      "target",
+      { x: 0.6, y: 0.6, z: 0.8 },
+      { x: target.x + 0.1, y: target.y - 0.2, z: target.z - 0.3 },
+      { rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90) },
+    );
+  const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.upright({
     x: 0,
     y: 0,
     z: 0,
@@ -70,15 +74,15 @@ function builder(options: Options = {}): ArchetypeBuilder<"hand", never> {
 }
 
 /** Use the public actual-part binding and actual physical span producer. */
-function fixture(options: Options = {}): Archetype<"hand", never> {
-  const current: ArchetypeBuilder<"hand", never> = builder(options);
+function fixture(options: Options = {}): AutoMovieArchetype<"hand", never> {
+  const current: AutoMovieArchetypeBuilder<"hand", never> = builder(options);
   const extension: number | undefined =
     options.overhang === undefined
       ? options.hook === true
         ? undefined
         : 0.2
       : options.overhang;
-  const from: ArchetypeSpan.End =
+  const from: AutoMovieArchetypeSpan.End =
     extension === undefined
       ? { affordance: "hand" }
       : { affordance: "hand", overhang: extension };
@@ -116,12 +120,12 @@ function fixture(options: Options = {}): Archetype<"hand", never> {
  */
 export function test_archetype_contract_held_span(): void {
   const findings: string[] = [];
-  const original: Archetype<"hand", never> = fixture();
+  const original: AutoMovieArchetype<"hand", never> = fixture();
   const before: string = JSON.stringify({
     model: original,
     spans: original.spans,
   });
-  const anchor: ArchetypeSpan.End = original.spans[0]!.to;
+  const anchor: AutoMovieArchetypeSpan.End = original.spans[0]!.to;
   if (
     anchor.part !== "target" ||
     anchor.at === undefined ||
@@ -153,7 +157,10 @@ export function test_archetype_contract_held_span(): void {
       },
     ],
   ]);
-  const posed: Archetype<"hand", never> = original.reposed(moved, frames);
+  const posed: AutoMovieArchetype<"hand", never> = original.reposed(
+    moved,
+    frames,
+  );
   const line: IAutoMovieModelPart = posed.parts.find(
     (part: IAutoMovieModelPart): boolean => part.id === "line",
   )!;
@@ -175,11 +182,15 @@ export function test_archetype_contract_held_span(): void {
   if (
     !vclose(grip.translation, hand, 1e-12) ||
     !nclose(
-      Math.abs(Vector3.dot(ArchetypeFrame.axis(grip, "x"), axis)),
+      Math.abs(Vector3.dot(AutoMovieArchetypeFrame.axis(grip, "x"), axis)),
       1,
       1e-12,
     ) ||
-    !nclose(Vector3.dot(ArchetypeFrame.axis(grip, "y"), axis), 0, 1e-12)
+    !nclose(
+      Vector3.dot(AutoMovieArchetypeFrame.axis(grip, "y"), axis),
+      0,
+      1e-12,
+    )
   )
     findings.push(
       "the held frame moved its origin or left the physical line tangent",
@@ -199,7 +210,10 @@ export function test_archetype_contract_held_span(): void {
   )
     findings.push("the drawn line lost its physical length or radius");
   else line.geometry.shape.height += 1;
-  const again: Archetype<"hand", never> = original.reposed(moved, frames);
+  const again: AutoMovieArchetype<"hand", never> = original.reposed(
+    moved,
+    frames,
+  );
   if (
     !vclose(
       archetypeSpanObservation.ends(
@@ -240,7 +254,7 @@ export function test_archetype_contract_held_span(): void {
   refused("nonfinite anchor", (): unknown =>
     builder().anchor("target", { x: NaN, y: 0, z: 0 }),
   );
-  const nonrigid: ArchetypeBuilder<"hand", never> = builder();
+  const nonrigid: AutoMovieArchetypeBuilder<"hand", never> = builder();
   nonrigid.box(
     "invalid",
     { x: 0.1, y: 0.1, z: 0.1 },
@@ -250,21 +264,27 @@ export function test_archetype_contract_held_span(): void {
   refused("non-rigid anchor carrier", (): unknown =>
     nonrigid.anchor("invalid", { x: 0, y: 0, z: 0 }),
   );
-  const absent: Archetype<"hand", never> = fixture({ hook: true });
-  const zero: Archetype<"hand", never> = fixture({ hook: true, overhang: 0 });
+  const absent: AutoMovieArchetype<"hand", never> = fixture({ hook: true });
+  const zero: AutoMovieArchetype<"hand", never> = fixture({
+    hook: true,
+    overhang: 0,
+  });
   if (
     !vclose(
-      ArchetypeFrame.axis(absent.affordance("hand").frame, "x"),
+      AutoMovieArchetypeFrame.axis(absent.affordance("hand").frame, "x"),
       { x: 1, y: 0, z: 0 },
       1e-12,
     ) ||
     nclose(
       Math.abs(
-        Vector3.dot(ArchetypeFrame.axis(zero.affordance("hand").frame, "x"), {
-          x: 1,
-          y: 0,
-          z: 0,
-        }),
+        Vector3.dot(
+          AutoMovieArchetypeFrame.axis(zero.affordance("hand").frame, "x"),
+          {
+            x: 1,
+            y: 0,
+            z: 0,
+          },
+        ),
       ),
       1,
       1e-6,
@@ -273,7 +293,7 @@ export function test_archetype_contract_held_span(): void {
     findings.push(
       "zero and absent held declarations did not retain their different meanings",
     );
-  const conflicting: ArchetypeBuilder<"hand", never> = builder();
+  const conflicting: AutoMovieArchetypeBuilder<"hand", never> = builder();
   conflicting
     .box("other", { x: 0.2, y: 0.2, z: 0.2 }, { x: 0, y: 0, z: 2 })
     .span(
@@ -301,7 +321,7 @@ export function test_archetype_contract_held_span(): void {
       operation();
       findings.push(`${label}: accepted`);
     } catch (error) {
-      if (!(error instanceof ArchetypeRefusal))
+      if (!(error instanceof AutoMovieArchetypeRefusal))
         findings.push(`${label}: ${String(error)}`);
     }
   }

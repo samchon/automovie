@@ -5,21 +5,11 @@ import type {
 
 /**
  * Fit a selected private chart batch after one common boundary-network pass. All chart families enter the same network before any coefficient solve, so observed quarter cuts and maximal physical arcs can be reconciled across selected slabs. Chart names retain the caller's private ownership metadata. A failed global network falls back to explicitly unqualified independent networks, preserving finite siblings without claiming shared-bank continuity. Failed maps and fits remain local results and never supply a source mesh.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Prepared or fitted source charts in deterministic observation order, including each independently retained feature piece. Shared boundary registry for this immutable observation pass; its lifetime ends when the caller releases the pass.
- * @evidence contracts/development/design.md#principled-representation Shared boundary registry for this immutable observation pass; its lifetime ends when the caller releases the pass.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryAtlasObservationPublish, RecoveryChartBatch share IAutoMovieRecoveryChartBatch's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Prepared or fitted source charts in deterministic observation order, including each independently retained feature piece.
  */
 
 export namespace IAutoMovieRecoveryChartBatch {
   /**
    * Fit a selected private chart batch after one common boundary-network pass. All chart families enter the same network before any coefficient solve, so observed quarter cuts and maximal physical arcs can be reconciled across selected slabs. Chart names retain the caller's private ownership metadata. A failed global network falls back to explicitly unqualified independent networks, preserving finite siblings without claiming shared-bank continuity. Failed maps and fits remain local results and never supply a source mesh.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Prepared or fitted source charts in deterministic observation order, including each independently retained feature piece. Shared boundary registry for this immutable observation pass; its lifetime ends when the caller releases the pass.
-   * @evidence contracts/development/design.md#principled-representation Shared boundary registry for this immutable observation pass; its lifetime ends when the caller releases the pass.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryAtlasObservationPublish, RecoveryChartBatch share IAutoMovieRecoveryChartBatch's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Prepared or fitted source charts in deterministic observation order, including each independently retained feature piece.
    */
 
   export type Operation = (input: {

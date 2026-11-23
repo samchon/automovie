@@ -1,8 +1,8 @@
 import {
-  type ArchetypeRide,
-  type QuadrupedBody,
-  type QuadrupedGait,
-  QuadrupedLocomotion,
+  type AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedGait,
+  AutoMovieArchetypeQuadrupedLocomotion,
+  type AutoMovieArchetypeRide,
   createDog,
   createQuadruped,
   rideQuadruped,
@@ -57,9 +57,9 @@ export function test_archetype_animal_attachment_dog(): void {
         );
         scenario(
           dog,
-          (): ArchetypeRide.IRide<
+          (): AutoMovieArchetypeRide.IRide<
             createDog.Affordance,
-            QuadrupedBody.Dimension
+            AutoMovieArchetypeQuadrupedBody.Dimension
           > =>
             rideQuadruped(
               dog,
@@ -92,13 +92,17 @@ export function test_archetype_animal_attachment_dog(): void {
     },
     43,
   );
-  const authored: QuadrupedGait.ITable = QuadrupedLocomotion.admit(
-    createQuadruped.species(dog).table,
-  );
+  const authored: AutoMovieArchetypeQuadrupedGait.ITable =
+    AutoMovieArchetypeQuadrupedLocomotion.admit(
+      createQuadruped.species(dog).table,
+    );
   authored.gaits.walk!.nod = { range: 20, timing: "support" };
   scenario(
     dog,
-    (): ArchetypeRide.IRide<createDog.Affordance, QuadrupedBody.Dimension> =>
+    (): AutoMovieArchetypeRide.IRide<
+      createDog.Affordance,
+      AutoMovieArchetypeQuadrupedBody.Dimension
+    > =>
       rideQuadruped(
         dog,
         {

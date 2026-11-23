@@ -6,11 +6,6 @@ import type { IAutoMovieBone } from "./IAutoMovieBone";
  * Bone identities, parent hierarchy, rest transforms and declared ROM define the target of pose and motion channels. The closed humanoid names support shared addressing, but retargeting additionally needs an admitted mapping, compatible rest basis and target constraints; this record does not guarantee arbitrary-avatar portability.
  *
  * Generated rigs and admitted glTF, GLB or VRM imports use the same normalized shape. The current ingest suffix gate admits those containers; it implements no FBX path. Shared addressing still requires the rig membership, mapping and rest-basis admission described above.
- *
- * @evidence contracts/development/design.md#principled-representation A stable rig id and unique normalized bone records define one connected single-root parent graph for FK and ROM admission, shared by generated and explicitly mapped imported rigs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Rig existence and rest/constraint data are independent from pose and motion channels, allowing one normalized representation across acquisition paths.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Generic model validation requires one connected root but does not require every VRM mandatory bone or guarantee arbitrary-avatar retargeting; mapping, rest basis and target ROM remain separately admitted.
- * @evidence contracts/development/common.md#meaningful-documentation Defines stable rig identity, unique bone population, connected single-root graph and the separation from stricter VRM import requirements.
  */
 export interface IAutoMovieSkeleton {
   /** Stable id so poses, motions, and scene nodes can cite this rig. */

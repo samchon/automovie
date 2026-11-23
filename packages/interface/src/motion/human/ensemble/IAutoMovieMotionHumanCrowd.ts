@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanEnsemble } from "../next/IAutoMovieMotionHumanEnsemble";
 import type { IAutoMovieMotionHumanObstacle } from "../perform/IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanResponse } from "../skill/IAutoMovieMotionHumanResponse";
-import type { IAutoMovieMotionHumanEnsemble } from "./IAutoMovieMotionHumanEnsemble";
 import type { IAutoMovieMotionHumanFormation } from "./IAutoMovieMotionHumanFormation";
 
 /**
@@ -22,38 +22,20 @@ import type { IAutoMovieMotionHumanFormation } from "./IAutoMovieMotionHumanForm
  * (`HumanResponse`), and in flight its herding share is morale's. Every
  * draw is keyed by the member; adding a member changes the others' courses
  * (they avoid it) but never their draws.
- *
- * @evidence contracts/development/common.md#meaningful-documentation latency: Each member's delay after the cue; none when absent. flight: Whether they flee: morale then raises the desired speed and the herding share. Not when absent. groups: Groups that walk together, each steered as one agent of its members' combined breadth; none when absent.
- * @evidence contracts/development/design.md#principled-representation latency: Each member's delay after the cue; none when absent. flight: Whether they flee: morale then raises the desired speed and the herding share. Not when absent. groups: Groups that walk together, each steered as one agent of its members' combined breadth; none when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanCrowd.ts (HumanCrowd.desired, request); ensemble/HumanCrowd.ts (HumanCrowd.steer, request); ensemble/HumanCrowd.ts (HumanCrowd.desired, return); ensemble/HumanCrowd.ts (HumanCrowd.steer, return); ensemble/HumanCrowd.ts (HumanCrowd.steer.agents); ensemble/HumanManoeuvre.ts (steered).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanEnsemble.IMember, IAutoMovieVector3, IAutoMovieMotionHumanResponse.Latency, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanEnsemble.IGroup, IAutoMovieMotionHumanFormation.ICourse identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCrowd {
   /**
    * A member's desired speed and delay as the pass draws them: its gait's speed at its leg length scaled by its keyed normal draw (floored at `SLOWEST`, its spread widened in flight by low morale's fluctuation, `HUMAN_ATTRIBUTE_EFFECTS.morale.fluctuation`), by fatigue and in flight by morale, and its response latency when the request names one. What a crowd is steered by.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation latency: Each member's delay after the cue; none when absent. flight: Whether they flee: morale then raises the desired speed and the herding share. Not when absent. groups: Groups that walk together, each steered as one agent of its members' combined breadth; none when absent.
-   * @evidence contracts/development/design.md#principled-representation latency: Each member's delay after the cue; none when absent. flight: Whether they flee: morale then raises the desired speed and the herding share. Not when absent. groups: Groups that walk together, each steered as one agent of its members' combined breadth; none when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanCrowd.ts (HumanCrowd.desired, request); ensemble/HumanCrowd.ts (HumanCrowd.steer, request).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanEnsemble.IMember, IAutoMovieVector3, IAutoMovieMotionHumanResponse.Latency, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanEnsemble.IGroup identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IRequest {
     /**
      * Each member's goals: a point, or points in order.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCrowd.IRequest.goals: Each member's goals: a point, or points in order.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
      */
     goals: (
       member: IAutoMovieMotionHumanEnsemble.IMember,
     ) => IAutoMovieVector3 | readonly IAutoMovieVector3[];
 
-    /** Its gait. */
+    /** Its gait: `walk` at the walk's normal pace, about 1.5 m/s at the reference hip, or `run` at the run pace, about 3.4 m/s (`walk.FROUDE`, `run.GAITS`; the speed model is {@link IAutoMovieMotionHumanGait}). Each member's speed is that scaled by its own leg length, a normal draw of 19 % (`HumanCrowd.SPREAD`), fatigue and, in flight, morale. `walk` fits a plaza or a queue, `run` a stampede or an evacuation. */
     gait: "walk" | "run";
 
     /** The film second of the cue they set off on. */
@@ -65,7 +47,7 @@ export namespace IAutoMovieMotionHumanCrowd {
     /** Each member's delay after the cue; none when absent. */
     latency?: IAutoMovieMotionHumanResponse.Latency;
 
-    /** Whether they flee: morale then raises the desired speed and the herding share. Not when absent. */
+    /** Whether they flee: morale then raises the desired speed and the herding share. Steady morale (1) leaves the speed; broken morale (0) multiplies it by 1.5 and the herding share to 0.4, and widens the draw's spread to twice (`HUMAN_ATTRIBUTE_EFFECTS`: Helbing, Farkas and Vicsek 2000; the herding and fluctuation values provisional). A panic is `run` with `flight` on a crowd of low morale. Not when absent. */
     flight?: boolean;
 
     /** What they steer round. */
@@ -77,11 +59,6 @@ export namespace IAutoMovieMotionHumanCrowd {
 
   /**
    * Steer the crowd. A steered crowd.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation frames: Each member's course frame, by member index; a grouped member's is its group's. arrivals: Each member's arrival second, or null when it does not arrive by `until`.
-   * @evidence contracts/development/design.md#principled-representation frames: Each member's course frame, by member index; a grouped member's is its group's. arrivals: Each member's arrival second, or null when it does not arrive by `until`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanCrowd.ts (HumanCrowd.steer, return); ensemble/HumanManoeuvre.ts (steered).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanFormation.ICourse identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IResult {
     /** Each member's course frame, by member index; a grouped member's is its group's. */
@@ -93,14 +70,9 @@ export namespace IAutoMovieMotionHumanCrowd {
 
   /**
    * A member's drawn desire: its desired speed, metres per second, and its delay after the cue, seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation speed: The desired speed, metres per second. delay: The delay after the cue, seconds.
-   * @evidence contracts/development/design.md#principled-representation speed: The desired speed, metres per second. delay: The delay after the cue, seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanCrowd.ts (HumanCrowd.desired, return); ensemble/HumanCrowd.ts (HumanCrowd.steer.agents).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanCrowd.desired.
    */
   export interface IDesired {
-    /** The desired speed, metres per second. */
+    /** The desired speed, metres per second: the request's gait speed at the member's leg length, the draw, fatigue and, in flight, morale (`IRequest.gait`, `IRequest.flight`). Fatigue 1 lowers it to the `weary` preset's 0.8. */
     speed: number;
 
     /** The delay after the cue, seconds. */

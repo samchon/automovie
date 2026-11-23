@@ -5,6 +5,7 @@ import { coverFace } from "../daily/coverFace";
 import { playWindInstrument } from "../daily/playWindInstrument";
 import { wipeTears } from "../daily/wipeTears";
 import { tipHat } from "../dressing/tipHat";
+import { wardrobe } from "../dressing/wardrobe";
 import { crossAnkleOverKnee } from "../everyday/crossAnkleOverKnee";
 import { curtsy } from "../everyday/curtsy";
 import { headTilt } from "../everyday/headTilt";
@@ -14,6 +15,12 @@ import { swipeTouchscreen } from "../everyday/swipeTouchscreen";
 import { ropeSkip } from "../exercise/ropeSkip";
 import { grapple } from "../grappling/grapple";
 import { button } from "../handling/button";
+import { drawFromCarrier } from "../handling/drawFromCarrier";
+import { collapse } from "../reaction/collapse";
+import { thrown } from "../reaction/thrown";
+import { stopDropRoll } from "../reaction/stopDropRoll";
+import { wireArrest } from "../reaction/wireArrest";
+import { wireFlight } from "../reaction/wireFlight";
 import { guitarChord } from "../handling/guitarChord";
 import { guitarNote } from "../handling/guitarNote";
 import { pianoPedal } from "../handling/pianoPedal";
@@ -22,8 +29,14 @@ import { pianoScore } from "../handling/pianoScore";
 import { pickUpMoving } from "../handling/pickUpMoving";
 import { putDownAperture } from "../handling/putDownAperture";
 import { write } from "../handling/write";
+import { workHeld } from "../handling/workHeld";
 import { zip } from "../handling/zip";
 import { bowViolin } from "../music/bowViolin";
+import { conduct } from "../music/conduct";
+import { throwPottery } from "../handling/throwPottery";
+import { beatFlames } from "../tasks/beatFlames";
+import { extinguish } from "../tasks/extinguish";
+import { hoseLine } from "../tasks/hoseLine";
 import { spacecraftGlide } from "../spacecraft/spacecraftGlide";
 import { aquatic } from "../sport/aquatic";
 import { stickBall } from "../sport/stickBall";
@@ -31,19 +44,34 @@ import { swimImmersed } from "../sport/swimImmersed";
 import { cymbalStrike } from "../tasks/cymbalStrike";
 import { sideDrumStrike } from "../tasks/sideDrumStrike";
 import { stageCatch } from "../throwing/stageCatch";
+import { stageDeflect } from "../throwing/stageDeflect";
+import { HumanAidWalk } from "./HumanAidWalk";
 import { HumanArchery } from "./HumanArchery";
+import { HumanAssistedTransfer } from "./HumanAssistedTransfer";
 import { HumanBicycleEffort } from "./HumanBicycleEffort";
+import { HumanBikeGuide } from "./HumanBikeGuide";
 import { HumanBikeTransfer } from "./HumanBikeTransfer";
 import { HumanBlade } from "./HumanBlade";
 import { HumanBoltAction } from "./HumanBoltAction";
 import { HumanCarried } from "./HumanCarried";
+import { HumanCarrierCustody } from "./HumanCarrierCustody";
+import { HumanHorrorGait } from "./HumanHorrorGait";
+import { crabWalk } from "../floor/crabWalk";
+import { disarm } from "../grappling/disarm";
+import { disarmed } from "../grappling/disarmed";
+import { heldHostage } from "../grappling/heldHostage";
+import { hostageHold } from "../grappling/hostageHold";
+import { lungeGrab } from "../touch/lungeGrab";
+import { HumanRaceGait } from "./HumanRaceGait";
 import { HumanDefence } from "./HumanDefence";
 import { HumanDressRows } from "./HumanDressRows";
 import { HumanDrill } from "./HumanDrill";
 import { HumanEmblem } from "./HumanEmblem";
+import { HumanEnvironmentRecovery } from "./HumanEnvironmentRecovery";
 import { HumanFirearm } from "./HumanFirearm";
 import { HumanFloorFall } from "./HumanFloorFall";
 import { HumanFloorRoll } from "./HumanFloorRoll";
+import { HumanFrailWalk } from "./HumanFrailWalk";
 import { HumanGait } from "./HumanGait";
 import { HumanGestureRows } from "./HumanGestureRows";
 import { HumanGunDrill } from "./HumanGunDrill";
@@ -52,7 +80,22 @@ import { HumanHabit } from "./HumanHabit";
 import { HumanHandToFaceRows } from "./HumanHandToFaceRows";
 import { HumanHandrimStroke } from "./HumanHandrimStroke";
 import { HumanLabour } from "./HumanLabour";
+import { HumanFloatBeside } from "./HumanFloatBeside";
+import { HumanHoldHandles } from "./HumanHoldHandles";
+import { HumanLeadHorse } from "./HumanLeadHorse";
+import { HumanLunge } from "./HumanLunge";
 import { HumanManipulate } from "./HumanManipulate";
+import { HumanMounted } from "./HumanMounted";
+import { HumanUnseat } from "./HumanUnseat";
+import { HumanPolo } from "./HumanPolo";
+import { HumanBoard } from "./HumanBoard";
+import { HumanClasp } from "./HumanClasp";
+import { HumanDrape } from "./HumanDrape";
+import { HumanTrick } from "./HumanTrick";
+import { HumanRoman } from "./HumanRoman";
+import { HumanLasso } from "./HumanLasso";
+import { HumanSabre } from "./HumanSabre";
+import { HumanLanceCouch } from "./HumanLanceCouch";
 import { HumanMusketDrill } from "./HumanMusketDrill";
 import { HumanPartner } from "./HumanPartner";
 import { HumanPose } from "./HumanPose";
@@ -65,6 +108,7 @@ import { HumanRide } from "./HumanRide";
 import { HumanSelfActionRows } from "./HumanSelfActionRows";
 import { HumanSittingVolley } from "./HumanSittingVolley";
 import { HumanSocial } from "./HumanSocial";
+import { HumanDanceStyles } from "./HumanDanceStyles";
 import { HumanSport } from "./HumanSport";
 import { HumanSportCarry } from "./HumanSportCarry";
 import { HumanSportGym } from "./HumanSportGym";
@@ -88,6 +132,15 @@ import { HumanTravelCar } from "./HumanTravelCar";
 import { HumanTravelCarExit } from "./HumanTravelCarExit";
 import { HumanTravelDoor } from "./HumanTravelDoor";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
+import { HumanTraversal } from "./HumanTraversal";
+import { HumanCover } from "./HumanCover";
+import { HumanWallRun } from "./HumanWallRun";
+import { HumanRope } from "./HumanRope";
+import { HumanStuntFall } from "./HumanStuntFall";
+import { HumanTreeClimb } from "./HumanTreeClimb";
+import { HumanSkydive } from "./HumanSkydive";
+import { HumanEdgeRescue } from "./HumanEdgeRescue";
+import { HumanVehicleHit } from "./HumanVehicleHit";
 import { HumanUpperRows } from "./HumanUpperRows";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
@@ -96,8 +149,7 @@ import { tuckHair } from "./tuckHair";
 
 /**
  * Sources of named laws for each lexicon family. `HUMAN_LEXICON` reads
- * these records for explicit installation. Schema generation pairs each
- * law's registered name with its parameters from the canonical family map.
+ * these records for explicit installation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the table holds and the two readers that derive from it.
  * @evidence contracts/development/design.md#principled-representation One readonly list of sources per family. Each source exposes existing typed law records.
@@ -112,34 +164,67 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   gait: [
     HumanGait,
     HumanTravelDoor,
+    HumanTraversal,
+    HumanCover,
+    HumanWallRun,
+    HumanRope,
+    HumanStuntFall,
+    HumanTreeClimb,
+    HumanSkydive,
+    HumanEdgeRescue,
+    HumanEnvironmentRecovery,
     HumanTravelCar,
     HumanTravelLeaf,
     HumanTravelCarExit,
+    HumanHorrorGait,
+    { crabWalk, frailWalk: HumanFrailWalk.frailWalk },
+    HumanRaceGait,
   ],
   pursuit: [HumanPursuit],
   social: [HumanSocial, HumanPartner, { curtsy }],
-  stageFight: [HumanStageFight, { grapple, HumanStageProp }],
+  stageFight: [HumanStageFight, { grapple, HumanStageProp, lungeGrab, disarm, disarmed, hostageHold, heldHostage }],
   drill: [HumanDrill],
   blade: [HumanBlade, { stageBladeFootwork }],
   firearm: [HumanFirearm],
   labour: [HumanLabour],
   ride: [
     HumanRide,
-    { HumanHandrimStroke, HumanBicycleEffort, HumanBikeTransfer },
+    {
+      HumanHandrimStroke,
+      HumanBicycleEffort,
+      HumanBikeTransfer,
+      HumanBikeGuide,
+      HumanLeadHorse,
+      HumanLunge,
+      HumanHoldHandles,
+      HumanFloatBeside,
+      HumanMounted,
+    HumanUnseat,
+    HumanPolo,
+    HumanBoard,
+    HumanClasp,
+    HumanDrape,
+    HumanTrick,
+    HumanRoman,
+    HumanLasso,
+    HumanSabre,
+    HumanLanceCouch,
+    },
   ],
   carried: [HumanCarried, { spacecraftGlide }],
   sport: [
     HumanSport,
+    HumanDanceStyles,
     HumanSurface,
     { aquatic, HumanSittingVolley, stickBall, swimImmersed },
   ],
   sportGym: [HumanSportGym],
   sportCarry: [HumanSportCarry],
   floorRoll: [HumanFloorRoll],
-  floorFall: [HumanFloorFall],
-  support: [HumanSupportRows],
+  floorFall: [HumanFloorFall, HumanVehicleHit, { collapse, thrown, wireFlight, wireArrest, stopDropRoll }],
+  support: [HumanSupportRows, { HumanAidWalk, HumanAssistedTransfer }],
   sportSwing: [HumanSportSwing, HumanPrecisionSport],
-  sportThrow: [HumanSportThrow, { stageCatch }],
+  sportThrow: [HumanSportThrow, { stageCatch, stageDeflect }],
   sportWorkout: [HumanSportWorkout, { ropeSkip }],
   gymnastics: [HumanGymnastics],
   sword: [HumanSword, HumanSwordGuard, HumanSwordParry, HumanSwordThrust],
@@ -149,11 +234,19 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
     HumanManipulate,
     {
       write,
+      workHeld,
       swipeTouchscreen,
       pour,
       pickUpMoving,
       putDownAperture,
+      takeFromCarrier: HumanCarrierCustody,
+      drawFromCarrier,
       bowViolin,
+      conduct,
+      throwPottery,
+      extinguish,
+      hoseLine,
+      beatFlames,
       playWindInstrument,
       guitarNote,
       guitarChord,
@@ -170,7 +263,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   upperRest: [HumanRestRows],
   upperTouch: [HumanTouchRows, HumanSelfActionRows, { tuckHair }],
   upperFace: [HumanHandToFaceRows, { coverFace, wipeTears }],
-  upperDress: [HumanDressRows, { tipHat, button, zip }],
+  upperDress: [HumanDressRows, { tipHat, button, zip, wardrobe }],
   upperTool: [HumanToolRows],
   strike: [HumanStrike],
   defence: [HumanDefence],

@@ -17,20 +17,10 @@ import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternio
  * clear of or resting on other bodies' colliders (`clear`, `rests`), names
  * world things the frame would have to carry, and is solved in the world;
  * so is a pose without a root.
- *
- * @evidence contracts/development/common.md#meaningful-documentation x: The root's x, world metres. z: The root's z, world metres.
- * @evidence contracts/development/design.md#principled-representation x: The root's x, world metres. z: The root's z, world metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanLimbFitFrame.ts (HumanLimbFitFrame.of, return); posture/HumanLimbFitFrame.ts (HumanLimbFitFrame.point, frame); posture/HumanLimbFitFrame.ts (HumanLimbFitFrame.pose, frame); posture/HumanLimbFitFrame.ts (HumanLimbFitFrame.goal, frame).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanLimbFitFrame {
   /**
    * The frame a fit of a pose and a goal is solved in: a root's position and heading.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation x: The root's x, world metres. z: The root's z, world metres.
-   * @evidence contracts/development/design.md#principled-representation x: The root's x, world metres. z: The root's z, world metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanLimbFitFrame.ts (HumanLimbFitFrame.of, return); posture/HumanLimbFitFrame.ts (HumanLimbFitFrame.point, frame); posture/HumanLimbFitFrame.ts (HumanLimbFitFrame.pose, frame); posture/HumanLimbFitFrame.ts (HumanLimbFitFrame.goal, frame).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IFrame {
     /** The root's x, world metres. */

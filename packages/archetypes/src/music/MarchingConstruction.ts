@@ -1,10 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import type { createInstrument } from "./createInstrument";
 
 /** The builder every construction fills. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createInstrument.Affordance,
   createInstrument.Dimension
 >;
@@ -20,11 +23,6 @@ const BRASS: string = "#c9a227";
 
 /**
  * How {@link createInstrument} builds the instruments a marching column carries: a side drum and a bugle.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the namespace builds.
- * @evidence contracts/development/design.md#principled-representation Code CAD over the builder's primitives from named dimensions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two constructions and the estimates they read; read only by `createInstrument`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every size no source gives is a named estimate here.
  */
 export namespace MarchingConstruction {
   /**
@@ -45,14 +43,6 @@ export namespace MarchingConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States how the drum stands and its two contacts.
-   * @evidence contracts/development/implementation.md#principled-implementation A cylinder of the maker's diameter and depth; the head on its top face, the hook on its `+X` side at the top's edge.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One part, two contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No lugs, snares or rims.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one instrument.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function sideDrum(builder: Builder, d: Drawn): void {
     const radius: number = d.diameter! / 2;
@@ -63,7 +53,7 @@ export namespace MarchingConstruction {
     builder.affordance({
       id: "head",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, depth, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, depth, 0)),
       extent: null,
       width: 2 * radius,
       depth: 2 * radius,
@@ -71,9 +61,7 @@ export namespace MarchingConstruction {
     builder.affordance({
       id: "sling",
       kind: "hook",
-      frame: ArchetypeFrame.upright(
-        v(radius, depth, 0),
-      ),
+      frame: AutoMovieArchetypeFrame.upright(v(radius, depth, 0)),
       extent: null,
     });
   }
@@ -85,14 +73,6 @@ export namespace MarchingConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States how the bugle lies and its two contacts.
-   * @evidence contracts/development/implementation.md#principled-implementation The two runs and the bell span the drawn overall length, the bell at the drawn diameter; the runs sit a bell's diameter apart, the coil no wider than its bell, on the bell's axis height so the bell rests on the table.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Runs, bends, bell, then the two contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One coil stands for the bugle's wound tube; the tube's diameter and the bell's flare are construction estimates.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one instrument.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bugle(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -122,7 +102,7 @@ export namespace MarchingConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v((back + front) / 2, y, upper),
         v(0, 1, 0),
         v(1, 0, 0),
@@ -133,7 +113,11 @@ export namespace MarchingConstruction {
     builder.affordance({
       id: "mouthpiece",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(back - r, y, upper), v(-1, 0, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(back - r, y, upper),
+        v(-1, 0, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
     });
   }

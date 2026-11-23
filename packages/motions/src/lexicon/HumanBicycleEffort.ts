@@ -82,14 +82,14 @@ export const HumanBicycleEffort: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
         seat,
         feet,
         hands,
-        seconds,
+        duration: seconds,
         seatOff,
         up,
         lower,
         seatOn,
         lift,
       }: typeof params = params;
-      HumanBound.above("seconds", seconds, HumanRide.TAKE, "s");
+      HumanBound.above("duration", seconds, HumanRide.TAKE, "s");
       HumanBound.least("seatOff", seatOff, HumanRide.TAKE, "s");
       HumanBound.above("up", up, seatOff, "s");
       HumanBound.least("lower", lower, up, "s");
@@ -219,7 +219,7 @@ export const HumanBicycleEffort: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       const { postureWithFrame, ...ride }: WorkingSeatRidePlan.IPlan =
         HumanRide.ride.plan({
           ...context,
-          params: { on, seat, feet, hands, seconds },
+          params: { on, seat, feet, hands, duration: seconds },
         });
 
       /** Move the pelvis relative to the bicycle while retaining the ridden grip and pedal targets. */

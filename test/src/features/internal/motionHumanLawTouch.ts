@@ -17,19 +17,19 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanTouch, HumanChain } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAuditMotion,
-  AutoMovieMotionHumanTouchEffector,
-  AutoMovieMotionHumanTouchForm,
-  HumanChain,
   HumanColliders,
-  touch,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanJointText } from "./motionHumanJointText";
 import { motionHumanLaw } from "./motionHumanLaw";
 import { motionHumanLawTouchMirror } from "./motionHumanLawTouchMirror";
+
+const { AutoMovieMotionHumanTouchEffector, AutoMovieMotionHumanTouchForm } =
+  AutoMovieMotionHumanTouch;
 
 /**
  * Everything one touch owes on screen, read off the displayed bones, as
@@ -128,7 +128,7 @@ export function motionHumanLawTouch(
             kind: "parallel",
             parts: [
               HumanChain.subject("b").stand(
-                still ? { seconds: 8, sway: 0 } : { seconds: 8 },
+                still ? { hold: 8, sway: 0 } : { hold: 8 },
               ).node,
               a.node,
             ],
@@ -205,7 +205,7 @@ function expectations(
   // The effector as the law reads it: curled as the kind curls the fingers.
   const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
     AutoMovieMotionHumanTouchForm.curled(
-      touch.EFFECTORS[params.with ?? "palm"],
+      AutoMovieMotionHumanTouch.touch.EFFECTORS[params.effector ?? "palm"],
       kind,
     );
   const hand: number = body.measure.hand;

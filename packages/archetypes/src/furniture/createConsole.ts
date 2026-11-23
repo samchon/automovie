@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The control console read. */
@@ -17,9 +17,9 @@ const WINSTED: string =
 /** A Winsted E-SOC base console's fixed sizes, metres, from the maker's sheet: its overall `depth`, 34-5/8 in, and its work surface's `surface` depth, 20 in, and `thickness`, 1-1/8 in. */
 const CONSOLE: Readonly<{ depth: number; surface: number; thickness: number }> =
   {
-    depth: 34.625 * ArchetypeUnits.INCH,
-    surface: 20 * ArchetypeUnits.INCH,
-    thickness: 1.125 * ArchetypeUnits.INCH,
+    depth: 34.625 * AutoMovieArchetypeUnits.INCH,
+    surface: 20 * AutoMovieArchetypeUnits.INCH,
+    thickness: 1.125 * AutoMovieArchetypeUnits.INCH,
   };
 
 /** The construction size no source read gives, metres, an estimate no act reads and no band declares: `panel`, an end panel's thickness under the work surface. */
@@ -33,7 +33,7 @@ const ESTIMATES: Readonly<{ panel: number }> = { panel: 0.03 };
  * @param params The size and any dimension the author fixes.
  * @param seed The seed that draws the width when it is not given and every dimension left free inside its band; absent, the first width and the middle of each band.
  * @returns The console.
- * @throws {ArchetypeRefusal} For a size the sheet does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a size the sheet does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, how the width is chosen, how the depth is shared and each contact.
  * @evidence contracts/development/implementation.md#principled-implementation The maker's overall depth, work surface depth and thickness, one of its three widths whole, and the surface's height as the band its sheet's own three figures span, one console's spread and not three models: 5.1's 29 in for the base console overall, the side profile's 28-7/8 in to the work surface, and the ergonomic page's 28-9/16 in work surface height it recommends; the equipment section the overall depth less the work surface's, a derivation.
@@ -46,9 +46,9 @@ const ESTIMATES: Readonly<{ panel: number }> = { panel: 0.03 };
 export function createConsole(
   params: createConsole.IParams = {},
   seed?: number | string,
-): Archetype<createConsole.Affordance, createConsole.Dimension> {
-  const draw: ArchetypeDrawSession<createConsole.Dimension> =
-    new ArchetypeDrawSession<createConsole.Dimension>(
+): AutoMovieArchetype<createConsole.Affordance, createConsole.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createConsole.Dimension> =
+    new AutoMovieArchetypeDrawSession<createConsole.Dimension>(
       "console",
       createConsole.UNITS,
       seed,
@@ -63,10 +63,10 @@ export function createConsole(
     width: size.figures.width!,
   };
   const width: number = d.width;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createConsole.Affordance,
     createConsole.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `control console ${size.name}`,
@@ -106,7 +106,7 @@ export function createConsole(
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, d.height, front)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.height, front)),
     extent: null,
     width: width,
     depth: surface,
@@ -114,7 +114,11 @@ export function createConsole(
   builder.affordance({
     id: "edge",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(v(0, d.height, depth), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, d.height, depth),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     length: width,
   });
@@ -148,7 +152,9 @@ export namespace createConsole {
   export type Dimension = "width" | "height" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     height: "m",
     mass: "kg",
@@ -161,9 +167,9 @@ export namespace createConsole {
   export const SIZES: Readonly<
     Record<Size, Readonly<Partial<Record<Dimension, number>>>>
   > = {
-    "48in": { width: 48 * ArchetypeUnits.INCH },
-    "60in": { width: 60 * ArchetypeUnits.INCH },
-    "72in": { width: 72 * ArchetypeUnits.INCH },
+    "48in": { width: 48 * AutoMovieArchetypeUnits.INCH },
+    "60in": { width: 60 * AutoMovieArchetypeUnits.INCH },
+    "72in": { width: 72 * AutoMovieArchetypeUnits.INCH },
   };
 
   /** The parameters: the size, and any free dimension fixed to a value inside its band. */
@@ -179,13 +185,19 @@ export namespace createConsole {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<
-    Record<Exclude<Dimension, "width">, IArchetypeBand>
+    Record<Exclude<Dimension, "width">, IAutoMovieArchetypeBand>
   > = {
-    height: ArchetypeBand.metres(
-      (28 + 9 / 16) * ArchetypeUnits.INCH,
-      29 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      (28 + 9 / 16) * AutoMovieArchetypeUnits.INCH,
+      29 * AutoMovieArchetypeUnits.INCH,
       WINSTED,
     ),
-    mass: ArchetypeBand.of("kg", 60, 110, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      60,
+      110,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

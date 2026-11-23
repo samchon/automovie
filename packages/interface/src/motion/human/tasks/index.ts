@@ -2,4 +2,8 @@ export type { IAutoMovieMotionHumanSideDrumStrike } from "./IAutoMovieMotionHuma
 export type { IAutoMovieMotionHumanCymbalStrike } from "./IAutoMovieMotionHumanCymbalStrike";
 export type { IAutoMovieMotionHumanToolWork } from "./IAutoMovieMotionHumanToolWork";
 export type { IAutoMovieMotionHumanUseTool } from "./IAutoMovieMotionHumanUseTool";
+export type { IAutoMovieMotionHumanLongTool } from "./IAutoMovieMotionHumanLongTool";
+export type { IAutoMovieMotionHumanHoldInfant } from "./IAutoMovieMotionHumanHoldInfant";
 export type { IAutoMovieMotionHumanWipe } from "./IAutoMovieMotionHumanWipe";
+export type { IAutoMovieMotionHumanFirefight } from "./IAutoMovieMotionHumanFirefight";
+export type { IAutoMovieMotionHumanHookSet } from "./IAutoMovieMotionHumanHookSet";

@@ -18,7 +18,7 @@ import { HumanChain } from "@automovie/motions";
 const a = HumanChain.subject("a")
   .walk({ to: { x: 0, y: 0, z: 4 } })
   .act("gesture", { kind: "wave" })
-  .stand({ seconds: 2 });
+  .stand({ hold: 2 });
 ```
 
 `AutoMovieMotionHumanActionName` from `@automovie/interface` lists the vocabulary with one line per action, and `IAutoMovieMotionHumanActionParams` maps each name to its parameters. What an action is directed at is an `IAutoMovieMotionTarget`: a region of another person, a region of the performer's own body, a named point of a prop, a point in the world, or none.
@@ -40,7 +40,7 @@ These operators join actions:
 | --- | --- |
 | Perform one action after another | `chain.sit({ seat }).rise()` |
 | Interrupt the last action | `chain.walk({ to }).until({ share: 0.5 }).stand()` |
-| Do two things at once with one body | `chain.walk({ to }).over((u) => u.handToFace({ task: "read" }))` |
+| Do two things at once with one body | `chain.walk({ to }).over((u) => u.handToFace({ kind: "read" }))` |
 | Run two people at once | `a.with(b)` |
 | Join people in one action | `HumanChain.pair(a, b).handshake()` |
 | Let another chain align to an action | Pass an anchor id as the last argument, `chain.punch(params, "jab")` |

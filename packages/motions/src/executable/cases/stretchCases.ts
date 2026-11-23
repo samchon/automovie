@@ -85,7 +85,7 @@ export function stretchCases(
           ],
           composition: HumanChain.subject("a").act("stretch", {
             kind,
-            seconds: 3,
+            hold: 3,
           }).node,
         });
       } catch (error) {

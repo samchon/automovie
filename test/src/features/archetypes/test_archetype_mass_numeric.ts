@@ -1,8 +1,8 @@
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeMass,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeMass,
 } from "@automovie/archetypes";
 import type {
   IAutoMovieModelPart,
@@ -43,7 +43,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_archetype_mass_numeric(): void {
   const findings: string[] = [];
   const max: number = Number.MAX_VALUE;
-  const made: Archetype<never, never> = builder()
+  const made: AutoMovieArchetype<never, never> = builder()
     .box("a", { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { density: max })
     .box("b", { x: 1, y: 1, z: 1 }, { x: 2, y: 0, z: 0 }, { density: max })
     .build(8);
@@ -57,14 +57,18 @@ export function test_archetype_mass_numeric(): void {
     findings.push(
       "equal overflowing relative-weight sum changed cube mass or moments",
     );
-  const shares: Record<string, number> = ArchetypeMass.parts(made.parts, 8, {
-    a: max,
-    b: max,
-  });
+  const shares: Record<string, number> = AutoMovieArchetypeMass.parts(
+    made.parts,
+    8,
+    {
+      a: max,
+      b: max,
+    },
+  );
   if (shares.a !== 4 || shares.b !== 4)
     findings.push("equal weights did not receive 4 kg each");
   const large: number = max / 4;
-  const box: Archetype<never, never> = builder()
+  const box: AutoMovieArchetype<never, never> = builder()
     .box("a", { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { share: max })
     .build(large);
   if (
@@ -75,7 +79,7 @@ export function test_archetype_mass_numeric(): void {
     findings.push(
       "a representable large box moment was lost to mass*share overflow",
     );
-  const flat: Archetype<never, never> = builder()
+  const flat: AutoMovieArchetype<never, never> = builder()
     .box("a", { x: 1.5e154, y: 1.5e154, z: 1e-300 }, { x: 0, y: 0, z: 0 })
     .build(1e-300);
   if (
@@ -94,7 +98,8 @@ export function test_archetype_mass_numeric(): void {
       shape: { type: "capsule", radius: 1e-100, height: 4e154 },
     },
   };
-  const capsuleMass: ArchetypeMass.IProperties = ArchetypeMass.of([capsule], 1);
+  const capsuleMass: AutoMovieArchetypeMass.IProperties =
+    AutoMovieArchetypeMass.of([capsule], 1);
   if (
     !(
       close(capsuleMass.inertia.xx / 1e308, 4 / 3) &&
@@ -125,22 +130,23 @@ export function test_archetype_mass_numeric(): void {
     );
 
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const own: ArchetypeMass.IProperties = properties(1e200, {
+  const own: AutoMovieArchetypeMass.IProperties = properties(1e200, {
     x: 0,
     y: 0,
     z: 0,
   });
-  const combined: ArchetypeMass.IProperties = ArchetypeMass.combine(
-    [0, 1].map(
-      (): ArchetypeMass.IPlaced => ({
-        properties: own,
-        placement: {
-          translation: { x: 1e200, y: 0, z: 0 },
-          rotation: identity,
-        },
-      }),
-    ),
-  );
+  const combined: AutoMovieArchetypeMass.IProperties =
+    AutoMovieArchetypeMass.combine(
+      [0, 1].map(
+        (): AutoMovieArchetypeMass.IPlaced => ({
+          properties: own,
+          placement: {
+            translation: { x: 1e200, y: 0, z: 0 },
+            rotation: identity,
+          },
+        }),
+      ),
+    );
   if (
     !(
       combined.mass === 2e200 &&
@@ -152,7 +158,7 @@ export function test_archetype_mass_numeric(): void {
     findings.push(
       "coincident finite bodies lost their weighted centre or own tensor",
     );
-  const far: ArchetypeMass.IProperties = properties(1e-200, {
+  const far: AutoMovieArchetypeMass.IProperties = properties(1e-200, {
     x: 1e200,
     y: 0,
     z: 0,
@@ -160,7 +166,7 @@ export function test_archetype_mass_numeric(): void {
   for (const scale of [Number.MIN_VALUE, 1, max])
     if (
       !close(
-        ArchetypeMass.about(
+        AutoMovieArchetypeMass.about(
           far,
           { x: 0, y: 0, z: 0 },
           { x: scale, y: 0, z: 0 },
@@ -173,15 +179,18 @@ export function test_archetype_mass_numeric(): void {
       );
   if (
     !close(
-      ArchetypeMass.about(far, { x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }) /
-        1e200,
+      AutoMovieArchetypeMass.about(
+        far,
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 1, z: 0 },
+      ) / 1e200,
       1,
     )
   )
     findings.push(
       "a small mass's finite distant-axis moment overflowed before multiplication",
     );
-  const subnormalMasses: Record<string, number> = ArchetypeMass.parts(
+  const subnormalMasses: Record<string, number> = AutoMovieArchetypeMass.parts(
     made.parts,
     2,
     {},
@@ -194,36 +203,45 @@ export function test_archetype_mass_numeric(): void {
     findings.push(
       "subnormal relative weights lost their proportional allocation",
     );
-  const point: ArchetypeMass.IProperties = {
+  const point: AutoMovieArchetypeMass.IProperties = {
     mass: Number.MIN_VALUE,
     centerOfMass: { x: 1.5, y: 0, z: 0 },
     inertia: { xx: 0, yy: 0, zz: 0, xy: 0, xz: 0, yz: 0 },
   };
   if (
-    ArchetypeMass.about(point, { x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }) !==
+    AutoMovieArchetypeMass.about(
+      point,
+      { x: 0, y: 0, z: 0 },
+      { x: 0, y: 1, z: 0 },
+    ) !==
     2 * Number.MIN_VALUE
   )
     findings.push(
       "a subnormal point-mass moment rounded before its final product",
     );
-  const rescued: ArchetypeMass.IProperties = ArchetypeMass.combine([
-    {
-      properties: properties(1e300, { x: 0, y: 0, z: 0 }),
-      placement: { translation: { x: 0, y: 0, z: 0 }, rotation: identity },
-    },
-    {
-      properties: properties(1e-300, { x: 1e300, y: 0, z: 0 }),
-      placement: { translation: { x: 0, y: 0, z: 0 }, rotation: identity },
-    },
-  ]);
-  const maximumMean: ArchetypeMass.IProperties = ArchetypeMass.combine(
-    [0, 1].map(
-      (): ArchetypeMass.IPlaced => ({
-        properties: properties(1, { x: 0, y: 0, z: 0 }),
-        placement: { translation: { x: max, y: 0, z: 0 }, rotation: identity },
-      }),
-    ),
-  );
+  const rescued: AutoMovieArchetypeMass.IProperties =
+    AutoMovieArchetypeMass.combine([
+      {
+        properties: properties(1e300, { x: 0, y: 0, z: 0 }),
+        placement: { translation: { x: 0, y: 0, z: 0 }, rotation: identity },
+      },
+      {
+        properties: properties(1e-300, { x: 1e300, y: 0, z: 0 }),
+        placement: { translation: { x: 0, y: 0, z: 0 }, rotation: identity },
+      },
+    ]);
+  const maximumMean: AutoMovieArchetypeMass.IProperties =
+    AutoMovieArchetypeMass.combine(
+      [0, 1].map(
+        (): AutoMovieArchetypeMass.IPlaced => ({
+          properties: properties(1, { x: 0, y: 0, z: 0 }),
+          placement: {
+            translation: { x: max, y: 0, z: 0 },
+            rotation: identity,
+          },
+        }),
+      ),
+    );
   if (
     !close(rescued.centerOfMass.x / 1e-300, 1) ||
     maximumMean.centerOfMass.x !== max
@@ -272,12 +290,16 @@ export function test_archetype_mass_numeric(): void {
         .build(1);
     }) ||
     !refused((): void => {
-      ArchetypeMass.about(own, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 });
+      AutoMovieArchetypeMass.about(
+        own,
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0, z: 0 },
+      );
     }) ||
     !refused((): void => {
-      ArchetypeMass.combine(
+      AutoMovieArchetypeMass.combine(
         [0, 1].map(
-          (): ArchetypeMass.IPlaced => ({
+          (): AutoMovieArchetypeMass.IPlaced => ({
             properties: properties(max, { x: 0, y: 0, z: 0 }),
             placement: {
               translation: { x: 0, y: 0, z: 0 },
@@ -294,9 +316,9 @@ export function test_archetype_mass_numeric(): void {
   for (const axis of ["mass", "tensor"] as const)
     if (
       !refused((): void => {
-        ArchetypeMass.combine(
+        AutoMovieArchetypeMass.combine(
           [max, 2 ** 969, 2 ** 969, 2 ** 969].map(
-            (value: number): ArchetypeMass.IPlaced => ({
+            (value: number): AutoMovieArchetypeMass.IPlaced => ({
               properties: {
                 mass: axis === "mass" ? value : 1,
                 centerOfMass: { x: 0, y: 0, z: 0 },
@@ -347,11 +369,15 @@ export function test_archetype_mass_numeric(): void {
   }
 
   /** Generic authored solid fixture, with no material-derived mass or coefficient. */
-  function builder(): ArchetypeBuilder<never, never> {
-    return new ArchetypeBuilder<never, never>({
+  function builder(): AutoMovieArchetypeBuilder<never, never> {
+    return new AutoMovieArchetypeBuilder<never, never>({
       name: "numeric solid",
       material: "steel",
-      draw: new ArchetypeDrawSession<never>("numeric-solid", {}, undefined),
+      draw: new AutoMovieArchetypeDrawSession<never>(
+        "numeric-solid",
+        {},
+        undefined,
+      ),
     });
   }
 
@@ -359,7 +385,7 @@ export function test_archetype_mass_numeric(): void {
   function properties(
     mass: number,
     centre: IAutoMovieVector3,
-  ): ArchetypeMass.IProperties {
+  ): AutoMovieArchetypeMass.IProperties {
     return {
       mass,
       centerOfMass: centre,

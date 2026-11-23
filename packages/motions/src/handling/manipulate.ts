@@ -81,7 +81,7 @@ export namespace manipulate {
     "middle",
     "ring",
     "little",
-  ] as const satisfies readonly NonNullable< IAutoMovieMotionHumanManipulate.Finger>[];
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanManipulate.Finger>[];
 
   /**
    * Plan the sequence.
@@ -124,48 +124,73 @@ export namespace manipulate {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Repeated site names share only the same prop/start-frame point, normal and default travel; individual depths, hands and times stay contact-specific.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The local distinct-site map ends with this call; returned presses retain only the geometry and values they use.
    */
-  export function sequence(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>): IAutoMovieMotionHumanManipulate.IPress[] {
+  export function sequence(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
+  ): IAutoMovieMotionHumanManipulate.IPress[] {
     const params: IAutoMovieMotionHumanManipulate.IParams = context.params;
     const read: IAutoMovieMotionHumanPropReader = context.prop(params.prop);
     const frame: IAutoMovieRigidTransform = read.frame(context.start);
-    const side: AutoMovieHumanSide = params.side === "left" ? "left" : "right";
-    const sites: Map<string, {
-      point: IAutoMovieVector3; normal: IAutoMovieVector3; travel: number | undefined;
-    }> = new Map();
+    const side: AutoMovieHumanSide = params.hand === "left" ? "left" : "right";
+    const sites: Map<
+      string,
+      {
+        point: IAutoMovieVector3;
+        normal: IAutoMovieVector3;
+        travel: number | undefined;
+      }
+    > = new Map();
 
     // A text on a keyboard: each key's site from typing's layout and its
     // digit from the touch-typing chart.
     const given: IAutoMovieMotionHumanManipulate.IContactAt[] =
       params.text !== undefined
         ? typed(context, params.text)
-        : (params.contacts ?? []).map((c: IAutoMovieMotionHumanManipulate.IContact): IAutoMovieMotionHumanManipulate.IContactAt => {
-            let placed: { point: IAutoMovieVector3; normal: IAutoMovieVector3; travel: number | undefined } | undefined = sites.get(c.site);
-            if (placed === undefined) {
-              const affordance: IAutoMovieAffordance = site(read.prop, c.site);
-              placed = {
-                point: Vector3.add(
-                  frame.position,
-                  Quaternion.rotateVector(
-                    frame.rotation,
-                    affordance.frame.translation,
+        : (params.contacts ?? []).map(
+            (
+              c: IAutoMovieMotionHumanManipulate.IContact,
+            ): IAutoMovieMotionHumanManipulate.IContactAt => {
+              let placed:
+                | {
+                    point: IAutoMovieVector3;
+                    normal: IAutoMovieVector3;
+                    travel: number | undefined;
+                  }
+                | undefined = sites.get(c.site);
+              if (placed === undefined) {
+                const affordance: IAutoMovieAffordance = site(
+                  read.prop,
+                  c.site,
+                );
+                placed = {
+                  point: Vector3.add(
+                    frame.position,
+                    Quaternion.rotateVector(
+                      frame.rotation,
+                      affordance.frame.translation,
+                    ),
                   ),
-                ),
-                normal: Quaternion.rotateVector(
-                  Quaternion.multiply(frame.rotation, affordance.frame.rotation),
-                  { x: 0, y: 1, z: 0 },
-                ),
-                travel: affordance.travel,
+                  normal: Quaternion.rotateVector(
+                    Quaternion.multiply(
+                      frame.rotation,
+                      affordance.frame.rotation,
+                    ),
+                    { x: 0, y: 1, z: 0 },
+                  ),
+                  travel: affordance.travel,
+                };
+                sites.set(c.site, placed);
+              }
+              return {
+                ...c,
+                ...((c.digit ?? params.digit) === undefined
+                  ? {}
+                  : { digit: c.digit ?? params.digit }),
+                point: placed.point,
+                normal: placed.normal,
+                depth: c.depth ?? placed.travel ?? typeText.TRAVEL,
               };
-              sites.set(c.site, placed);
-            }
-            return {
-              ...c,
-              ...((c.digit ?? params.digit) === undefined ? {} : { digit: c.digit ?? params.digit }),
-              point: placed.point,
-              normal: placed.normal,
-              depth: c.depth ?? placed.travel ?? typeText.TRAVEL,
-            };
-          });
+            },
+          );
     if (given.length === 0)
       throw new HumanRefusal({
         kind: "parameter",
@@ -175,7 +200,8 @@ export namespace manipulate {
         fix: "give contacts or a text",
       });
     const timed: number = given.filter(
-      (c: IAutoMovieMotionHumanManipulate.IContactAt): boolean => c.at !== undefined,
+      (c: IAutoMovieMotionHumanManipulate.IContactAt): boolean =>
+        c.at !== undefined,
     ).length;
     if (timed !== 0 && timed !== given.length)
       throw new HumanRefusal({
@@ -189,36 +215,47 @@ export namespace manipulate {
     // Times from skill: typing's interval with its variability.
     const span: number = interval(context);
     let clock: number = REACH * span;
-    const times: number[] = given.map((c: IAutoMovieMotionHumanManipulate.IContactAt, i: number): number => {
-      if (c.at !== undefined) return c.at;
-      const now: number = clock;
-      clock += HumanSkill.jitter(
-        context.skill,
-        context.random(`press${i}`),
-        span,
-      );
-      return now;
-    });
+    const times: number[] = given.map(
+      (c: IAutoMovieMotionHumanManipulate.IContactAt, i: number): number => {
+        if (c.at !== undefined) return c.at;
+        const now: number = clock;
+        clock += HumanSkill.jitter(
+          context.skill,
+          context.random(`press${i}`),
+          span,
+        );
+        return now;
+      },
+    );
 
     // The fingering, hand by hand.
     const sides: AutoMovieHumanSide[] = given.map(
-      (c: IAutoMovieMotionHumanManipulate.IContactAt): AutoMovieHumanSide => c.side ?? side,
+      (c: IAutoMovieMotionHumanManipulate.IContactAt): AutoMovieHumanSide =>
+        c.hand ?? side,
     );
     // Each hand keeps one rotation for the act, the one the plan gives it,
     // so the fingering reads every digit's tip where that rotation puts it.
-    const placed: readonly IAutoMovieMotionHumanManipulateFacing.ISite[] = given.map(
-      (c: IAutoMovieMotionHumanManipulate.IContactAt, i: number): IAutoMovieMotionHumanManipulateFacing.ISite => ({
-        site: c.point,
-        normal: c.normal,
-        side: sides[i]!,
-      }),
-    );
-    const digits: IAutoMovieMotionHumanManipulate.Finger[] = manipulateFingering(context.body, given, sides, {
-      left: manipulateFacing(context.entry.posture, placed, "left"),
-      right: manipulateFacing(context.entry.posture, placed, "right"),
-    });
+    const placed: readonly IAutoMovieMotionHumanManipulateFacing.ISite[] =
+      given.map(
+        (
+          c: IAutoMovieMotionHumanManipulate.IContactAt,
+          i: number,
+        ): IAutoMovieMotionHumanManipulateFacing.ISite => ({
+          site: c.point,
+          normal: c.normal,
+          side: sides[i]!,
+        }),
+      );
+    const digits: IAutoMovieMotionHumanManipulate.Finger[] =
+      manipulateFingering(context.body, given, sides, {
+        left: manipulateFacing(context.entry.posture, placed, "left"),
+        right: manipulateFacing(context.entry.posture, placed, "right"),
+      });
     return given.map(
-      (c: IAutoMovieMotionHumanManipulate.IContactAt, i: number): IAutoMovieMotionHumanManipulate.IPress => ({
+      (
+        c: IAutoMovieMotionHumanManipulate.IContactAt,
+        i: number,
+      ): IAutoMovieMotionHumanManipulate.IPress => ({
         side: sides[i]!,
         digit: digits[i]!,
         site: c.point,
@@ -228,14 +265,17 @@ export namespace manipulate {
       }),
     );
   }
-  }
+}
 
 /** The share of a press's interval spent reaching the key, as `typeText` times it. */
 const REACH: number = 0.4;
 
 /** The touch-typing chart: each letter's finger on the standard home row (left hand on ASDF, right on JKL;), the space under the right thumb. */
 const CHART: Readonly<
-  Record<string, readonly [AutoMovieHumanSide, IAutoMovieMotionHumanManipulate.Finger]>
+  Record<
+    string,
+    readonly [AutoMovieHumanSide, IAutoMovieMotionHumanManipulate.Finger]
+  >
 > = {
   ...Object.fromEntries(
     (
@@ -254,14 +294,20 @@ const CHART: Readonly<
         string,
         AutoMovieHumanSide,
         IAutoMovieMotionHumanManipulate.Finger,
-      ]): [string, readonly [AutoMovieHumanSide, IAutoMovieMotionHumanManipulate.Finger]][] =>
+      ]): [
+        string,
+        readonly [AutoMovieHumanSide, IAutoMovieMotionHumanManipulate.Finger],
+      ][] =>
         [...keys].map(
           (
             k: string,
-          ): [string, readonly [AutoMovieHumanSide, IAutoMovieMotionHumanManipulate.Finger]] => [
-            k,
-            [side, finger],
-          ],
+          ): [
+            string,
+            readonly [
+              AutoMovieHumanSide,
+              IAutoMovieMotionHumanManipulate.Finger,
+            ],
+          ] => [k, [side, finger]],
         ),
     ),
   ),
@@ -269,12 +315,17 @@ const CHART: Readonly<
 };
 
 /** The interval between presses at the performer's skill: typing's, 0.5 s for a novice to 0.15 s for an elite (Salthouse 1986). */
-const interval: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>) => number = (
+const interval: (
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
+) => number = (
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
 ): number => HumanSkill.quantity(context.skill, "speed", 0.5, 0.15);
 
 /** The affordance a contact names, refused with the prop's sites when it has none by that id. */
-const site: (prop: IAutoMovieMotionHumanProp, id: string) => IAutoMovieAffordance = (
+const site: (
+  prop: IAutoMovieMotionHumanProp,
+  id: string,
+) => IAutoMovieAffordance = (
   prop: IAutoMovieMotionHumanProp,
   id: string,
 ): IAutoMovieAffordance => {
@@ -305,27 +356,34 @@ const typed: (
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
   text: string,
 ): IAutoMovieMotionHumanManipulate.IContactAt[] => {
-  const board: IAutoMovieMotionHumanTypeText.IBoard = typeText.board(context, context.params.prop);
+  const board: IAutoMovieMotionHumanTypeText.IBoard = typeText.board(
+    context,
+    context.params.prop,
+  );
   const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     board.yaw,
   );
-  return [...text].map((letter: string): IAutoMovieMotionHumanManipulate.IContactAt => {
-    const key: { at: IAutoMovieVector3; side: AutoMovieHumanSide; } =
-      typeText.key(letter);
+  return [...text].map(
+    (letter: string): IAutoMovieMotionHumanManipulate.IContactAt => {
+      const key: { at: IAutoMovieVector3; side: AutoMovieHumanSide } =
+        typeText.key(letter);
 
-    // A named digit types every key with the hand on the key's side, as two-
-    // finger typing does; otherwise the touch-typing chart assigns it.
-    const digit: IAutoMovieMotionHumanManipulate.Finger | undefined = context.params.digit;
-    const entry:
-        | readonly [AutoMovieHumanSide, IAutoMovieMotionHumanManipulate.Finger] | undefined =
-      digit !== undefined ? [key.side, digit] : CHART[letter.toLowerCase()];
-    return {
-      site: letter,
-      ...(entry === undefined ? {} : { side: entry[0], digit: entry[1] }),
-      point: Vector3.add(board.at, Quaternion.rotateVector(turn, key.at)),
-      normal: { x: 0, y: 1, z: 0 },
-      depth: typeText.TRAVEL,
-    };
-  });
+      // A named digit types every key with the hand on the key's side, as two-
+      // finger typing does; otherwise the touch-typing chart assigns it.
+      const digit: IAutoMovieMotionHumanManipulate.Finger | undefined =
+        context.params.digit;
+      const entry:
+        | readonly [AutoMovieHumanSide, IAutoMovieMotionHumanManipulate.Finger]
+        | undefined =
+        digit !== undefined ? [key.side, digit] : CHART[letter.toLowerCase()];
+      return {
+        site: letter,
+        ...(entry === undefined ? {} : { hand: entry[0], digit: entry[1] }),
+        point: Vector3.add(board.at, Quaternion.rotateVector(turn, key.at)),
+        normal: { x: 0, y: 1, z: 0 },
+        depth: typeText.TRAVEL,
+      };
+    },
+  );
 };

@@ -2,11 +2,6 @@ import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
 
 /**
  * An analytic ellipse center in millimetres, two orthonormal direction axes and positive millimetre semiaxes; one turn is the complete parameter domain.
- *
- * @evidence contracts/development/design.md#principled-representation The center-plus-two-axis representation directly supports the analytic trigonometric evaluator.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The turn-only discriminant separates analytic ellipses from piecewise Bernstein records.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Axes are supplied coefficients, not fitted display samples; runtime admission checks orthonormality.
- * @evidence contracts/development/common.md#meaningful-documentation Documents the physical semiaxes, direction axes and one-turn parameter chart.
  */
 export interface IAutoMovieAnalyticOvalCurve64 {
   /** Closed representation tag selecting the actual coefficient evaluator and its units. */

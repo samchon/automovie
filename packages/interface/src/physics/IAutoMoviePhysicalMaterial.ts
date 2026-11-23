@@ -2,11 +2,6 @@
  * Physical surface response addressed by profile collision shapes.
  *
  * Friction and restitution are unitless coefficients in [0, 1]; the pair response uses their arithmetic means. Compliance is nonnegative metres per newton and damping a nonnegative dissipative time constant in seconds. Nonzero compliance requires a positive maximumCompression smaller than each referencing shape's solid core extent; a rigid material needs no soft depth. validatePhysicalProfile checks numeric ranges and shape-specific core clearance.
- *
- * @evidence contracts/development/design.md#principled-representation Separate compliance, depth and damping distinguish deformable contact response from a rigid collider's geometric extent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Contact and native collider creation reference one profile-local material identity independently of optical rendering materials.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A material name never chooses response coefficients; compliance cannot remove the solid core or imply unbounded penetration.
- * @evidence contracts/development/common.md#meaningful-documentation Defines coefficient units, pair combination, required compliant depth and rigid-material omission.
  */
 export interface IAutoMoviePhysicalMaterial {
   /** Nonblank profile-local id. */

@@ -1,7 +1,7 @@
 import {
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
   createDoor,
   createDrinkware,
 } from "@automovie/archetypes";
@@ -168,21 +168,21 @@ export function test_archetype_fracture_sets(): void {
   }
 
   // The builder's refusals.
-  const builder: () => ArchetypeBuilder<"top", never> = (): ArchetypeBuilder<
+  const builder: () => AutoMovieArchetypeBuilder<
     "top",
     never
-  > =>
-    new ArchetypeBuilder<"top", never>({
+  > = (): AutoMovieArchetypeBuilder<"top", never> =>
+    new AutoMovieArchetypeBuilder<"top", never>({
       material: "steel",
       name: "fixture",
-      draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
+      draw: new AutoMovieArchetypeDrawSession<never>("fixture", {}, undefined),
     })
       .box("a", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
       .box("b", Vector3.create(1, 1, 1), Vector3.create(0, 1.5, 0))
       .affordance({
         id: "top",
         kind: "surface",
-        frame: ArchetypeFrame.upright(Vector3.create(0, 2, 0)),
+        frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 2, 0)),
         extent: null,
         width: 1,
         depth: 1,

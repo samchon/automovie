@@ -274,7 +274,7 @@ export namespace crouch {
       });
     const base: IAutoMovieMotionHumanActionPlan = stand.plan({
       ...context,
-      params: { seconds: duration },
+      params: { hold: duration },
     });
     const standing: IAutoMovieMotionHumanPosture = base.posture(0);
     const yaw: number = standing.yaw;
@@ -511,7 +511,7 @@ export namespace crouch {
       end: duration,
     };
     const arms: IAutoMovieMotionHumanArmPlanned.ITogether =
-      AutoMovieMotionHumanArm.together();
+      AutoMovieMotionHumanArm.together(context.handover, true, context.tempo);
     const rest = (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive =>
       braceOnThigh(
         body,

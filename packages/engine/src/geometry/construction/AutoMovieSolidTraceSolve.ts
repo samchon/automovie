@@ -8,6 +8,7 @@ import type {
   IAutoMovieSolidTraceTrialTrial,
 } from "@automovie/interface";
 
+import { AutoMovieSolidTraceObservation as Observation } from "./AutoMovieSolidTraceObservation";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidTraceTrial } from "./AutoMovieSolidTraceTrial";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
@@ -19,11 +20,6 @@ const { combine, cross, dot, norm, sub }: typeof AutoMovieSolidVector =
 
 /**
  * The meeting points of an intersection trace (`AutoMovieSolidIntersection`): Newton's method on the four equations `A(s, phi) = B(y, theta)` and the parameter law, on one host face or across an atlas's faces where the host point leaves one, each point's first and second rates in `t` by the implicit function theorem, and the continuation step from one point to the next with its halving.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the equations, face switches, dyadic proposal policy and separate numerical/work failure boundaries.
- * @evidence contracts/development/design.md#principled-representation Represents The meeting points of an intersection trace (`AutoMovieSolidIntersection`): Newton's method on the four equations `A(s, phi) = B(y, theta)` and the parameter law, on one host face or across an atlas's faces where the host point leaves one, each point's first and second rates in `t` by the implicit function theorem, and the continuation step from one point to the next with its halving: companion namespace of 9 members (`STEPS`, `HALVINGS`, `SWITCHES`, `solve`, `solveOn`, `jacobian`, ...); units and frames named in its text: newton, local, second, world, radians. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidTraceSolve` in packages/engine/src/geometry/construction/AutoMovieSolidTraceSolve.ts; its surface is the 9 members listed and the text shows 5 other files naming it, mostly packages/engine (3), test (2), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidTraceSolve {
   /** Newton steps per solve. */
@@ -49,14 +45,6 @@ export namespace AutoMovieSolidTraceSolve {
    * @param tolerance Largest gap accepted, mm.
    * @returns The point with its face, or null when a solve fails or the point
    *   leaves through an open end.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Backtracked Newton solves three meeting equations plus the selected law on actual owned charts. An exterior host proposal first uses the atlas's neighbour boundary foot as an initializer, whose actual residual must still descend; accepted meetings derive rates through a nonsingular Jacobian.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The atlas loop owns face identity while solveOn owns one-face Newton and point owns the rate equations.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the raw unscaled residual, tolerance and shared crossing budget. No exterior source is evaluated, and no mapped boundary foot is published without solving the meeting. Numeric unavailability is null; callback/binding errors propagate. Trim-kept checks remain separate from original chart ownership.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives chart guess order, parameter, starting face, local tolerance/failure semantics and the raw-residual/domain boundaries.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most five face Newton attempts each use up to 40 iterations with 20 trial halvings, plus a polish and two rate solves; atlas/surface/law callback costs are included rather than reduced to one jet per iteration.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses accepted jets/residuals during Newton and one Jacobian's values for the two rate systems, but factorization and arc-law callback readings are repeated.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The atlas/iterate matrices and candidate points are synchronous call state; null releases local references, and a successful fresh point record borrows its accepted surface point vector and owns computed rates/vectors.
    */
   export function solve(
     part: IAutoMovieSolidSurface,
@@ -66,6 +54,7 @@ export namespace AutoMovieSolidTraceSolve {
     guess: Readonly<AutoMovieSolidChartVector4>,
     face: number,
     tolerance: number,
+    observation?: Observation.IState,
   ): IAutoMovieSolidIntersection.IPoint | null {
     let f: number = face;
     let x: AutoMovieSolidChartVector4 = [
@@ -85,22 +74,23 @@ export namespace AutoMovieSolidTraceSolve {
         tolerance,
         f,
         budget,
+        observation,
       );
       if (p === null) return null;
       f = p.face;
       if (host.kept(f, p.y, p.theta)) return p;
-      if (budget.left === 0) return null;
+      if (budget.left === 0) return Observation.fail(observation, "host-crossing-budget", [p.s, p.phi, p.y, p.theta], f, { budget: budget.left });
       const next: { face: number; u: number; v: number } | null = host.across(
         f,
         p.y,
         p.theta,
       );
-      if (next === null) return null;
+      if (next === null) return Observation.fail(observation, "host-open-boundary", [p.s, p.phi, p.y, p.theta], f, { budget: budget.left });
       budget.left--;
       f = next.face;
       x = [p.s, p.phi, next.u, next.v];
     }
-    return null;
+    return Observation.fail(observation, "host-face-limit", x, f, { budget: budget.left });
   }
 
   /**
@@ -124,18 +114,15 @@ export namespace AutoMovieSolidTraceSolve {
     tolerance: number,
     face: number,
     budget: { left: number },
+    observation?: Observation.IState,
   ): IAutoMovieSolidIntersection.IPoint | null {
-    let x: AutoMovieSolidChartVector4 = [
-      guess[0],
-      guess[1],
-      guess[2],
-      guess[3],
-    ];
+    if (observation !== undefined) { observation.meeting = null; observation.trial = null; observation.failure = null; }
+    let x: AutoMovieSolidChartVector4 = [guess[0], guess[1], guess[2], guess[3]];
     const initialA: IJet | null = AutoMovieSolidDomain.jet(part, x[0], x[1]);
-    if (initialA === null) return null;
+    if (initialA === null) return Observation.fail(observation, "part-jet-unavailable", x, face, { budget: budget.left });
     const initialB: IAutoMovieSolidTraceTrialTrial | null =
-      AutoMovieSolidTraceTrial(host, face, x[2], x[3], budget.left > 0);
-    if (initialB === null) return null;
+      AutoMovieSolidTraceTrial(host, face, x[2], x[3], budget.left > 0, observation);
+    if (initialB === null) return Observation.fail(observation, "host-trial-unavailable", x, face, { part: initialA, budget: budget.left });
     if (initialB.crossed) budget.left--;
     let currentFace: number = initialB.face;
     x = [x[0], x[1], initialB.u, initialB.v];
@@ -154,13 +141,16 @@ export namespace AutoMovieSolidTraceSolve {
       Math.hypot(...r);
     let r: number[] = residual(a, b, x);
     let gap: number = size(r);
+    Observation.hold(observation, gap, r, a, b, budget.left);
 
     for (let step: number = 0; step < STEPS && !(gap <= tolerance); step++) {
+      const J: number[][] = jacobian(a, b, law, t);
+      if (observation?.meeting !== undefined && observation.meeting !== null) observation.meeting.jacobian = J;
       const dx: number[] | null = AutoMovieSolidVector.solve(
-        jacobian(a, b, law, t),
+        J,
         r.map((v: number): number => -v),
       );
-      if (dx === null) return null;
+      if (dx === null) return Observation.fail(observation, "singular-newton-jacobian", x, currentFace);
 
       // A backtracking line search keeps every step a descent of the residual.
       let k: number = 1;
@@ -173,7 +163,7 @@ export namespace AutoMovieSolidTraceSolve {
           x[3] + k * dx[3]!,
         ];
         const ay: IJet | null = AutoMovieSolidDomain.jet(part, y[0], y[1]);
-        if (ay === null) continue;
+        if (ay === null) { Observation.reject(observation, "part-jet-unavailable", y, currentFace); continue; }
         const by: IAutoMovieSolidTraceTrialTrial | null =
           AutoMovieSolidTraceTrial(
             host,
@@ -181,11 +171,13 @@ export namespace AutoMovieSolidTraceSolve {
             y[2],
             y[3],
             budget.left > 0,
+            observation,
           );
         if (by === null) continue;
         const mapped: AutoMovieSolidChartVector4 = [y[0], y[1], by.u, by.v];
         const ry: number[] = residual(ay, by.jet, mapped);
-        if (size(ry) < gap) {
+        const candidateGap: number = size(ry);
+        if (candidateGap < gap) {
           if (by.crossed) budget.left--;
           currentFace = by.face;
           x = mapped;
@@ -193,13 +185,15 @@ export namespace AutoMovieSolidTraceSolve {
           b = by.jet;
           r = ry;
           gap = size(ry);
+          Observation.hold(observation, gap, r, a, b, budget.left);
           moved = true;
           break;
         }
+        Observation.reject(observation, "residual-not-decreasing", mapped, by.face);
       }
-      if (!moved) return null;
+      if (!moved) return Observation.fail(observation, "line-search-stalled", x, currentFace);
     }
-    if (!(gap <= tolerance)) return null;
+    if (!(gap <= tolerance)) return Observation.fail(observation, "newton-iterations", x, currentFace);
 
     // One more Newton step past the tolerance, kept only if it does not
     // widen the residual: near the root it takes the residual to rounding, so
@@ -225,20 +219,24 @@ export namespace AutoMovieSolidTraceSolve {
             y[2],
             y[3],
             budget.left > 0,
+            observation,
           );
         if (by !== null) {
           const mapped: AutoMovieSolidChartVector4 = [y[0], y[1], by.u, by.v];
-          if (size(residual(ay, by.jet, mapped)) <= gap) {
+          const polishedResidual: number[] = residual(ay, by.jet, mapped);
+          const polishedGap: number = size(polishedResidual);
+          if (polishedGap <= gap) {
             if (by.crossed) budget.left--;
             currentFace = by.face;
             x = mapped;
             a = ay;
             b = by.jet;
+            Observation.hold(observation, polishedGap, polishedResidual, a, b, budget.left);
           }
         }
       }
     }
-    return point(a, b, law, t, x, currentFace);
+    return point(a, b, law, t, x, currentFace, observation);
   }
 
   /** The 4 by 4 Jacobian by rows: the meeting's three, then the parameter's. */
@@ -272,15 +270,17 @@ export namespace AutoMovieSolidTraceSolve {
     t: number,
     x: Readonly<AutoMovieSolidChartVector4>,
     face: number,
+    observation?: Observation.IState,
   ): IAutoMovieSolidIntersection.IPoint | null {
     const J: number[][] = jacobian(a, b, law, t);
+    if (observation?.meeting !== undefined && observation.meeting !== null) observation.meeting.jacobian = J;
     const rate: number[] | null = AutoMovieSolidVector.solve(J, [
       0,
       0,
       0,
       -law.gt(a.p, t),
     ]);
-    if (rate === null) return null;
+    if (rate === null) return Observation.fail(observation, "singular-first-rate", x, face);
     const [ds, dp, dy, dt] = rate as AutoMovieSolidChartVector4;
     const qa: Vec3 = combine([
       [ds * ds, a.uu],
@@ -304,7 +304,7 @@ export namespace AutoMovieSolidTraceSolve {
       -q[2],
       -qg,
     ]);
-    if (rate2 === null) return null;
+    if (rate2 === null) return Observation.fail(observation, "singular-second-rate", x, face);
 
     // The angle between the tangent planes from the normals' cross product.
     const na: Vec3 = cross(a.u, a.v);
@@ -341,6 +341,7 @@ export namespace AutoMovieSolidTraceSolve {
    * @param from The point to continue from.
    * @param target The parameter to reach.
    * @param tolerance Largest gap accepted, mm.
+   * @param observation Optional call-owned record of the last meeting attempt's refusal; it changes no candidate, budget or result.
    * @returns The point at the target, or null after more than {@link HALVINGS}
    *   consecutive failed halvings, 1024 meeting candidates, or a proposed
    *   parameter that cannot make finite representable progress.
@@ -354,14 +355,6 @@ export namespace AutoMovieSolidTraceSolve {
    * work budget, not a geometric sufficiency condition or a wall-time bound.
    * Different accepted substeps can change rounding or expose a budget failure
    * without changing the source surfaces, Newton residual or tolerance.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the same second-order chart/world prediction, corrected meeting and relative world-defect/tolerance acceptance. A low-defect accepted point permits a checked dyadic proposal recovery; this follows adaptive predictor/corrector continuation without assuming C3 source jets.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One current point, signed proposal and consecutive-rejection counter remain local; one candidate counter bounds successful and failed solves together.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither the residual nor the branch-distance allowance is relaxed. Nonfinite/nonadvancing parameters, failed halvings and the explicit work budget return null rather than publishing a partial endpoint; callback exceptions still propagate.
-   * @evidence contracts/development/common.md#meaningful-documentation States the recovery heuristic, unchanged tolerance, rounding-policy difference and the distinction between representable progress, convergence and a product work budget.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most 1024 shared atlas solves are attempted, including accepted substeps and rejected proposals. Low-defect recovery avoids retaining an unnecessarily small step through easier regions; each solve still includes all face, Newton, line-search, law and surface-callback costs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The current point's first/second chart rates and world jets supply the next predictor. The already measured world defect also selects the next proposal without evaluating another surface or adding a cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a constant number of local iterates/prediction arrays survive each iteration; success/null/throw releases call-local state. The attempt limit cannot bound an independently blocking callback, and no task handle is acquired.
    */
   export function advance(
     part: IAutoMovieSolidSurface,
@@ -370,6 +363,7 @@ export namespace AutoMovieSolidTraceSolve {
     from: IAutoMovieSolidIntersection.IPoint,
     target: number,
     tolerance: number,
+    observation?: Observation.IState,
   ): IAutoMovieSolidIntersection.IPoint | null {
     let current: IAutoMovieSolidIntersection.IPoint = from;
 
@@ -412,6 +406,7 @@ export namespace AutoMovieSolidTraceSolve {
         guess,
         current.face,
         tolerance,
+        observation,
       );
       const length: number = norm(sub(predicted, current.point));
 
@@ -432,6 +427,19 @@ export namespace AutoMovieSolidTraceSolve {
             : step;
         continue;
       }
+      // A corrected point refused by the predictor allowance is this attempt's refusal; a failed solve has recorded its own.
+      if (next !== null)
+        Observation.fail(observation, "branch-distance", [next.s, next.phi, next.y, next.theta], next.face);
+      if (observation !== undefined)
+        observation.step = {
+          h: step,
+          predicted,
+          tangent: current.tangent,
+          guess,
+          halving: halvings,
+          distance: next === null ? null : defect,
+          allowance,
+        };
       if (++halvings > HALVINGS) return null;
       h = step / 2;
     }
@@ -446,14 +454,6 @@ export namespace AutoMovieSolidTraceSolve {
    * @param phi The part phase's shift, radians.
    * @param t The parameter's shift, radians.
    * @returns The moved point, or the point itself for no shift.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Adds declared periodic chart/parameter shifts while preserving the represented world point and derivative data; whole-period equivalence is the caller's premise.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Zero shift preserves object identity and a nonzero shift makes one shallow record with three changed scalar fields.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not re-evaluate geometry or prove the supplied shifts are periods of the surfaces/law.
-   * @evidence contracts/development/common.md#meaningful-documentation Names host phase, part phase and trace-parameter offsets and the identity return for no shift.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar work and at most one fixed-size record allocation avoid another meeting/rate solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work All world vectors and rate arrays are shared with the original point under the declared periodic equivalence.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned reference/record; a shallow shifted point retains the original vector/rate arrays but no additional cache or handle.
    */
   export function shifted(
     p: IAutoMovieSolidIntersection.IPoint,

@@ -3,11 +3,6 @@ import type { IAutoMovieWorldWrench } from "./IAutoMovieWorldWrench";
 
 /**
  * Bounded allocation of a world wrench over measured horizontal floor contacts.
- *
- * @evidence contracts/development/design.md#principled-representation Point forces obey upward normal and inscribed friction-pyramid constraints; their actual lever arms define the resulting torque about the supplied origin.
- * @evidence contracts/development/design.md#minimal-and-owned-surface distributePhysicalSupportWrench consumes the collected contact population and explicit demand without requiring native solver handles. The wrench allocator creates result rows for the actuation caller while retaining the original contact-point references.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Invalid finite/range inputs and failed quadratic solves throw; unmet demand remains a residual, and zero capacity does not invent support.
- * @evidence contracts/development/common.md#meaningful-documentation States real contact locations, friction-pyramid limits and the total upward-force cap. Distinguishes allocated wrench from demand and documents borrowed point references.
  */
 export namespace IAutoMovieDistributePhysicalSupportWrench {
   /**
@@ -18,40 +13,10 @@ export namespace IAutoMovieDistributePhysicalSupportWrench {
    * This bounded virtual-model allocation is not full inverse dynamics: native
    * constraints and motor caps still determine the actual response. Returned
    * wrench residuals expose infeasible demand rather than inventing support.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States real contact locations, friction-pyramid limits and the total upward-force cap.
-   * @evidence contracts/development/design.md#principled-representation A world wrench in N and N m is applied about a world-metre origin; contact rows carry their actual carrier and coefficient.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface distributePhysicalSupportWrench consumes the collected contact population and explicit demand without requiring native solver handles.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts At most 1024 points and finite nonnegative friction/cap are admitted; zero capacity cannot fabricate support.
    */
   export type IInput = IAutoMovieWorldWrench & {
     /** Finite world application point of the requested root wrench, metres. */ origin: IAutoMovieVector3;
     /** Finite nonnegative cap on total upward normal force, newtons; zero returns no allocations. */ maximumForce: number;
-    /** Nonnegative weights on the force x, y, z and moment x, y, z errors when the wrench is infeasible; zero leaves that component free; absent weighs them equally. */ priority?: readonly [
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-    ];
-    /** The most normal force each limb's points may bear together, newtons, by limb bone; absent bounds only the total. */ loads?: Readonly<
-      Record<string, number>
-    >;
-    /** The force and moment that one unit of each error stands for, newtons and newton metres; absent scales by the request itself. */ normalization?: {
-      force: number;
-      moment: number;
-    };
-    /** The effort weight on each point's normal and tangential force in normalized units; absent keeps a negligible tie-breaking weight. */ effort?: {
-      normal: number;
-      tangential: number;
-    };
-    /** Whether the total normal force must equal the request exactly whenever the bounds allow it. */ exactNormal?: boolean;
-    /** Each limb's bound on the vertical moment of its forces about a centre, as |M_y| <= limit * F_y, metres, by limb bone. */ yaw?: readonly {
-      bone: string;
-      center: IAutoMovieVector3;
-      limit: number;
-    }[];
     /** Actual contact points; at most 1024, with nonnegative combined friction. */ points: readonly {
       /** Carrier bone identity, copied into the corresponding allocation row. */
       bone: string;
@@ -70,11 +35,6 @@ export namespace IAutoMovieDistributePhysicalSupportWrench {
    * This bounded virtual-model allocation is not full inverse dynamics: native
    * constraints and motor caps still determine the actual response. Returned
    * wrench residuals expose infeasible demand rather than inventing support.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes allocated wrench from demand and documents borrowed point references.
-   * @evidence contracts/development/design.md#principled-representation Per-contact world forces in N and moments about input.origin in N m retain requested-minus-allocated residuals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The wrench allocator creates result rows for the actuation caller while retaining the original contact-point references.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Residuals expose infeasible demand and the allocation does not assert native impulses or successful balance.
    */
   export type IResult = IAutoMovieWorldWrench & {
     /** New rows in input order, or empty for no contacts/zero envelope. */

@@ -2,21 +2,11 @@ import type { IAutoMovieRecoveryCameraChartCreationOperation } from "../../index
 
 /**
  * Bounded local calibrated-pose least squares on a fixed correspondence subset. Soft-L1 loss has caller-supplied pixel scale. A column-scaled original Jacobian is rank-checked before a damped augmented least-squares step is solved by SVD; damping cannot repair an unobservable local parameter direction. Accepted steps update SO3 and the unit translation sphere. Termination is local only.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Row-major 3 by 3 camera rotation in the operation's declared source-to-camera convention. Camera translation in the operation's admitted reconstruction scale; two-view direction alone has no metric length.
- * @evidence contracts/development/design.md#principled-representation Positive pixel scale of the declared robust residual loss.
- * @evidence contracts/development/design.md#minimal-and-owned-surface refineRecoveryCameraPose, refineRecoveryEpipolarModel share IAutoMovieRecoveryCameraPoseRefinementOperation's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Smallest accepted normalized design singular ratio; dimensionless and independent of residual magnitude.
  */
 
 export namespace IAutoMovieRecoveryCameraPoseRefinementOperation {
   /**
    * Bounded local calibrated-pose least squares on a fixed correspondence subset. Soft-L1 loss has caller-supplied pixel scale. A column-scaled original Jacobian is rank-checked before a damped augmented least-squares step is solved by SVD; damping cannot repair an unobservable local parameter direction. Accepted steps update SO3 and the unit translation sphere. Termination is local only.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Row-major 3 by 3 camera rotation in the operation's declared source-to-camera convention. Camera translation in the operation's admitted reconstruction scale; two-view direction alone has no metric length.
-   * @evidence contracts/development/design.md#principled-representation Positive pixel scale of the declared robust residual loss.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface refineRecoveryCameraPose, refineRecoveryEpipolarModel share IAutoMovieRecoveryCameraPoseRefinementOperation's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Smallest accepted normalized design singular ratio; dimensionless and independent of residual magnitude.
    */
 
   export type Operation = (

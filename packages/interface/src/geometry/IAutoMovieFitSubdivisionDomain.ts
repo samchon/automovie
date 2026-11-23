@@ -5,11 +5,6 @@ import type { IAutoMovieSubdivisionLevel } from "./IAutoMovieSubdivisionLevel";
  * A two-refinement subdivision fitting domain with independent control and limit constraints.
  *
  * All positions are local metre triples; anchors constrain original controls while limit targets constrain the refined surface. Cage admission and the fitter check topology, constraint sizes and finite values; interior-crease targets, degenerate metrics and incomplete solves refuse. Support adequacy and physical validity remain caller checks.
- *
- * @evidence contracts/development/design.md#principled-representation All positions are local metre triples; anchors constrain original controls while limit targets constrain the refined surface.
- * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieSubdivisionDomain solves each crop used by fitAutoMovieSubdivisionRegions and returns its refined domain and numerical residuals.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Cage admission and the fitter check topology, constraint sizes and finite values; interior-crease targets, degenerate metrics and incomplete solves refuse. Support adequacy and physical validity remain caller checks.
- * @evidence contracts/development/common.md#meaningful-documentation A two-refinement subdivision fitting domain with independent control and limit constraints. All positions are local metre triples; anchors constrain original controls while limit targets constrain the refined surface.
  */
 export namespace IAutoMovieFitSubdivisionDomain {
   /**
@@ -36,11 +31,6 @@ export namespace IAutoMovieFitSubdivisionDomain {
    * No embedding, no-fold, clinical measurement, or pose guarantee is made.
    *
    * Inputs are borrowed for the synchronous solve and are not mutated. Cage admission validates connectivity and finite buffers; the fitter validates source-length constraints, finite targets and region identities before solving.
-   *
-   * @evidence contracts/development/design.md#principled-representation All positions are local metre triples; anchors constrain original controls while limit targets constrain the refined surface.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieSubdivisionDomain solves each crop used by fitAutoMovieSubdivisionRegions and returns its refined domain and numerical residuals.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Cage admission and the fitter check topology, constraint sizes and finite values; interior-crease targets, degenerate metrics and incomplete solves refuse. Support adequacy and physical validity remain caller checks.
-   * @evidence contracts/development/common.md#meaningful-documentation A two-refinement subdivision fitting domain with independent control and limit constraints. All positions are local metre triples; anchors constrain original controls while limit targets constrain the refined surface.
    */
   export type IProps = {
     /** Initial pre-inverse samples with original control pins applied, metres; indexed UV topology is preserved. */
@@ -61,11 +51,6 @@ export namespace IAutoMovieFitSubdivisionDomain {
 
   /**
    * A completed two-step generating domain and its solved coarse controls. Output arrays are newly owned; solver telemetry describes equality and lifting-row residuals, not physical measurement, embedding or pose quality.
-   *
-   * @evidence contracts/development/design.md#principled-representation All positions are local metre triples; anchors constrain original controls while limit targets constrain the refined surface.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieSubdivisionDomain solves each crop used by fitAutoMovieSubdivisionRegions and returns its refined domain and numerical residuals.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Cage admission and the fitter check topology, constraint sizes and finite values; interior-crease targets, degenerate metrics and incomplete solves refuse. Support adequacy and physical validity remain caller checks.
-   * @evidence contracts/development/common.md#meaningful-documentation A two-refinement subdivision fitting domain with independent control and limit constraints. All positions are local metre triples; anchors constrain original controls while limit targets constrain the refined surface.
    */
   export type IResult = {
     /**

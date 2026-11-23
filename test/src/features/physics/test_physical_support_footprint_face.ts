@@ -1,5 +1,6 @@
 import {
   Quaternion,
+  Vector3,
   physicalStanceBalance,
   physicalSupportFootprint,
 } from "@automovie/engine";
@@ -18,16 +19,18 @@ const [WIDTH, LENGTH, HEIGHT] = [0.05, 0.08, 0.02];
 
 /**
  * A support patch's footprint is its bearing face, not every vertex of its
- * shapes projected down: only the vertices within the foot-lift bound (5 mm)
- * of the patch's lowest bear on the floor.
+ * shapes projected down: only the vertices within the foot-lift bound (5 mm) of
+ * the patch's lowest bear on the floor.
  *
  * 1. A flat box-shaped sole hull projects its four bottom corners; its top
  *    corners, 20 mm up, are left out.
- * 2. The same sole rolled 10 degrees about its length bears on its low edge
- *    alone: the two corners there, the far edge 17 mm up left out.
- * 3. The shared support polygon (`physicalStanceBalance.polygon`) is the
- *    flat face shrunk by the margin, and a ray from its centre meets it the
- *    half-width less the margin away.
+ * 2. The same sole rolled 10 degrees about its length bears on its low edge alone:
+ *    the two corners there, the far edge 17 mm up left out.
+ * 3. The shared support polygon (`physicalStanceBalance.polygon`) is the flat face
+ *    shrunk by the margin, and a ray from its centre meets it the half-width
+ *    less the margin away.
+ * 4. A leg's effective swing mass (`physicalStanceBalance.swingMass`) is its first
+ *    moment about the hip over the endpoint's distance, within the leg's mass.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bearing-face rule and both poses.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalSupportFootprint` on a fixture profile whose support carries a box-shaped hull, at fixed poses.
@@ -116,6 +119,45 @@ export function test_physical_support_footprint_face(): void {
   );
   if (!(Math.abs(ray - (WIDTH - physicalStanceBalance.MARGIN)) < 1e-9))
     failures.push(`the ray meets the polygon ${ray} m away`);
+
+  // 4. A leg's effective swing mass at the fixture's neutral pose: its
+  // segments' first moment about the hip over the endpoint's distance.
+  const neutral: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    base.segments.map((segment) => [segment.bone, segment.neutral]),
+  );
+  const leg: IAutoMovieFootfallPattern["limbs"][number] = {
+    ...limb,
+    chain: ["upper-0", "lower-0", "support-0"],
+  };
+  const joint = base.joints.find((j) => j.child === "upper-0")!;
+  const hip: IAutoMovieVector3 = Vector3.add(
+    neutral[joint.parent]!.position,
+    Quaternion.rotateVector(
+      neutral[joint.parent]!.rotation,
+      joint.parentFrame.position,
+    ),
+  );
+  const end: IAutoMovieVector3 = neutral[bone]!.position;
+  let moment: number = 0;
+  let mass: number = 0;
+  for (const name of leg.chain) {
+    const segment = base.segments.find((s) => s.bone === name)!;
+    const center: IAutoMovieVector3 = Vector3.add(
+      neutral[name]!.position,
+      Quaternion.rotateVector(neutral[name]!.rotation, segment.centerOfMass),
+    );
+    moment += segment.mass * Vector3.length(Vector3.subtract(center, hip));
+    mass += segment.mass;
+  }
+  const effective: number = physicalStanceBalance.swingMass(base, neutral, leg);
+  const expected: number = moment / Vector3.length(Vector3.subtract(end, hip));
+  if (
+    !(Math.abs(effective - expected) < 1e-9) ||
+    !(effective > 0 && effective <= mass)
+  )
+    failures.push(
+      `the leg's effective swing mass is ${effective}, not ${expected} within (0, ${mass}]`,
+    );
 
   // Rolled 10 degrees about z: the corners at x = -WIDTH drop, the others rise.
   const rolled: IAutoMovieVector3[] = at({

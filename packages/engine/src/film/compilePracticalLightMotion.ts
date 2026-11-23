@@ -28,14 +28,6 @@ const SPOT_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
  * Bake the position, aim and optional switching of a practical light from a prop's existing motion. Darius Khondji describes using the actors' flashlights as visible sources in [American Cinematographer's account of Seven](https://theasc.com/article/seven-cinematography-khondji-fincher/).
  *
  * Place the emitter at each requested instant using the same shot-local object-motion sampler as baked prop placement. Translation, rotation and scale inherit the staged prop values until their respective channels begin. Emit linear position and spot rotation tracks for resolveShotLighting. Alignment is exact at the bake samples and interpolated between samples. Intensity switches at exact interval boundaries independently of frame spacing. A moving prop requires explicit sample times. performShot calls this compiler after collecting coupling and authored object clips, then passes the serializable result through the existing shot light-motion path.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Sample canonical per-channel prop authority once per key, apply affine emitter placement, aim a spot's negative Z along the scaled emitter direction, and express switching as half-open STEP keys.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The placement helper supplies affine position, the aim helper supplies shortest arcs, and canonical pointer properties and formatting supply the clip addresses.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts There is no independent authored light path or retiming. Piecewise interpolation only reproduces the exact prop attachment at requested samples, and unsupported light kinds and invalid times throw.
- * @evidence contracts/development/common.md#meaningful-documentation Documents the source practice, staged-channel fallbacks, exact sample and switch semantics, shot clock, and the render path.
- * @evidence contracts/development/implementation.md#efficient-algorithms Sorting S distinct pose times costs O(S log S). One track-address scan selects clips containing this prop. Each pose sample uses the shared clip sampler on that subset, including validation and key searches, then adds fixed-size arithmetic and key arrays.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The relevant clip subset and fixed emitter basis are built once, and all emitted placement channels share one prop sample per time.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only scalar arrays and clip metadata escape. Input records and temporary channel maps are not retained, and no render resources are allocated.
  */
 export function compilePracticalLightMotion(
   input: IAutoMovieCompilePracticalLightMotion,

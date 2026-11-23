@@ -16,6 +16,7 @@ export * from "./canonicalRegion";
 export * from "./collectAutoMovieSpatialQueryCandidates";
 export * from "./constants";
 export * from "./construction";
+export * from "./countAutoMovieMeshComponents";
 export * from "./countAtLeast";
 export * from "./createAutoMovieEllipticLoftAtlas";
 export * from "./createAutoMovieMeshCrossingQuery";

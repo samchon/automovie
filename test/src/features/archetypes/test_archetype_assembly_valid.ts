@@ -1,8 +1,8 @@
 import {
-  type Archetype,
-  ArchetypeAssembly,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeAssembly,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3, validateModel } from "@automovie/engine";
 import type {
@@ -35,7 +35,8 @@ export function test_archetype_assembly_valid(): void {
   const findings: string[] = [];
   for (const seed of [4, 19]) {
     const members: archetypeCarriage.Members = archetypeCarriage.members(seed);
-    const carriage: ReturnType<typeof archetypeCarriage> = archetypeCarriage(seed);
+    const carriage: ReturnType<typeof archetypeCarriage> =
+      archetypeCarriage(seed);
 
     // 1. Admitted.
     if (!validateModel({ model: carriage }).success)
@@ -46,13 +47,14 @@ export function test_archetype_assembly_valid(): void {
     let weighted: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (const [key, member] of Object.entries(members) as [
       string,
-      ArchetypeAssembly.IMember,
+      AutoMovieArchetypeAssembly.IMember,
     ][]) {
       const placement: IAutoMovieTransform = member.placement;
       for (const own of member.archetype.affordances) {
-        const found: IAutoMovieAffordance | undefined = carriage.affordances.find(
-          (a: IAutoMovieAffordance): boolean => a.id === `${key}/${own.id}`,
-        );
+        const found: IAutoMovieAffordance | undefined =
+          carriage.affordances.find(
+            (a: IAutoMovieAffordance): boolean => a.id === `${key}/${own.id}`,
+          );
         const translation: IAutoMovieVector3 = Vector3.add(
           placement.translation,
           Quaternion.rotateVector(placement.rotation, own.frame.translation),
@@ -87,7 +89,7 @@ export function test_archetype_assembly_valid(): void {
     if (
       carriage.affordances.length !==
       Object.values(members).reduce(
-        (sum: number, m: ArchetypeAssembly.IMember): number =>
+        (sum: number, m: AutoMovieArchetypeAssembly.IMember): number =>
           sum + m.archetype.affordances.length,
         0,
       )
@@ -96,17 +98,31 @@ export function test_archetype_assembly_valid(): void {
 
     // 3. Mass, centre and a moment.
     if (Math.abs(carriage.properties.mass - mass) > 1e-9)
-      findings.push(`seed ${seed}: mass ${carriage.properties.mass}, not ${mass}`);
-    if (!vclose(carriage.properties.centerOfMass, Vector3.scale(weighted, 1 / mass), 1e-9))
+      findings.push(
+        `seed ${seed}: mass ${carriage.properties.mass}, not ${mass}`,
+      );
+    if (
+      !vclose(
+        carriage.properties.centerOfMass,
+        Vector3.scale(weighted, 1 / mass),
+        1e-9,
+      )
+    )
       findings.push(`seed ${seed}: the centre of mass`);
     const through: IAutoMovieVector3 = { x: 0.4, y: 1.1, z: -0.7 };
-    const direction: IAutoMovieVector3 = Vector3.normalize({ x: 0.3, y: 1, z: 0.5 });
+    const direction: IAutoMovieVector3 = Vector3.normalize({
+      x: 0.3,
+      y: 1,
+      z: 0.5,
+    });
     let sum: number = 0;
-    for (const member of Object.values(members) as ArchetypeAssembly.IMember[]) {
+    for (const member of Object.values(
+      members,
+    ) as AutoMovieArchetypeAssembly.IMember[]) {
       const inverse: IAutoMovieTransform["rotation"] = Quaternion.inverse(
         member.placement.rotation,
       );
-      const archetype: Archetype = member.archetype;
+      const archetype: AutoMovieArchetype = member.archetype;
       sum += archetype.moment(
         Quaternion.rotateVector(
           inverse,
@@ -123,14 +139,17 @@ export function test_archetype_assembly_valid(): void {
     if (JSON.stringify(carriage) !== JSON.stringify(archetypeCarriage(seed)))
       findings.push(`seed ${seed}: two builds serialise differently`);
     if (
-      Object.keys(carriage).sort((a: string, b: string): number => a.localeCompare(b)).join() !==
+      Object.keys(carriage)
+        .sort((a: string, b: string): number => a.localeCompare(b))
+        .join() !==
       "affordances,asset,body,id,materials,name,origin,parts,skeleton"
     )
       findings.push(`seed ${seed}: own keys ${Object.keys(carriage).join()}`);
   }
 
   // 5. Malformed members.
-  const bench: ArchetypeAssembly.IMember = archetypeCarriage.members(1).bench1;
+  const bench: AutoMovieArchetypeAssembly.IMember =
+    archetypeCarriage.members(1).bench1;
   for (const [axis, members] of [
     ["members", {}],
     ["members.a/b", { "a/b": bench }],
@@ -140,7 +159,7 @@ export function test_archetype_assembly_valid(): void {
         bench: {
           ...bench,
           placement: {
-            ...ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+            ...AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
             scale: { x: 2, y: 2, z: 2 },
           },
         },
@@ -149,11 +168,11 @@ export function test_archetype_assembly_valid(): void {
   ] as const) {
     let thrown: unknown = null;
     try {
-      ArchetypeAssembly.of("bad", "bad", members);
+      AutoMovieArchetypeAssembly.of("bad", "bad", members);
     } catch (error) {
       thrown = error;
     }
-    if (!(thrown instanceof ArchetypeRefusal) || thrown.axis !== axis)
+    if (!(thrown instanceof AutoMovieArchetypeRefusal) || thrown.axis !== axis)
       findings.push(`expected a refusal at ${axis}, got ${String(thrown)}`);
   }
   TestValidator.equals("an assembly is its members", findings, []);

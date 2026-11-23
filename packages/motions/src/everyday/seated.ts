@@ -256,6 +256,19 @@ export namespace seated {
       0,
       socket.y - (hipJoint.y - body.measure.thighRadius),
     );
+    // On a tipped or tilted seat, as a saddle on a grade, the place lies along the surface.
+    if (seat.pitch !== undefined || seat.roll !== undefined)
+      return Vector3.add(
+        seat.at,
+        Quaternion.rotateVector(
+          resolveHumanPosture.heading({
+            yaw: seat.yaw,
+            pitch: seat.pitch ?? 0,
+            roll: seat.roll ?? 0,
+          }),
+          { x: 0, y: lift, z: -back },
+        ),
+      );
     return HumanFrame.point(
       { origin: seat.at, yaw: seat.yaw },
       { x: 0, y: lift, z: -back },

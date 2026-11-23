@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The rule that sizes a competition bench. */
@@ -27,7 +27,7 @@ const IPF: string =
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The bench.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it stands, which way it runs and the three contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A pad of the rule's length, width and top height on four legs set in from its corners.
@@ -40,9 +40,9 @@ const IPF: string =
 export function createBench(
   params: createBench.IParams,
   seed?: number | string,
-): Archetype<createBench.Affordance, createBench.Dimension> {
-  const draw: ArchetypeDrawSession<createBench.Dimension> =
-    new ArchetypeDrawSession<createBench.Dimension>(
+): AutoMovieArchetype<createBench.Affordance, createBench.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBench.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBench.Dimension>(
       "bench",
       createBench.UNITS,
       seed,
@@ -61,10 +61,10 @@ export function createBench(
   const length: number = d.length!;
   const width: number = d.width!;
   const height: number = d.height!;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createBench.Affordance,
     createBench.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "weight bench",
@@ -96,7 +96,7 @@ export function createBench(
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: null,
     width,
     depth: length,
@@ -104,7 +104,7 @@ export function createBench(
   builder.affordance({
     id: "seat",
     kind: "seat",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       Vector3.create(0, height, length / 2 - createBench.SEAT / 2),
     ),
     extent: null,
@@ -114,7 +114,9 @@ export function createBench(
   builder.affordance({
     id: "edge",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(width / 2, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(
+      Vector3.create(width / 2, height, 0),
+    ),
     extent: null,
     depth: length,
   });
@@ -168,7 +170,9 @@ export namespace createBench {
   export type Dimension = "length" | "width" | "height" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     height: "m",
@@ -186,18 +190,18 @@ export namespace createBench {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     flat: {
-      length: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(
         1.22,
         1.3,
         `${IPF}; the upper end is an estimate`,
         true,
       ),
-      width: ArchetypeBand.metres(0.29, 0.32, IPF),
-      height: ArchetypeBand.metres(0.42, 0.45, IPF),
-      mass: ArchetypeBand.of(
+      width: AutoMovieArchetypeBand.metres(0.29, 0.32, IPF),
+      height: AutoMovieArchetypeBand.metres(0.42, 0.45, IPF),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         20,
         40,

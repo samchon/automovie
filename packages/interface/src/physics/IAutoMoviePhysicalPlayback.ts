@@ -8,11 +8,6 @@ import type { IAutoMoviePhysicalSupportWrench } from "./IAutoMoviePhysicalSuppor
  * Solver-free random-access playback of an admitted complete physical performance.
  *
  * duration is local film seconds and rate cached intervals/s; poses and velocities retain the world-space SI meaning of PhysicsCache frames. AutoMoviePhysicalPlayback retains an owned archive byte copy and recursively frozen metadata for its lifetime. Sampling allocates detached frames and never advances or initializes a native solver. Archive decoding rejects incompatible identity, protocol, corruption or allocation limits. This reader contains no restart checkpoints; callers need the producer cache to resume native simulation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Solver-free random-access playback of an admitted complete physical performance.
- * @evidence contracts/development/design.md#principled-representation duration is local film seconds and rate cached intervals/s; poses and velocities retain the world-space SI meaning of PhysicsCache frames.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMoviePhysicalPlayback retains an owned archive byte copy and recursively frozen metadata for its lifetime. Sampling allocates detached frames and never advances or initializes a native solver.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Archive decoding rejects incompatible identity, protocol, corruption or allocation limits. This reader contains no restart checkpoints; callers need the producer cache to resume native simulation.
  */
 export interface IAutoMoviePhysicalPlayback {
   /** Exact sampled-input identity retained by the producer. */
@@ -37,14 +32,6 @@ export interface IAutoMoviePhysicalPlayback {
   readonly supportWrenches: readonly IAutoMoviePhysicalSupportWrench[];
 
   /** Return the latest actual ownership event for body/bone at or before finite local seconds in [0,duration]. Throws for invalid time or no preceding event; does not reconstruct ownership from authored policy.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the ownershipAt callback or sampling contract, including its clock and ownership obligations.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
    */
   ownershipAt(
     body: string,
@@ -53,14 +40,6 @@ export interface IAutoMoviePhysicalPlayback {
   ): IAutoMoviePhysicalOwnershipEvent["kind"];
 
   /** Sample finite local seconds in [0,duration] in any order. Linearly interpolate positions and velocities and shortest-arc interpolate rotations between stored frames. Returns a detached mutable frame; out-of-domain time throws.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the at callback or sampling contract, including its clock and ownership obligations.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
    */
   at(seconds: number): IAutoMoviePhysicalFrame;
 }
@@ -71,11 +50,6 @@ export namespace IAutoMoviePhysicalPlayback {
    * Validated archive metadata accompanying a fixed-order sequence of binary segment records.
    *
    * format is the literal binary layout version; duration times integer rate plus one gives the frame count, and segments lists unique [body,bone] keys in record order. encodePhysicalPlayback writes metadata from a complete cache; decodePhysicalPlayback validates and freezes it before a reader exposes its arrays and records. The header preserves actual ownership/contact/recovery history and requested support predictions separately. It contains no native checkpoint bytes and cannot resume simulation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Validated archive metadata accompanying a fixed-order sequence of binary segment records.
-   * @evidence contracts/development/design.md#principled-representation format is the literal binary layout version; duration times integer rate plus one gives the frame count, and segments lists unique [body,bone] keys in record order.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface encodePhysicalPlayback writes metadata from a complete cache; decodePhysicalPlayback validates and freezes it before a reader exposes its arrays and records.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The header preserves actual ownership/contact/recovery history and requested support predictions separately. It contains no native checkpoint bytes and cannot resume simulation.
    */
   export interface IHeader {
     /** Literal archive record layout version 1, admitted before record scanning. */

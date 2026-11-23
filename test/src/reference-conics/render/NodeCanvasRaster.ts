@@ -1,12 +1,15 @@
 import {
   type Canvas,
+  GlobalFonts,
   type Image,
   ImageData,
   type SKRSContext2D,
   createCanvas,
   loadImage,
 } from "@napi-rs/canvas";
+import path from "node:path";
 
+import { repositoryRoot } from "../../features/internal/repositoryRoot";
 import { NodeCanvasCamera } from "./NodeCanvasCamera";
 import type { NodeCanvasTypes } from "./NodeCanvasTypes";
 
@@ -15,8 +18,39 @@ import type { NodeCanvasTypes } from "./NodeCanvasTypes";
  * Uses original display triangles only for rasterization; never generates or judges a shape.
  * Flat two-sided Lambert clay has no PBR, shadows, transparency or GPU/Three parity.
  * Original curves can explicitly use xray; depth curves use a 10 micrometre display bias.
+ *
+ * Annotation text is drawn in DejaVu Sans, shipped beside this file in `fonts/` with its
+ * licence and registered once before the first draw, never in a system font such as Arial:
+ * a runner without that font would draw no glyphs, so the same frame would differ between
+ * machines and a diagnostic caption would vanish. The bundled face makes glyphs, and so
+ * the annotated PNG bytes, deterministic across runners.
  */
 export namespace NodeCanvasRaster {
+  /** The family the bundled caption font is registered under. */
+  const CAPTION: string = "AutoMovie Caption";
+
+  /** Whether the bundled caption font has been registered with Skia in this process. */
+  let registered: boolean = false;
+
+  /** Register the bundled caption font once and return its family; a font that cannot be read stops the frame instead of drawing none. */
+  function family(): string {
+    if (!registered) {
+      const file: string = path.join(
+        repositoryRoot(),
+        "test",
+        "src",
+        "reference-conics",
+        "render",
+        "fonts",
+        "DejaVuSans.ttf",
+      );
+      if (GlobalFonts.registerFromPath(file, CAPTION) === null)
+        throw new Error(`The caption font ${file} could not be registered`);
+      registered = true;
+    }
+    return CAPTION;
+  }
+
   /** Unlabelled raster state of immutable reference meshes, before any dynamic mesh or curve is drawn. */
   export interface IBackground {
     /** Original opaque lossless RGBA bytes in row-major viewport order. */
@@ -91,7 +125,19 @@ export namespace NodeCanvasRaster {
     };
   }
 
-  /** Renders one frame with true per-pixel depth and records Canvas, raster and encode work separately. */
+  /**
+   * Render one diagnostic frame with actual depth and an explicit subject header.
+   * The seventh subject argument defaults to f1; the existing sixth background argument keeps its meaning.
+   * The eighth observation argument separates the displayed stage from run evidence; omission keeps a neutral diagnostic caption.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Existing CPU triangle depth, curve line modes, flat clay and Skia encoding consume the supplied metre scene and complete camera; subject and caller-reported observation affect only annotation text, with null diagnostic count remaining unknown.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Optional background, scene drawing, explicit stage/run annotation and PNG encoding retain their existing order.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No geometry, colour, light or projection changes; the former unconditional not-run assertion is removed rather than inferring realization from displayed meshes or promoting mesh presence to success.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Raster work scales with projected triangles, line samples and image pixels; subject text adds no scene traversal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Callers supply evaluated scene/camera data; the optional existing background retains its unchanged reuse role.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned PNG and scalar timing/pixel data; per-frame Canvas/depth arrays leave scope and no subject cache exists.
+   * @evidence contracts/development/common.md#meaningful-documentation States diagnostic backend scope, argument order, neutral omitted evidence and independent displayed/run state. Corrected headers intentionally change annotated PNG bytes.
+   */
   export function render(
     camera: NodeCanvasTypes.Camera,
     meshes: readonly NodeCanvasTypes.Mesh[],
@@ -99,6 +145,8 @@ export namespace NodeCanvasRaster {
     lineMode: "xray" | "depth",
     label: string,
     background?: IBackground,
+    subject: string = "f1",
+    observation?: NodeCanvasTypes.Observation,
   ): {
     png: Buffer;
     milliseconds: { canvas: number; raster: number; encode: number };
@@ -190,14 +238,23 @@ export namespace NodeCanvasRaster {
     );
     if (camera.annotations !== false) {
       context.fillStyle = "#172337";
-      context.font = "17px Arial";
-      context.fillText("f1 | CPU SOFTWARE DIAGNOSTIC | " + camera.name, 18, 26);
-      context.font = "13px Arial";
-      context.fillText(label, 18, 49);
+      context.font = "17px " + family();
       context.fillText(
-        "orthographic | two-sided flat clay | lines: " +
-          lineMode +
-          " | final skin: not run",
+        subject + " | CPU SOFTWARE DIAGNOSTIC | " + camera.name,
+        18,
+        26,
+      );
+      context.font = "13px " + family();
+      context.fillText(label, 18, 49);
+      const evidence: string = observation === undefined
+        ? ""
+        : " | pass: " + observation.stage +
+          (observation.realization === "not-requested"
+            ? " | realization: not requested"
+            : " | mesh returned | diagnostics: " +
+              (observation.diagnosticCount === null ? "unknown" : String(observation.diagnosticCount)));
+      context.fillText(
+        "orthographic | lines: " + lineMode + evidence,
         18,
         68,
       );

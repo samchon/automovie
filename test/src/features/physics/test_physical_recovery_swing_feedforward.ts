@@ -8,16 +8,16 @@ import { TestValidator } from "@nestia/e2e";
 /**
  * The recovery swing's path supplies the acceleration its tracking feeds
  * forward (Khadiv et al. 2017, Section III-C), consistent with its own
- * velocity, and a minimum-jerk transfer peaks at 10 sqrt(3) / 3 d / T^2
- * (Flash and Hogan 1985):
+ * velocity, and a minimum-jerk transfer peaks at 10 sqrt(3) / 3 d / T^2 (Flash
+ * and Hogan 1985):
  *
- * 1. At several clocks inside the swing the acceleration matches the
- *    central difference of the sampled velocity, horizontally and
- *    vertically.
+ * 1. At several clocks inside the swing the acceleration matches the central
+ *    difference of the sampled velocity, horizontally and vertically.
  * 2. The horizontal acceleration's peak, at progress 1/2 - sqrt(3)/6, is
  *    `AutoMoviePhysicalBalance.MINIMUM_JERK` d / T^2.
- * 3. The clearance h 64 (p (1 - p))^3 starts and ends at rest and its
- *    acceleration peaks at `AutoMoviePhysicalBalance.CLEARANCE` h / T^2.
+ * 3. The clearance h 16 (p (1 - p))^2 starts and ends at rest, decelerates at -16
+ *    h / T^2 at mid-swing, and its acceleration peaks at
+ *    `AutoMoviePhysicalBalance.CLEARANCE` h / T^2 at lift-off.
  * 4. Before and after the swing the acceleration is zero.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the consistency, the closed-form peak and the bounds.
@@ -74,20 +74,21 @@ export function test_physical_recovery_swing_feedforward(): void {
   if (!(Math.abs(actual - expected) <= 1e-9 * expected))
     failures.push(`peak ${actual} against ${expected}`);
   // The clearance leaves and meets the floor at rest, and its acceleration
-  // peaks at 24 h / T^2 at mid-swing.
+  // peaks at lift-off and touchdown.
   for (const seconds of [1e-6, T - 1e-6]) {
     const vy: number = sample(seconds).velocity.y;
-    if (!(Math.abs(vy) < 1e-6))
+    if (!(Math.abs(vy) < 1e-4))
       failures.push(`vertical speed ${vy} at ${seconds}, not at rest`);
   }
   const middle: number = sample(T / 2).acceleration.y;
-  if (
-    !(
-      Math.abs(middle + (AutoMoviePhysicalBalance.CLEARANCE * 0.05) / (T * T)) <
-      1e-9
-    )
-  )
-    failures.push(`mid-swing vertical acceleration ${middle}, not -24 h / T^2`);
+  if (!(Math.abs(middle + (16 * 0.05) / (T * T)) < 1e-9))
+    failures.push(`mid-swing vertical acceleration ${middle}, not -16 h / T^2`);
+  const start: number = sample(1e-9).acceleration.y;
+  const peakUp: number = (AutoMoviePhysicalBalance.CLEARANCE * 0.05) / (T * T);
+  if (!(Math.abs(start - peakUp) <= 1e-6 * peakUp))
+    failures.push(
+      `lift-off vertical acceleration ${start}, not CLEARANCE h / T^2`,
+    );
   for (const seconds of [-0.1, T + 0.1]) {
     const outside = sample(seconds).acceleration;
     if (outside.x !== 0 || outside.y !== 0 || outside.z !== 0)

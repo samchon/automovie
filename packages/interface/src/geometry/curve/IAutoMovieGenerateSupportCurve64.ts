@@ -2,11 +2,6 @@ import type { IAutoMovieCubicBezierCurve64 } from "./IAutoMovieCubicBezierCurve6
 
 /**
  * Fourier support-function input and qualified polynomial approximation output.
- *
- * @evidence contracts/development/design.md#principled-representation Millimetre Fourier amplitudes use normal-angle radians; the generated closed cubic curve uses phase in turns.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The generator consumes IProps and returns its cubic declaration with computed analytic qualifications in IResult.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Support perimeter, polynomial arclength and source-outline arclength are not conflated.
- * @evidence contracts/development/common.md#meaningful-documentation Input and result describe convexity admission, finite estimates and output storage.
  */
 export namespace IAutoMovieGenerateSupportCurve64 {
   /**
@@ -24,11 +19,6 @@ export namespace IAutoMovieGenerateSupportCurve64 {
    * generateAutoMovieSupportCurve64 copies coefficient pairs synchronously. It
    * rejects invalid harmonic/partition data, unresolved positive curvature and
    * nonfinite arithmetic rather than altering coefficients to force convexity.
-   *
-   * @evidence contracts/development/design.md#principled-representation Harmonic index determines normal-angle frequency; coefficients have millimetre units and a power-of-two span count partitions one full turn.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The support-curve generator needs only caller identity, finite Fourier coefficients and the explicit normal-angle partition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Convexity remains an admitted analytic radius estimate; no source perimeter, sampled mesh or fallback convex fit enters this contract.
-   * @evidence contracts/development/common.md#meaningful-documentation States Fourier convention, units, coefficient bounds, admission owner and copied input lifetime.
    */
   export type IProps = {
     /** Caller-owned identity copied to the generated curve; this generator does not enforce nonblankness or uniqueness. */
@@ -49,11 +39,6 @@ export namespace IAutoMovieGenerateSupportCurve64 {
    * Generated closed polynomial in the local X/Z plane and qualifications of its
    * underlying analytic support function. Output storage is newly created; adjacent
    * spans share their endpoint tuples, so preserve the curve's readonly storage.
-   *
-   * @evidence contracts/development/design.md#principled-representation Millimetre polynomial positions use phase in turns while analytic radius and Hermite remainder estimates retain millimetre units.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface generateAutoMovieSupportCurve64 returns the canonical cubic declaration plus the three scalar qualifications computed from its supplied Fourier support function.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Analytic support perimeter is not asserted to equal polynomial arclength, and finite estimates are not outward-rounded certificates.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines local plane, phase convention, shared endpoint storage and the distinct meanings of the scalar estimates.
    */
   export type IResult = {
     /** Polynomial approximation in the local X/Z plane, phase in turns. */

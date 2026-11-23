@@ -1,27 +1,27 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import { createCar } from "./createCar";
 
 /**
  * A car's body: the layout every part is placed from, and the shell, bonnet and road wheels built on it; `CarRear` builds the boot, the van body and the pickup bed on the same layout.
  *
  * `createCar` lays the car out once and hands the layout to this module and to `CarCabin`, so every part reads one set of planes: the floor, the belt line, the bulkhead, the pillars and the roof.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what it builds and why the layout is shared.
- * @evidence contracts/development/design.md#principled-representation Named planes of the body derived once from the drawn dimensions and the seating reference point, as SAE J1100 lays out a package.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The layout record and the body's builders, called by `createCar`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No plane is restated by a builder; each reads it from the layout.
  */
 export namespace CarBody {
+  /** A sedan's bonnet leading edge above the ground, metres: below the 76.9 cm the new-car fleet averaged before bonnets rose to 83.8 cm by 2024 (Transport & Environment, as the IET reports, https://engx.theiet.org/b/articles/posts/call-to-cap-rising-car-bonnet-heights-amid-pedestrian-safety-fears, read through a search summary), a sedan standing below the SUVs that raised that average; provisional. */
+  export const LEADING: number = 0.75;
+
+  /** The front bumper's top above the ground, metres: provisional. */
+  export const BUMPER: number = 0.5;
+
   /**
    * The planes a car is built on, metres in the car's space.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning.
-   * @evidence contracts/development/design.md#principled-representation Heights and fore-and-aft stations in metres, the driving side as a sign, and the drawn dimensions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; made by `layout` and read by this module's builders and `CarCabin`'s.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The dimensions a class lacks stay absent, read only by the builders of the parts that class has.
    */
   export interface ILayout {
     /** The class. */
@@ -92,14 +92,6 @@ export namespace CarBody {
    * @param side The driver's side, 1 or -1.
    * @param d The drawn dimensions.
    * @returns The layout.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The front overhang takes `OVERHANG` of the length beyond the wheelbase; the front doors stand `DOOR_AXLE` behind the front axle and `DOOR_SPAN` long, and the seating reference point `PILLAR_SGRP` ahead of the middle pillar and `seatHeight` above the floor (SAE J1100's H30), the measured sedans' values; the ball of foot lies SAE J1516's tool reference distance ahead of it (`seatAft`) on the pedal plane at J1516's angle (`pedalPlane`), the heel point `BALL` back down that plane on the floor; the steering wheel `WHEEL_AFT` behind the ball of foot and `WHEEL_HEIGHT` above the heel; the firewall `DOOR_LEAD` ahead of the front doors; the belt (`BELT` above the rocker's lower edge, `ROCKER`) and the windows' top (`WINDOW` above the belt) at the measured heights; the doors' openings start at the floor; a pickup's belt at its bed's rail; a sedan's and a hatchback's cabin ends at the rear doors' trailing edge, `REAR_DOOR` behind the front doors; a van's floor is its side step and its cabin runs to its rear doors, a pickup's cab ends where its bed begins.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of derived planes.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The unsourced offsets are `createCar`'s marked constants.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function layout(
     kind: createCar.Kind,
@@ -120,16 +112,14 @@ export namespace CarBody {
     // A van's rear doors' inner face, their 0.04 m panel inside the rear.
     const inside: number = rear + 0.04;
     const pillar: number =
-      kind === "van"
-        ? inside + d.loadLength!
-        : door - createCar.DOOR_SPAN;
+      kind === "van" ? inside + d.loadLength! : door - createCar.DOOR_SPAN;
     const sz: number = pillar + createCar.PILLAR_SGRP;
     const sy: number = floor + d.seatHeight!;
     const sx: number = side * createCar.OCCUPANT;
 
     // SAE J1516: the ball of foot lies its tool reference distance ahead of the seating reference point, and the heel point 203 mm back down the pedal plane from it.
     const pedal: number = createCar.pedalPlane(d.seatHeight!);
-    const slope: number = pedal * ArchetypeUnits.DEGREE;
+    const slope: number = pedal * AutoMovieArchetypeUnits.DEGREE;
     const ball: IAutoMovieVector3 = Vector3.create(
       sx,
       floor + createCar.BALL * Math.sin(slope),
@@ -184,21 +174,16 @@ export namespace CarBody {
   }
 
   /**
-   * The shell: the floor, the bonnet with its lid on a hinge, and the roof on its pillars; `CarRear` builds what the class carries behind the cabin.
+   * The shell: the floor, the front bumper, the bonnet rising from its leading edge to the windscreen's foot with its lid on a hinge, and the roof on its pillars; `CarRear` builds what the class carries behind the cabin.
    *
    * @param builder The car under construction.
    * @param l The layout.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built.
-   * @evidence contracts/development/implementation.md#principled-implementation Boxes and rods on the layout's planes. The bonnet's hinge lies on its rear edge with `+Y` along `-X`, so a positive turn lifts its front edge, the right-hand rule taking `+Z` toward `+Y`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The common shell only.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None beyond the layout's marked constants.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A few tens of parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function shell(
-    builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCar.Affordance,
+      createCar.Dimension
+    >,
     l: ILayout,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -209,22 +194,64 @@ export namespace CarBody {
       v(0, l.floor - 0.06, (l.front + l.rear) / 2),
       { color: BODY },
     );
+    // The front in profile: the bumper's face up to `BUMPER`, the bonnet's
+    // leading edge as far below the belt as a sedan's `LEADING` sits below
+    // its belt, and the bonnet rising from it to the belt at the
+    // windscreen's foot.
+    const lead: number =
+      l.belt - (createCar.ROCKER + createCar.BELT - CarBody.LEADING);
+    const x: number = width / 2;
     builder.box(
-      "bonnet",
-      v(width, l.belt - l.floor, l.front - l.firewall),
-      v(0, (l.belt + l.floor) / 2, (l.front + l.firewall) / 2),
+      "bumper",
+      v(width, CarBody.BUMPER - l.floor, 0.12),
+      v(0, (CarBody.BUMPER + l.floor) / 2, l.front - 0.06),
       { color: BODY },
     );
-    builder.box(
+    builder.convex(
+      "bonnet",
+      [
+        v(-x, l.floor, l.front - 0.12),
+        v(x, l.floor, l.front - 0.12),
+        v(-x, lead, l.front),
+        v(x, lead, l.front),
+        v(-x, l.floor, l.firewall),
+        v(x, l.floor, l.firewall),
+        v(-x, l.belt, l.firewall),
+        v(x, l.belt, l.firewall),
+      ],
+      undefined,
+      { color: BODY },
+    );
+    // The lid's vertices about its own centre, so its frame is its middle
+    // and the hinge turns it about its rear edge.
+    const lid: number = 0.03;
+    const middle: IAutoMovieVector3 = v(
+      0,
+      (lead + l.belt + lid) / 2,
+      (l.front + l.firewall) / 2,
+    );
+    builder.convex(
       "bonnet-lid",
-      v(width - 0.04, 0.03, l.front - l.firewall),
-      v(0, l.belt + 0.015, (l.front + l.firewall) / 2),
+      [
+        v(-x + 0.02, lead, l.front),
+        v(x - 0.02, lead, l.front),
+        v(-x + 0.02, lead + lid, l.front),
+        v(x - 0.02, lead + lid, l.front),
+        v(-x + 0.02, l.belt, l.firewall),
+        v(x - 0.02, l.belt, l.firewall),
+        v(-x + 0.02, l.belt + lid, l.firewall),
+        v(x - 0.02, l.belt + lid, l.firewall),
+      ].map(
+        (point: IAutoMovieVector3): IAutoMovieVector3 =>
+          Vector3.subtract(point, middle),
+      ),
+      middle,
       { color: BODY },
     );
     builder.affordance({
       id: "bonnet",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, l.belt + 0.03, l.firewall),
         v(-1, 0, 0),
         v(0, 0, 1),
@@ -255,17 +282,12 @@ export namespace CarBody {
    *
    * @param builder The car under construction.
    * @param l The layout.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the chain of articulations.
-   * @evidence contracts/development/implementation.md#principled-implementation Each wheel stands out to the doors' outer faces with a hub bar across its face, so a spin shows. A spin knob's `+Y` is the car's `+X`, so a positive turn rolls the wheel's top forward, toward `+Z`, as rolling forward does; `driveCar` sets it from the distance. The steering is a two-sided `wheel` articulation about the upright through the wheel's centre, following `wheel` through a table of Ackermann angles at `STEER_STEP` spacing with a row at straight ahead.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the four wheels.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The steering table is interpolated linearly, within a hundredth of a degree of the exact angle, as `STEER_STEP` states.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A table of about eighty rows per front wheel.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function wheels(
-    builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCar.Affordance,
+      createCar.Dimension
+    >,
     l: ILayout,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -309,7 +331,7 @@ export namespace CarBody {
         builder.affordance({
           id: steer,
           kind: "wheel",
-          frame: ArchetypeFrame.facing(centre, v(0, 1, 0), v(0, 0, 1)),
+          frame: AutoMovieArchetypeFrame.facing(centre, v(0, 1, 0), v(0, 0, 1)),
           extent: null,
           travel: createCar.ackermann(lock / ratio, wheelbase, track / 2),
           follows: {
@@ -332,7 +354,7 @@ export namespace CarBody {
       builder.affordance({
         id: SPIN[name],
         kind: "knob",
-        frame: ArchetypeFrame.facing(centre, v(1, 0, 0), v(0, 1, 0)),
+        frame: AutoMovieArchetypeFrame.facing(centre, v(1, 0, 0), v(0, 1, 0)),
         extent: null,
         travel: 360,
         parts: [`wheel-${name}`, `hub-${name}`],
@@ -346,14 +368,6 @@ export namespace CarBody {
    *
    * @param l The layout.
    * @returns The station, metres along `+Z`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it places and why.
-   * @evidence contracts/development/implementation.md#principled-implementation The van's sheet gives the load length to the bulkhead, so `layout` stands the bulkhead's face that far ahead of the rear doors' inner face and closes the cab there, its middle pillar.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read of the layout, by this module and `CarCabin`.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bulkhead(l: ILayout): number {
     return l.pillar;

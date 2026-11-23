@@ -17,11 +17,6 @@ import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord.js";
  * AutoMovieCaptureFolder class. It removes that class's private-field admission restriction;
  * it introduces no brand and cannot statically enforce sequencing or filesystem ownership.
  * The render class implements the checks; other hosts must honor the same obligations.
- *
- * @evidence contracts/development/design.md#principled-representation A running ownership journal precedes writes and a completed publication follows them; names and comparison identity remain explicit while private sets stay with the implementation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Capture runners and round comparison use only these properties and operations; storage opening belongs to the concrete factory.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Structural admission is an intentional caller expansion, without a fabricated nominal brand or private-state projection.
- * @evidence contracts/development/common.md#meaningful-documentation Defines foreign-file refusal, claim/write/remove/close ordering, interruption recovery, failed-cell completion and host lifecycle obligations.
  */
 export interface IAutoMovieCaptureFolder {
   /** Destination root or named round path without a trailing slash; path joining uses slash. */
@@ -41,58 +36,18 @@ export interface IAutoMovieCaptureFolder {
   /** Compared round directory, or null without comparison. Reads must not mutate it. */
   readonly reference: string | null;
   /** Persist a running journal containing the union of claimed names before any corresponding file write. Reject separators, dot/dot-dot, and record.json. Empty input still publishes the current claims.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The claim contract states the input meaning, completion or iteration obligation and rejection behavior.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Erased claim host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Erased claim host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Erased claim host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Erased claim host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Erased claim host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Erased claim host signature; concrete hosts own its algorithm and resources under the documented protocol.
    */
   claim(names: readonly string[]): Promise<void>;
   /** Replace one previously claimed file; text is UTF-8. Resolve only after storage succeeds, then remember it as written. Reject unclaimed names.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The write contract states the input meaning, completion or iteration obligation and rejection behavior.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Erased write host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Erased write host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Erased write host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Erased write host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Erased write host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Erased write host signature; concrete hosts own its algorithm and resources under the documented protocol.
    */
   write(name: string, data: Uint8Array | string): Promise<void>;
   /** Remove a claimed file and its written-list entry. Missing files succeed; unclaimed names reject. The claim remains owned by the running journal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The remove contract states the input meaning, completion or iteration obligation and rejection behavior.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Erased remove host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Erased remove host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Erased remove host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Erased remove host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Erased remove host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Erased remove host signature; concrete hosts own its algorithm and resources under the documented protocol.
    */
   remove(name: string): Promise<void>;
   /** Read a plain file name in this destination, or the compared directory when earlier is true. Default false; reject invalid names, unavailable comparison, and storage failures. The folder forwards the host's bytes without cloning; byte sharing follows the storage host's ownership policy.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The read contract states the input meaning, completion or iteration obligation and rejection behavior.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Erased read host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Erased read host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Erased read host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Erased read host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Erased read host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Erased read host signature; concrete hosts own its algorithm and resources under the documented protocol.
    */
   read(name: string, earlier?: boolean): Promise<Uint8Array>;
   /** Publish complete metadata after all surviving owned writes finish. Derive state and files from successful writes rather than trusting the supplied metadata; return only after record.json is written. Caller must stop writing after publication; the concrete class has no closed-state guard.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The close contract states the input meaning, completion or iteration obligation and rejection behavior.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Erased close host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Erased close host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Erased close host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Erased close host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Erased close host signature; concrete hosts own its algorithm and resources under the documented protocol.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Erased close host signature; concrete hosts own its algorithm and resources under the documented protocol.
    */
   close(
     record: Omit<

@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeTrack,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeTrack,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
@@ -27,29 +27,32 @@ import { nclose } from "../internal/nclose";
  */
 export function test_archetype_track_clock_numeric(): void {
   const findings: string[] = [];
-  const hinge: Archetype<"joint", never> = new ArchetypeBuilder<"joint", never>(
-    {
+  const hinge: AutoMovieArchetype<"joint", never> =
+    new AutoMovieArchetypeBuilder<"joint", never>({
       name: "clock mechanism",
       material: "steel",
-      draw: new ArchetypeDrawSession<never>("clock mechanism", {}, undefined),
-    },
-  )
-    .box("body", { x: 1, y: 1, z: 1 }, { x: 0, y: -0.5, z: 0 })
-    .affordance({
-      id: "joint",
-      kind: "hinge",
-      extent: null,
-      parts: ["body"],
-      travel: 179,
-      reverse: 179,
-      frame: ArchetypeFrame.facing(
-        { x: 0, y: 0, z: 0 },
-        { x: 1, y: 0, z: 0 },
-        { x: 0, y: 0, z: 1 },
+      draw: new AutoMovieArchetypeDrawSession<never>(
+        "clock mechanism",
+        {},
+        undefined,
       ),
     })
-    .build(1);
-  const physics: ArchetypeTrack.IPendulum = {
+      .box("body", { x: 1, y: 1, z: 1 }, { x: 0, y: -0.5, z: 0 })
+      .affordance({
+        id: "joint",
+        kind: "hinge",
+        extent: null,
+        parts: ["body"],
+        travel: 179,
+        reverse: 179,
+        frame: AutoMovieArchetypeFrame.facing(
+          { x: 0, y: 0, z: 0 },
+          { x: 1, y: 0, z: 0 },
+          { x: 0, y: 0, z: 1 },
+        ),
+      })
+      .build(1);
+  const physics: AutoMovieArchetypeTrack.IPendulum = {
     mass: 1,
     moment: 5 / 12,
     arm: 0.5,
@@ -65,7 +68,8 @@ export function test_archetype_track_clock_numeric(): void {
     ])
       if (
         !refuses(
-          (): ArchetypeTrack.ITrack<"joint"> => prepare(kind, start, 1),
+          (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+            prepare(kind, start, 1),
           "start",
         )
       )
@@ -75,7 +79,8 @@ export function test_archetype_track_clock_numeric(): void {
     for (const seconds of [0, -1, NaN, Infinity, -Infinity])
       if (
         !refuses(
-          (): ArchetypeTrack.ITrack<"joint"> => prepare(kind, 0, seconds),
+          (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+            prepare(kind, 0, seconds),
           "seconds",
         )
       )
@@ -86,12 +91,13 @@ export function test_archetype_track_clock_numeric(): void {
     ] as const)
       if (
         !refuses(
-          (): ArchetypeTrack.ITrack<"joint"> => prepare(kind, start, seconds),
+          (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+            prepare(kind, start, seconds),
           "start",
         )
       )
         findings.push(`${kind}: an unrepresentable end was accepted`);
-    const track: ArchetypeTrack.ITrack<"joint"> = prepare(kind, -2, 1);
+    const track: AutoMovieArchetypeTrack.ITrack<"joint"> = prepare(kind, -2, 1);
     if (
       !nclose(track.start, -2, 0) ||
       !nclose(track.end, -1, 0) ||
@@ -114,11 +120,8 @@ export function test_archetype_track_clock_numeric(): void {
     from: 5,
     to: 0,
   };
-  const eased: ArchetypeTrack.ITrack<"joint"> = ArchetypeTrack.ease(
-    hinge,
-    "joint",
-    easeProps,
-  );
+  const eased: AutoMovieArchetypeTrack.ITrack<"joint"> =
+    AutoMovieArchetypeTrack.ease(hinge, "joint", easeProps);
   easeProps.start = 100;
   easeProps.seconds = 4;
   easeProps.from = 2;
@@ -129,23 +132,20 @@ export function test_archetype_track_clock_numeric(): void {
     !nclose(eased.travel(0.5), 2.5, 0)
   )
     findings.push("mutating ease props rewrote its prepared profile");
-  const body: ArchetypeTrack.IPendulum = { ...physics };
+  const body: AutoMovieArchetypeTrack.IPendulum = { ...physics };
   const swingProps: {
     start: number;
     seconds: number;
     release: number;
-    pendulum: ArchetypeTrack.IPendulum;
+    pendulum: AutoMovieArchetypeTrack.IPendulum;
   } = {
     start: 0,
     seconds: 1,
     release: 5,
     pendulum: body,
   };
-  const swung: ArchetypeTrack.ITrack<"joint"> = ArchetypeTrack.swing(
-    hinge,
-    "joint",
-    swingProps,
-  );
+  const swung: AutoMovieArchetypeTrack.ITrack<"joint"> =
+    AutoMovieArchetypeTrack.swing(hinge, "joint", swingProps);
   const before: number = swung.travel(0.5);
   swingProps.start = 100;
   swingProps.seconds = 4;
@@ -170,10 +170,15 @@ export function test_archetype_track_clock_numeric(): void {
     kind: "ease" | "swing",
     start: number,
     seconds: number,
-  ): ArchetypeTrack.ITrack<"joint"> {
+  ): AutoMovieArchetypeTrack.ITrack<"joint"> {
     return kind === "ease"
-      ? ArchetypeTrack.ease(hinge, "joint", { start, seconds, from: 5, to: 0 })
-      : ArchetypeTrack.swing(hinge, "joint", {
+      ? AutoMovieArchetypeTrack.ease(hinge, "joint", {
+          start,
+          seconds,
+          from: 5,
+          to: 0,
+        })
+      : AutoMovieArchetypeTrack.swing(hinge, "joint", {
           start,
           seconds,
           release: 5,
@@ -186,7 +191,7 @@ export function test_archetype_track_clock_numeric(): void {
     try {
       read();
     } catch (error) {
-      return error instanceof ArchetypeRefusal && error.axis === axis;
+      return error instanceof AutoMovieArchetypeRefusal && error.axis === axis;
     }
     return false;
   }

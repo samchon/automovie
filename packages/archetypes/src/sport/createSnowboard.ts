@@ -2,11 +2,11 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /** Length, waist and binding spacing of the Burton Custom Camber 154, in metres. */
@@ -51,18 +51,25 @@ const FORM: Readonly<{
 export function createSnowboard(
   params: createSnowboard.IParams = {},
   seed?: number | string,
-): Archetype<createSnowboard.Affordance, "mass"> {
-  const draw: ArchetypeDrawSession<"mass"> = new ArchetypeDrawSession(
-    "snowboard",
-    { mass: "kg" },
-    seed,
-    params,
-  );
+): AutoMovieArchetype<createSnowboard.Affordance, "mass"> {
+  const draw: AutoMovieArchetypeDrawSession<"mass"> =
+    new AutoMovieArchetypeDrawSession(
+      "snowboard",
+      { mass: "kg" },
+      seed,
+      params,
+    );
   const { mass }: Record<"mass", number> = draw.dimensions({
-    mass: ArchetypeBand.of("kg", 2.8, 3.8, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      2.8,
+      3.8,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   });
-  const builder: ArchetypeBuilder<createSnowboard.Affordance, "mass"> =
-    new ArchetypeBuilder({
+  const builder: AutoMovieArchetypeBuilder<createSnowboard.Affordance, "mass"> =
+    new AutoMovieArchetypeBuilder({
       material: "composite",
       id: params.id,
       name: "snowboard",
@@ -96,7 +103,7 @@ export function createSnowboard(
   builder.affordance({
     id: "deck",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, d.thickness, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.thickness, 0)),
     extent: null,
     width: SIZE.waist,
     depth: (2 * SIZE.length) / 3,
@@ -117,7 +124,7 @@ export function createSnowboard(
     builder.affordance({
       id,
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, d.thickness + padHeight, z)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, d.thickness + padHeight, z)),
       extent: null,
       width: SIZE.waist,
       depth: padDepth,
@@ -130,7 +137,7 @@ export function createSnowboard(
     builder.affordance({
       id,
       kind: "socket",
-      frame: ArchetypeFrame.upright(v((sign * SIZE.waist) / 2, 0, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v((sign * SIZE.waist) / 2, 0, 0)),
       extent: null,
     });
   return builder.build(mass);

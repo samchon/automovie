@@ -34,6 +34,7 @@ import { fitJumpAbsorption } from "./fitJumpAbsorption";
 import { jumpAirborne } from "./jumpAirborne";
 import { jumpEndpoints } from "./jumpEndpoints";
 import { jumpFlight } from "./jumpFlight";
+import { jumpGroundMemo } from "./jumpGroundMemo";
 import { jumpGroundPosture } from "./jumpGroundPosture";
 import { jumpJoints } from "./jumpJoints";
 import { jumpLanding } from "./jumpLanding";
@@ -122,11 +123,6 @@ const TUCK_AHEAD: number = 0.1;
  * describe push-off in terms of the energy transferred to the centre of mass.
  * The [MIT Cheetah jump planner](https://dspace.mit.edu/entities/publication/8cfc87cf-d85a-466e-9471-66ca6923035d)
  * likewise prepares distinct approach and push-off phases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States entry continuation, the actual heel rule, ballistic COM, landing phases, units and provisional quantities; achieved endpoint preparation is delegated to its owner.
- * @evidence contracts/development/design.md#principled-representation One action law separates authored landing/apex/turn requests from body-dependent physical endpoints and the engine's flight rotation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the action name, interrupts, parameters, phase durations and planner; shared endpoint and posture assembly have one helper owner each.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Original targets, body ROM, contact windows and flight budgets remain intact; no body-specific case, timing epsilon or alternate accepted pose is introduced.
  */
 export namespace jump {
   /** The action's name. */
@@ -145,6 +141,15 @@ export namespace jump {
     ],
   };
 
+  /** The trunk, arms and hands a layup, a jump throw, a spike or a block takes while the jump carries the body by its root and legs; the jump's own trunk and momentum swing show only where no overlay claims them. */
+  export const yields: IAutoMovieMotionHumanActionLaw["yields"] = [
+    "trunk",
+    "leftArm",
+    "leftHand",
+    "rightArm",
+    "rightHand",
+  ];
+
   /** Push-off duration, seconds (provisional; take-off contact of a one-foot jump from walking). */
   export const PUSH: number = 0.3;
   /** Landing absorption duration, seconds (provisional). */
@@ -158,15 +163,7 @@ export namespace jump {
    * @param context The action's context.
    * @param supportFoot The optional planted foot named by a composing sport law.
    * @returns The plan.
-   * @throws {HumanRefusal} When no foot is planted to push off from, or the apex is not positive or does not clear a raised landing (jumpFlight), or the turned landing is incompatible.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the physical entry and refusal; helper documentation distinguishes the raw nominal root, achieved endpoints and independent whole-body flight turn.
-   * @evidence contracts/development/implementation.md#principled-implementation The same terminal heel/knee/toe producer supplies endpoint preparation and timed push. Its achieved canonical states supply both ballistic COM endpoints and root-frame free goals, replacing independently reconstructed takeoff geometry while retaining the existing minimum-jerk and sine flight paths.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read entry/support, prepare achieved endpoint values, solve COM flight, prepare the original timed push, then evaluate the three phases through their owners.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves original floor/prop targets, entry velocity/acceleration, ROM, contact windows and momentum acceptance. No nominal root is replaced by its lowered value inside the heel rule; no flight plant, radius projection or epsilon hides the phase seam. World COM and whole-body angular C1 at takeoff remain unproved.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two endpoint preparations add bounded canonical solves/FK per plan. Push/landing share one fixed joint prefix and lazily prepared cosine-law reach. At an unaltered bare ground read, one leg fit can serve both clearance and display after dependency checks. Each free query prepares its actual authored shape, reads mass-bearing FK and lends that canonical result through exact resolver admission.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw endpoints and achieved COM boundaries share; their two actual COM readings borrow one local exact FK source, while timed entry-rate curves remain independent. The unchanged body's joint prefix, arm separation and minimum-knee reach prepare once; new dimensions/knee require new preparation and every current root/plant/hip remains observed. Free-query COM/display share one checked canonical source without a time key. Parent FK/projector loans share only exact prerequisites/static ROM metadata through current solves.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/phase geometry, two endpoints, one bounded joint prefix/reach producer, prepared push/flight closures and fixed mass demand. The local paired-endpoint FK source ends with its preparation, leaving two COM vectors. Each free posture carries only its own checked preparation; optional FK/projector loans stay synchronous and never enter the plan, token/output evidence or previous-frame history. The lowering producer retains only fixed body/knee/scalar prerequisites.
+   * @throws {HumanRefusal} When no foot is planted to push off from, or the apex is not positive or does not clear a raised landing (jumpFlight), or the requested rotating landing is incompatible.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanJump.IParams>,
@@ -240,11 +237,19 @@ export namespace jump {
     const upright: IAutoMovieMotionHumanStandUpright.IAlignment =
       standUpright.of(body);
     const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
-    // Take-off and touchdown roots.
+    // Take-off and touchdown roots. The take-off foot rises about its toes'
+    // joint, which carries its ankle toward the toes, so the root leads the
+    // ball only by the share of `TAKEOFF_AHEAD` the jump's heading has along
+    // the foot's own: a jump backward or sideways takes off with the root
+    // over the ball, within the planted leg's reach.
+    const along: number = Math.max(
+      0,
+      Math.cos(((heading - supportHeading) * Math.PI) / 180),
+    );
     const rootT: IAutoMovieVector3 = HumanFrame.point(frame(ball), {
       x: 0,
       y: root0.y + TAKEOFF_RISE * l,
-      z: TAKEOFF_AHEAD * l,
+      z: TAKEOFF_AHEAD * l * along,
     });
     const landingHeading: number = jumpLandingHeading(context.params, heading);
     const headingChange: number = landingHeading - heading;
@@ -466,21 +471,26 @@ export namespace jump {
         read,
       );
     };
-    const rootA: IAutoMovieVector3 =
-      headingChange === 0
-        ? landed.absorbed
-        : fitJumpAbsorption(body, landed, land, absorb, (root, elapsed, read) =>
+    const rotation: IAutoMovieMotionHumanJump.IParams["rotation"] =
+      context.params.rotation;
+    const rotates: boolean =
+      (rotation?.somersault ?? 0) !== 0 || (rotation?.twist ?? 0) !== 0;
+    const absorption: fitJumpAbsorption.IPath =
+      rotates && rise === 0
+        ? fitJumpAbsorption(body, landed, land, absorb, (root, elapsed, read) =>
             landingAtRoot(root, touchdown + elapsed, read),
-          );
+          )
+        : { root: landed.absorbed, acceleration: 0 };
     const absorbRoot: ReturnType<typeof jumpPath.prepare> = jumpPath.prepare(
       rootL,
       land,
-      rootA,
+      absorption.root,
       { x: 0, y: 0, z: 0 },
       absorb,
+      { x: 0, y: absorption.acceleration, z: 0 },
     );
     const riseRoot: ReturnType<typeof jumpPath.prepare> = jumpPath.prepare(
-      rootA,
+      absorption.root,
       { x: 0, y: 0, z: 0 },
       rootS,
       { x: 0, y: 0, z: 0 },
@@ -498,7 +508,8 @@ export namespace jump {
     ): IAutoMovieMotionHumanPosture =>
       landingAtRoot(rootAt(seconds), seconds, read);
     const ground: prepareJumpPosture.IGround = {
-      before: (seconds, _channels, resolution) => {
+      // Each second's push posture is cleared once (`jumpGroundMemo`).
+      before: jumpGroundMemo((seconds, _channels, resolution) => {
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(resolution);
         return jumpGroundPosture(
@@ -507,8 +518,8 @@ export namespace jump {
           reaching,
           read,
         );
-      },
-      after: (seconds, _channels, resolution) => {
+      }),
+      after: jumpGroundMemo((seconds, _channels, resolution) => {
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(resolution);
         return jumpGroundPosture(
@@ -517,7 +528,7 @@ export namespace jump {
           "landing",
           read,
         );
-      },
+      }),
       sampleBefore: (seconds, _channels, resolution, projection) => {
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(resolution);
@@ -554,9 +565,9 @@ export namespace jump {
         launch,
         settled,
       },
-      context.params.rotation,
+      rotation,
       ground,
-      headingChange !== 0
+      rotates
         ? jumpTouchdownRotation(
             body,
             landed,

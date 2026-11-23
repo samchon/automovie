@@ -104,11 +104,11 @@ export namespace racket {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
       body.measure;
-    const hold: number = p.seconds ?? 0.6;
-    HumanBound.least("seconds", hold, 0, "s");
+    const hold: number = p.hold ?? 0.6;
+    HumanBound.least("hold", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const side: "left" | "right" = p.side ?? "right";
+    const side: "left" | "right" = p.hand ?? "right";
     const other: "left" | "right" = side === "right" ? "left" : "right";
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
@@ -169,6 +169,13 @@ export namespace racket {
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand),
         weight: into,
         span,
+        // The clock is the law's own and a slower tempo lengthens it, except
+        // a split step's, whose stroke start is fixed.
+        together: AutoMovieMotionHumanArm.together(
+          context.handover,
+          p.kind !== "splitStep",
+          context.tempo,
+        ),
         surface: "grip",
         shape: "fist",
         place: (posture: IAutoMovieMotionHumanPosture, s: number) => ({

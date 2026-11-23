@@ -3,6 +3,7 @@ import type {
   IAutoMovieDrawDescription,
   IAutoMovieDrawResult,
   IAutoMovieInspectionCamera,
+  IAutoMovieInspectionDiagnostics,
   IAutoMovieInspectionLabel,
   IAutoMovieInspectionLegendEntry,
   IAutoMovieInspectionRequest,
@@ -19,6 +20,7 @@ import { listAutoMovieInspectionPaths } from "../scene/inspection/listAutoMovieI
 import { markAutoMovieInspectionTrails } from "../scene/inspection/markAutoMovieInspectionTrails.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
 import { planAutoMovieInspectionTrailTimes } from "../scene/inspection/planAutoMovieInspectionTrailTimes.js";
+import { renderWithAutoMovieInspectionDiagnostics } from "../scene/inspection/renderWithAutoMovieInspectionDiagnostics.js";
 import { resolveAutoMovieInspectionView } from "../scene/inspection/resolveAutoMovieInspectionView.js";
 import { sampleAutoMovieInspectionTrails } from "../scene/inspection/sampleAutoMovieInspectionTrails.js";
 import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
@@ -30,13 +32,14 @@ import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import type { IAutoMovieDrawSubject } from "./IAutoMovieDrawSubject.js";
 import { describeAutoMovieDrawScene } from "./describeAutoMovieDrawScene.js";
 import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";
+import { observeAutoMoviePlacedInspection } from "./observeAutoMoviePlacedInspection.js";
 import { replaceAutoMovieDrawInspection } from "./replaceAutoMovieDrawInspection.js";
 import { selectAutoMovieDrawSubject } from "./selectAutoMovieDrawSubject.js";
 
 /**
  * Side of the block the beauty pass is drawn at and averaged down from, so its edges are antialiased by area: two, the supersampling the motion harness drew its stills at.
  */
-const SUPERSAMPLE: number = 2;
+const SUPERSAMPLE = 2 as const;
 
 /**
  * Install the draw-only function on a page: read the props the host injected, and answer `describe` and `draw` for the subject they name, drawing offscreen with no interface.
@@ -45,7 +48,7 @@ const SUPERSAMPLE: number = 2;
  *
  * 1. restores the previous inspection before placement, so a subject may replace its objects during a seek;
  * 2. for a fitted view, places and inspects each framing second and frames the union of what the current inspection leaves drawn, or its focus, measured once per view and selection;
- * 3. for each `trail` pattern of the request, samples the matched objects over `planAutoMovieInspectionTrailTimes` with `sampleAutoMovieInspectionTrails`, then seeks the call's second, awaits readiness and applies a fresh inspection to the resulting objects with their current marks and sampled trails; no seek occurs between this application and drawing;
+ * 3. for each `trail` pattern of the request, samples the matched objects over `planAutoMovieInspectionTrailTimes` with `sampleAutoMovieInspectionTrails`, then seeks the call's second and awaits readiness. When the subject supplies diagnostics, the draw observes the settled delivery scene before applying a fresh inspection to the resulting objects with their current marks and sampled trails; no seek occurs between this application and drawing;
  * 4. draws through the camera `resolveAutoMovieInspectionView` gives, at the call's raster, or for the `beauty` shade at twice each side with mark lines twice as wide;
  * 5. reads the drawn pixels back, flips them to rows from the top and averages a supersampled picture down, places the request's labels at the label scale, copies the inspection's legend of the marks drawn, and resolves every pattern of the request and view by `resolveAutoMovieCapturePatterns` against the scene's object paths and the selected mark paths, so the record names what each matched.
  *
@@ -56,14 +59,6 @@ const SUPERSAMPLE: number = 2;
  * import { subjects } from "./subjects";
  * installAutoMovieDraw(subjects);
  * ```
- *
- * @evidence contracts/development/common.md#meaningful-documentation States who calls it, when the subject and renderer are made, every step of a draw in order, why the canvas is read instead of a render target, and the supersampling rule.
- * @evidence contracts/development/implementation.md#principled-implementation WebGL's `readPixels` on the default framebuffer, read before the task ends, returns what the page shows; the inspection, the view grammar and the camera resolution are the inspection core's, so a still and the page draw the same scene through the same code. Framing on all the run's seconds keeps one camera per view, as `.agents/skills/visual-debugging/capture.md` asks for a view a later round compares.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loader owns the subject/renderer, one placer seeks and gathers marks/trails, one inspection lifecycle restores before placement and binds current objects, and one bounds cache is keyed by view/selection/trails. Describing, pixel encoding and pattern resolution retain their owners.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A subject that is not ready is awaited, never drawn half placed; a view or request the inspection refuses throws to the host, which records the cell as not drawn.
- * @evidence contracts/development/implementation.md#efficient-algorithms A draw places the actual second and applies inspection to its current objects, then renders and reads back linearly in pixels. A new fitted view additionally places and inspects each framing second; trails add their requested samples. Each necessary inspection includes its mesh/triangle measurements rather than silently measuring removed objects.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The subject, renderer and framing boxes keyed by view/selection/seconds are shared across draws. Inspection handles are recreated after placement because seek may replace geometry; unchanged request text proves no object identity or measurement equivalence.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The page holds one subject, one renderer, one applied inspection and one box per framed view for its life; leaving the page restores the inspection and disposes the subject and renderer.
  */
 export function installAutoMovieDraw(
   subjects: AutoMovieDrawSubjects,
@@ -102,10 +97,12 @@ export function installAutoMovieDraw(
     loaded: ILoaded,
     request: IAutoMovieInspectionRequest,
     seconds: number,
+    onPlaced?: () => void,
   ) => Promise<IAutoMovieMark[]> = async (
     loaded: ILoaded,
     request: IAutoMovieInspectionRequest,
     seconds: number,
+    onPlaced?: () => void,
   ): Promise<IAutoMovieMark[]> => {
     const { scene } = loaded;
     const trails: IAutoMovieInspectionTrail[] = [];
@@ -126,6 +123,7 @@ export function installAutoMovieDraw(
         );
     }
     await scene.seek(seconds);
+    onPlaced?.();
     return [
       ...(scene.marks?.(seconds) ?? []),
       ...markAutoMovieInspectionTrails(trails, seconds),
@@ -138,10 +136,12 @@ export function installAutoMovieDraw(
     loaded: ILoaded,
     request: IAutoMovieInspectionRequest,
     seconds: number,
+    onPlaced?: () => void,
   ) => Promise<IAutoMovieInspectionHandle> = async (
     loaded: ILoaded,
     request: IAutoMovieInspectionRequest,
     seconds: number,
+    onPlaced?: () => void,
   ): Promise<IAutoMovieInspectionHandle> => {
     const previous: IAutoMovieInspectionHandle | null = applied?.handle ?? null;
     applied = null;
@@ -152,7 +152,8 @@ export function installAutoMovieDraw(
         request,
         renderer: loaded.renderer,
         markKinds: loaded.scene.markKinds,
-        place: (): Promise<IAutoMovieMark[]> => place(loaded, request, seconds),
+        place: (): Promise<IAutoMovieMark[]> =>
+          place(loaded, request, seconds, onPlaced),
       });
     applied = { handle };
     return handle;
@@ -231,10 +232,20 @@ export function installAutoMovieDraw(
           : null;
 
       // 3. The second itself, once the subject is ready.
+      let diagnostics: IAutoMovieInspectionDiagnostics | undefined;
+      const delivery: boolean = call.inspectionDiagnostics === "delivery";
       const handle: IAutoMovieInspectionHandle = await inspect(
         loaded,
         { ...call.request, stroke: call.request.stroke * factor },
         call.seconds,
+        (): void => {
+          diagnostics = observeAutoMoviePlacedInspection(
+            scene,
+            call.seconds,
+            delivery ? "delivery" : "capture",
+            { renderer, factor: SUPERSAMPLE },
+          );
+        },
       );
 
       // 4. Draw through the resolved camera at the drawn raster.
@@ -259,7 +270,18 @@ export function installAutoMovieDraw(
       });
       renderer.setSize(width, height, false);
       handle.resize(width, height);
-      renderer.render(scene.scene, resolved.camera);
+      const diagnosticLegend: readonly IAutoMovieInspectionLegendEntry[] =
+        renderWithAutoMovieInspectionDiagnostics({
+          scene: scene.scene,
+          diagnostics:
+            delivery || call.request.shade !== "beauty"
+              ? undefined
+              : diagnostics,
+          render: (): void => renderer.render(scene.scene, resolved.camera),
+          width,
+          height,
+          stroke: call.request.stroke * factor,
+        });
 
       // 5. Read back before the task ends, then the labels at the output raster.
       const context: WebGLRenderingContext | WebGL2RenderingContext =
@@ -293,11 +315,15 @@ export function installAutoMovieDraw(
             y: label.y,
           }),
         ),
-        legend: handle.legend.map(
-          (
-            entry: IAutoMovieInspectionLegendEntry,
-          ): IAutoMovieInspectionLegendEntry => ({ ...entry }),
-        ),
+        legend: [
+          ...handle.legend.map(
+            (
+              entry: IAutoMovieInspectionLegendEntry,
+            ): IAutoMovieInspectionLegendEntry => ({ ...entry }),
+          ),
+          ...diagnosticLegend,
+        ],
+        ...(diagnostics === undefined ? {} : { diagnostics }),
         camera: resolved.record,
         resolved: resolveAutoMovieCapturePatterns({
           paths: [

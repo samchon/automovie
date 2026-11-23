@@ -1,9 +1,9 @@
 import {
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeRefusal,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeRefusal,
+  type IAutoMovieArchetypeBand,
   createSki,
 } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
@@ -13,16 +13,16 @@ import { TestValidator } from "@nestia/e2e";
 type Dimension = "length" | "width" | "mass";
 
 /** The made-up dimensions' units. */
-const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+const UNITS: Readonly<Record<Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
   length: "m",
   width: "m",
   mass: "kg",
 };
 
 /** Made-up bands for the drawn dimensions. */
-const BANDS: Readonly<Record<"width" | "mass", IArchetypeBand>> = {
-  width: ArchetypeBand.metres(0.1, 0.2, "made up"),
-  mass: ArchetypeBand.of("kg", 1, 2, "made up"),
+const BANDS: Readonly<Record<"width" | "mass", IAutoMovieArchetypeBand>> = {
+  width: AutoMovieArchetypeBand.metres(0.1, 0.2, "made up"),
+  mass: AutoMovieArchetypeBand.of("kg", 1, 2, "made up"),
 };
 
 /** Made-up sizes, each with its length. */
@@ -53,15 +53,18 @@ export function test_archetype_draw_session(): void {
 
   // 1. Drawn values with their bands.
   for (let seed: number = 0; seed < 50; seed++) {
-    const draw: ArchetypeDrawSession<Dimension> =
-      new ArchetypeDrawSession<Dimension>("thing", UNITS, seed);
+    const draw: AutoMovieArchetypeDrawSession<Dimension> =
+      new AutoMovieArchetypeDrawSession<Dimension>("thing", UNITS, seed);
     const drawn: Record<"width" | "mass", number> = draw.dimensions(BANDS);
     const again: Record<"width" | "mass", number> =
-      new ArchetypeDrawSession<Dimension>("thing", UNITS, seed).dimensions(
-        BANDS,
-      );
+      new AutoMovieArchetypeDrawSession<Dimension>(
+        "thing",
+        UNITS,
+        seed,
+      ).dimensions(BANDS);
     for (const name of ["width", "mass"] as const) {
-      const band: IArchetypeBand | undefined = draw.provenance.bands[name];
+      const band: IAutoMovieArchetypeBand | undefined =
+        draw.provenance.bands[name];
       if (band !== BANDS[name])
         findings.push(`seed ${seed}: ${name} is not recorded with its band`);
       if (draw.values[name] !== drawn[name] || again[name] !== drawn[name])
@@ -79,11 +82,13 @@ export function test_archetype_draw_session(): void {
   }
 
   // 2. A picked model's figures and name.
-  const draw: ArchetypeDrawSession<Dimension> =
-    new ArchetypeDrawSession<Dimension>("thing", UNITS, 3);
+  const draw: AutoMovieArchetypeDrawSession<Dimension> =
+    new AutoMovieArchetypeDrawSession<Dimension>("thing", UNITS, 3);
   draw.dimensions(BANDS);
-  const size: ArchetypeDrawSession.IModel<"short" | "long", Dimension> =
-    draw.model<"short" | "long">("size", undefined, SIZES);
+  const size: AutoMovieArchetypeDrawSession.IModel<
+    "short" | "long",
+    Dimension
+  > = draw.model<"short" | "long">("size", undefined, SIZES);
   draw.model("finish", undefined, {});
   if (
     size.name === undefined ||
@@ -99,26 +104,27 @@ export function test_archetype_draw_session(): void {
   if (Object.hasOwn(draw.provenance.models, "finish"))
     findings.push("an axis without models recorded a pick");
   try {
-    new ArchetypeDrawSession<Dimension>("thing", UNITS, 3).dimensions({
-      width: ArchetypeBand.of("kg", 1, 2, "made up"),
+    new AutoMovieArchetypeDrawSession<Dimension>("thing", UNITS, 3).dimensions({
+      width: AutoMovieArchetypeBand.of("kg", 1, 2, "made up"),
     });
     findings.push("a band in another unit than its dimension's was drawn");
   } catch (error) {
-    if (error instanceof ArchetypeRefusal || !(error instanceof Error))
+    if (error instanceof AutoMovieArchetypeRefusal || !(error instanceof Error))
       findings.push(
         "a band in another unit was not thrown as a producer's defect",
       );
   }
 
   // 3. The archetype carries the record, posed or not.
-  const built: ReturnType<ArchetypeBuilder<"top", Dimension>["build"]> =
-    new ArchetypeBuilder<"top", Dimension>({
-      material: "steel",
-      name: "thing",
-      draw,
-    })
-      .box("block", Vector3.create(0.1, 0.1, 0.1), Vector3.create(0, 0.05, 0))
-      .build(1);
+  const built: ReturnType<
+    AutoMovieArchetypeBuilder<"top", Dimension>["build"]
+  > = new AutoMovieArchetypeBuilder<"top", Dimension>({
+    material: "steel",
+    name: "thing",
+    draw,
+  })
+    .box("block", Vector3.create(0.1, 0.1, 0.1), Vector3.create(0, 0.05, 0))
+    .build(1);
   if (
     JSON.stringify(built.dimensions) !== JSON.stringify(draw.values) ||
     JSON.stringify(built.provenance) !== JSON.stringify(draw.provenance)

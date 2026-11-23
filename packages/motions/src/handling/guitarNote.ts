@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -16,6 +16,7 @@ import type {
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
@@ -341,6 +342,5 @@ function reject(
 
 /** Minimum-jerk progress between two ordered instants, clamped at the ends. */
 function ease(seconds: number, from: number, to: number): number {
-  return minimumJerk(Math.max(0, Math.min(1, (seconds - from) / (to - from))))
-    .s;
+  return AutoMovieMotionInterval.progress(from, to, seconds);
 }

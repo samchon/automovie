@@ -33,7 +33,7 @@ import { walkReach } from "./walkReach";
  * @returns A clamped action-second reader; omitted leg/channel demand writes the complete posture.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States fixed body preparation, arm units, action time and the optional leg demand.
- * @evidence contracts/development/implementation.md#principled-implementation The gait's sinusoidal pelvic turn with the chest's counter-rotation (`CHEST`), its arm angles, an upright-relative lumbopelvic inclination and footprint-heading knee hints, then the trunk pivoted about the hips.
+ * @evidence contracts/development/implementation.md#principled-implementation The gait's sinusoidal pelvic turn with the chest's counter-rotation (`CHEST`), its arm angles held out by the standing clearance plus the pelvis's tilt (`PELVIS`), an upright-relative lumbopelvic inclination and footprint-heading knee hints, then the trunk pivoted about the hips.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Lower-leg rest points precede one posture reader; standing alignment and relaxed arm preparation start only on their first demand, while foot reach stays with the supplied solve owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every angle comes from the gait record or a named constant; unread leg goals are omitted only under explicit channel demand.
  * @evidence contracts/development/implementation.md#efficient-algorithms The supplied solve computes only requested swinging feet, with at most two leg goals; root/trunk/leg-only reads skip relaxed-arm clearance preparation and arm tuples, while hand-only reads take HumanHand's relaxed shape directly.
@@ -85,11 +85,20 @@ export function walkPosture(
       chest: [inclined.joints.chest?.[0] ?? 0, 0, -walkPosture.CHEST * swing],
     };
     if (swinging) {
-      const held: number = abduction ??= stand.abduction(body) + elbows;
+      // The arms hang their standing clearance out from the body plus the
+      // pelvis's tilt: the trunk tilts with the pelvis while the planted feet
+      // hold the legs, so a stance thigh swings out toward the hanging hand by
+      // up to that angle about its hip. The tilt, the authored abduction and
+      // the gait's elbow come in and go with the gait, so a walk leaves and
+      // joins the relaxed standing arms.
+      const rest: number = abduction ??= stand.abduction(body);
+      const bent: number = (relaxed ??= stand.relaxed(body)).leftLowerArm![0];
+      const held: number = rest + (walkPosture.PELVIS + elbows) * amount;
+      const elbow: number = bent + (gait.arms.elbow - bent) * amount;
       joints.leftUpperArm = [-gait.arms.shoulder * arms * swing, held, 0];
       joints.rightUpperArm = [gait.arms.shoulder * arms * swing, held, 0];
-      joints.leftLowerArm = [gait.arms.elbow - gait.arms.swing * arms * swing, 0, 0];
-      joints.rightLowerArm = [gait.arms.elbow + gait.arms.swing * arms * swing, 0, 0];
+      joints.leftLowerArm = [elbow - gait.arms.swing * arms * swing, 0, 0];
+      joints.rightLowerArm = [elbow + gait.arms.swing * arms * swing, 0, 0];
     } else {
       for (const side of walkReach.SIDES)
         if (channels?.includes(`${side}Hand`))

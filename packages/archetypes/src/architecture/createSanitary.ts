@@ -1,68 +1,43 @@
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  type IAutoMovieArchetypeBand,
 } from "../core";
+import { FixtureDraw } from "./FixtureDraw";
 import { SANITARY_BANDS } from "./SANITARY_BANDS";
 import { SanitaryConstruction } from "./SanitaryConstruction";
+import { createBathtub } from "./createBathtub";
+import { createShower } from "./createShower";
+import { createToilet } from "./createToilet";
+import { createWashbasin } from "./createWashbasin";
 
 /**
- * A sanitary fixture: a washbasin with its mixer, a toilet, a bath or a transfer shower.
+ * Read a saved sanitary recipe and call the corresponding fixed producer.
  *
- * Each stands on the floor with its back against the wall at the origin's `Z`, centred on `X`, and is approached from `+Z`; a wall-hung basin stands on a pedestal so the model rests on the floor.
+ * @param params The saved kind and its recorded model, dimensions or identifier.
+ * @param seed The seed used by the selected producer under the original draw key.
+ * @returns The selected fixture in its original frame.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a rejected model or dimension.
  *
- * - A washbasin's `rim` is the front edge of its top, a ledge a body leans on; `bowl` the basin's opening, a surface the hands wash over; `tap` its mixer's lever turned about its body, a knob, `lift` the same lever lifted, a hinge riding `tap`, and `spout` the mixer's mouth, facing down.
- * - A toilet's `seat` is the seat's front edge, the sitter facing `+Z`; `lid` the lid's hinge, the lid standing open against the tank at rest and lowered onto the seat by its travel.
- * - A bath's `rim` is the apron's top edge, a ledge sat on or stepped over; `bottom` the floor of the well, a surface lain on. Its controls are on the room's end wall (ADA 607.5), which is not the bath's: a production places a `createTap` or `createSwitch` there.
- * - A transfer shower is a one-piece stall open at the front: `tray` its floor, `threshold` the front edge stepped over, `entry` the opening, `seat` the folding seat on the `+X` wall facing `-X`, and `control` the valve on the `-X` wall, a knob.
- *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
- * @returns The fixture.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands and what each contact is, and where a bath's controls belong.
- * @evidence contracts/development/implementation.md#principled-implementation Draws the kind's cited bands and hands them to the kind's construction in `SanitaryConstruction`, which places boxes and rods from them; every height a person meets is the ADA clause's or the maker's sheet.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the kind, draw the dimensions, build the kind, state the mass.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No basin is hollowed and no curve is modelled; the construction sizes no source gives are the named estimates `createSanitary.ESTIMATES`, which place no contact.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most eight parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the saved recipe and draw namespace.
+ * @evidence contracts/development/implementation.md#principled-implementation Resolve the old kind, then let its canonical producer admit the original inputs.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One kind check and one dispatch.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass all arguments to the named producer so saved invalid inputs still raise their refusal.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The kind table is bounded.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Both entry points run the exact same producer.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The dispatcher keeps no inputs or intermediate state.
  */
 export function createSanitary(
   params: createSanitary.IParams,
   seed?: number | string,
-): Archetype<createSanitary.Affordance, createSanitary.Dimension> {
-  const draw: ArchetypeDrawSession<createSanitary.Dimension> =
-    new ArchetypeDrawSession<createSanitary.Dimension>(
-      "sanitary",
-      createSanitary.UNITS,
-      seed,
-      params,
-    );
+): AutoMovieArchetype<createSanitary.Affordance, createSanitary.Dimension> {
   const kind: createSanitary.Kind = ArchetypeDraw.choice(
     "sanitary",
     "kind",
     params.kind,
     createSanitary.KINDS,
   );
-  const d: Partial<Record<createSanitary.Dimension, number>> = draw.dimensions(
-    createSanitary.BANDS[kind],
-    createSanitary.BANDS,
-  );
-  const builder: ArchetypeBuilder<
-    createSanitary.Affordance,
-    createSanitary.Dimension
-  > = new ArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw,
-  });
-  SanitaryConstruction[kind](builder, d);
-  return builder.build(d.mass!);
+  return createSanitary.PRODUCERS[kind](params, seed);
 }
 
 /**
@@ -70,7 +45,7 @@ export function createSanitary(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and estimate states what it is.
  * @evidence contracts/development/design.md#principled-representation Closed unions of kinds, contacts and dimensions, and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The heights and contacts the washing, sitting, lying and stepping acts read (#3468 F2: `handToFace` washFace, `sit` on a toilet, `lieDown` in a bath).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Retains the original recipe shape, measurement tables, and the stable producer for each saved kind.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A toilet's lid is an articulation with its part, never a flag; the estimates are named, not hidden in the construction.
  */
 export namespace createSanitary {
@@ -90,7 +65,7 @@ export namespace createSanitary {
    *
    * - washbasin: `rim` (ledge, the top's front edge), `bowl` (surface over the basin), `tap` (knob, the mixer's lever turned), `lift` (hinge, the lever lifted, riding `tap`), `spout` (socket, the mixer's mouth facing down);
    * - toilet: `seat` (seat, facing `+Z`), `lid` (hinge, lowering the lid from open);
-   * - bathtub: `rim` (ledge, the apron's top edge), `bottom` (surface, the well's floor);
+   * - bathtub: `rim` (ledge, the apron's top edge), `edge` (ledge, the same edge a step over clears), `top` (surface, the apron's top face), `bottom` (surface, the well's floor), `seat` (seat, on the well's floor against its `-X` end, facing `+X`), `backrest` (surface, that end wall's inner face up to the rim);
    * - shower: `tray` (surface, the floor), `threshold` (ledge, the front edge), `entry` (aperture, the opening, its `+Z` into the stall), `seat` (seat, facing `-X`), `control` (knob, the valve).
    */
   export type Affordance =
@@ -105,7 +80,10 @@ export namespace createSanitary {
     | "tray"
     | "threshold"
     | "entry"
-    | "control";
+    | "control"
+    | "backrest"
+    | "edge"
+    | "top";
 
   /**
    * The free dimensions, metres unless stated:
@@ -149,31 +127,7 @@ export namespace createSanitary {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
-    rim: "m",
-    basinDepth: "m",
-    width: "m",
-    depth: "m",
-    length: "m",
-    bowlWidth: "m",
-    bowlDepth: "m",
-    tapHeight: "m",
-    tapReach: "m",
-    tapOutlet: "m",
-    seat: "m",
-    seatDepth: "m",
-    tankWidth: "m",
-    tankDepth: "m",
-    tankTop: "m",
-    wellLength: "m",
-    wellWidth: "m",
-    waterDepth: "m",
-    interior: "m",
-    wallHeight: "m",
-    threshold: "m",
-    control: "m",
-    mass: "kg",
-  };
+  export const UNITS: typeof FixtureDraw.sanitary = FixtureDraw.sanitary;
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -193,14 +147,16 @@ export namespace createSanitary {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = SANITARY_BANDS;
-}
 
-/** Each kind's readable name. */
-const NAMES: Readonly<Record<createSanitary.Kind, string>> = {
-  washbasin: "washbasin",
-  toilet: "toilet",
-  bathtub: "bath",
-  shower: "transfer shower",
-};
+  /** The fixed producer of each saved kind. */
+  export const PRODUCERS = {
+    washbasin: createWashbasin,
+    toilet: createToilet,
+    bathtub: createBathtub,
+    shower: createShower,
+  } as const satisfies Readonly<
+    Record<Kind, (...args: never[]) => AutoMovieArchetype>
+  >;
+}

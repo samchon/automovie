@@ -1,3 +1,4 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 
@@ -24,37 +25,25 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  *
  * Supply speed to meet the ball at the stroke's film instant and launch it
  * with the authored velocity. The support foot remains planted.
- *
- * @evidence contracts/development/common.md#meaningful-documentation foot: The kicking foot; `right` when absent. toward: Where the ball is kicked toward; along the heading when absent.
- * @evidence contracts/development/design.md#principled-representation foot: The kicking foot; `right` when absent. toward: Where the ball is kicked toward; along the heading when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ballStrike/kickBall.ts (kickBall.plan, context); chain/HumanChainMutual.ts (HumanChainMutual.kickBall, params); executable/cases/ballStrikeCases.ts (ballStrikeCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanKickBall {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
-   * @evidence contracts/development/design.md#principled-representation The ball, the kicking foot and the direction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The planner reads the two release components only for an explicitly launched ball.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The ball is the scene's prop; its size is its own.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The ball's prop subject: its `grip` contact is its centre and that grip's aperture its diameter (`createBall`'s contacts). */
     ball: string;
 
     /** The kicking foot; `right` when absent. */
-    foot?: "left" | "right";
+    foot?: AutoMovieHumanSide;
 
     /** Where the ball is kicked toward; along the heading when absent. */
-    toward?: IAutoMovieMotionTarget;
+    target?: IAutoMovieMotionTarget;
 
-    /** Horizontal launch speed in m/s. Omit for a contact-only kick. */
+    /** Horizontal launch speed of the ball, m/s, authored and never derived from the leg. Omit for a contact-only kick: the foot meets the ball and the ball is not launched. The foot meets the ball at the stroke's film instant, 0.45 s after the start (the backswing 0.35 s and the swing 0.1 s; the follow-through 0.15 s and the return 0.45 s end the kick at 1.05 s; all provisional, scaled by the manner's tempo). */
     speed?: number;
 
-    /** Upward launch speed in m/s. With a launch, defaults to a small positive departure. */
+    /** Upward launch speed of the ball, m/s; 0.3 m/s when absent, a ground ball, and read only with `speed`. A chip or a lofted kick takes a larger value. */
     lift?: number;
 
     /** How it is performed. */

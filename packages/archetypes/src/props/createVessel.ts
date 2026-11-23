@@ -1,15 +1,15 @@
-import { Vector3 } from "@automovie/engine";
-
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
+import { createAshtray } from "./createAshtray";
+import { createBowl } from "./createBowl";
+import { createCookingPot } from "./createCookingPot";
+import { createVase } from "./createVase";
 
 /** IKEA's saucepan, read. */
 const SAUCEPAN: string =
@@ -26,200 +26,42 @@ const VASE: string =
 /** What no source read gives. */
 const UNREAD: string = "the IKEA pages read give no weight of the pan alone";
 
+/** A saved recipe's producer as the dispatcher calls it. */
+type Producer = (
+  params: createVessel.IParams,
+  seed?: number | string,
+) => AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension>;
+
 /**
- * An open vessel that holds food, ash or flowers: a bowl, an ashtray, a saucepan, a stockpot or a vase.
+ * Replay a saved vessel variant with the original dimensions, identifier and model choices.
  *
- * It stands on its base centred over the origin, open upward, a saucepan's long handle out along `+X` and a stockpot's two side handles along `X`. `rim` is the top of the rim, facing up, as wide as the vessel; `inside` the floor inside, facing up, where a spoon stirs, a cigarette is stubbed or food lies; a bowl and an ashtray are held by `body`, from beneath, a vase by `body` round its middle; a saucepan by its `handle`, a stockpot by `leftHandle` and `rightHandle`.
+ * @param params The historic selector and optional fixed settings in the original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @returns The original generated model and its local contacts.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
- * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
- * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
- * @returns The vessel.
- * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the vessel stands, its open side, and which contact each kind declares.
- * @evidence contracts/development/implementation.md#principled-implementation A floor disc and four wall boxes round it to the drawn height and diameter, then the kind's handles: one rod out along `+X`, or two loops on either side.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the floor and the walls, the rim and the inside, then the kind's hold.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The walls are four flat boxes round a disc, not a turned shell; the wall's thickness and the handles' sizes are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most seven parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Replay a saved vessel variant with the original dimensions, identifier and model choices.
+ * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the vessel draw namespace.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createVessel(
   params: createVessel.IParams,
   seed?: number | string,
-): Archetype<createVessel.Affordance, createVessel.Dimension> {
-  const draw: ArchetypeDrawSession<createVessel.Dimension> =
-    new ArchetypeDrawSession<createVessel.Dimension>(
-      "vessel",
-      createVessel.UNITS,
-      seed,
-      params,
-    );
+): AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension> {
   const kind: createVessel.Kind = ArchetypeDraw.choice(
     "vessel",
     "kind",
     params.kind,
     createVessel.KINDS,
   );
-  const drawn: Partial<Record<createVessel.Dimension, number>> =
-    draw.dimensions(createVessel.BANDS[kind]);
-  // A bowl or an ashtray is one of the read models whole.
-  const model: {
-    name: createVessel.Model | undefined;
-    figures: createVessel.Figures;
-  } = draw.model<createVessel.Model>(
-    "model",
-    params.model,
-    createVessel.MODELS[kind],
-  );
-  const read: Partial<Record<createVessel.Dimension, number>> = {
-    ...drawn,
-    ...model.figures,
-  };
-  const d: Record<createVessel.Dimension, number> = {
-    diameter: read.diameter!,
-    height: read.height!,
-    mass: read.mass!,
-  };
-  const builder: ArchetypeBuilder<
-    createVessel.Affordance,
-    createVessel.Dimension
-  > = new ArchetypeBuilder({
-    material:
-      kind === "bowl"
-        ? "ceramic"
-        : kind === "ashtray" || kind === "vase"
-          ? "glass"
-          : "steel",
-    id: params.id,
-    name: kind,
-    draw,
-  });
-  const v: typeof Vector3.create = Vector3.create;
-  const wall: number = createVessel.WALL;
-  const r: number = d.diameter / 2;
-  const color: string = createVessel.COLORS[kind];
-  builder.rod("floor", r, v(0, 0, 0), v(0, wall, 0), { color });
-  for (const [id, size, at] of [
-    [
-      "wallFront",
-      v(d.diameter, d.height - wall, wall),
-      v(0, (d.height + wall) / 2, r - wall / 2),
-    ],
-    [
-      "wallBack",
-      v(d.diameter, d.height - wall, wall),
-      v(0, (d.height + wall) / 2, -r + wall / 2),
-    ],
-    [
-      "wallLeft",
-      v(wall, d.height - wall, d.diameter - 2 * wall),
-      v(r - wall / 2, (d.height + wall) / 2, 0),
-    ],
-    [
-      "wallRight",
-      v(wall, d.height - wall, d.diameter - 2 * wall),
-      v(-r + wall / 2, (d.height + wall) / 2, 0),
-    ],
-  ] as const)
-    builder.box(id, size, at, { color });
-  builder.affordance({
-    id: "rim",
-    kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, d.height, 0)),
-    extent: null,
-    width: d.diameter,
-    depth: d.diameter,
-  });
-  builder.affordance({
-    id: "inside",
-    kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, wall, 0)),
-    extent: null,
-    width: d.diameter - 2 * wall,
-    depth: d.diameter - 2 * wall,
-  });
-  const grip: number = createVessel.GRIP;
-  if (kind === "saucepan") {
-    const length: number = createVessel.HANDLE;
-    builder.rod(
-      "handle",
-      grip / 2,
-      v(r, d.height - grip, 0),
-      v(r + length, d.height - grip, 0),
-      {
-        color: "#2c2f33",
-      },
-    );
-    builder.affordance({
-      id: "handle",
-      kind: "handle",
-      symmetry: "none",
-      frame: ArchetypeFrame.facing(
-        v(r + length / 2, d.height - grip, 0),
-        v(0, 1, 0),
-        v(1, 0, 0),
-      ),
-      extent: null,
-      grip: "power",
-      aperture: grip,
-      length,
-    });
-  } else if (kind === "stockpot") {
-    for (const [id, sign] of [
-      ["leftHandle", 1],
-      ["rightHandle", -1],
-    ] as const) {
-      const x: number = sign * (r + 0.03);
-      builder.rod(
-        id,
-        grip / 2,
-        v(x, d.height - grip, -0.05),
-        v(x, d.height - grip, 0.05),
-        {
-          color: "#2c2f33",
-        },
-      );
-      builder.affordance({
-        id,
-        kind: "handle",
-        symmetry: "none",
-        frame: ArchetypeFrame.facing(
-          v(x, d.height - grip, 0),
-          v(0, 1, 0),
-          v(0, 0, 1),
-        ),
-        extent: null,
-        grip: "hook",
-        aperture: grip,
-        length: 0.1,
-      });
-    }
-  } else if (kind === "vase")
-    builder.affordance({
-      id: "body",
-      kind: "handle",
-      symmetry: "round",
-      frame: ArchetypeFrame.facing(
-        v(0, d.height / 2, 0),
-        v(-1, 0, 0),
-        v(0, 1, 0),
-      ),
-      extent: null,
-      grip: "power",
-      aperture: d.diameter,
-    });
-  else
-    builder.affordance({
-      id: "body",
-      kind: "handle",
-      symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, wall / 2, 0), v(0, -1, 0), v(1, 0, 0)),
-      extent: null,
-      grip: kind === "bowl" ? "two-hand" : "precision",
-      aperture: wall,
-    });
-  return builder.build(d.mass);
+
+  // Saved inputs are a wider record. The selected producer checks them with its own draw.
+  const produce: Producer = createVessel.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
 
 /**
@@ -231,6 +73,43 @@ export function createVessel(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read, never a size between two models; the IKEA bowl's and a pan's weight alone is not given, so that model's mass and those bands are provisional; the wall's and the handles' sizes are named estimates.
  */
 export namespace createVessel {
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `bowl` selector. */
+    bowl: typeof createBowl;
+
+    /** The named producer for the saved `ashtray` selector. */
+    ashtray: typeof createAshtray;
+
+    /** The named producer for the saved `saucepan` selector. */
+    saucepan: typeof createCookingPot;
+
+    /** The named producer for the saved `stockpot` selector. */
+    stockpot: typeof createCookingPot;
+
+    /** The named producer for the saved `vase` selector. */
+    vase: typeof createVase;
+  }
+
+  /** Resolve the exact named producer for a saved selector on demand. */
+  export const PRODUCERS: Readonly<IProducers> = {
+    get bowl(): typeof createBowl {
+      return createBowl;
+    },
+    get ashtray(): typeof createAshtray {
+      return createAshtray;
+    },
+    get saucepan(): typeof createCookingPot {
+      return createCookingPot;
+    },
+    get stockpot(): typeof createCookingPot {
+      return createCookingPot;
+    },
+    get vase(): typeof createVase {
+      return createVase;
+    },
+  };
+
   /** The kinds. */
   export type Kind = "bowl" | "ashtray" | "saucepan" | "stockpot" | "vase";
 
@@ -288,7 +167,9 @@ export namespace createVessel {
   export type Dimension = "diameter" | "height" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     height: "m",
     mass: "kg",
@@ -338,32 +219,32 @@ export namespace createVessel {
 
   /** The band of each free dimension, by kind; a bowl's and an ashtray's are its model's. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     bowl: {},
     ashtray: {},
     saucepan: {
-      diameter: ArchetypeBand.metres(0.17, 0.17, SAUCEPAN),
-      height: ArchetypeBand.metres(0.1, 0.1, SAUCEPAN),
-      mass: ArchetypeBand.of("kg", 0.8, 1.4, UNREAD, true),
+      diameter: AutoMovieArchetypeBand.metres(0.17, 0.17, SAUCEPAN),
+      height: AutoMovieArchetypeBand.metres(0.1, 0.1, SAUCEPAN),
+      mass: AutoMovieArchetypeBand.of("kg", 0.8, 1.4, UNREAD, true),
     },
     stockpot: {
-      diameter: ArchetypeBand.metres(
-        9 * ArchetypeUnits.INCH,
-        9 * ArchetypeUnits.INCH,
+      diameter: AutoMovieArchetypeBand.metres(
+        9 * AutoMovieArchetypeUnits.INCH,
+        9 * AutoMovieArchetypeUnits.INCH,
         POT,
       ),
-      height: ArchetypeBand.metres(
-        6 * ArchetypeUnits.INCH,
-        6 * ArchetypeUnits.INCH,
+      height: AutoMovieArchetypeBand.metres(
+        6 * AutoMovieArchetypeUnits.INCH,
+        6 * AutoMovieArchetypeUnits.INCH,
         POT,
       ),
-      mass: ArchetypeBand.of("kg", 1.8, 3, UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 1.8, 3, UNREAD, true),
     },
     vase: {
-      diameter: ArchetypeBand.metres(0.115, 0.16, VASE, true),
-      height: ArchetypeBand.metres(0.3, 0.3, VASE),
-      mass: ArchetypeBand.of(
+      diameter: AutoMovieArchetypeBand.metres(0.115, 0.16, VASE, true),
+      height: AutoMovieArchetypeBand.metres(0.3, 0.3, VASE),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         1.35,
         1.35,

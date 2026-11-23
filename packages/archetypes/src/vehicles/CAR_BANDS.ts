@@ -1,4 +1,8 @@
-import { ArchetypeUnits, ArchetypeBand, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import { CAR_MODELS } from "./CAR_MODELS";
 import type { createCar } from "./createCar";
 
@@ -8,8 +12,8 @@ const deg = (
   maximum: number,
   source: string,
   provisional?: boolean,
-): IArchetypeBand =>
-  ArchetypeBand.of("degrees", minimum, maximum, source, provisional);
+): IAutoMovieArchetypeBand =>
+  AutoMovieArchetypeBand.of("degrees", minimum, maximum, source, provisional);
 
 /** Two hatchbacks read at their maker's specification pages. */
 const HATCH: string =
@@ -39,10 +43,10 @@ const SHARED: Readonly<
     | "pedalTravel"
     | "bonnetSwing"
     | "recline",
-    IArchetypeBand
+    IAutoMovieArchetypeBand
   >
 > = {
-  steeringDiameter: ArchetypeBand.metres(
+  steeringDiameter: AutoMovieArchetypeBand.metres(
     0.35,
     0.39,
     `${J1100}: class A steering wheel diameter below 450 mm; the band itself is a typical passenger car wheel, not read at a source`,
@@ -54,7 +58,7 @@ const SHARED: Readonly<
     70,
     "US patent 6817062 B2, a door hinge whose full opening is set at about 60 to 70 degrees (https://patents.google.com/patent/US6817062B2/en)",
   ),
-  pedalTravel: ArchetypeBand.metres(
+  pedalTravel: AutoMovieArchetypeBand.metres(
     0.04,
     0.07,
     "pedal travel, not read at a source",
@@ -82,13 +86,21 @@ const SHARED: Readonly<
  */
 function hatchbacks(dimension: createCar.Dimension): [number, number] {
   const figures: number[] = Object.values(CAR_MODELS.figures.hatchback)
-    .map((model: Readonly<Partial<Record<createCar.Dimension, number>>> | undefined): number | undefined => model?.[dimension])
-    .filter((figure: number | undefined): figure is number => figure !== undefined);
+    .map(
+      (
+        model:
+          | Readonly<Partial<Record<createCar.Dimension, number>>>
+          | undefined,
+      ): number | undefined => model?.[dimension],
+    )
+    .filter(
+      (figure: number | undefined): figure is number => figure !== undefined,
+    );
   return [Math.min(...figures), Math.max(...figures)];
 }
 
 /** The turns lock to lock of a class whose models state none: the span of the hatchbacks' read grades, borrowed for want of the class's own. */
-const TURNS: IArchetypeBand = ArchetypeBand.of(
+const TURNS: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
   "",
   ...hatchbacks("lockTurns"),
   `${HATCH}: the grades' turns lock to lock, borrowed by a class whose models state none`,
@@ -97,14 +109,14 @@ const TURNS: IArchetypeBand = ArchetypeBand.of(
 
 /** The bands of the classes that are passenger cars. */
 const CAR: Readonly<
-  Record<"seatHeight" | "steeringRatio" | "bootSwing", IArchetypeBand>
+  Record<"seatHeight" | "steeringRatio" | "bootSwing", IAutoMovieArchetypeBand>
 > = {
-  seatHeight: ArchetypeBand.metres(
+  seatHeight: AutoMovieArchetypeBand.metres(
     0.127,
     0.405,
     `${J1100}: class A seat height H30, 127 to 405 mm`,
   ),
-  steeringRatio: ArchetypeBand.of(
+  steeringRatio: AutoMovieArchetypeBand.of(
     "",
     12,
     20,
@@ -120,7 +132,7 @@ const CAR: Readonly<
 };
 
 /** The seat height of the light commercial classes, read with the passenger-car band. */
-const COMMERCIAL_SEAT: IArchetypeBand = ArchetypeBand.metres(
+const COMMERCIAL_SEAT: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   0.127,
   0.405,
   `${J1100}: class A seat height H30, 127 to 405 mm, applied to a light commercial vehicle until the standard's class B values are read`,
@@ -133,7 +145,7 @@ const COMMERCIAL_SEAT: IArchetypeBand = ArchetypeBand.metres(
 export const CAR_BANDS: Readonly<
   Record<
     createCar.Kind,
-    Readonly<Partial<Record<createCar.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createCar.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   hatchback: {
@@ -144,7 +156,7 @@ export const CAR_BANDS: Readonly<
     ...SHARED,
     ...CAR,
     lockTurns: TURNS,
-    wheelDiameter: ArchetypeBand.metres(
+    wheelDiameter: AutoMovieArchetypeBand.metres(
       ...hatchbacks("wheelDiameter"),
       `${HATCH}: the span of the grades' tyres' outer diameters, computed from their sizes, borrowed for want of a sedan's read tyre`,
       true,
@@ -154,23 +166,28 @@ export const CAR_BANDS: Readonly<
     ...SHARED,
     seatHeight: COMMERCIAL_SEAT,
     lockTurns: TURNS,
-    steeringRatio: ArchetypeBand.of("", 15.7, 15.7, `${VAN}: ratio 15.7:1`),
-    sideDoorWidth: ArchetypeBand.metres(
+    steeringRatio: AutoMovieArchetypeBand.of(
+      "",
+      15.7,
+      15.7,
+      `${VAN}: ratio 15.7:1`,
+    ),
+    sideDoorWidth: AutoMovieArchetypeBand.metres(
       1.03,
       1.03,
       `${VAN}: side door aperture width`,
     ),
-    sideDoorHeight: ArchetypeBand.metres(
+    sideDoorHeight: AutoMovieArchetypeBand.metres(
       1.301,
       1.301,
       `${VAN}: side door aperture height`,
     ),
-    sideStep: ArchetypeBand.metres(
+    sideStep: AutoMovieArchetypeBand.metres(
       0.393,
       0.435,
       `${VAN}: side door step height`,
     ),
-    cargoFloor: ArchetypeBand.metres(
+    cargoFloor: AutoMovieArchetypeBand.metres(
       0.575,
       0.593,
       `${VAN}: rear door loading height`,
@@ -181,26 +198,34 @@ export const CAR_BANDS: Readonly<
     seatHeight: COMMERCIAL_SEAT,
     steeringRatio: CAR.steeringRatio,
     lockTurns: TURNS,
-    length: ArchetypeBand.metres(210.6 * ArchetypeUnits.INCH, 210.6 * ArchetypeUnits.INCH, PICKUP),
-    width: ArchetypeBand.metres(
-      75.5 * ArchetypeUnits.INCH,
-      75.5 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      210.6 * AutoMovieArchetypeUnits.INCH,
+      210.6 * AutoMovieArchetypeUnits.INCH,
+      PICKUP,
+    ),
+    width: AutoMovieArchetypeBand.metres(
+      75.5 * AutoMovieArchetypeUnits.INCH,
+      75.5 * AutoMovieArchetypeUnits.INCH,
       `${PICKUP}: width excluding mirrors`,
     ),
-    wheelbase: ArchetypeBand.metres(128.7 * ArchetypeUnits.INCH, 128.7 * ArchetypeUnits.INCH, PICKUP),
-    bedLength: ArchetypeBand.metres(
-      59.6 * ArchetypeUnits.INCH,
-      59.6 * ArchetypeUnits.INCH,
+    wheelbase: AutoMovieArchetypeBand.metres(
+      128.7 * AutoMovieArchetypeUnits.INCH,
+      128.7 * AutoMovieArchetypeUnits.INCH,
+      PICKUP,
+    ),
+    bedLength: AutoMovieArchetypeBand.metres(
+      59.6 * AutoMovieArchetypeUnits.INCH,
+      59.6 * AutoMovieArchetypeUnits.INCH,
       `${PICKUP}: cargo bed length at floor`,
     ),
-    bedWidth: ArchetypeBand.metres(
-      62.4 * ArchetypeUnits.INCH,
-      62.4 * ArchetypeUnits.INCH,
+    bedWidth: AutoMovieArchetypeBand.metres(
+      62.4 * AutoMovieArchetypeUnits.INCH,
+      62.4 * AutoMovieArchetypeUnits.INCH,
       `${PICKUP}: maximum width inside the box`,
     ),
-    bedDepth: ArchetypeBand.metres(
-      20.8 * ArchetypeUnits.INCH,
-      20.9 * ArchetypeUnits.INCH,
+    bedDepth: AutoMovieArchetypeBand.metres(
+      20.8 * AutoMovieArchetypeUnits.INCH,
+      20.9 * AutoMovieArchetypeUnits.INCH,
       "a 2024-2025 Ranger SuperCrew bed's inside height, 20.8 to 20.9 in, in dealers' and outfitters' guides (https://www.greghublerford.com/2024-ford-ranger-bed-size/, https://offroadtents.com/blogs/news/ford-ranger-bed-dimensions-guide-for-every-model), seen in search results only",
       true,
     ),

@@ -1,462 +1,115 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
-} from "../core";
-import { PRIMING_WIRE } from "./PRIMING_WIRE";
-import { TOOL_BANDS } from "./TOOL_BANDS";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
+import { HandToolDraw } from "./HandToolDraw";
+import { createFork } from "./createFork";
+import { createHammer } from "./createHammer";
+import { createHandSaw } from "./createHandSaw";
+import { createLadle } from "./createLadle";
+import { createScrewdriver } from "./createScrewdriver";
+import { createSpoon } from "./createSpoon";
+import { createStagePrimingWire } from "./createStagePrimingWire";
+import { createTableKnife } from "./createTableKnife";
 
 /**
- * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon, a fork, a ladle, a table knife, or a field gun's priming wire.
+ * Read a saved tool recipe and call the producer for its kind.
  *
- * A spoon, a fork and a ladle are stainless steel throughout, as their makers' pages state, and a priming wire is iron wire, as the 1862 Ordnance Manual states; they rest on that metal, so their bodies' friction is steel's on concrete. A hammer's, a saw's and a screwdriver's materials are not read, so their bodies carry no friction, as does a table knife's, whose read makers' handles differ.
+ * @param params The saved kind, fixed values, optional identifier and model when applicable.
+ * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+ * @returns The selected prop in its original frame.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
- * A priming wire stands on its ring at the origin, the ring flat in the `YZ` plane, its stem rising to its point, the `face`, `+Y` along it; finger and thumb pinch the ring's flats from `-X` and `+X`, the `grip`.
- *
- * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl, a fork's tines, a ladle's bowl toward `+Z`, and a table knife's edge toward `+Z`. The hand takes the `grip` from the `-Z` side with the thumb toward the working end, except a saw's: its grip runs across its heel square to the line from the grip to the tooth line's middle, the saw's hang (Disstonian Institute glossary: "The imaginary line that runs parallel to the hand grip should have a line running perpendicular to it, running through the mid-point of the tooth line", https://disstonianinstitute.com/glossary.html), and the hand takes it from the blade's `+X` side with the thumb toward the spine, the teeth below the fist.
- *
- * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
- * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
- * @returns The tool.
- * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the tool stands, where its working end is and how it is held.
- * @evidence contracts/development/implementation.md#principled-implementation A handle rod and one working part per tool; a hammer's steel head is eleven times as dense as its handle (steel at 7850 against hickory at about 700 kg per cubic metre, handbook values), which is what puts the balance near the head.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the handle and its grip, then the kind's working part and face.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A claw, teeth and a tip are not modelled; the working face is a frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Read a saved tool recipe and call the producer for its kind.
+ * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects the named producer that owns its geometry and contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The wrapper validates the saved kind and hands off the input.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Kind order, seed streams, defaults and parameter admission follow the saved recipe.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A bounded kind check and one lookup precede the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved and named calls use the same producer.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createTool(
   params: createTool.IParams,
   seed?: number | string,
-): Archetype<createTool.Affordance, createTool.Dimension> {
-  const draw: ArchetypeDrawSession<createTool.Dimension> =
-    new ArchetypeDrawSession<createTool.Dimension>(
-      "tool",
-      createTool.UNITS,
-      seed,
-      params,
-    );
+): AutoMovieArchetype<createTool.Affordance, createTool.Dimension> {
   const kind: createTool.Kind = ArchetypeDraw.choice(
     "tool",
     "kind",
     params.kind,
     createTool.KINDS,
   );
-  const drawn: Partial<Record<createTool.Dimension, number>> = draw.dimensions(
-    createTool.BANDS[kind],
-    createTool.BANDS,
-  );
-  // A table knife is one of the two read knives whole.
-  const model: {
-    name: createTool.Model | undefined;
-    figures: createTool.Figures;
-  } = draw.model<createTool.Model>(
-    "model",
-    params.model,
-    createTool.MODELS[kind],
-  );
-  const d: Partial<Record<createTool.Dimension, number>> = {
-    ...drawn,
-    ...model.figures,
-  };
-  const length: number = d.length!;
-  const radius: number = d.gripDiameter! / 2;
-  const builder: ArchetypeBuilder<createTool.Affordance, createTool.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: kind,
-      draw,
-    });
 
-  const v: typeof Vector3.create = Vector3.create;
-
-  if (kind === "primingWire") {
-    // The ring a finger and thumb pinch, then the stem to its point.
-    const wire: number = PRIMING_WIRE.wire;
-    const ring: number = PRIMING_WIRE.ring;
-    builder.rod(
-      "ring",
-      ring / 2,
-      v(-wire / 2, ring / 2, 0),
-      v(wire / 2, ring / 2, 0),
-      {
-        color: "#4a4d52",
-        surface: "steel",
-      },
-    );
-    builder.rod("stem", wire / 2, v(0, ring, 0), v(0, length, 0), {
-      color: "#4a4d52",
-      surface: "steel",
-    });
-    builder.affordance({
-      id: "grip",
-      kind: "handle",
-      symmetry: "half",
-      frame: ArchetypeFrame.facing(v(0, ring / 2, 0), v(1, 0, 0), v(0, 1, 0)),
-      extent: null,
-      grip: "precision",
-      aperture: wire,
-      length: ring,
-    });
-    builder.affordance({
-      id: "face",
-      kind: "surface",
-      direction: "along",
-      frame: ArchetypeFrame.upright(v(0, length, 0)),
-      extent: null,
-    });
-    return builder.build(d.mass!, { rests: "steel" });
-  }
-
-  // The handle and its grip: how much of the length is handle depends on the tool.
-  const handle: number =
-    kind === "hammer"
-      ? length - 0.03
-      : kind === "saw" || kind === "screwdriver"
-        ? length - d.blade!
-        : kind === "spoon"
-          ? length - 2 * createTool.BOWL
-          : kind === "ladle"
-            ? length - d.bowl!
-            : kind === "knife"
-              ? length - d.blade!
-              : length - createTool.TINES.length;
-  const steel: boolean =
-    kind === "spoon" || kind === "fork" || kind === "ladle";
-  const cutlery: boolean = steel || kind === "knife";
-  if (kind === "saw") {
-    // A saw's grip runs across its heel, square to the line from the grip to
-    // the tooth line's middle (the hang), so the fist thrusts along that line.
-    const centre: IAutoMovieVector3 = Vector3.create(0, handle / 2, 0);
-    const toTeeth: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.create(0, handle + d.blade! / 2, createTool.BLADE_DEPTH / 2),
-      centre,
-    );
-    const across: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.create(0, -toTeeth.z, toTeeth.y),
-    );
-    const held: number = createTool.GRIP;
-    builder.rod(
-      "handle",
-      radius,
-      Vector3.subtract(centre, Vector3.scale(across, held / 2)),
-      Vector3.add(centre, Vector3.scale(across, held / 2)),
-      { color: "#8a5a35" },
-    );
-    builder.affordance({
-      id: "grip",
-      kind: "handle",
-      symmetry: "none",
-      frame: ArchetypeFrame.facing(
-        centre,
-        Vector3.create(1, 0, 0),
-        Vector3.scale(across, -1),
-      ),
-      extent: null,
-      grip: "power",
-      aperture: 2 * radius,
-      length: held,
-    });
-  } else {
-    builder.rod(
-      "handle",
-      radius,
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, handle, 0),
-      steel ? { color: "#b9bcc0", surface: "steel" } : { color: "#8a5a35" },
-    );
-    const held: number = Math.min(handle, createTool.GRIP);
-
-    // A screwdriver's handle is round; the others are two-faced.
-    builder.affordance({
-      id: "grip",
-      kind: "handle",
-      symmetry: kind === "screwdriver" ? "round" : "half",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, kind === "hammer" ? held / 2 : handle - held / 2, 0),
-        Vector3.create(0, 0, -1),
-        Vector3.create(0, 1, 0),
-      ),
-      extent: null,
-      grip: cutlery ? "precision" : "power",
-      aperture: 2 * radius,
-      length: held,
-    });
-  }
-
-  if (kind === "ladle") {
-    // A ladle's bowl beyond its handle, its opening toward +Z.
-    builder.ball("bowl", d.bowl! / 2, v(0, length - d.bowl! / 2, 0), {
-      color: "#b9bcc0",
-      surface: "steel",
-    });
-    builder.affordance({
-      id: "face",
-      kind: "surface",
-      direction: "normal",
-      frame: ArchetypeFrame.facing(
-        v(0, length - d.bowl! / 2, d.bowl! / 2),
-        v(0, 0, 1),
-        v(1, 0, 0),
-      ),
-      extent: null,
-    });
-  }
-
-  if (kind === "hammer") {
-    builder.box(
-      "head",
-      Vector3.create(0.028, 0.03, 0.11),
-      Vector3.create(0, length - 0.015, 0),
-      { color: "#55595f", density: 11 },
-    );
-    builder.affordance({
-      id: "face",
-      kind: "surface",
-      direction: "normal",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, length - 0.015, 0.055),
-        Vector3.create(0, 0, 1),
-        Vector3.create(1, 0, 0),
-      ),
-      extent: null,
-    });
-  } else if (kind === "saw") {
-    builder.box(
-      "blade",
-      Vector3.create(0.001, d.blade!, createTool.BLADE_DEPTH),
-      Vector3.create(0, handle + d.blade! / 2, 0),
-      { color: "#b9bcc0", density: 11 },
-    );
-    builder.affordance({
-      id: "face",
-      kind: "ledge",
-      direction: "normal",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, handle + d.blade! / 2, createTool.BLADE_DEPTH / 2),
-        Vector3.create(0, 0, 1),
-        Vector3.create(0, 1, 0),
-      ),
-      extent: null,
-      length: d.blade!,
-    });
-  } else if (kind === "knife") {
-    // The blade beyond the handle, its spine toward -Z and its edge toward +Z.
-    const width: number = d.bladeWidth!;
-    builder.box(
-      "blade",
-      Vector3.create(width * createTool.KNIFE_THICKNESS, d.blade!, width),
-      Vector3.create(0, handle + d.blade! / 2, 0),
-      { color: "#b9bcc0" },
-    );
-    builder.affordance({
-      id: "face",
-      kind: "ledge",
-      direction: "normal",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, handle + d.blade! / 2, width / 2),
-        Vector3.create(0, 0, 1),
-        Vector3.create(0, 1, 0),
-      ),
-      extent: null,
-      length: d.blade!,
-    });
-  } else if (kind === "screwdriver") {
-    builder.rod(
-      "shank",
-      0.003,
-      Vector3.create(0, handle, 0),
-      Vector3.create(0, length, 0),
-      { color: "#b9bcc0", density: 11 },
-    );
-    builder.affordance({
-      id: "face",
-      kind: "surface",
-      direction: "along",
-      frame: ArchetypeFrame.upright(Vector3.create(0, length, 0)),
-      extent: null,
-    });
-  } else if (kind === "fork") {
-    // The tines are one flat plate on the handle's end, ending the fork's drawn length.
-    const tines: Readonly<{ width: number; length: number }> = createTool.TINES;
-    builder.box(
-      "tines",
-      Vector3.create(tines.width, tines.length, 0.002),
-      Vector3.create(0, handle + tines.length / 2, 0),
-      { color: "#b9bcc0", surface: "steel" },
-    );
-    builder.affordance({
-      id: "face",
-      kind: "surface",
-      direction: "along",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, length, 0),
-        Vector3.create(0, 1, 0),
-        Vector3.create(1, 0, 0),
-      ),
-      extent: null,
-    });
-  } else if (kind === "spoon") {
-    // The bowl is a disc on the handle's end whose far rim is the spoon's drawn length.
-    const centre: number = length - createTool.BOWL;
-    builder.rod(
-      "bowl",
-      createTool.BOWL,
-      Vector3.create(0, centre, -0.001),
-      Vector3.create(0, centre, 0.001),
-      { color: "#b9bcc0", surface: "steel" },
-    );
-    builder.affordance({
-      id: "face",
-      kind: "surface",
-      direction: "normal",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, centre, 0.001),
-        Vector3.create(0, 0, 1),
-        Vector3.create(1, 0, 0),
-      ),
-      extent: null,
-    });
-  }
-  return builder.build(d.mass!, steel ? { rests: "steel" } : undefined);
+  // The saved input spans every variant. The selected producer checks its original recipe.
+  const produce: (
+    params: createTool.IParams,
+    seed?: number | string,
+  ) => AutoMovieArchetype<createTool.Affordance, createTool.Dimension> =
+    createTool.PRODUCERS[kind] as typeof produce;
+  return produce(params, seed);
 }
 
 /**
- * Companion types and bands of {@link createTool}.
+ * Compatibility tables and types for saved tool recipes.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The handle a hand wraps, the reach to the working end and the mass swung (#3369, #3361).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every tool has the same two contacts, a `grip` and a `face`, so a tool-use act is written once.
+ * @evidence contracts/development/common.md#meaningful-documentation Compatibility tables and types for saved tool recipes.
+ * @evidence contracts/development/design.md#principled-representation The kind union retains the saved spelling and order. Each kind selects the named producer with the same geometry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the existing recipe tables and names for authored and saved callers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The named producers draw the sizes and model figures from the saved bands.
  */
 export namespace createTool {
-  /** The kinds of tool. */
-  export type Kind =
-    | "hammer"
-    | "saw"
-    | "screwdriver"
-    | "spoon"
-    | "fork"
-    | "ladle"
-    | "knife"
-    | "primingWire";
+  /** The original kind for the saved tool recipe. */
+  export type Kind = HandToolDraw.Kind;
 
-  /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = [
-    "hammer",
-    "saw",
-    "screwdriver",
-    "spoon",
-    "fork",
-    "ladle",
-    "knife",
-    "primingWire",
-  ];
+  /** The original kinds for the saved tool recipe. */
+  export const KINDS: typeof HandToolDraw.KINDS = HandToolDraw.KINDS;
 
-  /** A table knife blade's thickness as a share of its read width from spine to edge: a construction estimate that no act reads and no band declares. */
-  export const KNIFE_THICKNESS: number = 0.1;
+  /** The original knife_thickness for the saved tool recipe. */
+  export const KNIFE_THICKNESS: typeof HandToolDraw.KNIFE_THICKNESS =
+    HandToolDraw.KNIFE_THICKNESS;
 
-  /** A fork's tines as one plate, across and along, metres: an estimate, not read at a source. */
-  export const TINES: Readonly<{ width: number; length: number }> = {
-    width: 0.025,
-    length: 0.045,
-  };
+  /** The original tines for the saved tool recipe. */
+  export const TINES: typeof HandToolDraw.TINES = HandToolDraw.TINES;
 
-  /** A saw blade's depth from its spine to its teeth, metres: an estimate, not read at a source. */
-  export const BLADE_DEPTH: number = 0.1;
+  /** The original blade_depth for the saved tool recipe. */
+  export const BLADE_DEPTH: typeof HandToolDraw.BLADE_DEPTH =
+    HandToolDraw.BLADE_DEPTH;
 
-  /** The length of handle a hand holds, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html). */
-  export const GRIP: number = 0.12;
+  /** The original grip for the saved tool recipe. */
+  export const GRIP: typeof HandToolDraw.GRIP = HandToolDraw.GRIP;
 
-  /** The radius of a spoon's bowl, metres: the bowl is a disc of this radius whose far rim ends the spoon, and the handle is the rest of the length. An estimate, not read at a source. */
-  export const BOWL: number = 0.02;
+  /** The original bowl for the saved tool recipe. */
+  export const BOWL: typeof HandToolDraw.BOWL = HandToolDraw.BOWL;
 
-  /**
-   * The affordance ids:
-   *
-   * - `grip`: the handle, held at its butt end on a hammer, across the heel on a saw and next to the working part on the others; a priming wire's ring, pinched.
-   * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a fork's tines, a ladle's bowl, a table knife's edge, a priming wire's point.
-   */
-  export type Affordance = "grip" | "face";
+  /** The original affordance for the saved tool recipe. */
+  export type Affordance = HandToolDraw.Affordance;
 
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `length`: overall, along `+Y`.
-   * - `gripDiameter`: the handle's diameter; a spoon's or a fork's handle's width.
-   * - `blade`: the length of a saw's or a table knife's blade, a screwdriver's shank.
-   * - `bladeWidth`: a table knife's blade from its spine to its edge.
-   * - `bowl`: a ladle's bowl, across.
-   * - `mass`: kilograms.
-   */
-  export type Dimension =
-    | "length"
-    | "gripDiameter"
-    | "blade"
-    | "bladeWidth"
-    | "bowl"
-    | "mass";
+  /** The original dimension for the saved tool recipe. */
+  export type Dimension = HandToolDraw.Dimension;
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
-    length: "m",
-    gripDiameter: "m",
-    blade: "m",
-    bladeWidth: "m",
-    bowl: "m",
-    mass: "kg",
-  };
+  /** The original units for the saved tool recipe. */
+  export const UNITS: typeof HandToolDraw.UNITS = HandToolDraw.UNITS;
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which tool. */
-    kind: Kind;
+  /** The original iparams for the saved tool recipe. */
+  export type IParams = HandToolDraw.IParams;
 
-    /** A table knife's model; drawn from the seed when absent. */
-    model?: Model;
+  /** The original figures for the saved tool recipe. */
+  export type Figures = HandToolDraw.Figures;
 
-    /** The model's id, unique in a scene; `tool` when absent. */
-    id?: string;
-  }
+  /** The original model for the saved tool recipe. */
+  export type Model = HandToolDraw.Model;
 
-  /** A model's read figures, by dimension. */
-  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+  /** The original models for the saved tool recipe. */
+  export const MODELS: typeof HandToolDraw.MODELS = HandToolDraw.MODELS;
 
-  /** The table knives read: Eichenlaub's Altdeutsch and Robert Welch's Malvern. */
-  export type Model = "eichenlaub" | "robertWelch";
+  /** The original bands for the saved tool recipe. */
+  export const BANDS: typeof HandToolDraw.BANDS = HandToolDraw.BANDS;
 
-  /** Each kind's models whole, the default first, length, blade, blade width and mass: Eichenlaub's Altdeutsch 22.5 cm, 12.5 cm, 1.7 cm and 60 g (https://www.scharferladen.de/en/eichenlaub-series-altdeutsch-table-knife-houndwood), and Robert Welch's Malvern 24.6 cm, 12 cm, 2.1 cm, the blade the knife's widest part, and 130 g (https://www.johnlewis.com/robert-welch-malvern-stainless-steel-table-knife-12cm/p707599). */
-  export const MODELS: Readonly<
-    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
-  > = {
-    knife: {
-      eichenlaub: {
-        length: 0.225,
-        blade: 0.125,
-        bladeWidth: 0.017,
-        mass: 0.06,
-      },
-      robertWelch: {
-        length: 0.246,
-        blade: 0.12,
-        bladeWidth: 0.021,
-        mass: 0.13,
-      },
-    },
-  };
-
-  /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = TOOL_BANDS;
+  /** The named producer selected by each saved kind. */
+  export const PRODUCERS = {
+    hammer: createHammer,
+    saw: createHandSaw,
+    screwdriver: createScrewdriver,
+    spoon: createSpoon,
+    fork: createFork,
+    ladle: createLadle,
+    knife: createTableKnife,
+    primingWire: createStagePrimingWire,
+  } as const satisfies Readonly<Record<Kind, unknown>>;
 }

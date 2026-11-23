@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { createJumpRope } from "./createJumpRope";
 
@@ -22,29 +22,23 @@ type Dimension = "handleLength" | "gripDiameter" | "mass";
  * @param params The measured handle family, optional grip diameter in metres, and the model's scene id.
  * @param seed Draws the handle family when omitted from params. Without a seed the default is SR-1.
  * @returns The independent handle with `grip` and `cordSocket` affordances.
- * @throws {ArchetypeRefusal} For an unknown handle family or a grip diameter outside the rope's measured band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the local origin, barrel axis, socket frame, dimension and mounting use.
- * @evidence contracts/development/implementation.md#principled-implementation One cylinder uses the whole rope's measured handle family and grip band. Both end faces come from the same length as the centre grip and positive tip socket.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the measured dimensions, then build one barrel and its two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The measured family supplies length and the same grip band applies to both producers. Standalone mass is provisional and allocates half the midpoint of the whole-rope estimate, including its cord.
- * @evidence contracts/development/implementation.md#efficient-algorithms One fixed-size family lookup and one primitive with two contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The rigid rope and standalone handle read the same measured tables. Each call builds its own model and identity.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each call returns one model and retains no state beyond it.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown handle family or a grip diameter outside the rope's measured band.
  */
 export function createJumpRopeHandle(
   params: Pick<createJumpRope.IParams, "handle" | "id" | "gripDiameter"> = {},
   seed?: number | string,
-): Archetype<"grip" | "cordSocket", Dimension> {
-  const draw: ArchetypeDrawSession<Dimension> =
-    new ArchetypeDrawSession<Dimension>(
+): AutoMovieArchetype<"grip" | "cordSocket", Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<Dimension> =
+    new AutoMovieArchetypeDrawSession<Dimension>(
       "jumpRopeHandle",
       createJumpRope.UNITS,
       seed,
       params,
     );
-  const handle: ArchetypeDrawSession.IModel<createJumpRope.Handle, Dimension> =
-    draw.model("handle", params.handle, createJumpRope.HANDLES);
+  const handle: AutoMovieArchetypeDrawSession.IModel<
+    createJumpRope.Handle,
+    Dimension
+  > = draw.model("handle", params.handle, createJumpRope.HANDLES);
   const length: number = handle.figures.handleLength!;
   const { gripDiameter } = draw.dimensions({
     gripDiameter: createJumpRope.BANDS.gripDiameter,
@@ -53,8 +47,8 @@ export function createJumpRopeHandle(
   // Allocate the provisional whole-rope midpoint equally to its two handles.
   const { minimum, maximum } = createJumpRope.BANDS.mass;
   const mass: number = draw.derive("mass", (minimum + maximum) / 4);
-  const builder: ArchetypeBuilder<"grip" | "cordSocket", Dimension> =
-    new ArchetypeBuilder({
+  const builder: AutoMovieArchetypeBuilder<"grip" | "cordSocket", Dimension> =
+    new AutoMovieArchetypeBuilder({
       material: "composite",
       id: params.id,
       name: `skipping rope handle ${handle.name}`,
@@ -69,7 +63,7 @@ export function createJumpRopeHandle(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, 1, 0), v(0, 0, 1)),
     extent: null,
     grip: "power",
     aperture: gripDiameter,
@@ -78,7 +72,7 @@ export function createJumpRopeHandle(
   builder.affordance({
     id: "cordSocket",
     kind: "socket",
-    frame: ArchetypeFrame.facing(tip, v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(tip, v(0, 0, 1), v(1, 0, 0)),
     extent: null,
   });
   return builder.build(mass);

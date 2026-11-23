@@ -173,7 +173,7 @@ export namespace selfAction {
         : kind === "fistPump"
           ? [
               {
-                side: p.side ?? "right",
+                side: p.hand ?? "right",
                 grid: PLACES.fistPump,
                 shape: "fist",
                 pump: true,
@@ -269,7 +269,6 @@ export namespace selfAction {
     );
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
 
-
     // Two arms raised over one span are planned on one base, each beside
     // the other at its rest (`IAutoMovieMotionHumanArmCarry.beside`): they
     // rise on their own sides and never share space. Planned one after the
@@ -279,7 +278,11 @@ export namespace selfAction {
     // their mirror places (measured). As one problem of both arms they
     // mirrored, at several times the cost of two.
     const together: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
-      AutoMovieMotionHumanArmPlanned.together(context.handover);
+      AutoMovieMotionHumanArmPlanned.together(
+        context.handover,
+        true,
+        context.tempo,
+      );
     const raise = (r: IRaised): void => {
       const side: AutoMovieHumanSide = r.side;
       primitives.push(

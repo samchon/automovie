@@ -13,20 +13,9 @@ import type { IAutoMovieHumanHeadLane } from "./head/IAutoMovieHumanHeadLane";
 
 /**
  * Calibration limb inputs and shared body source assembly before final solid realization. Runtime construction and admission remain with AutoMovieHumanBodyLaw in Human.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes calibration limb inputs and shared body source assembly before final solid realization; nested declarations retain their units, frames, optional states and callback contracts.
- * @evidence contracts/development/design.md#principled-representation Calibration limb inputs and shared body source assembly before final solid realization. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanBodyLaw; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing BodyLaw contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
  */
 export namespace IAutoMovieHumanBodyLaw {
   /** Public limb definitions shared by construction and source-curve inspection, before any skin.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Public limb definitions shared by construction and source-curve inspection, before any skin.
-   * @evidence contracts/development/design.md#principled-representation `stature`: Stature in calibration mm. `legs`: Leg tapes, anatomical controls and calibration scale. `arms`: Arm tapes and each hand's own dimensions, calibration mm.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanBodyLaw.limbInputs, arms. Read by AutoMovieHumanBodyPreparation.trunkInputs. Also types AutoMovieHumanBodyLaw.definitions.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `stature`, `legs`, `arms`, `feet`, `crotch`; callers supply the complete record.
    */
   export interface ILimbInputs {
     /** Stature in calibration mm. */
@@ -49,12 +38,6 @@ export namespace IAutoMovieHumanBodyLaw {
   }
 
   /** Calibrations for one parameter set.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Calibrations for one parameter set.
-   * @evidence contracts/development/design.md#principled-representation `body`: Body chains, events, poles, apertures and globes in calibration mm. `vermilion`: Exterior lip boundary in the same frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanBodyLaw.calibrate.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `body`, `vermilion`; callers supply the complete record.
    */
   export interface IOutput {
     /** Body chains, events, poles, apertures and globes in calibration mm. */
@@ -65,12 +48,6 @@ export namespace IAutoMovieHumanBodyLaw {
   }
 
   /** The shared production source assembly, explicitly before final solid realization.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The shared production source assembly, explicitly before final solid realization.
-   * @evidence contracts/development/design.md#principled-representation `prepared`: Identical invocation context for explicit original/raw requests and legacy receiver observations. `lane`: The exact body tree and source premises consumed by calibration. `standing`: Existing neck/trunk metadata retained for the completed calibration.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanBodyLaw.define. Also types AutoMovieHumanBodyLaw.definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `prepared`, `lane`, `standing`, `head`, `skeleton`, `hands`, `stature`, `diagnostics`; callers supply the complete record.
    */
   export interface IDefinition {
     /** Identical invocation context for explicit original/raw requests and legacy receiver observations. */
@@ -96,14 +73,6 @@ export namespace IAutoMovieHumanBodyLaw {
 
     /**
      * Explicit engine-evaluated legacy neck interval; ordinary source/metadata reads do not request raw geometry.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit engine-evaluated legacy neck interval; ordinary source/metadata reads do not request raw geometry.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This neckRaw signature specifies the documented callback contract without an implementation body; AutoMovieHumanBodyLaw and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes neckRaw at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanBodyLaw.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual neckRaw provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanBodyLaw determines the work per neckRaw call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanBodyLaw's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the neckRaw provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     neckRaw(): IAutoMovieLoftChain;
 

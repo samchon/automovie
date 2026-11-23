@@ -4,11 +4,6 @@ import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject.js";
 
 /**
  * A probed video's clock/raster, capture request and host storage/process operations. runAutoMovieVideoCapture refuses unsupported views/passes/inspection and off-grid instants before extraction, detects cuts then extracts selected frames, and records missing frames as failed cells. The host must reject run when FFmpeg fails and owns process cleanup.
- *
- * @evidence contracts/development/design.md#principled-representation The host must reject run when FFmpeg fails and owns process cleanup.
- * @evidence contracts/development/design.md#minimal-and-owned-surface runAutoMovieVideoCapture exchanges file, subject, request, storage, root, run, revision; their canonical owner is this contract and their concrete meanings are documented on the members.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The host must reject run when FFmpeg fails and owns process cleanup.
- * @evidence contracts/development/common.md#meaningful-documentation A probed video's clock/raster, capture request and host storage/process operations. runAutoMovieVideoCapture refuses unsupported views/passes/inspection and off-grid instants before extraction, detects cuts then extracts selected frames, and records missing frames as failed cells. The prose and members document how runAutoMovieVideoCapture interprets and admits these values.
  */
 export interface IAutoMovieRunVideoCaptureProps {
   /** Path of the video file, as the process runner reads it. */
@@ -32,14 +27,6 @@ export interface IAutoMovieRunVideoCaptureProps {
   /**
    * Runs FFmpeg with the given arguments and resolves when it ends successfully.
    * The host implements FFmpeg process execution; runAutoMovieVideoCapture awaits each planned command, and the host must reject failure and release process resources.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States argument ownership, successful-completion resolution, rejection and process-cleanup responsibility.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature specifies the callback result and failure contract; the caller-supplied body owns the method and its premises.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This callable member is an injected boundary with no implementation decomposition; the named caller and consumer own their respective bodies.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No executable branch or compensation is implemented by this signature; the supplied body must honor the documented result and failure semantics.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy; callback cost belongs to the supplied implementation and is not bounded by the type.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration coordinates no calls or cache; the consuming operation owns invocation frequency and the supplied body owns any effect-safe reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no handle or task; the callback owner must manage captured state and resources for the documented invocation lifetime.
    */
   run: (args: readonly string[]) => Promise<void>;
 

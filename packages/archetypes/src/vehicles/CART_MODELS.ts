@@ -1,15 +1,19 @@
 import { HORSE_BANDS } from "../animals/HORSE_BANDS";
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createCart } from "./createCart";
 
 /** One read model's or option's figures by dimension. */
 type Figures = Readonly<Partial<Record<createCart.Dimension, number>>>;
 
 /** Inches. */
-const IN: number = ArchetypeUnits.INCH;
+const IN: number = AutoMovieArchetypeUnits.INCH;
 
 /** Centimetres. */
-const CM: number = ArchetypeUnits.CENTIMETRE;
+const CM: number = AutoMovieArchetypeUnits.CENTIMETRE;
 
 /**
  * The read carriers by kind, each whole, with the options picked on their own axes and the range of horses a cart is made for.
@@ -49,7 +53,7 @@ export const CART_MODELS: Readonly<{
     Partial<
       Record<
         createCart.Model,
-        Readonly<Partial<Record<createCart.Dimension, IArchetypeBand>>>
+        Readonly<Partial<Record<createCart.Dimension, IAutoMovieArchetypeBand>>>
       >
     >
   >;
@@ -141,7 +145,7 @@ export const CART_MODELS: Readonly<{
   },
   ranges: {
     multiUse: {
-      withersHeight: ArchetypeBand.metres(
+      withersHeight: AutoMovieArchetypeBand.metres(
         Math.max(HORSE_BANDS.withersHeight.minimum, 58 * IN),
         Math.min(HORSE_BANDS.withersHeight.maximum, 67 * IN),
         `the multi-use cart's 14.2 to 16.3 hh horses, 58 to 67 in at four inches to the hand (https://www.gypsyhorses.com/sales/cart.htm) inside the horse's own band (${HORSE_BANDS.withersHeight.source})`,

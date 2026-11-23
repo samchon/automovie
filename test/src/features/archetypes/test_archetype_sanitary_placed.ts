@@ -1,4 +1,8 @@
-import { ArchetypeFrame, ArchetypeUnits, createSanitary } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  createSanitary,
+} from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -51,7 +55,14 @@ export function test_archetype_sanitary_placed(): void {
       spout: "socket",
     },
     toilet: { seat: "seat", lid: "hinge" },
-    bathtub: { rim: "ledge", bottom: "surface" },
+    bathtub: {
+      rim: "ledge",
+      edge: "ledge",
+      top: "surface",
+      bottom: "surface",
+      seat: "seat",
+      backrest: "surface",
+    },
     shower: {
       tray: "surface",
       threshold: "ledge",
@@ -169,22 +180,22 @@ export function test_archetype_sanitary_placed(): void {
       ),
       row(
         "bath length",
-        60 * ArchetypeUnits.INCH,
-        60 * ArchetypeUnits.INCH,
+        60 * AutoMovieArchetypeUnits.INCH,
+        60 * AutoMovieArchetypeUnits.INCH,
         "Kohler K-837, 60 in",
         (s: number): number => archetypeExtent(make("bathtub", s), "x").size,
       ),
       row(
         "bath apron",
-        14 * ArchetypeUnits.INCH,
-        14 * ArchetypeUnits.INCH,
+        14 * AutoMovieArchetypeUnits.INCH,
+        14 * AutoMovieArchetypeUnits.INCH,
         "Kohler K-837, 14 in",
         (s: number): number => archetypeExtent(make("bathtub", s), "y").high,
       ),
       row(
         "bath width",
-        30 * ArchetypeUnits.INCH,
-        (30 + 1 / 4) * ArchetypeUnits.INCH,
+        30 * AutoMovieArchetypeUnits.INCH,
+        (30 + 1 / 4) * AutoMovieArchetypeUnits.INCH,
         "American Standard Princeton 30 in to Kohler K-837 30-1/4 in",
         (s: number): number => archetypeExtent(make("bathtub", s), "z").size,
       ),
@@ -211,7 +222,7 @@ export function test_archetype_sanitary_placed(): void {
     ["toilet", 0, 1],
     ["shower", -1, 0],
   ] as const) {
-    const facing: IAutoMovieVector3 = ArchetypeFrame.axis(
+    const facing: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
       make(kind, 3).affordance("seat").frame,
       "z",
     );
@@ -220,9 +231,5 @@ export function test_archetype_sanitary_placed(): void {
         `the ${kind} seat faces (${facing.x}, ${facing.z}), (${x}, ${z}) expected`,
       );
   }
-  TestValidator.equals(
-    "sanitary fixtures are placed and sized",
-    findings,
-    [],
-  );
+  TestValidator.equals("sanitary fixtures are placed and sized", findings, []);
 }

@@ -1,4 +1,4 @@
-import { minimumJerk, wrapDegrees } from "@automovie/engine";
+import { Vector3, minimumJerk, wrapDegrees } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -18,6 +18,7 @@ import type {
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
+import { walkFoot } from "../actions/walkFoot";
 import { walkLeg } from "../actions/walkLeg";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -59,7 +60,9 @@ import { stepOverPath } from "./stepOverPath";
  * and its foot turns forward in mid-swing. The lead foot lands so the obstacle's middle falls at
  * mid-swing, at least one tenth of a foot length beyond the far side and
  * no farther than the legs' stride allows; the trail foot lands beside it
- * at the body's rest separation.
+ * at the body's rest separation, stepping down onto its ball where its
+ * unloaded ankle cannot hold it level under the shank, and its plant sets
+ * the heel down about that ball over a walk's settle (`walkFoot.RISE`).
  *
  * While the lead foot swings, the trail foot rises on its ball by `PUSH`,
  * the forefoot rocker of a stance foot the body passes over (Perry and
@@ -73,7 +76,9 @@ import { stepOverPath } from "./stepOverPath";
  * so the folded trailing knee keeps its range. The pelvis is lowered wherever a planted leg could not reach its foot,
  * and over the second half of each swing toward where the swinging leg
  * will reach its landing, so it has come down when the foot lands instead
- * of dropping at the contact.
+ * of dropping at the contact; over the first half the swinging leg lets go
+ * of the lowering it asked where it left, so the pelvis does not rise at
+ * the toe-off.
  *
  * Time scales with leg length by dynamic similarity (Alexander 1984): the
  * whole action takes `2.4 sqrt(l / walkRoot.REFERENCE_HIP)` seconds for a hip height `l`
@@ -85,7 +90,8 @@ import { stepOverPath } from "./stepOverPath";
  * Draganich 1997, J Biomech 30:331).
  *
  * The obstacle lies ahead along the performer's heading; its near side must
- * be within one leg length of the feet and its height at most 0.55 of the hip
+ * lie past both toes as entered and within one leg length of the feet, and
+ * its height at most 0.55 of the hip
  * height (provisional, near the hip flexion a standing step can use),
  * otherwise the step is refused with the limits. Events: `leadToeOff`,
  * `leadContact`, `trailToeOff`, `trailContact`.
@@ -132,6 +138,9 @@ export namespace stepOver {
 
   /** Onset and duration of the first half of forward transfer, shares of the crossing. */
   const TRANSFER: readonly [number, number] = [0.12, 0.38];
+
+  /** Seconds before the trail's contact at which its landing pitch is read: a microsecond, inside the swing's last instant. */
+  const CONTACT: number = 1e-6;
 
   /**
    * Plan a step over.
@@ -247,7 +256,19 @@ export namespace stepOver {
       left: poseBones.prepare(body, requested.left), right: poseBones.prepare(body, requested.right),
     };
     const share: (t: number) => number = (t: number): number => t / duration;
-    return {
+
+    // The pitch the trail foot meets the floor with on its ball, read once
+    // from the plan's own posture at the trail's contact; its plant then
+    // sets the heel down over a walk's settle onto a flat stop
+    // (`walkFoot.RISE`), turning about the same ball.
+    const trailLimb: AutoMovieHumanLimb = trail === "left" ? "leftLeg" : "rightLeg";
+    let landed: number | undefined;
+    const contactPitch = (): number =>
+      (landed ??= Math.min(0, HumanFoot.pitch(
+        result.posture(windows[trail][1] - CONTACT).limbs[trailLimb]!.rotation!,
+      )));
+    const settle: number = Math.min(walkFoot.RISE, duration - windows[trail][1]);
+    const result: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "leadToeOff", share: share(windows[lead][0]) },
@@ -255,8 +276,8 @@ export namespace stepOver {
         { name: "trailToeOff", share: share(windows[trail][0]) },
         { name: "trailContact", share: share(windows[trail][1]) },
       ],
-      // Each foot plants before its swing and after it, on the floor it
-      // stands on.
+      // Each foot plants before its swing on the floor it stands on, and
+      // after it on that floor or on the named landing surface's prop.
       contacts: [lead, trail].flatMap(
         (side: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => [
           {
@@ -271,7 +292,10 @@ export namespace stepOver {
             kind: "plant",
             from: share(windows[side][1]),
             to: 1,
-            support: HumanSupportFrame.contact(context, `${side}Foot`),
+            support:
+              context.params.onto === undefined
+                ? HumanSupportFrame.contact(context, `${side}Foot`)
+                : { kind: "prop", subject: context.params.onto.prop },
           },
         ],
       ),
@@ -281,6 +305,13 @@ export namespace stepOver {
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         const toes: Record<"left" | "right", number> = { left: 0, right: 0 };
         const footings: Record<"left" | "right", ReturnType<typeof footAt>> = { left: footAt("left", t), right: footAt("right", t) };
+        if (footings[trail].planted && t >= windows[trail][1] && settle > 0) {
+          const pitch: number = contactPitch();
+          if (pitch < 0)
+            footings[trail].placement = heeled(
+              trail, end[trail], pitch * (1 - smooth(t, windows[trail][1], windows[trail][1] + settle)),
+            );
+        }
         if (!footings[trail].planted) {
           // The lead forefoot carries the pelvis through the trailing knee's
           // deepest fold. The pelvis follows the rocker's ankle translation,
@@ -333,7 +364,9 @@ export namespace stepOver {
         );
         // A swinging foot's leg reaches for its landing over the second half
         // of its swing, so the pelvis has come down to where that leg stands
-        // when it lands rather than dropping at the contact.
+        // when it lands rather than dropping at the contact; over the first
+        // half it lets go of the lowering it asked from where it left, so
+        // the pelvis does not rise at the toe-off a planted leg had held down.
         const side: AutoMovieHumanSide | undefined = !footings[lead].planted
           ? lead : !footings[trail].planted ? trail : undefined;
         if (side === undefined) return posture;
@@ -341,12 +374,12 @@ export namespace stepOver {
         const limb: AutoMovieHumanLimb = side === "left" ? "leftLeg" : "rightLeg";
         const observed: boolean = channels === undefined || channels.includes(limb);
         const middle: number = (from + to) / 2;
-        if (!observed && t <= middle) return posture;
         const hip: IAutoMovieVector3 = hipJoints(
           body, posture.root, resolveHumanPosture.heading(posture), posture.joints.hips, resolution(),
         )[side];
-        const landing: number = t <= middle ? 0 :
-          Math.max(0, smooth(t, middle, to) * short(hip, end[side]));
+        const landing: number = t <= middle
+          ? Math.max(0, (1 - smooth(t, from, middle)) * short(hip, footAt(side, from).placement.ankle))
+          : Math.max(0, smooth(t, middle, to) * short(hip, end[side]));
         if (landing > 0) {
           posture.root = { ...posture.root, y: posture.root.y - landing };
           hip.y -= landing;
@@ -367,15 +400,27 @@ export namespace stepOver {
         const range: ReturnType<typeof walkLeg.prepareAnkleRange> =
           walkLeg.prepareAnkleRange(body, HumanFoot.heading(rotation));
         const ranged: IAutoMovieQuaternion = range(hip, goal.point, rotation);
-        posture.limbs[limb] = { ...goal, rotation: ranged };
+        // The trail foot steps down onto its ball, as one steps down into a
+        // tub: where its unloaded ankle cannot hold the foot level under the
+        // shank, the foot turns toes-down about the ball of its level
+        // placement over the landing half, its toes extended to lie on the
+        // floor, so the ball and not the ankle meets the landing.
+        let start: IAutoMovieVector3 = goal.point;
+        if (side === trail && t > middle && HumanFoot.pitch(ranged) < 0) {
+          const pitch: number = HumanFoot.pitch(ranged);
+          const onto: number = smooth(t, middle, to);
+          start = Vector3.lerp(goal.point, heeled(trail, goal.point, pitch).ankle, onto);
+          posture.joints[`${trail}Toes`] = [toes[trail] + (Math.max(toes[trail], -pitch) - toes[trail]) * onto, 0, 0];
+        }
+        posture.limbs[limb] = { ...goal, point: start, rotation: ranged };
         // Extend the toes by the pitch the unloaded ankle cannot supply.
         // The lead heel, ball and toe then follow their own approach and
         // landing ramps. All three retain the full margin above the obstacle.
         if (side === lead)
           posture.joints[`${lead}Toes`] = [Math.max(0, direction.pitch - HumanFoot.pitch(ranged)), 0, 0];
-        let previousHeight: number = goal.point.y;
+        let previousHeight: number = start.y;
         let previousDeficit: number = -Infinity;
-        let point: IAutoMovieVector3 = goal.point;
+        let point: IAutoMovieVector3 = start;
         for (let round: number = 0; round < 6; round++) {
           const posed: ReturnType<typeof resolveHumanPosture.seeded>["pose"] =
             resolveHumanPosture.seeded(body, posture, undefined, {}, resolution, requested[side], projection).pose;
@@ -407,5 +452,6 @@ export namespace stepOver {
         return posture;
       },
     };
+    return result;
   }
 }

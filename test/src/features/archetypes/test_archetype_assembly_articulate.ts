@@ -1,7 +1,7 @@
 import {
-  ArchetypeAssembly,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  AutoMovieArchetypeAssembly,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
   createDoor,
   createSeat,
 } from "@automovie/archetypes";
@@ -18,13 +18,22 @@ import { qclose, vclose } from "../internal/predicates";
 /** A hall of two doors and a bench. */
 type Hall = {
   /** A door hinged on its left. */
-  left: ArchetypeAssembly.IMember<createDoor.Affordance, createDoor.Dimension>;
+  left: AutoMovieArchetypeAssembly.IMember<
+    createDoor.Affordance,
+    createDoor.Dimension
+  >;
 
   /** A door hinged on its right. */
-  right: ArchetypeAssembly.IMember<createDoor.Affordance, createDoor.Dimension>;
+  right: AutoMovieArchetypeAssembly.IMember<
+    createDoor.Affordance,
+    createDoor.Dimension
+  >;
 
   /** A bench facing the doors. */
-  bench: ArchetypeAssembly.IMember<createSeat.Affordance, createSeat.Dimension>;
+  bench: AutoMovieArchetypeAssembly.IMember<
+    createSeat.Affordance,
+    createSeat.Dimension
+  >;
 };
 
 /**
@@ -37,7 +46,7 @@ type Hall = {
  * 4. In the coupled assembly, setting `left/hinge` is refused with `right/hinge` as its leader, coupling it again is refused, and coupling the bench's seat, which does not travel, is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Articulates and couples real assemblies and reads their parts and members; a member moved by another's id, a prefix ignored, an unknown id admitted, a coupling that does not drive its follower or that changes a member's own model is caught.
- * @evidence contracts/development/testing.md#independent-expectations The expected parts are the member's own articulation composed under its placement, computed here with `ArchetypeFrame.compose`; a ratio of 1 makes the follower's travel its leader's.
+ * @evidence contracts/development/testing.md#independent-expectations The expected parts are the member's own articulation composed under its placement, computed here with `AutoMovieArchetypeFrame.compose`; a ratio of 1 makes the follower's travel its leader's.
  * @evidence contracts/development/testing.md#distinguishing-cases A moved and two unmoved members, prefixed, unprefixed and unknown ids, a coupling and the three ways a coupling is refused; the assembly's admission and mass belong to `test_archetype_assembly_valid`, and following inside one model to `test_archetype_contract_follows`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
@@ -58,7 +67,7 @@ export function test_archetype_assembly_articulate(): void {
       placement: archetypeCarriage.placement(0, 0, 2, 180),
     },
   };
-  const hall: ArchetypeAssembly<Hall> = ArchetypeAssembly.of(
+  const hall: AutoMovieArchetypeAssembly<Hall> = AutoMovieArchetypeAssembly.of(
     "hall",
     "hall",
     members,
@@ -69,13 +78,13 @@ export function test_archetype_assembly_articulate(): void {
   ): IAutoMovieTransform =>
     parts.find((p: IAutoMovieModelPart): boolean => p.id === id)!.transform!;
   const placedLike = (
-    assembly: ArchetypeAssembly<Hall>,
+    assembly: AutoMovieArchetypeAssembly<Hall>,
     key: "left" | "right" | "bench",
     own: readonly IAutoMovieModelPart[],
     label: string,
   ): void => {
     for (const p of own) {
-      const expected: IAutoMovieTransform = ArchetypeFrame.compose(
+      const expected: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
         members[key].placement,
         p.transform!,
       );
@@ -89,10 +98,15 @@ export function test_archetype_assembly_articulate(): void {
   };
 
   // 1. One member moves.
-  const opened: ArchetypeAssembly<Hall> = hall.articulate({
+  const opened: AutoMovieArchetypeAssembly<Hall> = hall.articulate({
     "left/hinge": 40,
   });
-  placedLike(opened, "left", members.left.archetype.articulate({ hinge: 40 }).parts, "opened");
+  placedLike(
+    opened,
+    "left",
+    members.left.archetype.articulate({ hinge: 40 }).parts,
+    "opened",
+  );
   placedLike(opened, "right", members.right.archetype.parts, "opened");
   placedLike(opened, "bench", members.bench.archetype.parts, "opened");
   if (opened.member("left").state.hinge !== 40)
@@ -102,11 +116,11 @@ export function test_archetype_assembly_articulate(): void {
   for (const id of ["hinge", "left/ghost"]) {
     const thrown: unknown = caught(() =>
       hall.articulate({ [id]: 10 } as Partial<
-        Record<ArchetypeAssembly.Ids<Hall>, number>
+        Record<AutoMovieArchetypeAssembly.Ids<Hall>, number>
       >),
     );
     if (
-      !(thrown instanceof ArchetypeRefusal) ||
+      !(thrown instanceof AutoMovieArchetypeRefusal) ||
       thrown.feasible?.kind !== "alternatives" ||
       !thrown.feasible.values.includes("left/hinge") ||
       thrown.feasible.values.some((v: string): boolean => !v.includes("/"))
@@ -116,15 +130,25 @@ export function test_archetype_assembly_articulate(): void {
 
   // 3. A coupling across members.
   const before: string = JSON.stringify(members.left.archetype);
-  const coupled: ArchetypeAssembly<Hall> = hall.couple("left/hinge", {
+  const coupled: AutoMovieArchetypeAssembly<Hall> = hall.couple("left/hinge", {
     id: "right/hinge",
     ratio: 1,
   });
-  const both: ArchetypeAssembly<Hall> = coupled.articulate({
+  const both: AutoMovieArchetypeAssembly<Hall> = coupled.articulate({
     "right/hinge": 30,
   });
-  placedLike(both, "left", members.left.archetype.articulate({ hinge: 30 }).parts, "coupled");
-  placedLike(both, "right", members.right.archetype.articulate({ hinge: 30 }).parts, "coupled");
+  placedLike(
+    both,
+    "left",
+    members.left.archetype.articulate({ hinge: 30 }).parts,
+    "coupled",
+  );
+  placedLike(
+    both,
+    "right",
+    members.right.archetype.articulate({ hinge: 30 }).parts,
+    "coupled",
+  );
   if (!validateModel({ model: both }).success)
     findings.push("the coupled assembly is not admitted");
   if (JSON.stringify(members.left.archetype) !== before)
@@ -141,14 +165,20 @@ export function test_archetype_assembly_articulate(): void {
     hall.couple("bench/seat", { id: "right/hinge", ratio: 1 }),
   );
   if (
-    !(set instanceof ArchetypeRefusal) ||
+    !(set instanceof AutoMovieArchetypeRefusal) ||
     set.feasible?.kind !== "alternatives" ||
     set.feasible.values.join() !== "right/hinge"
   )
     findings.push(`setting a coupled follower: ${String(set)}`);
-  if (!(again instanceof ArchetypeRefusal) || again.axis !== "left/hinge")
+  if (
+    !(again instanceof AutoMovieArchetypeRefusal) ||
+    again.axis !== "left/hinge"
+  )
     findings.push(`coupling twice: ${String(again)}`);
-  if (!(still instanceof ArchetypeRefusal) || still.kind !== "articulation")
+  if (
+    !(still instanceof AutoMovieArchetypeRefusal) ||
+    still.kind !== "articulation"
+  )
     findings.push(`coupling a seat: ${String(still)}`);
   TestValidator.equals("an assembly articulates by member", findings, []);
 }

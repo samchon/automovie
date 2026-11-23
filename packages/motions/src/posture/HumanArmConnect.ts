@@ -1,4 +1,4 @@
-/**
+﻿/**
  * A valid path between two configurations of a joint space, by RRT-Connect
  * (Kuffner and LaValle 2000, "RRT-Connect: an efficient approach to
  * single-query path planning", ICRA): two trees grown from the start and the
@@ -62,11 +62,27 @@ export namespace HumanArmConnect {
    * @returns The path's vertices from the start to the goal, or `null` when the goal is invalid, the start is invalid and no draw near it repairs it, or the trees did not meet.
    * @throws {RangeError} For an extent that is not positive and finite, across which no step advances a tree.
    */
-  export function connect(query: IQuery): number[][] | null {
-    if (!(Number.isFinite(query.extent) && query.extent > 0))
+  export function connect(input: IQuery): number[][] | null {
+    if (!(Number.isFinite(input.extent) && input.extent > 0))
       throw new RangeError(
-        `A joint space's extent must be positive and finite for a tree to step across it, not ${query.extent}`,
+        `A joint space's extent must be positive and finite for a tree to step across it, not ${input.extent}`,
       );
+    // Each state is checked once: the trees, their extensions and the
+    // shortcut meet the same states again, and a state's validity is a pure
+    // function of it, so it is kept by its coordinates for the query.
+    const known: Map<string, boolean> = new Map();
+    const query: IQuery = {
+      ...input,
+      valid: (q: readonly number[]): boolean => {
+        const key: string = q.join(",");
+        let found: boolean | undefined = known.get(key);
+        if (found === undefined) {
+          found = input.valid(q);
+          known.set(key, found);
+        }
+        return found;
+      },
+    };
     if (!query.valid(query.goal)) return null;
     const range: number = RANGE * query.extent;
     const resolution: number = RESOLUTION * query.extent;
@@ -80,11 +96,29 @@ export namespace HumanArmConnect {
     // A repaired start's path leaves the start itself for the repaired state.
     const leave = (path: number[][]): number[][] =>
       fixed ? [[...query.start], ...path] : path;
+    // Each edge is checked once, whichever tree or the shortcut asks.
+    const edges: Map<string, boolean> = new Map();
     const clear = (a: readonly number[], b: readonly number[]): boolean => {
+      const key: string = `${a.join(",")}|${b.join(",")}`;
+      const seen: boolean | undefined = edges.get(key);
+      if (seen !== undefined) return seen;
+      // The edge is open where every state at its spacing is valid. They are
+      // read the far end first, then by bisection, OMPL's discrete motion
+      // validator's order: an obstacle across the edge is met after a few
+      // states rather than after the states before it, and an open edge
+      // reads every state once all the same.
       const steps: number = Math.ceil(distance(a, b) / resolution);
-      for (let i: number = 1; i <= steps; ++i)
-        if (!query.valid(lerp(a, b, i / steps))) return false;
-      return true;
+      let open: boolean = steps < 1 || query.valid(lerp(a, b, 1));
+      const intervals: [number, number][] = [[0, steps]];
+      for (let next: number = 0; open && next < intervals.length; ++next) {
+        const [low, high]: [number, number] = intervals[next]!;
+        if (high - low < 2) continue;
+        const middle: number = Math.floor((low + high) / 2);
+        if (!query.valid(lerp(a, b, middle / steps))) open = false;
+        intervals.push([low, middle], [middle, high]);
+      }
+      edges.set(key, open);
+      return open;
     };
     const from: ITree = {
       nodes: [root],

@@ -1,83 +1,50 @@
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeDrawSession,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { STORAGE_BANDS } from "./STORAGE_BANDS";
-import { STORAGE_MODELS } from "./STORAGE_MODELS";
-import { StorageConstruction } from "./StorageConstruction";
+import { createBookcase } from "./createBookcase";
+import { createDrawerUnit } from "./createDrawerUnit";
+import { createHingedCabinet } from "./createHingedCabinet";
 
-/** The name each kind's model carries. */
-const NAMES: Readonly<Record<createStorage.Kind, string>> = {
-  wardrobe: "wardrobe",
-  chest: "chest of drawers",
-  filingCabinet: "filing cabinet",
-  locker: "locker",
-  bookcase: "bookcase",
-};
+/** A saved storage recipe's producer as the dispatcher calls it. */
+type Producer = (
+  params: createStorage.IParams,
+  seed?: number | string,
+) => AutoMovieArchetype<createStorage.Affordance, createStorage.Dimension>;
 
 /**
- * A storage cabinet: a wardrobe with two hinged doors, a chest of three drawers, a four-drawer filing cabinet, a steel locker or an open bookcase.
+ * Replay a saved storage variant with the original dimensions, identifier and model choices.
  *
- * The cabinet stands on the floor at the origin with its front toward `+Z`. Its doors and drawers are parts on their articulations: a wardrobe door turns out about its outer edge, a drawer slides out toward `+Z` with the box behind its front, and each carries its pull. The `push` face on the `+X` side is where the cabinet is pushed when it is moved. `StorageConstruction` builds each kind and says what the locker and the bookcase add.
+ * @param params The historic selector and optional fixed settings in the original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @returns The original generated model and its local contacts.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
- * A locker rests on its steel legs: steel on concrete (`ArchetypeFriction`).
- *
- * @param params The kind, its read model where it has several, and any dimension the author fixes.
- * @param seed The seed that draws the model when it is not given and every dimension left free inside its band; absent, the kind's first model and the middle of each band.
- * @returns The cabinet.
- * @throws {ArchetypeRefusal} For a model the kind does not list, a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, what moves, where the cabinet is pushed and where each kind is described.
- * @evidence contracts/development/implementation.md#principled-implementation Draws the kind's bands and hands the dimensions to its construction.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, draw the dimensions with its figures over them, then the kind's construction.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The constructions own every shape.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over the construction's.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Replay a saved storage variant with the original dimensions, identifier and model choices.
+ * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the storage draw namespace.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createStorage(
   params: createStorage.IParams,
   seed?: number | string,
-): Archetype<createStorage.Affordance, createStorage.Dimension> {
-  const draw: ArchetypeDrawSession<createStorage.Dimension> =
-    new ArchetypeDrawSession<createStorage.Dimension>(
-      "storage",
-      createStorage.UNITS,
-      seed,
-      params,
-    );
+): AutoMovieArchetype<createStorage.Affordance, createStorage.Dimension> {
   const kind: createStorage.Kind = ArchetypeDraw.choice(
     "storage",
     "kind",
     params.kind,
     createStorage.KINDS,
   );
-  const model: Readonly<Partial<Record<createStorage.Dimension, number>>> =
-    draw.model<createStorage.Model>(
-      "model",
-      params.model,
-      STORAGE_MODELS[kind],
-    ).figures;
-  const d: Partial<Record<createStorage.Dimension, number>> = {
-    ...draw.dimensions(createStorage.BANDS[kind], createStorage.BANDS),
-    ...model,
-  };
-  const builder: ArchetypeBuilder<
-    createStorage.Affordance,
-    createStorage.Dimension
-  > = new ArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw,
-  });
-  if (kind === "chest" || kind === "filingCabinet")
-    StorageConstruction.drawers(builder, d, StorageConstruction.DRAWERS[kind]);
-  else StorageConstruction[kind](builder, d);
-  return builder.build(d.mass!, kind === "locker" ? { rests: "steel" } : {});
+
+  // Saved inputs are a wider record. The selected producer checks them with its own draw.
+  const produce: Producer = createStorage.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
 
 /**
@@ -89,6 +56,43 @@ export function createStorage(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A slider's `+X` is its travel and a grip's `+X` is the bar the hand wraps, which differ on a drawer, so the slide and the pull are two affordances and neither frame is bent to serve both.
  */
 export namespace createStorage {
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `wardrobe` selector. */
+    wardrobe: typeof createHingedCabinet;
+
+    /** The named producer for the saved `chest` selector. */
+    chest: typeof createDrawerUnit;
+
+    /** The named producer for the saved `filingCabinet` selector. */
+    filingCabinet: typeof createDrawerUnit;
+
+    /** The named producer for the saved `locker` selector. */
+    locker: typeof createHingedCabinet;
+
+    /** The named producer for the saved `bookcase` selector. */
+    bookcase: typeof createBookcase;
+  }
+
+  /** Resolve the exact named producer for a saved selector on demand. */
+  export const PRODUCERS: Readonly<IProducers> = {
+    get wardrobe(): typeof createHingedCabinet {
+      return createHingedCabinet;
+    },
+    get chest(): typeof createDrawerUnit {
+      return createDrawerUnit;
+    },
+    get filingCabinet(): typeof createDrawerUnit {
+      return createDrawerUnit;
+    },
+    get locker(): typeof createHingedCabinet {
+      return createHingedCabinet;
+    },
+    get bookcase(): typeof createBookcase {
+      return createBookcase;
+    },
+  };
+
   /** The kinds of cabinet. */
   export type Kind =
     | "wardrobe"
@@ -151,7 +155,9 @@ export namespace createStorage {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     height: "m",
     depth: "m",
@@ -192,6 +198,6 @@ export namespace createStorage {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = STORAGE_BANDS;
 }

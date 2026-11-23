@@ -74,11 +74,6 @@ import { HumanForceThrow } from "./HumanForceThrow";
  * First pass: the grip sites are not held to the puller's hands by a root
  * solve while the body tips, and the body is rigid through the swing and
  * the flight.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the pull is read, each outcome's motion with its law, the events, the refusals and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation The outcome is the author's, the geometry the forces': a closed union of three responses over one force input.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The parameters and the plan; the mechanics are `HumanForceExchange`'s, the flight the engine's.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No outcome is reached by a scripted angle: each refuses when the forces cannot produce it.
  */
 export namespace HumanForceResponse {
   /**
@@ -89,14 +84,6 @@ export namespace HumanForceResponse {
    * @param outcome The engine's balance outcome of the impulses at the start, which `perturb` computed.
    * @returns The plan.
    * @throws {HumanRefusal} A `parameter` refusal on `outcome` when an impulse at the start already fells the body that is asked to resist, when no pull acts at the start, when a resisted pull passes the base, or when the pull ends before the base breaks, each with its feasible force; a `participant` refusal on `fulcrum` for a throw with no thrower, fulcrum or placed thrower posture; a `parameter` refusal on `outcome` when the swing stops before the vertical.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The pull is read from the force input at the start, or at its onset when it opens later, the response then shifted by the onset over a standing base; the centre, the base and its extent along the pull give the instant the base breaks by the pendulum law; a throw reads the thrower's placed posture at that instant for the fulcrum, swings, and flies under conserved momentum.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the pull, then one of three motions built from one tip function.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every infeasible original force/outcome is refused with its feasible input. Both sensitivity trials, the existing asin domain guard, current-posture pivot/heading mathematics and documented rigid-throw limitation remain; no force, target, mass or success bound is changed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One mass model, one base and, for a throw, one swing and one flight integration at plan time; constant work per evaluated second besides the flight's read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The base, centre, integrators, mass model and inertia are their owners'. Both sensitivity trials borrow one exact FK workspace and genuine unchanged-body ROM metadata without skipping either full posture solve, joint admission or clamp. The fixed mass/frequency/force coefficient is prepared once; yielding requests offset only, and the throw consumes one paired break-state offset/speed without repeating the analytic clock. Entry-facing basis products are prepared once for the actual resist/yield branch; each changing posture still computes its actual inverse heading, pivot offset and fresh tip.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sensitivity's FK reader and ROM projector are released with that synchronous calculation; no returned time evaluator captures it. The plan holds the swing's and flight's trajectories for its lifetime.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanForceResponse.IParams>,

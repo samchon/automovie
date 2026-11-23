@@ -1,5 +1,5 @@
 import {
-  ArchetypeUnits,
+  AutoMovieArchetypeUnits,
   createHighJump,
   createLandingMat,
   createVaultingPole,
@@ -66,9 +66,9 @@ export function test_archetype_jump_placed(): void {
           archetypeExtent(createVaultingPole({}, seed), "y").size,
         ],
         models: [
-          [7 * ArchetypeUnits.FOOT + 8 * ArchetypeUnits.INCH],
-          [10 * ArchetypeUnits.FOOT],
-          [17 * ArchetypeUnits.FOOT + ArchetypeUnits.INCH],
+          [7 * AutoMovieArchetypeUnits.FOOT + 8 * AutoMovieArchetypeUnits.INCH],
+          [10 * AutoMovieArchetypeUnits.FOOT],
+          [17 * AutoMovieArchetypeUnits.FOOT + AutoMovieArchetypeUnits.INCH],
         ],
         source: "UCS Spirit's 235, 305 and 520 series",
       },

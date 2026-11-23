@@ -2,11 +2,6 @@ import type { IAutoMovieSurfacePattern } from "./IAutoMovieSurfacePattern";
 
 /**
  * Authored planar pattern and synchronous zone generators consumed by deterministic surface laying.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Authored planar pattern and synchronous zone generators consumed by deterministic surface laying. Pattern coordinates are planar U/V metres and angles are degrees; generateAutoMovieSurfacePattern checks declaration geometry, safe lattice bounds and candidate reach before emitting placements.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Generator purity is a caller premise and callback exceptions propagate; geometric admission throws while quality findings are returned, and callbacks are not retained.
- * @evidence contracts/development/design.md#principled-representation Pattern coordinates are planar U/V metres and angles are degrees; generateAutoMovieSurfacePattern checks declaration geometry, safe lattice bounds and candidate reach before emitting placements.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The single pattern member reuses IAutoMovieSurfacePattern, including its generator contract; the engine owns placement and quantity calculation.
  */
 export namespace IAutoMovieGenerateSurfacePattern {
   /**
@@ -24,11 +19,6 @@ export namespace IAutoMovieGenerateSurfacePattern {
    * {@link autoMoviePatternFindings}.
    *
    * Coordinates are the surface's planar (u, v) metres and angles are degrees. A malformed declaration throws an `Error` naming the field: blank or duplicate ids, non-finite or non-positive sizes, a non-convex region or exclusion, overlapping zones or exclusions, ambiguous surviving occurrence ids, a zone spanning more than `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells, non-safe-integer derived lattice bounds, or a generated module reaching beyond its cell's declared reach. Quality defects are not thrown; they are returned as `findings` (sliver, unsupported-piece, module-overlap, joint-deviation, grain-break).
-   *
-   * @evidence contracts/development/design.md#principled-representation Pattern coordinates are planar U/V metres and angles are degrees; generateAutoMovieSurfacePattern checks declaration geometry, safe lattice bounds and candidate reach before emitting placements.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The single pattern member reuses IAutoMovieSurfacePattern, including its generator contract; the engine owns placement and quantity calculation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Generator purity is a caller premise and callback exceptions propagate; geometric admission throws while quality findings are returned, and callbacks are not retained.
-   * @evidence contracts/development/common.md#meaningful-documentation Authored planar pattern and synchronous zone generators consumed by deterministic surface laying. Pattern coordinates are planar U/V metres and angles are degrees; generateAutoMovieSurfacePattern checks declaration geometry, safe lattice bounds and candidate reach before emitting placements.
    */
   export type IProps = {
     /**

@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { abductionRange } from "../rom/abductionRange";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { swingTwistExcludedSwivels } from "./swingTwistExcludedSwivels";
 import { swivelArcs } from "./swivelArcs";
@@ -33,7 +34,9 @@ import { swivelJointReadings } from "./swivelJointReadings";
  * negating its vector, and reflects the middle angle about its right angle.
  * Where one such sinusoid exceeds `MARGIN`, its exact roots bound an arc of
  * swivels (`φ ± acos((MARGIN - a) / R)`), and a reading is refused on the
- * union of its axes' arcs.
+ * union of its axes' arcs. An abduction ceiling that rises with flexion
+ * (`abductionRange`) couples two axes, so its abduction is refused only past
+ * the highest ceiling the coupling reaches, which bounds it at every flexion.
  *
  * Every refusal is certain. A sinusoid above `MARGIN` puts its angle past
  * the bound by more than `MARGIN` radians, the joints' tolerance
@@ -51,14 +54,6 @@ import { swivelJointReadings } from "./swivelJointReadings";
  *
  * @param props The joint and its rotation by swivel.
  * @returns Whether every swivel in `[low, high]`, degrees, is refused; a joint with nothing to refuse refuses no swivel.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the premise on the rotation, why each entry is a sinusoid, each bound's sinusoid for both charts, the margin and why every refusal is certain, and every case that refuses nothing.
- * @evidence contracts/development/implementation.md#principled-implementation Rodrigues' formula makes each entry an exact sinusoid in the swivel, so each bound's crossing swivels are a sinusoid's two arccos roots, and an angle's interval maps through the rest frame and the chart exactly as `decomposeJointRotationOnBasis` and `alternateRigJointAngles` read it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The entries are fitted once, each reading's axes give their bound sinusoids, the sinusoids their arcs, the arcs one merged list per reading, and the test reads the lists.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sound by construction, never by sampling: an arc is refused only from its sinusoid's roots with the joints' tolerance to spare, and a case the analysis does not cover refuses nothing rather than guessing.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three rotations and nine dot products each fit the entries, a few arcs per reading are merged once, and each test is a scan of a handful of merged arcs.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit, the arcs, their union and its test are `swivelArcs`'s, shared with a point's bounds; the arcs are built once per rotation and read by every test of its sweep.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the two merged arc lists in the returned test only.
  */
 export function boxExcludedSwivels(
   props: IAutoMovieBoxExcludedSwivels.IProps,
@@ -85,7 +80,8 @@ export function boxExcludedSwivels(
     (alternate: boolean): IAutoMovieSwivelArcs.IArc[] | "all" => {
       const arcs: IAutoMovieSwivelArcs.IArc[] = [];
       for (const axis of AXES) {
-        const range: IAutoMovieAngleRange | null = constraint[axis];
+        const range: IAutoMovieAngleRange | null =
+          axis === "abduction" ? highestAbduction(constraint) : constraint[axis];
         if (range === null) continue;
         const read: IRead = reading[axis];
         for (const bound of bounds(
@@ -114,6 +110,18 @@ export function boxExcludedSwivels(
  * rounding of every step and the decomposition's gimbal band.
  */
 const MARGIN: number = (ROM_TOLERANCE * Math.PI) / 180;
+
+/**
+ * A joint's abduction interval at its highest ceiling: the ceiling a flexed
+ * abduction coupling reaches at its own flexion (`abductionRange`), which no
+ * flexion exceeds since the coupled ceiling is at least the neutral one
+ * (`validateJointConstraint`); the joint's own interval without a coupling.
+ */
+function highestAbduction(
+  constraint: IAutoMovieJointConstraint,
+): IAutoMovieAngleRange | null {
+  return abductionRange(constraint, constraint.abductionFlexed?.flexion ?? null);
+}
 
 /** The three clinical axes (`swivelJointReadings.AXES`). */
 const AXES: readonly Axis[] = swivelJointReadings.AXES;

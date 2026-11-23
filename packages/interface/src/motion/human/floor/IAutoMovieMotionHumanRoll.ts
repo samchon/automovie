@@ -21,22 +21,10 @@
  * hold the shins), the head is not kept off the floor by the hands in a
  * backward roll, and the floor's contact is read on joint centres, not the
  * skin.
- *
- * @evidence contracts/development/common.md#meaningful-documentation direction: Which way the body turns; `forward` when absent.
- * @evidence contracts/development/design.md#principled-representation direction: Which way the body turns; `forward` when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: floor/roll.ts (roll.plan, context).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in roll.plan.
  */
 export namespace IAutoMovieMotionHumanRoll {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The way the body turns.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The value the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** Which way the body turns; `forward` when absent. */

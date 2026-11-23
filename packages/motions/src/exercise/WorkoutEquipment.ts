@@ -246,7 +246,7 @@ export namespace WorkoutEquipment {
         { part: "leftFoot", kind: "plant", at: ["down"] },
       ],
       enter: 1,
-      reps: 5,
+      count: 5,
       route: (
         body: IAutoMovieMotionHumanBody,
         support?: number,
@@ -313,7 +313,7 @@ export namespace WorkoutEquipment {
         { part: "rightFoot", kind: "plant" },
       ],
       enter: 1.5,
-      reps: 5,
+      count: 5,
       route: (
         body: IAutoMovieMotionHumanBody,
         support?: number,
@@ -358,7 +358,7 @@ export namespace WorkoutEquipment {
         { part: "rightFoot", kind: "plant", prop: true },
       ],
       enter: 1.5,
-      reps: 5,
+      count: 5,
       route: (
         body: IAutoMovieMotionHumanBody,
         support?: number,
@@ -400,7 +400,7 @@ export namespace WorkoutEquipment {
         { part: "rightFoot", kind: "plant" },
       ],
       enter: 2.4,
-      reps: 5,
+      count: 5,
       route: (
         body: IAutoMovieMotionHumanBody,
         support?: number,

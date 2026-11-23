@@ -1,4 +1,4 @@
-import { QuadrupedLimb } from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedLimb } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,11 +38,9 @@ export function test_archetype_animal_limb_geometry(): void {
   ];
   const bytes: string = JSON.stringify(source);
   for (const fore of [true, false]) {
-    const prepared: QuadrupedLimb.IPrepared = QuadrupedLimb.prepare(
-      source,
-      fore,
-    );
-    const zero: QuadrupedLimb.IRange = prepared.range(0);
+    const prepared: AutoMovieArchetypeQuadrupedLimb.IPrepared =
+      AutoMovieArchetypeQuadrupedLimb.prepare(source, fore);
+    const zero: AutoMovieArchetypeQuadrupedLimb.IRange = prepared.range(0);
     near(`${fore} unfolded inner`, zero.minimum, 10);
     near(`${fore} unfolded outer`, zero.maximum, 14);
     for (const span of [10, 12, 14]) {
@@ -74,7 +72,7 @@ export function test_archetype_animal_limb_geometry(): void {
         ] as const)
           near(`${fore}/inner literal joint ${index}`, solved[index]!.y, y);
     }
-    const quarter: QuadrupedLimb.IRange = prepared.range(90);
+    const quarter: AutoMovieArchetypeQuadrupedLimb.IRange = prepared.range(90);
     near(`${fore} quarter inner`, quarter.minimum, Math.sqrt(90) - 2);
     near(`${fore} quarter outer`, quarter.maximum, Math.sqrt(90) + 2);
     const root: IAutoMovieVector3 = { x: 2, y: 0, z: 0 };
@@ -90,7 +88,7 @@ export function test_archetype_animal_limb_geometry(): void {
       `${fore} relative fold has the declared side`,
       fore ? b.y * c.z - b.z * c.y > 0 : b.y * c.z - b.z * c.y < 0,
     );
-    const reverse: QuadrupedLimb.IRange = prepared.range(180);
+    const reverse: AutoMovieArchetypeQuadrupedLimb.IRange = prepared.range(180);
     near(`${fore} half-turn inner`, reverse.minimum, 4);
     near(`${fore} half-turn outer`, reverse.maximum, 8);
     for (const [name, target, fold] of [
@@ -144,10 +142,12 @@ export function test_archetype_animal_limb_geometry(): void {
     { x: 2, y: -3, z: -1 },
     { x: 2, y: -6, z: 3 },
   ];
-  const recovered: IAutoMovieVector3[] = QuadrupedLimb.prepare(
-    bent,
-    true,
-  ).solve(bent[0]!, bent[4]!, 0);
+  const recovered: IAutoMovieVector3[] =
+    AutoMovieArchetypeQuadrupedLimb.prepare(bent, true).solve(
+      bent[0]!,
+      bent[4]!,
+      0,
+    );
   verify(recovered, bent[0]!, bent[4]!, "actual bent neutral carriage");
   for (let index: number = 0; index < 5; index++)
     for (const axis of ["x", "y", "z"] as const)
@@ -160,7 +160,8 @@ export function test_archetype_animal_limb_geometry(): void {
   const owned: IAutoMovieVector3[] = source.map(
     (point: IAutoMovieVector3): IAutoMovieVector3 => ({ ...point }),
   );
-  const snapshot: QuadrupedLimb.IPrepared = QuadrupedLimb.prepare(owned, true);
+  const snapshot: AutoMovieArchetypeQuadrupedLimb.IPrepared =
+    AutoMovieArchetypeQuadrupedLimb.prepare(owned, true);
   owned[1]!.z += 100;
   const root: IAutoMovieVector3 = { x: 2, y: 0, z: 0 };
   const goal: IAutoMovieVector3 = { x: 2, y: -12, z: 0 };
@@ -177,7 +178,8 @@ export function test_archetype_animal_limb_geometry(): void {
     snapshot.range(0).maximum,
     14,
   );
-  const changedRange: QuadrupedLimb.IRange = snapshot.range(0);
+  const changedRange: AutoMovieArchetypeQuadrupedLimb.IRange =
+    snapshot.range(0);
   changedRange.maximum = 100;
   near(
     "returned range cannot rewrite prepared range",
@@ -185,16 +187,17 @@ export function test_archetype_animal_limb_geometry(): void {
     14,
   );
 
-  const equalPieces: QuadrupedLimb.IPrepared = QuadrupedLimb.prepare(
-    [
-      { x: 2, y: 0, z: 0 },
-      { x: 2, y: -12, z: 0 },
-      { x: 2, y: -15, z: 0 },
-      { x: 2, y: -19, z: 0 },
-      { x: 2, y: -24, z: 0 },
-    ],
-    true,
-  );
+  const equalPieces: AutoMovieArchetypeQuadrupedLimb.IPrepared =
+    AutoMovieArchetypeQuadrupedLimb.prepare(
+      [
+        { x: 2, y: 0, z: 0 },
+        { x: 2, y: -12, z: 0 },
+        { x: 2, y: -15, z: 0 },
+        { x: 2, y: -19, z: 0 },
+        { x: 2, y: -24, z: 0 },
+      ],
+      true,
+    );
   near(
     "equal pieces include a zero inner distance bound",
     equalPieces.range(0).minimum,
@@ -228,7 +231,9 @@ export function test_archetype_animal_limb_geometry(): void {
     ["nonplanar source", offPlane],
     ["nonfinite source", nonfinite],
   ] as const)
-    refusal(name, (): unknown => QuadrupedLimb.prepare(invalid, true));
+    refusal(name, (): unknown =>
+      AutoMovieArchetypeQuadrupedLimb.prepare(invalid, true),
+    );
   TestValidator.equals("fixed-root actual four-bar geometry", findings, []);
 
   /** Every result must meet the unchanged independent four lengths and exact endpoints. */

@@ -6,11 +6,6 @@
  * `v² / (g l)` with `l` the hip height (Alexander 1984), and every length in
  * hip heights. A walk, a run and a named style of either are each one of
  * these, read by `walk.locomote`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a gait is, the units that make it fit any body and who reads it.
- * @evidence contracts/development/design.md#principled-representation Dimensionless speed and lengths, degrees for the arms and the lean, shares for the swing and the timing variation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the stepping plan reads; the walk's paces, the run's and the named gaits are its values.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No body and no named style is special-cased: a drill's kept time is two plain members.
  */
 export interface IAutoMovieMotionHumanWalkGait {
   /** Froude number, `v² / (g l)`. */
@@ -18,18 +13,10 @@ export interface IAutoMovieMotionHumanWalkGait {
 
   /**
    * The longest step in hip heights for the Froude number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkGait.step: The longest step in hip heights for the Froude number.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkGait.step is used through packages/motions/src/actions/run.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkGait.step is used through packages/motions/src/actions/run.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkGait.step is used through packages/motions/src/actions/run.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkGait.step is used through packages/motions/src/actions/run.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkGait.step is used through packages/motions/src/actions/run.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkGait.step is used through packages/motions/src/actions/run.ts.
    */
   step(froude: number): number;
 
-  /** Swing duration in step periods. */
+  /** Swing duration in step periods; each foot then stands `1 - swing / 2` of the stride, and both stand `1 - swing` of each step: 0.8 gives a walk's 60 % stance and 40 % swing. A frail gait's longer double support is a shorter swing. */
   swing: number;
 
   /** Vertical oscillation lowest at mid-stance, hip heights; a walk's own when absent. A gait with a flight rides its spring-mass stance's instead (`runStance`). */
@@ -42,6 +29,15 @@ export interface IAutoMovieMotionHumanWalkGait {
 
   /** Mid-swing ankle lift, hip heights. */
   lift: number;
+
+  /** The step width, the feet's side-to-side distance in stride, hip heights; `walkSteps.WIDTH` (0.1) when absent. A frail gait walks wider. */
+  width?: number;
+
+  /** The least clearance of a swinging foot's toe and heel at mid-swing, metres; `walkFoot.CLEARANCE` (15 mm) when absent. A shuffling gait clears less. */
+  toeClearance?: number;
+
+  /** The share, in (0, 1], of a hip's usable twist one step of a turn in place takes; 1 when absent. A frail gait turns by shorter steps, so a half turn takes more of them. */
+  turn?: number;
 
   /** Shoulder swing amplitude, elbow flexion and its swing, degrees. */
   arms: {

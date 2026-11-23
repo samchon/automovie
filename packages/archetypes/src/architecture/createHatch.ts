@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The roof hatch read. */
@@ -23,11 +23,11 @@ const HATCH: Readonly<{
   cover: number;
   swing: number;
 }> = {
-  width: 36 * ArchetypeUnits.INCH,
-  length: 30 * ArchetypeUnits.INCH,
-  curb: 12 * ArchetypeUnits.INCH,
-  wall: 2.25 * ArchetypeUnits.INCH,
-  cover: 1 * ArchetypeUnits.INCH,
+  width: 36 * AutoMovieArchetypeUnits.INCH,
+  length: 30 * AutoMovieArchetypeUnits.INCH,
+  curb: 12 * AutoMovieArchetypeUnits.INCH,
+  wall: 2.25 * AutoMovieArchetypeUnits.INCH,
+  cover: 1 * AutoMovieArchetypeUnits.INCH,
   swing: 70,
 };
 
@@ -39,7 +39,7 @@ const HATCH: Readonly<{
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The hatch.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, which side the ladder and the hinge are on, which way the cover opens and each contact.
  * @evidence contracts/development/implementation.md#principled-implementation The maker's opening, curb height and walls, cover and opening angle, the hinge on the length as the maker's guide places it, and its two hatches' masses.
@@ -52,9 +52,9 @@ const HATCH: Readonly<{
 export function createHatch(
   params: createHatch.IParams = {},
   seed?: number | string,
-): Archetype<createHatch.Affordance, createHatch.Dimension> {
-  const draw: ArchetypeDrawSession<createHatch.Dimension> =
-    new ArchetypeDrawSession<createHatch.Dimension>(
+): AutoMovieArchetype<createHatch.Affordance, createHatch.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createHatch.Dimension> =
+    new AutoMovieArchetypeDrawSession<createHatch.Dimension>(
       "hatch",
       createHatch.UNITS,
       seed,
@@ -63,10 +63,10 @@ export function createHatch(
   const d: Record<createHatch.Dimension, number> = draw.dimensions(
     createHatch.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createHatch.Affordance,
     createHatch.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: "roof hatch",
@@ -95,7 +95,7 @@ export function createHatch(
   builder.affordance({
     id: "hinge",
     kind: "hinge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, curb, -(width / 2 + wall)),
       v(-1, 0, 0),
       v(0, 0, 1),
@@ -107,7 +107,11 @@ export function createHatch(
   builder.affordance({
     id: "push",
     kind: "surface",
-    frame: ArchetypeFrame.facing(v(0, curb, 0), v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, curb, 0),
+      v(0, -1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     width: length,
     depth: width,
@@ -116,7 +120,7 @@ export function createHatch(
   builder.affordance({
     id: "opening",
     kind: "aperture",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, curb, width / 2),
       v(0, 0, -1),
       v(1, 0, 0),
@@ -150,7 +154,9 @@ export namespace createHatch {
   export type Dimension = "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     mass: "kg",
   };
 
@@ -161,7 +167,7 @@ export namespace createHatch {
   }
 
   /** The band of each free dimension: the aluminium hatch's mass to the steel one's. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    mass: ArchetypeBand.of("kg", 50, 83, BILCO),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    mass: AutoMovieArchetypeBand.of("kg", 50, 83, BILCO),
   };
 }

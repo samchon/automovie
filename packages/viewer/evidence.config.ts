@@ -10,6 +10,7 @@ export default {
       name: "viewer documentation",
       type: "typescript",
       files,
+      evidenceFiles: ["evidence/**/*.md"],
       symbol: ["type", "function"],
       reference: {
         type: "markdown",
@@ -23,6 +24,7 @@ export default {
       name: "viewer types",
       type: "typescript",
       files,
+      evidenceFiles: ["evidence/**/*.md"],
       symbol: "type",
       reference: {
         type: "markdown",
@@ -36,6 +38,7 @@ export default {
       name: "viewer functions",
       type: "typescript",
       files,
+      evidenceFiles: ["evidence/**/*.md"],
       symbol: "function",
       reference: {
         type: "markdown",

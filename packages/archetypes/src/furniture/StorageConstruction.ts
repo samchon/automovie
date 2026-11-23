@@ -1,11 +1,15 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import type { createStorage } from "./createStorage";
 
 /** The builder every construction fills. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createStorage.Affordance,
   createStorage.Dimension
 >;
@@ -49,11 +53,6 @@ function rectangle(width: number, depth: number): IAutoMovieVector3[] {
 
 /**
  * How {@link createStorage} builds each kind of cabinet: a wardrobe, a chest of drawers or a filing cabinet, a locker and a bookcase, each standing on the floor at the origin with its front toward `+Z`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is built and the shared frame.
- * @evidence contracts/development/design.md#principled-representation Code CAD over the builder's primitives from named dimensions; doors and drawers are parts on their articulations.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The constructions, the drawer cabinets' make-up and the estimates they read; read only by `createStorage`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A slider's `+X` is its travel and a grip's `+X` is the bar the hand wraps, which differ on a drawer, so the slide and the pull are two affordances; a pull no source places is left out rather than placed by guess.
  */
 export namespace StorageConstruction {
   /**
@@ -70,7 +69,7 @@ export namespace StorageConstruction {
   };
 
   /** A single-tier locker's hat shelf above the locker's bottom, metres: Penco Vanguard specification, "Hat shelf 48 inches from locker bottom" (https://www.pencoproducts.com/media/3677/vanguard-snapshot-specs_jan2019.pdf). */
-  export const LOCKER_SHELF: number = 48 * ArchetypeUnits.INCH;
+  export const LOCKER_SHELF: number = 48 * AutoMovieArchetypeUnits.INCH;
 
   /** A bookcase's shelves above its bottom, as the BILLY's one fixed and four adjustable. */
   export const SHELVES: number = 5;
@@ -92,14 +91,6 @@ export namespace StorageConstruction {
    * @param width The cabinet along `X`, metres.
    * @param height Along `Y`, metres.
    * @param depth Along `Z`, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two contacts.
-   * @evidence contracts/development/implementation.md#principled-implementation Two surface frames on the cabinet's faces.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two affordances.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every kind lays its outer faces through this one function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function faces(
     builder: Builder,
@@ -110,7 +101,7 @@ export namespace StorageConstruction {
     builder.affordance({
       id: "push",
       kind: "surface",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(width / 2, height / 2, 0),
         v(1, 0, 0),
         v(0, 0, 1),
@@ -122,7 +113,7 @@ export namespace StorageConstruction {
     builder.affordance({
       id: "top",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, height, 0)),
       extent: null,
       width,
       depth,
@@ -134,14 +125,6 @@ export namespace StorageConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and which way the doors swing.
-   * @evidence contracts/development/implementation.md#principled-implementation Door parts bound to `hinge` affordances on the outer edges, each pull a `handle` riding its hinge.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Carcass, then each door with its pull and their two contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The carcass is one solid box; the inside is not modelled.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one cabinet.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function wardrobe(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -177,7 +160,7 @@ export namespace StorageConstruction {
       builder.affordance({
         id: `${side}Door`,
         kind: "hinge",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v((sign * width) / 2, pull, face),
           v(0, sign, 0),
           v(-sign, 0, 0),
@@ -190,7 +173,7 @@ export namespace StorageConstruction {
         id: `${side}Pull`,
         kind: "handle",
         symmetry: "none",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(sign * 0.04, pull, face + E.pull),
           v(0, 0, 1),
           v(0, 1, 0),
@@ -210,14 +193,6 @@ export namespace StorageConstruction {
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
    * @param make The cabinet's drawer count, pulls and finish.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, the drawers' numbering and direction.
-   * @evidence contracts/development/implementation.md#principled-implementation Equal drawers up the carcass's height, each box as long as the carcass's inside so a drawn drawer stays in its mouth, its slider's travel the drawn one and its frame on the front's middle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Carcass, then each drawer with its contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The carcass is one solid box, so a drawer's box hides in it at rest, without runners or a hollow.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most three parts per drawer.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one cabinet.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function drawers(
     builder: Builder,
@@ -264,7 +239,11 @@ export namespace StorageConstruction {
       builder.affordance({
         id: `drawer${index}`,
         kind: "slider",
-        frame: ArchetypeFrame.facing(v(0, y, front), v(0, 1, 0), v(0, 0, 1)),
+        frame: AutoMovieArchetypeFrame.facing(
+          v(0, y, front),
+          v(0, 1, 0),
+          v(0, 0, 1),
+        ),
         extent: null,
         travel: d.travel!,
         parts: make.pulls
@@ -276,7 +255,11 @@ export namespace StorageConstruction {
           id: `pull${index}`,
           kind: "handle",
           symmetry: "none",
-          frame: ArchetypeFrame.facing(v(0, y, front), v(0, 0, 1), v(1, 0, 0)),
+          frame: AutoMovieArchetypeFrame.facing(
+            v(0, y, front),
+            v(0, 0, 1),
+            v(1, 0, 0),
+          ),
           extent: null,
           grip: "power",
           aperture: E.pull,
@@ -293,14 +276,6 @@ export namespace StorageConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, its one contact and why the door does not open.
-   * @evidence contracts/development/implementation.md#principled-implementation The maker's width, depth and height above its 6 in legs; the hat shelf at Penco's 48 in above the bottom; the hinge on the door's `-X` edge at half its height, its axis down so a positive travel would swing the door out toward `+Z`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Legs, walls, door, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No louvres, hooks, handle or lock; the walls' and legs' sections are construction estimates.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Ten parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one cabinet.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function locker(builder: Builder, d: Drawn): void {
     const t: number = ESTIMATES.panel;
@@ -358,7 +333,7 @@ export namespace StorageConstruction {
     builder.affordance({
       id: "shelf1",
       kind: "stack-top",
-      frame: ArchetypeFrame.upright(v(0, shelf, inside)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, shelf, inside)),
       extent: rectangle(width - 2 * t, body - t),
     });
     const face: number = back + depth;
@@ -369,7 +344,7 @@ export namespace StorageConstruction {
     builder.affordance({
       id: "door",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(-width / 2, mid, face),
         v(0, -1, 0),
         v(1, 0, 0),
@@ -385,14 +360,6 @@ export namespace StorageConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and the shelves' numbering.
-   * @evidence contracts/development/implementation.md#principled-implementation The maker's size and shelf count, the shelves' tops dividing the height into equal steps.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Carcass panels, then each shelf with its contact.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The panels' and the plinth's sizes are construction estimates; the shelves stand at even steps, where the maker lets four of them move.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Ten parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one cabinet.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bookcase(builder: Builder, d: Drawn): void {
     const t: number = ESTIMATES.panel;
@@ -430,7 +397,7 @@ export namespace StorageConstruction {
       builder.affordance({
         id: `shelf${k}`,
         kind: "stack-top",
-        frame: ArchetypeFrame.upright(v(0, y, z)),
+        frame: AutoMovieArchetypeFrame.upright(v(0, y, z)),
         extent: rectangle(inner, shelfDepth),
       });
     }

@@ -56,8 +56,10 @@ interface Side {
  * Every source constraint (trim, domain and retained-cell boundaries) is
  * fixed, so the rails, their vertices and the seam they share with another
  * face are unchanged. A flip is admitted only when both new triangles keep the
- * planner's own rules: positive chart orientation, a represented strict
- * interior, a sub-half-period phase span (strict when indexed), a new vertex
+ * planner's ear rules: positive chart orientation, a represented strict
+ * interior (so a flip never makes a sliver; one an exact insertion split
+ * made may stay, read by its region), a sub-half-period phase span (strict
+ * when indexed), a new vertex
  * pair absent from the face's edges, its constraints and the occupied global
  * pairs. Each quadrilateral is read in one canonical cover, its least vertex
  * ID's occurrence at lift zero, so a flip and its reverse read the same four
@@ -73,14 +75,6 @@ interface Side {
  * @param scale Phase scale of the uniform metric, positive and finite, in length units per radian.
  * @param local A quadrilateral's own first fundamental form from its four vertex IDs and their chart points in its cover, as `[shear, scale]` for the map `(u, v) -> (u + shear v, scale v)`, read in place of `scale`, so the face is Delaunay in the metric each quadrilateral spans; absent, `scale` holds everywhere with no shear. A flip and its reverse read the same four points and so the same form.
  * @returns New positive triangle occurrences over the same region and vertices, or the broken premise.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Lawson's flip algorithm reaches the constrained Delaunay triangulation by exact lifted in-circle and orientation signs on one scaled chart that carries the length unit; the planner's own representability rules admit each flip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One index-only pass follows interior insertion; the planner keeps visibility and coverage, the in-circle predicate its arithmetic and the grid its metric.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Moves no point, removes no vertex and flips no source constraint; an inconsistent incidence or a flip count past Lawson's bound is a named failure, never a partial result.
- * @evidence contracts/development/common.md#meaningful-documentation States why rail ears survive insertion, why their diagonals flip, the metric and its exactness, termination, fixed constraints, admission and visiting order.
- * @evidence contracts/development/implementation.md#efficient-algorithms One adjacency map and a work queue; each in-circle test is constant work, and at most `n (n - 1) / 2` flips each queue four sides.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the planner's indexed positions and split constraints; no surface jet is evaluated and no point constructed.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adjacency, pair counts and the queue are call-local O(T) storage; returned triangle triples are fresh and caller-owned.
  */
 export function legalizeAutoMovieSolidMesh(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -326,7 +320,7 @@ function flip(
   ];
 }
 
-/** The planner's rule: positive, a represented strict centroid and a sub-half-period span. */
+/** The planner's ear rule: positive, a represented strict centroid and a sub-half-period span. */
 function represented(
   points: Readonly<AutoMovieVector2Tuple>[],
   period: number | undefined,

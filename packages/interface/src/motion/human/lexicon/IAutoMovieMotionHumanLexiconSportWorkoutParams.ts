@@ -2,17 +2,10 @@ import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanR
 import type { IAutoMovieMotionHumanStand } from "../actions/IAutoMovieMotionHumanStand";
 import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
 import type { IAutoMovieMotionHumanRopeSkip } from "../exercise/IAutoMovieMotionHumanRopeSkip";
-import type { IAutoMovieMotionHumanWorkout } from "../exercise/IAutoMovieMotionHumanWorkout";
+import type { IAutoMovieMotionHumanWorkout } from "../next/IAutoMovieMotionHumanWorkout";
 
 /**
  * Open parameters of the sportWorkout lexicon family, keyed by each runtime export name.
- * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
- * HumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
- * @evidence contracts/development/design.md#principled-representation The sportWorkout family is a closed export-name map. Each key uses the law contract directly or projects its open parameters.
- * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the sportWorkout row parameter map used by the family registry and schema generator.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
 export interface IAutoMovieMotionHumanLexiconSportWorkoutParams {
   /** Push-ups. */
@@ -112,7 +105,7 @@ export interface IAutoMovieMotionHumanLexiconSportWorkoutParams {
   lungeTwist: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
 
   /** The mountain pose of yoga: standing still ten seconds (provisional). */
-  mountainPose: Omit<IAutoMovieMotionHumanStand.IParams, "seconds">;
+  mountainPose: Omit<IAutoMovieMotionHumanStand.IParams, "hold">;
 
   /** Warrior I of yoga. */
   warriorOne: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
@@ -155,6 +148,15 @@ export interface IAutoMovieMotionHumanLexiconSportWorkoutParams {
 
   /** A ballroom closed hold. */
   closedHold: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
+
+  /** A ballet arabesque on the left foot. */
+  arabesque: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
+
+  /** A breaking baby freeze on both hands. */
+  babyFreeze: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
+
+  /** A street rock with chest and head isolations. */
+  streetRock: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
 
   /** A dead hang from a bar. */
   deadHang: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;

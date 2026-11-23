@@ -10,12 +10,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGesture,
   HumanChain,
   HumanPerformance,
-  HumanUpperRows,
 } from "@automovie/motions";
 
 import { motionHandleShapes } from "./motionHandleShapes";
+
+const { HumanUpperRows } = AutoMovieMotionHumanGesture;
 
 /**
  * The cast the upper-body phrase specs share (#3361): the rows of
@@ -137,7 +139,7 @@ export namespace motionUpperPhrase {
             handle: "handle",
             hand,
           })
-        : HumanChain.subject("a").stand({ seconds: 0.3 })
+        : HumanChain.subject("a").stand({ hold: 0.3 })
       ).registered(law, params).node,
     });
   }

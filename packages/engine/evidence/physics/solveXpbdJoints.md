@@ -1,0 +1,75 @@
+# src/physics/solveXpbdJoints.ts#solveXpbdJoints
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the attachment, both limits, the motor law and its cap.
+
+## @evidence contracts/development/design.md#principled-representation
+
+A namespace over the world's joints; angles in radians, impulses in newton metre seconds.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface `AutoMovieXpbdWorld.step` drives both phases.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+Limits and gains are the profile's and the motors'; nothing is tuned here.
+
+# src/physics/solveXpbdJoints.ts#solveXpbdJoints.positions
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the attachment and both limit forms.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Block point and rotation corrections toward the anchor and the admitted rotation (projectPhysicalJointRotation, limitPhysicalSwingTwist).
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One loop over joints: anchor, then rotation.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Joints between two kinematic bodies are skipped; limits are the profile's.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Linear in joints per pass.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Each pass reads the current poses; nothing carries over.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Mutates only the bodies it is given; allocates only transient vectors.
+
+# src/physics/solveXpbdJoints.ts#solveXpbdJoints.motors
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the tree solve, the coupled rows of the remaining joints, the implicit damper and its cap.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Trees by the articulated-body algorithm; each remaining joint's attachment and motor velocity rows as one linear system (J M^-1 J^T + diag(0, 1 / (h c))) x = rhs, solved directly; a capped motor becomes a fixed impulse.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The forest belongs to solveXpbdArticulation; here one loop over the remaining joints: assemble the block by its unit responses, solve, clamp, apply.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A motor without damping or torque is skipped; a singular block applies nothing.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+The trees cost solveXpbdArticulation's linear sweeps; at most six unknowns and three re-solves per remaining joint.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Motors are reset by their owner each step.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Mutates only the bodies it is given; allocates only transient vectors.

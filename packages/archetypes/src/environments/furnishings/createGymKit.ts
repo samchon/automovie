@@ -24,7 +24,7 @@ import { furnishRoom } from "./furnishRoom";
  * @throws When the requested stations or their clearances do not fit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the room origin, orientation, bench and weight roles, attached contact paths and failure condition.
- * @evidence contracts/development/implementation.md#principled-implementation Positions the actual measured rest boxes of flat benches and dumbbells. The two weights stand alongside a bench without crossing its sides. FurnishRoom uses the lowest rest extent on Y to place each model on the floor.
+ * @evidence contracts/development/implementation.md#principled-implementation Positions the measured rest boxes of flat benches and dumbbells. The two weights stand alongside a bench without crossing its sides. FurnishRoom uses the lowest rest extent on Y to place each model on the floor.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Chooses the room's two model prototypes and their group relationship. Common layout and prop instantiation stay in furnishRoom.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The station does not claim movement or manufacturer clearances for training equipment. Capacity, useful aisle and approach reservations are checked by the shared planner.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds and measures two model prototypes once per occurrence. Cost then follows the shared room planner's candidate and requested population sizes.
@@ -32,10 +32,7 @@ import { furnishRoom } from "./furnishRoom";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned module keeps the layout parameters. Each call owns its model draws and emits a population bounded by the requested stations. It owns no external resources.
  */
 export function createGymKit(
-  params: IAutoMovieFurnishingLayout & {
-    /** Positive integer count of free-weight stations. */
-    readonly stations: number;
-  },
+  params: createGymKit.IParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -77,4 +74,20 @@ export function createGymKit(
       ],
     });
   };
+}
+
+/**
+ * Types of the gym kit producer.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the room layout it extends and the count of free-weight stations it adds.
+ * @evidence contracts/development/design.md#principled-representation The furnishing layout of the interface plus one positive integer count.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What the kit's producer takes and nothing else.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The layout's own members are not restated.
+ */
+export namespace createGymKit {
+  /** The room layout and the positive integer count of the kit's repeated group. */
+  export interface IParams extends IAutoMovieFurnishingLayout {
+    /** Positive integer count of free-weight stations. */
+    readonly stations: number;
+  }
 }

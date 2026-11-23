@@ -16,11 +16,6 @@ import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
  * `AutoMovieProductionBuilder` passes the materialized source with the full
  * production, whose models carry every rig. Every field is read only; the
  * grade never mutates the contract or the artifacts.
- *
- * @evidence contracts/development/design.md#principled-representation Names exactly the inputs the grade reads, so the two call sites are checked by the compiler against one declaration instead of each matching an anonymous parameter shape; the optional `frameFormat` and `skeleton` exist because the source-stage caller has no production object and no attached models, which is the real difference between the two moments.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One flat record with no defaults of its own: the production's raster wins over `frameFormat`, a model's rig wins over `skeleton`, and those precedences are applied where they are read, in the subject reader and the camera grade.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries no field for a specific caller, test or fixture; `collisions` is the builder's own finding about formation slots passed through to the grade so it fails the same diagnostic channel.
- * @evidence contracts/development/common.md#meaningful-documentation States both producers and when each calls, which field wins when two could answer, what a `null` or omitted field means for the grade, and that nothing is mutated.
  */
 export interface IAutoMovieRealizeShotContractProps {
   /**
@@ -76,14 +71,6 @@ export interface IAutoMovieRealizeShotContractProps {
    * only for a node whose model is not in `compiled.models`; `null` means the
    * node has no rig, so its joint-angle predicates fail and its pose root is
    * not folded into its placement.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The source-stage pass has rigs only through the runtime's `skeleton` lookup, so the grade borrows that lookup instead of requiring models that do not exist yet; a compiled model's own skeleton still takes precedence.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A plain function of the node id, the same signature `IAutoMovieEngineShotRuntime.skeleton` has, so `compileDefinedShot` passes the runtime's lookup through unchanged.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The grade substitutes no rig for a `null` answer; a predicate that needs one fails.
-   * @evidence contracts/development/common.md#meaningful-documentation States when it is consulted, its precedence below compiled models, and the effect of a `null` answer on predicates and placement.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A caller-supplied lookup whose cost is the caller's; the grade calls it at most once per rig read.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The grade does not memoize the answers; a caller with an expensive rig build memoizes behind the lookup.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned rig stays caller-owned and the realization record keeps no reference to it.
    */
   skeleton?: (node: string) => IAutoMovieSkeleton | null;
 

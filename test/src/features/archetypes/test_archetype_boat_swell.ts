@@ -1,8 +1,8 @@
 import {
-  type Archetype,
-  type ArchetypeCourse,
-  type ArchetypeRide,
-  ArchetypeSea,
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeCourse,
+  type AutoMovieArchetypeRide,
+  AutoMovieArchetypeSea,
   createBoat,
   rowBoat,
 } from "@automovie/archetypes";
@@ -29,10 +29,13 @@ import { TestValidator } from "@nestia/e2e";
 export function test_archetype_boat_swell(): void {
   const findings: string[] = [];
   // The top of the WMO sea state code's slight band, 0.5 to 1.25 m significant height.
-  const options: ArchetypeSea.IOptions = { height: 1.25, seed: 7 };
-  const sea: ArchetypeSea.ISea = ArchetypeSea.of(options);
-  const again: ArchetypeSea.ISea = ArchetypeSea.of(options);
-  const other: ArchetypeSea.ISea = ArchetypeSea.of({ ...options, seed: 8 });
+  const options: AutoMovieArchetypeSea.IOptions = { height: 1.25, seed: 7 };
+  const sea: AutoMovieArchetypeSea.ISea = AutoMovieArchetypeSea.of(options);
+  const again: AutoMovieArchetypeSea.ISea = AutoMovieArchetypeSea.of(options);
+  const other: AutoMovieArchetypeSea.ISea = AutoMovieArchetypeSea.of({
+    ...options,
+    seed: 8,
+  });
   let differs: boolean = false;
   for (let seconds: number = 0; seconds < 60; seconds += 0.37)
     for (const [x, z] of [
@@ -56,7 +59,7 @@ export function test_archetype_boat_swell(): void {
     }
   if (!differs) findings.push("another seed gave the same surface");
   const m0: number = sea.components.reduce(
-    (sum: number, c: ArchetypeSea.IComponent): number =>
+    (sum: number, c: AutoMovieArchetypeSea.IComponent): number =>
       sum + (c.amplitude * c.amplitude) / 2,
     0,
   );
@@ -66,25 +69,27 @@ export function test_archetype_boat_swell(): void {
     );
 
   // A boat on it.
-  const boat: Archetype<createBoat.Affordance, createBoat.Dimension> =
+  const boat: AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension> =
     createBoat({ kind: "rowboat" }, 2);
-  const course: ArchetypeCourse.ICourse = {
+  const course: AutoMovieArchetypeCourse.ICourse = {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length: 20 }],
     cruise: 1.5,
     startSpeed: 1.5,
     endSpeed: 1.5,
   };
-  const still: ArchetypeRide.IRide<
+  const still: AutoMovieArchetypeRide.IRide<
     createBoat.Affordance,
     createBoat.Dimension
   > = rowBoat(boat, course);
-  const floating: ArchetypeRide.IRide<
+  const floating: AutoMovieArchetypeRide.IRide<
     createBoat.Affordance,
     createBoat.Dimension
   > = rowBoat(boat, course, { sea: options });
-  const calm: ArchetypeRide.IRide<createBoat.Affordance, createBoat.Dimension> =
-    rowBoat(boat, course, { sea: { height: 0, seed: 7 } });
+  const calm: AutoMovieArchetypeRide.IRide<
+    createBoat.Affordance,
+    createBoat.Dimension
+  > = rowBoat(boat, course, { sea: { height: 0, seed: 7 } });
   for (let seconds: number = 0; seconds < still.duration; seconds += 0.5) {
     const base: IAutoMovieTransform = still.at(seconds).placement;
     const moved: IAutoMovieTransform = floating.at(seconds).placement;

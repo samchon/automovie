@@ -55,14 +55,14 @@ export function everydayTypeCases(
     depth: 0.45,
   };
   const sitting: IAutoMovieMotionHumanPerformance = one(
-    HumanChain.subject("a").sit({ seat, seconds: 0.2 }),
+    HumanChain.subject("a").sit({ seat, hold: 0.2 }),
   );
   const held = sitting.posture("a", sitting.duration);
   const reach: number = body.measure.forearm + 0.5 * body.measure.hand;
   const setups: [string, IAutoMovieMotionHumanChain, IAutoMovieVector3][] = [
     [
       "seated",
-      HumanChain.subject("a").sit({ seat, seconds: 0.2 }),
+      HumanChain.subject("a").sit({ seat, hold: 0.2 }),
       {
         x: 0,
         y: held.root.y + body.measure.shoulderHeight - body.measure.upperArm,

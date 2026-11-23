@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The quarterstaff's length, from a secondary source. */
@@ -50,7 +50,7 @@ const POWER: string =
  * @param params The kind, a spear's head and any dimension the author fixes.
  * @param seed The seed that picks the head left free and draws every dimension left free inside its band; absent, the first head and the middle of each band.
  * @returns The weapon.
- * @throws {ArchetypeRefusal} For a head not of the kind, a fixed dimension outside its band or one the head gives, or a head length fixed on a staff, or a lance's shaft length fixed, which its head sets.
+ * @throws {AutoMovieArchetypeRefusal} For a head not of the kind, a fixed dimension outside its band or one the head gives, or a head length fixed on a staff, or a lance's shaft length fixed, which its head sets.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the weapon stands, how the hands share the shaft, what the lengths measure and the two ends.
  * @evidence contracts/development/implementation.md#principled-implementation A shaft rod and, for a spear and a lance, a head box of its head's width carrying its head's mass as its share of the whole, the shaft the rest, so the balance point moves toward the head; mass properties follow from the parts under the whole's mass. A lance's shaft is the read lance's overall length less its head.
@@ -63,9 +63,9 @@ const POWER: string =
 export function createPolearm(
   params: createPolearm.IParams,
   seed?: number | string,
-): Archetype<createPolearm.Affordance, createPolearm.Dimension> {
-  const draw: ArchetypeDrawSession<createPolearm.Dimension> =
-    new ArchetypeDrawSession<createPolearm.Dimension>(
+): AutoMovieArchetype<createPolearm.Affordance, createPolearm.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createPolearm.Dimension> =
+    new AutoMovieArchetypeDrawSession<createPolearm.Dimension>(
       "polearm",
       createPolearm.UNITS,
       seed,
@@ -93,10 +93,10 @@ export function createPolearm(
     kind === "lance"
       ? { ...drawn, length: createPolearm.LANCE_LENGTH - drawn.headLength! }
       : drawn;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createPolearm.Affordance,
     createPolearm.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: kind === "staff" ? "wood" : "composite",
     id: params.id,
     name: kind,
@@ -115,7 +115,11 @@ export function createPolearm(
     id: "shaft",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, length / 2, 0), v(0, 0, -1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, length / 2, 0),
+      v(0, 0, -1),
+      v(0, 1, 0),
+    ),
     extent: null,
     grip: "two-hand",
     aperture: d.diameter!,
@@ -126,7 +130,7 @@ export function createPolearm(
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, length / 2, 0),
         v(0, 0, -1),
         v(0, 1, 0),
@@ -146,14 +150,14 @@ export function createPolearm(
     id: "tip",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.upright(v(0, length + head, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, length + head, 0)),
     extent: null,
   });
   builder.affordance({
     id: "butt",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
     extent: null,
   });
   return builder.build(d.mass!);
@@ -236,7 +240,9 @@ export namespace createPolearm {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     headLength: "m",
     headWidth: "m",
@@ -259,17 +265,17 @@ export namespace createPolearm {
 
   /** The band of each free dimension a head leaves, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     staff: {
-      length: ArchetypeBand.metres(1.8, 2.7, STAFF, true),
-      diameter: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(1.8, 2.7, STAFF, true),
+      diameter: AutoMovieArchetypeBand.metres(
         0.03,
         0.035,
         "a staff's thickness, not read at a source",
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         1,
         1.8,
@@ -278,27 +284,32 @@ export namespace createPolearm {
       ),
     },
     spear: {
-      length: ArchetypeBand.metres(2, 3, SPEAR, true),
-      diameter: ArchetypeBand.metres(0.016, 0.0235, SOCKETS, true),
-      mass: ArchetypeBand.of("kg", 1.8144, 2.5798, SPEAR_MASS),
+      length: AutoMovieArchetypeBand.metres(2, 3, SPEAR, true),
+      diameter: AutoMovieArchetypeBand.metres(0.016, 0.0235, SOCKETS, true),
+      mass: AutoMovieArchetypeBand.of("kg", 1.8144, 2.5798, SPEAR_MASS),
     },
     lance: {
-      headLength: ArchetypeBand.metres(0.207, 0.277, LANCE_HEADS, true),
-      headWidth: ArchetypeBand.metres(
+      headLength: AutoMovieArchetypeBand.metres(
+        0.207,
+        0.277,
+        LANCE_HEADS,
+        true,
+      ),
+      headWidth: AutoMovieArchetypeBand.metres(
         0.015,
         0.015,
         `${LANCE_HEAD}, applied to the Pattern 1894`,
         true,
       ),
-      headMass: ArchetypeBand.of(
+      headMass: AutoMovieArchetypeBand.of(
         "kg",
         0.18,
         0.18,
         `${LANCE_HEAD}, applied to the Pattern 1894`,
         true,
       ),
-      diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of("kg", 2.19, 2.19, LANCE),
+      diameter: AutoMovieArchetypeBand.metres(0.03, 0.04, POWER, true),
+      mass: AutoMovieArchetypeBand.of("kg", 2.19, 2.19, LANCE),
     },
   };
 }

@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The World Athletics rule as read. */
@@ -21,7 +21,7 @@ const RULE: string =
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The baton.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the baton stands, its three contacts and what reads them.
  * @evidence contracts/development/implementation.md#principled-implementation One rod of the drawn length and diameter; its mass the drawn mass, a hollow tube's.
@@ -34,9 +34,9 @@ const RULE: string =
 export function createRelayBaton(
   params: createRelayBaton.IParams = {},
   seed?: number | string,
-): Archetype<createRelayBaton.Affordance, createRelayBaton.Dimension> {
-  const draw: ArchetypeDrawSession<createRelayBaton.Dimension> =
-    new ArchetypeDrawSession<createRelayBaton.Dimension>(
+): AutoMovieArchetype<createRelayBaton.Affordance, createRelayBaton.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createRelayBaton.Dimension> =
+    new AutoMovieArchetypeDrawSession<createRelayBaton.Dimension>(
       "relayBaton",
       createRelayBaton.UNITS,
       seed,
@@ -45,10 +45,10 @@ export function createRelayBaton(
   const d: Record<createRelayBaton.Dimension, number> = draw.dimensions(
     createRelayBaton.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createRelayBaton.Affordance,
     createRelayBaton.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "aluminium",
     id: params.id,
     name: "relay baton",
@@ -65,7 +65,7 @@ export function createRelayBaton(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, d.length / 2, 0),
       Vector3.create(0, 0, -1),
       Vector3.create(0, 1, 0),
@@ -79,7 +79,7 @@ export function createRelayBaton(
     id: "front",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, d.length, 0),
       Vector3.create(0, 1, 0),
       Vector3.create(1, 0, 0),
@@ -90,7 +90,7 @@ export function createRelayBaton(
     id: "back",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, -1, 0),
       Vector3.create(1, 0, 0),
@@ -128,7 +128,9 @@ export namespace createRelayBaton {
   export type Dimension = "length" | "diameter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     mass: "kg",
@@ -141,14 +143,18 @@ export namespace createRelayBaton {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(0.28, 0.3, `${RULE}: 0.28 to 0.30 m long`),
-    diameter: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(
+      0.28,
+      0.3,
+      `${RULE}: 0.28 to 0.30 m long`,
+    ),
+    diameter: AutoMovieArchetypeBand.metres(
       0.038,
       0.042,
       `${RULE}: an outside diameter of 40 mm +/- 2 mm`,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       0.05,
       0.07,

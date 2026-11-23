@@ -1,11 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import type { createInstrument } from "./createInstrument";
 
 /** The builder every construction fills. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createInstrument.Affordance,
   createInstrument.Dimension
 >;
@@ -53,7 +56,7 @@ function strings(
       id: `string${k}`,
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.scale(Vector3.add(from, to), 0.5),
         v(0, 1, 0),
         along,
@@ -68,11 +71,6 @@ function strings(
  * How {@link createInstrument} builds its stringed instruments: a steel-string guitar and a violin, each lying on its back with its neck toward `+X`.
  *
  * Fret positions follow equal temperament: the `n`th fret stands `scale (1 - 2^(-n/12))` from the nut, since each fret shortens the sounding string by a semitone's ratio, the twelfth root of two. Every string, fret and grip is placed from the makers' and luthiers' read sizes; the estimates below size only parts no act reads.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is built, how it lies, the rule that places the frets and what the estimates may size.
- * @evidence contracts/development/design.md#principled-representation Code CAD over the builder's primitives from named dimensions; the frets and strings are contacts whose places follow from the scale, not a table.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two constructions, the fret count and the estimates they read; read only by `createInstrument`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Strings are contacts, not parts, since a string is thinner than any view resolves; every size no source gives is a named construction estimate here, none placing a contact.
  */
 export namespace StringedConstruction {
   /** A steel-string guitar's frets, as the Martin D-28 has them. */
@@ -100,14 +98,6 @@ export namespace StringedConstruction {
    * @param scale The string's sounding length from the nut to the saddle, metres.
    * @param fret The fret's number, 0 for the nut.
    * @returns The distance, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the nut's case.
-   * @evidence contracts/development/implementation.md#principled-implementation Equal temperament: each fret leaves `2^(-1/12)` of the string sounding, so fret `n` is `scale (1 - 2^(-n/12))` from the nut.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One formula.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function fret(scale: number, fret: number): number {
     return scale * (1 - Math.pow(2, -fret / 12));
@@ -120,14 +110,6 @@ export namespace StringedConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States how the guitar lies, the plane of its strings and every contact's place.
-   * @evidence contracts/development/implementation.md#principled-implementation The nut stands the fourteenth fret's distance from the body and the saddle the scale from the nut; frets and strings follow from the scale, and the fingerboard widens linearly from the maker's nut width to the maker's string spacing at the saddle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Body, neck, headstock, then the frets, the strings, the neck grip and the body.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body is a box at its widest bout, without a waist, soundhole or bridge; the fingerboard's rise over the soundboard is not drawn; the neck's depth and the headstock's length are construction estimates.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three parts and one contact per fret and string.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one instrument.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function guitar(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -163,17 +145,32 @@ export namespace StringedConstruction {
         id: `fret${n}`,
         kind: "bar",
         symmetry: "half",
-        frame: ArchetypeFrame.facing(v(x, top, 0), v(0, 1, 0), v(0, 0, 1)),
+        frame: AutoMovieArchetypeFrame.facing(
+          v(x, top, 0),
+          v(0, 1, 0),
+          v(0, 0, 1),
+        ),
         extent: null,
         length: boardWidth(x),
       });
     }
-    strings(builder, 6, v(nutX, top, 0), v(saddleX, top, 0), nutWidth, saddleWidth);
+    strings(
+      builder,
+      6,
+      v(nutX, top, 0),
+      v(saddleX, top, 0),
+      nutWidth,
+      saddleWidth,
+    );
     builder.affordance({
       id: "neck",
       kind: "bar",
       symmetry: "half",
-      frame: ArchetypeFrame.facing(v(nutX / 2, top, 0), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(nutX / 2, top, 0),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "power",
       length: nutX,
@@ -181,7 +178,7 @@ export namespace StringedConstruction {
     builder.affordance({
       id: "body",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(saddleX / 2, top, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(saddleX / 2, top, 0)),
       extent: null,
       width: -saddleX,
       depth: saddleWidth,
@@ -197,14 +194,6 @@ export namespace StringedConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States how the violin lies, every contact's place, why there is no chinrest and how the two conflicting lengths are reconciled.
-   * @evidence contracts/development/implementation.md#principled-implementation The body's three boxes at the maker's three bout widths over the back's length, split two fifths, one fifth and two fifths, a construction proportion; the nut at the neck's length off the body and the bridge the string length from the nut; the neck as thick and the fingerboard as wide as the luthiers' table gives.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bouts, neck, scroll, then the strings and the neck grip.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No arching, f-holes or tailpiece; the bouts' split and the scroll's length are construction estimates.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one instrument.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function violin(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -216,9 +205,14 @@ export namespace StringedConstruction {
       ["upper-bout", -0.4 * length, 0, d.upperBout!],
     ];
     for (const [id, from, to, width] of parts)
-      builder.box(id, v(to - from, rib, width), v((from + to) / 2, rib / 2, 0), {
-        color: WOOD,
-      });
+      builder.box(
+        id,
+        v(to - from, rib, width),
+        v((from + to) / 2, rib / 2, 0),
+        {
+          color: WOOD,
+        },
+      );
     const nutX: number = d.neck!;
     const thick: number = d.neckThickness!;
     const board: number = d.fingerboard!;
@@ -246,7 +240,7 @@ export namespace StringedConstruction {
       id: "neck",
       kind: "bar",
       symmetry: "half",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(nutX / 2, rib + thick / 2, 0),
         v(0, 1, 0),
         v(1, 0, 0),

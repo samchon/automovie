@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanTouch,
   IAutoMovieMotionHumanTouchEffector,
   IAutoMovieMotionHumanTouchForm,
@@ -29,6 +30,7 @@ import { HumanPerception } from "../law/HumanPerception";
 import { HumanColliders } from "../posture/HumanColliders";
 import { StrikingBody } from "../striking/StrikingBody";
 import { touchHoldRests } from "./touchHoldRests";
+import { touchLimb } from "./touchLimb";
 import { touchRegion } from "./touchRegion";
 
 /**
@@ -308,7 +310,7 @@ export namespace touchHold {
    * @evidence contracts/development/common.md#meaningful-documentation States each lay, when the tangent is chosen, how the hand is read and the measured defect.
    * @evidence contracts/development/implementation.md#principled-implementation The hand posed where the stroke's goal lays it at the ends and the middle of its travel, read by the tangle audit's own probes (`AutoMovieMotionHumanAuditTangleModel.depths`) against the skin's give (`BUILT`), as `HumanGraspUse.presented` judges a roll.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two tangents, one sweep each and one choice.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The region's own bone and the touching arm are left out; a row's tangent, a tool, a forefinger and a partner keep their tangent; `up` wins a tie, so a hand that does not sink travels as before.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The region's own bone (and on the performer, the touching arm) is left out; a row's tangent, a tool and a forefinger keep their tangent; a partner's other parts are read as the performer's own are; `up` wins a tie, so a hand that does not sink travels as before. A hand on a partner's limb lies along its capsule's axis (`touchLimb.axis`).
    * @evidence contracts/development/implementation.md#efficient-algorithms Ten hand placements, once per hand and plan.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the arm's lay, the form's tangent and travel, the effector's goal and the tangle model.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -329,29 +331,45 @@ export namespace touchHold {
       target: IAutoMovieMotionTarget,
     ): ILaid => {
       const tangent: IAutoMovieMotionHumanTouchForm.Tangent = p.tangent ?? "up";
-      const lay: ILaid["lay"] = p.with === "forefinger" ? "reach" : "arm";
-      return lay === "reach" ||
-        target.kind !== "self" ||
+      const reach: boolean = p.effector === "forefinger";
+      // A hand laid on another person's limb lies along it (`limb`): a flat
+      // hand across a curved segment sinks its fingers into it.
+      const limb: IAutoMovieVector3 | undefined =
+        reach || target.kind !== "person"
+          ? undefined
+          : touchLimb.axis(context, target);
+      const laid: ILaid =
+        limb === undefined
+          ? { lay: reach ? "reach" : "arm", tangent }
+          : { lay: "limb", tangent, axis: limb };
+      if (
+        reach ||
+        (target.kind !== "self" && target.kind !== "person") ||
         p.tangent !== undefined ||
         effector.tool !== undefined ||
         travel === 0
-        ? { lay, tangent }
-        : {
-            lay,
-            tangent: rubbed(
-              context.body,
-              bones,
-              context.entry.posture,
-              side,
-              effector,
-              target,
-              placed(target, false)(context.entry.posture, 0),
-              travel,
-              p.elbow,
-            ),
-          };
+      )
+        return laid;
+      // The travel's tangent is the one along which the hand sinks least
+      // into the other parts: the performer's own, or the partner's.
+      return {
+        ...laid,
+        tangent: rubbed(
+          context.body,
+          touchLimb.others(context, bones, side, target),
+          context.entry.posture,
+          side,
+          effector,
+          placed(target, false)(context.entry.posture, 0),
+          travel,
+          p.elbow,
+        ),
+      };
     };
   }
+
+  /** What a touch lays its effector's along axis on: the arm, the reach or a partner's limb. */
+  export type Lying = "arm" | "reach" | "limb";
 
   /** Each hand's lay, given the hand and its target (`lay`). */
   export type Lay = (
@@ -362,7 +380,10 @@ export namespace touchHold {
   /** How a touch lays its hand (`lay`). */
   export interface ILaid {
     /** What the effector's along axis lies on (`AutoMovieMotionHumanTouch.ITouch.lay`). */
-    lay: "arm" | "reach";
+    lay: Lying;
+
+    /** With `limb`, the touched limb's long axis, world. */
+    axis?: IAutoMovieVector3;
 
     /** The travel's tangent. */
     tangent: IAutoMovieMotionHumanTouchForm.Tangent;
@@ -372,12 +393,11 @@ export namespace touchHold {
 /** The tangent a hand on the performer's own region travels on (`touchHold.lay`). */
 function rubbed(
   body: IAutoMovieMotionHumanBody,
-  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  parts: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   posture: IAutoMovieMotionHumanPosture,
   side: AutoMovieHumanSide,
   effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-  target: IAutoMovieMotionTarget & { kind: "self" },
-  place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
+  place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
   travel: number,
   elbow: IAutoMovieMotionHumanTouch.IParams["elbow"],
 ): IAutoMovieMotionHumanTouchForm.Tangent {
@@ -389,19 +409,6 @@ function rubbed(
         part.bone === `${side}Hand`,
     );
   if (hand === undefined) return "up";
-  const own: AutoMovieHumanoidBone = body.surfaces.regions[target.region].bone;
-  const arm: RegExp = new RegExp(
-    `^${side}(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)`,
-  );
-  const parts: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
-    body,
-    new Map(
-      [...bones].filter(
-        ([bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean =>
-          bone !== own && !arm.test(bone),
-      ),
-    ),
-  );
   const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
   const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
     body,

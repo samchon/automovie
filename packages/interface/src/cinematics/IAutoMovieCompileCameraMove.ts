@@ -3,11 +3,6 @@ import type { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
 
 /**
  * Inputs to deterministic world-space camera path compilation.
- *
- * @evidence contracts/development/design.md#principled-representation IProps carries a staged lens and timed measured subjects; world metres, degrees and shot-local seconds remain distinct in its member contracts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Hero and alternate-take compilers use the same inputs to compileCameraMove; no rendering or platform state is exposed.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Required camera and action records reuse canonical types, with the sole optional aspect fallback explicitly described.
- * @evidence contracts/development/common.md#meaningful-documentation IProps explains path generation, ordering, aspect assumptions and synchronous subject sampling.
  */
 export namespace IAutoMovieCompileCameraMove {
   /**
@@ -25,11 +20,6 @@ export namespace IAutoMovieCompileCameraMove {
    * - `whip` keeps the staged position and turns from the staged rotation onto the aim within 0.2 seconds, without solving a distance.
    *
    * Keys are linear, so the gap between two entries plays as a re-frame move, and a key landing within 1e-9 s of the previous one replaces it, the later framing winning. Entries must be sorted by `start` and must not overlap. A supplied lookahead must be finite and nonnegative on a follow move. The `performShot` action gate checks these premises. Compilation returns null for no entries, and throws for an unknown framing/move or a follow key count outside safe-integer representation. Subject callbacks run synchronously for truck/follow samples, are not retained by the clip, and their exceptions propagate.
-   *
-   * @evidence contracts/development/design.md#principled-representation Positions and subject bounds use world metres, camera fovY uses degrees and actions use shot-local seconds. performShot gates timing and camera inputs; this low-level compiler does not validate all numerical premises or guarantee visible enclosure between keys.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Hero and coverage compilation share the same camera/action/subject contracts and differ only in their staged camera, entries and clip identity.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional aspect has a stated square fallback; it is not evidence that a narrower output contains the subject. No camera or subject identity changes the grammar.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines world placement, timebase, aspect fallback, input ordering, callback lifetime and the null/error outcomes.
    */
   export type IProps = {
     /** Identifier copied to the returned clip without validation or rewriting. */

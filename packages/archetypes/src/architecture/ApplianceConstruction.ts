@@ -4,11 +4,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
+import { WasherDrum } from "./WasherDrum";
 import type { createAppliance } from "./createAppliance";
 
 /** The builder every kind's construction fills. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createAppliance.Affordance,
   createAppliance.Dimension
 >;
@@ -52,18 +56,13 @@ function rectangle(width: number, depth: number): IAutoMovieVector3[] {
  * @returns The hinge frame, `+Y` along the line and `+X` toward the door.
  */
 function sideHinge(at: IAutoMovieVector3, side: 1 | -1): IAutoMovieTransform {
-  return ArchetypeFrame.facing(at, v(0, side, 0), v(-side, 0, 0));
+  return AutoMovieArchetypeFrame.facing(at, v(0, side, 0), v(-side, 0, 0));
 }
 
 /**
- * How {@link createAppliance} builds each kind of appliance from its drawn dimensions: the parts and the contacts, one function per kind, the counts and openings the makers give, and the construction sizes no source gives.
+ * The parts and contacts the named appliance producers build from their drawn dimensions, with the makers' measured counts and openings and the estimated construction sizes.
  *
  * Every function stands its appliance with its back at the origin's `Z`, centred on `X`, its front toward `+Z`. Every contact's place and every articulation's range comes from a cited band or is derived from one; the estimates below size only parts no act reads.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds, the shared frame and what the estimates may size.
- * @evidence contracts/development/design.md#principled-representation Code CAD over the builder's primitives from named dimensions, one construction per kind of the producer's closed union.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer's four constructions with the counts and estimates they read; kept apart from the producer so each file stays one readable responsibility, and read only by `createAppliance`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every size a sheet does not give is a named construction estimate here, none placing a contact; a door the makers give no opening for does not open.
  */
 export namespace ApplianceConstruction {
   /** A fridge's shelves, as the maker gives them (Bosch KGN36NL30M, four fridge shelves). */
@@ -112,14 +111,6 @@ export namespace ApplianceConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, where the doors hinge and where the handles are.
-   * @evidence contracts/development/implementation.md#principled-implementation The carcass is the maker's depth less the door and the handle's stand-off, so the handle bars' fronts are the depth with handles the sheet gives; the freezer the share of the height its capacity is of the total; the shelves at even steps up the inside, the maker's count of them; the doors open the 90 degrees the maker's manual gives.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Freezer, the fridge's walls, the shelves, then each door with its handle bar and their two contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No door shelves, drawers or seals; the wall, door and shelf thickness and the bar's stand-off are construction estimates.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fourteen parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one appliance.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function refrigerator(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -172,7 +163,9 @@ export namespace ApplianceConstruction {
       builder.affordance({
         id: `shelf${k}`,
         kind: "stack-top",
-        frame: ArchetypeFrame.upright(v(0, y, E.wall + shelfDepth / 2)),
+        frame: AutoMovieArchetypeFrame.upright(
+          v(0, y, E.wall + shelfDepth / 2),
+        ),
         extent: rectangle(inner, shelfDepth),
       });
     }
@@ -212,7 +205,7 @@ export namespace ApplianceConstruction {
         id: handle,
         kind: "handle",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(barX, grip, bar),
           v(0, 0, 1),
           v(0, 1, 0),
@@ -231,14 +224,6 @@ export namespace ApplianceConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, which parts are contacts and why the rest are not.
-   * @evidence contracts/development/implementation.md#principled-implementation The body at the maker's width and height; the zones at the maker's hob diameters, centred in the top's four quarters, front left, front right, back left and back right as one faces it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Body, fascia, plinth, door and handle, knobs, then the top and each zone with its contact.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No oven cavity or racks; the plinth, fascia, door thickness and knob sizes are construction estimates.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fourteen parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one appliance.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function cooker(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -279,7 +264,7 @@ export namespace ApplianceConstruction {
     builder.affordance({
       id: "top",
       kind: "stack-top",
-      frame: ArchetypeFrame.upright(v(0, height, body / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, height, body / 2)),
       extent: rectangle(width, body),
     });
     ZONES.forEach((diameter: number, index: number): void => {
@@ -296,7 +281,7 @@ export namespace ApplianceConstruction {
       builder.affordance({
         id: `zone${k}`,
         kind: "stack-top",
-        frame: ArchetypeFrame.upright(v(x, height, z)),
+        frame: AutoMovieArchetypeFrame.upright(v(x, height, z)),
         extent: rectangle(diameter, diameter),
       });
       const knobX: number = width * (-0.3 + 0.2 * index);
@@ -318,14 +303,6 @@ export namespace ApplianceConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, where the door hinges, how the walls are sized and why the door does not open.
-   * @evidence contracts/development/implementation.md#principled-implementation Walls placed so their inner faces bound the maker's cavity inside the maker's outside size, the panel taking the width the cavity and the side wall leave.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bottom and roof, side, back, panel, door, then the three contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No turntable or window; the equal split of the depth between door and back is the one premise the sheet leaves open.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Six parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one appliance.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function microwave(builder: Builder, d: Drawn): void {
     const height: number = d.height!;
@@ -382,13 +359,13 @@ export namespace ApplianceConstruction {
     builder.affordance({
       id: "floor",
       kind: "stack-top",
-      frame: ArchetypeFrame.upright(v(centre, wall, back + cd / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(centre, wall, back + cd / 2)),
       extent: rectangle(cw, cd),
     });
     builder.affordance({
       id: "top",
       kind: "stack-top",
-      frame: ArchetypeFrame.upright(v(0, height, depth / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, height, depth / 2)),
       extent: rectangle(width, depth),
     });
   }
@@ -396,18 +373,10 @@ export namespace ApplianceConstruction {
   /**
    * A front-loading washing machine: the body, a round door across it below the control panel and hinged on its `-X` edge, a handle bar at the door's free edge and the programme dial on the panel's `+X` side.
    *
-   * The door opens the 90 degrees at which the maker gives its open depth; the handle and dial are drawn but are not contacts, since no source read places them.
+   * The 160 degree door carries the handle at its free edge. Its opening and stable drum floor remain fixed in the body.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, where the door hinges, how far it opens and which parts are not contacts.
-   * @evidence contracts/development/implementation.md#principled-implementation The body at the maker's size and the door at the diameter its open depth gives, hinged at its own edge so a quarter turn reaches the sheet's open-door depth; the hinge line is vertical, so where along it its frame stands moves nothing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Body, door, handle, dial, then the two contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drum, detergent drawer or porthole glass; the panel's height and the door's thickness are construction estimates.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one appliance.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function washingMachine(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -417,16 +386,10 @@ export namespace ApplianceConstruction {
     const body: number = depth - E.door;
     const radius: number = d.door! / 2;
     const centre: number = height - E.panel - radius;
-    builder.box("body", v(width, height, body), v(0, height / 2, body / 2), {
-      color: WHITE,
+    WasherDrum(builder, width, height, body, centre);
+    builder.rod("door-ring", radius, v(0, centre, body), v(0, centre, depth), {
+      color: "#c9ccd1",
     });
-    builder.rod(
-      "door-ring",
-      radius,
-      v(0, centre, body),
-      v(0, centre, depth),
-      { color: "#c9ccd1" },
-    );
     builder.rod(
       "door-handle",
       0.01,
@@ -434,7 +397,11 @@ export namespace ApplianceConstruction {
       v(radius - 0.04, centre + 0.05, depth + 0.01),
       { color: DARK },
     );
-    const dial: IAutoMovieVector3 = v(width / 2 - 0.1, height - E.panel / 2, body);
+    const dial: IAutoMovieVector3 = v(
+      width / 2 - 0.1,
+      height - E.panel / 2,
+      body,
+    );
     builder.rod("dial", 0.03, dial, Vector3.add(dial, v(0, 0, 0.03)), {
       color: METAL,
     });
@@ -447,9 +414,25 @@ export namespace ApplianceConstruction {
       parts: ["door-ring", "door-handle"],
     });
     builder.affordance({
+      id: "doorHandle",
+      kind: "handle",
+      // The handle is a round bar wrapped alike from any side, like the fridge's.
+      symmetry: "round",
+      frame: AutoMovieArchetypeFrame.facing(
+        v(radius - 0.04, centre, depth + 0.01),
+        v(0, 0, 1),
+        v(0, 1, 0),
+      ),
+      extent: null,
+      grip: "power",
+      length: 0.1,
+      aperture: 0.02,
+      rides: "door",
+    });
+    builder.affordance({
       id: "top",
       kind: "stack-top",
-      frame: ArchetypeFrame.upright(v(0, height, depth / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, height, depth / 2)),
       extent: rectangle(width, depth),
     });
   }

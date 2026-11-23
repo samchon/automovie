@@ -1,6 +1,6 @@
 import {
-  type ArchetypeRide,
-  type QuadrupedBody,
+  type AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeRide,
   createDog,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -84,9 +84,9 @@ export function test_archetype_animal_attachment_capsule(): void {
     for (const side of ["left", "right"] as const)
       scenario(
         rounded,
-        (): ArchetypeRide.IRide<
+        (): AutoMovieArchetypeRide.IRide<
           createDog.Affordance,
-          QuadrupedBody.Dimension
+          AutoMovieArchetypeQuadrupedBody.Dimension
         > =>
           rideQuadruped(
             rounded,

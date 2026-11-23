@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -18,7 +18,7 @@ import {
  * @param params The board and any dimension the author fixes.
  * @param seed The seed that draws the board when it is not given and every dimension left free inside its band; absent, the first board and the middle of each band.
  * @returns The board.
- * @throws {ArchetypeRefusal} For a board the chart does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a board the chart does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the board lies, how its model is chosen and what each contact represents.
  * @evidence contracts/development/implementation.md#principled-implementation One of the chart's three boards whole, its length, width and thickness as the chart gives them; the deck on top and the rail at the board's widest point.
@@ -31,9 +31,9 @@ import {
 export function createSurfboard(
   params: createSurfboard.IParams = {},
   seed?: number | string,
-): Archetype<createSurfboard.Affordance, createSurfboard.Dimension> {
-  const draw: ArchetypeDrawSession<createSurfboard.Dimension> =
-    new ArchetypeDrawSession<createSurfboard.Dimension>(
+): AutoMovieArchetype<createSurfboard.Affordance, createSurfboard.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createSurfboard.Dimension> =
+    new AutoMovieArchetypeDrawSession<createSurfboard.Dimension>(
       "surfboard",
       createSurfboard.UNITS,
       seed,
@@ -51,10 +51,10 @@ export function createSurfboard(
     ...draw.dimensions(createSurfboard.BANDS),
     ...model.figures,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createSurfboard.Affordance,
     createSurfboard.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `surfboard ${model.name}`,
@@ -71,16 +71,39 @@ export function createSurfboard(
   builder.affordance({
     id: "deck",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, thickness, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, thickness, 0)),
     extent: null,
     width,
     depth: length,
   });
   builder.affordance({
+    id: "prone",
+    kind: "surface",
+    frame: AutoMovieArchetypeFrame.upright(v(0, thickness, length / 12)),
+    extent: null,
+    width,
+    depth: length / 3,
+  });
+  // The two palm patches sit inside the material rails, ahead of the prone hips.
+  for (const [id, sign] of [
+    ["leftPalm", -1],
+    ["rightPalm", 1],
+  ] as const)
+    builder.affordance({
+      id,
+      kind: "surface",
+      frame: AutoMovieArchetypeFrame.upright(
+        v((sign * width) / 3, thickness, -length / 6),
+      ),
+      extent: null,
+      width: width / 3,
+      depth: length / 6,
+    });
+  builder.affordance({
     id: "rail",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(width / 2, thickness / 2, 0),
       v(0, 1, 0),
       v(0, 0, 1),
@@ -96,7 +119,9 @@ export function createSurfboard(
     builder.affordance({
       id,
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, thickness, (sign * length) / 5)),
+      frame: AutoMovieArchetypeFrame.upright(
+        v(0, thickness, (sign * length) / 5),
+      ),
       extent: null,
       width,
       depth: length / 5,
@@ -108,7 +133,7 @@ export function createSurfboard(
     builder.affordance({
       id,
       kind: "ledge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v((sign * width) / 2, 0, 0),
         v(0, 1, 0),
         v(0, 0, -sign),
@@ -140,7 +165,9 @@ export namespace createSurfboard {
   export type Dimension = "length" | "width" | "thickness" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     thickness: "m",
@@ -152,19 +179,19 @@ export namespace createSurfboard {
     Record<Model, Readonly<Partial<Record<Dimension, number>>>>
   > = {
     "5'10": {
-      length: 70 * ArchetypeUnits.INCH,
-      width: 18.75 * ArchetypeUnits.INCH,
-      thickness: 2.36 * ArchetypeUnits.INCH,
+      length: 70 * AutoMovieArchetypeUnits.INCH,
+      width: 18.75 * AutoMovieArchetypeUnits.INCH,
+      thickness: 2.36 * AutoMovieArchetypeUnits.INCH,
     },
     "6'0": {
-      length: 72 * ArchetypeUnits.INCH,
-      width: 19.18 * ArchetypeUnits.INCH,
-      thickness: 2.4 * ArchetypeUnits.INCH,
+      length: 72 * AutoMovieArchetypeUnits.INCH,
+      width: 19.18 * AutoMovieArchetypeUnits.INCH,
+      thickness: 2.4 * AutoMovieArchetypeUnits.INCH,
     },
     "6'2": {
-      length: 74 * ArchetypeUnits.INCH,
-      width: 19.5 * ArchetypeUnits.INCH,
-      thickness: 2.5 * ArchetypeUnits.INCH,
+      length: 74 * AutoMovieArchetypeUnits.INCH,
+      width: 19.5 * AutoMovieArchetypeUnits.INCH,
+      thickness: 2.5 * AutoMovieArchetypeUnits.INCH,
     },
   };
 
@@ -173,11 +200,16 @@ export namespace createSurfboard {
    *
    * - `deck`: the top, the surface the feet and the chest meet.
    * - `rail`: the `+X` edge at the board's middle and half its thickness, a handle whose `+X` runs along the edge and whose aperture is the thickness.
+   * - `prone`: the central deck patch used when mounting from water.
+   * - `leftPalm`, `rightPalm`: the opposing material patches for a surfer facing the nose.
    * - `frontStance`, `rearStance`: provisional deck sites for the feet.
    * - `leftRail`, `rightRail`: the lower long edges for pose readings.
    */
   export type Affordance =
     | "deck"
+    | "prone"
+    | "leftPalm"
+    | "rightPalm"
     | "rail"
     | "frontStance"
     | "rearStance"
@@ -194,7 +226,13 @@ export namespace createSurfboard {
   }
 
   /** The band of the free dimension. */
-  export const BANDS: Readonly<Record<"mass", IArchetypeBand>> = {
-    mass: ArchetypeBand.of("kg", 2.5, 3.5, ArchetypeBand.TYPICAL_MASS, true),
+  export const BANDS: Readonly<Record<"mass", IAutoMovieArchetypeBand>> = {
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      2.5,
+      3.5,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

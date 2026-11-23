@@ -4,20 +4,10 @@ import type { IAutoMoviePhysicalSupportPatch } from "./IAutoMoviePhysicalSupport
 
 /**
  * Capture-point assessment and a possible generic support-step request.
- *
- * @evidence contracts/development/design.md#principled-representation Actual support patches form the horizontal convex hull; COM height and velocity predict a capture point independently of eventual contact outcomes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bone id links one actual patch and endpoint to the existing footfall pattern. A step exists only for the recovery branch; shared geometric facts remain available for supported and unrecoverable assessments.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Invalid finite state/limits throw; absent hull, insufficient remaining supports or unreachable travel can refuse recovery rather than fabricate a step.
- * @evidence contracts/development/common.md#meaningful-documentation All positions are world metres; points and position serve distinct hull and endpoint roles. Members distinguish prediction from measured outcome and specify world metres, absent step and empty-hull behavior.
  */
 export namespace IAutoMoviePhysicalBalance {
   /**
    * A prediction remains separate from the observed simulation outcome.
-   *
-   * @evidence contracts/development/design.md#principled-representation Prediction state, capture point and hull distance explain whether a reachable step is requested.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A step exists only for the recovery branch; shared geometric facts remain available for supported and unrecoverable assessments.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Recovery is a proposed endpoint, never a receipt of successful landing; an empty hull retains infinite distance.
-   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish prediction from measured outcome and specify world metres, absent step and empty-hull behavior.
    */
   export interface IResult {
     /** Stable support, reachable recovery, or predicted loss of recovery. */
@@ -42,16 +32,14 @@ export namespace IAutoMoviePhysicalBalance {
 
       /** The swing's own time to the target, seconds, after its unloading ramp; absent without a `swing` timing. */
       seconds?: number;
+
+      /** Whether this one step captures the body (Koolen et al., Eq. 25); a step is asked for either way, and the body steps again if it does not. Absent without a `swing` timing. */
+      viable?: boolean;
     };
   }
 
   /**
    * Choose the reachable recovery support leading along the capture direction, then by travel distance, then declared footfall phase.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes actual COM/support measurements, unavailable endpoints and finite recovery-policy bounds.
-   * @evidence contracts/development/design.md#principled-representation World-metre positions and m/s velocity define the capture point with positive m/s² gravity; pattern phases break equal-distance ties.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMoviePhysicalBalance.assess reads the canonical footfall pattern and measured support patches supplied by the physical controller.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Empty support is unrecoverable; unavailable endpoints still contribute their real support patches but cannot be chosen for a step.
    */
   export type IAssessInput = {
     /** Finite actual centre of mass in world metres. */
@@ -93,7 +81,7 @@ export namespace IAutoMoviePhysicalBalance {
      * The recovery step's timing from the leg, chosen with its place: its
      * unloading ramp in seconds, its peak acceleration bound in metres per
      * second squared and its clearance in metres. A step over distance d then
-     * lands after ramp + sqrt(max(5.77 d, 24 h) / acceleration), the earliest
+     * lands after ramp + sqrt(max(5.77 d, 32 h) / acceleration), the earliest
      * a minimum-jerk transfer and a clearance at rest at both ends can, and
      * the target is where the capture point will be then (Khadiv et al. 2017,
      * Section III-B). Takes the place of `swingSeconds` when given.
@@ -111,5 +99,14 @@ export namespace IAutoMoviePhysicalBalance {
 
     /** The limb that landed last: another limb leading the capture point steps before it again. */
     recent?: string;
+
+    /** The capture point's shift for the body's angular momentum, world metres (`physicalStanceBalance.spin`); absent leaves it at the pendulum's. */
+    spin?: IAutoMovieVector3;
+
+    /** The body's heading on the floor, world: the side a stepping limb keeps is across it; absent takes the capture point's direction. */
+    heading?: IAutoMovieVector3;
+
+    /** Whether a step is asked for even with the capture point inside, as when the trunk is about to tip past its range. */
+    force?: boolean;
   };
 }

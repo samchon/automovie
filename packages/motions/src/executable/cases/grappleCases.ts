@@ -46,7 +46,7 @@ export function grappleCases(
         kind: "parallel",
         parts: [
           HumanChain.subject("a").act("clinch", { partner: "b", grip }).node,
-          HumanChain.subject("b").act("stand", { seconds: 4 }).node,
+          HumanChain.subject("b").act("stand", { hold: 4 }).node,
         ],
       };
       const performance: IAutoMovieMotionHumanPerformance =

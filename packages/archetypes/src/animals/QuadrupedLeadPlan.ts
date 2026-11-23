@@ -5,28 +5,23 @@ import type {
 } from "@automovie/interface";
 
 import {
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "../core";
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedLead } from "./QuadrupedLead";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedLead } from "./AutoMovieArchetypeQuadrupedLead";
 
 /**
  * One admitted collar/lead assembly, prepared without changing a model builder.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States actual-neck admission, authored metre inputs, bounded private geometry and the separate emission boundary.
- * @evidence contracts/development/design.md#principled-representation Actual neck landmarks and four complete physical lengths determine two real rods and their midpoint grasp frame before any builder mutation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface QuadrupedLead and the whole-cohort factory share this current non-emitting planning owner; emit retains their existing contact vocabulary.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No guessed body, probability, geometry substitution, patched builder or contact-only fitting proxy admits an assembly.
  */
 export class QuadrupedLeadPlan {
-  /** Actual collar ends, metres in the model frame. */
+  /** Collar ends, metres in the model frame. */
   readonly #from: IAutoMovieVector3;
   readonly #to: IAutoMovieVector3;
-  /** Actual outer collar radius, metres. */
+  /** Outer collar radius, metres. */
   readonly #collarRadius: number;
-  /** Actual straight lead endpoints, metres. */
+  /** Straight lead endpoints, metres. */
   readonly #attached: IAutoMovieVector3;
   readonly #end: IAutoMovieVector3;
   /** Authored lead radius and length, metres. */
@@ -35,10 +30,10 @@ export class QuadrupedLeadPlan {
   /** Midpoint grasp of that same real lead. */
   readonly #frame: IAutoMovieTransform;
 
-  /** Admit one actual neck and retain its independent fixed-size assembly plan. */
+  /** Admit one neck and retain its independent fixed-size assembly plan. */
   public constructor(
-    rig: QuadrupedBody.IRig,
-    tack: QuadrupedLead.IParams,
+    rig: AutoMovieArchetypeQuadrupedBody.IRig,
+    tack: AutoMovieArchetypeQuadrupedLead.IParams,
     archetype: string,
   ) {
     const axis: IAutoMovieVector3 = Vector3.subtract(rig.poll, rig.neck);
@@ -67,7 +62,7 @@ export class QuadrupedLeadPlan {
           (key !== "width" || tack[key] <= length)
         )
       )
-        throw new ArchetypeRefusal({
+        throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype,
           axis: `collar.${key}`,
@@ -97,7 +92,7 @@ export class QuadrupedLeadPlan {
     this.#end = { ...this.#attached, x: this.#attached.x + tack.leadLength };
     this.#radius = tack.leadRadius;
     this.#length = tack.leadLength;
-    this.#frame = ArchetypeFrame.facing(
+    this.#frame = AutoMovieArchetypeFrame.facing(
       Vector3.scale(Vector3.add(this.#attached, this.#end), 0.5),
       Vector3.create(0, 1, 0),
       Vector3.create(1, 0, 0),
@@ -126,18 +121,10 @@ export class QuadrupedLeadPlan {
   }
 
   /**
-   * Emit the same admitted rods and contact into an actual builder.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the actual model mutation boundary, preserved contact identity and independent contact-frame output.
-   * @evidence contracts/development/implementation.md#principled-implementation The collar spans its admitted neck endpoints; the outward straight lead and its actual midpoint frame share the same planned geometry and authored radius.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two ordinary rod calls precede one contact with copied scalar TRS.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Emission neither fits nor guesses dimensions and introduces no marker-only part, floating grip or alternate physical coefficient.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size emission delegates the builder's existing part-id checks; geometry planning is not repeated.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the actual preflight plan selected by the factory, also serving the legacy dog/shared-lead wrapper.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder owns emitted data; each contact gets a fresh frame and the plan retains only its bounded private scalar/vector records without a builder or external handle.
+   * Emit the same admitted rods and contact into a builder.
    */
   public emit<Id extends string, Dimension extends string>(
-    builder: ArchetypeBuilder<Id, Dimension>,
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     id: Id,
   ): void {
     builder.rod("collar", this.#collarRadius, this.#from, this.#to, {

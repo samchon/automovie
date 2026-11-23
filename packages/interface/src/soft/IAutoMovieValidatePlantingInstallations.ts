@@ -6,11 +6,6 @@ import type { IAutoMoviePlantingInstallation } from "./IAutoMoviePlantingInstall
 
 /**
  * Building, growth and arrangement catalogues joined by planting-installation admission.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Covers catalogue admission, last-record lookup, empty requests, sampled canopy containment, authored fluid levels and result ownership.
- * @evidence contracts/development/design.md#principled-representation Canonical identities join independent building, cluster and recipe records; world-metre placements and transformed recipe-local boxes are checked at runtime.
- * @evidence contracts/development/design.md#minimal-and-owned-surface validatePlantingInstallations consumes the four required catalogues and an optional fluid catalogue solely for declared aquatic references.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional fluids mean no available fluid references, not invented water; sampled containment and id membership are not promoted to full clearance or service validation.
  */
 export namespace IAutoMovieValidatePlantingInstallations {
   /**
@@ -19,11 +14,6 @@ export namespace IAutoMovieValidatePlantingInstallations {
    * For admitted clusters, arrangement supplies accepted placement origins. An admitted recipe supplies one canopy box, whose eight corners are scaled, rotated and translated per placement; origins and available corners are tested only when the room declares volume. These sampled points do not prove continuous containment in a nonconvex room union, and rejected arrangement slots are not converted to validation findings.
    *
    * Aquatic roots are compared with authored origin.y + bed + depth at their cell, not a simulated water surface; solidity and dry thresholds are not checked here. Environment and fluid-domain admission are caller responsibilities. Support-id existence does not prove physical support. Malformed typed containers and generation failures may throw.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Covers catalogue admission, last-record lookup, empty requests, sampled canopy containment, authored fluid levels and result ownership.
-   * @evidence contracts/development/design.md#principled-representation Canonical identities join independent building, cluster and recipe records; world-metre placements and transformed recipe-local boxes are checked at runtime.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface validatePlantingInstallations consumes the four required catalogues and an optional fluid catalogue solely for declared aquatic references.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional fluids mean no available fluid references, not invented water; sampled containment and id membership are not promoted to full clearance or service validation.
    */
   export type IProps = {
     /** Previously admitted building supplying owning identity, room volumes and support/port references; this pass does not validate the building itself. */

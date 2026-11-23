@@ -4,11 +4,6 @@ import type { IAutoMovieBuiltElement } from "./IAutoMovieBuiltElement";
 
 /**
  * Connector-operation validation context with shared element-drive ownership tracking.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Connector-operation validation context with shared element-drive ownership tracking. Connector and element records retain their travel units and frames; validateBuiltConnectorOperation checks operation references, travel, states and stops and appends path-addressed findings.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No operation means no work; typed records are assumed structurally present, collectors may throw, and invalid declarations can still reserve their first driven element.
- * @evidence contracts/development/design.md#principled-representation Connector and element records retain their travel units and frames; validateBuiltConnectorOperation checks operation references, travel, states and stops and appends path-addressed findings.
- * @evidence contracts/development/design.md#minimal-and-owned-surface validateBuiltEnvironment supplies the element inventory and collector; the driven map is shared with opening validation to reject competing drivers for one element.
  */
 export namespace IAutoMovieValidateBuiltConnectorOperation {
   /**
@@ -25,11 +20,6 @@ export namespace IAutoMovieValidateBuiltConnectorOperation {
    * travel; a carriage value's `serves` is null when between stops, otherwise
    * it names one of the run's endpoints or landings. The current state must resolve. Findings are pushed under
    * `path`; a run with no operation is skipped.
-   *
-   * @evidence contracts/development/design.md#principled-representation Connector and element records retain their travel units and frames; validateBuiltConnectorOperation checks operation references, travel, states and stops and appends path-addressed findings.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface validateBuiltEnvironment supplies the element inventory and collector; the driven map is shared with opening validation to reject competing drivers for one element.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No operation means no work; typed records are assumed structurally present, collectors may throw, and invalid declarations can still reserve their first driven element.
-   * @evidence contracts/development/common.md#meaningful-documentation Connector-operation validation context with shared element-drive ownership tracking. Connector and element records retain their travel units and frames; validateBuiltConnectorOperation checks operation references, travel, states and stops and appends path-addressed findings.
    */
   export type IProps = {
     /** Borrowed connector; an omitted operation is skipped without changing the collector or driven map. */

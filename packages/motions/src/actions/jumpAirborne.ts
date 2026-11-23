@@ -2,7 +2,6 @@ import {
   Quaternion,
   Vector3,
   inertializeOffset,
-  integrateMotionTrajectory,
   minimumJerk,
 } from "@automovie/engine";
 import type {
@@ -24,10 +23,14 @@ import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
 import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
 import { hipJoints } from "../posture/hipJoints";
 import type { jumpState } from "./jumpState";
+import type { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 import { walkLeg } from "./walkLeg";
 
 /** How far each free foot lifts above its straight path at mid-flight, hip heights (provisional). */
 const ARCH: number = 0.1;
+
+/** The least forward gap between the feet that reads as one foot ahead of the other, metres: a nanometre, the walk's root-solve width (`walkReach`), under which the gap is a rounding of side by side. */
+const PASS_GAP: number = 1e-9;
 
 /**
  * A jump's time in the air: the shape it holds between take-off and
@@ -37,11 +40,6 @@ const ARCH: number = 0.1;
  * Authored turns use that pass's staged default; explicit physical mode
  * instead solves angular momentum on the composed shape. This declaration
  * and handback own neither policy nor a conservation verdict.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three parts of the flight it owns and who turns it.
- * @evidence contracts/development/design.md#principled-representation The flight's shape, its knee hint and its turns, apart from the push-off and the landing.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The requested turns, the shape's inputs and three builders, read by the jump.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The turning is the flight pass's; this module only declares it and carries what comes back.
  */
 export namespace jumpAirborne {
   /** Clinical coordinates varied by this free-flight law. All others are copied from the achieved takeoff pose. */
@@ -62,11 +60,6 @@ export namespace jumpAirborne {
 
   /**
    * What the airborne shape is drawn from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The jump's own heading, unchanged body dimensions and achieved canonical endpoint states define its free-flight shape.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the prepared posture reader consumes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is the body's.
    */
   export interface IShape {
     /** The body whose hip height scales the existing free-foot arch. */
@@ -93,14 +86,6 @@ export namespace jumpAirborne {
    * @param heading The jump's heading, degrees.
    * @param poleHeadings The finite set of fixed pole headings used by this plan, copied in degrees; other headings retain ordinary point conversion.
    * @returns A world-metre pole reader of root metres, leg side and pole heading degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the point.
-   * @evidence contracts/development/implementation.md#principled-implementation A pole one metre ahead of the knee's rest place, the hint a two-bone fit bends toward.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the unchanged jump heading and explicitly supplied pole headings once; each call applies the same two point conversions with its actual root and exact pole heading, using the ordinary owner for an unprepared heading.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two knee-local readers and H supplied pole readers prepare heading trigonometry/products once; the actual jump supplies H=4. Each query performs at most H exact scalar comparisons and the original fresh point expressions, without per-query trigonometry for those headings. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body/heading and explicit copied pole angles fix only transform coefficients. Object.is preserves signed-zero distinctions; changed roots/sides are transformed normally and an unprepared angle uses the original point owner, with no time/result cache or changed addition order.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two knee and H pole readers holding copied scalar terms until released; H is the supplied finite array length, with no query-driven growth. Every call returns fresh vectors and retains no body, input root or previous pole.
    */
   export function knee(
     body: IAutoMovieMotionHumanBody,
@@ -151,14 +136,6 @@ export namespace jumpAirborne {
    *
    * @param shape Fixed achieved endpoints, body dimensions and flight heading.
    * @returns A posture reader of a world-metre root and flight share in [0,1].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each part of the shape does over the flight.
-   * @evidence contracts/development/implementation.md#principled-implementation Both toe joints interpolate between their achieved clinical endpoints. The ankles follow the minimum-jerk path and sinusoidal arch; each interpolated world foot orientation gives at the unloaded ankle's range as its shank bends.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare fixed joint start/difference tracks and the heading turn once; each read copies the achieved seed, interpolates arms/toes and builds two free goals from the same endpoints.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed -40-degree seed, reconstructed ankle, ground plant, epsilon or boundary-only pose replaces the achieved shape. Coupled ROM remains the ordinary resolver's responsibility.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed joint tracks, four scalar point/bend interpolation readers, the 0.1-hip-height arch coefficient and two quaternion endpoint arcs prepare once. Each query shares one minimum-jerk share/current sine arch and evaluates original local-then-world expressions directly into four world vectors, avoiding four discarded local vectors. Original quaternion work remains and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed body-dimension/endpoint/delta/frame/arc prerequisites prepare; changed dimensions require another prepared shape. Every root/share/sine still evaluates its original scalar sequence: local interpolation, explicit point Y lift, then unchanged world multiply/add order; bends add no artificial zero lift. No affine regrouping, target substitute or time-keyed result cache is used.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns endpoints, fixed joint/scalar interpolation data and two arc readers. Each posture query owns fresh changed tuples/world vectors and retains no history, body workspace or handle; unchanged clinical tuples keep their original readonly endpoint ownership.
    */
   export function prepare(shape: IShape): IPrepared {
     const { body, heading }: IShape = shape;
@@ -246,6 +223,55 @@ export namespace jumpAirborne {
         fixed.end.legs.right.rotation,
       ),
     };
+    // The two feet pass each other along the heading where their forward
+    // gap, linear in the share, changes sign, s* = g0 / (g0 − g1); a lateral
+    // gap there under two shank radii (the passing clearance a line walk
+    // keeps) is opened half by each foot, outward, by a bump that is the
+    // shortfall at s* and zero at both ends, s(1 − s) / (s*(1 − s*)).
+    const along: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
+      { x: 0, y: 0, z: 1 },
+    );
+    const rightward: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.cross(along, { x: 0, y: 1, z: 0 }),
+    );
+    const apart: IAutoMovieVector3 = Vector3.subtract(
+      fixed.start.legs.right.point,
+      fixed.start.legs.left.point,
+    );
+    const apartEnd: IAutoMovieVector3 = Vector3.subtract(
+      fixed.end.legs.right.point,
+      fixed.end.legs.left.point,
+    );
+    const g0: number = Vector3.dot(apart, along);
+    const g1: number = Vector3.dot(apartEnd, along);
+    // A pass is a sign change of two real gaps, strictly inside the
+    // flight: feet landing side by side leave a floating-point zero gap,
+    // whose pass at the very end made the bump 0/0. A pair whose feet change
+    // sides across the line as well (a crossing landing) is the law's own
+    // crossing, not a pass to open.
+    const passAt: number =
+      g0 * g1 < 0 && Math.min(Math.abs(g0), Math.abs(g1)) > PASS_GAP
+        ? g0 / (g0 - g1)
+        : Number.NaN;
+    const passBump: number =
+      Number.isNaN(passAt) ||
+      !(Vector3.dot(apart, rightward) > 0) ||
+      !(Vector3.dot(apartEnd, rightward) > 0)
+        ? 0
+      : Math.max(
+          0,
+          2 * body.measure.shankRadius -
+            Vector3.dot(Vector3.lerp(apart, apartEnd, passAt), rightward),
+        );
+    const passing = (s: number): IAutoMovieVector3 =>
+      passBump === 0
+        ? { x: 0, y: 0, z: 0 }
+        : Vector3.scale(
+            rightward,
+            (passBump / 2) *
+              Math.min(1, (s * (1 - s)) / (passAt * (1 - passAt))),
+          );
     const posture: (
       root: IAutoMovieVector3,
       u: number,
@@ -265,8 +291,12 @@ export namespace jumpAirborne {
         ];
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
       const arch: number = archHeight * Math.sin(Math.PI * u);
+      const passed: IAutoMovieVector3 = passing(s);
       for (const side of ["left", "right"] as const) {
-        const point: IAutoMovieVector3 = points[side](s, root, arch);
+        const point: IAutoMovieVector3 = Vector3.add(
+          points[side](s, root, arch),
+          Vector3.scale(passed, side === "right" ? 1 : -1),
+        );
         const asked: IAutoMovieQuaternion = Quaternion.multiply(
           turn,
           rotations[side](s),
@@ -296,11 +326,6 @@ export namespace jumpAirborne {
 
   /**
    * One immutable achieved-endpoint construction's reader of its actual targets.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the world root, the normalized flight share and the target posture the reader gives.
-   * @evidence contracts/development/design.md#principled-representation The fixed endpoints, minimum-jerk coefficients, sine arch and quaternion interpolation law construct each posture.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface prepareJumpFlight consumes the target call; nothing else is exposed.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A plain reader of the construction, with no optional member.
    */
   export interface IPrepared {
     /** Original actual world target at a root and normalized flight share. */
@@ -309,11 +334,6 @@ export namespace jumpAirborne {
 
   /**
    * A flight's declared turns and the rotation the flight pass hands back.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it carries.
-   * @evidence contracts/development/design.md#principled-representation The plan's flight members and the turn applied to a posture in flight.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two plan members the jump spreads and the turn its posture reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The members are the plan's own (`IHumanActionPlan.flight`, `airborne`).
    */
   export interface ITurning {
     /** Takeoff in action-local seconds, reconstructed from the authored flight share and duration. */
@@ -327,14 +347,6 @@ export namespace jumpAirborne {
     /**
      * Prepare the handed-back touchdown offset after the native flight pass
      * when landing has a nonempty absorption interval.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the handback ordering and the absorption precondition.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This signature leaves the touchdown offset calculation to the turning producer.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The turning producer owns the implementation and its call to the touchdown reader.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The producer owns the physical handback and absorption checks.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature performs no calculation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The turning producer owns the offset and its invalidation on new handback.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no resources. The turning producer owns the offset's lifetime.
      */
     prepareLanding(): void;
 
@@ -346,14 +358,6 @@ export namespace jumpAirborne {
      * @param posture The posture.
      * @param seconds Seconds of the jump.
      * @returns The posture, turned.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the local jump clock and that the received whole-body turn is absent before handback and outside the flight.
-     * @evidence contracts/development/implementation.md#principled-implementation The actual turning producer returns the posture with the flight pass's rigid rotation about COM after take-off through touchdown.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One handed-back-reader/span check, otherwise one fresh posture record with rotation.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not script a turn, alter momentum or mark a free limb as a world plant.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed-size optional record update.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses exactly the rotation supplied by the real performance flight pass.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its existing handed-back reader; each call preserves unchanged posture identity or returns one new record with no added global state.
      */
     turned(
       posture: IAutoMovieMotionHumanPosture,
@@ -364,23 +368,16 @@ export namespace jumpAirborne {
      * A landing posture carrying the flight's touchdown attitude away: the
      * laws' own rule at a change of motion (Bollo 2018, inertialization).
      * The turn the flight hands back at touchdown, its residual from the
-     * landing's unturned attitude, and that turn's rate there decay on
-     * Bollo's quintic (`inertializeOffset`) over the landing's absorption,
-     * from touchdown to settled, as a rigid turn about the touchdown centre.
+     * landing's unturned attitude decays on Bollo's quintic
+     * (`inertializeOffset`) over the landing's absorption, from touchdown
+     * to settled, as a rigid turn about the touchdown centre. The two-foot
+     * contact arrests the free-flight angular rate at the impact.
      * A posture rotation turns the root and the free goals only, so the
      * planted feet keep their places and the legs are re-solved onto them.
      *
      * @param posture The landing posture.
      * @param seconds Seconds of the jump.
      * @returns The posture, turned by the decaying offset, or unchanged outside the absorption, without a handed-back turn or with an admitted turned stance.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the rule, its source, the offset, its window and what the turn reaches.
-     * @evidence contracts/development/implementation.md#principled-implementation The offset is the flight's own handed-back turn at touchdown and its rate by the plan-time step's backward difference, decayed by the engine's inertialization quintic.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One offset read once, one quintic a call.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turn reaches the root and free goals only; planted goals stay in the world, never moved by the offset.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work a call.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The touchdown offset is read once from the handed-back reader and kept with it.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the one offset beside the handed-back reader, for as long as the plan.
      */
     landed(
       posture: IAutoMovieMotionHumanPosture,
@@ -392,20 +389,24 @@ export namespace jumpAirborne {
    * Identify the actual flight request whose ground phase owns a turned landing.
    *
    * @param flight The plan's original flight request.
-   * @returns Whether its constructor installed a returned-touchdown check.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the identity prerequisite and what the originating jump verifies.
-   * @evidence contracts/development/implementation.md#principled-implementation Native request identity carries the verified ground-phase intent through placement. The jump's own callback still verifies the handed-back rotation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup on the original request.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Copies, flags and arbitrary action requests cannot claim a turned landing.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One weak-set membership test.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the original flight record already held by the plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak membership retains neither the flight nor its phase callback.
+   * @returns Whether its ground phase already adopts the terminal yaw.
    */
   export function hasTurnedLanding(
     flight: IAutoMovieMotionHumanFlight,
   ): boolean {
-    return TURNED_LANDINGS.has(flight);
+    return TOUCHDOWNS.get(flight)?.turnedLanding === true;
+  }
+
+  /**
+   * The geometry requirement belonging to a native planted touchdown.
+   *
+   * @param flight The original placed flight request.
+   * @returns The angular target and the exact read-back check for this request, if present.
+   */
+  export function touchdown(
+    flight: IAutoMovieMotionHumanFlight,
+  ): jumpTouchdownRotation.IRequirement | undefined {
+    return TOUCHDOWNS.get(flight);
   }
 
   /**
@@ -418,16 +419,8 @@ export namespace jumpAirborne {
    * @param touchdown Seconds of the jump at touchdown.
    * @param duration The jump's duration, seconds.
    * @param settled Seconds of the jump where the landing's absorption ends.
-   * @param admitTouchdown Verifies the returned rotation when footprints already use the terminal stance.
+   * @param touchdownRequirement The native geometry target and check for the returned rotation.
    * @returns The turning.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the signs, the side salto's frame and when the rotation applies.
-   * @evidence contracts/development/implementation.md#principled-implementation Turns become the plan's request. The performance's staged default constructs the authored unwrapped turn clock, while explicit physical mode solves the composed body's momentum; either policy hands back one numeric rigid-rotation reader. This declaration itself makes no conservation or landing-feasibility claim.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One request and one held rotation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No turn is scripted here.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs but for the held rotation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the one rotation the pass hands back, for as long as the plan.
    */
   export function turning(
     rotation: IAutoMovieMotionHumanJumpAirborne.IRotation | undefined,
@@ -435,7 +428,7 @@ export namespace jumpAirborne {
     touchdown: number,
     duration: number,
     settled: number,
-    admitTouchdown?: (rotation: IAutoMovieHumanPostureRotation) => void,
+    touchdownRequirement?: jumpTouchdownRotation.IRequirement,
   ): ITurning {
     const somersault: number =
       (rotation?.somersault ?? 0) * (rotation?.way === "backward" ? -1 : 1);
@@ -470,14 +463,15 @@ export namespace jumpAirborne {
             airborne: (
               handed: (seconds: number) => IAutoMovieHumanPostureRotation,
             ): void => {
-              admitTouchdown?.(handed(to));
+              if (touchdownRequirement?.turnedLanding === true)
+                touchdownRequirement.check(handed(to));
               rotated = handed;
               known = false;
               offset = STILL;
             },
           };
-    if (admitTouchdown !== undefined && declared.flight !== undefined)
-      TURNED_LANDINGS.add(declared.flight);
+    if (touchdownRequirement !== undefined && declared.flight !== undefined)
+      TOUCHDOWNS.set(declared.flight, touchdownRequirement);
 
     // Every reader reconstructs seconds from the public shares. Use those
     // same representable boundaries for both phase selection and handback.
@@ -485,56 +479,33 @@ export namespace jumpAirborne {
       declared.flight === undefined ? takeoff : declared.flight.from * duration;
     const to: number =
       declared.flight === undefined ? touchdown : declared.flight.to * duration;
-    // The touchdown offset: the handed-back turn there as an axis and an
-    // angle, and its rate by the backward difference over the plan-time step.
-    // None (a zero turn, which decays to nothing) until read, and where the
-    // turn has no axis.
+    // Read the actual touchdown attitude once. The planted ground phase
+    // absorbs the landing and settles this pose offset after contact.
     const touched = (): ITouchdown => {
       if (known || rotated === null) return offset;
       known = true;
-      const h: number = Math.min(integrateMotionTrajectory.STEP, to - from);
       const at: IAutoMovieHumanPostureRotation = rotated(to);
       const turn: IAutoMovieQuaternion =
         at.turn.w < 0
           ? { x: -at.turn.x, y: -at.turn.y, z: -at.turn.z, w: -at.turn.w }
           : at.turn;
       const sine: number = Math.hypot(turn.x, turn.y, turn.z);
-      if (!(sine > 0) || !(h > 0)) return offset;
+      if (!(sine > 0)) return offset;
       const axis: IAutoMovieVector3 = {
         x: turn.x / sine,
         y: turn.y / sine,
         z: turn.z / sine,
       };
       const angle: number = (2 * Math.atan2(sine, turn.w) * 180) / Math.PI;
-      const step: IAutoMovieQuaternion = Quaternion.multiply(
-        at.turn,
-        Quaternion.inverse(rotated(to - h).turn),
-      );
-      const signed: IAutoMovieQuaternion =
-        step.w < 0 ? { x: -step.x, y: -step.y, z: -step.z, w: -step.w } : step;
-      const swept: number =
-        (2 *
-          Math.atan2(Math.hypot(signed.x, signed.y, signed.z), signed.w) *
-          180) /
-        Math.PI;
-      const along: number =
-        Math.hypot(signed.x, signed.y, signed.z) > 0
-          ? (signed.x * axis.x + signed.y * axis.y + signed.z * axis.z) /
-            Math.hypot(signed.x, signed.y, signed.z)
-          : 0;
-      return (offset = {
-        about: at.about,
-        axis,
-        angle,
-        rate: (swept * along) / h,
-      });
+      return (offset = { about: at.about, axis, angle });
     };
     return {
       from,
       to,
       declared,
       prepareLanding: (): void => {
-        if (admitTouchdown === undefined && settled > to) touched();
+        if (touchdownRequirement?.turnedLanding !== true && settled > to)
+          touched();
       },
       turned: (
         posture: IAutoMovieMotionHumanPosture,
@@ -551,7 +522,7 @@ export namespace jumpAirborne {
       ): IAutoMovieMotionHumanPosture => {
         // Turned footprints already place the body in the admitted terminal stance.
         if (
-          admitTouchdown !== undefined ||
+          touchdownRequirement?.turnedLanding === true ||
           rotated === null ||
           !(t > to) ||
           !(t < settled) ||
@@ -561,7 +532,7 @@ export namespace jumpAirborne {
         const touch: ITouchdown = touched();
         const decayed: number = inertializeOffset(
           touch.angle,
-          touch.rate,
+          0,
           settled - to,
           t - to,
         ).value;
@@ -582,13 +553,16 @@ export namespace jumpAirborne {
   }
 }
 
-/** Originating jump requests with a touchdown check on their turned stance. */
-const TURNED_LANDINGS: WeakSet<IAutoMovieMotionHumanFlight> = new WeakSet();
+/** Native flight requests and their planned planted touchdown requirements. */
+const TOUCHDOWNS: WeakMap<
+  IAutoMovieMotionHumanFlight,
+  jumpTouchdownRotation.IRequirement
+> = new WeakMap();
 
 /** Action-plan members supplied for an authored turning flight. */
 type FlightMember = "flight" | "airborne";
 
-/** A flight's turn at touchdown as the landing carries it away: about the touchdown centre, an axis, an angle (degrees) and its rate there (degrees a second). */
+/** The flight's actual touchdown attitude: centre, world axis and angle in degrees. */
 interface ITouchdown {
   /** The touchdown centre the turn is about, world metres. */
   about: IAutoMovieVector3;
@@ -598,17 +572,13 @@ interface ITouchdown {
 
   /** The turn's angle, degrees. */
   angle: number;
-
-  /** The angle's rate at touchdown, degrees a second. */
-  rate: number;
 }
 
-/** No turn to carry away: a zero angle and rate decay to nothing. */
+/** An upright touchdown has no attitude offset. */
 const STILL: ITouchdown = {
   about: { x: 0, y: 0, z: 0 },
   axis: { x: 0, y: 1, z: 0 },
   angle: 0,
-  rate: 0,
 };
 
 /** One fixed endpoint joint and its clinical difference, prepared once per flight. */

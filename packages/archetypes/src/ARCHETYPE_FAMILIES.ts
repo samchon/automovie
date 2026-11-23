@@ -1,3 +1,4 @@
+import type { IAutoMovieArchetypeFamilies } from "./IAutoMovieArchetypeFamilies";
 import * as animals from "./animals";
 import * as architecture from "./architecture";
 import * as furniture from "./furniture";
@@ -15,18 +16,7 @@ import * as weapons from "./weapons";
  * The root exports these families' producers and the object gallery groups them by this table.
  * Import builders for complete places from `@automovie/archetypes/environments`.
  */
-export const ARCHETYPE_FAMILIES: Readonly<{
-  props: typeof props;
-  furniture: typeof furniture;
-  architecture: typeof architecture;
-  vehicles: typeof vehicles;
-  animals: typeof animals;
-  weapons: typeof weapons;
-  gym: typeof gym;
-  sport: typeof sport;
-  music: typeof music;
-  nature: typeof nature;
-}> = {
+export const ARCHETYPE_FAMILIES: Readonly<IAutoMovieArchetypeFamilies> = {
   props,
   furniture,
   architecture,

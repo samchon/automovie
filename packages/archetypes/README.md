@@ -31,28 +31,30 @@ open.site("aperture", 0.5, 0); // the middle of the threshold
 
 With the source revision, dependencies and runtime fixed, the same parameters and seed give the same model. Without a seed, free band draws use their midpoints and an omitted model name selects the first eligible model. Fixed and derived dimensions follow the producer's documented rules. Upgrades may intentionally correct model selection, geometry, physical properties or contacts, changing later output.
 
-A producer's affordance ids and dimension names are closed types, so a misspelt one fails the type check. A request a producer cannot honour throws an `ArchetypeRefusal` whose fields name the axis at fault and what would have been accepted: a dimension outside its band gives the band, and an affordance the variant lacks gives the ids it has.
+A producer's affordance ids and dimension names are closed types, so a misspelt one fails the type check. A request a producer cannot honour throws an `AutoMovieArchetypeRefusal` whose fields name the axis at fault and what would have been accepted: a dimension outside its band gives the band, and an affordance the variant lacks gives the ids it has.
 
 An archetype serialises as a plain model. Retain that serialised data when the model data produced by an earlier revision must be preserved. Its accessors (`affordance`, `site`, `articulate`, `travel`, `span`, `placed`, `shapes`, `moment`, `dimensions`, `properties`) are not part of the serialised data.
 
 ## Entry points
 
-Each family is also a subpath, such as `@automovie/archetypes/furniture`.
+Each family is also a subpath, such as `@automovie/archetypes/furniture`. Select a producer by the vehicle, instrument, fixture or prop the scene places. For example, `createRowboat` exposes its oar frames, `createUprightPiano` its keys and pedal, `createDrawerUnit` its sliding contacts, and `createPaper({ format: "foldedMap" })` its fold sites.
 
-| Subpath | Producers |
+| Subpath | Selected producers |
 | --- | --- |
-| `/props` | `createDrinkware`, `createDevice`, `createSmoking`, `createStationery`, `createCareItem`, `createBag`, `createBox`, `createTool`, `createLongTool`, `createVessel`, `createWearable`, `createKeyboard`, `createCleaning`, `createTray`, `createTorch`, `createTableware`, `createFood`, `createLight`, `createUmbrella`, `createMobilityAid` |
-| `/furniture` | `createSeat`, `createBed`, `createTable`, `createStorage`, `createLoad`, `createBarrel`, `createLectern`, `createHighChair`, `createConsole`, `createSafe`, `createShowcase` |
-| `/architecture` | `createDoor`, `createWindow`, `createSwitch`, `createStairs`, `createRamp`, `createWall`, `createBar`, `createLadder`, `createKerb`, `createTap`, `createSanitary`, `createAppliance`, `createObstacle`, `createStreetFixture`, `createBin`, `createMachine`, `createGate`, `createElevator`, `createValve`, `createHandhold`, `createCellFront`, `createMirror`, `createBoard`, `createSaloonDoor`, `createControl`, `createHatch`, `createBeerTap` |
-| `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createCart`, `createPram`, `createWheelchair`, `createBoat`, `createDeck`, and the rides `driveCar`, `rideBicycle`, `rideMotorcycle`, `rideWheelchair`, `rowBoat` |
-| `/animals` | Eight kinds through `createQuadruped`, shared body/rig `QuadrupedBody` and `QuadrupedSkeleton`, actual equipment, `rideQuadruped`/`rideHorse`, measured and authored gait tables, `QuadrupedRest`, and source-aware `EquineGoniometry` |
-| `/weapons` | `createHandgun`, `createHolster`, `createMagazine`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createArmour`, `createPolearm`, `createProjectile`, `createBow`, `createCannon`, `createSiegeEngine`, `createPell`, `createWeaponLoop`, `createWeaponRack` |
+| `/props` | `createPhone`, `createCamera`, `createRemote`, `createTablet`, `createRadio`, `createDesktopKeyboard`, `createLaptop`, `createPaper`, `createPen`, `createHat`, `createHammer`, `createScrewdriver`, `createCane`, `createWalker`, `createCookingPot`, `createCarryBasket`, `createCandle`, `createPendantLamp`, `createCargoPod` |
+| `/furniture` | `createSeat`, `createPlatformBed`, `createGurney`, `createCrib`, `createTable`, `createBookcase`, `createHingedCabinet`, `createDrawerUnit`, `createSafe`, `createShowcase` |
+| `/architecture` | `createDoor`, `createWindow`, `createStairs`, `createRamp`, `createRefrigerator`, `createRange`, `createWashingMachine`, `createVendingMachine`, `createWashbasin`, `createBathtub`, `createFireHydrant`, `createBollard`, `createJerseyBarrier`, `createRopeStanchions` |
+| `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createShoppingTrolley`, `createWheelbarrow`, `createRickshaw`, `createHorseCart`, `createRowboat`, `createCanoe`, `createPullingBoat`, `driveCar`, `rideBicycle`, `rideMotorcycle`, `rideWheelchair`, `rowBoat` |
+| `/animals` | `createHorse`, `createPony`, `createDonkey`, `createMule`, `createFoal`, `createDog`, `createCat`, `createOx`, `createCamel`, `createDeer`, shared body and rig `AutoMovieArchetypeQuadrupedBody` and `AutoMovieArchetypeQuadrupedSkeleton`, equipment, `rideQuadruped` and `rideHorse`, gait tables, `AutoMovieArchetypeQuadrupedRest`, and `AutoMovieArchetypeEquineGoniometry` |
+| `/weapons` | `createHandgun`, `createStageHolster`, `createStageBladeCarrier`, `createStageQuiver`, `createPracticeBaton`, `createCostumeHelmet`, `createCostumeCuirass`, `assembleCostumeArmour`, `createSword`, `createShield`, `createPell` |
 | `/gym` | `createBarbell`, `createDumbbell`, `createKettlebell`, `createBench`, `createPullUpBar`, `createParallelBars`, `createPlyoBox`, `createRack`, `createSled`, `createRowingMachine`, `createExerciseBike`, `createExerciseMat`, `createJumpRope`, `createRing`, `createBoxingGlove`, `createHeavyBag` |
-| `/sport` | `createVaultingPole`, `createHighJump`, `createLandingMat`, `createVaultingTable`, `createBall`, `createRacket`, `createGolfClub`, `createGlove`, `createJavelin`, `createShot`, `createDiscus`, `createHammerThrow`, `createHurdle`, `createStartingBlock`, `createRelayBaton`, `createPoolEdge`, `createGoal`, `createStick`, `createCue`, `createCueTable`, `createSurfboard`, `createSki`, `createSkateboard` |
-| `/music` | `createInstrument`, `createMicrophone` |
+| `/sport` | `createSphericalBall`, `createOvalBall`, `createPuck`, `createFieldGoal`, `createBasketballHoop`, `createVolleyballNet`, `createTennisNet`, `createIceHockeyStick`, `createFieldHockeyStick`, `createLacrosseCrosse`, `createCricketBat`, `createBaseballBat`, `createRacket`, `createCueTable`, `createKendoArmour` |
+| `/music` | `createUprightPiano`, `createGuitar`, `createViolin`, `createSideDrum`, `createBugle`, `createMicrophone` |
 | `/nature` | `createFireRing`, `createRock`, `createTent`, `createTree` |
 
-Each producer's JSDoc states how the thing stands in its own space, and its namespace lists its kinds, affordance ids, dimensions and bands (`createSeat.BANDS`).
+Each producer's JSDoc describes its frame and inputs. Its companion types name the supported contacts. A producer that uses bands documents them in its source records.
+
+Existing dispatcher names continue to read saved recipes with their original `kind`, dimensions and seed. For example, `createDevice({ kind: "camera" }, seed)` selects the same camera as `createCamera({}, seed)`. The gallery opens old addresses at the corresponding named producer and retains the selected shape or format and view state.
 
 ### Environments
 
@@ -81,15 +83,15 @@ In the production's set source, resize a room by editing its `[x, z, width, dept
 
 A door's leaf, a drawer, a lever, a suitcase's handle and a bicycle's crank are parts bound to an articulation affordance (`hinge`, `slider`, `knob`, `button`, `trigger`, `crank`, `wheel`, `pedal`). `archetype.articulate({ id: travel })` returns the archetype with those parts, and every contact that rides them, moved; the travel is degrees for a turning kind and metres otherwise, and a travel outside the articulation's range is refused.
 
-An articulation may follow another (`follows`): a car's front road wheels steer as its steering wheel turns. A state names the leader unless the coupling explicitly permits reversible input. A reversible coupling accepts either coordinate, but naming both coordinates of the same degree of freedom is refused. `archetype.travel(id)` reads any articulation's travel, a follower's included. A span (`ArchetypeBuilder.span`) is a straight line between two moving frames, laid again after every pose; `archetype.span(id)` gives its ends and whether it is slack.
+An articulation may follow another (`follows`): a car's front road wheels steer as its steering wheel turns. A state names the leader unless the coupling explicitly permits reversible input. A reversible coupling accepts either coordinate, but naming both coordinates of the same degree of freedom is refused. `archetype.travel(id)` reads any articulation's travel, a follower's included. A span (`AutoMovieArchetypeBuilder.span`) is a straight line between two moving frames, laid again after every pose; `archetype.span(id)` gives its ends and whether it is slack.
 
 ### Assemblies
 
-`ArchetypeAssembly.of(id, name, { key: { archetype, placement } })` composes placed archetypes into one, which rides, seats and serialises like any archetype. A member's ids are read under its key: the seat of the member `bench2` is `bench2/seat`, and its door's hinge `door/hinge` in `articulate`. `assembly.couple(follower, { id: leader, ratio })` makes an articulation of one member follow another's, and `assembly.member(key)` gives a member as posed, with its own typed accessors. An assembly is composed in a production's source; the package ships none.
+`AutoMovieArchetypeAssembly.of(id, name, { key: { archetype, placement } })` composes placed archetypes into one, which rides, seats and serialises like any archetype. A member's ids are read under its key: the seat of the member `bench2` is `bench2/seat`, and its door's hinge `door/hinge` in `articulate`. `assembly.couple(follower, { id: leader, ratio })` makes an articulation of one member follow another's, and `assembly.member(key)` gives a member as posed, with its own typed accessors. An assembly is composed in a production's source; the package ships none.
 
 ### Moving supports
 
-A ride moves an archetype along a course of straight legs and turns, from rest to a cruising speed and back to rest. A course may also mark a speed at each leg's end (`speeds`, 0 for a stop, with a `pause` there), start or end moving (`startSpeed`, `endSpeed`), begin at a film second (`at`), climb or descend a leg (`rise`) and back along one (`reverse`); `ArchetypeCourse.timed(name, samples)` plans a path through points at given seconds instead.
+A ride moves an archetype along a course of straight legs and turns, from rest to a cruising speed and back to rest. A course may also mark a speed at each leg's end (`speeds`, 0 for a stop, with a `pause` there), start or end moving (`startSpeed`, `endSpeed`), begin at a film second (`at`), climb or descend a leg (`rise`) and back along one (`reverse`); `AutoMovieArchetypeCourse.timed(name, samples)` plans a path through points at given seconds instead.
 
 ```ts
 import { createCar, driveCar } from "@automovie/archetypes";
@@ -107,21 +109,21 @@ ride.frame("driverSeat", 6.5); // the seat's world frame, to keep a driver on
 ride.instants; // depart, cruise, turn2Start, brake, turn2End, stop
 ```
 
-`rideBicycle` turns the crank by the distance covered and leans the bicycle into turns, `rideMotorcycle` leans, and `rideHorse` steps the horse's limbs through a walk, trot, canter or gallop and names every hoof's landing. `ArchetypeRide.along` moves any archetype, such as a trolley, unchanged.
+`rideBicycle` turns the crank by the distance covered and leans the bicycle into turns, `rideMotorcycle` leans, and `rideHorse` steps the horse's limbs through a walk, trot, canter or gallop and names every hoof's landing. `AutoMovieArchetypeRide.along` moves any archetype, such as a trolley, unchanged.
 
 ### Animals and their source limits
 
-`createQuadruped` accepts `horse`, `pony`, `mule`, `donkey`, `ox`, `camel`, `dog` and `deer`. The equids keep their existing producers. The other kinds are coarse whole-cohort references: the new ox, dromedary and sika profiles preserve their source height/girth pairs and label transferred limb data and constructed shapes. Fixed cohort means do not establish population variation. Dog, ox and camel require authored whole-model mass; a bare deer may use its cited cohort mean. Adding a deer lead requires explicit complete mass.
+The equids (`createHorse`, `createPony`, `createDonkey`, `createMule`, `createFoal`) share one model, `AutoMovieArchetypeEquine`: one build, tack set, dimension set and mass law. `createQuadruped` also accepts `ox`, `camel`, `dog` and `deer`. Each of these is one measured reference: its height and girth come from the cited cohort, and limb data transferred from another species or shapes built without a source are labelled as such. A reference is a cohort mean, so the seed does not vary it the way it varies a band. Dog, ox and camel need the whole-model mass from the author; a bare deer may take its cited cohort mean.
 
-The optional lead uses explicitly supplied collar and rope dimensions. Oxen can wear an authored yoke and camel/ox references can carry an authored side pack. `QuadrupedEquipment` builds their actual bars, pads and U hooks with `hitch`, `leftLoad` and `rightLoad` contacts, admitting fit against the real rest rig. The caller supplies the complete body-plus-equipment mass; these coarse assemblies make no manufacturer or safe-load claim.
+Equipment is authored: a lead from its collar and rope dimensions, an ox yoke and a camel or ox side pack (`AutoMovieArchetypeQuadrupedEquipment`), with `hitch`, `leftLoad` and `rightLoad` contacts fitted against the rest rig. The author supplies the body-plus-equipment mass, and the coarse assemblies claim no maker dimension or load rating.
 
-`QuadrupedSkeleton.of(animal)` gives the actual links as an `IAutoMovieArticulatedRig` in the closed quadruped vocabulary. `prepareArticulatedRig` supplies generic rigid FK. `QuadrupedSkeleton.pose` moves actual parts and contacts through explicit carrier maps, preserving the original model. The humanoid bone vocabulary is unchanged.
+`AutoMovieArchetypeQuadrupedSkeleton.of(animal)` gives the links as an `IAutoMovieArticulatedRig` in the quadruped bone vocabulary, which `prepareArticulatedRig` poses by rigid forward kinematics. `AutoMovieArchetypeQuadrupedSkeleton.pose` moves the parts and their contacts and leaves the original model unchanged.
 
-The dog table includes a measured walking interval and two faster experimental points transferred from another breed. The three new species have measured walking points. Missing faster clocks are authoring inputs: `QuadrupedLocomotion.camel({ pace })` adds a lateral pace, while `QuadrupedLocomotion.deer({ trot, gallop })` adds diagonal trot and rotary gallop. Each clock row requires `speed`, `stride`, `foreStance` and `hindStance` in metres/seconds. Pass the resulting table as the fourth argument of `rideQuadruped(animal, course, gait, table)`. Measured timing, constructed full phases, pose proxies and authored transitions remain distinct in the table owners' documentation.
+The dog, ox, camel and deer gait tables hold a measured walk; the dog's two faster points are transferred from another breed. A gait with no measured clock is an authoring input: `AutoMovieArchetypeQuadrupedLocomotion.camel({ pace })` and `AutoMovieArchetypeQuadrupedLocomotion.deer({ trot, gallop })` take `speed`, `stride`, `foreStance` and `hindStance` (metres and seconds) and return a table for `rideQuadruped(animal, course, gait, table)`. Each table's source documents which values are measured and which are built or authored.
 
-`QuadrupedRest(animal, params)` plans authored lowering, a supported sternal hold and rising. Its typed plan requires a level floor, durations, rest pitch, tail/distal carriage, phase windows and complete accessory/contact carriers. Samples return actual generic-FK geometry, goals and floor-clearance observations, refusing unreachable or penetrating poses. The law provides geometric support and rolling foot clearance; the greyhound study does not establish other species' dynamics or side rolling.
+`AutoMovieArchetypeQuadrupedRest(animal, params)` plans lying down, a sternal rest and rising on a level floor from authored durations and carriage, and refuses an unreachable or floor-penetrating pose. Its support law comes from a greyhound study, which establishes no other species' dynamics and no side roll.
 
-`EquineJointLimits` retains cited clinical mean/SD observations and their exact acquisition conventions. `EquineGoniometry.measure` measures three explicitly acquired landmarks in an explicitly oriented plane and compares them with one selected study. Coarse bar endpoints are not automatically clinical markers. Anatomical local admission limits remain unknown where the published measurements cannot establish them; means and standard deviations are not hard limits.
+`AutoMovieArchetypeEquineJointLimits` keeps cited clinical joint-angle means and standard deviations with their acquisition conventions, and `AutoMovieArchetypeEquineGoniometry.measure` compares three landmarks in a stated plane with one study. A coarse bar end is not a clinical marker, and a mean and its deviation are observations, not hard limits.
 
 ### Mass and colliders
 
@@ -131,7 +133,7 @@ The dog table includes a measured walking interval and two faster experimental p
 
 The archetypes are inspected with AutoMovie's shared instrument. `src/executable/subjects.ts` is a draw-only subject module: subjects that each hold every kind of a few related producers set along a diagonal (`seats`, `drinkware`, `small-props`, `doors`, `vehicles`, ...), `articulated` with the opened and drawn states, and one subject per ride (`ride-car`, `ride-horse-trot`, ...). From this folder, `pnpm capture` runs `automovie capture` on it for stills and contact sheets and `pnpm inspect` opens the inspector page; both take the request keys the [`render` README](../render/README.md#request-keys) lists.
 
-Animal subjects include `animal-skeleton`, `reference-quadrupeds`, `equipped-quadrupeds`, measured walks, dog trot/gallop, explicitly authored camel pace/deer faster gaits and the canonical resting cycle. These are actual public producer/ride consumers; a completed capture is evidence only after its pictures and recorded conditions have been inspected.
+Animal subjects include `animal-skeleton`, `reference-quadrupeds`, `equipped-quadrupeds`, the measured walks, the dog's trot and gallop, the authored camel pace and deer gaits, and the resting cycle. A capture is evidence only after its pictures and recorded conditions have been inspected.
 
 ```bash
 pnpm capture --subject seats --views "three-quarter@focus=set/seat-office;right@ortho@focus=set/seat-office" --marks "affordance/*"

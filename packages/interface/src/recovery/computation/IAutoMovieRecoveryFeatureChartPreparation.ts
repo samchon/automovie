@@ -6,21 +6,11 @@ import type {
 
 /**
  * Prepare privately cut feature banks for a common four-arc boundary network. Unique occurrence keys guide auxiliary cuts; repeated physical keys retain source identity without welding private fans. Every output remains an observation chart. Closed components and failed topology or disk admissions stay unsupported.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Caller-assigned stable semantic identity retained in generated coefficient and observation records. Declared turning-angle threshold in degrees for preserving an independent corner tangent.
- * @evidence contracts/development/design.md#principled-representation Positive integer ceiling on prepared charts, including pieces split by declared features.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryAtlasObservationFeatures, RecoveryFeatureChartPreparation share IAutoMovieRecoveryFeatureChartPreparation's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Declared turning-angle threshold in degrees for preserving an independent corner tangent.
  */
 
 export namespace IAutoMovieRecoveryFeatureChartPreparation {
   /**
    * Prepare privately cut feature banks for a common four-arc boundary network. Unique occurrence keys guide auxiliary cuts; repeated physical keys retain source identity without welding private fans. Every output remains an observation chart. Closed components and failed topology or disk admissions stay unsupported.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Caller-assigned stable semantic identity retained in generated coefficient and observation records. Declared turning-angle threshold in degrees for preserving an independent corner tangent.
-   * @evidence contracts/development/design.md#principled-representation Positive integer ceiling on prepared charts, including pieces split by declared features.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryAtlasObservationFeatures, RecoveryFeatureChartPreparation share IAutoMovieRecoveryFeatureChartPreparation's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Declared turning-angle threshold in degrees for preserving an independent corner tangent.
    */
 
   export type Operation = (

@@ -132,8 +132,6 @@ export async function test_physical_compound_motor(): Promise<void> {
     const input: IAutoMoviePhysicalSimulationInput.IInput =
       PhysicalFixtures.input([body], DURATION);
     input.substeps = 32;
-    input.iterations = 64;
-    input.internalIterations = 16;
     const run: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
     let maximum: number = 0;
     for (const frame of run.cache.frames)

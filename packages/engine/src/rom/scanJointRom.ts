@@ -15,6 +15,7 @@ import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { nearestAngleAlias } from "../math/nearestAngleAlias";
+import { abductionRange } from "./abductionRange";
 import { swingConeAngle } from "./swingConeAngle";
 
 /** Clinical axes in the scanner's existing report and finite-check order. */
@@ -134,7 +135,11 @@ function scan(
   }
   for (const axis of AXES) {
     const angle: number | null = joint[axis];
-    const allowed: IAutoMovieAngleRange | null = constraint[axis];
+    // A hip's abduction ceiling rises with its flexion (`abductionRange`).
+    const allowed: IAutoMovieAngleRange | null =
+      axis === "abduction"
+        ? abductionRange(constraint, joint.flexion)
+        : constraint[axis];
     if (angle === null) continue;
     // 0 is only implicitly fine on an IMMOBILE axis (it is that axis's rest);
     // against a zero-excluding override like [10, 90] it must report, or

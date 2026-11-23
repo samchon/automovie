@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -19,7 +19,7 @@ import {
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The club.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the club stands, its three contacts and what reads them.
  * @evidence contracts/development/implementation.md#principled-implementation A head box of the drawn heel-to-toe width and face-to-back depth on the floor, a shaft rod up from its heel and a grip rod of the drawn diameter at the top, the club's length from the sole to the grip's end.
@@ -32,9 +32,9 @@ import {
 export function createGolfClub(
   params: createGolfClub.IParams,
   seed?: number | string,
-): Archetype<createGolfClub.Affordance, createGolfClub.Dimension> {
-  const draw: ArchetypeDrawSession<createGolfClub.Dimension> =
-    new ArchetypeDrawSession<createGolfClub.Dimension>(
+): AutoMovieArchetype<createGolfClub.Affordance, createGolfClub.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createGolfClub.Dimension> =
+    new AutoMovieArchetypeDrawSession<createGolfClub.Dimension>(
       "golfClub",
       createGolfClub.UNITS,
       seed,
@@ -49,10 +49,10 @@ export function createGolfClub(
   const d: Record<createGolfClub.Dimension, number> = draw.dimensions(
     createGolfClub.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createGolfClub.Affordance,
     createGolfClub.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: kind,
@@ -85,7 +85,7 @@ export function createGolfClub(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, d.length - hold / 2, 0),
       v(0, 0, -1),
       v(0, 1, 0),
@@ -99,7 +99,7 @@ export function createGolfClub(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(d.headWidth / 2, high / 2, d.headDepth / 2),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -111,7 +111,7 @@ export function createGolfClub(
     id: "head",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(d.headWidth / 2, high / 2, 0),
       v(0, -1, 0),
       v(1, 0, 0),
@@ -147,7 +147,7 @@ export namespace createGolfClub {
   export const SHAFT: number = 0.013;
 
   /** The grip's length, metres: a common 10.5 in grip, an estimate. */
-  export const GRIP_LENGTH: number = 10.5 * ArchetypeUnits.INCH;
+  export const GRIP_LENGTH: number = 10.5 * AutoMovieArchetypeUnits.INCH;
 
   /**
    * The affordance ids:
@@ -175,7 +175,9 @@ export namespace createGolfClub {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     headWidth: "m",
     headDepth: "m",
@@ -198,8 +200,8 @@ export namespace createGolfClub {
     maximum: number,
     source: string,
     provisional: boolean = false,
-  ): IArchetypeBand =>
-    ArchetypeBand.metres(minimum, maximum, source, provisional);
+  ): IAutoMovieArchetypeBand =>
+    AutoMovieArchetypeBand.metres(minimum, maximum, source, provisional);
 
   /** A mass band. */
   const kg = (
@@ -207,8 +209,8 @@ export namespace createGolfClub {
     maximum: number,
     source: string,
     provisional: boolean = false,
-  ): IArchetypeBand =>
-    ArchetypeBand.of("kg", minimum, maximum, source, provisional);
+  ): IAutoMovieArchetypeBand =>
+    AutoMovieArchetypeBand.of("kg", minimum, maximum, source, provisional);
 
   /** The R&A Rules of Equipment, Part 2. */
   const RANDA: string =
@@ -219,7 +221,7 @@ export namespace createGolfClub {
     "no source read gives it; the makers' pages read do not state it";
 
   /** The grip's band, every club alike: under the rule's limit, its size unread. */
-  const GRIP: IArchetypeBand = m(
+  const GRIP: IAutoMovieArchetypeBand = m(
     0.02,
     0.024,
     `${RANDA}, 2.3b(iii): the grip at most 1.75 in across; the band inside it ${UNREAD}`,
@@ -228,17 +230,17 @@ export namespace createGolfClub {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     driver: {
       length: m(
-        45.5 * ArchetypeUnits.INCH,
-        46 * ArchetypeUnits.INCH,
+        45.5 * AutoMovieArchetypeUnits.INCH,
+        46 * AutoMovieArchetypeUnits.INCH,
         "PING G440 MAX driver, standard 45 1/2 and 46 in by shaft (https://ping.com/clubs/drivers/g440-max), inside the R&A rule 2.1c's 48 in",
       ),
       headWidth: m(
         0.11,
-        5 * ArchetypeUnits.INCH,
+        5 * AutoMovieArchetypeUnits.INCH,
         `${RANDA}, 2.4b(i): a wood's head at most 5 in from heel to toe; the narrower end ${UNREAD}`,
         true,
       ),
@@ -258,8 +260,8 @@ export namespace createGolfClub {
     },
     iron: {
       length: m(
-        37 * ArchetypeUnits.INCH,
-        37 * ArchetypeUnits.INCH,
+        37 * AutoMovieArchetypeUnits.INCH,
+        37 * AutoMovieArchetypeUnits.INCH,
         "PING G440 7-iron, 37 in (https://ping.com/clubs/irons/g440)",
       ),
       headWidth: m(0.075, 0.085, UNREAD, true),
@@ -269,8 +271,8 @@ export namespace createGolfClub {
     },
     putter: {
       length: m(
-        33 * ArchetypeUnits.INCH,
-        35 * ArchetypeUnits.INCH,
+        33 * AutoMovieArchetypeUnits.INCH,
+        35 * AutoMovieArchetypeUnits.INCH,
         "PING putters, the G Le4 Anser 2D's 33 in and the 2024 Anser D's 35 in standard lengths (https://ping.com/en-us/golf-clubs/womens/g-le4-anser-2d-putter, https://ping.com/en-us/golf-clubs/putters/2024-2023-anser-d-putter)",
       ),
       headWidth: m(

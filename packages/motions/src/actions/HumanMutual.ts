@@ -70,7 +70,7 @@ export namespace HumanMutual {
             params: {
               prop: params.prop,
               handle: params.handle,
-              from: cast.giver,
+              partner: cast.giver,
               ...(params.mass === undefined ? {} : { mass: params.mass }),
               ...(params.outcome === undefined
                 ? {}
@@ -130,7 +130,7 @@ export namespace HumanMutual {
    * own flight. The join needs an anchor for that reason.
    */
   export const pass: IAutoMovieMotionHumanMutual<
-    Omit<IAutoMovieMotionHumanCatchObject.IParams, "from"> &
+    Omit<IAutoMovieMotionHumanCatchObject.IParams, "partner"> &
       Pick<IAutoMovieMotionHumanThrowObjectParams, "style" | "manner">,
     "thrower" | "catcher"
   > = {
@@ -138,7 +138,7 @@ export namespace HumanMutual {
     roles: ["thrower", "catcher"],
     act: (
       role: "thrower" | "catcher",
-      params: Omit<IAutoMovieMotionHumanCatchObject.IParams, "from"> &
+      params: Omit<IAutoMovieMotionHumanCatchObject.IParams, "partner"> &
         Pick<IAutoMovieMotionHumanThrowObjectParams, "style" | "manner">,
       cast: Readonly<Record<"thrower" | "catcher", string>>,
       anchor?: string,
@@ -151,10 +151,10 @@ export namespace HumanMutual {
         ? {
             name: "throwObject",
             params: {
-              at: {
+              target: {
                 kind: "person",
                 subject: cast.catcher,
-                region: params.side === "left" ? "palmLeft" : "palmRight",
+                region: params.hand === "left" ? "palmLeft" : "palmRight",
               },
               prop: params.ball,
               ...(params.style === undefined ? {} : { style: params.style }),
@@ -164,10 +164,10 @@ export namespace HumanMutual {
         : {
             name: "catchObject",
             params: {
-              from: `${anchor}.thrower`,
+              partner: `${anchor}.thrower`,
               ball: params.ball,
               ...(params.hands === undefined ? {} : { hands: params.hands }),
-              ...(params.side === undefined ? {} : { side: params.side }),
+              ...(params.hand === undefined ? {} : { hand: params.hand }),
               ...(params.glove === undefined ? {} : { glove: params.glove }),
             },
           };

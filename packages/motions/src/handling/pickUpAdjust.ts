@@ -407,12 +407,13 @@ export namespace pickUpAdjust {
    * @param end When the lift ends, seconds.
    * @param up The return's length, seconds.
    * @param share The share of the way down the stance holds at the lift's end, from which the return goes up (`pickUpLift.IRaise.share`): 1 where the lift does not straighten it.
+   * @param planted The feet the entry bears on and the frame each bears on, when the caller reads its entry: a foot the entry holds off any support (a seated body's hanging foot) keeps no plant window unless it steps, and a planted foot keeps its own support frame. Both feet on the ground when absent.
    * @returns The windows, shares of the pick up's length.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each window and how the shares map to seconds.
    * @evidence contracts/development/implementation.md#principled-implementation The stance's share of the way is minimum-jerk in time, so the second of a share is its inverse, found by bisection.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One window per foot that stands, three for one that steps.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot that never steps is planted throughout, as before.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot that never steps keeps its entry's contact throughout: planted on the frame it bears on, or unplanted when it hangs; no foot is declared on a surface it does not touch.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A few bisections per plan.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns new windows and retains nothing.
@@ -423,6 +424,10 @@ export namespace pickUpAdjust {
     end: number,
     up: number,
     share: number,
+    planted?: ReadonlyMap<
+      IAutoMovieMotionHumanContactWindow["part"],
+      IAutoMovieMotionHumanContactWindow["support"]
+    >,
   ): IAutoMovieMotionHumanContactWindow[] {
     const duration: number = end + up;
     // A time share of the reach, and the second of the return at which the
@@ -437,8 +442,17 @@ export namespace pickUpAdjust {
           foot === "left" ? "leftFoot" : "rightFoot";
         const ground: IAutoMovieMotionHumanContactWindow["support"] = { kind: "ground" };
         const step: pickUpPosture.IStance["step"] = stance?.step;
-        if (step === undefined || step.side !== foot)
-          return [{ part, kind: "plant", from: 0, to: 1, support: ground }];
+        if (step === undefined || step.side !== foot) {
+          // The foot keeps the entry's contact: its own support frame, or
+          // none for a foot the entry holds off any support.
+          if (planted === undefined)
+            return [{ part, kind: "plant", from: 0, to: 1, support: ground }];
+          const kept: IAutoMovieMotionHumanContactWindow["support"] | undefined =
+            planted.get(part);
+          return kept === undefined
+            ? []
+            : [{ part, kind: "plant", from: 0, to: 1, support: kept }];
+        }
         return [
           ...(step.off > 0
             ? [

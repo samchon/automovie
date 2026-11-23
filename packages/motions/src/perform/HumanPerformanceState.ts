@@ -28,6 +28,7 @@ import type {
   IAutoMovieMotionMeeting,
   IAutoMovieMotionTarget,
   IAutoMovieSchedule,
+  IAutoMovieScheduleContext,
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
@@ -39,6 +40,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
+import { HumanPerformanceBonds } from "./HumanPerformanceBonds";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
 import { HumanPerformanceKey } from "./HumanPerformanceKey";
@@ -91,8 +93,10 @@ export class HumanPerformanceState {
   >;
 
   /** The spans in which each prop is held or worn, by the prop: who holds it in which hand or wears it on which bone, from when to when and at which offset from the hand or the bone; found once the performance is placed. */
-  public readonly gripCache: Map<string, IAutoMovieMotionHumanPerformanceState.IGrip[]> =
-    new Map();
+  public readonly gripCache: Map<
+    string,
+    IAutoMovieMotionHumanPerformanceState.IGrip[]
+  > = new Map();
 
   /** The meetings of the mutual actions, by their kind, start and performers: the performer who computed each and the meeting every role reads. */
   public readonly meetings: Map<
@@ -113,7 +117,9 @@ export class HumanPerformanceState {
   public readonly forces: readonly IAutoMovieMotionHumanForce[];
 
   /** Resolved authored-turn policy; explicitly supplied momentum remains physical in either mode. */
-  public readonly flight: NonNullable<IAutoMovieMotionHumanPerformance.IInput["flight"]>;
+  public readonly flight: NonNullable<
+    IAutoMovieMotionHumanPerformance.IInput["flight"]
+  >;
 
   /** The cue tracks, by name. */
   public readonly cues: Readonly<
@@ -124,10 +130,8 @@ export class HumanPerformanceState {
   public readonly clipped: Map<number, number> = new Map();
 
   /** The instants of every anchored layer, by its anchor: those known before the schedule from the start, the others once it is placed. */
-  public readonly layered: Map<
-    string,
-    readonly IAutoMovieScheduleCue[]
-  > = new Map();
+  public readonly layered: Map<string, readonly IAutoMovieScheduleCue[]> =
+    new Map();
 
   /** The actions that carry the body the composition gives each person, overlays aside, in walk order: a person's placed ones are its first as many as they have placed, and the rest are still to come. */
   public readonly intended: Map<string, IAutoMovieIntent[]> = new Map();
@@ -141,6 +145,18 @@ export class HumanPerformanceState {
   /** Whether the schedule is still being resolved: until every action is placed, a pose may read people not placed yet, so nothing is kept. */
   public resolving: boolean = true;
 
+  /** The resolver's demand placement while an action is timed (`IAutoMovieMotionHumanPerformanceState.demand`). */
+  public demand: IAutoMovieScheduleContext["demand"] = undefined;
+
+  /** The start up to which a subject holds their last placed pose while an action is timed (`IAutoMovieMotionHumanPerformanceState.horizon`). */
+  public horizon: IAutoMovieScheduleContext["horizon"] = undefined;
+
+  /** The start of a parallel group a read subject shares with the action timed (`IAutoMovieMotionHumanPerformanceState.meeting`). */
+  public meeting: IAutoMovieScheduleContext["meeting"] = undefined;
+
+  /** The placement of an anchor's waiting part while an action is timed (`IAutoMovieMotionHumanPerformanceState.demandAnchor`). */
+  public demandAnchor: IAutoMovieScheduleContext["demandAnchor"] = undefined;
+
   /** How many actions and overlays have been placed so far: two instants with the same count have the same placed state. */
   public placements: number = 0;
 
@@ -149,22 +165,40 @@ export class HumanPerformanceState {
 
   /** The arm seeds continued by later trials of the same intent in this schedule. */
   public readonly handovers: IAutoMovieMotionHumanPerformanceState["handovers"] =
-    new Map<IAutoMovieIntent, IAutoMovieMotionHumanActionContext.IHandover["last"]>();
+    new Map<
+      IAutoMovieIntent,
+      IAutoMovieMotionHumanActionContext.IHandover["last"]
+    >();
 
   /** Each performer's solved soft parts, by subject, kept once the performance is placed (`HumanPerformanceSoft.of`). */
-  public readonly soft: Map<string, IAutoMovieMotionHumanPerformanceSoft.ISolved> = new Map();
+  public readonly soft: Map<
+    string,
+    IAutoMovieMotionHumanPerformanceSoft.ISolved
+  > = new Map();
 
   /** Each prop's articulation writers in film order, by the prop, kept once the performance is placed (`HumanPerformanceObject.writers`). */
-  public readonly writers: Map<string, readonly IAutoMovieMotionHumanPerformanceState.IWriter[]> = new Map();
+  public readonly writers: Map<
+    string,
+    readonly IAutoMovieMotionHumanPerformanceState.IWriter[]
+  > = new Map();
 
   /** Each prop's last posed reading with its film second, by the prop, kept once the performance is placed (`HumanPerformanceObject.posed`). */
-  public readonly posed: Map<string, { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed }> = new Map();
+  public readonly posed: Map<
+    string,
+    { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed }
+  > = new Map();
 
   /** Each launched prop's flights, by the prop, kept once the performance is placed (`HumanPropFlight.flights`). */
-  public readonly flights: Map<string, readonly IAutoMovieMotionHumanPropFlight.IFlight[]> = new Map();
+  public readonly flights: Map<
+    string,
+    readonly IAutoMovieMotionHumanPropFlight.IFlight[]
+  > = new Map();
 
   /** The flights of each prop being found, so a launch reading its prop sees the flights before it. */
-  public readonly flying: Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]> = new Map();
+  public readonly flying: Map<
+    string,
+    IAutoMovieMotionHumanPropFlight.IFlight[]
+  > = new Map();
 
   /** Every hit of the placed performance in time order (`HumanPerformanceHits.hits`), kept on its first read once placed. */
   public hits: readonly IAutoMovieInteractionEvent[] | undefined;
@@ -183,10 +217,12 @@ export class HumanPerformanceState {
   ) {
     this.flight = flight;
     this.props = new Map(
-      (input.props ?? []).map((p: IAutoMovieMotionHumanProp): [string, IAutoMovieMotionHumanProp] => [
-        p.subject,
-        p,
-      ]),
+      (input.props ?? []).map(
+        (p: IAutoMovieMotionHumanProp): [string, IAutoMovieMotionHumanProp] => [
+          p.subject,
+          p,
+        ],
+      ),
     );
     validateInitialPropMounts(this.props);
     this.performers = [...input.performers];
@@ -247,7 +283,8 @@ export class HumanPerformanceState {
         layers: (input.layers?.[performer.subject] ?? []).flatMap(
           (
             layer:
-              | IAutoMovieMotionHumanLayer | IAutoMovieMotionHumanLayer.IScheduled,
+              | IAutoMovieMotionHumanLayer
+              | IAutoMovieMotionHumanLayer.IScheduled,
           ): IAutoMovieMotionHumanSegment.ILayered[] =>
             "apply" in layer
               ? [{ layer, from: -Infinity, to: Infinity, fade: 0 }]
@@ -262,12 +299,22 @@ export class HumanPerformanceState {
             : { attributes: performer.attributes }),
           action: () => undefined,
           aim: (target: IAutoMovieMotionTarget, seconds: number) => {
-            const posture: IAutoMovieMotionHumanPosture = HumanPerformanceRead.posture(
-              this,
-              performer.subject,
-              seconds,
-              target.kind === "point" || target.kind === "none" ? ["root"] : undefined,
-            );
+            // Only a self target, the aiming performer named as a person, or
+            // a prop they may carry reads their bones, resolved from the
+            // whole posture; every other target reads at most the root and
+            // heading, so only the root channel is evaluated for it.
+            const posture: IAutoMovieMotionHumanPosture =
+              HumanPerformanceRead.posture(
+                this,
+                performer.subject,
+                seconds,
+                target.kind === "point" ||
+                  target.kind === "none" ||
+                  (target.kind === "person" &&
+                    target.subject !== performer.subject)
+                  ? ["root"]
+                  : undefined,
+              );
             return HumanPerformanceAim.aim(
               this,
               target,
@@ -275,9 +322,22 @@ export class HumanPerformanceState {
               HumanPerformanceAim.frame(
                 body,
                 posture,
-                (requested?: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones> =>
-                  poseBones(body, resolveHumanPosture.seeded(body, posture,
-                    undefined, undefined, undefined, requested).pose, undefined, requested),
+                (
+                  requested?: ReadonlySet<AutoMovieHumanoidBone>,
+                ): ReturnType<typeof poseBones> =>
+                  poseBones(
+                    body,
+                    resolveHumanPosture.seeded(
+                      body,
+                      posture,
+                      undefined,
+                      undefined,
+                      undefined,
+                      requested,
+                    ).pose,
+                    undefined,
+                    requested,
+                  ),
                 performer.subject,
               ),
             );
@@ -363,18 +423,21 @@ export class HumanPerformanceState {
     // The schedule gives every instant, so the windowed layers take their
     // places among the others, in the order given.
     for (const [subject, layers] of Object.entries(input.layers ?? {})) {
-      const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-        this,
-        subject,
-      );
+      const person: IAutoMovieMotionHumanSegment.IPerson =
+        HumanPerformanceRead.person(this, subject);
       person.layers = layers.map(
-        (layer:
-            | IAutoMovieMotionHumanLayer | IAutoMovieMotionHumanLayer.IScheduled): IAutoMovieMotionHumanSegment.ILayered =>
+        (
+          layer:
+            | IAutoMovieMotionHumanLayer
+            | IAutoMovieMotionHumanLayer.IScheduled,
+        ): IAutoMovieMotionHumanSegment.ILayered =>
           "apply" in layer
             ? { layer, from: -Infinity, to: Infinity, fade: 0 }
             : HumanPerformanceLayers.window(this, person, layer),
       );
     }
+    // A linked wear binds its wearer's limbs from where the schedule puts it.
+    HumanPerformanceBonds.attach(this);
     // Placement evaluated plans while later actions and people were not yet
     // placed; the contact resolution reads every plan as the whole placed
     // performance shows it. Every action is placed now, so displayed poses
@@ -393,13 +456,13 @@ export class HumanPerformanceState {
     this.handovers.clear();
     this.resolving = false;
     for (const entry of this.schedule.entries) {
-      const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-        this,
-        entry.subject,
-      );
+      const person: IAutoMovieMotionHumanSegment.IPerson =
+        HumanPerformanceRead.person(this, entry.subject);
       const segment: IAutoMovieMotionHumanSegment | undefined = (
         this.riding.has(entry.index) ? person.overlays : person.segments
-      ).find((s: IAutoMovieMotionHumanSegment): boolean => s.entry === entry.index);
+      ).find(
+        (s: IAutoMovieMotionHumanSegment): boolean => s.entry === entry.index,
+      );
       if (segment !== undefined)
         segment.end = this.clipped.get(entry.index) ?? entry.end;
     }
@@ -464,16 +527,20 @@ export namespace HumanPerformanceState {
     input: IAutoMovieMotionHumanPerformance.IInput,
     observation?: ReturnType<typeof integrateAirborneRotation.observe>,
   ): IAutoMovieMotionHumanPerformanceState {
-    const selection: ReturnType<typeof HumanPerformanceKey.of> = HumanPerformanceKey.of(input);
+    const selection: ReturnType<typeof HumanPerformanceKey.of> =
+      HumanPerformanceKey.of(input);
     const key: string = selection.key;
-    if (observation !== undefined) return new HumanPerformanceState(input, selection.flight, observation);
-    const kept: IAutoMovieMotionHumanPerformanceState | undefined = KEPT.get(key);
+    if (observation !== undefined)
+      return new HumanPerformanceState(input, selection.flight, observation);
+    const kept: IAutoMovieMotionHumanPerformanceState | undefined =
+      KEPT.get(key);
     if (kept !== undefined) {
       KEPT.delete(key);
       KEPT.set(key, kept);
       return kept;
     }
-    const state: IAutoMovieMotionHumanPerformanceState = new HumanPerformanceState(input, selection.flight);
+    const state: IAutoMovieMotionHumanPerformanceState =
+      new HumanPerformanceState(input, selection.flight);
     KEPT.set(key, state);
     if (KEPT.size > KEEP) KEPT.delete(KEPT.keys().next().value!);
     return state;

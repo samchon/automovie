@@ -10,15 +10,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
+  AutoMovieMotionHumanStance,
+} from "@automovie/motions";
+import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanTrunk,
-  GymnasticsFlight,
   HumanBalance,
   HumanFoot,
   poseBones,
   resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -87,11 +89,8 @@ export namespace motionComposeTrunk {
       const u: IAutoMovieVector3 = axis(pose, bone, { x: 0, y: 1, z: 0 });
       return Math.atan2(yaw === 90 ? u.x : u.z, u.y) * DEG;
     };
-    const standing: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      ORIGIN,
-      0,
-    );
+    const standing: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, ORIGIN, 0);
     const upright: Bones = bones(standing);
     const hips: IAutoMovieVector3 = upright.get("hips")!.worldPosition;
     const hipHeight: number = body.measure.hipHeight;
@@ -132,11 +131,8 @@ export namespace motionComposeTrunk {
 
     // 2. A posture sunk into its knees.
     for (const yaw of [0, 90] as const) {
-      const turned: IAutoMovieMotionHumanPosture = stand.posture(
-        body,
-        ORIGIN,
-        yaw,
-      );
+      const turned: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanStance.stand.posture(body, ORIGIN, yaw);
       const base: Bones = bones(turned);
       const was: IAutoMovieVector3 = base.get("hips")!.worldPosition;
       for (const [share, inclination, back] of [
@@ -145,36 +141,36 @@ export namespace motionComposeTrunk {
         [0.1, 0, 0.06],
         [0.3, 45, 0.06],
       ] as const) {
-            const cell: string = `${name}: sunk by ${share} hip heights, inclined ${inclination}, ${back * 1000} mm back, heading ${yaw}`;
-            const pose: Bones = bones(
-              AutoMovieMotionHumanTrunk.sunk(
-                body,
-                turned,
-                share * hipHeight,
-                inclination,
-                back,
-              ),
-            );
-            const off: number = gap(pose.get("hips")!.worldPosition, {
-              x: was.x - (yaw === 90 ? back : 0),
-              y: was.y - share * hipHeight,
-              z: was.z - (yaw === 0 ? back : 0),
-            });
-            const inclined: number =
-              tipped(pose, "chest", yaw) - tipped(base, "chest", yaw);
-            all.check(
-              `${cell}: the hips are there, off by ${mm(off)} mm`,
-              off <= 1e-6,
-            );
-            all.check(
-              `${cell}: the chest is inclined by ${inclined.toFixed(2)} degrees`,
-              Math.abs(inclined - inclination) <= 0.5,
-            );
-            all.check(
-              `${cell}: both feet keep their plants, the farther ball off by ${mm(slip(pose, base))} mm`,
-              slip(pose, base) <= 0.001,
-            );
-          }
+        const cell: string = `${name}: sunk by ${share} hip heights, inclined ${inclination}, ${back * 1000} mm back, heading ${yaw}`;
+        const pose: Bones = bones(
+          AutoMovieMotionHumanTrunk.sunk(
+            body,
+            turned,
+            share * hipHeight,
+            inclination,
+            back,
+          ),
+        );
+        const off: number = gap(pose.get("hips")!.worldPosition, {
+          x: was.x - (yaw === 90 ? back : 0),
+          y: was.y - share * hipHeight,
+          z: was.z - (yaw === 0 ? back : 0),
+        });
+        const inclined: number =
+          tipped(pose, "chest", yaw) - tipped(base, "chest", yaw);
+        all.check(
+          `${cell}: the hips are there, off by ${mm(off)} mm`,
+          off <= 1e-6,
+        );
+        all.check(
+          `${cell}: the chest is inclined by ${inclined.toFixed(2)} degrees`,
+          Math.abs(inclined - inclination) <= 0.5,
+        );
+        all.check(
+          `${cell}: both feet keep their plants, the farther ball off by ${mm(slip(pose, base))} mm`,
+          slip(pose, base) <= 0.001,
+        );
+      }
     }
   }
 
@@ -213,11 +209,8 @@ export namespace motionComposeTrunk {
       const u: IAutoMovieVector3 = axis(pose, "chest", { x: 0, y: 1, z: 0 });
       return Math.atan2(u.z, u.y) * DEG;
     };
-    const standing: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      ORIGIN,
-      0,
-    );
+    const standing: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, ORIGIN, 0);
     const upright: Bones = bones(standing);
     const hips: IAutoMovieVector3 = upright.get("hips")!.worldPosition;
     const hipHeight: number = body.measure.hipHeight;
@@ -238,18 +231,19 @@ export namespace motionComposeTrunk {
       });
 
     // Depth and pitch are admitted before the body is read.
-    if (name === "f-small") for (const [depth, pitch] of [
-      [-0.01, 0],
-      [0.1, -1],
-      [Number.NaN, 0],
-      [0.1, Number.NaN],
-    ] as const)
-      all.refuses(
-        `${name}: a crouch of depth ${depth} and pitch ${pitch} is refused`,
-        (): void => {
-          phraseOf(depth, pitch);
-        },
-      );
+    if (name === "f-small")
+      for (const [depth, pitch] of [
+        [-0.01, 0],
+        [0.1, -1],
+        [Number.NaN, 0],
+        [0.1, Number.NaN],
+      ] as const)
+        all.refuses(
+          `${name}: a crouch of depth ${depth} and pitch ${pitch} is refused`,
+          (): void => {
+            phraseOf(depth, pitch);
+          },
+        );
 
     // 2 and 3. The crouch over its clock.
     for (const [share, pitch] of [
@@ -261,74 +255,90 @@ export namespace motionComposeTrunk {
     ] as const) {
       const cell: string = `${name}: a crouch of ${share} hip heights and ${pitch} degrees`;
       const depth: number = share * hipHeight;
-      const phrase: IAutoMovieMotionHumanPrimitive = phraseOf(depth, pitch, BALANCE);
-      const unshifted: IAutoMovieMotionHumanPosture = phraseOf(depth, pitch).write(standing, 0.625);
+      const phrase: IAutoMovieMotionHumanPrimitive = phraseOf(
+        depth,
+        pitch,
+        BALANCE,
+      );
+      const unshifted: IAutoMovieMotionHumanPosture = phraseOf(
+        depth,
+        pitch,
+      ).write(standing, 0.625);
       const unshiftedMargin: number = HumanBalance.margin(body, unshifted);
-        all.equals(
-          `${cell} claims the root and the trunk over its instants`,
-          [phrase.channels, phrase.from, phrase.to],
-          [["root", "trunk", "leftLeg", "rightLeg"], 0, 1.25],
+      all.equals(
+        `${cell} claims the root and the trunk over its instants`,
+        [phrase.channels, phrase.from, phrase.to],
+        [["root", "trunk", "leftLeg", "rightLeg"], 0, 1.25],
+      );
+      const times: number[] = [0, 0.125, 0.25, 0.625, 1, 1.125, 1.25];
+      // The clock is independent of body shape. At the acceleration
+      // extrema of the minimum-jerk quintic the linear and eased shares
+      // separate; at the midpoint alone they are indistinguishable.
+      if (name === "f-small" && share === 0.3 && pitch === 30) {
+        const u: number = (3 - Math.sqrt(3)) / 6;
+        times.push(0.25 * u, 1 + 0.25 * (1 - u));
+      }
+      for (const seconds of times) {
+        const written: IAutoMovieMotionHumanPosture = phrase.write(
+          standing,
+          seconds,
         );
-        const times: number[] = [0, 0.125, 0.25, 0.625, 1, 1.125, 1.25];
-        // The clock is independent of body shape. At the acceleration
-        // extrema of the minimum-jerk quintic the linear and eased shares
-        // separate; at the midpoint alone they are indistinguishable.
-        if (name === "f-small" && share === 0.3 && pitch === 30) {
-          const u: number = (3 - Math.sqrt(3)) / 6;
-          times.push(0.25 * u, 1 + 0.25 * (1 - u));
-        }
-        for (const seconds of times) {
-          const written: IAutoMovieMotionHumanPosture = phrase.write(
-            standing,
-            seconds,
-          );
-          const pose: Bones = bones(written);
-          const sunk: number = hips.y - pose.get("hips")!.worldPosition.y;
-          const inclined: number = tipped(pose) - tipped(upright);
-          const margin: number = resolveAutoMovieCenterOfMass.margin(
-            resolveAutoMovieCenterOfMass.place(body.massModel, pose), HumanFoot.base(body, pose),
-          );
-          const at: string = `${cell} at ${seconds} s`;
-          if (seconds === 0 || seconds === 1.25)
-            all.check(
-              `${at} stands as before, hips off by ${mm(gap(pose.get("hips")!.worldPosition, hips))} mm`,
-              gap(pose.get("hips")!.worldPosition, hips) <= 1e-6 &&
-                Math.abs(inclined) <= 1e-6,
-            );
-          else {
-            const u: number = Math.min(1, seconds / 0.25, (1.25 - seconds) / 0.25);
-            const eased: number = u ** 3 * (10 - 15 * u + 6 * u ** 2);
-            all.check(
-              `${at} sinks ${mm(sunk)} mm and inclines ${inclined.toFixed(2)}°, expected ${mm(depth * eased)} mm and ${(pitch * eased).toFixed(2)}°`,
-              Math.abs(sunk - depth * eased) <= 1e-6 && Math.abs(inclined - pitch * eased) <= 0.5,
-            );
-          }
-          const drift: number = slip(pose, upright);
+        const pose: Bones = bones(written);
+        const sunk: number = hips.y - pose.get("hips")!.worldPosition.y;
+        const inclined: number = tipped(pose) - tipped(upright);
+        const margin: number = resolveAutoMovieCenterOfMass.margin(
+          resolveAutoMovieCenterOfMass.place(body.massModel, pose),
+          HumanFoot.base(body, pose),
+        );
+        const at: string = `${cell} at ${seconds} s`;
+        if (seconds === 0 || seconds === 1.25)
           all.check(
-            `${at} keeps both feet on their plants, the farther ball off by ${mm(drift)} mm`,
-            drift <= 0.001,
+            `${at} stands as before, hips off by ${mm(gap(pose.get("hips")!.worldPosition, hips))} mm`,
+            gap(pose.get("hips")!.worldPosition, hips) <= 1e-6 &&
+              Math.abs(inclined) <= 1e-6,
           );
-          if (seconds === 0.625)
-            minimumSupportShift(
-              all, at, unshiftedMargin, margin, unshifted.root.z - written.root.z,
-              (back: number): number => HumanBalance.margin(body, {
+        else {
+          const u: number = Math.min(
+            1,
+            seconds / 0.25,
+            (1.25 - seconds) / 0.25,
+          );
+          const eased: number = u ** 3 * (10 - 15 * u + 6 * u ** 2);
+          all.check(
+            `${at} sinks ${mm(sunk)} mm and inclines ${inclined.toFixed(2)}°, expected ${mm(depth * eased)} mm and ${(pitch * eased).toFixed(2)}°`,
+            Math.abs(sunk - depth * eased) <= 1e-6 &&
+              Math.abs(inclined - pitch * eased) <= 0.5,
+          );
+        }
+        const drift: number = slip(pose, upright);
+        all.check(
+          `${at} keeps both feet on their plants, the farther ball off by ${mm(drift)} mm`,
+          drift <= 0.001,
+        );
+        if (seconds === 0.625)
+          minimumSupportShift(
+            all,
+            at,
+            unshiftedMargin,
+            margin,
+            unshifted.root.z - written.root.z,
+            (back: number): number =>
+              HumanBalance.margin(body, {
                 ...unshifted,
                 root: { ...unshifted.root, z: unshifted.root.z - back },
               }),
-            );
-          else
-            all.check(
-              `${at} keeps the centre of mass over the bearing hull, with a margin of ${mm(margin)} mm`,
-              margin >= 0,
-            );
-        }
+          );
+        else
+          all.check(
+            `${at} keeps the centre of mass over the bearing hull, with a margin of ${mm(margin)} mm`,
+            margin >= 0,
+          );
       }
+    }
 
     // 4. A standing posture of joint angles alone.
-    const angles: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(
-      body,
-      standing,
-    );
+    const angles: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanAcrobatics.GymnasticsFlight.frozen(body, standing);
     const bare: IAutoMovieMotionHumanPrimitive =
       AutoMovieMotionHumanTrunk.crouch({
         body: withoutMass(body),
@@ -359,11 +369,15 @@ export namespace motionComposeTrunk {
   };
 
   /** Let a primitive read every geometric property and fail on any mass access. */
-  export function withoutMass(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanBody {
+  export function withoutMass(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanBody {
     return {
       ...body,
       get massModel(): IAutoMovieMotionHumanBody["massModel"] {
-        throw new Error("Balance is absent, so this primitive does not read mass");
+        throw new Error(
+          "Balance is absent, so this primitive does not read mass",
+        );
       },
     };
   }
@@ -377,14 +391,21 @@ export namespace motionComposeTrunk {
     shift: number,
     marginAt: (shift: number) => number,
   ): void {
-    all.check(`${cell}: the mass centre stays over the bearings, margin ${mm(after)} mm`, after >= 0);
+    all.check(
+      `${cell}: the mass centre stays over the bearings, margin ${mm(after)} mm`,
+      after >= 0,
+    );
     if (before >= 0) {
-      all.check(`${cell}: a supported pose moves ${mm(shift)} mm`, Math.abs(shift) <= 1e-9);
+      all.check(
+        `${cell}: a supported pose moves ${mm(shift)} mm`,
+        Math.abs(shift) <= 1e-9,
+      );
       return;
     }
     // A one-step retreat along the shift must lose the bearing hull, within
     // the balance solver's stated spatial resolution of half a millimetre.
-    const nearer: number = Math.sign(shift) * Math.max(0, Math.abs(shift) - HumanBalance.TOLERANCE);
+    const nearer: number =
+      Math.sign(shift) * Math.max(0, Math.abs(shift) - HumanBalance.TOLERANCE);
     const margin: number = marginAt(nearer);
     all.check(
       `${cell}: ${mm(shift)} mm shifts from a ${mm(before)} mm margin, and the closer ${mm(nearer)} mm shift has a ${mm(margin)} mm margin`,

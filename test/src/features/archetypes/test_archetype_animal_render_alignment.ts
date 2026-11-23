@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeMarks,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeMarks,
   createDog,
 } from "@automovie/archetypes";
 import {
@@ -61,10 +61,10 @@ export function test_archetype_animal_render_alignment(): void {
         parts: ["set/dog"],
         marks: ["affordance/*"],
       }),
-      marks: ArchetypeMarks.of(
+      marks: AutoMovieArchetypeMarks.of(
         "set/dog",
         animal.affordances,
-        ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+        AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
         0.1,
       ),
     });

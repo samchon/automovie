@@ -16,7 +16,7 @@ During an open Evidence pass, update affected answers after repairs. Once the pa
 
 Keep construction answers separate under [document layout](document-layout.md#documents). The H1 names the exact file or file and anchor. Follow it with Evidence headings and support using the installed package's syntax.
 
-The answerer sends the writer any supported exclusion that needs a body edit. The writer records its scope and reason in the respondent's HTML comment, below its H2 or above the file's first heading. Use the designated discovery carrier for a discovery negative and the relationship's allowed form. Exclude a population only when all of it is inapplicable.
+Record a supported exclusion in the same answer document, as an `@evidenceExclude` heading under the respondent's H1 with its scope and reason. The body stays free of answers and exclusions. Use the designated discovery carrier for a discovery negative and the relationship's allowed form. Exclude a population only when all of it is inapplicable.
 
 A work- or language-specific question is adopted through [adoption](../evidence/adoption.md), which also chooses its respondent.
 

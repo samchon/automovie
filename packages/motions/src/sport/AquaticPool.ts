@@ -61,7 +61,7 @@ export namespace AquaticPool {
       : "frontCrawl";
     const inbound: IAutoMovieMotionHumanActionPlan = swim.plan({
       ...context,
-      params: { kind: stroke, water, cycles: 2 },
+      params: { kind: stroke, water, count: 2 },
     });
     const outbound: IAutoMovieMotionHumanActionPlan = swim.plan({
       ...context,
@@ -69,7 +69,7 @@ export namespace AquaticPool {
         ...entry,
         posture: { ...entry.posture, yaw: entry.posture.yaw + 180 },
       },
-      params: { kind: stroke, water, cycles: 1 },
+      params: { kind: stroke, water, count: 1 },
     });
     const wall: IAutoMovieVector3 = AquaticPosture.along(
       entry.posture,

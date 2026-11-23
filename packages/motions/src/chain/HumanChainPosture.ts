@@ -8,8 +8,10 @@ import type {
   IAutoMovieMotionHumanShift,
   IAutoMovieMotionHumanSit,
   IAutoMovieMotionHumanSupport,
+  IAutoMovieMotionHumanWallClimb,
 } from "@automovie/interface";
 
+import { wallClimbSupport } from "../climbing/wallClimbSupport";
 import { HumanChainTravel } from "./HumanChainTravel";
 
 /**
@@ -146,5 +148,21 @@ export class HumanChainPosture extends HumanChainTravel {
     anchor?: string,
   ): this {
     return this.act("support", params, anchor);
+  }
+
+  /**
+   * Climb a wall on fixed holds: each stance of the route holds at least three
+   * limbs on distinct holds, built by `wallClimbSupport` and moved through by
+   * `support`.
+   *
+   * @param params The starting holds and the ordered one-limb changes.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public wallClimb(
+    params: IAutoMovieMotionHumanWallClimb,
+    anchor?: string,
+  ): this {
+    return this.support(wallClimbSupport(params), anchor);
   }
 }

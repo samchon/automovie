@@ -1,6 +1,6 @@
 import {
-  HorseGait,
-  QuadrupedGait,
+  AutoMovieArchetypeEquineGait,
+  AutoMovieArchetypeQuadrupedGait,
   createHorse,
   createQuadruped,
 } from "@automovie/archetypes";
@@ -56,13 +56,8 @@ export function test_archetype_animal_gait_data(): void {
       },
     },
   };
-  const value: QuadrupedGait.ITiming = QuadrupedGait.timing(
-    point,
-    "pace",
-    2.5,
-    1,
-    1,
-  );
+  const value: AutoMovieArchetypeQuadrupedGait.ITiming =
+    AutoMovieArchetypeQuadrupedGait.timing(point, "pace", 2.5, 1, 1);
   if (
     !nclose(value.stride, 0.6, 1e-15) ||
     !nclose(value.duty, 0.5, 1e-15) ||
@@ -74,7 +69,7 @@ export function test_archetype_animal_gait_data(): void {
     );
   for (const speed of [2.5 - 1e-8, 2.5 + 1e-8]) {
     try {
-      QuadrupedGait.timing(point, "pace", speed);
+      AutoMovieArchetypeQuadrupedGait.timing(point, "pace", speed);
       findings.push("an unobserved point speed was invented");
     } catch {}
   }
@@ -85,25 +80,33 @@ export function test_archetype_animal_gait_data(): void {
     ["rightHind", 0.5],
   ] as const)
     if (
-      QuadrupedGait.phase(point, { gait: "pace", lead: "left" }, limb) !== phase
+      AutoMovieArchetypeQuadrupedGait.phase(
+        point,
+        { gait: "pace", lead: "left" },
+        limb,
+      ) !== phase
     )
       findings.push(`${limb} did not retain its lateral pace phase`);
   const horse: createQuadruped.ISpecies = createQuadruped.species(
     createHorse({}, 1),
   );
   try {
-    QuadrupedGait.of(horse, "pace");
+    AutoMovieArchetypeQuadrupedGait.of(horse, "pace");
     findings.push("an unmeasured horse pace was fabricated");
   } catch {}
-  if (JSON.stringify(HorseGait.GAITS) !== '["walk","trot","canter","gallop"]')
+  if (
+    JSON.stringify(AutoMovieArchetypeEquineGait.GAITS) !==
+    '["walk","trot","canter","gallop"]'
+  )
     findings.push("the existing equine gait sequence changed");
-  const middle: QuadrupedGait.ITiming = QuadrupedGait.timing(
-    horse,
-    "walk",
-    1.25,
-    0,
-    HorseGait.REFERENCE,
-  );
+  const middle: AutoMovieArchetypeQuadrupedGait.ITiming =
+    AutoMovieArchetypeQuadrupedGait.timing(
+      horse,
+      "walk",
+      1.25,
+      0,
+      AutoMovieArchetypeEquineGait.REFERENCE,
+    );
   if (
     !nclose(middle.stride, 1.0125, 1e-15) ||
     !nclose(middle.duty, 0.6365 / 1.0125, 1e-15)

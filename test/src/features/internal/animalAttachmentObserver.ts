@@ -1,4 +1,7 @@
-import type { Archetype, QuadrupedBody } from "@automovie/archetypes";
+import type {
+  AutoMovieArchetype,
+  AutoMovieArchetypeQuadrupedBody,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -36,7 +39,10 @@ export function animalAttachmentObserver(
   label: string,
   findings: string[],
   handContacts: readonly string[] = [],
-): ReadonlyMap<QuadrupedBody.Limb, animalAttachmentObserver.IFoot> {
+): ReadonlyMap<
+  AutoMovieArchetypeQuadrupedBody.Limb,
+  animalAttachmentObserver.IFoot
+> {
   const original: Map<string, IAutoMovieModelPart> = index(source.parts);
   const current: Map<string, IAutoMovieModelPart> = index(
     sample.archetype.parts,
@@ -49,8 +55,10 @@ export function animalAttachmentObserver(
       ],
     ),
   );
-  const feet: Map<QuadrupedBody.Limb, animalAttachmentObserver.IFoot> =
-    new Map();
+  const feet: Map<
+    AutoMovieArchetypeQuadrupedBody.Limb,
+    animalAttachmentObserver.IFoot
+  > = new Map();
   rigid(sample.placement, "placement");
   truth("part count", current.size === original.size);
   for (const part of sample.archetype.parts) {
@@ -67,8 +75,11 @@ export function animalAttachmentObserver(
     const ids: readonly string[] = fore
       ? [`${limb}Humerus`, `${limb}Radius`, `${limb}Cannon`, `${limb}Pastern`]
       : [`${limb}Femur`, `${limb}Tibia`, `${limb}Cannon`, `${limb}Pastern`];
-    const parent: string = fore ? "trunk" : "hindquarters";
-    attached(ids[0]!, parent);
+    // A fore limb hangs from its shoulder blade, which hangs from the trunk.
+    const parent: string = fore ? `${limb}Scapula` : "hindquarters";
+    if (fore) attached(parent, "trunk");
+    // The shoulder joint lies below the blade's drawn bar, inside the trunk's solid.
+    attached(ids[0]!, parent, fore ? "trunk" : parent);
     let previous: IAutoMovieVector3 | undefined;
     for (const id of ids) {
       const rest: IAutoMovieModelPart = need(original, id);
@@ -143,10 +154,12 @@ export function animalAttachmentObserver(
           rightRein: "rein-right",
         } as Readonly<Record<string, string>>
       )[contact.id];
-      if (rod === undefined)
+      // A pack saddle's tie is a rein fastening with no laid rod: it rides on the trunk with the saddle.
+      if (rod === undefined && contact.id !== "tie")
         throw new Error(`Unsupported actual rein ${contact.id}`);
-      animalReinObserver(need(current, rod), posed, label, findings);
-      if (handContacts.includes(contact.id)) {
+      if (rod !== undefined)
+        animalReinObserver(need(current, rod), posed, label, findings);
+      if (rod !== undefined && handContacts.includes(contact.id)) {
         point(
           `${contact.id} hand remains on actual trunk`,
           local(frame(need(current, "trunk")), posed.frame.translation),
@@ -184,6 +197,7 @@ export function animalAttachmentObserver(
               rightStirrup: "stirrup-right",
               leftLoad: "trunk",
               rightLoad: "trunk",
+              tie: "trunk",
             } as Readonly<Record<string, string>>
           )[contact.id];
     if (carrier === undefined) continue;
@@ -212,7 +226,11 @@ export function animalAttachmentObserver(
   return feet;
 
   /** A neutral attachment is measured in the actual parent primitive's centre frame. */
-  function attached(child: string, parent: string): void {
+  function attached(
+    child: string,
+    parent: string,
+    solid: string = parent,
+  ): void {
     const oldParent: IAutoMovieModelPart = need(original, parent);
     const newParent: IAutoMovieModelPart = need(current, parent);
     const oldPoint: IAutoMovieVector3 = local(
@@ -227,14 +245,25 @@ export function animalAttachmentObserver(
     if (child.endsWith("Humerus") || child.endsWith("Femur")) {
       inside(
         `${child} neutral proximal touches actual parent solid`,
-        oldPoint,
-        oldParent,
+        local(
+          frame(need(original, solid)),
+          endpoint(need(original, child), -1),
+        ),
+        need(original, solid),
       );
-      inside(
-        `${child} posed proximal touches actual parent solid`,
-        newPoint,
-        newParent,
-      );
+      // A turned blade carries the shoulder joint on its arc about the blade's
+      // rotation centre, out of the trunk's solid that holds it at rest. The
+      // point check above pins it to the blade's own frame, so only a parent
+      // that is itself the solid is read inside it when posed.
+      if (solid === parent)
+        inside(
+          `${child} posed proximal touches actual parent solid`,
+          local(
+            frame(need(current, solid)),
+            endpoint(need(current, child), -1),
+          ),
+          need(current, solid),
+        );
     }
   }
 
@@ -325,7 +354,7 @@ export function animalAttachmentObserver(
  */
 export namespace animalAttachmentObserver {
   /** Actual model geometry and source contact semantics. */
-  export type Model = Pick<Archetype, "parts" | "affordances">;
+  export type Model = Pick<AutoMovieArchetype, "parts" | "affordances">;
 
   /** Actual posed model and its complete world placement. */
   export interface Sample {

@@ -5,10 +5,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * The canonical Human, standing in its public Stand under internal actuation
- * only, meets a 0.1 s push half the in-place bound, forward and sideways:
- * no step, still supported and not tipped, every sole flat throughout, the
- * height kept and the floor load back at the weight within 2 percent. The
- * push is stated from the body's own inverted pendulum (`PhysicalDisturbance`).
+ * only, meets a 0.1 s push half the in-place bound, forward and sideways: no
+ * step, still supported and not tipped, every sole flat throughout, the height
+ * kept and the floor load back at the weight within 2 percent. The push is
+ * stated from the body's own inverted pendulum (`PhysicalDisturbance`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the push and every condition the outcome must meet.
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation.compute` on the public Stand handed over through `fitHumanPhysicalStandingPose` and reads the recovery record, cache frames, contact receipts and support wrenches.

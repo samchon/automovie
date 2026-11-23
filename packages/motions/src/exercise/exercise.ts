@@ -86,14 +86,18 @@ export namespace exercise {
     });
 
   /** The thigh's angle from the horizontal at the bottom, degrees, by depth. */
-  export const THIGH: Readonly<Record<IAutoMovieMotionHumanExercise.Depth, number>> = {
+  export const THIGH: Readonly<
+    Record<IAutoMovieMotionHumanExercise.Depth, number>
+  > = {
     quarter: 60,
     half: 45,
     parallel: 0,
   };
 
   /** The trunk's pitch at the bottom, degrees, by depth (provisional). */
-  export const PITCH: Readonly<Record<IAutoMovieMotionHumanExercise.Depth, number>> = {
+  export const PITCH: Readonly<
+    Record<IAutoMovieMotionHumanExercise.Depth, number>
+  > = {
     quarter: 15,
     half: 25,
     parallel: 40,
@@ -151,9 +155,10 @@ export namespace exercise {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanExercise.IParams = context.params;
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
-    const reps: number = p.reps ?? 3;
-    HumanBound.whole("reps", reps);
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+      body.measure;
+    const reps: number = p.count ?? 3;
+    HumanBound.whole("count", reps);
     const tempo: readonly [number, number, number] = p.tempo ?? [2, 0, 1];
     for (const span of tempo) HumanBound.least("tempo", span, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -179,7 +184,10 @@ export namespace exercise {
       { holds: [] },
     );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+    const stance: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -215,8 +223,10 @@ export namespace exercise {
           [`concentricStart${index + 1}`, `top${index + 1}`],
         ),
     );
-    const into: (i: number, seconds: number) => number = (i: number, seconds: number): number =>
-      envelopes[i - 1]!(seconds);
+    const into: (i: number, seconds: number) => number = (
+      i: number,
+      seconds: number,
+    ): number => envelopes[i - 1]!(seconds);
     const any: (seconds: number) => number = (seconds: number): number => {
       let w: number = 0;
       for (let i: number = 1; i <= reps; i++) w = Math.max(w, into(i, seconds));
@@ -271,31 +281,45 @@ export namespace exercise {
       reads: ["root"],
       from: 0,
       to: clock.duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => ({
         ...posture,
         root: Vector3.add(posture.root, offset(seconds)),
       }),
     });
 
     const window: HumanPhysics.Window = HumanPhysics.fromClock(
-      p, p.kind === "squat" ? { balance: { by: "hips" } } : {}, context.start, clock, context.instant,
+      p,
+      p.kind === "squat" ? { balance: { by: "hips" } } : {},
+      context.start,
+      clock,
+      context.instant,
     );
     if (window !== null && p.kind !== "squat")
-      HumanPhysics.unsupported(window.by, "only the squat exercise has a planted hip counterbalance");
+      HumanPhysics.unsupported(
+        window.by,
+        "only the squat exercise has a planted hip counterbalance",
+      );
     switch (p.kind) {
       case "squat": {
-        const depth: IAutoMovieMotionHumanExercise.Depth = p.depth ?? "parallel";
+        const depth: IAutoMovieMotionHumanExercise.Depth =
+          p.depth ?? "parallel";
         for (let i: number = 1; i <= reps; i++)
           primitives.push(
-            AutoMovieMotionHumanTrunk.crouch({
-              body,
-              standing: entry,
-              clock,
-              rise: [`eccentricStart${i}`, `bottom${i}`],
-              fall: [`concentricStart${i}`, `top${i}`],
-              depth: drop(m, depth) * modifiers.extent,
-              pitch: PITCH[depth] * modifiers.extent,
-            }, window),
+            AutoMovieMotionHumanTrunk.crouch(
+              {
+                body,
+                standing: entry,
+                clock,
+                rise: [`eccentricStart${i}`, `bottom${i}`],
+                fall: [`concentricStart${i}`, `top${i}`],
+                depth: drop(m, depth) * modifiers.extent,
+                pitch: PITCH[depth] * modifiers.extent,
+              },
+              window,
+            ),
           );
         contacts.push(...AutoMovieMotionHumanBase.plants());
         break;
@@ -318,7 +342,11 @@ export namespace exercise {
         break;
       }
       case "highKnees": {
-        const raised: (side: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => {
+        const raised: (
+          side: "left" | "right",
+        ) => IAutoMovieMotionHumanFoot.IPlacement = (
+          side: "left" | "right",
+        ): IAutoMovieMotionHumanFoot.IPlacement => {
           const hip: IAutoMovieVector3 = HumanFrame.point(
             { origin: entry.root, yaw: entry.yaw },
             body.rest.get(`${side}UpperLeg`)!,
@@ -331,9 +359,13 @@ export namespace exercise {
             rotation: stance[side].rotation,
           };
         };
-        const sideOf: (i: number) => "left" | "right" = (i: number): "left" | "right" =>
-          i % 2 === 1 ? lead : trail;
-        const lifted: (side: "left" | "right", s: number) => number = (side: "left" | "right", s: number): number => {
+        const sideOf: (i: number) => "left" | "right" = (
+          i: number,
+        ): "left" | "right" => (i % 2 === 1 ? lead : trail);
+        const lifted: (side: "left" | "right", s: number) => number = (
+          side: "left" | "right",
+          s: number,
+        ): number => {
           let w: number = 0;
           for (let i: number = 1; i <= reps; i++)
             if (sideOf(i) === side) w = Math.max(w, into(i, s));
@@ -359,7 +391,10 @@ export namespace exercise {
               side,
               from: 0,
               to: clock.duration,
-              placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
+              placement: (
+                _: IAutoMovieMotionHumanPosture,
+                s: number,
+              ): IAutoMovieMotionHumanFoot.IPlacement =>
                 AutoMovieMotionHumanLegPhrase.between(
                   stance[side],
                   raised(side),
@@ -419,8 +454,13 @@ export namespace exercise {
               side,
               from: 0,
               to: clock.duration,
-              placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement => {
-                const placed: IAutoMovieMotionHumanFoot.IPlacement = open(any(s));
+              placement: (
+                _: IAutoMovieMotionHumanPosture,
+                s: number,
+              ): IAutoMovieMotionHumanFoot.IPlacement => {
+                const placed: IAutoMovieMotionHumanFoot.IPlacement = open(
+                  any(s),
+                );
                 return {
                   ...placed,
                   ankle: { ...placed.ankle, y: placed.ankle.y + hop(s) },
@@ -459,15 +499,19 @@ export namespace exercise {
             [share(`eccentricStart${i}`), share(`bottom${i}`)],
             [share(`concentricStart${i}`), share(`top${i}`)],
           );
-        contacts.push(...plant("leftFoot", moves), ...plant("rightFoot", moves));
+        contacts.push(
+          ...plant("leftFoot", moves),
+          ...plant("rightFoot", moves),
+        );
         break;
       }
     }
-    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(clock.duration, entry, contacts),
-      clock,
-      primitives,
-    });
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.still(clock.duration, entry, contacts),
+        clock,
+        primitives,
+      });
     return { ...plan, ...HumanPhysics.declared(context.params, window) };
   }
 }

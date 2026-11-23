@@ -4,20 +4,9 @@ import type { IAutoMovieHumanLegConstruction } from "../IAutoMovieHumanLegConstr
 
 /**
  * Fitted leg spline channels and bare canonical section samples before end residuals. Runtime construction and admission remain with AutoMovieHumanLegLaw in Human.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes fitted leg spline channels and bare canonical section samples before end residuals; nested declarations retain their units, frames, optional states and callback contracts.
- * @evidence contracts/development/design.md#principled-representation Fitted leg spline channels and bare canonical section samples before end residuals. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanLegLaw; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing LegLaw contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
  */
 export namespace IAutoMovieHumanLegLaw {
   /** The fitted law's channels with one person's keys.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The fitted law's channels with one person's keys.
-   * @evidence contracts/development/design.md#principled-representation `bottom`: Station of the ankle ring. `length`: Distance between the rings. `ankle`: Ankle ring centre in the canonical plane.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanLegLaw.prepare. Read by AutoMovieHumanLegLaw.reachOf, AutoMovieHumanLegLaw.bare, AutoMovieHumanLegLaw.points. Also types AutoMovieHumanLegLaw.family.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `bottom`, `length`, `ankle`, `ankleWorld`, `ankleLift`, `crotchOffset`, `crotchCentre`, `inputs`, `profile`, `forward`, `axis`, `shape`, `correction`, `ankleResidual`; callers supply the complete record.
    */
   export interface IFamily {
     /** Station of the ankle ring. */
@@ -64,12 +53,6 @@ export namespace IAutoMovieHumanLegLaw {
   }
 
   /** Section of the law before any end residual.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Section of the law before any end residual.
-   * @evidence contracts/development/design.md#principled-representation `centre`: Centre in the canonical plane, `[x, z]`. `radii`: Radii at the leg's phases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanLegLaw.bare. Also types AutoMovieHumanLegLaw.reached, AutoMovieHumanLegLaw.start.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `centre`, `radii`; callers supply the complete record.
    */
   export interface IBare {
     /** Centre in the canonical plane, `[x, z]`. */

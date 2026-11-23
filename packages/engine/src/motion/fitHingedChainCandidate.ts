@@ -118,7 +118,10 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * candidate's error is measured for the value, and a choice whose measured
  * bucket differs from the one it was ranked by is searched again with every
  * error measured. A continued fit tries the closed-form candidates lying by
- * its seed before refining it (`hingedSwivelNear`), and a cold fit whose
+ * its seed before refining it (`hingedSwivelNear`), on a limb with an
+ * immobile end axis the root of that axis nearest its seed, so a knee keeps
+ * the side its seed chose (Tolani, Goswami and Badler 2000, section 3.2.4,
+ * the feasible swivel nearest the desired one), and a cold fit whose
  * rotation's certified miss exceeds the tolerance at every swivel skips the
  * pole start that could not be accepted.
  *
@@ -128,14 +131,6 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @param rotation A requested effector rotation, ranked before the hint's side when given.
  * @param rig Optional lazy rig of the same unchanged source workspace; source-only basis, reference, hinge range and posed swing may be shared, while every candidate score and callback remains target-local.
  * @returns The candidate, or null for a degenerate chain.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the sweep, the overshoot-then-continuous-cost ranking with its terms and weights, the continuity premise and the frames of every input.
- * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through hingedArmArticulation, scored through actual clinical decomposition and ROM overshoot. The mid joint circles the root-to-target axis as the swivel turns, so the side term is a sinusoid whose peak is the pole direction in closed form; the local search then minimises the full score in that basin. An end joint with one immobile axis has two degrees of freedom, so the swivel supplies the third of a requested rotation and the admissible swivels are the roots of that axis's sinusoid, the analytic joint-limit swivels of the same paper. Without strain, obstruction, reference or a hint side, every raw cost term is non-negative: ROM excess, quaternion angle and squared clinical effort. A zero global lower bound then certifies only an exact-zero original first candidate, retaining its original tie and seed.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. A requested rotation on a distal-twist limb costs one score a bend branch when its closed-form candidate (the swivel nearest the pole that the wrist's box and the forearm's twist range admit) is legal and met (measured with the box alone: 9 of 119 hand fits of test_human_motion_core_overlay_hold; with the twist range, unmeasured; a rotation no swivel meets goes to the sweep, which the rotation's certified miss bounds by branch and bound, unmeasured); a continued fit refines its seed first. A requested rotation on a limb without distal twist whose end joint has one immobile axis costs two scores a bend branch and no search when its best closed-form candidate is legal and met (measured: every one of 2,707 leg fits of test_human_motion_signature_run_m_average, 19.3 scores a fit before, 2 after). A fit with no hint side keeps its exact-zero first-candidate certificate and, with a requested rotation, is bounded by the miss as well; a strain fit with a requested rotation scores only the swivels whose miss shares the least legal error's bucket (both unmeasured). Eligibility for a closed-form start is exactly no strain and no minimum certificate, with either no requested rotation and a hint side (the pole; one score per branch when neither reference nor obstruction is asked and the pole is unrefused), or a requested rotation on a mid joint without distal twist (the least-articulation swivel). The local search scores the start, its two neighbours, each further downhill step and one refinement per branch. The full sweep runs when the best branch result keeps an overshoot (range or obstruction), when a rotation start leaves the rotation error above ROM_TOLERANCE degrees, and when the limb is straight to within rounding. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. A candidate's reading reads the effort off the root's record without a temporary angle record. No speedup is measured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. A root gated by swing and twist whose angles are decomposed on its range's own basis and rest frame (`readsSwingTwistFrame`) has its range read on the candidate rotation itself, which its angles compose back to up to the round trip's rounding, so no candidate recomposes its root; under task priority, which weighs no clinical effort, such a root's candidates are not decomposed at all (`scanJointRom.prepareRotated` scores the rotation with the same arithmetic) and only the chosen one is, for its record. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
 export function fitHingedChainCandidate(
   props: IAutoMovieFitChainToTargetProps,
@@ -498,6 +493,34 @@ export function fitHingedChainCandidate(
     Math.abs(Vector3.dot(Vector3.normalize(lowerBasis.twist), along)) > 1 - 1e-9;
   let ended: IEnd | undefined;
 
+  // The swivels of a branch at which the requested rotation reads the end
+  // joint's immobile axis neutral (`immobileAxisSwivels`): the closed-form
+  // candidates of a cold fit and the start of a continued one.
+  const immobileRoots = (posed: ReturnType<typeof hingedArmSwivel.pose>): number[] | null => {
+    const end: IEnd = (ended ??= endOf(props, prepared, rig));
+    return immobileAxisSwivels({
+      basis: end.basis,
+      frame: end.frame,
+      constraint: end.constraint,
+      rotation: (swivel: number): IAutoMovieQuaternion => {
+        const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> = posed(swivel);
+        return Quaternion.normalize(Quaternion.multiply(
+          end.restInverse,
+          Quaternion.multiply(
+            Quaternion.inverse(Quaternion.multiply(
+              Quaternion.multiply(
+                Quaternion.multiply(prepared.upper.worldRotation, at.upper),
+                prepared.lowerRotation,
+              ),
+              at.lower,
+            )),
+            rotation!,
+          ),
+        ));
+      },
+    });
+  };
+
   // A branch's arcs of swivels the end joint's box refuses, kept `INSIDE`
   // the box (`distalEndSwivelArcs`): read once a branch by the closed-form
   // candidate, the continued fit's start and the shown test alike. Null
@@ -666,6 +689,33 @@ export function fitHingedChainCandidate(
             },
           }
         : {}),
+      // On a limb whose mid segment takes no distal twist and whose end joint
+      // has an immobile axis (an ankle), the requested rotation holds only at
+      // that axis's roots, at most two swivels a branch in closed form
+      // (`immobileAxisSwivels`, Tolani, Goswami and Badler 2000, section
+      // 3.2.3: an end-joint limit is a sinusoid of the swivel). A continued
+      // fit starts from the root nearest its seed, so a knee keeps the side
+      // the seed chose instead of leaving for whichever root scores best.
+      ...(props.near !== undefined && rotation !== undefined &&
+        lowerBasis.twistPlacement !== "distal" && strain === undefined
+        ? {
+            nearest: (posed: ReturnType<typeof hingedArmSwivel.pose>, swivel: number): number | null => {
+              const roots: number[] | null = immobileRoots(posed);
+              if (roots === null || roots.length === 0) return null;
+              let best: number | null = null;
+              let apart: number = Infinity;
+              for (const root of roots) {
+                const turn: number = root - swivel;
+                const distance: number = Math.abs(turn - 360 * Math.round(turn / 360));
+                if (distance < apart) {
+                  apart = distance;
+                  best = root;
+                }
+              }
+              return best;
+            },
+          }
+        : {}),
       ...(strain === undefined ? {} : { tie: ROM_TOLERANCE }),
       // With no hint side, reference or obstruction, every actual term is
       // non-negative in the original arithmetic: ROM excess, rotation angle
@@ -726,13 +776,16 @@ export function fitHingedChainCandidate(
       // A bend that is the place a completed elbow search chose
       // (`IAutoMovieFitChainToTargetProps.placed`) starts the local search at
       // its pole and is answered there when legal, whether or not the
-      // rotation is met: the place was searched once, by that search.
+      // rotation is met: the place was searched once, by that search. Where
+      // it is not legal, the legal swivel nearest it answers, and a continued
+      // fit follows it from its seed (`hingedArmArticulation.IProps.placed`).
       ...(strain !== undefined
         ? {}
         : props.placed === true && side !== null
           ? {
               pole: (posed: ReturnType<typeof hingedArmSwivel.pose>): number | null =>
                 hingedChainSide.peak(offsetOf((swivel: number): IAutoMovieQuaternion => posed(swivel).upper), side),
+              placed: true,
             }
         : turn === null
           ? side === null
@@ -809,30 +862,7 @@ export function fitHingedChainCandidate(
                       },
                     }
                   : {
-                      closed: (posed: ReturnType<typeof hingedArmSwivel.pose>): number[] | null => {
-                        const end: IEnd = (ended ??= endOf(props, prepared, rig));
-                        return immobileAxisSwivels({
-                          basis: end.basis,
-                          frame: end.frame,
-                          constraint: end.constraint,
-                          rotation: (swivel: number): IAutoMovieQuaternion => {
-                            const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> = posed(swivel);
-                            return Quaternion.normalize(Quaternion.multiply(
-                              end.restInverse,
-                              Quaternion.multiply(
-                                Quaternion.inverse(Quaternion.multiply(
-                                  Quaternion.multiply(
-                                    Quaternion.multiply(prepared.upper.worldRotation, at.upper),
-                                    prepared.lowerRotation,
-                                  ),
-                                  at.lower,
-                                )),
-                                rotation!,
-                              ),
-                            ));
-                          },
-                        });
-                      },
+                      closed: immobileRoots,
                     }),
               }),
       excluded: (

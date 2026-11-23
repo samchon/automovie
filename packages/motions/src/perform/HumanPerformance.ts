@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanBallPlay,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformanceAim,
@@ -13,7 +14,11 @@ import type {
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanPropFracture,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSimulation,
+  IAutoMovieMotionHumanSimulationWindow,
+  IAutoMovieMotionHumanTether,
   IAutoMovieMotionTarget,
+  IAutoMoviePerformanceMode,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
@@ -21,13 +26,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { poseBones } from "../posture/poseBones";
+import { HumanBallPlay } from "../sport/HumanBallPlay";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPerformanceSimulation } from "./HumanPerformanceSimulation";
+import { HumanPerformanceSite } from "./HumanPerformanceSite";
 import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropFracture } from "./HumanPropFracture";
 import { HumanSegment } from "./HumanSegment";
@@ -66,6 +76,10 @@ import { HumanSegment } from "./HumanSegment";
  * it. While the schedule is resolved, a person's poses may read people whose
  * actions are not placed yet, so nothing is cached until every action is
  * placed; then caches and transition offsets start afresh.
+ *
+ * A window of the performance can be baked through the engine's solver
+ * (`simulate`); the baked performance shows the solved bodies inside the
+ * window and its own motion outside it.
  */
 export class HumanPerformance {
   /** The resolved schedule. */
@@ -80,6 +94,12 @@ export class HumanPerformance {
   /** Everything the performance resolved, which its readers share. */
   private readonly resolved: IAutoMovieMotionHumanPerformanceState;
 
+  /** The input it was resolved from, which a baked copy resolves again: the resolution is a pure function of it. */
+  private readonly input: IAutoMovieMotionHumanPerformance.IInput;
+
+  /** Windows baked through the solver, in bake order; the latest one covering an instant shows there. Set only on the copy `simulate` returns. */
+  private windows: readonly HumanPerformanceSimulation.IReading[] = [];
+
   /**
    * Resolve a performance.
    *
@@ -91,6 +111,7 @@ export class HumanPerformance {
     observation?: ReturnType<typeof integrateAirborneRotation.observe>,
   ) {
     this.resolved = HumanPerformanceState.of(input, observation);
+    this.input = input;
     this.schedule = this.resolved.schedule;
     this.duration = this.resolved.duration;
     this.performers = this.resolved.performers;
@@ -104,6 +125,82 @@ export class HumanPerformance {
    * @returns The pose.
    */
   public pose(subject: string, seconds: number): IAutoMoviePose {
+    return this.shown(subject, seconds, this.windows.length);
+  }
+
+  /**
+   * Bake a window of the performance through the engine's solver
+   * (`HumanPerformanceSimulation`): once, at the solver's fixed step, from
+   * this performance's displayed bones, forces, grips and solids.
+   *
+   * The returned performance is this one with the window laid over it: its
+   * `pose` and `bones` read the solved bodies inside the window, where the
+   * solver owns a segment, and this performance's own motion everywhere
+   * else; the window hands back to that motion continuously at its end.
+   * Every other reading (postures, props, hits) is this performance's.
+   * The bake is asynchronous because the solver's native module loads so.
+   *
+   * @param window The window.
+   * @param mode The physical policy of the window's bodies: `kinematic` shows this performance's own motion.
+   * @returns The performance with the window baked.
+   * @throws {HumanRefusal} When the window is outside the film, names an unknown performer, or reaches an obstacle with openings.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is baked, what the result shows where, what stays this performance's and why the call is asynchronous.
+   * @evidence contracts/development/implementation.md#principled-implementation Kinematic motion with a solved window that blends back to it (Zordan, Majkowska, Chiu and Fast 2005, ACM TOG 24(3):697-701); the copy resolves the same input, a pure function of it, and adds the window.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The bake is HumanPerformanceSimulation's; this method stacks its reading on a copy.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This performance is not changed; earlier windows stay under the new one.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One bake; the copy reads the resolution memo when it still holds the input (`HumanPerformanceState.of`) and resolves it again otherwise.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The copy shares this performance's earlier readings rather than baking them again.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The copy retains the readings, each holding its completed simulation; no native handle outlives the bake.
+   */
+  public async simulate(
+    window: IAutoMovieMotionHumanSimulationWindow,
+    mode: IAutoMoviePerformanceMode,
+  ): Promise<HumanPerformance> {
+    const reading: HumanPerformanceSimulation.IReading =
+      await HumanPerformanceSimulation.bake(this, this.resolved, window, mode);
+    const baked: HumanPerformance = new HumanPerformance(this.input);
+    baked.windows = [...this.windows, reading];
+    return baked;
+  }
+
+  /**
+   * The windows baked into this performance, in bake order.
+   *
+   * @returns Each window, its mode and the engine's simulation of it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the order and the contents.
+   * @evidence contracts/development/implementation.md#principled-implementation Returns the records the bakes produced.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the windows.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A reading.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array of the retained records.
+   */
+  public simulations(): readonly IAutoMovieMotionHumanSimulation[] {
+    return this.windows.map(
+      (
+        reading: HumanPerformanceSimulation.IReading,
+      ): IAutoMovieMotionHumanSimulation => reading.record,
+    );
+  }
+
+  /** The pose shown under the first `depth` windows: the latest covering one over what lies beneath it. */
+  private shown(
+    subject: string,
+    seconds: number,
+    depth: number,
+  ): IAutoMoviePose {
+    for (let index: number = depth - 1; index >= 0; index--) {
+      const reading: HumanPerformanceSimulation.IReading = this.windows[index]!;
+      if (HumanPerformanceSimulation.covers(reading, subject, seconds))
+        return HumanPerformanceSimulation.pose(
+          reading,
+          subject,
+          seconds,
+          this.shown(subject, seconds, index),
+        );
+    }
     return HumanPerformanceRead.pose(this.resolved, subject, seconds);
   }
 
@@ -115,7 +212,10 @@ export class HumanPerformance {
    * @param seconds Film seconds.
    * @returns The posture.
    */
-  public posture(subject: string, seconds: number): IAutoMovieMotionHumanPosture {
+  public posture(
+    subject: string,
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture {
     return HumanPerformanceRead.posture(this.resolved, subject, seconds);
   }
 
@@ -130,7 +230,17 @@ export class HumanPerformance {
     subject: string,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return HumanPerformanceRead.bones(this.resolved, subject, seconds);
+    const reading: HumanPerformanceSimulation.IReading | undefined =
+      this.windows.find(
+        (candidate: HumanPerformanceSimulation.IReading): boolean =>
+          HumanPerformanceSimulation.covers(candidate, subject, seconds),
+      );
+    return reading === undefined
+      ? HumanPerformanceRead.bones(this.resolved, subject, seconds)
+      : poseBones(
+          reading.performers.get(subject)!.body,
+          this.pose(subject, seconds),
+        );
   }
 
   /**
@@ -158,6 +268,48 @@ export class HumanPerformance {
   }
 
   /**
+   * A prop's named point as a world frame at a film second (`HumanPerformanceSite`).
+   *
+   * @param subject The prop.
+   * @param point The point's name.
+   * @param seconds Film seconds.
+   * @returns The point's world frame, metres.
+   * @throws {HumanRefusal} When the prop or its point is unknown.
+   */
+  public site(
+    subject: string,
+    point: string,
+    seconds: number,
+  ): IAutoMovieRigidTransform {
+    return HumanPerformanceSite(this.resolved, subject, point, seconds);
+  }
+
+  /**
+   * A line between props at a film second (`IAutoMovieMotionHumanTether`):
+   * its ends, its line out, whether it runs taut, and the points it is
+   * drawn through, straight when taut and a catenary when slack.
+   *
+   * @param subject The prop the line runs from.
+   * @param id The line's id on that prop.
+   * @param seconds Film seconds.
+   * @returns The line as it lies.
+   */
+  public tether(
+    subject: string,
+    id: string,
+    seconds: number,
+  ): IAutoMovieMotionHumanTether.ISpan {
+    return HumanPerformanceTether.span(
+      this.resolved,
+      subject,
+      id,
+      seconds,
+      (prop: string, at: number): IAutoMovieRigidTransform =>
+        HumanPerformanceRead.prop(this.resolved, prop, at),
+    );
+  }
+
+  /**
    * One input per coupled degree of freedom a prop's acts or tracks have
    * moved by a film second (`HumanPerformanceObject.state`), in the latest
    * begun writer's coordinate. A later writer of another coordinate of the
@@ -169,7 +321,8 @@ export class HumanPerformance {
    * @returns Travel by articulation id, in each articulation's own unit.
    */
   public state(subject: string, seconds: number): Record<string, number> {
-    const prop: IAutoMovieMotionHumanProp | undefined = this.resolved.props.get(subject);
+    const prop: IAutoMovieMotionHumanProp | undefined =
+      this.resolved.props.get(subject);
     if (prop === undefined)
       throw HumanPerformanceRead.missing("prop", subject, [
         ...this.resolved.props.keys(),
@@ -185,8 +338,21 @@ export class HumanPerformance {
    * @param subject The prop.
    * @returns The flights; none for a prop never launched.
    */
-  public flights(subject: string): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
+  public flights(
+    subject: string,
+  ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
     return HumanPropFlight.flights(this.resolved, subject);
+  }
+
+  /**
+   * One ball's play (`HumanBallPlay.read`): its hand holds, launches and
+   * flight contacts in film order, for a sport to credit its result.
+   *
+   * @param subject The ball.
+   * @returns The play; no events for a ball never held or launched.
+   */
+  public play(subject: string): IAutoMovieMotionHumanBallPlay {
+    return HumanBallPlay.read(this.resolved, subject);
   }
 
   /**
@@ -305,7 +471,9 @@ export class HumanPerformance {
    * @param subject The person.
    * @returns The overlays.
    */
-  public overlays(subject: string): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
+  public overlays(
+    subject: string,
+  ): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
     return HumanPerformanceRead.overlays(this.resolved, subject);
   }
 

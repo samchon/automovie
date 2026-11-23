@@ -1,4 +1,4 @@
-import type { Archetype } from "@automovie/archetypes";
+import type { AutoMovieArchetype } from "@automovie/archetypes";
 import { Quaternion, validateModel } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -46,7 +46,7 @@ export namespace AnimalCohortObservation {
   export function observe(
     findings: string[],
     label: string,
-    animal: Archetype,
+    animal: AutoMovieArchetype,
     expected: Expected,
     authoredMass?: number,
   ): void {
@@ -221,7 +221,7 @@ export namespace AnimalCohortObservation {
   }
 
   /** Require the actual produced part instead of manufacturing a test representation. */
-  function part(animal: Archetype, id: string): IAutoMovieModelPart {
+  function part(animal: AutoMovieArchetype, id: string): IAutoMovieModelPart {
     const found: IAutoMovieModelPart | undefined = animal.parts.find(
       (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
     );

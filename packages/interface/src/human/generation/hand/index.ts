@@ -37,6 +37,8 @@ export type { IAutoMovieHumanHandWindow } from "./IAutoMovieHumanHandWindow";
 export type { IAutoMovieHumanHandWrist } from "./IAutoMovieHumanHandWrist";
 export type { IAutoMovieHumanInterosseousValley } from "./IAutoMovieHumanInterosseousValley";
 export type { IAutoMovieHumanMetacarpalArch } from "./IAutoMovieHumanMetacarpalArch";
+export type { IAutoMovieHumanNail } from "./IAutoMovieHumanNail";
+export type { IAutoMovieHumanNailLoop } from "./IAutoMovieHumanNailLoop";
 export type { IAutoMovieHumanNailPlate } from "./IAutoMovieHumanNailPlate";
 export type { IAutoMovieHumanPalmPalmarSector } from "./IAutoMovieHumanPalmPalmarSector";
 export type { IAutoMovieHumanThumbBones } from "./IAutoMovieHumanThumbBones";

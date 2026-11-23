@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanSupport } from "@automovie/interface";
+
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
@@ -11,20 +13,20 @@ const { act, counter, object, person, scene }: typeof SceneBuild = SceneBuild;
  * @param z Forward.
  * @returns The target.
  */
-const point = (x: number, y: number, z: number): Record<string, unknown> => ({
+const point = (x: number, y: number, z: number): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y, z },
   frame: "world",
 });
 
 /** The floor below the counter's edge where the right hand's mug lands. */
-const FLOOR_RIGHT: Record<string, unknown> = point(-0.2, 0, 0.3);
+const FLOOR_RIGHT: SceneBuild.PointTarget = point(-0.2, 0, 0.3);
 
 /** The floor below the counter's edge where the left hand's mug lands. */
-const FLOOR_LEFT: Record<string, unknown> = point(0.2, 0, 0.3);
+const FLOOR_LEFT: SceneBuild.PointTarget = point(0.2, 0, 0.3);
 
 /** A support stance on both feet. */
-const FEET: Record<string, unknown> = {
+const FEET: IAutoMovieMotionHumanSupport.IStance = {
   contacts: [
     { part: "leftFoot", kind: "bear" },
     { part: "rightFoot", kind: "bear" },
@@ -32,7 +34,7 @@ const FEET: Record<string, unknown> = {
 };
 
 /** A support stance on both feet and both palms. */
-const FEET_AND_HANDS: Record<string, unknown> = {
+const FEET_AND_HANDS: IAutoMovieMotionHumanSupport.IStance = {
   contacts: [
     { part: "leftFoot", kind: "bear" },
     { part: "rightFoot", kind: "bear" },
@@ -115,7 +117,7 @@ export const SCENES_INTERACTION: readonly IScene[] = [
           right: "right",
           load: "light",
           moves: false,
-          seconds: 2,
+          duration: 2,
         }),
         act("neckRoll", { count: 1 }),
         act("pushPull", {
@@ -125,7 +127,7 @@ export const SCENES_INTERACTION: readonly IScene[] = [
           right: "right",
           load: "heavy",
           moves: false,
-          seconds: 2,
+          duration: 2,
         }),
         act("gesture", { kind: "shakeHead" }),
         act("pushPull", {
@@ -135,10 +137,10 @@ export const SCENES_INTERACTION: readonly IScene[] = [
           right: "right",
           load: "moderate",
           moves: false,
-          seconds: 2,
+          duration: 2,
         }),
-        act("handsOnHips", { seconds: 1.6 }),
-        act("look", { target: point(0, 0.5, 0.35), seconds: 1.6 }),
+        act("handsOnHips", { hold: 1.6 }),
+        act("look", { target: point(0, 0.5, 0.35), duration: 1.6 }),
         act("gesture", { kind: "shrug" }),
       ]),
     ],
@@ -160,21 +162,21 @@ export const SCENES_INTERACTION: readonly IScene[] = [
         act("pickUp", { prop: "mug", handle: "handle", hand: "right" }),
         act(
           "stand",
-          { seconds: 1 },
+          { hold: 1 },
           { over: [act("release", { prop: "mug", hand: "right" })] },
         ),
-        act("look", { target: FLOOR_RIGHT, seconds: 1.2 }),
+        act("look", { target: FLOOR_RIGHT, duration: 1.2 }),
         act("dontKnow"),
         act("pickUp", { prop: "mug2", handle: "handle", hand: "left" }),
         act(
           "stand",
-          { seconds: 1 },
+          { hold: 1 },
           { over: [act("release", { prop: "mug2", hand: "left" })] },
         ),
-        act("look", { target: FLOOR_LEFT, seconds: 1.2 }),
+        act("look", { target: FLOOR_LEFT, duration: 1.2 }),
         act("facepalm"),
         act("crouch", { hold: 1 }),
-        act("stand", { seconds: 0.5 }),
+        act("stand", { hold: 0.5 }),
       ]),
     ],
     [
@@ -204,15 +206,15 @@ export const SCENES_INTERACTION: readonly IScene[] = [
     "balance-impulse",
     [
       person("bal", "m1", 0, 0, 0, [
-        act("stand", { seconds: 0.5 }, { anchor: "bi-start" }),
+        act("stand", { hold: 0.5 }, { anchor: "bi-start" }),
         act("perturb"),
         act("look", {
           target: point(0, 1.5, -1.5),
           cue: "signal",
-          seconds: 1.2,
+          duration: 1.2,
         }),
         act("gesture", { kind: "squareShoulders" }),
-        act("stand", { seconds: 3 }),
+        act("stand", { hold: 3 }),
         act(
           "perturb",
           {},
@@ -221,9 +223,9 @@ export const SCENES_INTERACTION: readonly IScene[] = [
         act("look", {
           target: point(1.5, 1.5, 0),
           cue: "signal",
-          seconds: 1.4,
+          duration: 1.4,
         }),
-        act("stand", { seconds: 3 }),
+        act("stand", { hold: 3 }),
         act(
           "perturb",
           {},

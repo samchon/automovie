@@ -2,11 +2,6 @@ import type { IAutoMovieSubdivisionCage } from "./IAutoMovieSubdivisionCage";
 
 /**
  * Data and callback contracts shared by the SubdivideSurface operations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation A borrowed polygon cage and integer level from one through six define deterministic Catmull-Clark refinement in the cage's frame and unit. A number cannot enforce the refinement cap, and the cage type cannot prove manifoldness or nonvanishing limit normals.
- * @evidence contracts/development/design.md#principled-representation A borrowed polygon cage and integer level from one through six define deterministic Catmull-Clark refinement in the cage's frame and unit.
- * @evidence contracts/development/design.md#minimal-and-owned-surface subdivideAutoMovieSurface consumes the canonical cage contract and owns topology, level and limit-normal admission.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A number cannot enforce the refinement cap, and the cage type cannot prove manifoldness or nonvanishing limit normals.
  */
 export namespace IAutoMovieSubdivideSurface {
   /**
@@ -40,11 +35,6 @@ export namespace IAutoMovieSubdivideSurface {
    * multiplies the quad count by four, so the output is at most 1,024 quads per
    * cage corner. A vertex whose limit normal vanishes, such as an interior vertex
    * of valence two or a collapsed cage, is refused after refinement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A borrowed polygon cage and integer level from one through six define deterministic Catmull-Clark refinement in the cage's frame and unit. A number cannot enforce the refinement cap, and the cage type cannot prove manifoldness or nonvanishing limit normals.
-   * @evidence contracts/development/design.md#principled-representation A borrowed polygon cage and integer level from one through six define deterministic Catmull-Clark refinement in the cage's frame and unit.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface subdivideAutoMovieSurface consumes the canonical cage contract and owns topology, level and limit-normal admission.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A number cannot enforce the refinement cap, and the cage type cannot prove manifoldness or nonvanishing limit normals.
    */
   export type IProps = {
     /** The control cage, only read. */

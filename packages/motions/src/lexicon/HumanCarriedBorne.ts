@@ -52,17 +52,18 @@ export namespace HumanCarriedBorne {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBorne>,
   ): IAutoMovieMotionHumanActionPlan {
-    const by: string | undefined = context.params.by;
-    const seconds: number = lasting(context.params.seconds ?? 2);
+    const by: string | undefined = context.params.partner;
+    const seconds: number = lasting(context.params.hold ?? 2);
     if (by === context.subject)
       throw new HumanRefusal({
         kind: "participant",
-        axis: "by",
+        axis: "partner",
         value: by,
         reason: "a person is carried by someone else",
         fix: "name the carrier",
       });
-    const carry: IAutoMovieMotionHumanCarried.Carry = context.params.carry ?? "piggyback";
+    const carry: IAutoMovieMotionHumanCarried.Carry =
+      context.params.carry ?? "piggyback";
     const row: IAutoMovieMotionHumanCarried.IRow = HumanCarried.CARRIES[carry];
     const body: IAutoMovieMotionHumanBody = context.body;
     const carrier: IAutoMovieMotionHumanPerformerReader | undefined =
@@ -118,10 +119,14 @@ export namespace HumanCarriedBorne {
           ).coupling;
     // The fixed coupling names exactly the anchor and gripping regions read
     // from each bearer's actual displayed pose; all their needed fits remain.
-    const demanded = (who: IAutoMovieMotionHumanPerformerReader, role: string): ReadonlySet<AutoMovieHumanoidBone> => {
+    const demanded = (
+      who: IAutoMovieMotionHumanPerformerReader,
+      role: string,
+    ): ReadonlySet<AutoMovieHumanoidBone> => {
       const selected: Set<AutoMovieHumanoidBone> = new Set();
       const region = (name: AutoMovieHumanoidRegion): void => {
-        const bone: AutoMovieHumanoidBone | undefined = who.body.surfaces.regions[name]?.bone;
+        const bone: AutoMovieHumanoidBone | undefined =
+          who.body.surfaces.regions[name]?.bone;
         if (bone !== undefined) selected.add(bone);
       };
       if (coupling === undefined) {
@@ -131,142 +136,176 @@ export namespace HumanCarriedBorne {
       } else {
         if (role === coupling.bearer) selected.add(coupling.anchor);
         for (const contact of coupling.contacts)
-          if (contact.kind === "grip" && contact.on.role === role) region(contact.on.region);
+          if (contact.kind === "grip" && contact.on.role === role)
+            region(contact.on.region);
       }
       return selected;
     };
-    const carrierBones: ReadonlySet<AutoMovieHumanoidBone> | undefined = carrier === undefined
-      ? undefined : demanded(carrier, HumanCarriedCoupling.BEARER);
-    const helperBones: ReadonlySet<AutoMovieHumanoidBone> | undefined = helper === undefined
-      ? undefined : demanded(helper, HumanCarriedCoupling.SECOND);
-    const carried: ReturnType<typeof HumanCarriedCouplingPose.preparePosture> | undefined =
-      coupling === undefined ? undefined : HumanCarriedCouplingPose.preparePosture(body, coupling, row);
-    const ownBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([body.surfaces.regions[row.mine].bone]);
-    return HumanCarriedLift.over(context, {
-      duration: seconds,
-      events: [],
-      contacts:
-        by === undefined
-          ? []
-          : coupling === undefined
-            ? [
-                {
-                  part: "seat",
-                  kind: "seat",
-                  from: 0,
-                  to: 1,
-                  support: {
-                    kind: "person",
-                    subject: by,
-                    region: row.theirs,
+    const carrierBones: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+      carrier === undefined
+        ? undefined
+        : demanded(carrier, HumanCarriedCoupling.BEARER);
+    const helperBones: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+      helper === undefined
+        ? undefined
+        : demanded(helper, HumanCarriedCoupling.SECOND);
+    const carried:
+      | ReturnType<typeof HumanCarriedCouplingPose.preparePosture>
+      | undefined =
+      coupling === undefined
+        ? undefined
+        : HumanCarriedCouplingPose.preparePosture(body, coupling, row);
+    const ownBones: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([body.surfaces.regions[row.mine].bone]);
+    // Unless `lift` says otherwise, the body is lifted into the carry over the
+    // time the bearer's hands take to reach their hold (`HumanCarried.TAKE`),
+    // so it never jumps onto the carrier and the carrier bears it only once
+    // it rests there. It is set down only when `setDown` asks: a carry may
+    // end with the body still borne.
+    return HumanCarriedLift.over(
+      {
+        ...context,
+        params: {
+          ...context.params,
+          lift: context.params.lift ?? HumanCarried.TAKE,
+        },
+      },
+      {
+        duration: seconds,
+        events: [],
+        contacts:
+          by === undefined
+            ? []
+            : coupling === undefined
+              ? [
+                  {
+                    part: "seat",
+                    kind: "seat",
+                    from: 0,
+                    to: 1,
+                    support: {
+                      kind: "person",
+                      subject: by,
+                      region: row.theirs,
+                    },
                   },
-                },
-              ]
-            : coupling.contacts.map(
-                (
-                  contact: IAutoMovieMotionCoupling.IContact,
-                ): IAutoMovieMotionHumanContactWindow => ({
-                  part: contact.part,
-                  kind: contact.kind,
-                  region: contact.region,
-                  from: 0,
-                  to: 1,
-                  load: contact.load,
-                  // Each contact bears on its own bearer, or on the floor.
-                  support:
-                    contact.on.role === HumanCarriedCoupling.GROUND
-                      ? { kind: "ground" }
-                      : {
-                          kind: "person",
-                          subject:
-                            contact.on.role === HumanCarriedCoupling.SECOND &&
-                            second !== undefined
-                              ? second
-                              : by,
-                          region: contact.on.region,
-                        },
-                }),
-              ),
-      posture: (
-        at: number,
-        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      ): IAutoMovieMotionHumanPosture => {
-        // With no carrier the carry's posture is taken where the body stands.
-        if (carrier === undefined)
-          return { ...entry, pitch: row.pitch, joints, limbs: {} };
-        if (carried !== undefined) {
-          const t: number = context.start + Math.min(seconds, Math.max(0, at));
-          return carried({
-            [HumanCarriedCoupling.BEARER]: {
-              body: carrier.body,
-              bones: carrier.bones(t, carrierBones),
-            },
-            ...(helper === undefined
-              ? {}
-              : {
-                  [HumanCarriedCoupling.SECOND]: {
-                    body: helper.body,
-                    bones: helper.bones(t, helperBones),
-                  },
-                }),
-          });
-        }
-        const theirs: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> =
-          carrier.bones(context.start + Math.min(seconds, Math.max(0, at)), carrierBones);
-        const hips: IAutoMovieResolvedBone | undefined = theirs.get("hips");
-        const turned: IAutoMovieMotionHumanPosture = {
-          root: { x: 0, y: 0, z: 0 },
-          yaw:
-            (hips === undefined ? 0 : HumanFrame.heading(hips.worldRotation)) +
-            row.turn,
-          pitch: row.pitch,
-          roll: 0,
-          joints,
-          limbs: {},
-        };
-
-        // The root that puts the resting region on the carrier's region.
-        const posture: IAutoMovieMotionHumanPosture = {
-          ...turned,
-          root: Vector3.subtract(
-            Vector3.add(
-              HumanCarriedCouplingPose.region(carrier.body, theirs, row.theirs),
-              {
-                x: 0,
-                y:
-                  (row.rise ?? 0) *
-                  (carrier.body.measure.upperArm +
-                    carrier.body.measure.forearm),
-                z: 0,
+                ]
+              : coupling.contacts.map(
+                  (
+                    contact: IAutoMovieMotionCoupling.IContact,
+                  ): IAutoMovieMotionHumanContactWindow => ({
+                    part: contact.part,
+                    kind: contact.kind,
+                    region: contact.region,
+                    from: 0,
+                    to: 1,
+                    load: contact.load,
+                    // Each contact bears on its own bearer, or on the floor.
+                    support:
+                      contact.on.role === HumanCarriedCoupling.GROUND
+                        ? { kind: "ground" }
+                        : {
+                            kind: "person",
+                            subject:
+                              contact.on.role === HumanCarriedCoupling.SECOND &&
+                              second !== undefined
+                                ? second
+                                : by,
+                            region: contact.on.region,
+                          },
+                  }),
+                ),
+        posture: (
+          at: number,
+          _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+          source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        ): IAutoMovieMotionHumanPosture => {
+          // With no carrier the carry's posture is taken where the body stands.
+          if (carrier === undefined)
+            return { ...entry, pitch: row.pitch, joints, limbs: {} };
+          if (carried !== undefined) {
+            const t: number =
+              context.start + Math.min(seconds, Math.max(0, at));
+            return carried({
+              [HumanCarriedCoupling.BEARER]: {
+                body: carrier.body,
+                bones: carrier.bones(t, carrierBones),
               },
-            ),
-            HumanCarriedCouplingPose.region(
-              body,
-              HumanTrunk.resolve(body, turned, undefined, source, ownBones),
-              row.mine,
-            ),
-          ),
-        };
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-        (["left", "right"] as const).forEach(
-          (side: "left" | "right", index: number): void => {
-            const region: AutoMovieHumanoidRegion | null =
-              row.clings[index] ?? null;
-            if (region !== null)
-              limbs[`${side}Arm`] = {
-                point: HumanCarriedCouplingPose.region(
+              ...(helper === undefined
+                ? {}
+                : {
+                    [HumanCarriedCoupling.SECOND]: {
+                      body: helper.body,
+                      bones: helper.bones(t, helperBones),
+                    },
+                  }),
+            });
+          }
+          const theirs: ReturnType<
+            IAutoMovieMotionHumanPerformerReader["bones"]
+          > = carrier.bones(
+            context.start + Math.min(seconds, Math.max(0, at)),
+            carrierBones,
+          );
+          const hips: IAutoMovieResolvedBone | undefined = theirs.get("hips");
+          const turned: IAutoMovieMotionHumanPosture = {
+            root: { x: 0, y: 0, z: 0 },
+            yaw:
+              (hips === undefined
+                ? 0
+                : HumanFrame.heading(hips.worldRotation)) + row.turn,
+            pitch: row.pitch,
+            roll: 0,
+            joints,
+            limbs: {},
+          };
+
+          // The root that puts the resting region on the carrier's region.
+          const posture: IAutoMovieMotionHumanPosture = {
+            ...turned,
+            root: Vector3.subtract(
+              Vector3.add(
+                HumanCarriedCouplingPose.region(
                   carrier.body,
                   theirs,
-                  region,
+                  row.theirs,
                 ),
-                bend: AutoMovieMotionHumanBend.hang(body, posture, side),
-              };
-          },
-        );
-        return { ...posture, limbs };
+                {
+                  x: 0,
+                  y:
+                    (row.rise ?? 0) *
+                    (carrier.body.measure.upperArm +
+                      carrier.body.measure.forearm),
+                  z: 0,
+                },
+              ),
+              HumanCarriedCouplingPose.region(
+                body,
+                HumanTrunk.resolve(body, turned, undefined, source, ownBones),
+                row.mine,
+              ),
+            ),
+          };
+          const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
+          (["left", "right"] as const).forEach(
+            (side: "left" | "right", index: number): void => {
+              const region: AutoMovieHumanoidRegion | null =
+                row.clings[index] ?? null;
+              if (region !== null)
+                limbs[`${side}Arm`] = {
+                  point: HumanCarriedCouplingPose.region(
+                    carrier.body,
+                    theirs,
+                    region,
+                  ),
+                  bend: AutoMovieMotionHumanBend.hang(body, posture, side),
+                };
+            },
+          );
+          return { ...posture, limbs };
+        },
       },
-    });
+    );
   }
 
   /**
@@ -285,6 +324,6 @@ export namespace HumanCarriedBorne {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lasting(seconds: number): number {
-    return HumanBound.above("seconds", seconds, 0, "s");
+    return HumanBound.above("hold", seconds, 0, "s");
   }
 }

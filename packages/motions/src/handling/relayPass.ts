@@ -45,6 +45,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * hand from `at` (`IHumanActionPlan.wears`), so it rides that hand from the
  * exchange on; without a baton the pass is mimed.
  *
+ * With a `zone`, each role refuses a pass whose runner stands outside the
+ * takeover zone's two lines at `at` (World Athletics TR24.19).
  * First pass: the free distance is the composition's (where the two runs put
  * the runners at `at`); the runners do not adjust their speed to meet, and
  * the fingers do not close on the baton.
@@ -83,7 +85,7 @@ export namespace relayPass {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When `at` lies before this action can reach, or a baton is named without its end.
+   * @throws {HumanRefusal} When `at` lies before this action can reach, a baton is named without its end, or the runner is outside the named takeover zone at `at`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives both hands and the timing.
    * @evidence contracts/development/implementation.md#principled-implementation The outgoing hand is a place of the runner's own frame, carried with the run; the incoming wrist is the outgoing palm less the baton's end as the hand holds it; both arms are carried from the run's own arm angles at each second by the pass's envelope.
@@ -98,25 +100,46 @@ export namespace relayPass {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanRelayPass.IParams = context.params;
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const side: AutoMovieHumanSide = p.side ?? "right";
+    const side: AutoMovieHumanSide = p.hand ?? "right";
     const sign: number = side === "left" ? 1 : -1;
     const at: number = p.at - context.start;
     HumanBound.least("at", at, REACH, "s");
     const relax: number = at + HOLD;
     const duration: number = relax + REACH;
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
+    // The pass must fall inside the takeover zone (World Athletics
+    // TR24.19): the runner's root at `at`, projected on the zone's line.
+    if (p.zone !== undefined) {
+      const line: IAutoMovieVector3 = Vector3.subtract(p.zone.to, p.zone.from);
+      const length: number = Math.hypot(line.x, line.z);
+      const root: IAutoMovieVector3 = base.posture(at).root;
+      const along: number =
+        ((root.x - p.zone.from.x) * line.x +
+          (root.z - p.zone.from.z) * line.z) /
+        length;
+      if (!(along >= 0 && along <= length))
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "zone",
+          value: along,
+          feasible: { kind: "range", minimum: 0, maximum: length, unit: "m" },
+          reason: `at ${p.at.toFixed(2)} s the ${p.role} runner is ${along.toFixed(2)} m along the takeover zone, outside its ${length.toFixed(2)} m`,
+          fix: "pass at an instant both runners are inside the takeover zone",
+        });
+    }
     const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
-    const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
-    const palmBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
+    const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
+    const palmBones: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
 
     // The baton's end in the incoming hand's frame.
     let end: IAutoMovieVector3 | undefined;
     if (p.baton !== undefined && p.role === "incoming") {
       const read: IAutoMovieMotionHumanPropReader = context.prop(p.baton);
-      const point: IAutoMovieMotionHumanProp["points"][string] | undefined = p.end === undefined ? undefined : read.prop.points[p.end];
+      const point: IAutoMovieMotionHumanProp["points"][string] | undefined =
+        p.end === undefined ? undefined : read.prop.points[p.end];
       if (point === undefined)
         throw new HumanRefusal({
           kind: "affordance",
@@ -150,8 +173,17 @@ export namespace relayPass {
             : 1 - minimumJerk.share(Math.min(1, (t - relax) / REACH));
 
     // The hand's goal at a second, on the run's posture there.
-    let palmReader: { body: IAutoMovieMotionHumanActionContext["body"]; read: ReturnType<typeof HumanHand.preparePoint> } | undefined;
-    const goal: (posture: IAutoMovieMotionHumanPosture, t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => IAutoMovieMotionHumanArmTarget.ISided = (
+    let palmReader:
+      | {
+          body: IAutoMovieMotionHumanActionContext["body"];
+          read: ReturnType<typeof HumanHand.preparePoint>;
+        }
+      | undefined;
+    const goal: (
+      posture: IAutoMovieMotionHumanPosture,
+      t: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    ) => IAutoMovieMotionHumanArmTarget.ISided = (
       posture: IAutoMovieMotionHumanPosture,
       t: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
@@ -160,14 +192,18 @@ export namespace relayPass {
         origin: { x: 0, y: 0, z: 0 },
         yaw: posture.yaw,
       });
-      const dir: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 =>
-        Vector3.normalize(frame.direction({ x, y, z }));
+      const dir: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+        x: number,
+        y: number,
+        z: number,
+      ): IAutoMovieVector3 => Vector3.normalize(frame.direction({ x, y, z }));
       const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
-        body, posture, undefined, resolution,
+        body,
+        posture,
+        undefined,
+        resolution,
         shoulderBones,
-      ).get(
-        `${side}UpperArm`,
-      )!.worldPosition;
+      ).get(`${side}UpperArm`)!.worldPosition;
       const arm: number = body.measure.upperArm + body.measure.forearm;
       if (p.role === "outgoing") {
         const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
@@ -202,8 +238,13 @@ export namespace relayPass {
         p.partner,
       );
       if (palmReader === undefined || palmReader.body !== partner.body)
-        palmReader = { body: partner.body, read: HumanHand.preparePoint(partner.body, side, "palm", "flat") };
-      const palm: IAutoMovieVector3 = palmReader.read(partner.bones(context.start + t, palmBones));
+        palmReader = {
+          body: partner.body,
+          read: HumanHand.preparePoint(partner.body, side, "palm", "flat"),
+        };
+      const palm: IAutoMovieVector3 = palmReader.read(
+        partner.bones(context.start + t, palmBones),
+      );
       const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
         fingers: dir(0, 0, 1),
         palm: dir(-sign, 0, 0),
@@ -251,19 +292,38 @@ export namespace relayPass {
             ],
           }
         : {}),
-      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const posture: IAutoMovieMotionHumanPosture = base.posture(t, undefined, resolution, projection);
+        const posture: IAutoMovieMotionHumanPosture = base.posture(
+          t,
+          undefined,
+          resolution,
+          projection,
+        );
         const w: number = weight(t);
         if (w <= 0) return posture;
-        const reaching: IAutoMovieMotionHumanPosture = handGoals(body, posture, [goal(posture, t, resolution)]);
+        const reaching: IAutoMovieMotionHumanPosture = handGoals(
+          body,
+          posture,
+          [goal(posture, t, resolution)],
+        );
         if (w >= 1) return reaching;
         const run: IAutoMovieMotionHumanArmAngles.IAngles =
           AutoMovieMotionHumanArm.angles(
-            resolveHumanPosture.seeded(body, posture, undefined, undefined,
-              resolution, undefined, projection).pose,
+            resolveHumanPosture.seeded(
+              body,
+              posture,
+              undefined,
+              undefined,
+              resolution,
+              undefined,
+              projection,
+            ).pose,
             side,
           );
         return AutoMovieMotionHumanArm.carry(

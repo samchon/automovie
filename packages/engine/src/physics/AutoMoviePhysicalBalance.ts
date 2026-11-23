@@ -14,11 +14,6 @@ import { physicalStanceBalance } from "./physicalStanceBalance";
  * polygon (Pratt et al., 2006). It predicts horizontal recovery only; solved
  * contacts and the subsequent simulation decide whether a step actually lands.
  * No support count or anatomical name selects a different law.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Linear-inverted-pendulum capture-point balance over an arbitrary support polygon (Pratt et al., 2006)) and documents 3 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Linear-inverted-pendulum capture-point balance over an arbitrary support polygon (Pratt et al., 2006): companion namespace of 3 members (`ISupport`, `IResult`, `assess`); units and frames named in its text: world, metres. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMoviePhysicalBalance` in packages/engine/src/physics/AutoMoviePhysicalBalance.ts; its surface is the 3 members listed and the text shows 7 other files naming it, mostly packages/engine (4), test (3), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMoviePhysicalBalance {
   /**
@@ -29,24 +24,32 @@ export namespace AutoMoviePhysicalBalance {
   export const MINIMUM_JERK: number = (10 * Math.sqrt(3)) / 3;
 
   /**
-   * The peak vertical acceleration of a swing's clearance h 64 (p (1 - p))^3
-   * of unit height in unit time, at mid-swing (`samplePhysicalRecoveryGoal`):
-   * a clearance h in T peaks at CLEARANCE h / T^2.
+   * The peak vertical acceleration of a swing's clearance h 16 (p (1 - p))^2
+   * of unit height in unit time, at lift-off and touchdown
+   * (`samplePhysicalRecoveryGoal`): a clearance h in T peaks at CLEARANCE h /
+   * T^2.
    */
-  export const CLEARANCE: number = 24;
+  export const CLEARANCE: number = 32;
+
+  /** The shortest swing, seconds (Khadiv et al. 2017, Section V). */
+  export const MINIMUM_SWING: number = 0.3;
 
   /**
    * The quickest swing over a distance with a clearance under an acceleration
    * bound, seconds: the longer of the minimum-jerk transfer's and the
-   * clearance's, sqrt(max(MINIMUM_JERK d, CLEARANCE h) / a).
+   * clearance's, sqrt(max(MINIMUM_JERK d, CLEARANCE h) / a), and no shorter
+   * than `MINIMUM_SWING`.
    */
   export function duration(
     distance: number,
     height: number,
     acceleration: number,
   ): number {
-    return Math.sqrt(
-      Math.max(MINIMUM_JERK * distance, CLEARANCE * height) / acceleration,
+    return Math.max(
+      MINIMUM_SWING,
+      Math.sqrt(
+        Math.max(MINIMUM_JERK * distance, CLEARANCE * height) / acceleration,
+      ),
     );
   }
 
@@ -60,14 +63,6 @@ export namespace AutoMoviePhysicalBalance {
    * (Mille et al. 2005, Clinical Biomechanics), which the
    * controller unloads over a short ramp before lifting
    * (`advancePhysicalBalance`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Order reachable recovery supports by travel distance, then declared footfall phase.
-   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Order reachable recovery supports by travel distance, then declared footfall phase) directly over its typed inputs (`input`) as nested iteration of depth 2 (every over [ input.center.x, input.; flatMap over input.supports; for loop bounded by i < polygon.length) plus a sort, delegating to `Number.isFinite`, `Math.sqrt`, `convexHull2D`, `Math.max`, `Math.min`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Beyond structural 0, 1 and 2 the body uses the literal 3, whose basis this answer does not independently establish and a reviewer must confirm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 152 lines and 19 top-level statements that reuses `Number.isFinite`, `Math.sqrt`, `convexHull2D`, `Math.max`, `Math.min` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 2 non-null assertion(s); these are the remaining shortcuts and are not justified here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 2 (every over [ input.center.x, input.; flatMap over input.supports; for loop bounded by i < polygon.length) plus a sort, performed once per call with 13 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 13 allocation sites become the returned value or die with the call, so nothing grows.
    */
   export function assess(
     input: IAutoMoviePhysicalBalance.IAssessInput,
@@ -96,9 +91,9 @@ export namespace AutoMoviePhysicalBalance {
     const omega: number =
       height > 0 ? Math.sqrt(input.gravity / height) : Infinity;
     const capturePoint: IAutoMovieVector3 = {
-      x: input.center.x + input.velocity.x / omega,
+      x: input.center.x + input.velocity.x / omega + (input.spin?.x ?? 0),
       y: input.floor,
-      z: input.center.z + input.velocity.z / omega,
+      z: input.center.z + input.velocity.z / omega + (input.spin?.z ?? 0),
     };
     const polygon: IAutoMovieVector3[] = convexHull2D(
       input.supports.flatMap(
@@ -120,7 +115,8 @@ export namespace AutoMoviePhysicalBalance {
       outside,
     };
     if (height <= 0 || polygon.length === 0) return result;
-    if (beyond <= input.margin) return { ...result, state: "supported" };
+    if (beyond <= input.margin && !input.force)
+      return { ...result, state: "supported" };
     const centroid: IAutoMovieVector3 = Vector3.scale(
       input.supports.reduce(
         (
@@ -162,6 +158,7 @@ export namespace AutoMoviePhysicalBalance {
       lead: number;
       target: IAutoMovieVector3;
       seconds: number;
+      viable: boolean;
     }[] = input.supports.flatMap(
       (
         support: (typeof input.supports)[number],
@@ -172,6 +169,7 @@ export namespace AutoMoviePhysicalBalance {
         lead: number;
         target: IAutoMovieVector3;
         seconds: number;
+        viable: boolean;
       }[] => {
         const limb: IAutoMovieFootfallPattern["limbs"][number] | undefined =
           input.pattern.limbs.find(
@@ -237,23 +235,19 @@ export namespace AutoMoviePhysicalBalance {
             ),
           1 / Math.max(1, input.supports.length - 1),
         );
-        const length2: number = Math.hypot(direction.x, direction.z);
+        // The body's own axes: its heading and its side (the root's yaw), so a
+        // diagonal step does not turn the side the limb must keep.
+        const facing: IAutoMovieVector3 = input.heading ?? direction;
+        const length2: number = Math.hypot(facing.x, facing.z);
         const forward: IAutoMovieVector3 =
           length2 > 0
-            ? { x: direction.x / length2, y: 0, z: direction.z / length2 }
+            ? { x: facing.x / length2, y: 0, z: facing.z / length2 }
             : { x: 0, y: 0, z: 1 };
         const side: IAutoMovieVector3 = { x: -forward.z, y: 0, z: forward.x };
         const across = (p: IAutoMovieVector3): number =>
           (p.x - stance.x) * side.x + (p.z - stance.z) * side.z;
-        const ahead = (p: IAutoMovieVector3): number =>
-          (p.x - stance.x) * forward.x + (p.z - stance.z) * forward.z;
         const width: number = across(support.position);
         const sign: number = width < 0 ? -1 : 1;
-        const at = (f: number, lateral: number): IAutoMovieVector3 => ({
-          x: stance.x + forward.x * f + side.x * lateral,
-          y: support.position.y,
-          z: stance.z + forward.z * f + side.z * lateral,
-        });
         // The new support with this limb's patch moved to a target.
         const after = (target: IAutoMovieVector3): IAutoMovieVector3[] =>
           held(
@@ -268,22 +262,53 @@ export namespace AutoMoviePhysicalBalance {
               ),
             ]),
           );
+        // The shortest step that brings the capture point inside the new
+        // support: from where the limb stands toward it, forward, backward or
+        // aside, the limb kept on its own side so it never crosses over
+        // (Pratt et al., M2V2, Sections VII-E1 and IX-G).
+        const keep = (p: IAutoMovieVector3): IAutoMovieVector3 => {
+          const lateral: number = across(p);
+          const fixed: number = sign * Math.max(sign * lateral, Math.abs(width));
+          return {
+            x: p.x + side.x * (fixed - lateral),
+            y: p.y,
+            z: p.z + side.z * (fixed - lateral),
+          };
+        };
         const place = (xi: IAutoMovieVector3): IAutoMovieVector3 => {
-          const lateral: number =
-            sign * Math.max(sign * across(xi), Math.abs(width));
-          let near: number = ahead(xi);
-          if (excess(after(at(near, lateral)), xi) <= 0)
-            return at(near, lateral);
-          let far: number = near + input.maximumStep;
-          if (excess(after(at(far, lateral)), xi) > 0) return at(far, lateral);
+          if (excess(after(support.position), xi) <= 0)
+            return { ...support.position };
+          // Toward the capture point as seen on the limb's own side, so the
+          // reach is not spent on a crossing the side clamp would undo.
+          const aim: IAutoMovieVector3 = keep(xi);
+          const gap: number = Math.hypot(
+            aim.x - support.position.x,
+            aim.z - support.position.z,
+          );
+          const toward: IAutoMovieVector3 =
+            gap > 0
+              ? {
+                  x: (aim.x - support.position.x) / gap,
+                  y: 0,
+                  z: (aim.z - support.position.z) / gap,
+                }
+              : forward;
+          const step = (d: number): IAutoMovieVector3 =>
+            keep({
+              x: support.position.x + toward.x * d,
+              y: support.position.y,
+              z: support.position.z + toward.z * d,
+            });
+          let near: number = 0;
+          let far: number = input.maximumStep;
+          if (excess(after(step(far)), xi) > 0) return step(far);
           while (far - near > SETTLED) {
             const middle: number = (near + far) / 2;
-            if (excess(after(at(middle, lateral)), xi) <= 0) far = middle;
+            if (excess(after(step(middle)), xi) <= 0) far = middle;
             else near = middle;
           }
-          return at(far, lateral);
-        };
-        let distance: number = Math.min(
+          return step(far);
+        };        let distance: number = Math.min(
           input.maximumStep,
           Math.hypot(
             capturePoint.x - support.position.x,
@@ -317,18 +342,14 @@ export namespace AutoMoviePhysicalBalance {
           if (Math.hypot(target.x - before.x, target.z - before.z) <= SETTLED)
             break;
         }
-        // Viability (Khadiv et al. 2017, Eq. 9): a step clamped to the reach
-        // leaves the capture point b outside the new support, which further
-        // steps of that reach every T capture while b <= l / (e^(omega T) -
-        // 1). Without a step time only a step within reach captures.
-        if (
-          timing
-            ? excess(after(target), landing) >
-              input.maximumStep /
-                (Math.exp(omega * (timing.ramp + swing(input.maximumStep))) - 1)
-            : length > input.maximumStep
-        )
-          return [];
+        // One-step capture with finite feet (Koolen et al., Eq. 25): this
+        // limb's step, clamped to the reach, leaves the capture point at its
+        // landing inside the new support. A step is asked for either way, and
+        // the body steps again or falls by its physics (Khadiv et al. 2017,
+        // Section III-B: viability is soft). Without a step time only a step
+        // within reach captures.
+        const viable: boolean = excess(after(target), landing) <= SETTLED;
+        if (!timing && !viable) return [];
         return [
           {
             support,
@@ -336,7 +357,7 @@ export namespace AutoMoviePhysicalBalance {
             distance,
             lead: along,
             target,
-            seconds: swing(distance),
+            viable,            seconds: swing(distance),
           },
         ];
       },
@@ -346,22 +367,28 @@ export namespace AutoMoviePhysicalBalance {
         a: (typeof candidates)[number],
         b: (typeof candidates)[number],
       ): number =>
+        Number(b.viable) - Number(a.viable) ||
         Number(a.support.bone === input.recent) -
           Number(b.support.bone === input.recent) ||
-        b.lead - a.lead ||
         a.distance - b.distance ||
+        b.lead - a.lead ||
         a.phase - b.phase,
     );
     const chosen: (typeof candidates)[number] | undefined = candidates[0];
     if (!chosen || input.supports.length - 1 < input.pattern.minimumSupports)
       return result;
+    // A capturing step shorter than the margin is no step: the margin is the
+    // centre-of-pressure law's buffer, so the body holds in double support
+    // (Pratt et al., M2V2, Section VII-E1: stop in double support).
+    if (timing && chosen.viable && chosen.distance < (input.inset ?? 0))
+      return { ...result, state: "supported" };
     return {
       ...result,
       state: "recovery",
       step: {
         bone: chosen.support.bone,
         target: chosen.target,
-        ...(timing ? { seconds: chosen.seconds } : {}),
+        ...(timing ? { seconds: chosen.seconds, viable: chosen.viable } : {}),
       },
     };
   }

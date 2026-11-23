@@ -89,7 +89,6 @@ export async function test_physical_ownership_boundaries(): Promise<void> {
   const inheritedInput: IAutoMoviePhysicalSimulationInput.IInput =
     PhysicalFixtures.input([inherited], 0.4);
   inheritedInput.substeps = 8;
-  inheritedInput.iterations = 32;
   const returned: IAutoMoviePhysicalSimulation =
     await Simulation.compute(inheritedInput);
   const initial: (typeof returned.cache.frames)[number]["bodies"][string][string] =
@@ -119,8 +118,6 @@ export async function test_physical_ownership_boundaries(): Promise<void> {
     PhysicalFixtures.input([mixed], 0.4);
   Object.assign(mixedInput, {
     substeps: 8,
-    iterations: 32,
-    internalIterations: 4,
   });
   mixedInput.impulses.push({
     step: 1,

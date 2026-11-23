@@ -7,6 +7,10 @@ import { operate } from "../affordance/operate";
 import { pickUp } from "../handling/pickUp";
 import { putDown } from "../handling/putDown";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_MILITARY_DRILL_BITE_CARTRIDGE } from "../next/presets/HUMAN_MILITARY_DRILL_BITE_CARTRIDGE";
+import { HUMAN_MILITARY_DRILL_SEIZE } from "../next/presets/HUMAN_MILITARY_DRILL_SEIZE";
+import { HUMAN_MILITARY_DRILL_SHOULDER_ARMS } from "../next/presets/HUMAN_MILITARY_DRILL_SHOULDER_ARMS";
+import { HUMAN_MILITARY_DRILL_TAKE_FIRELOCK } from "../next/presets/HUMAN_MILITARY_DRILL_TAKE_FIRELOCK";
 import { touch } from "../touch/touch";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
@@ -55,10 +59,11 @@ export namespace HumanMusketDrill {
    */
   export const takeFirelock: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["takeFirelock"]
-  > = HumanActionRow.of("takeFirelock", pickUp, {
-    handle: "butt",
-    hand: "left",
-  });
+  > = HumanActionRow.of(
+    "takeFirelock",
+    pickUp,
+    HUMAN_MILITARY_DRILL_TAKE_FIRELOCK,
+  );
 
   /**
    * Shoulder arms: the manual's Position of a Soldier under Arms, "the
@@ -73,7 +78,7 @@ export namespace HumanMusketDrill {
   > = HumanActionRow.of(
     "shoulderArms",
     HumanWeaponPresent.present,
-    { carriage: "shoulder", hand: "left", hands: 1 },
+    HUMAN_MILITARY_DRILL_SHOULDER_ARMS,
   );
 
   /** Order arms: set the butt down by the foot. */
@@ -91,10 +96,11 @@ export namespace HumanMusketDrill {
   /** Bite the cartridge: its end brought to the mouth. */
   export const biteCartridge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["biteCartridge"]
-  > = HumanActionRow.of("biteCartridge", touch, {
-    target: { kind: "self", region: "mouth" },
-    point: "end",
-  });
+  > = HumanActionRow.of(
+    "biteCartridge",
+    touch,
+    HUMAN_MILITARY_DRILL_BITE_CARTRIDGE,
+  );
 
   /** Prime: the cartridge brought to the pan. */
   export const prime: IAutoMovieMotionHumanActionLaw<
@@ -109,11 +115,9 @@ export namespace HumanMusketDrill {
   /** Cast about: the musket brought before the body, the muzzle up. */
   export const castAbout: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["castAbout"]
-  > = HumanActionRow.of(
-    "castAbout",
-    HumanWeaponPresent.present,
-    { carriage: "highReady" },
-  );
+  > = HumanActionRow.of("castAbout", HumanWeaponPresent.present, {
+    carriage: "highReady",
+  });
 
   /** Charge with cartridge: the cartridge set into the muzzle. */
   export const charge: IAutoMovieMotionHumanActionLaw<
@@ -144,10 +148,7 @@ export namespace HumanMusketDrill {
    */
   export const seize: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["seize"]
-  > = HumanActionRow.of("seize", pickUp, {
-    handle: "grip",
-    hand: "right",
-  });
+  > = HumanActionRow.of("seize", pickUp, HUMAN_MILITARY_DRILL_SEIZE);
 
   /**
    * Recover: the firelock brought from the shoulder upright before the body,
@@ -160,11 +161,9 @@ export namespace HumanMusketDrill {
    */
   export const recover: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["recover"]
-  > = HumanActionRow.of(
-    "recover",
-    HumanWeaponPresent.present,
-    { carriage: "recover" },
-  );
+  > = HumanActionRow.of("recover", HumanWeaponPresent.present, {
+    carriage: "recover",
+  });
 
   /** Make ready: the cock drawn to full cock, over `recover` (`HumanChain.over`). */
   export const makeReady: IAutoMovieMotionHumanActionLaw<
@@ -174,18 +173,10 @@ export namespace HumanMusketDrill {
   /** Present: the musket to the cheek on the line. */
   export const presentMusket: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["presentMusket"]
-  > = HumanActionRow.of(
-    "presentMusket",
-    HumanWeaponPresent.present,
-    {},
-  );
+  > = HumanActionRow.of("presentMusket", HumanWeaponPresent.present, {});
 
   /** Fire: the trigger pulled, the lock falling. */
   export const fireMusket: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["fireMusket"]
-  > = HumanActionRow.of(
-    "fireMusket",
-    HumanWeaponPresent.fire,
-    {},
-  );
+  > = HumanActionRow.of("fireMusket", HumanWeaponPresent.fire, {});
 }

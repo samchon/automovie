@@ -4,11 +4,6 @@ import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViola
 
 /**
  * One world-space service point and its owning logical-space containment context.
- *
- * @evidence contracts/development/common.md#meaningful-documentation One world-space service point and its owning logical-space containment context. point is a borrowed world-metre vector; appendServiceInsideSpace skips unknown spaces and non-finite coordinates because their owning validators report those defects.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies coherent environment and spaceIds; spaces without a stated volume cannot establish geometric containment, and a diagnostic may retain the borrowed point.
- * @evidence contracts/development/design.md#principled-representation point is a borrowed world-metre vector; appendServiceInsideSpace skips unknown spaces and non-finite coordinates because their owning validators report those defects.
- * @evidence contracts/development/design.md#minimal-and-owned-surface appendServiceNetworkNodes uses the same input for node positions and port positions, sharing the building containment rule and collector.
  */
 export namespace IAutoMovieAppendServiceInsideSpace {
   /**
@@ -27,11 +22,6 @@ export namespace IAutoMovieAppendServiceInsideSpace {
    * and a space that does not resolve has already been reported for not existing.
    * Neither is accused a second time of standing in the wrong place, which would
    * send an author looking for a second mistake at one address.
-   *
-   * @evidence contracts/development/design.md#principled-representation point is a borrowed world-metre vector; appendServiceInsideSpace skips unknown spaces and non-finite coordinates because their owning validators report those defects.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface appendServiceNetworkNodes uses the same input for node positions and port positions, sharing the building containment rule and collector.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies coherent environment and spaceIds; spaces without a stated volume cannot establish geometric containment, and a diagnostic may retain the borrowed point.
-   * @evidence contracts/development/common.md#meaningful-documentation One world-space service point and its owning logical-space containment context. point is a borrowed world-metre vector; appendServiceInsideSpace skips unknown spaces and non-finite coordinates because their owning validators report those defects.
    */
   export type IProps = {
     /** Borrowed building whose logical-space geometry supplies containment; it must agree with spaceIds. */

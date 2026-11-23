@@ -177,8 +177,8 @@ export namespace HumanSegment {
 
   /**
    * Forget everything a person's plans and transitions evaluated: each
-   * plan's own memo, every transition offset, every held hand's carry and
-   * every displayed pose. What they read may have changed since (another
+   * plan's own memo, every transition offset, every held hand's carry, every
+   * anchor's fits and every displayed pose. What they read may have changed since (another
    * person was placed, a contact was committed), and each is rebuilt on its
    * next read.
    *
@@ -191,6 +191,7 @@ export namespace HumanSegment {
       if (segment.transition !== undefined) delete segment.transition.offset;
       delete segment.incumbents;
       delete segment.legs;
+      delete segment.anchors;
     }
     for (const overlay of person.overlays) {
       overlay.plan.settle?.();
@@ -231,12 +232,18 @@ export namespace HumanSegment {
 
   /**
    * Drop the poses a planning shares, after anything is placed: an action,
-   * an overlay or a hold changes what every later read shows.
+   * an overlay or a hold changes what every later read shows. The anchor
+   * fits of every action (`IAutoMovieMotionHumanSegment.anchors`) go too,
+   * since an anchor read now would show the new placement, so no read
+   * continues a fit depending on whether its anchor was read before it.
    *
    * @param people Every person of the performance.
    */
   export function placed(people: Iterable<IAutoMovieMotionHumanSegment.IPerson>): void {
-    for (const person of people) person.planning?.clear();
+    for (const person of people) {
+      person.planning?.clear();
+      for (const segment of person.segments) delete segment.anchors;
+    }
   }
 
   /**

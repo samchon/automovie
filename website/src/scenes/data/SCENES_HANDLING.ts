@@ -25,7 +25,7 @@ const CONTROL_TRAVEL: number = 0.003;
  * @param z Forward.
  * @returns The target.
  */
-const point = (x: number, y: number, z: number): Record<string, unknown> => ({
+const point = (x: number, y: number, z: number): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y, z },
   frame: "world",
@@ -73,10 +73,10 @@ export const SCENES_HANDLING: readonly IScene[] = [
     [
       person("rec", "f1", 0, 0, 0, [
         act("type", { prop: "keyboard", text: "good morning" }),
-        act("look", { target: point(0.3, 1.6, 1.6), cue: "seen", seconds: 1 }),
+        act("look", { target: point(0.3, 1.6, 1.6), cue: "seen", duration: 1 }),
         act("gestureNod", { count: 1 }),
         act("type", { prop: "keyboard", text: "checking in mr lee" }),
-        act("look", { target: point(0.3, 1.6, 1.6), seconds: 0.8 }),
+        act("look", { target: point(0.3, 1.6, 1.6), duration: 0.8 }),
         act("gestureNod", { count: 1 }),
         act("type", { prop: "keyboard", text: "room twelve" }),
         act("okSign"),
@@ -89,8 +89,8 @@ export const SCENES_HANDLING: readonly IScene[] = [
       // receptionist makes its home-row layout face the approaching hands.
       object(
         "keyboard",
-        "createKeyboard",
-        "keyboard",
+        "createDesktopKeyboard",
+        undefined,
         0,
         0.36,
         180,
@@ -117,25 +117,25 @@ export const SCENES_HANDLING: readonly IScene[] = [
         // body's round grip after pickUp has established the handle hold.
         act("regrip", {
           prop: "mug",
-          side: "right",
+          hand: "right",
           to: "body",
         }),
-        act("look", { target: point(-0.18, 1.05, 0.3), seconds: 1 }),
+        act("look", { target: point(-0.18, 1.05, 0.3), duration: 1 }),
         act("walk", { to: to(1.2, -0.6), face: 90 }),
         act("look", {
           target: point(2.6, 1.6, -0.6),
           cue: "seen",
-          seconds: 1.1,
+          duration: 1.1,
         }),
-        act("handOnHip", { side: "left" }),
+        act("handOnHip", { hand: "left" }),
         act("gestureNod", { count: 1 }),
         act("walk", { to: to(0, 0), face: 0 }),
         act("regrip", {
           prop: "mug",
-          side: "right",
+          hand: "right",
           to: "handle",
         }),
-        act("gestureWave", { side: "left", count: 1 }),
+        act("gestureWave", { hand: "left", count: 1 }),
       ]),
     ],
     counter("counter", "mug", "createDrinkware", "mug", 0, 0),
@@ -153,10 +153,10 @@ export const SCENES_HANDLING: readonly IScene[] = [
     "entry-gate",
     [
       person("attendant", "f1", 0, 0, 0, [
-        act("look", { target: point(1.4, 1.6, 2.5), cue: "seen", seconds: 1 }),
-        act("gestureBeckon", { side: "left" }),
+        act("look", { target: point(1.4, 1.6, 2.5), cue: "seen", duration: 1 }),
+        act("gestureBeckon", { hand: "left" }),
         act("openGate", {
-          mechanism: {
+          kind: {
             kind: "button",
             at: { kind: "prop", subject: "control", point: "press" },
             travel: BUTTON_TRAVEL,
@@ -164,19 +164,19 @@ export const SCENES_HANDLING: readonly IScene[] = [
         }),
         act("pointAt", {
           target: { ...point(1, 1, 0.35), normal: { x: -1, y: 0, z: 0 } },
-          side: "left",
+          hand: "left",
         }),
         act("gestureNod", { count: 1 }),
-        act("gestureStopPalm", { side: "left", hold: 0.4 }),
-        act("gestureBeckon", { side: "left" }),
+        act("gestureStopPalm", { hand: "left", hold: 0.4 }),
+        act("gestureBeckon", { hand: "left" }),
         act("openGate", {
-          mechanism: {
+          kind: {
             kind: "button",
             at: { kind: "prop", subject: "control", point: "press" },
             travel: BUTTON_TRAVEL,
           },
         }),
-        act("gestureWave", { side: "left", count: 1 }),
+        act("gestureWave", { hand: "left", count: 1 }),
       ]),
     ],
     [
@@ -204,18 +204,18 @@ export const SCENES_HANDLING: readonly IScene[] = [
       // dropped late in the take, since a fallen prop is swept against the
       // cast until the film ends.
       person("partner", "f1", 0, 2, 0, [
-        act("look", { target: point(0, 1.5, 0), cue: "signal", seconds: 1 }),
+        act("look", { target: point(0, 1.5, 0), cue: "signal", duration: 1 }),
         act("gestureNod", { count: 1 }),
         act("seize", { prop: "sample" }),
-        act("look", { target: point(-0.18, 1.05, 2.3), seconds: 1 }),
-        act("gestureWave", { side: "left", count: 1 }),
-        act("thumbsUp", { side: "left" }),
-        act("countOne", { side: "left" }),
-        act("countTwo", { side: "left" }),
-        act("countThree", { side: "left" }),
+        act("look", { target: point(-0.18, 1.05, 2.3), duration: 1 }),
+        act("gestureWave", { hand: "left", count: 1 }),
+        act("thumbsUp", { hand: "left" }),
+        act("countOne", { hand: "left" }),
+        act("countTwo", { hand: "left" }),
+        act("countThree", { hand: "left" }),
         act(
           "stand",
-          { seconds: 0.8 },
+          { hold: 0.8 },
           {
             over: [
               act(
@@ -226,33 +226,33 @@ export const SCENES_HANDLING: readonly IScene[] = [
             ],
           },
         ),
-        act("look", { target: point(-0.18, 0.91, 2.3), seconds: 1 }),
+        act("look", { target: point(-0.18, 0.91, 2.3), duration: 1 }),
         act("gestureNod", { count: 1 }),
       ]),
       person("photographer", "m1", 0, 0, 0, [
-        act("look", { target: point(0, 1.1, 2.3), seconds: 1.2 }),
+        act("look", { target: point(0, 1.1, 2.3), duration: 1.2 }),
         act("thumbsUp"),
 
         // A test exposure before the drop.
         act("pressRelease", {
-          mechanism: {
+          kind: {
             kind: "button",
             at: { kind: "prop", subject: "shutter", point: "press" },
             travel: BUTTON_TRAVEL,
           },
         }),
-        act("look", { target: point(-0.18, 1, 0.3), seconds: 1 }),
+        act("look", { target: point(-0.18, 1, 0.3), duration: 1 }),
         act("okSign"),
         act("gestureNod", { count: 1 }),
-        act("look", { target: point(0, 1.1, 2.3), seconds: 1 }),
+        act("look", { target: point(0, 1.1, 2.3), duration: 1 }),
 
         // The wait ends about as the synced press begins: the chain goes on
         // from the wait's own end, so a longer wait would leave him idle.
-        act("stand", { seconds: 1.8 }),
+        act("stand", { hold: 1.8 }),
         act(
           "pressRelease",
           {
-            mechanism: {
+            kind: {
               kind: "button",
               at: { kind: "prop", subject: "shutter", point: "press" },
               travel: BUTTON_TRAVEL,
@@ -271,12 +271,12 @@ export const SCENES_HANDLING: readonly IScene[] = [
       ]),
     ],
     [
-      ...counter("camera-counter", "camera", "createDevice", "camera", 0, 0),
+      ...counter("camera-counter", "camera", "createCamera", undefined, 0, 0),
       object("shutter", "createSwitch", "button", 0, 0.35, 180, 0, {
         height: CONTROL_HEIGHT,
         travel: CONTROL_TRAVEL,
       }),
-      ...counter("sample-counter", "sample", "createDevice", "remote", 0, 2),
+      ...counter("sample-counter", "sample", "createRemote", undefined, 0, 2),
     ],
   ),
   scene(
@@ -295,13 +295,13 @@ export const SCENES_HANDLING: readonly IScene[] = [
         act("pickUp", { prop: "bottle", handle: "body" }),
         act("hurlBottle", {
           prop: "bottle",
-          at: { kind: "prop", subject: "basket", point: "inside" },
+          target: { kind: "prop", subject: "basket", point: "inside" },
         }),
         act("pickUp", { prop: "bottle2", handle: "body", hand: "left" }),
         act("hurlBottle", {
           prop: "bottle2",
           hand: "left",
-          at: { kind: "prop", subject: "basket", point: "inside" },
+          target: { kind: "prop", subject: "basket", point: "inside" },
         }),
         act("selfFistPump", { count: 1 }),
       ]),
@@ -317,7 +317,7 @@ export const SCENES_HANDLING: readonly IScene[] = [
         0,
         SceneBuild.COUNTER_TOP,
       ),
-      object("basket", "createTray", "basket", 0, 1),
+      object("basket", "createCarryBasket", undefined, 0, 1),
     ],
   ),
 ];

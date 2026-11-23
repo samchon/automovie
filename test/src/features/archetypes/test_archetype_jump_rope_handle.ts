@@ -1,5 +1,5 @@
 import {
-  ArchetypeFrame,
+  AutoMovieArchetypeFrame,
   type createJumpRope,
   createJumpRopeHandle,
 } from "@automovie/archetypes";
@@ -56,12 +56,20 @@ export function test_archetype_jump_rope_handle(): void {
       `${handle} grip and cord have their mounting positions`,
       grip.kind === "handle" &&
         vclose(grip.frame.translation, { x: 0, y: 0, z: 0 }) &&
-        vclose(ArchetypeFrame.axis(grip.frame, "x"), { x: 0, y: 0, z: 1 }) &&
+        vclose(AutoMovieArchetypeFrame.axis(grip.frame, "x"), {
+          x: 0,
+          y: 0,
+          z: 1,
+        }) &&
         nclose(grip.length!, length) &&
         nclose(grip.aperture!, diameter) &&
         socket.kind === "socket" &&
         vclose(socket.frame.translation, { x: 0, y: 0, z: span.high }) &&
-        vclose(ArchetypeFrame.axis(socket.frame, "y"), { x: 0, y: 0, z: 1 }),
+        vclose(AutoMovieArchetypeFrame.axis(socket.frame, "y"), {
+          x: 0,
+          y: 0,
+          z: 1,
+        }),
     );
   }
 }

@@ -14,12 +14,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanDress,
+  AutoMovieMotionHumanStrike,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  StrikingRoll,
-  dress,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -60,7 +60,7 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
       const perform = (taken: boolean): IAutoMovieMotionHumanPerformance => {
         const start: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand(
           {
-            seconds: 0.3,
+            hold: 0.3,
           },
         );
         return new HumanPerformance({
@@ -89,14 +89,14 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
                 use: {
                   tip: "wear",
                   line: "worn",
-                  at: { region: dress.WORN[item] },
+                  at: { region: AutoMovieMotionHumanDress.dress.WORN[item] },
                   round: item === "hat",
                 },
               })
             : start
           )
             .dress({ item, prop: "item", hand: "right" })
-            .stand({ seconds: 1 }).node,
+            .stand({ hold: 1 }).node,
         });
       };
 
@@ -127,7 +127,7 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
         );
       };
       const region: IAutoMovieMotionHumanBody["surfaces"]["regions"]["crown"] =
-        body.surfaces.regions[dress.WORN[item]];
+        body.surfaces.regions[AutoMovieMotionHumanDress.dress.WORN[item]];
       const on: number = Vector3.length(
         Vector3.subtract(
           socket(stroke),
@@ -137,9 +137,9 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
           ).point,
         ),
       );
-      if (!(on <= StrikingRoll.MISS))
+      if (!(on <= AutoMovieMotionHumanStrike.StrikingRoll.MISS))
         complaints.push(
-          `${label}: at the stroke the wear socket is ${mm(on)} mm from its region, within ${mm(StrikingRoll.MISS)} mm expected`,
+          `${label}: at the stroke the wear socket is ${mm(on)} mm from its region, within ${mm(AutoMovieMotionHumanStrike.StrikingRoll.MISS)} mm expected`,
         );
 
       // 2. The head wears it.

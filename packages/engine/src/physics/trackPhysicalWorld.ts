@@ -5,7 +5,6 @@ import type {
   IAutoMovieContactReceipt,
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalGravityTorques,
-  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalRecoveryPolicy,
   IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSegment,
@@ -15,15 +14,15 @@ import type {
   IAutoMovieTrackPhysicalBalanceTargets,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { RigidBody, World } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
 import { advancePhysicalOwnership } from "./advancePhysicalOwnership";
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
-import { configurePhysicalBodyQuality } from "./configurePhysicalBodyQuality";
 import { configurePhysicalJointMotor } from "./configurePhysicalJointMotor";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
@@ -43,17 +42,9 @@ import { trackPhysicalSupports } from "./trackPhysicalSupports";
 
 /**
  * Apply bounded PD forces and equal-opposite joint torques before the fixed step.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Apply bounded PD forces and equal-opposite joint torques before the fixed step) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Apply bounded PD forces and equal-opposite joint torques before the fixed step) directly over its typed inputs (`world`, `input`, `bound`, `step`, `softened`, `diagnostics`, `recovery`, `contacts`, `seconds`) as nested iteration of depth 3 (for-of over input.bodies; for-of over body.profile.segments; for-of over bound.segments.get(body.id)!.values()), delegating to `samplePhysicalTrackingTarget`, `physicalTrackingWithdrawn`, `hasPhysicalHandoff`, `releasePhysicalTracking`, `samplePhysicalAuthoredTargets`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literal 1e-7, whose basis this answer does not independently establish and a reviewer must confirm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 423 lines and 3 top-level statements that reuses `samplePhysicalTrackingTarget`, `physicalTrackingWithdrawn`, `hasPhysicalHandoff`, `releasePhysicalTracking`, `samplePhysicalAuthoredTargets` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 33 non-null assertion(s); these are the remaining shortcuts and are not justified here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `world`, `input`, `bound`, `step`, `softened`, `diagnostics`, `recovery`, `contacts`, `seconds`; the dominant cost is nested iteration of depth 3 (for-of over input.bodies; for-of over body.profile.segments; for-of over bound.segments.get(body.id)!.values()), performed once per call with 36 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 36 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function trackPhysicalWorld(
-  world: World,
+  world: AutoMovieXpbdWorld,
   input: IAutoMoviePhysicalSimulationInput.IInput,
   bound: Bound,
   step: number,
@@ -86,7 +77,7 @@ export function trackPhysicalWorld(
       !hasPhysicalHandoff(bound.handoffs.get(body.id))
     ) {
       if (!bound.released.has(body.id))
-        releasePhysicalTracking(world, input, body, bound);
+        releasePhysicalTracking(world, body, bound);
       continue;
     }
     const authoredGoals: Record<
@@ -134,28 +125,21 @@ export function trackPhysicalWorld(
     const rootDynamic: boolean = dynamic.has(root.bone);
     if (scene) scene = readPhysicalScene(bound, scene, body.id);
     for (const segment of body.profile.segments) {
-      const rigid: RigidBody = bound.bodies.get(`${body.id}/${segment.bone}`)!;
-      rigid.resetForces(false);
-      rigid.resetTorques(false);
+      const rigid: AutoMovieXpbdBody = bound.bodies.get(
+        `${body.id}/${segment.bone}`,
+      )!;
+      rigid.resetForces();
+      rigid.resetTorques();
     }
     if (body.mode.kind === "kinematic") continue;
     if (!dynamic.size) {
-      // Authored ownership is not withdrawal. Remove stale release quality
-      // while leaving native kinematic velocity and handoff authority intact.
-      if (
-        bound.released.delete(body.id) &&
-        body.releasedQuality &&
-        !body.releasedQuality.duringReflex
-      )
-        for (const rigid of bound.segments.get(body.id)!.values()) {
-          rigid.setAdditionalSolverIterations(0);
-          rigid.setAdditionalPgsIterations(0);
-        }
-      configurePhysicalBodyQuality(bound, input, body, false);
+      // Authored ownership is not withdrawal: clear the release while leaving
+      // kinematic velocity and handoff authority intact.
+      bound.released.delete(body.id);
       continue;
     }
     if (physicalTrackingWithdrawn(target)) {
-      releasePhysicalTracking(world, input, body, bound);
+      releasePhysicalTracking(world, body, bound);
       continue;
     }
     const actuation: Map<string, IAutoMovieVector3> | undefined =
@@ -260,19 +244,10 @@ export function trackPhysicalWorld(
       strength: target.strength * balance,
     };
     if (physicalTrackingWithdrawn(effort)) {
-      releasePhysicalTracking(world, input, body, bound);
+      releasePhysicalTracking(world, body, bound);
       continue;
     }
-    if (
-      bound.released.delete(body.id) &&
-      body.releasedQuality &&
-      !body.releasedQuality.duringReflex
-    )
-      for (const rigid of bound.segments.get(body.id)!.values()) {
-        rigid.setAdditionalSolverIterations(0);
-        rigid.setAdditionalPgsIterations(0);
-      }
-    configurePhysicalBodyQuality(bound, input, body, effort.strength === 0);
+    bound.released.delete(body.id);
     const endpointGoals: typeof goals = { ...authoredGoals };
     for (const limb of body.balance?.pattern.limbs ?? []) {
       const point: IAutoMovieVector3 | undefined = assessment?.goals[limb.bone];
@@ -356,15 +331,12 @@ export function trackPhysicalWorld(
       floor: input.floor,
       tolerance: input.contactTolerance!,
     });
-    // The joints whose torques carry their stance chain's inverse dynamics,
-    // gravity included (`trackPhysicalRoot`).
-    const dynamics: Map<string, IAutoMovieVector3> = new Map();
-    const ankleCaps: Map<
-      string,
-      Partial<Record<"x" | "y" | "z", { up: number; down: number }>>
-    > = new Map();
-    const base: RigidBody = bound.bodies.get(`${body.id}/${root.bone}`)!;
+    const base: AutoMovieXpbdBody = bound.bodies.get(
+      `${body.id}/${root.bone}`,
+    )!;
     trackPhysicalRoot({
+      world,
+      goals,
       settings: input,
       body,
       bound,
@@ -376,7 +348,6 @@ export function trackPhysicalWorld(
       landed: !!assessment?.state.landings?.length,
       planted: plantedPoses(body, authoredGoals, assessment?.state),
       seating: assessment?.state.seating,
-      ankleCaps,
       ...(assessment
         ? {
             integral: (assessment.state.pressure ??= {
@@ -412,7 +383,6 @@ export function trackPhysicalWorld(
       gravity: gravity.root,
       actuation,
       supports,
-      dynamics,
       recoveryBone: lifted(recovery[body.id]),
       step,
       seconds,
@@ -454,8 +424,12 @@ export function trackPhysicalWorld(
       );
     for (const joint of body.profile.joints) {
       if (!dynamic.has(joint.child)) continue;
-      const parent: RigidBody = bound.bodies.get(`${body.id}/${joint.parent}`)!;
-      const child: RigidBody = bound.bodies.get(`${body.id}/${joint.child}`)!;
+      const parent: AutoMovieXpbdBody = bound.bodies.get(
+        `${body.id}/${joint.parent}`,
+      )!;
+      const child: AutoMovieXpbdBody = bound.bodies.get(
+        `${body.id}/${joint.child}`,
+      )!;
       const parentFrame: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(parent.rotation(), joint.parentFrame.rotation);
       const childFrame: IAutoMovieRigidTransform["rotation"] =
@@ -536,53 +510,11 @@ export function trackPhysicalWorld(
           goals[joint.parent]!.angularVelocity,
         ),
       );
-      // A stance chain is driven by its allocated wrench, not servoed to a
-      // pose: every axis but a vertical one keeps its damping and no
-      // stiffness, the torque-mode stance (Stephens 2011, Eq. 5.24), so no pose
-      // servo adds floor force outside the allocation. A vertical (yaw) axis
-      // keeps its declared PD: heading comes from the stance hips' twist
-      // (Coros, Beaudoin and van de Panne 2010, Section 3.5; Yin, Loken and
-      // van de Panne 2007, Section 3.2), not from the allocation, which leaves
-      // yaw free. An ankle in contact is further bounded each way by what its
-      // load can hold flat (`trackPhysicalRoot`), within its own strength.
-      const capped:
-        | Partial<Record<"x" | "y" | "z", { up: number; down: number }>>
-        | undefined = ankleCaps.get(joint.id);
-      const driven: IAutoMoviePhysicalJoint =
-        capped || stanceChain || dynamics.has(joint.id)
-          ? {
-              ...joint,
-              axes: joint.axes.map((axis) => {
-                const bound = capped?.[axis.axis];
-                const vertical: boolean =
-                  Math.abs(
-                    Quaternion.rotateVector(parentFrame, {
-                      x: axis.axis === "x" ? 1 : 0,
-                      y: axis.axis === "y" ? 1 : 0,
-                      z: axis.axis === "z" ? 1 : 0,
-                    }).y,
-                  ) > Math.SQRT1_2;
-                return {
-                  ...axis,
-                  stiffness: vertical ? axis.stiffness : 0,
-                  ...(bound
-                    ? {
-                        maximumTorque: Math.min(axis.maximumTorque, bound.up),
-                        reverseTorque: Math.min(
-                          axis.reverseTorque ?? axis.maximumTorque,
-                          bound.down,
-                        ),
-                      }
-                    : {}),
-                };
-              }),
-            }
-          : joint;
       const result: IAutoMovieConfigurePhysicalJointMotor.IResult =
         configurePhysicalJointMotor({
           world,
           native: bound.joints.get(`${body.id}/${joint.id}`)!,
-          joint: driven,
+          joint,
           current: Quaternion.multiply(inv, childFrame),
           // A stance joint holds its relative rotation latched when its
           // stance began, so its yaw PD keeps the heading it touched down
@@ -601,25 +533,10 @@ export function trackPhysicalWorld(
             inv,
             Vector3.subtract(child.angvel(), parent.angvel()),
           ),
-          // A joint the stance solve drives aims at the velocity its solved
-          // acceleration reaches over the substep.
-          targetVelocity: dynamics.has(joint.id)
-            ? Vector3.add(
-                Quaternion.rotateVector(
-                  inv,
-                  Vector3.subtract(child.angvel(), parent.angvel()),
-                ),
-                dynamics.get(joint.id)!,
-              )
-            : desiredVelocity,
+          targetVelocity: desiredVelocity,
           strength,
-          // Every joint, a stance chain's too, carries its own links' gravity,
-          // the full N(q, q') of the inverse dynamics (Stephens 2011, Eq.
-          // 5.18); the allocated contact wrench carries the body's weight.
           feedForward: Vector3.add(
-            dynamics.has(joint.id)
-              ? { x: 0, y: 0, z: 0 }
-              : (gravity.joints.get(joint.id) ?? { x: 0, y: 0, z: 0 }),
+            gravity.joints.get(joint.id) ?? { x: 0, y: 0, z: 0 },
             actuation?.get(joint.id) ?? { x: 0, y: 0, z: 0 },
           ),
         });

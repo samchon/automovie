@@ -6,11 +6,6 @@ import type { IAutoMovieEnvironmentContribution } from "./IAutoMovieEnvironmentC
  *
  * @param context The occurrence's world frame, stable namespace and reference access.
  * @returns The canonical records this occurrence contributes.
- *
- * @evidence contracts/development/design.md#principled-representation The definition receives the world-metre rigid frame once and constructs its geometry, support and points in that frame. It derives only instance-owned identifiers from the supplied scope.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The callback lets a producer consume the resolved placement before generating its records. The composer can run the same definition at distinct frames and derive its references without a second transform or a global catalogue.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Equal inputs and resolved references must produce equal records. TypeScript cannot enforce a producer's purity or repair an inconsistent set of emitted records.
- * @evidence contracts/development/common.md#meaningful-documentation States when the definition runs, its supplied placement and namespace, and what it returns.
  */
 export type IAutoMovieEnvironmentModule = (
   context: IAutoMovieEnvironmentModule.IContext,
@@ -19,11 +14,6 @@ export type IAutoMovieEnvironmentModule = (
 export namespace IAutoMovieEnvironmentModule {
   /**
    * The assigned instance identity, placement and dependency access.
-   *
-   * @evidence contracts/development/design.md#principled-representation The occurrence id is the environment id and local item key, the rigid frame is in world metres, and the seed is a deterministic stream key derived from the occurrence path when a root seed is supplied.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One reference function gives other modules' origins and exported anchors, so a module can place linked geometry without asking the composer to recognize its kind.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The resolver admits out-of-order references and refuses unknown paths and cycles. It never replaces a missing anchor with the origin or searches unnamed geometry.
-   * @evidence contracts/development/common.md#meaningful-documentation States the id, world unit, seed omission, path spelling and lookup failure modes.
    */
   export interface IContext {
     /** Stable occurrence namespace, including the environment id. */
@@ -41,14 +31,6 @@ export namespace IAutoMovieEnvironmentModule {
      * @param id Environment-relative item key or `item/anchor` path.
      * @returns The named rigid frame, in world metres.
      * @throws If the referenced name is absent or the requested dependency creates a cycle.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the relative path, world frame and failure cases.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The interface only declares the resolver. The composer owns its resolution.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The interface has no implementation.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The interface has no implementation.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The composer owns the lookup cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The composer owns sharing during resolution.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature owns no state.
      */
     anchor(id: string): IAutoMovieTransform;
   }

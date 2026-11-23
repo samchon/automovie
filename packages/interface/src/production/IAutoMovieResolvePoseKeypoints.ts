@@ -8,22 +8,12 @@ import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 
 /**
  * Pose, world placement and lens inputs for normalized joint projection.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Pose, world placement and lens inputs for normalized joint projection. Pose FK uses rig metres and default axes/rest frames, then node TRS places joints in world space. Output coordinates use cropped normalized frame space; camera time is shot-local seconds.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing requested bones are omitted, off-frame points remain unclamped, and an empty joints list produces no keypoints. Pose/camera failures propagate rather than yielding substitute joints.
- * @evidence contracts/development/design.md#principled-representation Pose FK uses rig metres and default axes/rest frames, then node TRS places joints in world space. Output coordinates use cropped normalized frame space; camera time is shot-local seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface resolvePoseKeypoints owns numerical pose conditioning and delegates FK/camera projection to engine owners; the caller supplies the already sampled actor pose independently of camera time.
  */
 export namespace IAutoMovieResolvePoseKeypoints {
   /**
    * Project one posed actor's joints to normalized 2D frame keypoints, the OpenPose-style conditioning automovie can emit exactly because it knows every bone's 3D position.
    *
    * Forward kinematics resolves the pose in rig space, the actor's staged node transform lifts each joint into scene world with the renderer's TRS order, and the live camera, sampled at `time`, projects it through an optional delivery crop. `x` grows rightward and `y` downward from the frame's top-left corner, both in `[0, 1]` inside the frame. A joint behind the camera, outside the clip range or outside the frame is still projected, never clamped, because a clamped point reads as a false edge keypoint, and is flagged `inFrame: false`. A requested joint the rig does not have yields no keypoint. The order follows joints. FK uses default engine joint axes and rest frames; coincidence with a renderer requires those same conventions, and these numerical outputs establish no observed rendered pixels.
-   *
-   * @evidence contracts/development/design.md#principled-representation Pose FK uses rig metres and default axes/rest frames, then node TRS places joints in world space. Output coordinates use cropped normalized frame space; camera time is shot-local seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface resolvePoseKeypoints owns numerical pose conditioning and delegates FK/camera projection to engine owners; the caller supplies the already sampled actor pose independently of camera time.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing requested bones are omitted, off-frame points remain unclamped, and an empty joints list produces no keypoints. Pose/camera failures propagate rather than yielding substitute joints.
-   * @evidence contracts/development/common.md#meaningful-documentation Pose, world placement and lens inputs for normalized joint projection. Pose FK uses rig metres and default axes/rest frames, then node TRS places joints in world space. Output coordinates use cropped normalized frame space; camera time is shot-local seconds.
    */
   export type IProps = {
     /** The actor's pose at this instant. */

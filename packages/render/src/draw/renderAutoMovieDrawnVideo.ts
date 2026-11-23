@@ -1,6 +1,7 @@
 import type {
+  IAutoMovieDrawnPass,
   IAutoMovieDrawnVideoResult,
-  IAutoMovieRasterImage,
+  IAutoMovieInspectionDiagnostics,
   IAutoMovieRenderSpec,
 } from "@automovie/interface";
 
@@ -9,22 +10,15 @@ import { frameName } from "../frameName.js";
 import { frameTimes } from "../frameTimes.js";
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
 import { hashAutoMovieRasterImage } from "../picture/hashAutoMovieRasterImage.js";
+import { reduceAutoMovieInspectionEpisodes } from "../scene/inspection/reduceAutoMovieInspectionEpisodes.js";
 import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
 
 /**
  * Render a drawn subject into one video: draw every frame of its clock through the draw page's function, write each as a PNG, then encode them once.
  *
- * The clock and raster are the subject's, read from the session, so the spec takes no frame format. The encoding is admitted and planned by `planAutoMovieVideoEncoding` before the first frame is drawn, so a clock that is not a whole number of frames or an odd raster costs no drawing. Frame `i` is drawn at `frameTimes`' second `i / fps` in the `beauty` pass through the subject's own camera, and written as `<frameDir>/frame_<i>.png`; frames are drawn and written one at a time, in order. The encoder then runs once with the planned arguments.
+ * The clock and raster are the subject's, read from the session, so the spec takes no frame format. The encoding is admitted and planned by `planAutoMovieVideoEncoding` before the first frame is drawn, so a clock that is not a whole number of frames or an odd raster costs no drawing. Frame `i` is drawn at `frameTimes`' second `i / fps` in the `beauty` pass through the subject's own camera, and written as `<frameDir>/frame_<i>.png`; frames are drawn and written one at a time, in order. The encoder then runs once with the planned arguments. When a frame supplies diagnostics, the output clock binds the sample to that frame and the audit reports coverage against the full schedule.
  *
- * Files and processes are the host's: `write` stores a file and `encode` runs FFmpeg, so the order of every step runs under a unit test. A draw, write or encode failure rejects at once and leaves the files written so far to the host.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where the clock and raster come from, when the plan is admitted, how each frame is drawn, named and written, what the host supplies and what a failure leaves.
- * @evidence contracts/development/implementation.md#principled-implementation Every delivered frame comes from the same draw function inspection stills use, at the exact schedule `frameTimes` gives, and the encoder runs on the vector `planAutoMovieVideoEncoding` admits, so a delivered video and a still at the same second are drawn by the same code.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan, then one loop of draw, encode as PNG, hash and write, then one encode.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No frame is skipped or reused and no failure is retried.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames times pixels: one draw, one PNG encoding and one hash per frame.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each frame is drawn once; nothing is shared between renders.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One frame's picture and bytes are held at a time, plus one record per frame; the session stays the caller's.
+ * Files and processes are the host's: `write` stores a file and `encode` runs FFmpeg, so the order of every step runs under a unit test. `encode` is handed the frame receipts and scene audit with its arguments, so they survive an encoder failure. A draw, write or encode failure rejects at once and leaves the files written so far to the host.
  */
 export async function renderAutoMovieDrawnVideo(props: {
   /** The opened draw session of the subject. */
@@ -45,8 +39,15 @@ export async function renderAutoMovieDrawnVideo(props: {
   /** Store one file whole. */
   write: (path: string, data: Uint8Array) => Promise<void>;
 
-  /** Run FFmpeg with the arguments, resolving once it succeeded. */
-  encode: (args: readonly string[]) => Promise<void>;
+  /**
+   * Run FFmpeg with the arguments, resolving once it succeeded. It also
+   * receives the drawn frames and scene audit, already complete, so a host
+   * can keep them when encoding fails.
+   */
+  encode: (
+    args: readonly string[],
+    drawn: Pick<IAutoMovieDrawnVideoResult, "frames" | "diagnostics">,
+  ) => Promise<void>;
 }): Promise<IAutoMovieDrawnVideoResult> {
   const { subject } = props.session;
   const spec: IAutoMovieRenderSpec = {
@@ -73,11 +74,23 @@ export async function renderAutoMovieDrawnVideo(props: {
     file: string;
     hash: string;
   }[] = [];
+  const packets: IAutoMovieInspectionDiagnostics[] = [];
   const times: number[] = frameTimes(subject.fps, subject.durationSeconds);
   for (const [index, seconds] of times.entries()) {
-    const picture: IAutoMovieRasterImage = (
-      await props.session.frame(seconds, ["beauty"])
-    )[0]!.picture;
+    const { picture, diagnostics }: IAutoMovieDrawnPass = (
+      await props.session.frame(seconds, ["beauty"], "delivery")
+    )[0]!;
+    if (diagnostics !== undefined) {
+      const { time } = diagnostics;
+      if (
+        time.filmSeconds !== seconds ||
+        (time.outputFrame !== undefined && time.outputFrame !== index)
+      )
+        throw new Error(
+          `Inspection diagnostics do not match output frame ${index} at ${seconds} s.`,
+        );
+      packets.push({ ...diagnostics, time: { ...time, outputFrame: index } });
+    }
     const file: string = `${props.frameDir}/${frameName(index)}`;
     await props.write(file, await encodeAutoMovieRasterPng(picture));
     frames.push({
@@ -88,6 +101,14 @@ export async function renderAutoMovieDrawnVideo(props: {
     });
   }
 
-  await props.encode(plan.args);
-  return { frames, args: plan.args };
+  const diagnostics: IAutoMovieInspectionDiagnostics.IAudit | undefined =
+    packets.length === 0
+      ? undefined
+      : reduceAutoMovieInspectionEpisodes(packets, times.length);
+  const drawn: Pick<IAutoMovieDrawnVideoResult, "frames" | "diagnostics"> = {
+    frames,
+    ...(diagnostics === undefined ? {} : { diagnostics }),
+  };
+  await props.encode(plan.args, drawn);
+  return { ...drawn, args: plan.args, frameRate: plan.frameRate };
 }

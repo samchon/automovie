@@ -1,15 +1,15 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDensity,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDensity,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The guardrail standard read. */
@@ -24,12 +24,12 @@ const ESTIMATES: Readonly<{ plate: number }> = { plate: 0.02 };
  *
  * The length and the beam are the ship's, site dimensions as a wall's run is, so the author gives them; `createDeck.REFERENCE` is a Liberty ship's whole deck. The guardrails are ISO 5480's: the toprail's top at the drawn height, the stanchions as many as keep every bay inside the drawn spacing, evenly set from end to end, and the lower rails the fewest that keep every opening inside its drawn bound, the lowest at its greatest opening above the deck and the others evenly spaced up to the toprail. The deck is drawn as the rectangle the length and the beam bound: a ship's taper toward its ends, its sheer and its camber are not modelled.
  *
- * The walking surface is the `XZ` plane at the origin, the bow toward `+Z` and the left side toward `+X`. `deck` is the walking surface between the stanchions, where people stand and a gun or cargo is set; `leftRail` and `rightRail` are the toprails along the sides, each a bar a hand grips. A deck floats on a seeded sea by riding a course (`ArchetypeRide.along`) floated with `ArchetypeSea.float`, and carries guns or cargo as an `ArchetypeAssembly`.
+ * The walking surface is the `XZ` plane at the origin, the bow toward `+Z` and the left side toward `+X`. `deck` is the walking surface between the stanchions, where people stand and a gun or cargo is set; `leftRail` and `rightRail` are the toprails along the sides, each a bar a hand grips. A deck floats on a seeded sea by riding a course (`AutoMovieArchetypeRide.along`) floated with `AutoMovieArchetypeSea.float`, and carries guns or cargo as an `AutoMovieArchetypeAssembly`.
  *
  * @param params The deck's length and beam and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The deck.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, a length that is not positive, or a beam no wider than the two stanchions.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, a length that is not positive, or a beam no wider than the two stanchions.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the stretch is, which dimensions are the site's, how the guardrails are laid out, what is not modelled, its axes and contacts, and how it floats and carries.
  * @evidence contracts/development/implementation.md#principled-implementation Every guardrail size is ISO 5480's, single figures at its limits; the stanchions the fewest bays inside the spacing, the lower rails the fewest courses inside the openings, both derived from the drawn bounds and the site's length; the mass is steel's density times the parts' volumes.
@@ -42,9 +42,9 @@ const ESTIMATES: Readonly<{ plate: number }> = { plate: 0.02 };
 export function createDeck(
   params: createDeck.IParams,
   seed?: number | string,
-): Archetype<createDeck.Affordance, createDeck.Dimension> {
-  const draw: ArchetypeDrawSession<createDeck.Dimension> =
-    new ArchetypeDrawSession<createDeck.Dimension>(
+): AutoMovieArchetype<createDeck.Affordance, createDeck.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createDeck.Dimension> =
+    new AutoMovieArchetypeDrawSession<createDeck.Dimension>(
       "deck",
       createDeck.UNITS,
       seed,
@@ -56,7 +56,7 @@ export function createDeck(
   > = draw.dimensions(createDeck.BANDS);
   const { length, beam }: createDeck.IParams = params;
   if (!(Number.isFinite(length) && length > 0))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "deck",
       axis: "length",
@@ -66,7 +66,7 @@ export function createDeck(
       fix: "give the stretch of deck's length in metres",
     });
   if (!(Number.isFinite(beam) && beam > 2 * d.breadth))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "deck",
       axis: "beam",
@@ -89,13 +89,15 @@ export function createDeck(
   const rails: number = Math.ceil(rise / (d.rail + d.opening));
   const pitch: number = rise / rails;
 
-  const builder: ArchetypeBuilder<createDeck.Affordance, createDeck.Dimension> =
-    new ArchetypeBuilder({
-      material: "steel",
-      id: params.id,
-      name: "deck",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createDeck.Affordance,
+    createDeck.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "steel",
+    id: params.id,
+    name: "deck",
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   builder.box(
     "plate",
@@ -138,7 +140,11 @@ export function createDeck(
       id: `${side}Rail`,
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(x, post, 0), v(0, 1, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(x, post, 0),
+        v(0, 1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       grip: "power",
       aperture: d.toprail,
@@ -148,7 +154,7 @@ export function createDeck(
   builder.affordance({
     id: "deck",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
     width: beam - 2 * d.breadth,
     depth: length,
@@ -162,7 +168,9 @@ export function createDeck(
     2 *
       ((bays + 1) * d.breadth * d.thickness * post +
         (rails * Math.PI * (d.rail / 2) ** 2 + tube) * length);
-  return builder.build(draw.derive("mass", ArchetypeDensity.STEEL * volume));
+  return builder.build(
+    draw.derive("mass", AutoMovieArchetypeDensity.STEEL * volume),
+  );
 }
 
 /**
@@ -203,7 +211,9 @@ export namespace createDeck {
     | "mass";
 
   /** Each dimension's unit, which its band shares. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     toprail: "m",
     wall: "m",
@@ -230,55 +240,56 @@ export namespace createDeck {
 
   /** A Liberty ship's whole deck, for a caller that needs one without a ship: 441 ft 6 in long with an extreme beam of 57 ft, a flush deck (ASME, Liberty Ship, U.S. Maritime Commission Emergency Cargo Vessel EC2-S-C1, a National Historic Mechanical Engineering Landmark, 18 September 1984, p. 3, https://www.asme.org/wwwasmeorg/media/ResourceFiles/AboutASME/Who%20We%20Are/Engineering%20History/Landmarks/98-SS-Jeremiah-O-Brien-1943.pdf). */
   export const REFERENCE: Readonly<IParams> = {
-    length: 441 * ArchetypeUnits.FOOT + 6 * ArchetypeUnits.INCH,
-    beam: 57 * ArchetypeUnits.FOOT,
+    length:
+      441 * AutoMovieArchetypeUnits.FOOT + 6 * AutoMovieArchetypeUnits.INCH,
+    beam: 57 * AutoMovieArchetypeUnits.FOOT,
   };
 
   /** The band of each drawn dimension, each the standard's single figure at its limit. */
   export const BANDS: Readonly<
-    Record<Exclude<Dimension, "mass">, IArchetypeBand>
+    Record<Exclude<Dimension, "mass">, IAutoMovieArchetypeBand>
   > = {
-    height: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(
       1,
       1,
       `${ISO_5480}: 5.1.1, the toprails' height at least 1 000 mm, to the toprail's top`,
     ),
-    toprail: ArchetypeBand.metres(
+    toprail: AutoMovieArchetypeBand.metres(
       0.034,
       0.034,
       `${ISO_5480}: 5.3.1, steel toprails of tubes of minimum 34 mm outside diameter`,
     ),
-    wall: ArchetypeBand.metres(
+    wall: AutoMovieArchetypeBand.metres(
       0.0026,
       0.0026,
       `${ISO_5480}: 5.3.1, a wall thickness of at least 2,6 mm`,
     ),
-    rail: ArchetypeBand.metres(
+    rail: AutoMovieArchetypeBand.metres(
       0.019,
       0.019,
       `${ISO_5480}: 5.3.3, lower rails of solid round bars of at least 19 mm diameter`,
     ),
-    lowest: ArchetypeBand.metres(
+    lowest: AutoMovieArchetypeBand.metres(
       0.23,
       0.23,
       `${ISO_5480}: 5.1.2, the opening below the lowest course 230 mm maximum, to the rail's underside`,
     ),
-    opening: ArchetypeBand.metres(
+    opening: AutoMovieArchetypeBand.metres(
       0.38,
       0.38,
       `${ISO_5480}: 5.1.3, the opening between the upper courses 380 mm maximum`,
     ),
-    spacing: ArchetypeBand.metres(
+    spacing: AutoMovieArchetypeBand.metres(
       1.5,
       1.5,
       `${ISO_5480}: 5.1.4, the distance between stanchions 1 500 mm maximum`,
     ),
-    breadth: ArchetypeBand.metres(
+    breadth: AutoMovieArchetypeBand.metres(
       0.06,
       0.06,
       `${ISO_5480}: 5.2, stanchions of steel flat bars of 60 mm x 15 mm`,
     ),
-    thickness: ArchetypeBand.metres(
+    thickness: AutoMovieArchetypeBand.metres(
       0.015,
       0.015,
       `${ISO_5480}: 5.2, stanchions of steel flat bars of 60 mm x 15 mm`,

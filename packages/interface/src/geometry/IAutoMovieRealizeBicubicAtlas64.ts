@@ -3,11 +3,6 @@ import type { IAutoMovieBicubicAtlasTessellation64 } from "./curve/IAutoMovieBic
 
 /**
  * Data and callback contracts shared by the RealizeBicubicAtlas64 operations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Metre recipes yield metre meshes while retained kernel grids and approximation estimates use millimetres; triangle parameters remain normalized chart coordinates. Completeness, approximation qualification and diagnostics remain separate; optional retention flags do not imply source-fit certification.
- * @evidence contracts/development/design.md#principled-representation Metre recipes yield metre meshes while retained kernel grids and approximation estimates use millimetres; triangle parameters remain normalized chart coordinates.
- * @evidence contracts/development/design.md#minimal-and-owned-surface realizeAutoMovieBicubicAtlas64 owns option admission and transfers its retained mesh, reports and requested construction data to consumers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Completeness, approximation qualification and diagnostics remain separate; optional retention flags do not imply source-fit certification.
  */
 export namespace IAutoMovieRealizeBicubicAtlas64 {
   /**
@@ -30,11 +25,6 @@ export namespace IAutoMovieRealizeBicubicAtlas64 {
    * filtered to patches with retained triangles. They let construction consume
    * that same field instead of re-evaluating a pre-binding recipe. Omitted/false
    * retains no coefficient snapshots; invalid retention flags reject before work.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Two optional booleans independently request per-triangle normalized parameters and millimetre prepared grids. Omitted or false allocates neither optional product; retention does not change the generated surface or its qualifications.
-   * @evidence contracts/development/design.md#principled-representation Two optional booleans independently request per-triangle normalized parameters and millimetre prepared grids.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The bicubic realizer consumes these retention choices only for downstream chart/construction readers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Omitted or false allocates neither optional product; retention does not change the generated surface or its qualifications.
    */
   export type IOptions = {
     /** Retain actual patch-local triangle-corner parameters for downstream surface consumers; omitted allocates none. */
@@ -63,11 +53,6 @@ export namespace IAutoMovieRealizeBicubicAtlas64 {
    * filtered to patches with retained triangles. They let construction consume
    * that same field instead of re-evaluating a pre-binding recipe. Omitted/false
    * retains no coefficient snapshots; invalid retention flags reject before work.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Retained metre triangles keep normalized corner parameters, physical identities and millimetre approximation observations. Complete domain, approximation qualification and optional coefficients remain independent; compacted render indices do not alter triangle ordinals.
-   * @evidence contracts/development/design.md#principled-representation Retained metre triangles keep normalized corner parameters, physical identities and millimetre approximation observations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The bicubic realizer transfers newly owned mesh/report arrays to model and construction consumers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Complete domain, approximation qualification and optional coefficients remain independent; compacted render indices do not alter triangle ordinals.
    */
   export type IResult = {
     /** Caller-owned indexed mesh in model metres; unreferenced render vertices may be compacted after streaming ends while triangle order and physical identities are preserved. */

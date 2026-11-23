@@ -2,11 +2,6 @@
  * Exact supported WAVE declaration before processing.
  *
  * These are the file's own facts, read from its format envelope and never inferred from its channel count: an extensible header names its speakers through `dwChannelMask` and its encoding through the full SubFormat GUID, while a legacy header carries the default mono front-center or stereo front-left/front-right semantics and says so in `layout.source`. The literal unions are the decoder's whole supported subset, so a value outside them was refused rather than recorded.
- *
- * @evidence contracts/development/design.md#principled-representation Each field mirrors a WAVEFORMATEX or WAVEFORMATEXTENSIBLE field the decoder reads, with the layout source and mask recording whether the speakers came from `dwChannelMask` or from the legacy default.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record keeps the envelope facts apart from the processing lineage, which lets the render plan validate a source identity separately from the conversion applied to it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed unions constrain each vocabulary independently, while numeric ranges and encoding/precision/channel/layout/GUID relations remain producer invariants checked by the decoder and render wave-identity validator, not guarantees of this erased type.
- * @evidence contracts/development/common.md#meaningful-documentation The comments state where each fact comes from, which header spelling sets the mask and GUID, and that the literal unions are the supported subset.
  */
 export interface IAutoMovieProductionWaveSourceFormat {
   /** Media-family discriminant; WAVE is the only decoded family. */

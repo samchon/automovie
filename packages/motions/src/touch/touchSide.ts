@@ -66,7 +66,7 @@ export namespace touchSide {
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
   ): AutoMovieHumanSide {
     const p: IAutoMovieMotionHumanTouch.IParams = context.params;
-    if (p.side !== undefined) return p.side;
+    if (p.hand !== undefined) return p.hand;
     if (p.prop !== undefined)
       return context.entry.holds.left === p.prop &&
         context.entry.holds.right !== p.prop
@@ -140,7 +140,8 @@ export namespace touchSide {
     // infinite, so the tie below would keep it.
     if (Number.isFinite(left) !== Number.isFinite(right))
       return Number.isFinite(left) ? "left" : "right";
-    return right - left > resolution(body, "left", left) + resolution(body, "right", right)
+    return right - left >
+      resolution(body, "left", left) + resolution(body, "right", right)
       ? "left"
       : "right";
   }
@@ -177,11 +178,10 @@ export namespace touchSide {
     strain: number,
   ): number {
     if (!Number.isFinite(strain)) return Infinity;
-    const range = (bone: AutoMovieHumanoidBone): IAutoMovieJointConstraint | null =>
-      getConstraint(
-        bone,
-        readHumanBone(body, bone)?.constraint ?? null,
-      );
+    const range = (
+      bone: AutoMovieHumanoidBone,
+    ): IAutoMovieJointConstraint | null =>
+      getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null);
     const shoulder: IAutoMovieJointConstraint | null = range(`${side}UpperArm`);
     const halves: number[] = [
       shoulder?.flexion,
@@ -191,7 +191,9 @@ export namespace touchSide {
       range(`${side}Hand`)?.flexion,
     ]
       .filter(
-        (r: IAutoMovieAngleRange | null | undefined): r is IAutoMovieAngleRange =>
+        (
+          r: IAutoMovieAngleRange | null | undefined,
+        ): r is IAutoMovieAngleRange =>
           r !== null && r !== undefined && r.max > r.min,
       )
       .map((r: IAutoMovieAngleRange): number => (r.max - r.min) / 2);

@@ -1,10 +1,19 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, object, person, scene, sheathed }: typeof SceneBuild = SceneBuild;
+const {
+  act,
+  carrier,
+  drawn,
+  object,
+  person,
+  scene,
+  seated,
+  sheathe,
+}: typeof SceneBuild = SceneBuild;
 
 /** The range-counter shooter's mark downrange: a point at chest height ten metres ahead, world. */
-const DOWNRANGE: Record<string, unknown> = {
+const DOWNRANGE: SceneBuild.PointTarget = {
   kind: "point",
   at: { x: 0, y: 1.4, z: 10 },
   frame: "world",
@@ -17,7 +26,7 @@ export const SCENES_BLADES: readonly IScene[] = [
       id: "sword-drill",
       title: "Sword drill",
       summary:
-        "Two fencers draw from the hip and drill cuts, thrusts and guards side by side.",
+        "Two fencers draw arming swords from their scabbards, drill cuts, thrusts and guards side by side, and sheathe them.",
       setting: "combat",
       roles: { ari: "fencer", ben: "fencer" },
       needs: [],
@@ -25,11 +34,7 @@ export const SCENES_BLADES: readonly IScene[] = [
     "sword-drill",
     [
       person("ari", "m1", -0.8, 0, 0, [
-        act("pickUp", {
-          prop: "swordA",
-          handle: "grip",
-          use: SceneBuild.BLADE_USE,
-        }),
+        ...drawn("swordA", "scabbardA"),
         act("draw", { blade: "swordA" }),
         act("cut", { blade: "swordA" }),
         act("slash", { blade: "swordA" }),
@@ -37,18 +42,15 @@ export const SCENES_BLADES: readonly IScene[] = [
         act("stab", { blade: "swordA" }),
         act("backslash", { blade: "swordA" }),
         act("traverse"),
-        act("vomTag", { blade: "swordA", seconds: 0.6 }),
+        act("vomTag", { blade: "swordA", duration: 0.6 }),
         act("cut", { blade: "swordA" }),
         act("backslash", { blade: "swordA" }),
         act("retreat"),
-        act("alber", { blade: "swordA", seconds: 0.6 }),
+        act("alber", { blade: "swordA", duration: 0.6 }),
+        sheathe("swordA", "scabbardA"),
       ]),
       person("ben", "f1", 0.8, 0, 0, [
-        act("pickUp", {
-          prop: "swordB",
-          handle: "grip",
-          use: SceneBuild.BLADE_USE,
-        }),
+        ...drawn("swordB", "scabbardB"),
         act("swordGuard", { blade: "swordB" }),
         act("beat", { blade: "swordB" }),
         act("disengage", { blade: "swordB" }),
@@ -56,19 +58,22 @@ export const SCENES_BLADES: readonly IScene[] = [
         act("swordParry", { blade: "swordB" }),
         act("swordThrust", { blade: "swordB" }),
         act("retreat"),
-        act("vomTag", { blade: "swordB", seconds: 0.6 }),
+        act("vomTag", { blade: "swordB", duration: 0.6 }),
         act("cut", { blade: "swordB" }),
         act("advance"),
         act("parry", { blade: "swordB" }),
         act("disengage", { blade: "swordB" }),
         act("slash", { blade: "swordB" }),
         act("retreat"),
-        act("alber", { blade: "swordB", seconds: 0.6 }),
+        act("alber", { blade: "swordB", duration: 0.6 }),
+        sheathe("swordB", "scabbardB"),
       ]),
     ],
     [
-      sheathed("swordA", "armingSword", "ari", "left"),
-      sheathed("swordB", "longsword", "ben", "left"),
+      carrier("scabbardA", "scabbard", "knight", "ari", "right", 15),
+      seated("swordA", "armingSword", "scabbardA", "knight"),
+      carrier("scabbardB", "scabbard", "poitiers", "ben", "right", 15),
+      seated("swordB", "armingSword", "scabbardB", "poitiers"),
     ],
   ),
   scene(
@@ -76,7 +81,7 @@ export const SCENES_BLADES: readonly IScene[] = [
       id: "knife-drill",
       title: "Knife drill",
       summary:
-        "Two trainees draw blades and drill slashes and stabs while advancing, traversing and retreating.",
+        "Two trainees draw blades from their sheaths, drill slashes and stabs while advancing, traversing and retreating, and sheathe them.",
       setting: "combat",
       roles: { cal: "trainee", dee: "trainee" },
       needs: [],
@@ -84,12 +89,8 @@ export const SCENES_BLADES: readonly IScene[] = [
     "knife-drill",
     [
       person("cal", "m2", -0.8, 0, 0, [
-        act("pickUp", {
-          prop: "knife",
-          handle: "grip",
-          use: SceneBuild.BLADE_USE,
-        }),
-        act("enGarde", { blade: "knife", seconds: 0.6 }),
+        ...drawn("knife", "sheathC"),
+        act("enGarde", { blade: "knife", duration: 0.6 }),
         act("knifeSlash", { blade: "knife" }),
         act("knifeBackslash", { blade: "knife" }),
         act("knifeStab", { blade: "knife" }),
@@ -110,14 +111,11 @@ export const SCENES_BLADES: readonly IScene[] = [
         act("knifeBackslash", { blade: "knife" }),
         act("knifeStab", { blade: "knife" }),
         act("knifeSlash", { blade: "knife" }),
-        act("enGarde", { blade: "knife", seconds: 1 }),
+        act("enGarde", { blade: "knife", duration: 1 }),
+        sheathe("knife", "sheathC"),
       ]),
       person("dee", "f2", 0.8, 0, 0, [
-        act("pickUp", {
-          prop: "dagger",
-          handle: "reverseGrip",
-          use: SceneBuild.BLADE_USE,
-        }),
+        ...drawn("dagger", "sheathD", "reverseGrip"),
         act("stabOverhand", { blade: "dagger" }),
         act("clubStrike", { hand: "left" }),
         act("advance"),
@@ -142,11 +140,14 @@ export const SCENES_BLADES: readonly IScene[] = [
         act("clubStrike", { hand: "left" }),
         act("stabOverhand", { blade: "dagger" }),
         act("clubSwing", { hand: "left" }),
+        sheathe("dagger", "sheathD"),
       ]),
     ],
     [
-      sheathed("knife", "knife", "cal", "right"),
-      sheathed("dagger", "dagger", "dee", "right"),
+      carrier("sheathC", "sheath", "knife", "cal", "right", 0),
+      seated("knife", "knife", "sheathC"),
+      carrier("sheathD", "sheath", "dagger", "dee", "right", 0),
+      seated("dagger", "dagger", "sheathD"),
     ],
   ),
   scene(
@@ -167,7 +168,7 @@ export const SCENES_BLADES: readonly IScene[] = [
         act("takeAim", { gun: "gun", target: DOWNRANGE }),
         act("recoil", { gun: "gun" }),
         act("recoil", { gun: "gun" }),
-        act("highReady", { gun: "gun", seconds: 1 }),
+        act("highReady", { gun: "gun", hold: 1 }),
         act("takeAim", { gun: "gun", target: DOWNRANGE }),
         act("recoil", { gun: "gun" }),
         act("recoil", { gun: "gun" }),
@@ -179,7 +180,7 @@ export const SCENES_BLADES: readonly IScene[] = [
         act("recoil", { gun: "gun" }),
         act("holsterFirearm", {
           prop: "gun",
-          at: { x: -0.18, y: SceneBuild.COUNTER_TOP, z: 0.42 },
+          to: { x: -0.18, y: SceneBuild.COUNTER_TOP, z: 0.42 },
         }),
       ]),
     ],
@@ -216,7 +217,7 @@ export const SCENES_BLADES: readonly IScene[] = [
         }),
         act("holsterFirearm", {
           prop: "gun",
-          at: { x: -0.18, y: SceneBuild.COUNTER_TOP, z: 0.42 },
+          to: { x: -0.18, y: SceneBuild.COUNTER_TOP, z: 0.42 },
         }),
       ]),
     ],

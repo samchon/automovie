@@ -3,11 +3,6 @@ import type { IAutoMovieServiceSystem } from "./IAutoMovieServiceSystem";
 
 /**
  * Service graph and selected flow policy for declared demand aggregation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Service graph and selected flow policy for declared demand aggregation. Port demand is summed in the supplied system's unit; to-root reads out ports and every other flow policy reads in ports, excluding bidirectional ports.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The system object need not be a member of network.systems at the type level; callers ensure consistency and admitted finite nonnegative demand, with no diversity or loss calculation.
- * @evidence contracts/development/design.md#principled-representation Port demand is summed in the supplied system's unit; to-root reads out ports and every other flow policy reads in ports, excluding bidirectional ports.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Network capacity checks and serviceNetworkSchematic use serviceSystemLoad with an existing IAutoMovieServiceSystem instead of duplicating the flow policy.
  */
 export namespace IAutoMovieServiceSystemLoad {
   /**
@@ -31,11 +26,6 @@ export namespace IAutoMovieServiceSystemLoad {
    * This is a declaration check and nothing more. No diversity, no simultaneity
    * and no head loss enter it; `serviceAnalysisSupport` names the solver that
    * would as `unsupported`.
-   *
-   * @evidence contracts/development/design.md#principled-representation Port demand is summed in the supplied system's unit; to-root reads out ports and every other flow policy reads in ports, excluding bidirectional ports.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Network capacity checks and serviceNetworkSchematic use serviceSystemLoad with an existing IAutoMovieServiceSystem instead of duplicating the flow policy.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The system object need not be a member of network.systems at the type level; callers ensure consistency and admitted finite nonnegative demand, with no diversity or loss calculation.
-   * @evidence contracts/development/common.md#meaningful-documentation Service graph and selected flow policy for declared demand aggregation. Port demand is summed in the supplied system's unit; to-root reads out ports and every other flow policy reads in ports, excluding bidirectional ports.
    */
   export type IProps = {
     /** Borrowed nodes and ports whose declared demands are summed; no matching load-side ports gives zero. */

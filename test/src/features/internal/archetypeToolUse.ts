@@ -85,7 +85,7 @@ export function archetypeToolUse(name: "m-average" | "f-small"): void {
         : { kind: "point", at: point, frame: "world" };
     const work = (taken: boolean): IAutoMovieMotionHumanPerformance => {
       const start: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
-        seconds: 0.3,
+        hold: 0.3,
       });
       return new HumanPerformance({
         seed: "tool",

@@ -17,10 +17,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions";
+import { poseBones, resolveHumanPosture } from "@automovie/motions/internal";
 
 import { motionHumanFrame } from "./motionHumanFrame";
 import { qunit } from "./qunit";
@@ -189,7 +186,9 @@ export function motionHumanFlightDiagnostic(props: {
     film.overlays("a").length !== 0 ||
     Object.values(input.layers ?? {}).some(
       (
-        layers: NonNullable<IAutoMovieMotionHumanPerformance.IInput["layers"]>[string],
+        layers: NonNullable<
+          IAutoMovieMotionHumanPerformance.IInput["layers"]
+        >[string],
       ): boolean => layers.length !== 0,
     )
   )
@@ -210,7 +209,17 @@ export function motionHumanFlightDiagnostic(props: {
     )
   )
     problems.push("flight diagnostic does not admit held or stopped weapons");
-  if (!(Number.isFinite(delta) && delta > 0 && observations.length === 19 && observations.every((row: motionHumanFlightDiagnostic.IObservation, i: number): boolean => row.seconds === from + ((to - from) * (i + 1)) / 20)))
+  if (
+    !(
+      Number.isFinite(delta) &&
+      delta > 0 &&
+      observations.length === 19 &&
+      observations.every(
+        (row: motionHumanFlightDiagnostic.IObservation, i: number): boolean =>
+          row.seconds === from + ((to - from) * (i + 1)) / 20,
+      )
+    )
+  )
     problems.push(
       "flight diagnostic needs one observation at each of the nineteen interior twentieths and positive DELTA",
     );
@@ -357,9 +366,13 @@ export function motionHumanFlightDiagnostic(props: {
   const takeoff: ReturnType<typeof motionHumanFlightDiagnostic>["takeoff"] = [];
   const takeoffProblems: string[] = [];
   if (!(Number.isFinite(from) && from > 0))
-    takeoffProblems.push("Direct takeoff observation requires this fixture's positive finite clock");
+    takeoffProblems.push(
+      "Direct takeoff observation requires this fixture's positive finite clock",
+    );
   else {
-    const view: DataView = new DataView(new ArrayBuffer(Float64Array.BYTES_PER_ELEMENT));
+    const view: DataView = new DataView(
+      new ArrayBuffer(Float64Array.BYTES_PER_ELEMENT),
+    );
     view.setFloat64(0, from);
     const bits: bigint = view.getBigUint64(0);
     view.setBigUint64(0, bits - 1n);
@@ -369,22 +382,44 @@ export function motionHumanFlightDiagnostic(props: {
     for (const seconds of [before, from, after]) {
       try {
         const pose: IAutoMoviePose = film.pose("a", seconds);
-        if (pose.root === null || !qunit(pose.root.rotation) ||
-          ![pose.root.translation.x, pose.root.translation.y, pose.root.translation.z].every(Number.isFinite))
-          throw new Error("Direct takeoff observation has an invalid displayed root");
-        const world: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = film.bones("a", seconds);
-        const local: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, { ...pose, root: null });
+        if (
+          pose.root === null ||
+          !qunit(pose.root.rotation) ||
+          ![
+            pose.root.translation.x,
+            pose.root.translation.y,
+            pose.root.translation.z,
+          ].every(Number.isFinite)
+        )
+          throw new Error(
+            "Direct takeoff observation has an invalid displayed root",
+          );
+        const world: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          film.bones("a", seconds);
+        const local: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          poseBones(body, { ...pose, root: null });
         motionHumanFrame(world, `displayed takeoff ${seconds}`);
         motionHumanFrame(local, `root-local takeoff ${seconds}`);
-        const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(model, world);
+        const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+          model,
+          world,
+        );
         if (![centre.x, centre.y, centre.z].every(Number.isFinite))
           throw new Error("Direct takeoff centre is nonfinite");
         takeoff.push({
-          seconds, pose: structuredClone(pose), centre,
-          bones: Array.from(local.values(), (bone: IAutoMovieResolvedBone): IAutoMovieResolvedBone => structuredClone(bone)),
+          seconds,
+          pose: structuredClone(pose),
+          centre,
+          bones: Array.from(
+            local.values(),
+            (bone: IAutoMovieResolvedBone): IAutoMovieResolvedBone =>
+              structuredClone(bone),
+          ),
         });
       } catch (error) {
-        takeoffProblems.push(`${seconds}: ${error instanceof Error ? error.message : String(error)}`);
+        takeoffProblems.push(
+          `${seconds}: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     }
   }

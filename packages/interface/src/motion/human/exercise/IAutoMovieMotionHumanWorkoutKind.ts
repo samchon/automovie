@@ -7,11 +7,6 @@ import type { IAutoMovieMotionHumanExerciseKey } from "./IAutoMovieMotionHumanEx
  * One exercise of the workout law, as data: the postures a repetition
  * passes through, what bears the body while it works, and how the body gets
  * there from standing.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the record is and its three parts. seconds: Seconds taken to reach it from the step before. hold: Seconds stayed in it.
- * @evidence contracts/development/design.md#principled-representation A route of keyed postures and a pin, so a push-up, a pull-up and a deadlift differ in data and share one planner. seconds: Seconds taken to reach it from the step before. hold: Seconds stayed in it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members the workout law reads; the kind tables fill them. Runtime boundary references: exercise/WorkoutBodyweight.ts (WorkoutBodyweight.floor, base); exercise/WorkoutBodyweight.ts (WorkoutBodyweight.floor, route); exercise/WorkoutBodyweight.ts (WorkoutBodyweight.floor, return); exercise/WorkoutFeet.ts (WorkoutFeet.keep, kind); exercise/WorkoutGym.ts (WorkoutGym.pair, return); exercise/WorkoutHanging.ts (WorkoutHanging.kind, route).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The route is a function of the body, so an angle that must fit a body's lengths is solved from them. Shares the canonical IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanExerciseKey.IKey identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanWorkoutKind {
   /** What bears the body while it works. */
@@ -34,14 +29,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
    *
    * @param body The body.
    * @returns Metres above the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the unit and the default.
-   * @evidence contracts/development/implementation.md#principled-implementation A function of the body, so a bench is as high as the body's own knee and no furniture size is fixed.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One number.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The furniture is not a prop in this pass; the kind's doc says so.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
    */
   raise?(body: IAutoMovieMotionHumanBody): number;
 
@@ -64,7 +51,7 @@ export interface IAutoMovieMotionHumanWorkoutKind {
   enter: number;
 
   /** Repetitions when the author names none. */
-  reps: number;
+  count: number;
 
   /**
    * The postures of one repetition on a body: the first is where the
@@ -73,14 +60,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
    * @param body The body.
    * @param support The height above the floor of the prop's place the body bears on, metres, when the author names one (`on`); a kind done on equipment solves its angles from it, and others ignore it.
    * @returns The steps, at least one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and what the first step is.
-   * @evidence contracts/development/implementation.md#principled-implementation A function of the body, so an angle two supports share (a split stance's two legs, a plank's pitch over its arms) is solved from the body's lengths.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One list.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stated angles are provisional and named so in each table.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
    */
   route(
     body: IAutoMovieMotionHumanBody,
@@ -94,14 +73,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
    *
    * @param body The body.
    * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the unit and the default.
-   * @evidence contracts/development/implementation.md#principled-implementation A function of the body, since the height is a joint's own above what its part bears on.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One number.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
    */
   rise?(body: IAutoMovieMotionHumanBody): number;
 
@@ -115,14 +86,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
    *
    * @param body The body.
    * @returns Metres above the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the unit, where the bars stand and what a kind without it does.
-   * @evidence contracts/development/implementation.md#principled-implementation A function of the body, so the bars stand at the body's own height and no equipment size is fixed.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One number.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a support exercise, whose bars stand within the standing body's reach, places them; a hanging kind still names its bar.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
    */
   bars?(body: IAutoMovieMotionHumanBody): number;
 }
@@ -134,11 +97,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
 export namespace IAutoMovieMotionHumanWorkoutKind {
   /**
    * A part that bears and how.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation part: The part. kind: How it bears. prop: Whether it bears on the workout's prop rather than the ground. at: The postures it bears in, every one when absent.
-   * @evidence contracts/development/design.md#principled-representation part: The part. kind: How it bears. prop: Whether it bears on the workout's prop rather than the ground. at: The postures it bears in, every one when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/workout.ts (workout.plan.contacts, support); exercise/WorkoutBodyweight.ts (WorkoutBodyweight.floor, supports); exercise/WorkoutFeet.ts (WorkoutFeet.keep.bearing, how); exercise/WorkoutFeet.ts (WorkoutFeet.keep.bearing, support); exercise/WorkoutStance.ts (WorkoutStance.of, supports); exercise/WorkoutBodyweight.ts (WorkoutBodyweight.BACK).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ISupport {
     /** The part. */
@@ -156,11 +114,6 @@ export namespace IAutoMovieMotionHumanWorkoutKind {
 
   /**
    * One posture of a repetition.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds taken to reach it from the step before. hold: Seconds stayed in it.
-   * @evidence contracts/development/design.md#principled-representation seconds: Seconds taken to reach it from the step before. hold: Seconds stayed in it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/workout.ts (workout.plan.stayed, step); exercise/WorkoutBodyweight.ts (WorkoutBodyweight.KINDS, return); exercise/WorkoutEquipment.ts (WorkoutEquipment.KINDS, return); exercise/WorkoutFloor.ts (WorkoutFloor.KINDS, return); exercise/WorkoutGym.ts (WorkoutGym.pair, return); exercise/WorkoutGym.ts (WorkoutGym.KINDS, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanExerciseKey.IKey identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IStep {
     /** The posture. */

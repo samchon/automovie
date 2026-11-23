@@ -2,21 +2,11 @@ import type { IAutoMovieRecoveryCameraChartCreationOperation } from "../../index
 
 /**
  * Triangulate one observation pair in the first-camera, unit-baseline gauge. Original 4-by-4 DLT uses calibrated rays and P1=[I|0], P2=[R|t]. An unresolved third design direction, point at infinity or nonfinite divided coordinate returns null; a finite point behind a camera remains explicitly nonpositive. Invalid or overflowing matrix actions and SVD nonconvergence throw. This algebraic point is fitting evidence, not an independently observed surface.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Row-major 3 by 3 camera rotation in the operation's declared source-to-camera convention. Camera translation in the operation's admitted reconstruction scale; two-view direction alone has no metric length.
- * @evidence contracts/development/design.md#principled-representation Pixel discrepancy between the first observation and its point reprojection.
- * @evidence contracts/development/design.md#minimal-and-owned-surface createRecoveryCameraMap, selectRecoveryCameraPose, triangulateRecoveryCameraPoint share IAutoMovieRecoveryCameraPointTriangulationOperation's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
  */
 
 export namespace IAutoMovieRecoveryCameraPointTriangulationOperation {
   /**
    * Triangulate one observation pair in the first-camera, unit-baseline gauge. Original 4-by-4 DLT uses calibrated rays and P1=[I|0], P2=[R|t]. An unresolved third design direction, point at infinity or nonfinite divided coordinate returns null; a finite point behind a camera remains explicitly nonpositive. Invalid or overflowing matrix actions and SVD nonconvergence throw. This algebraic point is fitting evidence, not an independently observed surface.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Row-major 3 by 3 camera rotation in the operation's declared source-to-camera convention. Camera translation in the operation's admitted reconstruction scale; two-view direction alone has no metric length.
-   * @evidence contracts/development/design.md#principled-representation Pixel discrepancy between the first observation and its point reprojection.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface createRecoveryCameraMap, selectRecoveryCameraPose, triangulateRecoveryCameraPoint share IAutoMovieRecoveryCameraPointTriangulationOperation's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
    */
 
   export type Operation = (

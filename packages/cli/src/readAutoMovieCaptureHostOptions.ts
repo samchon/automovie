@@ -1,5 +1,6 @@
 import { AUTOMOVIE_CAPTURE_OPTIONS } from "./AUTOMOVIE_CAPTURE_OPTIONS";
 import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
+import { readAutoMoviePageTimeout } from "./readAutoMoviePageTimeout";
 
 /**
  * Split the options of `automovie capture` into the host's own, `AUTOMOVIE_CAPTURE_OPTIONS`, and the capture request's, which `parseAutoMovieCapturePlanRequest` reads.
@@ -11,16 +12,9 @@ import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
  * | `--props <file>` | A JSON file whose value the module's `subjects` is called with, for subjects built from data a host computes | `null` |
  * | `--out <folder>` | The capture's root folder | `media/capture/<subject>` |
  * | `--backend <software\|gpu>` | How the browser draws | `software` |
+ * | `--timeout-ms <milliseconds>` | Per-call budget for draw-function readiness, subject description/creation and drawing, not a total build or render deadline; integer 1 to 2147483647 | `120000` |
  *
  * Every other option is left for the request reader, which refuses one it does not know. It throws for `--module` beside `--file`, neither of them, an empty value of any host option, and a backend that is not `software` or `gpu`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Tabulates the host's options with their meaning and absent value, says where the rest go, and states every refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The host's keys are removed before the request is read, so the request grammar stays one grammar for the address, the command and props, and a host key cannot be mistaken for a request key.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the listed options that takes the host's keys out, then the checks; the list is the one the README test reads.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No subject module is guessed from the folder: a capture names what it draws.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the options.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per command.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh map and keeps nothing.
  */
 export function readAutoMovieCaptureHostOptions(
   values: ReadonlyMap<string, string>,
@@ -39,6 +33,9 @@ export function readAutoMovieCaptureHostOptions(
 
   /** How the browser draws. */
   backend: AutoMovieCaptureBackend;
+
+  /** Per-call milliseconds for draw-function readiness, subject description/creation and drawing, not a total build or render deadline. */
+  timeout: number;
 
   /** The request's own options, for the request reader. */
   request: Map<string, string>;
@@ -71,6 +68,7 @@ export function readAutoMovieCaptureHostOptions(
     props: taken.get("props") ?? null,
     out,
     backend,
+    timeout: readAutoMoviePageTimeout(taken.get("timeout-ms")),
     request,
   };
 }

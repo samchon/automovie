@@ -1,4 +1,4 @@
-import { ArchetypeRefusal, createGoal } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, createGoal } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -132,7 +132,7 @@ export function test_archetype_goals(): void {
     findings.push("a fixed volleyball net height was accepted");
   } catch (error) {
     if (
-      !(error instanceof ArchetypeRefusal) ||
+      !(error instanceof AutoMovieArchetypeRefusal) ||
       error.kind !== "parameter" ||
       error.axis !== "height"
     )

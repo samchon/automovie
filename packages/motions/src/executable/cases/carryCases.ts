@@ -53,8 +53,8 @@ export function carryCases(
       const loaded: "left" | "right" = how === "hip" ? "left" : "right";
       const params: IAutoMovieMotionHumanCarry.IParams = {
         to: { x: 0, y: 0, z: 2.5 },
-        how,
-        side: loaded,
+        kind: how,
+        hand: loaded,
         load: 0.15,
       };
       const performance: IAutoMovieMotionHumanPerformance =

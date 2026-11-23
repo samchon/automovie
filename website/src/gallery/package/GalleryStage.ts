@@ -1,4 +1,4 @@
-import { ArchetypeMarks } from "@automovie/archetypes";
+import { AutoMovieArchetypeMarks } from "@automovie/archetypes";
 import type { IAutoMovieMark } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
@@ -20,7 +20,7 @@ import { GalleryArchetype } from "./GalleryArchetype";
  * camera.
  *
  * Everything drawn comes from the packages. A model is built by `render`'s
- * `buildModel`, the affordance marks by `ArchetypeMarks` and drawn by
+ * `buildModel`, the affordance marks by `AutoMovieArchetypeMarks` and drawn by
  * `render`'s inspection, and the
  * canvas loop is `viewer`'s `mountViewer`. This module owns only the camera's
  * orbit and where the affordance ids are placed over the canvas.
@@ -364,14 +364,14 @@ export namespace GalleryStage {
     const arrow: number = Math.max(
       0.01,
       Math.min(
-        ArchetypeMarks.ARROW,
+        AutoMovieArchetypeMarks.ARROW,
         0.2 * box.getSize(new THREE.Vector3()).length(),
       ),
     );
     return {
       content: {
         object: model.object,
-        marks: ArchetypeMarks.of(
+        marks: AutoMovieArchetypeMarks.of(
           "subject",
           built.archetype.affordances,
           undefined,

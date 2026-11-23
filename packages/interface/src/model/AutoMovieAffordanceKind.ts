@@ -27,11 +27,6 @@
  * - `"stirrup"`: a hanging foot support (a saddle's stirrup), the frame at the middle of the tread with `+Y` up out of it and `+X` across the foot; `width` is the tread's width along `+X` and `length`, when present, the length of the strap it hangs from, straight up along `+Y` at rest.
  * - `"rein"`: a held strap (a rein, a lead rope, a leash), the frame at the middle of the held run with `+X` along the strap toward what it leads; `length` is the held run centred on the frame and `aperture` the strap's width across the grip.
  * - `"aperture"`: an opening a body passes through (a door frame, a car door's opening, a window), the frame at the middle of its bottom edge with `+Y` up out of the threshold, `+X` along the threshold and `+Z` the way through; `width` along `+X` and `height` along `+Y` give the opening.
- *
- * @evidence contracts/development/design.md#principled-representation Contact semantics distinguish a supporting face from point and line contacts under one frame convention (`+Y` out of the contact, a line along `+X`), the convention game-engine interaction markers use (Unreal sockets, Final IK InteractionObject targets); affordance validation requires an extent only for stack-top, and prop relation validation selects stack-top, socket or hook according to the relation kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Nineteen literals discriminate the existing affordance record rather than assigning behavior from descriptive names; the seat, bar, ledge and articulated kinds are the environment contacts human action laws approach (#3201 A8), the trigger, crank, wheel, pedal, stirrup, rein and aperture kinds are the contacts of the archetypes people operate, ride and pass through (#3368), and their few dimensions are optional fields of that record.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Table, grip and lantern examples do not select runtime branches; a support relation with the wrong affordance kind is refused instead of relabelled to fit.
- * @evidence contracts/development/common.md#meaningful-documentation States the shared frame convention and every kind's role, frame, turning sense and the fields it reads; live stack-top placement support and the separate contact-helper wiring limit.
  */
 export type AutoMovieAffordanceKind =
   | "stack-top"

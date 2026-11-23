@@ -1,9 +1,9 @@
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  type ArchetypeFracture,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  type AutoMovieArchetypeFracture,
+  AutoMovieArchetypeFrame,
 } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type {
@@ -43,8 +43,8 @@ export function test_archetype_fracture_ownership(): void {
   const findings: string[] = [];
   /** The fixture's articulations and grips retain their public ids after split. */
   type Id = "driver" | "follower" | "body" | "rider" | "kept";
-  const builder: ArchetypeBuilder<Id, never> = fixture();
-  const model: Archetype<Id, never> = builder
+  const builder: AutoMovieArchetypeBuilder<Id, never> = fixture();
+  const model: AutoMovieArchetype<Id, never> = builder
     .fracture([
       { id: "a", parts: ["a"], affordances: ["body"] },
       { id: "b", parts: ["b"] },
@@ -59,18 +59,20 @@ export function test_archetype_fracture_ownership(): void {
       "the authored boxes did not produce two fragments and a remainder",
     );
   } else {
-    const a: ArchetypeFracture.IPiece<never, Id> | undefined =
+    const a: AutoMovieArchetypeFracture.IPiece<never, Id> | undefined =
       broken.fragments.find(
-        (f: ArchetypeFracture.IPiece<never, Id>): boolean => f.id === "a",
+        (f: AutoMovieArchetypeFracture.IPiece<never, Id>): boolean =>
+          f.id === "a",
       );
-    const b: ArchetypeFracture.IPiece<never, Id> | undefined =
+    const b: AutoMovieArchetypeFracture.IPiece<never, Id> | undefined =
       broken.fragments.find(
-        (f: ArchetypeFracture.IPiece<never, Id>): boolean => f.id === "b",
+        (f: AutoMovieArchetypeFracture.IPiece<never, Id>): boolean =>
+          f.id === "b",
       );
     if (a === undefined || b === undefined)
       findings.push("a fragment identity is missing");
     else {
-      const remainder: Archetype<Id, never> = broken.remainder;
+      const remainder: AutoMovieArchetype<Id, never> = broken.remainder;
       if (
         contacts(a.archetype) !== "body" ||
         contacts(b.archetype) !== "driver,rider" ||
@@ -105,10 +107,10 @@ export function test_archetype_fracture_ownership(): void {
             findings.push(
               `${piece.id}: surface ${id} belongs to a different piece`,
             );
-      const movedB: Archetype<Id, never> = b.archetype.articulate({
+      const movedB: AutoMovieArchetype<Id, never> = b.archetype.articulate({
         driver: 2,
       });
-      const movedC: Archetype<Id, never> = remainder.articulate({
+      const movedC: AutoMovieArchetype<Id, never> = remainder.articulate({
         follower: 0.75,
       });
       if (
@@ -160,7 +162,7 @@ export function test_archetype_fracture_ownership(): void {
   );
 
   /** Sorted semantic ids expose ownership independently of producer order. */
-  function contacts(value: Archetype<Id, never>): string {
+  function contacts(value: AutoMovieArchetype<Id, never>): string {
     return value.affordances
       .map((a: IAutoMovieAffordance): string => a.id)
       .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
@@ -168,7 +170,7 @@ export function test_archetype_fracture_ownership(): void {
   }
 
   /** A missing geometry record must fail a finite-safe coordinate assertion. */
-  function x(value: Archetype<Id, never>, id: string): number {
+  function x(value: AutoMovieArchetype<Id, never>, id: string): number {
     return (
       value.parts.find((p: IAutoMovieModelPart): boolean => p.id === id)
         ?.transform?.translation.x ?? Number.NaN
@@ -176,18 +178,17 @@ export function test_archetype_fracture_ownership(): void {
   }
 
   /** Authored neutral boxes and couplings isolate contact-transfer mechanics. */
-  function fixture(): ArchetypeBuilder<Id, never> {
-    const result: ArchetypeBuilder<Id, never> = new ArchetypeBuilder<Id, never>(
-      {
+  function fixture(): AutoMovieArchetypeBuilder<Id, never> {
+    const result: AutoMovieArchetypeBuilder<Id, never> =
+      new AutoMovieArchetypeBuilder<Id, never>({
         material: "steel",
         name: "ownership fixture",
-        draw: new ArchetypeDrawSession<never>(
+        draw: new AutoMovieArchetypeDrawSession<never>(
           "ownership-fixture",
           {},
           undefined,
         ),
-      },
-    );
+      });
     for (const [index, id] of ["a", "b", "c"].entries())
       result.box(
         id,
@@ -195,8 +196,8 @@ export function test_archetype_fracture_ownership(): void {
         { x: 0, y: index + 0.5, z: 0 },
         { surface: id === "a" ? "steel" : id === "b" ? "wood" : "rubber" },
       );
-    const frame: ReturnType<typeof ArchetypeFrame.upright> =
-      ArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
+    const frame: ReturnType<typeof AutoMovieArchetypeFrame.upright> =
+      AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
     result.affordance({
       id: "driver",
       kind: "slider",
@@ -231,7 +232,7 @@ export function test_archetype_fracture_ownership(): void {
         kind: "handle",
         symmetry: "round",
         extent: null,
-        frame: ArchetypeFrame.upright({ x: 0, y, z: 0 }),
+        frame: AutoMovieArchetypeFrame.upright({ x: 0, y, z: 0 }),
         length: 1,
         aperture: 1,
       });

@@ -7,15 +7,14 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance, HumanRefusal } from "@automovie/motions";
 import {
   AutoMovieMotionHumanTrunk,
   HumanBalance,
-  HumanRefusal,
   HumanTrunk,
   poseBones,
   resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionComposeTrunk } from "./motionComposeTrunk";
@@ -36,7 +35,16 @@ import { motionHumanBody } from "./motionHumanBody";
  */
 export namespace motionComposeTrunkCounterbalance {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  const { BALANCE, CLOCK, RISE, FALL, ORIGIN, gap, minimumSupportShift, withoutMass } = motionComposeTrunk;
+  const {
+    BALANCE,
+    CLOCK,
+    RISE,
+    FALL,
+    ORIGIN,
+    gap,
+    minimumSupportShift,
+    withoutMass,
+  } = motionComposeTrunk;
   /**
    * The trunk's counterbalance on one body: under limbs held out ahead the
    * hips move straight back along the heading until the centre of mass
@@ -86,11 +94,8 @@ export namespace motionComposeTrunkCounterbalance {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const reach: number = body.measure.thigh + body.measure.shank;
     for (const yaw of [0, 90] as const) {
-      const turned: IAutoMovieMotionHumanPosture = stand.posture(
-        body,
-        ORIGIN,
-        yaw,
-      );
+      const turned: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanStance.stand.posture(body, ORIGIN, yaw);
       const base: Bones = poseBones(body, resolveHumanPosture(body, turned));
       const ahead = (
         p: IAutoMovieVector3,
@@ -131,12 +136,15 @@ export namespace motionComposeTrunkCounterbalance {
         const trunk: Bones = HumanTrunk.resolve(body, posture);
         let limit: number = Infinity;
         for (const side of ["left", "right"] as const) {
-          const hip: IAutoMovieVector3 = trunk.get(`${side}UpperLeg`)!.worldPosition;
+          const hip: IAutoMovieVector3 = trunk.get(
+            `${side}UpperLeg`,
+          )!.worldPosition;
           const ankle: IAutoMovieVector3 = posture.limbs[`${side}Leg`]!.point;
           const along: number = yaw === 0 ? hip.z - ankle.z : hip.x - ankle.x;
           const across: number = yaw === 0 ? hip.x - ankle.x : hip.z - ankle.z;
           const vertical: number = hip.y - ankle.y;
-          const remainder: number = reach * reach - across * across - vertical * vertical;
+          const remainder: number =
+            reach * reach - across * across - vertical * vertical;
           if (remainder < along * along) return false;
           // Along(t) = along - t. This is the last t at which its square
           // can still stay inside the sphere's remaining radius squared.
@@ -151,8 +159,17 @@ export namespace motionComposeTrunkCounterbalance {
         }
         return false;
       };
-      function at(posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPrimitive {
-        return AutoMovieMotionHumanTrunk.counterbalance(body, CLOCK, RISE, FALL, posture, BALANCE);
+      function at(
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPrimitive {
+        return AutoMovieMotionHumanTrunk.counterbalance(
+          body,
+          CLOCK,
+          RISE,
+          FALL,
+          posture,
+          BALANCE,
+        );
       }
       function read(
         extended: IAutoMovieMotionHumanPosture,
@@ -170,11 +187,16 @@ export namespace motionComposeTrunkCounterbalance {
             : extended.root.x - full.root.x;
         all.equals(`${cell} claims the root`, phrase.channels, ["root"]);
         minimumSupportShift(
-          all, cell, before, HumanBalance.margin(body, full), back,
-          (distance: number): number => HumanBalance.margin(body, {
-            ...extended,
-            root: ahead(extended.root, -distance, 0),
-          }),
+          all,
+          cell,
+          before,
+          HumanBalance.margin(body, full),
+          back,
+          (distance: number): number =>
+            HumanBalance.margin(body, {
+              ...extended,
+              root: ahead(extended.root, -distance, 0),
+            }),
         );
         all.check(
           `${cell} moves the root straight back along the heading`,
@@ -222,10 +244,19 @@ export namespace motionComposeTrunkCounterbalance {
               : "no refusal",
             ["base", "balance"],
           );
-        const bare: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanTrunk.counterbalance(
-          withoutMass(body), CLOCK, RISE, FALL, extended,
+        const bare: IAutoMovieMotionHumanPrimitive =
+          AutoMovieMotionHumanTrunk.counterbalance(
+            withoutMass(body),
+            CLOCK,
+            RISE,
+            FALL,
+            extended,
+          );
+        all.equals(
+          `${cell} without balance stays where it was`,
+          bare.write(extended, 0.625).root,
+          extended.root,
         );
-        all.equals(`${cell} without balance stays where it was`, bare.write(extended, 0.625).root, extended.root);
       }
 
       let unbalanced: number = 0;
@@ -244,11 +275,14 @@ export namespace motionComposeTrunkCounterbalance {
         `${name}: at a heading of ${yaw} a pitched trunk puts the centre outside the bearings, so the counterbalance is exercised`,
         unbalanced >= 1,
       );
-      const still: IAutoMovieMotionHumanPosture =
-        at(turned).write(turned, 0.625);
+      const still: IAutoMovieMotionHumanPosture = at(turned).write(
+        turned,
+        0.625,
+      );
       all.check(
         `${name}: a counterbalance at a heading of ${yaw} moves nothing for the standing body`,
-        HumanBalance.margin(body, turned) >= 0 && gap(still.root, turned.root) <= 1e-9,
+        HumanBalance.margin(body, turned) >= 0 &&
+          gap(still.root, turned.root) <= 1e-9,
       );
     }
   }

@@ -2,15 +2,15 @@ import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 
@@ -36,7 +36,7 @@ const SASH: Readonly<{ rail: number; depth: number; pane: number }> = {
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The window.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band or a nonpositive or non-finite fracture calibration.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or a nonpositive or non-finite fracture calibration.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the window's plane, which side the room is on and what moves.
  * @evidence contracts/development/implementation.md#principled-implementation A wall panel below the sill, two jambs and a head surround two full-height stiles and two rails between them, with a nonoverlapping pane in their clear opening. Named authored rail width, sash depth and pane thickness determine those solids. A casement's downward hinge axis on `+X` swings it toward `-Z`; sliders run up or toward `-X`. The parent articulation binds all sash geometry, and fracture retains its surviving rails and handle.
@@ -49,12 +49,12 @@ const SASH: Readonly<{ rail: number; depth: number; pane: number }> = {
 export function createWindow(
   params: createWindow.IParams,
   seed?: number | string,
-): Archetype<createWindow.Affordance, createWindow.Dimension> {
+): AutoMovieArchetype<createWindow.Affordance, createWindow.Dimension> {
   if (
     params.fractureEnergy !== undefined &&
     !(Number.isFinite(params.fractureEnergy) && params.fractureEnergy > 0)
   )
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "window",
       axis: "fractureEnergy",
@@ -64,8 +64,8 @@ export function createWindow(
         "a pane's authored fracture calibration must be finite and positive",
       fix: "supply a measured or explicitly authored positive energy in joules, or leave it unknown",
     });
-  const draw: ArchetypeDrawSession<createWindow.Dimension> =
-    new ArchetypeDrawSession<createWindow.Dimension>(
+  const draw: AutoMovieArchetypeDrawSession<createWindow.Dimension> =
+    new AutoMovieArchetypeDrawSession<createWindow.Dimension>(
       "window",
       createWindow.UNITS,
       seed,
@@ -85,10 +85,10 @@ export function createWindow(
   const height: number = d.height!;
   const sill: number = d.sillHeight!;
   const wall: number = 0.12;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createWindow.Affordance,
     createWindow.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: `${kind} window`,
     material: "composite",
@@ -169,7 +169,7 @@ export function createWindow(
     ...(kind === "casement"
       ? {
           kind: "hinge",
-          frame: ArchetypeFrame.facing(
+          frame: AutoMovieArchetypeFrame.facing(
             Vector3.create(width / 2, sill + height / 2, 0),
             Vector3.create(0, -1, 0),
             Vector3.create(-1, 0, 0),
@@ -178,7 +178,7 @@ export function createWindow(
         }
       : {
           kind: "slider",
-          frame: ArchetypeFrame.facing(
+          frame: AutoMovieArchetypeFrame.facing(
             grasp,
             Vector3.create(0, 0, 1),
             kind === "hung"
@@ -192,7 +192,7 @@ export function createWindow(
     id: "handle",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       grasp,
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -206,7 +206,7 @@ export function createWindow(
   builder.affordance({
     id: "sill",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, sill, wall / 2),
       Vector3.create(0, 1, 0),
       Vector3.create(1, 0, 0),
@@ -217,7 +217,7 @@ export function createWindow(
   builder.affordance({
     id: "aperture",
     kind: "aperture",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, sill, 0),
       Vector3.create(0, 1, 0),
       Vector3.create(-1, 0, 0),
@@ -248,7 +248,10 @@ export function createWindow(
 export namespace createWindow {
   /** Historical bag-impact reference, joules: 25 ft-lbf was the first drop breaking through two of five new annealed panes in Meshulam's IIBEC 2019 test (https://iibec.org/publication-post/on-the-weakening-of-weathered-window-glass-and-its-effect-on-human-impact-resistance-two-fatality-case-studies/). It is neither a universal glass threshold nor a sash-release measurement, and is never applied automatically; `fractureEnergy` is an independent authored calibration. */
   export const BREAKING: number =
-    25 * ArchetypeUnits.FOOT * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD;
+    25 *
+    AutoMovieArchetypeUnits.FOOT *
+    AutoMovieArchetypeUnits.POUND *
+    AutoMovieGravity.STANDARD;
 
   /** The kinds of window: a side-hung casement, a vertically sliding hung sash, a horizontally sliding sash. */
   export type Kind = "casement" | "hung" | "sliding";
@@ -286,7 +289,9 @@ export namespace createWindow {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     height: "m",
     sillHeight: "m",
@@ -309,20 +314,27 @@ export namespace createWindow {
   }
 
   /** The bands every window shares. */
-  const SHARED: Readonly<Partial<Record<Dimension, IArchetypeBand>>> = {
-    width: ArchetypeBand.metres(0.6, 1.2, SIZE, true),
-    height: ArchetypeBand.metres(0.9, 1.2, SIZE, true),
-    sillHeight: ArchetypeBand.metres(
-      24 * ArchetypeUnits.INCH,
-      0.914,
-      SILL,
-      true,
-    ),
-    mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
-  };
+  const SHARED: Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>> =
+    {
+      width: AutoMovieArchetypeBand.metres(0.6, 1.2, SIZE, true),
+      height: AutoMovieArchetypeBand.metres(0.9, 1.2, SIZE, true),
+      sillHeight: AutoMovieArchetypeBand.metres(
+        24 * AutoMovieArchetypeUnits.INCH,
+        0.914,
+        SILL,
+        true,
+      ),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        40,
+        90,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
+    };
 
   /** The band of a handle that stands at a height of its own, on a stile. */
-  const HANDLE: IArchetypeBand = ArchetypeBand.metres(
+  const HANDLE: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
     0.95,
     ADA_RANGES.reach.high,
     `${ADA_RANGES.reach.source}; the part of the range above the sill`,
@@ -330,12 +342,12 @@ export namespace createWindow {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     casement: {
       ...SHARED,
       handleHeight: HANDLE,
-      swing: ArchetypeBand.of(
+      swing: AutoMovieArchetypeBand.of(
         "degrees",
         90,
         90,
@@ -345,7 +357,7 @@ export namespace createWindow {
     },
     hung: {
       ...SHARED,
-      travel: ArchetypeBand.metres(
+      travel: AutoMovieArchetypeBand.metres(
         0.4,
         0.45,
         "half the opening's height, the run of a single-hung sash, not read at a source",
@@ -355,7 +367,7 @@ export namespace createWindow {
     sliding: {
       ...SHARED,
       handleHeight: HANDLE,
-      travel: ArchetypeBand.metres(
+      travel: AutoMovieArchetypeBand.metres(
         0.28,
         0.3,
         "half the opening's width, the run of a sliding sash, not read at a source",

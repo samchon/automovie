@@ -2,10 +2,10 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -21,18 +21,10 @@ import {
  *
  * @param params The model id, supplied as an option or as a positional string.
  * @returns A closed pouch with tab, brace, stops and lip articulation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the model frame, reference figures, tab travel and opening approximation.
- * @evidence contracts/development/implementation.md#principled-implementation A hollow five-sided casing and four pairs of lid strips are built from the stated dimensions. Each pair's motion starts only once the slider's trailing edge clears its full length.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds casing and end stops, binds the tab and its surfaces, then couples each lip.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Distinguishes the reference's nominal zipper length from the constructed stops and discloses rigid articulation in place of cloth.
- * @evidence contracts/development/implementation.md#efficient-algorithms Generates four pairs of strips with three or four coupling knots each.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each build produces an independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The producer retains no resources.
  */
 export function createZipperPouch(
   params: { id?: string } | string = {},
-): Archetype<string, never> {
+): AutoMovieArchetype<string, never> {
   const v: typeof Vector3.create = Vector3.create;
   const width: number = 0.21;
   const depth: number = 0.1;
@@ -43,12 +35,17 @@ export function createZipperPouch(
   const start: number = -0.09;
   const travel: number = 0.18;
   const tabY: number = height + 0.009;
-  const builder: ArchetypeBuilder<string, never> = new ArchetypeBuilder({
-    id: typeof params === "string" ? params : params.id,
-    name: "zipper pouch",
-    material: "fabric",
-    draw: new ArchetypeDrawSession<never>("zipper-pouch", {}, undefined),
-  });
+  const builder: AutoMovieArchetypeBuilder<string, never> =
+    new AutoMovieArchetypeBuilder({
+      id: typeof params === "string" ? params : params.id,
+      name: "zipper pouch",
+      material: "fabric",
+      draw: new AutoMovieArchetypeDrawSession<never>(
+        "zipper-pouch",
+        {},
+        undefined,
+      ),
+    });
 
   builder.box("bottom", v(width, skin, depth), v(0, skin / 2, 0));
   for (const sign of [-1, 1]) {
@@ -94,7 +91,7 @@ export function createZipperPouch(
     kind: "slider",
     extent: null,
     travel,
-    frame: ArchetypeFrame.upright(v(start, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(start, height, 0)),
     parts: ["slider-stem", "tab"],
   });
   for (const [contact, facing] of [
@@ -112,7 +109,7 @@ export function createZipperPouch(
       extent: null,
       rides: "zipper",
       frame: {
-        ...ArchetypeFrame.upright(point),
+        ...AutoMovieArchetypeFrame.upright(point),
         rotation: Quaternion.fromAxisAngle(v(1, 0, 0), facing > 0 ? 0 : 180),
       },
     });
@@ -121,7 +118,7 @@ export function createZipperPouch(
     id: "brace",
     kind: "surface",
     extent: null,
-    frame: ArchetypeFrame.upright(v(start - 0.008, height, -0.032)),
+    frame: AutoMovieArchetypeFrame.upright(v(start - 0.008, height, -0.032)),
   });
 
   // The near seam ends cover the plate-to-casing joint. Each coupled pair
@@ -148,7 +145,7 @@ export function createZipperPouch(
         parts: [lip],
         frame: {
           // Raise each lip about its underside so its thickness sweeps away from the seam.
-          ...ArchetypeFrame.upright(
+          ...AutoMovieArchetypeFrame.upright(
             v(edge - section / 2, height - skin, (side * depth) / 2),
           ),
           rotation: Quaternion.fromAxisAngle(v(0, 0, 1), -side * 90),

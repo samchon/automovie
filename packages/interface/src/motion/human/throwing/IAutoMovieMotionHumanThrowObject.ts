@@ -43,20 +43,10 @@ import type { IAutoMovieMotionHumanThrowObjectLaunch } from "./IAutoMovieMotionH
  * implement before the release (it leaves from the implement's point, set on
  * its way, until a prop can hold a prop), the release-timing scatter of the
  * endpoint-error model (Hore et al. 1995), and feints.
- *
- * @evidence contracts/development/common.md#meaningful-documentation launch: The launch.
- * @evidence contracts/development/design.md#principled-representation launch: The launch.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: throwing/throwObject.ts (throwObject.plan, return); throwing/throwObject.ts (throwObject.of).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanThrowObjectLaunch.ILaunch identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanThrowObject {
   /**
    * A throw's plan: an action plan with its launch.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation launch: The launch.
-   * @evidence contracts/development/design.md#principled-representation launch: The launch.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: throwing/throwObject.ts (throwObject.plan, return); throwing/throwObject.ts (throwObject.of).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanThrowObjectLaunch.ILaunch identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IPlan extends IAutoMovieMotionHumanActionPlan {
     /** The launch. */

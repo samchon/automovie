@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeRefusal,
-  ArchetypeUnits,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
   createBow,
   createClub,
   createHandgun,
@@ -20,24 +20,24 @@ import { TestValidator } from "@nestia/e2e";
 import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 
 /** A dimension the archetype reports, metres, newtons or kilograms. */
-const dim: (made: Archetype, name: string) => number = (
-  made: Archetype,
+const dim: (made: AutoMovieArchetype, name: string) => number = (
+  made: AutoMovieArchetype,
   name: string,
 ): number =>
   (made.dimensions as Readonly<Record<string, number | undefined>>)[name] ??
   Number.NaN;
 
 /** An inch, metres. */
-const IN: number = ArchetypeUnits.INCH;
+const IN: number = AutoMovieArchetypeUnits.INCH;
 
 /** A pound, kilograms. */
-const LB: number = ArchetypeUnits.POUND;
+const LB: number = AutoMovieArchetypeUnits.POUND;
 
 /** An ounce, kilograms. */
-const OZ: number = ArchetypeUnits.OUNCE;
+const OZ: number = AutoMovieArchetypeUnits.OUNCE;
 
 /** A pound-force, newtons. */
-const LBF: number = ArchetypeUnits.POUND * AutoMovieGravity.STANDARD;
+const LBF: number = AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD;
 
 /**
  * Every weapon whose source lists discrete models is one of them whole: over 200 seeds each draw's figures equal one read model's exactly, never a blend of two, and every model is drawn; a figure a model gives cannot be fixed over it.
@@ -65,7 +65,7 @@ export function test_archetype_weapons_models(): void {
       name: "longbow",
       source: "Aston and Spencer, the S1, S2 and S3 approximations",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createBow({ kind: "longbow" }, seed);
+        const a: AutoMovieArchetype = createBow({ kind: "longbow" }, seed);
         return [a.body.mass, dim(a, "draw")];
       },
       models: [
@@ -78,7 +78,7 @@ export function test_archetype_weapons_models(): void {
       name: "horse bow",
       source: "Bogentandler, Freddie Warrior and Zenith KTB",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createBow({ kind: "horseBow" }, seed);
+        const a: AutoMovieArchetype = createBow({ kind: "horseBow" }, seed);
         return [dim(a, "length"), a.body.mass];
       },
       models: [
@@ -90,7 +90,7 @@ export function test_archetype_weapons_models(): void {
       name: "horse bow draw",
       source: "Bogentandler, 15 to 60 lb in 5 lb steps at 31 in",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createBow({ kind: "horseBow" }, seed);
+        const a: AutoMovieArchetype = createBow({ kind: "horseBow" }, seed);
         return [dim(a, "draw")];
       },
       models: [15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map(
@@ -101,7 +101,7 @@ export function test_archetype_weapons_models(): void {
       name: "bat",
       source: "Nathan, Smith and Russell 2026, Table 1",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createClub({ kind: "bat" }, seed);
+        const a: AutoMovieArchetype = createClub({ kind: "bat" }, seed);
         return [dim(a, "length"), a.body.mass];
       },
       models: [
@@ -115,7 +115,7 @@ export function test_archetype_weapons_models(): void {
       name: "baton",
       source: "Monadnock MP24 and MP26",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createClub({ kind: "baton" }, seed);
+        const a: AutoMovieArchetype = createClub({ kind: "baton" }, seed);
         return [dim(a, "length")];
       },
       models: [[24 * IN], [26 * IN]],
@@ -124,7 +124,10 @@ export function test_archetype_weapons_models(): void {
       name: "full-size pistol",
       source: "GLOCK G17 Gen5 and SIG SAUER P320-M17",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createHandgun({ frame: "fullSize" }, seed);
+        const a: AutoMovieArchetype = createHandgun(
+          { frame: "fullSize" },
+          seed,
+        );
         return [dim(a, "length"), dim(a, "height"), a.body.mass];
       },
       models: [
@@ -136,7 +139,7 @@ export function test_archetype_weapons_models(): void {
       name: "compact pistol",
       source: "GLOCK G19 Gen5 and SIG SAUER P320-M18",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createHandgun({ frame: "compact" }, seed);
+        const a: AutoMovieArchetype = createHandgun({ frame: "compact" }, seed);
         return [dim(a, "length"), dim(a, "height"), a.body.mass];
       },
       models: [
@@ -148,7 +151,7 @@ export function test_archetype_weapons_models(): void {
       name: "G17 sights",
       source: "GLOCK G17 Gen5 sight radius by sights",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createHandgun(
+        const a: AutoMovieArchetype = createHandgun(
           { frame: "fullSize", model: "g17" },
           seed,
         );
@@ -160,7 +163,7 @@ export function test_archetype_weapons_models(): void {
       name: "carbine",
       source: "Colt M4 2020 sheet",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createLongGun({ kind: "carbine" }, seed);
+        const a: AutoMovieArchetype = createLongGun({ kind: "carbine" }, seed);
         return [dim(a, "length"), a.body.mass];
       },
       models: [
@@ -173,7 +176,7 @@ export function test_archetype_weapons_models(): void {
       name: "buckler",
       source: "Wallace Collection A315 and A316",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createShield({ kind: "buckler" }, seed);
+        const a: AutoMovieArchetype = createShield({ kind: "buckler" }, seed);
         return [dim(a, "diameter"), a.body.mass];
       },
       models: [
@@ -185,7 +188,7 @@ export function test_archetype_weapons_models(): void {
       name: "belt loop",
       source: "Safariland 692S, Rothco and High Speed Gear",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createWeaponLoop({ kind: "belt" }, seed);
+        const a: AutoMovieArchetype = createWeaponLoop({ kind: "belt" }, seed);
         return [dim(a, "aperture")];
       },
       models: [[0.035], [1.5 * IN]],
@@ -194,7 +197,7 @@ export function test_archetype_weapons_models(): void {
       name: "rack",
       source: "Medieval Extreme and Gladney stands",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createWeaponRack({}, seed);
+        const a: AutoMovieArchetype = createWeaponRack({}, seed);
         return [dim(a, "width"), dim(a, "depth"), dim(a, "height")];
       },
       models: [
@@ -206,7 +209,7 @@ export function test_archetype_weapons_models(): void {
       name: "arrow",
       source: "Westminster Abbey arrow and Mary Rose AZ472/19",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createProjectile({ kind: "arrow" }, seed);
+        const a: AutoMovieArchetype = createProjectile({ kind: "arrow" }, seed);
         return [a.body.mass];
       },
       models: [[0.05], [0.0625]],
@@ -215,7 +218,7 @@ export function test_archetype_weapons_models(): void {
       name: "bolt",
       source: "NMM 11461 and Met 33754",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createProjectile({ kind: "bolt" }, seed);
+        const a: AutoMovieArchetype = createProjectile({ kind: "bolt" }, seed);
         return [dim(a, "length"), dim(a, "head"), a.body.mass];
       },
       models: [
@@ -232,7 +235,10 @@ export function test_archetype_weapons_models(): void {
       name: "round shot",
       source: "Roberts 1863, 6-pdr. and 12-pdr. shot",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createProjectile({ kind: "roundShot" }, seed);
+        const a: AutoMovieArchetype = createProjectile(
+          { kind: "roundShot" },
+          seed,
+        );
         return [dim(a, "diameter"), a.body.mass];
       },
       models: [
@@ -244,7 +250,7 @@ export function test_archetype_weapons_models(): void {
       name: "longsword",
       source: "Albion Crecy and Regent",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createSword({ kind: "longsword" }, seed);
+        const a: AutoMovieArchetype = createSword({ kind: "longsword" }, seed);
         return [
           dim(a, "bladeLength"),
           dim(a, "bladeWidth"),
@@ -262,7 +268,10 @@ export function test_archetype_weapons_models(): void {
       name: "arming sword",
       source: "Albion Knight and Poitiers",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createSword({ kind: "armingSword" }, seed);
+        const a: AutoMovieArchetype = createSword(
+          { kind: "armingSword" },
+          seed,
+        );
         return [
           dim(a, "bladeLength"),
           dim(a, "bladeWidth"),
@@ -280,7 +289,7 @@ export function test_archetype_weapons_models(): void {
       name: "sabre",
       source: "Pattern 1796 officer's and trooper's",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createSword({ kind: "sabre" }, seed);
+        const a: AutoMovieArchetype = createSword({ kind: "sabre" }, seed);
         return [a.body.mass];
       },
       models: [[0.83], [0.96]],
@@ -289,7 +298,7 @@ export function test_archetype_weapons_models(): void {
       name: "holster",
       source: "Safariland ride heights",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createHolster({ kind: "holster" }, seed);
+        const a: AutoMovieArchetype = createHolster({ kind: "holster" }, seed);
         return [dim(a, "ride")];
       },
       models: [[0], [-1.5 * IN], [1.5 * IN]],
@@ -298,7 +307,7 @@ export function test_archetype_weapons_models(): void {
       name: "spear",
       source: "Met 1989.220 and Museum Wales spearheads",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createPolearm({ kind: "spear" }, seed);
+        const a: AutoMovieArchetype = createPolearm({ kind: "spear" }, seed);
         return [dim(a, "headLength"), dim(a, "headWidth"), dim(a, "headMass")];
       },
       models: [
@@ -319,7 +328,7 @@ export function test_archetype_weapons_models(): void {
     ["poitiers", 0.7779, 0.0556],
   ];
   for (const [blade, length, width] of swords) {
-    const scabbard: Archetype = createHolster(
+    const scabbard: AutoMovieArchetype = createHolster(
       { kind: "scabbard", blade: blade as "crecy" },
       3,
     );
@@ -342,23 +351,25 @@ export function test_archetype_weapons_models(): void {
   for (const [label, make, dimension] of [
     [
       "a G17's slide width",
-      (): Archetype =>
+      (): AutoMovieArchetype =>
         createHandgun({ frame: "fullSize", model: "g17", width: 0.0255 }, 1),
       "width",
     ],
     [
       "a holster's ride",
-      (): Archetype => createHolster({ kind: "holster", ride: 0 }, 1),
+      (): AutoMovieArchetype => createHolster({ kind: "holster", ride: 0 }, 1),
       "ride",
     ],
     [
       "a lance's shaft",
-      (): Archetype => createPolearm({ kind: "lance", length: 2.5 }, 1),
+      (): AutoMovieArchetype =>
+        createPolearm({ kind: "lance", length: 2.5 }, 1),
       "length",
     ],
     [
       "a longbow's draw weight",
-      (): Archetype => createBow({ kind: "longbow", weight: "lb40" }, 1),
+      (): AutoMovieArchetype =>
+        createBow({ kind: "longbow", weight: "lb40" }, 1),
       "weight",
     ],
   ] as const)
@@ -367,7 +378,7 @@ export function test_archetype_weapons_models(): void {
       findings.push(`${label} was accepted`);
     } catch (error) {
       if (
-        !(error instanceof ArchetypeRefusal) ||
+        !(error instanceof AutoMovieArchetypeRefusal) ||
         error.kind !== "parameter" ||
         error.axis !== dimension
       )

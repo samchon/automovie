@@ -1,4 +1,8 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createCar } from "./createCar";
 
 /** The hatchbacks, read at their maker's specification pages. */
@@ -17,8 +21,8 @@ const TRANSIT: string =
 const TRANSIT_LONG: string =
   "the vansdirect.co.uk sizing guide's L2 H1 Transit Custom, secondary: one search for Ford's L2 sheet found none (https://www.vansdirect.co.uk/load-sizing-guide/ford-transit-custom-dimensions/)";
 
-/** A tyre's outer diameter from its size (`ArchetypeUnits.tyre`). */
-const tyre: typeof ArchetypeUnits.tyre = ArchetypeUnits.tyre;
+/** A tyre's outer diameter from its size (`AutoMovieArchetypeUnits.tyre`). */
+const tyre: typeof AutoMovieArchetypeUnits.tyre = AutoMovieArchetypeUnits.tyre;
 
 /** The Jazz's body, every grade's but the Crosstar's: 4089 x 1694 x 1526 mm on a 2517 mm wheelbase. */
 const JAZZ: Readonly<Partial<Record<createCar.Dimension, number>>> = {
@@ -54,7 +58,12 @@ const TRANSIT_L2_LENGTH: number = 5.45;
 
 /** The Transit Custom's tyres: 215/65 R16C on its standard wheels, 215/60 R17C on its optional ones (p. 2). */
 const TRANSIT_TYRES: Readonly<
-  Partial<Record<createCar.Tyre, Readonly<Partial<Record<createCar.Dimension, number>>>>>
+  Partial<
+    Record<
+      createCar.Tyre,
+      Readonly<Partial<Record<createCar.Dimension, number>>>
+    >
+  >
 > = {
   r16c: { wheelDiameter: tyre(215, 65, 16) },
   r17c: { wheelDiameter: tyre(215, 60, 17) },
@@ -62,7 +71,12 @@ const TRANSIT_TYRES: Readonly<
 
 /** The Ranger's tyres, by wheel option rather than drive: 255/70R17 on the 17-inch wheels, 255/65R18 on the 18-inch (p. 2). */
 const RANGER_TYRES: Readonly<
-  Partial<Record<createCar.Tyre, Readonly<Partial<Record<createCar.Dimension, number>>>>>
+  Partial<
+    Record<
+      createCar.Tyre,
+      Readonly<Partial<Record<createCar.Dimension, number>>>
+    >
+  >
 > = {
   r17: { wheelDiameter: tyre(255, 70, 17) },
   r18: { wheelDiameter: tyre(255, 65, 18) },
@@ -91,7 +105,7 @@ export const CAR_MODELS: Readonly<{
     Partial<
       Record<
         createCar.Model,
-        Readonly<Partial<Record<createCar.Dimension, IArchetypeBand>>>
+        Readonly<Partial<Record<createCar.Dimension, IAutoMovieArchetypeBand>>>
       >
     >
   >;
@@ -113,8 +127,16 @@ export const CAR_MODELS: Readonly<{
 }> = {
   figures: {
     hatchback: {
-      jazzElegance: { ...JAZZ, wheelDiameter: tyre(185, 60, 15), lockTurns: 2.51 },
-      jazzAdvance: { ...JAZZ, wheelDiameter: tyre(185, 55, 16), lockTurns: 2.35 },
+      jazzElegance: {
+        ...JAZZ,
+        wheelDiameter: tyre(185, 60, 15),
+        lockTurns: 2.51,
+      },
+      jazzAdvance: {
+        ...JAZZ,
+        wheelDiameter: tyre(185, 55, 16),
+        lockTurns: 2.35,
+      },
       jazzCrosstarAdvance: {
         length: 4.105,
         width: 1.725,
@@ -123,10 +145,27 @@ export const CAR_MODELS: Readonly<{
         wheelDiameter: tyre(185, 60, 16),
         lockTurns: 2.63,
       },
-      jazzAdvanceSport: { ...JAZZ, wheelDiameter: tyre(185, 55, 16), lockTurns: 2.35 },
-      civicElegance: { ...CIVIC, wheelDiameter: tyre(215, 50, 17), lockTurns: 2.3 },
-      civicSport: { ...CIVIC, wheelDiameter: tyre(235, 40, 18), lockTurns: 2.2, mass: 1503 },
-      civicAdvance: { ...CIVIC, wheelDiameter: tyre(235, 40, 18), lockTurns: 2.2 },
+      jazzAdvanceSport: {
+        ...JAZZ,
+        wheelDiameter: tyre(185, 55, 16),
+        lockTurns: 2.35,
+      },
+      civicElegance: {
+        ...CIVIC,
+        wheelDiameter: tyre(215, 50, 17),
+        lockTurns: 2.3,
+      },
+      civicSport: {
+        ...CIVIC,
+        wheelDiameter: tyre(235, 40, 18),
+        lockTurns: 2.2,
+        mass: 1503,
+      },
+      civicAdvance: {
+        ...CIVIC,
+        wheelDiameter: tyre(235, 40, 18),
+        lockTurns: 2.2,
+      },
     },
     sedan: {
       corolla: { length: 4.63, width: 1.78, wheelbase: 2.7 },
@@ -140,42 +179,117 @@ export const CAR_MODELS: Readonly<{
         width: 2.032,
         height: 1.966,
         wheelbase: 3.5,
-        loadLength: TRANSIT_L1.loadLength! + (TRANSIT_L2_LENGTH - TRANSIT_L1.length!),
+        loadLength:
+          TRANSIT_L1.loadLength! + (TRANSIT_L2_LENGTH - TRANSIT_L1.length!),
       },
     },
     pickup: {
       ranger4x2: {
-        height: 73.9 * ArchetypeUnits.INCH,
-        mass: 4203 * ArchetypeUnits.POUND,
-        bedFloor: 34.0 * ArchetypeUnits.INCH,
+        height: 73.9 * AutoMovieArchetypeUnits.INCH,
+        mass: 4203 * AutoMovieArchetypeUnits.POUND,
+        bedFloor: 34.0 * AutoMovieArchetypeUnits.INCH,
       },
       ranger4x4: {
-        height: 74.4 * ArchetypeUnits.INCH,
-        mass: 4415 * ArchetypeUnits.POUND,
-        bedFloor: 34.7 * ArchetypeUnits.INCH,
+        height: 74.4 * AutoMovieArchetypeUnits.INCH,
+        mass: 4415 * AutoMovieArchetypeUnits.POUND,
+        bedFloor: 34.7 * AutoMovieArchetypeUnits.INCH,
       },
     },
   },
   ranges: {
-    jazzElegance: { mass: ArchetypeBand.of("kg", 1230, 1247, `${HONDA}: Jazz Elegance kerb weight 1230-1247 kg`) },
-    jazzAdvance: { mass: ArchetypeBand.of("kg", 1230, 1247, `${HONDA}: Jazz Advance kerb weight 1230-1247 kg`) },
-    jazzCrosstarAdvance: { mass: ArchetypeBand.of("kg", 1248, 1253, `${HONDA}: Jazz Crosstar Advance kerb weight 1248-1253 kg`) },
-    jazzAdvanceSport: { mass: ArchetypeBand.of("kg", 1242, 1244, `${HONDA}: Jazz Advance Sport kerb weight 1242-1244 kg`) },
-    civicElegance: { mass: ArchetypeBand.of("kg", 1445, 1503, `${HONDA}: Civic Elegance kerb weight 1445-1503 kg`) },
-    civicAdvance: { mass: ArchetypeBand.of("kg", 1461, 1503, `${HONDA}: Civic Advance kerb weight 1461-1503 kg`) },
+    jazzElegance: {
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1230,
+        1247,
+        `${HONDA}: Jazz Elegance kerb weight 1230-1247 kg`,
+      ),
+    },
+    jazzAdvance: {
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1230,
+        1247,
+        `${HONDA}: Jazz Advance kerb weight 1230-1247 kg`,
+      ),
+    },
+    jazzCrosstarAdvance: {
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1248,
+        1253,
+        `${HONDA}: Jazz Crosstar Advance kerb weight 1248-1253 kg`,
+      ),
+    },
+    jazzAdvanceSport: {
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1242,
+        1244,
+        `${HONDA}: Jazz Advance Sport kerb weight 1242-1244 kg`,
+      ),
+    },
+    civicElegance: {
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1445,
+        1503,
+        `${HONDA}: Civic Elegance kerb weight 1445-1503 kg`,
+      ),
+    },
+    civicAdvance: {
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1461,
+        1503,
+        `${HONDA}: Civic Advance kerb weight 1461-1503 kg`,
+      ),
+    },
     corolla: {
-      height: ArchetypeBand.metres(1.435, 1.455, `${TOYOTA}: the international saloon's height, 1,435-1,455 mm`, true),
-      mass: ArchetypeBand.of("kg", 1290, 1430, `${TOYOTA}: saloon kerb weight 1,290-1,430 kg`, true),
+      height: AutoMovieArchetypeBand.metres(
+        1.435,
+        1.455,
+        `${TOYOTA}: the international saloon's height, 1,435-1,455 mm`,
+        true,
+      ),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1290,
+        1430,
+        `${TOYOTA}: saloon kerb weight 1,290-1,430 kg`,
+        true,
+      ),
     },
     camry: {
-      length: ArchetypeBand.metres(4.88, 4.91, `${TOYOTA}: Camry length 4,880-4,910 mm`, true),
-      mass: ArchetypeBand.of("kg", 1480, 1660, `${TOYOTA}: Camry curb weight 1,480-1,660 kg`, true),
+      length: AutoMovieArchetypeBand.metres(
+        4.88,
+        4.91,
+        `${TOYOTA}: Camry length 4,880-4,910 mm`,
+        true,
+      ),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1480,
+        1660,
+        `${TOYOTA}: Camry curb weight 1,480-1,660 kg`,
+        true,
+      ),
     },
     transitL1: {
-      height: ArchetypeBand.metres(1.968, 1.983, `${TRANSIT}: overall height 1,968-1,983 mm`),
+      height: AutoMovieArchetypeBand.metres(
+        1.968,
+        1.983,
+        `${TRANSIT}: overall height 1,968-1,983 mm`,
+      ),
     },
     transitL2: {
-      mass: ArchetypeBand.of("kg", 1864, 2283, `${TRANSIT_LONG}: kerbweight over the page's engine and trim rows, 1864-2283 kg`, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1864,
+        2283,
+        `${TRANSIT_LONG}: kerbweight over the page's engine and trim rows, 1864-2283 kg`,
+        true,
+      ),
     },
   },
   tyres: {

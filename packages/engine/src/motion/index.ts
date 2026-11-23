@@ -16,7 +16,6 @@ export * from "./fitChainToTarget";
 export * from "./fitHingedChainAt";
 export * from "./fitSeededChainToTarget";
 export * from "./readHingedChainSeed";
-export * from "./refusedHingedChainSwivels";
 export * from "./fitHingedChainCandidate";
 export * from "./fitHingedRotationError";
 export * from "./followPathMotion";

@@ -41,20 +41,10 @@
  *
  * A performer who swims or climbs a ladder is not carried by the floor, so
  * the floor, plant and balance bounds are left unread for that performer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation unended: The flights still in the air at the film's end (#3479), each as `prop@launch-second`: allowed, since a shot into the distance is legitimate, and so reported apart from the findings. `of` always fills it; absent from a report built by hand.
- * @evidence contracts/development/design.md#principled-representation unended: The flights still in the air at the film's end (#3479), each as `prop@launch-second`: allowed, since a shot into the distance is legitimate, and so reported apart from the findings. `of` always fills it; absent from a report built by hand.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/HumanVerdicts.ts (HumanVerdicts.of, span); audit/HumanVerdicts.ts (HumanVerdicts.of, return); audit/HumanVerdicts.ts (HumanVerdicts.describe, report); audit/HumanVerdicts.ts (HumanVerdicts.of.place, return); audit/HumanVerdicts.ts (HumanVerdicts.describe, f); audit/HumanVerdicts.ts (HumanVerdicts.of).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanVerdicts.of.
  */
 export namespace IAutoMovieMotionHumanVerdicts {
   /**
    * A bound that does not hold.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation check: The bound. subject: The performer, or `a+b` for a bound between two. act: The action the finding's instant lies in; empty before the performer's first action or for a bound read over the whole film.
-   * @evidence contracts/development/design.md#principled-representation check: The bound. subject: The performer, or `a+b` for a bound between two. act: The action the finding's instant lies in; empty before the performer's first action or for a bound read over the whole film.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/HumanVerdicts.ts (HumanVerdicts.of.place, return); audit/HumanVerdicts.ts (HumanVerdicts.describe, f); audit/HumanVerdicts.ts (HumanVerdicts.of).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanVerdicts.of.place.
    */
   export interface IFinding {
     /** The bound. */
@@ -84,11 +74,6 @@ export namespace IAutoMovieMotionHumanVerdicts {
 
   /**
    * Read every bound on a performance, or on one span of its film. The report of a performance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation unended: The flights still in the air at the film's end (#3479), each as `prop@launch-second`: allowed, since a shot into the distance is legitimate, and so reported apart from the findings. `of` always fills it; absent from a report built by hand.
-   * @evidence contracts/development/design.md#principled-representation unended: The flights still in the air at the film's end (#3479), each as `prop@launch-second`: allowed, since a shot into the distance is legitimate, and so reported apart from the findings. `of` always fills it; absent from a report built by hand.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/HumanVerdicts.ts (HumanVerdicts.of, return); audit/HumanVerdicts.ts (HumanVerdicts.describe, report).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanVerdicts.IFinding identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IReport {
     /** Whether every bound holds. */
@@ -108,11 +93,6 @@ export namespace IAutoMovieMotionHumanVerdicts {
 
   /**
    * Read every bound on a performance, or on one span of its film. Input span of HumanVerdicts.of. The film seconds the bounds are read over; the whole film when absent.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation from: Beginning of the judged interval, in performance seconds. to: End of the judged interval, in performance seconds.
-   * @evidence contracts/development/design.md#principled-representation from: Beginning of the judged interval, in performance seconds. to: End of the judged interval, in performance seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/HumanVerdicts.ts (HumanVerdicts.of, span).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanVerdicts.of.
    */
   export type IOfSpan = {
     /** Beginning of the judged interval, in performance seconds. */

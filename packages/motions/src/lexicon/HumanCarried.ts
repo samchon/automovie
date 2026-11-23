@@ -16,6 +16,36 @@ import { HumanCarriedBearing } from "./HumanCarriedBearing";
 import { HumanCarriedBorne } from "./HumanCarriedBorne";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";
 
+/** A shoulder ride's legs: hip flexion, knee flexion and hip abduction, degrees (provisional, the thighs forward over the shoulders, the shins hanging before the chest). */
+const SHOULDER_LEGS: readonly [number, number, number] = [70, 90, 30];
+
+/**
+ * Where a straddling rider's shins hang from its seat, an arm's length from
+ * the carrier's resting region, toward the hand's side: the leg drawn in its
+ * own sagittal plane, the thigh flexed `flexion` forward from hanging and
+ * the shin `knee` back from the thigh, a mid-shin a thigh plus half a shin
+ * out for thigh and shin of one length, then turned out about the forward
+ * axis by `abduction`. Only the direction carries: the registration turns
+ * the rider to its holds' directions from the resting point.
+ *
+ * @param legs The carry's hip flexion, knee flexion and hip abduction, degrees.
+ * @returns The offset, arm lengths.
+ */
+function straddled(
+  legs: readonly [number, number, number],
+): IAutoMovieMotionHumanCarried.IOffset {
+  const rad: number = Math.PI / 180;
+  const [flexion, knee, abduction] = legs;
+  const down: number =
+    -Math.cos(flexion * rad) - Math.cos((flexion - knee) * rad) / 2;
+  const ahead: number =
+    Math.sin(flexion * rad) + Math.sin((flexion - knee) * rad) / 2;
+  const out: number = -down * Math.sin(abduction * rad);
+  const up: number = down * Math.cos(abduction * rad);
+  const length: number = Math.hypot(out, up, ahead);
+  return { out: out / length, up: up / length, forward: ahead / length };
+}
+
 /**
  * Being carried by another person: on the back, in the arms or over a
  * shoulder. The carried person keeps the posture they are in and goes
@@ -40,7 +70,7 @@ import { HumanCarriedDrag } from "./HumanCarriedDrag";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The carrier's motion is read from the performance, never restated in the carried person's parameters.
  */
 export namespace HumanCarried {
-  /** Be carried by another person. */
+  /** Be carried by another person. It lasts `seconds`, with no lift or set-down (a rigid ride on one bone); a child on a back, a passenger carried through a scene. */
   export const carried: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IParams> =
     {
       name: "carried",
@@ -51,13 +81,13 @@ export namespace HumanCarried {
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IParams>,
       ): IAutoMovieMotionHumanActionPlan => {
-        const { by, seconds } = context.params;
+        const { partner: by, hold: seconds } = context.params;
         const bone: AutoMovieHumanoidBone = context.params.on ?? "upperChest";
         HumanCarriedBorne.lasting(seconds);
         if (by === context.subject)
           throw new HumanRefusal({
             kind: "participant",
-            axis: "by",
+            axis: "partner",
             value: by,
             reason: "a person is carried by someone else",
             fix: "name the carrier",
@@ -111,7 +141,7 @@ export namespace HumanCarried {
       },
     };
 
-  /** The carries. Every angle and offset is provisional, set from the carries' common descriptions: piggyback, chest on the back, legs about the waist, hands under the thighs; cradle, across the forearms before the chest; over the shoulder, folded at the waist over one shoulder; supported, side by side with an arm across the helper's shoulders (`supportedLeft` is a second helper's side); the waist lift of partner dance, face to face, the lifted partner's belly at the lifter's chest, hands on the lifter's shoulders, the lifter's hands at the hips; the overhead lift, the lifted partner prone above the lifter's head at the arms' full reach (one arm length above the shoulders' middle at the nape), the lifter's hands at the hips; the drags are `HumanCarriedDrag`'s. #3349's sources give trunk flexion and stability findings, not these places. */
+  /** The carries. Every angle and offset is provisional, set from the carries' common descriptions: piggyback, chest on the back, legs about the waist, hands under the thighs; cradle, across the forearms before the chest; over the shoulder, folded at the waist over one shoulder; supported, side by side with an arm across the helper's shoulders (`supportedLeft` is a second helper's side); the waist lift of partner dance, face to face, the lifted partner's belly at the lifter's chest, hands on the lifter's shoulders, the lifter's hands at the hips; the overhead lift, the lifted partner prone above the lifter's head at the arms' full reach (one arm length above the shoulders' middle at the nape), the lifter's hands at the hips; the shoulder ride, a child astride the carrier's neck, the seat on the yoke behind it, the knees either side and the hands on the carrier's head, the carrier's hands on the shins before the chest; the drags are `HumanCarriedDrag`'s. #3349's sources give trunk flexion and stability findings, not these places. */
   export const CARRIES: Readonly<
     Record<
       IAutoMovieMotionHumanCarried.Carry,
@@ -216,11 +246,29 @@ export namespace HumanCarried {
       ],
       rise: 1,
     },
+    shoulders: {
+      // The seat on the yoke, the top of the back behind the neck.
+      mine: "seat",
+      theirs: "yoke",
+      turn: 0,
+      pitch: 0,
+      legs: SHOULDER_LEGS,
+      straddles: true,
+      clings: ["templeLeft", "templeRight"],
+      // The hands go to the rider's shins (`HumanCarriedCoupling.HOLDS`).
+      // The places, an arm's length from the yoke, lie the way the shins
+      // hang from the seat at the carry's own legs (`straddled`), so the
+      // registration that turns the rider to its holds leaves it upright.
+      holds: [
+        { region: "yoke", offset: straddled(SHOULDER_LEGS) },
+        { region: "yoke", offset: straddled(SHOULDER_LEGS) },
+      ],
+    },
     ...HumanCarriedDrag.CARRIES,
   };
 
   /**
-   * Be carried in a named carry: the body takes the carry's posture and rests on the carrier by every contact of the carry's coupled meeting (#3437, `HumanCarriedCoupling`): its resting region on the carrier's region and its held regions on the carrier's palms, each window with its load share, its clinging hands on the carrier's regions. The carrier performs `bearing` over their own action. The lift into the carry and the set-down are the `lift` and `setDown` seconds (`HumanCarriedLift`). A second helper named by `with` takes the other side of a carry that has one (`HumanCarriedCoupling.PAIRED`), and the body rests on both. A person named as their own carrier is refused on `by`, a second helper on a carry with no other side on `with`, and a borne mass no lean of a carrier balances on `mass` with the feasible mass.
+   * Be carried in a named carry: the body takes the carry's posture and rests on the carrier by every contact of the carry's coupled meeting (#3437, `HumanCarriedCoupling`): its resting region on the carrier's region and its held regions on the carrier's palms, each window with its load share, its clinging hands on the carrier's regions. The carrier performs `bearing` over their own action. The lift into the carry and the set-down are the `lift` and `setDown` seconds (`HumanCarriedLift`): the lift `TAKE` and no set-down when absent, the body rising before it crosses onto the carrier. A second helper named by `with` takes the other side of a carry that has one (`HumanCarriedCoupling.PAIRED`), and the body rests on both. A person named as their own carrier is refused on `by`, a second helper on a carry with no other side on `with`, and a borne mass no lean of a carrier balances on `mass` with the feasible mass.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is kept, who does what, the phases and both refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The coupling is read from the meeting, computed once whichever role plans first; at each second the carrier's displayed bones are read and the carry's key posture rides the carrier's displayed bone its resting region lies on, at the coupling's key offset (`HumanCarriedCouplingPose.posture`). A meeting that is not solid falls back to the single-region placement on the carrier's region, found by one forward kinematics of the trunk.
@@ -229,6 +277,8 @@ export namespace HumanCarried {
    * @evidence contracts/development/implementation.md#efficient-algorithms One key resolution, one read of the carrier's bones and one frame composition per posture.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
+ *
+   * It lasts 2 s when `seconds` is absent, the lift and set-down inside it (`HumanCarriedBorne`, provisional).
    */
   export const borne: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IBorne> =
     {
@@ -252,6 +302,8 @@ export namespace HumanCarried {
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution per holding arm per posture.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
+ *
+   * It lasts 2 s when `seconds` is absent; the carrier's hands take their hold in 0.4 s (`HumanCarried.TAKE`, provisional).
    */
   export const bearing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IBearing> =
     {

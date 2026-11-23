@@ -1,9 +1,9 @@
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  type ArchetypeFracture,
-  ArchetypeRefusal,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  type AutoMovieArchetypeFracture,
+  AutoMovieArchetypeRefusal,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,7 +22,7 @@ import { TestValidator } from "@nestia/e2e";
  *    1 J threshold, carries total mass 4 kg and has zero velocity at zero momentum.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Derives the binary64 overflow midpoint and distinguishes malformed external mass records from the valid authored positive controls.
- * @evidence contracts/development/testing.md#behavioral-verification Consumes real public Archetype.broken for both fragment groupings, checks the structured mass-admission axis and complete returned mass/velocity for controls; no arithmetic implementation is replaced.
+ * @evidence contracts/development/testing.md#behavioral-verification Consumes real public AutoMovieArchetype.broken for both fragment groupings, checks the structured mass-admission axis and complete returned mass/velocity for controls; no arithmetic implementation is replaced.
  * @evidence contracts/development/testing.md#independent-expectations MAX_VALUE's adjacent spacing is 2^971, so three exact 2^969 contributions exceed its half-ULP overflow midpoint even though each isolated addition rounds away. Four unit masses sum exactly to 4 and zero momentum independently gives zero velocity.
  * @evidence contracts/development/testing.md#distinguishing-cases Per-piece and cross-fragment totals, false-finite positive overflow, one/four fragments, exact threshold and finite valid controls.
  * @evidence contracts/development/testing.md#execution-ownership One portable discovered in-memory unit owns its authored boxes and deliberately malformed producer record; it starts no compiler, process, renderer or host and changes no runtime implementation.
@@ -37,28 +37,32 @@ export function test_archetype_fracture_mass_sum(): void {
       );
     } catch (error) {
       refused =
-        error instanceof ArchetypeRefusal && error.axis === "fractureMass";
+        error instanceof AutoMovieArchetypeRefusal &&
+        error.axis === "fractureMass";
     }
     if (!refused)
       findings.push(
         `${grouped ? "piece" : "departing"} mass reduction accepted the true overflow midpoint`,
       );
-    const broken: ArchetypeFracture.IPieces<never, never> | null = fixture(
-      [1, 1, 1, 1],
-      grouped,
-    ).broken({ energy: 1, momentum: { x: 0, y: 0, z: 0 } });
+    const broken: AutoMovieArchetypeFracture.IPieces<never, never> | null =
+      fixture([1, 1, 1, 1], grouped).broken({
+        energy: 1,
+        momentum: { x: 0, y: 0, z: 0 },
+      });
     if (broken === null)
       findings.push("valid 1 kg part masses did not fracture");
     else if (
       broken.remainder !== null ||
       broken.fragments.length !== (grouped ? 1 : 4) ||
       broken.fragments.reduce(
-        (total: number, fragment: ArchetypeFracture.IPiece<never>): number =>
-          total + fragment.archetype.properties.mass,
+        (
+          total: number,
+          fragment: AutoMovieArchetypeFracture.IPiece<never>,
+        ): number => total + fragment.archetype.properties.mass,
         0,
       ) !== 4 ||
       broken.fragments.some(
-        (fragment: ArchetypeFracture.IPiece<never>): boolean =>
+        (fragment: AutoMovieArchetypeFracture.IPiece<never>): boolean =>
           fragment.velocity.x !== 0 ||
           fragment.velocity.y !== 0 ||
           fragment.velocity.z !== 0,
@@ -78,28 +82,30 @@ export function test_archetype_fracture_mass_sum(): void {
   function fixture(
     weights: readonly number[],
     grouped: boolean,
-  ): Archetype<never, never> {
-    const draw: ArchetypeDrawSession<never> = new ArchetypeDrawSession<never>(
-      "fracture-sum",
-      {},
-      undefined,
-    );
-    const builder: ArchetypeBuilder<never, never> = new ArchetypeBuilder<
-      never,
-      never
-    >({
-      draw,
-      name: "fracture mass sum fixture",
-      material: "steel",
-    });
+  ): AutoMovieArchetype<never, never> {
+    const draw: AutoMovieArchetypeDrawSession<never> =
+      new AutoMovieArchetypeDrawSession<never>("fracture-sum", {}, undefined);
+    const builder: AutoMovieArchetypeBuilder<never, never> =
+      new AutoMovieArchetypeBuilder<never, never>({
+        draw,
+        name: "fracture mass sum fixture",
+        material: "steel",
+      });
     const ids: string[] = ["a", "b", "c", "d"];
     for (const id of ids)
       builder.box(id, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 });
-    const made: Archetype<never, never> = builder.build(4, { restitution: 0 });
-    const fractures: ArchetypeFracture.ISet[] = grouped
+    const made: AutoMovieArchetype<never, never> = builder.build(4, {
+      restitution: 0,
+    });
+    const fractures: AutoMovieArchetypeFracture.ISet[] = grouped
       ? [{ id: "whole", parts: ids }]
-      : ids.map((id: string): ArchetypeFracture.ISet => ({ id, parts: [id] }));
-    return new Archetype<never, never>({
+      : ids.map(
+          (id: string): AutoMovieArchetypeFracture.ISet => ({
+            id,
+            parts: [id],
+          }),
+        );
+    return new AutoMovieArchetype<never, never>({
       archetype: "fracture-sum",
       id: "fracture-sum",
       name: "external part masses",

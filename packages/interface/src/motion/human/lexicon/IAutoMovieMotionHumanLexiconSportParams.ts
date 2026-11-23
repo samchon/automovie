@@ -1,10 +1,16 @@
 import type { IAutoMovieMotionHumanBend } from "../everyday/IAutoMovieMotionHumanBend";
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
 import type { IAutoMovieMotionHumanKneel } from "../everyday/IAutoMovieMotionHumanKneel";
-import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanBallet } from "../exercise/IAutoMovieMotionHumanBallet";
 import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
+import type { IAutoMovieMotionHumanGroupDance } from "../exercise/IAutoMovieMotionHumanGroupDance";
+import type { IAutoMovieMotionHumanStreetDance } from "../exercise/IAutoMovieMotionHumanStreetDance";
 import type { IAutoMovieMotionHumanStretch } from "../exercise/IAutoMovieMotionHumanStretch";
+import type { IAutoMovieMotionHumanTapDance } from "../exercise/IAutoMovieMotionHumanTapDance";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
+import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanSittingVolley } from "../next/IAutoMovieMotionHumanSittingVolley";
+import type { IAutoMovieMotionHumanSwim } from "../next/IAutoMovieMotionHumanSwim";
 import type { IAutoMovieMotionHumanAquatic } from "../sport/IAutoMovieMotionHumanAquatic";
 import type { IAutoMovieMotionHumanAthletics } from "../sport/IAutoMovieMotionHumanAthletics";
 import type { IAutoMovieMotionHumanBallSport } from "../sport/IAutoMovieMotionHumanBallSport";
@@ -13,21 +19,12 @@ import type { IAutoMovieMotionHumanGymnastics } from "../sport/IAutoMovieMotionH
 import type { IAutoMovieMotionHumanMartialArt } from "../sport/IAutoMovieMotionHumanMartialArt";
 import type { IAutoMovieMotionHumanRacket } from "../sport/IAutoMovieMotionHumanRacket";
 import type { IAutoMovieMotionHumanStickBall } from "../sport/IAutoMovieMotionHumanStickBall";
-import type { IAutoMovieMotionHumanSwim } from "../sport/IAutoMovieMotionHumanSwim";
 import type { IAutoMovieMotionHumanSwimImmersed } from "../sport/IAutoMovieMotionHumanSwimImmersed";
 import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHumanStep";
 import type { IAutoMovieMotionHumanLexiconSurfaceParams } from "./IAutoMovieMotionHumanLexiconSurfaceParams";
-import type { IAutoMovieMotionHumanSittingVolley } from "./IAutoMovieMotionHumanSittingVolley";
 
 /**
  * Open parameters of the sport lexicon family, keyed by each runtime export name.
- * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
- * HumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
- * @evidence contracts/development/design.md#principled-representation The sport family is a closed export-name map. Each key uses the law contract directly or projects its open parameters.
- * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the sport row parameter map used by the family registry and schema generator.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
 export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotionHumanLexiconSurfaceParams {
   /** A phase of a water sport with its named support or prop. */
@@ -37,7 +34,7 @@ export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotio
   stickBall: IAutoMovieMotionHumanStickBall.IParams;
 
   /** Move into a floor-seated volleyball receive. */
-  HumanSittingVolley: IAutoMovieMotionHumanSittingVolley;
+  HumanSittingVolley: IAutoMovieMotionHumanSittingVolley.ISittingVolley;
 
   /** Walking-free lunges in place. */
   lunges: Omit<IAutoMovieMotionHumanExercise.IParams, "kind">;
@@ -130,10 +127,10 @@ export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotio
   hipFlexorStretch: Omit<IAutoMovieMotionHumanKneel.IParams, "kind" | "hold">;
 
   /** The corpse pose of yoga: lying on the back, ten seconds (provisional). */
-  corpsePose: Omit<IAutoMovieMotionHumanLieDown.IParams, "position" | "hold">;
+  corpsePose: Omit<IAutoMovieMotionHumanLieDown.IParams, "kind" | "hold">;
 
   /** A standing hamstring stretch: a bend down to the right foot, held twenty seconds (provisional). */
-  toeTouch: Omit<IAutoMovieMotionHumanBend.IParams, "toward" | "hold">;
+  toeTouch: Omit<IAutoMovieMotionHumanBend.IParams, "target" | "hold">;
 
   /** Treading water. */
   treadWater: Omit<IAutoMovieMotionHumanSwim.IParams, "kind">;
@@ -152,4 +149,16 @@ export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotio
 
   /** Swim immersed in a staged water volume. */
   swimImmersed: IAutoMovieMotionHumanSwimImmersed;
+
+  /** Tap steps whose strikes sound on the beat's subdivisions. */
+  tap: IAutoMovieMotionHumanTapDance.IParams;
+
+  /** A ballet position, pirouette or grand jete. */
+  ballet: IAutoMovieMotionHumanBallet.IParams;
+
+  /** A street groove: the rock with its hits, or the moonwalk. */
+  streetGroove: IAutoMovieMotionHumanStreetDance.IParams;
+
+  /** A social group dance: a line, a circle or a conga. */
+  socialDance: IAutoMovieMotionHumanGroupDance.IParams;
 }

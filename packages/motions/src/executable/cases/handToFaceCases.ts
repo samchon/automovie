@@ -73,7 +73,7 @@ export function handToFaceCases(
       try {
         performance = perform(
           body,
-          HumanChain.subject("a").act("handToFace", { task }),
+          HumanChain.subject("a").act("handToFace", { kind: task }),
         );
       } catch (error) {
         out.push(FamilyCaseKit.refused(`hand-face-${task}${suffix}`, error));

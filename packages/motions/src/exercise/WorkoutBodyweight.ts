@@ -51,7 +51,7 @@ export namespace WorkoutBodyweight {
     supports,
     alternate,
     enter: 2.4,
-    reps,
+    count: reps,
     route,
   });
 
@@ -80,7 +80,7 @@ export namespace WorkoutBodyweight {
         { part: "rightFoot", kind: "plant" },
       ],
       enter: 2,
-      reps: 5,
+      count: 5,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
@@ -156,7 +156,7 @@ export namespace WorkoutBodyweight {
       ],
       alternate: true,
       enter: 2.4,
-      reps: 6,
+      count: 6,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
@@ -320,7 +320,7 @@ export namespace WorkoutBodyweight {
         { part: "rightHand", kind: "grip", prop: true },
       ],
       enter: 1,
-      reps: 5,
+      count: 5,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [

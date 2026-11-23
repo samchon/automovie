@@ -9,11 +9,6 @@ import type { IAutoMovieSceneNode } from "../scene/IAutoMovieSceneNode";
  * size. The block is never rotated, so `bounds` is exact. `assertWorldPlacements`
  * refuses two blocks whose bounds overlap with positive volume, a block whose
  * footprint does not rest on a declared surface, and a route crossing a block.
- *
- * @evidence contracts/development/design.md#principled-representation An unrotated box is described by its base centre and size, so the axis-aligned bounds are exact and the overlap, support and route checks in `assertWorldPlacements` are interval and polygon tests without rotation error.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Bundles the three artifacts one block produces, the model group, the scene node and the bounds, so a caller registers the model, stages the node and checks the bounds from one value without recomputing any of them.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The model is the one box the size describes, built in place because `engine` cannot depend on the archetype catalogue; no block id is special-cased.
- * @evidence contracts/development/common.md#meaningful-documentation States how the block is built, that it is never rotated, every refusal `assertWorldPlacements` applies, the shared id, the model's box part, material and units, the node's translation, and both bound corners.
  */
 export interface IAutoMovieWorldBlock {
   /** Stable block identity, also used as the node id and, under the runtime model namespace, as the model id. */
@@ -50,11 +45,6 @@ export namespace IAutoMovieWorldBlock {
    * Build a box model group, placed node and bounds from a grounded base and size.
    *
    * Inputs are borrowed during construction; the returned model, node and corner vectors are newly allocated. Derived coordinate overflow is not separately checked by this constructor.
-   *
-   * @evidence contracts/development/design.md#principled-representation The base is bottom-centre world metres and size is positive X/Y/Z metres; worldBlock admits nonblank id, finite base/size and hexadecimal color before deriving axis-aligned bounds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface worldBlock creates a model, node and placement bounds for assertWorldPlacements; the input controls only the dimensions, classification and surface color that construction reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Wall/building is semantic classification with identical box geometry. Constructor checks do not prove support or route clearance, which assertWorldPlacements evaluates against the declared world.
-   * @evidence contracts/development/common.md#meaningful-documentation Grounded block constructor inputs paired with its generated scene artifacts. The base is bottom-centre world metres and size is positive X/Y/Z metres; worldBlock admits nonblank id, finite base/size and hexadecimal color before deriving axis-aligned bounds.
    */
   export type IInput = {
     /** Nonblank block/node identity. worldBlock derives its model identity through productionRuntimeModelId and rejects whitespace-only input. */

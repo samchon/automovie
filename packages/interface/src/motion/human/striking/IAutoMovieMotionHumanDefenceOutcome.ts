@@ -28,30 +28,15 @@ import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanS
  * stretched or shortened within its own allowed factor first; if no factor
  * suffices, the forced outcome is refused with the outcomes plausible timing
  * reaches. An implausible reaction time is never used.
- *
- * @evidence contracts/development/common.md#meaningful-documentation launch: The strike's launch, film seconds. hit: The strike's contact, film seconds; after the launch. movement: The defence's movement time, seconds; positive.
- * @evidence contracts/development/design.md#principled-representation launch: The strike's launch, film seconds. hit: The strike's contact, film seconds; after the launch. movement: The defence's movement time, seconds; positive.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/DefenceOutcome.ts (DefenceOutcome.classify, return); striking/DefenceOutcome.ts (DefenceOutcome.band, outcome); striking/DefenceOutcome.ts (DefenceOutcome.decide, forced); striking/DefenceOutcome.ts (DefenceOutcome.decide, input); striking/DefenceOutcome.ts (DefenceOutcome.decide, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSkill identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanDefenceOutcome {
   /**
    * The outcome classes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace defines each class's margin band.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the three outcomes the margin bands partition.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The outcomes the defence law forces and reports.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Outcome = "inTime" | "late" | "fail";
 
   /**
    * The timing a decision reads, all in film seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, range and default.
-   * @evidence contracts/development/design.md#principled-representation Film-second instants, a seconds duration, a share in [0, 1] and a factor band; the orderings and ranges are checked when deciding.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the decision reads; the stretch band lets a forced outcome scale the attack.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the skill type.
    */
   export interface IInput {
     /** The strike's launch, film seconds. */
@@ -75,11 +60,6 @@ export namespace IAutoMovieMotionHumanDefenceOutcome {
 
   /**
    * A decided defence.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and band.
-   * @evidence contracts/development/design.md#principled-representation The outcome with the realised start, reaction, lead and margin in seconds, the attack's stretch and contact; an unmet forced outcome is refused, so no decision carries one.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the defence law schedules and what audits and tests read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the outcome union.
    */
   export interface IDecision {
     /** The outcome. */

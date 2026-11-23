@@ -1,4 +1,8 @@
-import { ArchetypeUnits, createMobilityAid, createUmbrella } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeUnits,
+  createMobilityAid,
+  createUmbrella,
+} from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -63,16 +67,16 @@ export function test_archetype_props_aid_bands(): void {
     ),
     row(
       "cane handle height",
-      30 * ArchetypeUnits.INCH,
-      39 * ArchetypeUnits.INCH,
+      30 * AutoMovieArchetypeUnits.INCH,
+      39 * AutoMovieArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
         archetypeExtent(createMobilityAid({ kind: "cane" }, seed), "y").high,
     ),
     row(
       "cane shaft",
-      0.75 * ArchetypeUnits.INCH,
-      0.75 * ArchetypeUnits.INCH,
+      0.75 * AutoMovieArchetypeUnits.INCH,
+      0.75 * AutoMovieArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
         archetypeExtent(createMobilityAid({ kind: "cane" }, seed), "x", [
@@ -81,32 +85,38 @@ export function test_archetype_props_aid_bands(): void {
     ),
     row(
       "adult walker height",
-      32 * ArchetypeUnits.INCH,
-      39 * ArchetypeUnits.INCH,
+      32 * AutoMovieArchetypeUnits.INCH,
+      39 * AutoMovieArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
-        archetypeExtent(createMobilityAid({ kind: "walker", model: "adult" }, seed), "y").high,
+        archetypeExtent(
+          createMobilityAid({ kind: "walker", model: "adult" }, seed),
+          "y",
+        ).high,
     ),
     row(
       "junior walker height",
-      25 * ArchetypeUnits.INCH,
-      32.25 * ArchetypeUnits.INCH,
+      25 * AutoMovieArchetypeUnits.INCH,
+      32.25 * AutoMovieArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
-        archetypeExtent(createMobilityAid({ kind: "walker", model: "junior" }, seed), "y").high,
+        archetypeExtent(
+          createMobilityAid({ kind: "walker", model: "junior" }, seed),
+          "y",
+        ).high,
     ),
     row(
       "walker width",
-      24 * ArchetypeUnits.INCH,
-      24 * ArchetypeUnits.INCH,
+      24 * AutoMovieArchetypeUnits.INCH,
+      24 * AutoMovieArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
         archetypeExtent(createMobilityAid({ kind: "walker" }, seed), "x").size,
     ),
     row(
       "walker mass",
-      7 * ArchetypeUnits.POUND,
-      7.5 * ArchetypeUnits.POUND,
+      7 * AutoMovieArchetypeUnits.POUND,
+      7.5 * AutoMovieArchetypeUnits.POUND,
       DRIVE,
       (seed: number): number =>
         createMobilityAid({ kind: "walker" }, seed).body.mass,

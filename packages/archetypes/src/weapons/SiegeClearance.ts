@@ -6,27 +6,14 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
 
 /**
  * Analytic level-ground support over a complete declared rotation about model -X.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines model metres, degree intervals, one fixed vertical pivot, exact box/cylinder support families, outward binary64 arithmetic and maximum representable section design without an authored floor gap.
- * @evidence contracts/development/design.md#principled-representation A point's height is H+y*cos(angle)+z*sin(angle). Box support reduces to its actual YZ corners; an X-axis cylinder subtracts radius and a sagittal cylinder reduces its circular support to two sinusoidal signs at each endpoint.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns only the siege construction's angular support and representable section search; existing primitive geometry, articulation, launch and total mass remain with their owners.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose grid, picture tuning, runtime projection, raised ground, safety padding or hidden proxy replaces the actual emitted solid.
  */
 export namespace SiegeClearance {
   /**
    * Lowest point height over an interval, including interior stationary points.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Height and cosine/sine coefficients are metres relative to a fixed pivot; interval endpoints are degrees. Directed arithmetic is numerical enclosure rather than physical clearance.
-   * @evidence contracts/development/implementation.md#principled-implementation Evaluate both endpoints and include H-hypot(y,z) when atan2(z,y)+pi lies in the interval modulo a full turn. An interval spanning a full turn necessarily includes that minimum. Products/sums round downward and stationary amplitude upward by adjacent binary64 values; computed zeros remain zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit scalars, evaluate endpoints and test the periodic stationary minimum.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sampling, angular tolerance or displaced geometry approximates a missed extremum; nonrepresentable support refuses.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant arithmetic and one periodic-inclusion test.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Box corners, cylinder support and the complete section-design predicate use this same analytic minimum.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no state.
    */
   export function minimum(
     height: number,
@@ -68,15 +55,7 @@ export namespace SiegeClearance {
   }
 
   /**
-   * Lowest actual unrotated box surface after its carrier's complete X rotation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Actual centre/full dimensions and pivot height are metres; angle interval is degrees; no mesh or proxy is consumed.
-   * @evidence contracts/development/implementation.md#principled-implementation All four YZ corner combinations supply the box's complete analytic support for an X-axis carrier. At endpoint/stationary angles and adjacent representable angle inputs, the same generic turn/move arithmetic independently admits actual rounded primitive transforms and eight corners.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reduce four analytic corner minima, then inspect actual transformed corners at the finite critical-clock representation boundary.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never replaces a box by its centre or discards longitudinal half-depth.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four analytic minima and a bounded endpoint/stationary-neighbor set of eight-corner transform checks; no angle grid or model build.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses minimum for every corner rather than another angular solver.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or external resource.
+   * Lowest unrotated box surface after its carrier's complete X rotation.
    */
   export function box(
     at: IAutoMovieVector3,
@@ -95,14 +74,14 @@ export namespace SiegeClearance {
         critical(candidates, cosine, sine, first, last);
       }
     for (const angle of neighbours(candidates, first, last)) {
-      const current: ReturnType<typeof ArchetypeFrame.upright> =
-        ArchetypeFrame.move(
-          ArchetypeFrame.turn(
+      const current: ReturnType<typeof AutoMovieArchetypeFrame.upright> =
+        AutoMovieArchetypeFrame.move(
+          AutoMovieArchetypeFrame.turn(
             { x: 0, y: height, z: 0 },
             { x: -1, y: 0, z: 0 },
             angle,
           ),
-          ArchetypeFrame.upright(at),
+          AutoMovieArchetypeFrame.upright(at),
         );
       for (const x of [-1, 1] as const)
         for (const y of [-1, 1] as const)
@@ -123,15 +102,7 @@ export namespace SiegeClearance {
   }
 
   /**
-   * Lowest finite-cylinder surface for the actual X or sagittal source axis.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Actual endpoint/radius metres, fixed pivot and degree interval describe the source cylinder; supported axes are the siege's X crossshafts and YZ-plane rods.
-   * @evidence contracts/development/implementation.md#principled-implementation For an X crossshaft, vertical radial support is radius. For a YZ axis u, support is radius*abs(u.z*cos(angle)-u.y*sin(angle)); two signs at each endpoint cover the complete flat-capped solid. The builder's vector length/rotationBetween and generic turn/move arithmetic also admit actual rounded cylinder support at the finite critical clocks and their adjacent inputs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reduce endpoint/circular-support analytic minima, construct the same primitive rigid frame and check its critical-clock representability.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No capsule cap, centre-only floor test or invented projection substitutes for the actual flat-capped cylinder; unsupported axes refuse.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most four analytic minima and a bounded critical-neighbor set of constant-size primitive-frame checks, independent of interval length.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares minimum with actual box corners and the section design.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no cylinder or pose history.
+   * Lowest finite-cylinder surface for the X or sagittal source axis.
    */
   export function cylinder(
     from: IAutoMovieVector3,
@@ -171,7 +142,7 @@ export namespace SiegeClearance {
           critical(candidates, cosine, sine, first, last);
         }
     }
-    const rest: ReturnType<typeof ArchetypeFrame.upright> = {
+    const rest: ReturnType<typeof AutoMovieArchetypeFrame.upright> = {
       translation: Vector3.scale(Vector3.add(from, to), 0.5),
       rotation: rotationBetween(
         { x: 0, y: 1, z: 0 },
@@ -180,8 +151,8 @@ export namespace SiegeClearance {
       scale: { x: 1, y: 1, z: 1 },
     };
     for (const angle of neighbours(candidates, first, last)) {
-      const current: typeof rest = ArchetypeFrame.move(
-        ArchetypeFrame.turn(
+      const current: typeof rest = AutoMovieArchetypeFrame.move(
+        AutoMovieArchetypeFrame.turn(
           { x: 0, y: height, z: 0 },
           { x: -1, y: 0, z: 0 },
           angle,
@@ -209,14 +180,6 @@ export namespace SiegeClearance {
    * @param fits Analytic whole-assembly support predicate, including the zero-radius limit.
    * @returns A positive finite radius; the caller emits that same construction.
    * @throws {RangeError} If no positive representable section fits.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the authored cap, zero-radius limiting premise, monotone homothetic section domain and admitted positive binary64 boundary value; no physical safety gap is added.
-   * @evidence contracts/development/implementation.md#principled-implementation Positive binary64 encodings are ordered integers. Bisect the finite cap's encoding against feasible zero until adjacent encodings remain, using the same actual rounded CAD definition and analytic support predicate for each candidate.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit cap/zero limit, keep an already feasible cap or search its finite representation interval, then admit the positive result.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed radius fraction, epsilon, floor shift, angle grid or capture-only correction chooses the section. Finite critical-clock representability checks supplement the full analytic support domain rather than replacing it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most 63 encoding halvings plus three boundary admissions, each calling the fixed-size analytic construction predicate; no model build, integration or mesh search occurs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller's same dimension-derived cradle records serve admission and final emission; the engine owns adjacent-float rounding.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One call-local eight-byte view and scalar encodings; no retained query, model, cache or external resource.
    */
   export function radius(
     maximum: number,
@@ -268,7 +231,7 @@ function critical(
   if (angle >= first && angle <= last) angles.add(angle);
 }
 
-/** Check actual rigid-transform representability at critical clocks and adjacent inputs. */
+/** Check rigid-transform representability at critical clocks and adjacent inputs. */
 function neighbours(
   angles: ReadonlySet<number>,
   first: number,

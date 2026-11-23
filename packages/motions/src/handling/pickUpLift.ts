@@ -67,15 +67,24 @@ export namespace pickUpLift {
   /**
    * The body that brings the wrist to its lifted place.
    *
+   * A standing body lowered for the grip lifts with its legs: the stance straightens
+   * the least share that raises the shoulder by the lift, so the arm keeps
+   * about the angles it gripped with. An arm lifting on its own inside a
+   * lowered stance passes the thigh it folded beside, which the arm's planned
+   * course refuses. Otherwise, and where the legs do not rise far enough,
+   * the arm alone, the trunk's inclination and the stance's least
+   * straightening that reaches are tried in that order.
+   *
    * @param context The pick up's context.
    * @param side The lifting arm.
    * @param lifted The wrist's lifted place, world metres.
+   * @param lift The asked lift, metres.
    * @param stance The stance the grip was taken from, if the body moved for it.
    * @param held The stance's bottom posture, the entry's when it did not.
    * @returns The raise, `ARM` where the arm alone reaches; null where nothing does, for the stance to step for the lift (`pickUpStance`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order of the freedoms and what is returned when none reaches.
-   * @evidence contracts/development/implementation.md#principled-implementation The arm's straight reach first, then the bend law's inclination solve on the bottom posture, then the least straightening of the stance's own way down, each closed first on `bendLower.REACH` of the arm and then on the arm.
+   * @evidence contracts/development/implementation.md#principled-implementation For a lowered body, the least straightening of the stance's own way down that raises the shoulder by the lift, bisected on the shoulder's height; then the arm's straight reach, the bend law's inclination solve on the bottom posture, and the least straightening that reaches, each closed first on `bendLower.REACH` of the arm and then on the arm.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reach test and two solves per reach, in order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a refusal of the bend's solve is passed over; nothing is clamped, and what none reaches is judged on the plan's hand.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most two original inclination solves and scans/bisections remain, none when the arm alone reaches. One canonical shoulder-name/tuple-FK producer and exact operation reader replace repeated name binding and intermediate joint records; every actual current posture and shoulder query remains.
@@ -86,24 +95,56 @@ export namespace pickUpLift {
     context: IAutoMovieMotionHumanActionContext<object>,
     side: AutoMovieHumanSide,
     lifted: IAutoMovieVector3,
+    lift: number,
     stance: pickUpPosture.IStance | null,
     held: IAutoMovieMotionHumanPosture,
   ): IRaise | null {
     const body: IAutoMovieMotionHumanBody = context.body;
     const arm: number = body.measure.upperArm + body.measure.forearm;
-    const readShoulder: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(
-      body, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]),
-    );
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const far: (posture: IAutoMovieMotionHumanPosture) => number = (posture: IAutoMovieMotionHumanPosture): number =>
-      Vector3.length(Vector3.subtract(lifted,
-        readShoulder(posture, resolution).get(`${side}UpperArm`)!.worldPosition));
-    if (far(held) <= arm + 1e-6) return ARM;
-
+    const readShoulder: ReturnType<typeof HumanTrunk.prepareResolve> =
+      HumanTrunk.prepareResolve(
+        body,
+        new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]),
+      );
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const far: (posture: IAutoMovieMotionHumanPosture) => number = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): number =>
+      Vector3.length(
+        Vector3.subtract(
+          lifted,
+          readShoulder(posture, resolution).get(`${side}UpperArm`)!
+            .worldPosition,
+        ),
+      );
     // A foot that stepped stays where it landed: the stance straightens no
     // further than the share of the way at which it lands.
     const floor: number =
       stance?.step === undefined ? 0 : minimumJerk.share(stance.step.on);
+
+    // A standing body lowered on its legs lifts with them: the least
+    // straightening whose shoulder has risen by the lift. A seated body's
+    // lean is no lift of the legs.
+    if (stance !== null && context.entry.base.kind === "standing") {
+      const height = (posture: IAutoMovieMotionHumanPosture): number =>
+        readShoulder(posture, resolution).get(`${side}UpperArm`)!.worldPosition
+          .y;
+      const bottom: number = height(held);
+      const short = (share: number): boolean =>
+        height(stance.at(share)) - bottom < lift;
+      if (!short(floor))
+        return {
+          trunk: null,
+          share: bracketedBisection(
+            short,
+            1,
+            floor,
+            Math.abs(1 - floor) / 2 ** 30,
+          ),
+        };
+    }
+    if (far(held) <= arm + 1e-6) return ARM;
     for (const reach of [bendLower.REACH * arm, arm]) {
       // The trunk, inclined toward the lifted place.
       try {
@@ -164,18 +205,39 @@ export namespace pickUpLift {
     raise: IRaise,
     at: pickUpPosture.IStance["at"],
   ): (
-    share: number, inclined: number,
+    share: number,
+    inclined: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
   ) => IAutoMovieMotionHumanPosture {
     const trunk: IRaise["trunk"] = raise.trunk;
-    if (trunk === null) return (share, _inclined, resolution, projection) => at(share, resolution, projection);
-    const lower: ReturnType<typeof bendLower.prepare> = bendLower.prepare(body, trunk.strategy);
-    return (share, inclined, resolution, projection): IAutoMovieMotionHumanPosture => {
-      const posture: IAutoMovieMotionHumanPosture = at(share, resolution, projection);
+    if (trunk === null)
+      return (share, _inclined, resolution, projection) =>
+        at(share, resolution, projection);
+    const lower: ReturnType<typeof bendLower.prepare> = bendLower.prepare(
+      body,
+      trunk.strategy,
+    );
+    return (
+      share,
+      inclined,
+      resolution,
+      projection,
+    ): IAutoMovieMotionHumanPosture => {
+      const posture: IAutoMovieMotionHumanPosture = at(
+        share,
+        resolution,
+        projection,
+      );
       if (inclined <= 0) return posture;
       const pitch: number = trunk.pitch * inclined;
-      return lower(posture, pitch, inclined, trunk.lean * Math.sin((pitch * Math.PI) / 180), resolution);
+      return lower(
+        posture,
+        pitch,
+        inclined,
+        trunk.lean * Math.sin((pitch * Math.PI) / 180),
+        resolution,
+      );
     };
   }
 
@@ -208,7 +270,10 @@ export namespace pickUpLift {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous judgement releases its hand reader, exact workspace and actual fit/maps on return/throw; no loan, pose, score/time history or handle enters the plan.
    */
   export function judged(
-    context: IAutoMovieMotionHumanActionContext<{ prop: string; handle: string; }>,
+    context: IAutoMovieMotionHumanActionContext<{
+      prop: string;
+      handle: string;
+    }>,
     side: AutoMovieHumanSide,
     lift: number,
     plan: IAutoMovieMotionHumanActionPlan,
@@ -217,14 +282,25 @@ export namespace pickUpLift {
   ): void {
     if (lift <= 0) return;
     const body: IAutoMovieMotionHumanBody = context.body;
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const readHand: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
+    const requested: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const readHand: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+      body,
+      requested,
+    );
     const wrist: (seconds: number) => number = (seconds: number): number =>
-      readHand(resolveHumanPosture.seeded(body,
-        plan.posture(seconds, undefined, resolution), undefined, undefined, resolution).pose, resolution()).get(
-        `${side}Hand`,
-      )!.worldPosition.y;
+      readHand(
+        resolveHumanPosture.seeded(
+          body,
+          plan.posture(seconds, undefined, resolution),
+          undefined,
+          undefined,
+          resolution,
+        ).pose,
+        resolution(),
+      ).get(`${side}Hand`)!.worldPosition.y;
     const short: number = 1000 * (lift - (wrist(lifted) - wrist(closed)));
     if (short > HumanArmTrajectoryTerms.TOLERANCE)
       throw new HumanRefusal({
@@ -241,5 +317,4 @@ export namespace pickUpLift {
         fix: "lift it less (`lift`), take it with the other hand, or stand where the arm can raise it",
       });
   }
-
 }

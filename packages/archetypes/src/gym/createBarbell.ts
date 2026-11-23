@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The rule that fixes a competition barbell. */
@@ -27,7 +27,7 @@ const IWF: string =
  * @param params The kind, any dimension the author fixes, and the load.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The barbell.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the bar lies, where its origin is and what that asks of a scene, and the two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The shaft between the collars, laid in pieces so each hand's place has its own, a sleeve each side out to the bar's length, and one disc stack per side whose thickness grows with the load; every length the rule fixes is the rule's.
@@ -40,9 +40,9 @@ const IWF: string =
 export function createBarbell(
   params: createBarbell.IParams,
   seed?: number | string,
-): Archetype<createBarbell.Affordance, createBarbell.Dimension> {
-  const draw: ArchetypeDrawSession<createBarbell.Dimension> =
-    new ArchetypeDrawSession<createBarbell.Dimension>(
+): AutoMovieArchetype<createBarbell.Affordance, createBarbell.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBarbell.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBarbell.Dimension>(
       "barbell",
       createBarbell.UNITS,
       seed,
@@ -60,10 +60,10 @@ export function createBarbell(
   );
   const half: number = d.length! / 2;
   const collar: number = createBarbell.BETWEEN / 2;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createBarbell.Affordance,
     createBarbell.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: kind === "mens" ? "men's barbell" : "women's barbell",
@@ -126,7 +126,7 @@ export function createBarbell(
       id: side === 1 ? "gripLeft" : "gripRight",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         along((side * d.grip!) / 2),
         Vector3.create(0, 0, -1),
         Vector3.create(1, 0, 0),
@@ -193,7 +193,9 @@ export namespace createBarbell {
   export type Dimension = "length" | "diameter" | "mass" | "grip" | "load";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     mass: "kg",
@@ -211,7 +213,7 @@ export namespace createBarbell {
   }
 
   /** The hands' spacing: from a clean's grip to a snatch's. An estimate, not read at a source. */
-  const GRIP: IArchetypeBand = ArchetypeBand.metres(
+  const GRIP: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
     0.4,
     1.2,
     "an estimate: from a grip a little wider than the shoulders to a snatch grip near the collars",
@@ -219,7 +221,7 @@ export namespace createBarbell {
   );
 
   /** The load on each side. An estimate of the range a film stages, not a rule. */
-  const LOAD: IArchetypeBand = ArchetypeBand.of(
+  const LOAD: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
     "kg",
     0,
     100,
@@ -229,19 +231,19 @@ export namespace createBarbell {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     mens: {
-      length: ArchetypeBand.metres(2.2, 2.2, IWF),
-      diameter: ArchetypeBand.metres(0.028, 0.028, IWF),
-      mass: ArchetypeBand.of("kg", 20, 20, IWF),
+      length: AutoMovieArchetypeBand.metres(2.2, 2.2, IWF),
+      diameter: AutoMovieArchetypeBand.metres(0.028, 0.028, IWF),
+      mass: AutoMovieArchetypeBand.of("kg", 20, 20, IWF),
       grip: GRIP,
       load: LOAD,
     },
     womens: {
-      length: ArchetypeBand.metres(2.01, 2.01, IWF),
-      diameter: ArchetypeBand.metres(0.025, 0.025, IWF),
-      mass: ArchetypeBand.of("kg", 15, 15, IWF),
+      length: AutoMovieArchetypeBand.metres(2.01, 2.01, IWF),
+      diameter: AutoMovieArchetypeBand.metres(0.025, 0.025, IWF),
+      mass: AutoMovieArchetypeBand.of("kg", 15, 15, IWF),
       grip: GRIP,
       load: LOAD,
     },

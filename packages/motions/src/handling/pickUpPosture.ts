@@ -13,11 +13,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bend } from "../everyday/bend";
 import { bendLower } from "../everyday/bendLower";
 import { seated } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -97,7 +99,7 @@ export namespace pickUpPosture {
   }
 
   /**
-   * The entry's body lowered until the arm reaches a grip; a seated body is leaned instead.
+   * The entry's body lowered until the arm reaches a grip, the trunk leaned toward a grip beside or behind the shoulder rather than pitched away from it; a seated body is leaned instead.
    *
    * @param context The action's context; its entry posture is lowered.
    * @param side The reaching arm.
@@ -132,9 +134,62 @@ export namespace pickUpPosture {
         reason: `${context.subject}: the grip at ${grip.y.toFixed(3)} m is beyond the ${side} arm from a ${context.entry.base.kind} body, which a pick up does not lower`,
         fix: "stand and step closer first, or bring the prop within the arm's reach",
       });
+    // A grip level with or behind the reaching shoulder's frontal plane is
+    // one a forward inclination only carries the shoulder away from, so the
+    // trunk is directed toward it sideways, as the bend law aligns it with a
+    // unilateral contact (`bendLower.lateralTilt`); a grip ahead keeps the
+    // sagittal course.
+    const lateral: number =
+      HumanFrame.local({ origin: entry.root, yaw: entry.yaw }, grip).z <=
+      context.body.rest.get(`${side}UpperArm`)!.z
+        ? bendLower.lateralTilt(context.body, entry, grip, side)
+        : 0;
     let solved: IAutoMovieMotionHumanBendLower.ISolved;
     try {
-      solved = bend.lowering(context.body, entry, grip, side, "auto", reach);
+      solved = bend.lowering(
+        context.body,
+        entry,
+        grip,
+        side,
+        "auto",
+        reach,
+        undefined,
+        undefined,
+        lateral,
+      );
+      // The pick-up shows its key as solved, so a key that folds the trunk
+      // into the thighs past the tangle audit's skin is lowered into a squat
+      // instead, the knees and hips lowering the trunk rather than the lumbar
+      // spine folding it on (`bendLower.fold`; Kingma et al. 2010), where the
+      // squat folds it less: a long-thighed body's squat folds its thighs
+      // further onto the trunk than its semi-squat does.
+      const folded: number =
+        solved.strategy === "squat"
+          ? 0
+          : bendLower.fold(context.body, entry, lateral, solved);
+      if (folded > AutoMovieMotionHumanAuditSkin.BUILT) {
+        let squat: IAutoMovieMotionHumanBendLower.ISolved | undefined;
+        try {
+          squat = bend.lowering(
+            context.body,
+            entry,
+            grip,
+            side,
+            "squat",
+            reach,
+            undefined,
+            undefined,
+            lateral,
+          );
+        } catch (error) {
+          if (!(error instanceof HumanRefusal)) throw error;
+        }
+        if (
+          squat !== undefined &&
+          bendLower.fold(context.body, entry, lateral, squat) < folded
+        )
+          solved = squat;
+      }
     } catch (error) {
       throw new HumanRefusal({
         kind: "reach",
@@ -152,6 +207,7 @@ export namespace pickUpPosture {
         share,
         solved.lean * Math.sin((solved.pitch * share * Math.PI) / 180),
         resolution,
+        lateral,
       );
     const at: IStance["at"] = (share: number, resolution?: IFK): IAutoMovieMotionHumanPosture => lower(entry, share, resolution);
     return { posture: at(1), at, lower };

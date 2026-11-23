@@ -19,7 +19,6 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       setting: "street",
       roles: { kim: "caller", lou: "stroller" },
       needs: [],
-      refusedUntil: 3549,
       view: "top",
     },
     "walk-and-talk",
@@ -28,7 +27,7 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
         act(
           "walk",
           { to: to(3, 0) },
-          { over: [act("handToFace", { task: "phone" })] },
+          { over: [act("handToFace", { kind: "phone" })] },
         ),
       ]),
       person("lou", "m1", 3, 1.5, 270, [
@@ -63,9 +62,9 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       person("noa", "f2", 3, 2, 270, [
         act("run", { to: to(-3, 2), pace: "jog" }, { until: { share: 0.4 } }),
         act("walk", { to: to(0, 4) }),
-        act("handsOnHips", { seconds: 1.6 }),
+        act("handsOnHips", { hold: 1.6 }),
         act("neckRoll", { count: 1 }),
-        act("look", { target: at("max", "face"), cue: "seen", seconds: 1.2 }),
+        act("look", { target: at("max", "face"), cue: "seen", duration: 1.2 }),
         act("checkWatch"),
         act("run", { to: to(-3.5, 4), pace: "jog" }),
       ]),
@@ -80,19 +79,18 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       setting: "everyday",
       roles: { ola: "prankster", pip: "friend" },
       needs: [],
-      refusedUntil: 3552,
     },
     "snap-and-flinch",
     [
       person("ola", "f1", 0.4, -0.3, 0, [
-        act("stand", { seconds: 0.8 }),
+        act("stand", { hold: 0.8 }),
         act("fingerSnap", {}, { anchor: "snap" }),
       ]),
       person("pip", "m1", 0, 0.3, 0, [
-        act("stand", { seconds: 0.4 }),
+        act("stand", { hold: 0.4 }),
         act(
           "startle",
-          { from: at("ola", "handBackRight") },
+          { target: at("ola", "handBackRight") },
           { sync: { of: "snap", event: "strokeEnd" } },
         ),
       ]),
@@ -125,16 +123,16 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       ]),
       person("sam", "f1", -3.5, 0.8, 90, [
         act("stiffLimp", { to: to(-1, 0.8) }),
-        act("look", { target: at("rae", "face"), cue: "seen", seconds: 1.2 }),
+        act("look", { target: at("rae", "face"), cue: "seen", duration: 1.2 }),
         act("gesture", { kind: "beckon" }),
         act("gesture", { kind: "shakeHead" }),
         act("stiffLimp", { to: to(1.5, 0.6) }),
-        act("look", { target: at("rae", "face"), cue: "seen", seconds: 1.2 }),
+        act("look", { target: at("rae", "face"), cue: "seen", duration: 1.2 }),
         act("gesture", { kind: "shrug" }),
       ]),
       person("tom", "m2", 1, 3, 180, [
         act("confront", { target: at("uma", "sternum") }, { anchor: "no-up" }),
-        act("armsCrossed", { seconds: 1 }),
+        act("armsCrossed", { hold: 1 }),
         act(
           "gesture",
           { kind: "point", target: at("uma", "face") },
@@ -143,17 +141,17 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
         act("gesture", { kind: "shrug" }),
         act("dontKnow"),
         act("walk", { to: to(1, 3.7) }),
-        act("look", { target: at("uma", "face"), cue: "seen", seconds: 1.2 }),
+        act("look", { target: at("uma", "face"), cue: "seen", duration: 1.2 }),
         act("shakeFist"),
       ]),
       person("uma", "f2", 1, 1.6, 0, [
-        act("stand", { seconds: 3 }),
+        act("stand", { hold: 3 }),
         act(
           "handsOnHips",
-          { seconds: 1.6 },
+          { hold: 1.6 },
           { sync: { of: "no-up", event: "arrive" } },
         ),
-        act("stand", { seconds: 3 }),
+        act("stand", { hold: 3 }),
         act(
           "gesture",
           { kind: "shakeHead" },

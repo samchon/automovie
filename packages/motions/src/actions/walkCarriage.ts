@@ -7,15 +7,16 @@ import { HumanArmSwing } from "../posture/HumanArmSwing";
 
 /**
  * The arm carriage of a stepping take (`HumanArmSwing.carriage`), read over
- * one full stride: from the left heel strike before the take's middle to
- * the next, or the full stride nearest the middle when none spans it, at
- * `HumanArmSwing.PHASES` phases; a take with fewer than two left heel
- * strikes is read over its whole length.
+ * every stride: each span between the take's left heel strikes, and the
+ * spans before the first and after the last, at `HumanArmSwing.PHASES`
+ * phases each. A turning walk's strides differ from one another (its pelvis
+ * turns and its thighs swing across), so no one stride holds every place
+ * the swinging hands pass the thighs.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States which stride is read and the fallback.
+ * @evidence contracts/development/common.md#meaningful-documentation States the spans read and why every stride is.
  * @evidence contracts/development/design.md#principled-representation The take's postures before the carriage and its named events, read by the swing's owner.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by the walk's plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The stride is the take's own, read off its heel strikes; no stride time is typed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The strides are the take's own, read off its heel strikes; no stride time is typed.
  */
 export namespace walkCarriage {
   /**
@@ -30,10 +31,10 @@ export namespace walkCarriage {
    * @returns Degrees of abduction per arm.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A stride is periodic in its phases, so one full stride in the take's middle, at full gait, holds every place the swinging hands pass the thighs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One stride, one carriage.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A take with a full stride is read over the one nearest its middle; only a take with fewer than two left heel strikes is read over its whole length.
-   * @evidence contracts/development/implementation.md#efficient-algorithms `HumanArmSwing.PHASES` postures, once per take.
+   * @evidence contracts/development/implementation.md#principled-implementation Every stride is read, since a turn makes strides unlike one another; the carriage holds the hands clear wherever any stride passes them by the thighs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The spans between heel strikes, one carriage over all their phases.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No stride stands in for another; a take with no left heel strike is read over its whole length as one span.
+   * @evidence contracts/development/implementation.md#efficient-algorithms `HumanArmSwing.PHASES` postures per stride, once per take: linear in its strides.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanArmSwing.carriage`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -45,24 +46,26 @@ export namespace walkCarriage {
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
   ): Record<"left" | "right", number> {
-    const left: number[] = events
-      .filter((e: { name: string }): boolean => /^leftHeelStrike/.test(e.name))
-      .map((e: { seconds: number }): number => e.seconds);
-    // The stride that spans the middle, or else the full stride nearest it:
-    // the first when every strike falls after the middle, the last when
-    // every strike falls before it.
-    const found: number = left.findIndex((s: number): boolean => s >= duration / 2);
-    const i: number =
-      left.length < 2 ? -1 : found === -1 ? left.length - 1 : Math.max(1, found);
-    const [a, b]: [number, number] =
-      i > 0 ? [left[i - 1]!, left[i]!] : [0, duration];
+    // The spans: the start to the first left heel strike, each stride, and
+    // the last strike to the end.
+    const bounds: number[] = [
+      0,
+      ...events
+        .filter((e: { name: string }): boolean => /^leftHeelStrike/.test(e.name))
+        .map((e: { seconds: number }): number => e.seconds)
+        .filter((s: number): boolean => s > 0 && s < duration),
+      duration,
+    ];
+    const times: number[] = [];
+    for (let i: number = 1; i < bounds.length; i++) {
+      const a: number = bounds[i - 1]!;
+      const b: number = bounds[i]!;
+      for (let k: number = 0; k < HumanArmSwing.PHASES; k++)
+        times.push(a + ((b - a) * k) / HumanArmSwing.PHASES);
+    }
     return HumanArmSwing.carriage(
       body,
-      Array.from(
-        { length: HumanArmSwing.PHASES },
-        (_: unknown, k: number): number =>
-          a + ((b - a) * k) / HumanArmSwing.PHASES,
-      ),
+      times,
       posture,
       ["left", "right"],
       resolution,

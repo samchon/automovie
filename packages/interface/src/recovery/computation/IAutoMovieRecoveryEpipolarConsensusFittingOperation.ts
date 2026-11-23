@@ -7,21 +7,11 @@ import type {
 
 /**
  * Estimate a calibrated pixel epipolar consensus with bounded local refinement. Every proposal is projected to the supplied-calibration essential manifold before scoring. The first bounded proposals with at least eight calibrated inliers receive local refinement before comparison with the current winner; a raw score cannot bound the result of local optimization. Final re-estimation invalidates an older sampling target; any larger target resumes proposals within the same total trial budget.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Row-major 3 by 3 epipolar model in the declared image charts; homogeneous scale is arbitrary. Residual-gated original correspondence indices and their pixel quantiles for the current model.
- * @evidence contracts/development/design.md#principled-representation Residual-gated original correspondence indices and their pixel quantiles for the current model.
- * @evidence contracts/development/design.md#minimal-and-owned-surface createRecoveryCameraEstimate, fitRecoveryEpipolarConsensus share IAutoMovieRecoveryEpipolarConsensusFittingOperation's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Actual random-sample hypotheses attempted under the caller's explicit work ceiling.
  */
 
 export namespace IAutoMovieRecoveryEpipolarConsensusFittingOperation {
   /**
    * Estimate a calibrated pixel epipolar consensus with bounded local refinement. Every proposal is projected to the supplied-calibration essential manifold before scoring. The first bounded proposals with at least eight calibrated inliers receive local refinement before comparison with the current winner; a raw score cannot bound the result of local optimization. Final re-estimation invalidates an older sampling target; any larger target resumes proposals within the same total trial budget.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Row-major 3 by 3 epipolar model in the declared image charts; homogeneous scale is arbitrary. Residual-gated original correspondence indices and their pixel quantiles for the current model.
-   * @evidence contracts/development/design.md#principled-representation Residual-gated original correspondence indices and their pixel quantiles for the current model.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface createRecoveryCameraEstimate, fitRecoveryEpipolarConsensus share IAutoMovieRecoveryEpipolarConsensusFittingOperation's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Actual random-sample hypotheses attempted under the caller's explicit work ceiling.
    */
 
   export type Operation = (

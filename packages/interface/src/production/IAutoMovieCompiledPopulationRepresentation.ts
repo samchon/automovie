@@ -4,11 +4,6 @@ import type { IAutoMovieModelLod } from "./IAutoMovieModelLod";
 
 /**
  * Representation inputs and output shared by formation and instance-prototype compilation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Explains applicable tiers, default tier, radius units and fallback, and caller ownership of measurements and admission.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing geometry is represented by explicit digest and radius fallback policies, not claimed as measured enclosure; no renderer handles or model catalogue is embedded.
- * @evidence contracts/development/design.md#principled-representation Model-group IDs join tiers, model records and root-centred metre estimates. Numeric validity and geometric enclosure remain host responsibilities because the compiler only reads estimates.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Both compact population compilers supply the same four inputs; hero filtering stays with the formation caller rather than adding a population-kind switch.
  */
 export namespace IAutoMovieCompiledPopulationRepresentation {
   /**
@@ -28,11 +23,6 @@ export namespace IAutoMovieCompiledPopulationRepresentation {
    * The caller chooses which declared tiers apply: a formation's anonymous batch
    * drops the `hero` tier, which is drawn by named nodes, while an instance set
    * has no heroes and keeps every tier. The helper reads these borrowed tables for this call and retains no cache.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Explains applicable tiers, default tier, radius units and fallback, and caller ownership of measurements and admission.
-   * @evidence contracts/development/design.md#principled-representation Model-group IDs join tiers, model records and root-centred metre estimates. Numeric validity and geometric enclosure remain host responsibilities because the compiler only reads estimates.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Both compact population compilers supply the same four inputs; hero filtering stays with the formation caller rather than adding a population-kind switch.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing geometry is represented by explicit digest and radius fallback policies, not claimed as measured enclosure; no renderer handles or model catalogue is embedded.
    */
   export type IProps = {
     /** Base model-group ID used for the implicit near tier and as the second radius lookup. */
@@ -50,11 +40,6 @@ export namespace IAutoMovieCompiledPopulationRepresentation {
 
   /**
    * Fresh compiled tier records and the representative radius used for population projection and framing.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents output ownership, tier ordering, identity binding and the difference between radius estimates and an enclosure proof.
-   * @evidence contracts/development/design.md#principled-representation Each tier keeps its authored distance policy and adds model digest/runtime identity; projectionRadius is a model-space metre estimate, not an exact population bound.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Materializers store the tier list and radius directly on compact formation or prototype records; no expanded member geometry is returned.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The numeric floor and missing-measurement fallback are explicit; finite supplied radii are a host premise and model-marker digests do not certify geometry.
    */
   export type IResult = {
     /** Caller-owned array of fresh tier records in input order, or the single implicit near tier. Each carries the referenced group's digest and derived runtime model ID. */

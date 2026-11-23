@@ -1,9 +1,12 @@
 import {
+  AutoMovieXpbdCollider,
+  AutoMovieXpbdWorld,
   AutoMoviePhysicalSimulation as Simulation,
   Vector3,
   bindPhysicalWorld,
   isPhysicalPairExcluded,
   preparePhysicalContactHooks,
+  type solveXpbdContacts,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalFrame,
@@ -13,12 +16,11 @@ import type {
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
-import RAPIER, { type PhysicsHooks } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
-/** Twelve native steps. */
+/** Twelve fixed steps. */
 const DURATION: number = 0.1;
 
 /** Declared overlapping pivot neighbours exert no spurious self-contact impulse.
@@ -27,13 +29,13 @@ const DURATION: number = 0.1;
  * 1. Two nonadjacent overlapping spheres on free hinges remain at zero-load rest when excluded.
  * 2. Removing only that exclusion produces an actual contact-driven displacement.
  * 3. A late external impulse resumes with the same exclusion and bit-identical frames.
- * 4. Real collider handles exercise both orders in the contact and sensor masks, and the public lookup reads a later mutable declaration.
+ * 4. Real colliders exercise both argument orders of the world's pair filter, which serves contact response and sensor overlaps alike, and the public lookup reads a later mutable declaration.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Native simulation observes the explicit exclusion, resulting displacement when allowed and exact states after prefix restoration. A real temporary binding exercises both returned hook masks using controlled collider identities.
- * @evidence contracts/development/testing.md#independent-expectations The declared profile adjacency, exclusion and ownership rules give explicit expected masks for both orders; none of those expectations call the old Engine helper. Rest drift and stimulated displacement have independent numeric bounds.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers same-bone shapes, adjacent, declared and undeclared pairs, matching names across two bodies, floor, absent handles, actual handle zero and a later declaration observed by the unprepared caller.
+ * @evidence contracts/development/testing.md#behavioral-verification The simulation observes the explicit exclusion, the resulting displacement when allowed and exact states after prefix restoration. A real temporary binding exercises the returned pair filter on its own colliders.
+ * @evidence contracts/development/testing.md#independent-expectations The declared profile adjacency, exclusion and ownership rules give the expected verdict for both orders; none of those expectations call the filter's own table. Rest drift and stimulated displacement have independent numeric bounds.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers same-bone shapes, adjacent, declared and undeclared pairs, matching names across two bodies, the floor, a collider the binding never created and a later declaration observed by the unprepared caller.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_collision_exclusions`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
- * @evidence contracts/development/common.md#meaningful-documentation Describes the overlap, late-edit and callback cases and the expected native isolation.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the overlap, late-edit and pair-filter cases and the expected isolation.
  */
 export async function test_physical_collision_exclusions(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere();
@@ -147,8 +149,9 @@ export async function test_physical_collision_exclusions(): Promise<void> {
 }
 
 /**
- * Check contact and sensor callback values against explicit scope on actual
- * handles, including zero. Synthetic non-collider arguments carry no policy.
+ * Check the world's pair filter against explicit scope on real colliders,
+ * in both argument orders. A collider the binding never created carries no
+ * policy.
  */
 function verifyHookScope(
   admitted: IAutoMoviePhysicalSimulationInput.IInput,
@@ -166,88 +169,122 @@ function verifyHookScope(
   other.profile.collisionExclusions = [];
   input.bodies.push(other);
 
-  const world: RAPIER.World = new RAPIER.World(input.gravity);
-  try {
-    const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
-      world,
-      input,
-      false,
-    );
-    const hooks: PhysicsHooks = preparePhysicalContactHooks(input, bound);
-    const first: number = handle("rig", "root", baseShape.id);
-    TestValidator.equals("the native first collider handle is zero", first, 0);
-    const missing: number = Number.POSITIVE_INFINITY;
-    const pairs: readonly [string, number, number, boolean][] = [
-      [
-        "same segment, different shapes",
-        first,
-        handle("rig", "root", "second-root-shape"),
-        true,
-      ],
-      ["direct joint neighbours", first, handle("rig", "carrier"), true],
-      ["declared overlap", first, handle("rig", "tip"), true],
-      [
-        "undeclared self contact",
-        handle("other", "root"),
-        handle("other", "tip"),
-        false,
-      ],
-      [
-        "same segment name across bodies",
-        first,
-        handle("other", "root"),
-        false,
-      ],
-      ["excluded names across bodies", first, handle("other", "tip"), false],
-      ["floor collider", first, handle("floor", "floor"), false],
-      ["unregistered collider", first, missing, false],
-    ];
-    for (const [label, a, b, veto] of pairs) {
-      const contact: RAPIER.SolverFlags | null = veto
-        ? null
-        : RAPIER.SolverFlags.COMPUTE_IMPULSE;
-      TestValidator.equals(
-        label,
-        [
-          hooks.filterContactPair(a, b, missing, missing),
-          hooks.filterContactPair(b, a, missing, missing),
-          hooks.filterIntersectionPair(a, b, missing, missing),
-          hooks.filterIntersectionPair(b, a, missing, missing),
-        ],
-        [contact, contact, !veto, !veto],
-      );
-    }
+  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(input.gravity);
+  const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
+    world,
+    input,
+    false,
+  );
+  const filter: solveXpbdContacts.Filter = preparePhysicalContactHooks(
+    input,
+    bound,
+  );
+  const first: AutoMovieXpbdCollider = collider("rig", "root", baseShape.id);
+  const missing: AutoMovieXpbdCollider = new AutoMovieXpbdCollider(
+    Number.POSITIVE_INFINITY,
+    first.body,
+    baseShape,
+    0,
+    0,
+    false,
+  );
+  const pairs: readonly IPairCase[] = [
+    {
+      label: "same segment, different shapes",
+      a: first,
+      b: collider("rig", "root", "second-root-shape"),
+      veto: true,
+    },
+    {
+      label: "direct joint neighbours",
+      a: first,
+      b: collider("rig", "carrier"),
+      veto: true,
+    },
+    {
+      label: "declared overlap",
+      a: first,
+      b: collider("rig", "tip"),
+      veto: true,
+    },
+    {
+      label: "undeclared self contact",
+      a: collider("other", "root"),
+      b: collider("other", "tip"),
+      veto: false,
+    },
+    {
+      label: "same segment name across bodies",
+      a: first,
+      b: collider("other", "root"),
+      veto: false,
+    },
+    {
+      label: "excluded names across bodies",
+      a: first,
+      b: collider("other", "tip"),
+      veto: false,
+    },
+    {
+      label: "floor collider",
+      a: first,
+      b: collider("floor", "floor"),
+      veto: false,
+    },
+    { label: "unregistered collider", a: first, b: missing, veto: false },
+  ];
+  for (const { label, a, b, veto } of pairs)
+    TestValidator.equals(label, [filter(a, b), filter(b, a)], [!veto, !veto]);
 
-    const otherRoot: number = handle("other", "root");
-    const otherTip: number = handle("other", "tip");
-    TestValidator.equals(
-      "the live public lookup keeps undeclared self contact",
-      isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
-      false,
-    );
-    other.profile.collisionExclusions.push({
-      a: "tip",
-      b: "root",
-      reason: "Explicit mutable caller declaration.",
-    });
-    TestValidator.equals(
-      "the live public lookup observes mutable caller data",
-      isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
-      true,
-    );
+  const otherRoot: number = collider("other", "root").handle;
+  const otherTip: number = collider("other", "tip").handle;
+  TestValidator.equals(
+    "the live public lookup keeps undeclared self contact",
+    isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
+    false,
+  );
+  other.profile.collisionExclusions.push({
+    a: "tip",
+    b: "root",
+    reason: "Explicit mutable caller declaration.",
+  });
+  TestValidator.equals(
+    "the live public lookup observes mutable caller data",
+    isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
+    true,
+  );
 
-    /** Actual Rapier handle for this known shape in the temporary binding. */
-    function handle(id: string, bone: string, shape?: string): number {
-      for (const [key, side] of bound.colliders)
-        if (
-          side.body === id &&
-          side.bone === bone &&
-          (shape === undefined || side.shape === shape)
-        )
-          return key;
-      throw new Error(`Missing test collider ${id}/${bone}/${shape ?? ""}`);
-    }
-  } finally {
-    world.free();
+  /** The world's collider for this known shape in the temporary binding. */
+  function collider(
+    id: string,
+    bone: string,
+    shape?: string,
+  ): AutoMovieXpbdCollider {
+    for (const [key, side] of bound.colliders)
+      if (
+        side.body === id &&
+        side.bone === bone &&
+        (shape === undefined || side.shape === shape)
+      )
+        return world.colliders.find(
+          (candidate: AutoMovieXpbdCollider): boolean =>
+            candidate.handle === key,
+        )!;
+    throw new Error(`Missing test collider ${id}/${bone}/${shape ?? ""}`);
   }
+}
+
+/** One filter case: two colliders and whether the filter must veto them. */
+interface IPairCase {
+  /** What the pair is. */
+  label: string;
+
+  /** The first collider. */
+  a: AutoMovieXpbdCollider;
+
+  /** The second collider. */
+  b: AutoMovieXpbdCollider;
+
+  /** Whether the pair must never touch. */
+  veto: boolean;
 }

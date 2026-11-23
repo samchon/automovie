@@ -25,7 +25,7 @@ export function createAlternative(
       retainedParts: 1,
       suffix: HumanChain.subject("catcher").registered(
         "stand",
-        { seconds: 1, sway },
+        { hold: 1, sway },
         tail,
       ).node,
     },

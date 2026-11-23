@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { HumanColliders } from "@automovie/motions";
+import { HumanColliders } from "@automovie/motions/internal";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -38,9 +38,16 @@ export function motionFloorRise(
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   let performance: IAutoMovieMotionHumanPerformance;
   try {
-    performance = motionHumanLaw.perform("get-up", [{ subject: "a", body }], composition).performance;
+    performance = motionHumanLaw.perform(
+      "get-up",
+      [{ subject: "a", body }],
+      composition,
+    ).performance;
   } catch (error) {
-    all.check(`${name} ${label}: expected to plan, got ${error instanceof Error ? error.message : String(error)}`, false);
+    all.check(
+      `${name} ${label}: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
     return;
   }
   const stood: number = motionHumanStance(body).get("hips")!.worldPosition.y;
@@ -52,8 +59,7 @@ export function motionFloorRise(
           low = Math.min(low, physicalShapeBounds.lowest(pose, shape));
     return low;
   };
-  const placed: IAutoMovieMotionHumanSegment =
-    performance.segments("a")[1]!;
+  const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
   let fastest: number = 0;
   let fastestBone: AutoMovieHumanoidBone = "hips";
   let fastestAt: number = placed.entryTime;
@@ -64,18 +70,27 @@ export function motionFloorRise(
   // The speed standard is a 120 Hz finite difference. Exact seam and
   // endpoint observations get their own 1/120 s predecessor, even if
   // they coincide with the regular grid to floating-point precision.
-  const times: Set<number> = new Set([placed.entryTime, floorStart, placed.end]);
+  const times: Set<number> = new Set([
+    placed.entryTime,
+    floorStart,
+    placed.end,
+  ]);
   for (let index: number = 1; from + index * STEP < placed.end; index++)
     times.add(from + index * STEP);
   let previous: number = from;
   let before: Bones = performance.bones("a", previous);
-  for (const seconds of [...times].sort((a: number, b: number): number => a - b)) {
+  for (const seconds of [...times].sort(
+    (a: number, b: number): number => a - b,
+  )) {
     const predecessor: number = seconds - STEP;
     // Four rounded operations form a grid time. Bound their accumulated
     // error relative to the film time before borrowing the prior frame.
-    const roundoff: number = 4 * Number.EPSILON * Math.max(1, Math.abs(seconds));
-    const prior: Bones = Math.abs(previous - predecessor) <= roundoff
-      ? before : performance.bones("a", predecessor);
+    const roundoff: number =
+      4 * Number.EPSILON * Math.max(1, Math.abs(seconds));
+    const prior: Bones =
+      Math.abs(previous - predecessor) <= roundoff
+        ? before
+        : performance.bones("a", predecessor);
     const now: Bones = performance.bones("a", seconds);
     for (const [bone, b] of now) {
       const a: IAutoMovieResolvedBone = prior.get(bone)!;
@@ -93,10 +108,7 @@ export function motionFloorRise(
     }
     // The floor is read on the rise's own posture, once the entering
     // transition has carried off the act before's offset.
-    const depth: number =
-      seconds >= floorStart
-        ? -lowest(now, /./)
-        : 0;
+    const depth: number = seconds >= floorStart ? -lowest(now, /./) : 0;
     if (depth > deepest) {
       deepest = depth;
       deepestAt = seconds;

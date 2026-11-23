@@ -13,7 +13,7 @@ import type {
   IAutoMovieMotionHumanStep,
 } from "@automovie/interface";
 
-import { HumanChainManual } from "./HumanChainManual";
+import { HumanChainHostage } from "./HumanChainHostage";
 
 /**
  * The chain methods of a fight and of what a force does to a body: the
@@ -25,7 +25,7 @@ import { HumanChainManual } from "./HumanChainManual";
  * @evidence contracts/development/design.md#minimal-and-owned-surface The striking, defence and reaction actions only.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every method takes its law's own parameter type.
  */
-export class HumanChainStriking extends HumanChainManual {
+export class HumanChainStriking extends HumanChainHostage {
   /**
    * Take and hold the fighting stance with the gloves up.
    *

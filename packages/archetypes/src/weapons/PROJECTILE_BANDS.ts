@@ -1,4 +1,8 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import { createRock } from "../nature/createRock";
 import type { createProjectile } from "./createProjectile";
 
@@ -32,27 +36,29 @@ const STONE: string =
 export const PROJECTILE_BANDS: Readonly<
   Record<
     createProjectile.Kind,
-    Readonly<Partial<Record<createProjectile.Dimension, IArchetypeBand>>>
+    Readonly<
+      Partial<Record<createProjectile.Dimension, IAutoMovieArchetypeBand>>
+    >
   >
 > = {
   ball: {
-    diameter: ArchetypeBand.metres(
-      0.66 * ArchetypeUnits.INCH,
-      0.72 * ArchetypeUnits.INCH,
+    diameter: AutoMovieArchetypeBand.metres(
+      0.66 * AutoMovieArchetypeUnits.INCH,
+      0.72 * AutoMovieArchetypeUnits.INCH,
       BALL,
       true,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      ArchetypeUnits.POUND / 14,
-      ArchetypeUnits.POUND / 14,
+      AutoMovieArchetypeUnits.POUND / 14,
+      AutoMovieArchetypeUnits.POUND / 14,
       `${BALL}: a pound over fourteen`,
       true,
     ),
   },
   arrow: {
-    length: ArchetypeBand.metres(0.715, 0.854, ARROW),
-    diameter: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(0.715, 0.854, ARROW),
+    diameter: AutoMovieArchetypeBand.metres(
       0.011,
       0.013,
       `${ARROW}: AZ472/19's own not stated`,
@@ -60,7 +66,7 @@ export const PROJECTILE_BANDS: Readonly<
     ),
   },
   bolt: {
-    diameter: ArchetypeBand.metres(
+    diameter: AutoMovieArchetypeBand.metres(
       0.0136,
       0.0136,
       `${BOLT}: Met 33754's shaft not stated; NMM 11461's, the one read`,
@@ -69,44 +75,44 @@ export const PROJECTILE_BANDS: Readonly<
   },
   roundShot: {},
   grenade: {
-    diameter: ArchetypeBand.metres(
-      2.5 * ArchetypeUnits.INCH,
-      2.5 * ArchetypeUnits.INCH,
+    diameter: AutoMovieArchetypeBand.metres(
+      2.5 * AutoMovieArchetypeUnits.INCH,
+      2.5 * AutoMovieArchetypeUnits.INCH,
       M67,
     ),
-    length: ArchetypeBand.metres(
-      3.53 * ArchetypeUnits.INCH,
-      3.53 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      3.53 * AutoMovieArchetypeUnits.INCH,
+      3.53 * AutoMovieArchetypeUnits.INCH,
       M67,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      14 * ArchetypeUnits.OUNCE,
-      14 * ArchetypeUnits.OUNCE,
+      14 * AutoMovieArchetypeUnits.OUNCE,
+      14 * AutoMovieArchetypeUnits.OUNCE,
       M67,
     ),
   },
   cartridge: {
-    diameter: ArchetypeBand.metres(
-      0.65 * ArchetypeUnits.INCH,
-      0.65 * ArchetypeUnits.INCH,
+    diameter: AutoMovieArchetypeBand.metres(
+      0.65 * AutoMovieArchetypeUnits.INCH,
+      0.65 * AutoMovieArchetypeUnits.INCH,
       `${CARTRIDGE}: the paper rolled on a former "of the same diameter as the ball", the ball .65 in; the paper's thickness, unread, not added`,
       true,
     ),
-    length: ArchetypeBand.metres(
-      2.6 * ArchetypeUnits.INCH,
-      2.6 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      2.6 * AutoMovieArchetypeUnits.INCH,
+      2.6 * AutoMovieArchetypeUnits.INCH,
       `${CARTRIDGE}: the bundle of ten 2.6 in long, the bundling box's "length that of the cartridge"`,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      (13.2 * ArchetypeUnits.OUNCE) / 10,
-      (13.2 * ArchetypeUnits.OUNCE) / 10,
+      (13.2 * AutoMovieArchetypeUnits.OUNCE) / 10,
+      (13.2 * AutoMovieArchetypeUnits.OUNCE) / 10,
       `${CARTRIDGE}: "Weight of 10 cartridges" 13.2 oz`,
     ),
   },
   stone: {
-    mass: ArchetypeBand.of("kg", 0.5, 1, STONE),
+    mass: AutoMovieArchetypeBand.of("kg", 0.5, 1, STONE),
     gravity: createRock.BANDS.cobble.gravity,
   },
 };

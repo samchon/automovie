@@ -80,8 +80,8 @@ function planStroke(
   }: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBowViolinParams> =
     context;
   const stroke: number = HumanBound.above(
-    "seconds",
-    params.seconds ?? 1,
+    "duration",
+    params.duration ?? 1,
     0,
     "s",
   );

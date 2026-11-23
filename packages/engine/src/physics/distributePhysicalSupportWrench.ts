@@ -16,14 +16,6 @@ import { solveAutoMovieQuadraticProgram } from "../math/solveAutoMovieQuadraticP
  * This bounded virtual-model allocation is not full inverse dynamics: native
  * constraints and motor caps still determine the actual response. Returned
  * wrench residuals expose infeasible demand rather than inventing support.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Allocate a requested floating-base wrench at actual floor points) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Allocate a requested floating-base wrench at actual floor points) directly over its typed inputs (`input`) as nested iteration of depth 3 (every over [ input.origin, input.force,; map over input.points; every over [value.x, value.y, value.z]), delegating to `Number.isFinite`, `Vector3.subtract`, `Math.max`, `levers.map`, `Vector3.length`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (2 throw sites). Beyond structural 0, 1 and 2 the body uses the literals 1024, 3, 6, 0.000001, whose basis this answer does not independently establish and a reviewer must confirm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 176 lines and 22 top-level statements that reuses `Number.isFinite`, `Vector3.subtract`, `Math.max`, `levers.map`, `Vector3.length` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 8 non-null assertion(s); these are the remaining shortcuts and are not justified here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 3 (every over [ input.origin, input.force,; map over input.points; every over [value.x, value.y, value.z]), performed once per call with 39 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 39 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function distributePhysicalSupportWrench(
   input: IAutoMovieDistributePhysicalSupportWrench.IInput,
@@ -46,9 +38,6 @@ export function distributePhysicalSupportWrench(
     input.points.some(
       (point: (typeof input.points)[number]): boolean =>
         !Number.isFinite(point.friction) || point.friction < 0,
-    ) ||
-    Object.values(input.loads ?? {}).some(
-      (load: number): boolean => !Number.isFinite(load) || load < 0,
     )
   )
     throw new Error("Invalid support wrench allocation");
@@ -64,19 +53,15 @@ export function distributePhysicalSupportWrench(
     (point: (typeof input.points)[number]): IAutoMovieVector3 =>
       Vector3.subtract(point.point, input.origin),
   );
-  // Errors are measured in the units the caller states, so that a unit of
-  // force error and a unit of moment error move the centre of pressure
-  // alike (Stephens 2011, Eq. 3.16), or else relative to the request.
-  const length: number = input.normalization
-    ? input.normalization.moment / input.normalization.force
-    : Math.max(Number.EPSILON, ...levers.map(Vector3.length));
-  const scale: number = input.normalization
-    ? input.normalization.force
-    : Math.max(
-        1,
-        Vector3.length(input.force),
-        Vector3.length(input.torque) / length,
-      );
+  const length: number = Math.max(
+    Number.EPSILON,
+    ...levers.map(Vector3.length),
+  );
+  const scale: number = Math.max(
+    1,
+    Vector3.length(input.force),
+    Vector3.length(input.torque) / length,
+  );
   const size: number = input.points.length * 3;
   const rows: IAutoMovieQuadraticRow[] = [];
   const axes: ("x" | "y" | "z")[] = ["x", "y", "z"];
@@ -110,19 +95,6 @@ export function distributePhysicalSupportWrench(
           upper: 0,
         });
   }
-  for (const [bone, load] of Object.entries(input.loads ?? {})) {
-    const indices: number[] = input.points.flatMap(
-      (point: (typeof input.points)[number], index: number): number[] =>
-        point.bone === bone ? [3 * index + 1] : [],
-    );
-    if (indices.length > 0)
-      rows.push({
-        indices,
-        weights: indices.map((): number => 1),
-        lower: 0,
-        upper: Math.max(0, load) / scale,
-      });
-  }
   rows.push({
     indices: input.points.map(
       (_: unknown, index: number): number => 3 * index + 1,
@@ -151,82 +123,75 @@ export function distributePhysicalSupportWrench(
       upper: desired[index]!,
     });
 
-  // Each limb's vertical moment about its centre is bounded by what its
-  // friction can resist over its contact patch, |M_y| <= mu F_y d (a
-  // conservative bound inside the contact wrench cone, Caron et al. 2015).
-  for (const bound of input.yaw ?? []) {
-    const indices: number[] = [];
-    const twist: number[] = [];
-    const normal: number[] = [];
-    input.points.forEach(
-      (point: (typeof input.points)[number], index: number): void => {
-        if (point.bone !== bound.bone) return;
-        const dx: number = point.point.x - bound.center.x;
-        const dz: number = point.point.z - bound.center.z;
-        indices.push(3 * index, 3 * index + 1, 3 * index + 2);
-        twist.push(dz, 0, -dx);
-        normal.push(0, bound.limit, 0);
-      },
+  // Each support's moment about its own points' centroid, one auxiliary
+  // variable per axis: the contact wrench split into its resultant and its
+  // moment about the contact (Caron, Pham and Nakamura 2015, eq. 2). A
+  // support pressing its load off its centre moves its centre of pressure
+  // toward its edge, where any realization error tips it; penalizing that
+  // moment like the forces carries the requested moment by the load shared
+  // between supports first.
+  const supports: number[][] = [
+    ...new Set(
+      input.points.map((point: (typeof input.points)[number]): string => point.bone),
+    ),
+  ].map((bone: string): number[] =>
+    input.points
+      .map((point: (typeof input.points)[number], index: number): number =>
+        point.bone === bone ? index : -1,
+      )
+      .filter((index: number): boolean => index >= 0),
+  );
+  supports.forEach((members: number[], group: number): void => {
+    const centroid: IAutoMovieVector3 = Vector3.scale(
+      members.reduce(
+        (sum: IAutoMovieVector3, index: number): IAutoMovieVector3 =>
+          Vector3.add(sum, input.points[index]!.point),
+        { x: 0, y: 0, z: 0 },
+      ),
+      1 / members.length,
     );
-    if (indices.length === 0) continue;
-    rows.push({
-      indices,
-      weights: twist.map(
-        (value: number, k: number): number => value - normal[k]!,
-      ),
-      lower: null,
-      upper: 0,
-    });
-    rows.push({
-      indices,
-      weights: twist.map(
-        (value: number, k: number): number => value + normal[k]!,
-      ),
-      lower: 0,
-      upper: null,
-    });
-  }
-  // The total normal force is held to the request while the bounds allow it.
-  if (input.exactNormal) {
-    const capacity: number = Math.min(
-      input.maximumForce,
-      [...new Set(input.points.map((point) => point.bone))].reduce(
-        (sum: number, bone: string): number =>
-          sum + (input.loads?.[bone] ?? input.maximumForce),
-        0,
-      ),
-    );
-    if (input.force.y >= 0 && input.force.y <= capacity)
-      rows.push({ indices: [size + 1], weights: [1], lower: 0, upper: 0 });
-  }
-  // Dimensionless wrench error is primary. An effort weight on each force
-  // selects among redundant contact forces and keeps them spread rather
-  // than at one vertex or in opposing pairs (Stephens 2011, Eqs. 5.3-5.5);
-  // absent, sqrt(machine epsilon) only breaks ties. Its resulting wrench
-  // bias remains measured in the returned SI residual.
-  const effort = (index: number): number =>
-    input.effort
-      ? index % 3 === 1
-        ? input.effort.normal
-        : input.effort.tangential
-      : Math.sqrt(Number.EPSILON);
+    for (const [row, coordinate] of axes.entries()) {
+      const indices: number[] = [];
+      const weights: number[] = [];
+      for (const index of members)
+        for (const [axis, name] of axes.entries()) {
+          const direction: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+          direction[name] = 1;
+          indices.push(3 * index + axis);
+          weights.push(
+            Vector3.cross(
+              Vector3.subtract(input.points[index]!.point, centroid),
+              direction,
+            )[coordinate] / length,
+          );
+        }
+      rows.push({
+        indices: [...indices, size + 6 + 3 * group + row],
+        weights: [...weights, -1],
+        lower: 0,
+        upper: 0,
+      });
+    }
+  });
+
+  // Dimensionless wrench error is primary; sqrt(machine epsilon) provides a
+  // small explicit penalty on the forces and on each support's own moment to
+  // select among redundant contact forces. Its resulting wrench bias remains
+  // measured in the returned SI residual.
   const result: IAutoMovieSolveQuadraticProgram.IResult =
     solveAutoMovieQuadraticProgram({
       diagonal: [
-        ...Array.from({ length: size }, (_: unknown, index: number) =>
-          effort(index),
+        ...new Array<number>(size).fill(Math.sqrt(Number.EPSILON)),
+        ...new Array<number>(6).fill(1),
+        ...new Array<number>(3 * supports.length).fill(
+          Math.sqrt(Number.EPSILON),
         ),
-        ...(input.priority ?? new Array<number>(6).fill(1)),
       ],
-      linear: new Array<number>(size + 6).fill(0),
+      linear: new Array<number>(size + 6 + 3 * supports.length).fill(0),
       rows,
     });
-  // An interior-point run that reaches its iteration limit (status 7) or
-  // stalls (status 10) with every row met to the same tolerance still yields
-  // a feasible allocation; its remaining optimality gap shows in the measured
-  // SI residual below.
   if (
-    (result.status !== 1 && result.status !== 7 && result.status !== 10) ||
+    result.status !== 1 ||
     result.maximumViolation > 1e-6 ||
     !result.primal.every(Number.isFinite)
   )

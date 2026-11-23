@@ -107,8 +107,8 @@ export const swipeTouchscreen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
       const to: number = HumanBound.within("to", params.to, -0.5, 0.5);
       HumanBound.above("swipe distance", Math.abs(from - to), 0, "width");
       const seconds: number = HumanBound.above(
-        "seconds",
-        params.seconds ?? SWIPE_SECONDS,
+        "duration",
+        params.duration ?? SWIPE_SECONDS,
         0,
         "s",
       );
@@ -244,7 +244,7 @@ export const swipeTouchscreen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
       )
         throw new HumanRefusal({
           kind: "parameter",
-          axis: "seconds",
+          axis: "duration",
           value: seconds,
           reason:
             "the clock must distinguish reach, screen contact and complete withdrawal",

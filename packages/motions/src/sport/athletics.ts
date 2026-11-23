@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanAthletics,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -18,6 +19,8 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
+import { AutoMovieMotionHumanFootSwing } from "../compose/AutoMovieMotionHumanFootSwing";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
@@ -27,6 +30,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { sprintStartBlocks } from "./sprintStartBlocks";
 import { sprintStartSet } from "./sprintStartSet";
 
 /**
@@ -55,6 +59,12 @@ import { sprintStartSet } from "./sprintStartSet";
  * phases; this pass stages the hip acceleration and rear-foot recovery
  * while the front foot still bears. The drive's shape shares are
  * provisional. The first airborne stride belongs to the subsequent act.
+ *
+ * With `on`, the feet sit on a placed starting block's `front` and `rear`
+ * plates instead of the body-scaled setting, each ball at its plate's lower
+ * edge, and bear on that prop; the plate on the runner's left or right
+ * decides the front foot. The front knee then keeps within its measured
+ * spread (90 +/- 8) and the centre of mass follows from the plates.
  *
  * Events: `onYourMarks`, `set`, `gun`, and when driving, `rearBlockOff`
  * and `blockExit`. The knee-down marks posture is a separate phase.
@@ -141,14 +151,14 @@ export namespace athletics {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative or the optional drive is not positive.
+   * @throws {HumanRefusal} When the hold is negative, the optional drive is not positive, a named block's plates are missing, misaligned or contradict `front` (`sprintStartBlocks.of`), or the set cannot be fitted to them.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The set position solved once; the root, the feet and the hands carried into it on one phrase.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Set, clock, root row, two leg rows, two arm rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every place is the body's; provisional times are named.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed entry/block pairs prepare each leg's original quaternion arc once; fixed standing/set hip points share Vector3.prepareLerp's original component deltas. Trunk pitch/flexion differences and the joint reader also prepare once, while current joints/shares/points evaluate each second. Placed-arm and posture-heading formulas remain shared owners.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The rear foot's fixed block/recovery pair prepares its quaternion arc once, and each step into a block reads the shared foot swing; fixed standing/set hip points share Vector3.prepareLerp's original component deltas. Trunk pitch/flexion differences and the joint reader also prepare once, while current joints/shares/points evaluate each second. Placed-arm and posture-heading formulas remain shared owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the set position and the clock.
    */
   export function plan(
@@ -156,19 +166,24 @@ export namespace athletics {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanAthletics.IParams = context.params;
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const hold: number = p.seconds ?? 1.5;
-    HumanBound.least("seconds", hold, 0, "s");
+    const hold: number = p.hold ?? 1.5;
+    HumanBound.least("hold", hold, 0, "s");
     if (p.drive !== undefined) HumanBound.above("drive", p.drive, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const front: "left" | "right" = p.front ?? "left";
+    const blocks: sprintStartBlocks.IPlaced | undefined =
+      p.on === undefined
+        ? undefined
+        : sprintStartBlocks.of(context, p.on, p.front);
+    const front: "left" | "right" = blocks?.front ?? p.front ?? "left";
     const rear: "left" | "right" = front === "left" ? "right" : "left";
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const target: ReturnType<typeof set> = set(
+    const target: ReturnType<typeof set> = sprintStartSet.of(
       context,
       entry,
       front,
       p.sex ?? "male",
+      blocks?.feet,
     );
     const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
@@ -293,11 +308,21 @@ export namespace athletics {
         rotation: context.entry.feet[side].rotation,
       };
       const block: IAutoMovieMotionHumanFoot.IPlacement = target.feet[side];
-      const trajectory: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> =
-        AutoMovieMotionHumanLeg.prepareArc(
+      // The step back into the block leaves the floor before it travels and
+      // sets down after it stops (`AutoMovieMotionHumanFootSwing`): an arc
+      // rising on the travel's own share slid the toes along the track.
+      const trajectory: (
+        share: number,
+      ) => IAutoMovieMotionHumanFoot.IPlacement = (
+        share: number,
+      ): IAutoMovieMotionHumanFoot.IPlacement =>
+        AutoMovieMotionHumanFootSwing(
+          body,
+          side,
           stance,
           block,
           0.05 * body.measure.stature,
+          share,
         );
       const recovery:
         | ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>
@@ -328,12 +353,45 @@ export namespace athletics {
           from: 0,
           to: clock.duration,
           placement: (
-            _: IAutoMovieMotionHumanPosture,
+            posture: IAutoMovieMotionHumanPosture,
             seconds: number,
-          ): IAutoMovieMotionHumanFoot.IPlacement =>
-            recovery !== undefined && seconds > rearOff
-              ? recovery((seconds - rearOff) / (end - rearOff))
-              : trajectory(share(seconds)),
+          ): IAutoMovieMotionHumanFoot.IPlacement => {
+            // The rear foot recovering off its block bears nothing, so it
+            // keeps within the passive dorsal range.
+            if (recovery !== undefined && seconds > rearOff)
+              return AutoMovieMotionHumanFootRelax.of(
+                body,
+                posture,
+                side,
+                recovery((seconds - rearOff) / (end - rearOff)),
+                0,
+                false,
+              );
+            const at: number = share(seconds);
+            // A foot stepping back into its block bears nothing on the way,
+            // so it too keeps within the passive dorsal range.
+            if (at > 0 && at < 1)
+              return AutoMovieMotionHumanFootRelax.of(
+                body,
+                posture,
+                side,
+                trajectory(at),
+                0,
+                false,
+              );
+            // A rear foot that leaves its block sheds the weight before it
+            // lifts, its heel rising about the toes' joint, so it leaves
+            // within the passive dorsal range.
+            if (recovery !== undefined && seconds > b)
+              return AutoMovieMotionHumanFootRelax.of(
+                body,
+                posture,
+                side,
+                trajectory(at),
+                AutoMovieMotionHumanFootRelax.load(seconds, rearOff),
+              );
+            return trajectory(at);
+          },
           planted: (seconds: number): boolean => {
             if (recovery !== undefined && seconds > rearOff) return false;
             const at: number = share(seconds);
@@ -388,10 +446,19 @@ export namespace athletics {
           weight: (seconds: number): number =>
             into(seconds) * (1 - drive(seconds)),
           span,
+          // The clock is the law's own, lengthened by a slower tempo.
+          together: AutoMovieMotionHumanArm.together(
+            context.handover,
+            true,
+            context.tempo,
+          ),
           place: () => target.palms[side],
           bend: "front",
         }),
       );
+    // Feet on a placed block bear on that prop, so its frame carries them.
+    const footSupport: IAutoMovieMotionHumanContactWindow["support"] =
+      p.on === undefined ? { kind: "ground" } : { kind: "prop", subject: p.on };
     return composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(clock.duration, entry, [
         {
@@ -399,14 +466,14 @@ export namespace athletics {
           kind: "plant",
           from: clock.at("ready") / clock.duration,
           to: p.drive !== undefined && rear === "left" ? rearOff / end : 1,
-          support: { kind: "ground" },
+          support: footSupport,
         },
         {
           part: "rightFoot",
           kind: "plant",
           from: clock.at("ready") / clock.duration,
           to: p.drive !== undefined && rear === "right" ? rearOff / end : 1,
-          support: { kind: "ground" },
+          support: footSupport,
         },
         {
           part: "leftHand",

@@ -94,7 +94,7 @@ export function affordanceCases(
         FamilyCaseKit.perform(
           "affordance",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("operate", { mechanism }),
+          HumanChain.subject("a").act("operate", { kind: mechanism }),
         );
       const ready: number = FamilyCaseKit.event(performance, "ready");
       const start: number = FamilyCaseKit.event(performance, "strokeStart");

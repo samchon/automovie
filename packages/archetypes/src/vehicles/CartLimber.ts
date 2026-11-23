@@ -1,6 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { CartWheel } from "./CartWheel";
 import { createCart } from "./createCart";
 
@@ -15,11 +18,6 @@ const METAL: string = "#55595f";
 
 /**
  * The artillery limber among the drawn carriers, on one axle with its pole ahead and its pintle behind, kept apart from `CartDrawn` so each file stays within its size.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what it builds and why it is its own file.
- * @evidence contracts/development/design.md#principled-representation One builder on the shared wheel pair, its sizes `createCart.LIMBER`'s.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `build`, which `createCart` calls for its limber.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The wheels are `CartWheel`'s pair, not a copy.
  */
 export namespace CartLimber {
   /**
@@ -27,17 +25,12 @@ export namespace CartLimber {
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
-   * @evidence contracts/development/implementation.md#principled-implementation The frame, `length` long, rests on the axle from `LIMBER.rear` behind it, and the pole runs `poleLength` on from its front, level, its end the `coupling`. The chest, its inside the Ordnance Manual's, stands over the axle on the frame; its lid hinges at its rear edge, opening a quarter turn to stand upright, and is the gunners' forward-facing `seat`. The `pintle` hook is at the frame's rear end.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Frame, chest, pole, hook, wheels.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The chest's boards (`LIMBER.board`) are a construction estimate and the pintle's height (`LIMBER.pintle`) a named provisional value; the pole is level until a team's harness holds it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms About ten parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function build(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -72,7 +65,7 @@ export namespace CartLimber {
     builder.affordance({
       id: "chest",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, lid, -width / 2),
         v(-1, 0, 0),
         v(0, 1, 0),
@@ -84,7 +77,7 @@ export namespace CartLimber {
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.upright(v(0, lid, width / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, lid, width / 2)),
       extent: null,
       depth: width,
       width: across,
@@ -99,7 +92,7 @@ export namespace CartLimber {
     builder.affordance({
       id: "coupling",
       kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, radius + 0.04, tip)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, radius + 0.04, tip)),
       extent: null,
     });
     const pintle: number = createCart.LIMBER.pintle;
@@ -109,7 +102,7 @@ export namespace CartLimber {
     builder.affordance({
       id: "pintle",
       kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, pintle, rear - 0.08)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, pintle, rear - 0.08)),
       extent: null,
     });
     CartWheel.pair(builder, {

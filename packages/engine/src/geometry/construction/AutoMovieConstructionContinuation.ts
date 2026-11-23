@@ -19,11 +19,6 @@ import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
  * The part's stations leave the ring the way the host's continue it when the two ends differ (a host's top under a part's bottom): the layer is copied as it is. When the two ends are the same (top on top, bottom on bottom), the part's stations run against the host's, so the part's layer is the host's in the frame `(u, -v)`, whose normal `v x u` is reversed: its control points are reindexed `m -> -m mod N` with their `z` negated, which keeps every point of the ring and its counter-clockwise turn about the new normal; the phase `psi` on the part is then `-psi` on the host. First station derivatives change sign with the station's direction, second ones do not; the lift along the normal changes sign with the normal.
  *
  * Different orders retain their original chains only when ConstructionBoundary admits already equal whole native scalar2, frame2 and absent/constant lift2. Their compatibility rows are separate density-specific projections, not the native geometry; no endpoint or adjoining interval is rewritten on that path.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States when the layer is copied as it is and when reversed, the reindexing, the phase relation and which derivatives change sign.
- * @evidence contracts/development/design.md#principled-representation Represents A continuation's shared end layer: the host chain's end layer re-expressed as the part chain's end layer: companion namespace of 3 members (`sign`, `apply`, `transform`); units and frames named in its text: local, frame, world. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionContinuation` in packages/engine/src/geometry/construction/AutoMovieConstructionContinuation.ts; its surface is the 3 members listed and the text shows 7 other files naming it, mostly test (5), packages/engine (2), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieConstructionContinuation {
   /**
@@ -32,14 +27,6 @@ export namespace AutoMovieConstructionContinuation {
    * @param hostEnd The host face's shared end.
    * @param partEnd The part face's shared end.
    * @returns 1 when the part's stations continue the host's, -1 when they run against them.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Opposite end kinds continue the station direction and matching ends reverse it, giving the declared 1/-1 derivative/phase convention.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One end-kind comparison owns the direction rule used by both the layer transform and shared-ring builder.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses only the closed bottom/top values without geometry-dependent sign guesses.
-   * @evidence contracts/development/common.md#meaningful-documentation States the returned direction meaning for both end pairings.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One comparison and scalar result take constant time without allocation.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This direction predicate owns no reusable preparation or coordinated effect.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a number and retains no chain or resource.
    */
   export function sign(
     hostEnd: "bottom" | "top",
@@ -56,14 +43,6 @@ export namespace AutoMovieConstructionContinuation {
    * @param part The part chain.
    * @param partEnd The part's shared end.
    * @returns The part chain, or the premise the pair breaks.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Captures the actual whole local endpoint family and signs it with the copied frame/lift data; changed spans receive explicit generating laws. World C2 additionally requires complete consistent frame/lift boundary jets in that same physical station coordinate.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission and endpoint selection surround one local layer transform, then a shallow chain/layer-list copy.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects non-spline bases and selected pole ends. Different orders require complete source/frame/lift equivalence and their own valid density bindings; their part is returned unchanged. The original equal-order replacement keeps its documented caller premises.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the four end-pair direction rules, phase reversal, derivative signs and premise-string result.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Different-order admission scans O(LN) compatibility components plus existing binding binary searches, endpoint captures and source/span lookups without copying chains. Equal-order replacement copies L references and O(N) transformed components, then performs SectionConnect capture/finish costs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the host's actual boundary jets and all untouched part layers instead of re-solving or lofting a boundary approximation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns its chain/list/replacement, reversed arrays and explicit endpoint snapshots/changed-span laws on native paths; untouched fields and forward compatibility arrays/frame remain shared, without an added cache or host callback.
    */
   export function apply(
     host: IAutoMovieLoftChain,

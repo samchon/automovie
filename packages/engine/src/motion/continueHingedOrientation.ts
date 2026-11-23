@@ -170,7 +170,13 @@ export function continueHingedOrientation(
     const current: number = Math.abs(delta);
     if (current === distance && selected !== swivel) return null;
     if (current < distance) {
-      best = { pose, seed: { branch, swivel } };
+      const twist: number | null | undefined = pose.joints.find(
+        (joint: IAutoMovieJointPose): boolean => joint.bone === props.chain.lower,
+      )?.twist;
+      best = {
+        pose,
+        seed: { branch, swivel, ...(typeof twist === "number" ? { twist } : {}) },
+      };
       distance = current;
       selected = swivel;
     }

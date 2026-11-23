@@ -1,30 +1,28 @@
 import { minimumJerk } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
-
 /**
  * Named clock intervals resolved once for repeated progress reads.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Owns the exact clamped linear rule and prepared uniform/minimum-jerk readers at action-local seconds.
- * @evidence contracts/development/design.md#principled-representation Each interval is the two seconds its clock resolves from names; the original 1e-12-second step branch and engine minimum-jerk profile define its progress.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The clock's ordinary linear reader and prepared consumers share one numeric interval owner; no phase or action vocabulary is added.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sampled-time cache, altered span, clamped authored instant or new tolerance is introduced.
  */
 export namespace AutoMovieMotionInterval {
   /**
    * Uniform progress with the clock's original short-window step.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The inputs are action-local seconds; output is clamped to [0,1], stepping at to when to-from is below 1e-12 seconds.
-   * @evidence contracts/development/implementation.md#principled-implementation Retains the exact original branch, comparison and subtraction/division grouping from AutoMovieMotionClock.linear.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar function owns the ordinary and prepared interval rule.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reversed, zero and short spans keep the original step behavior; no interval is normalized or sampled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic and no allocation per actual query.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A single numeric progress query coordinates no retained work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no data or handle.
    */
   export function linear(from: number, to: number, seconds: number): number {
     if (to - from < 1e-12) return seconds >= to ? 1 : 0;
     return Math.min(1, Math.max(0, (seconds - from) / (to - from)));
+  }
+
+  /**
+   * Minimum-jerk progress over a window given by its two seconds.
+   *
+   * @param from The window's opening second.
+   * @param to The window's closing second.
+   * @param seconds The second read, on the same clock.
+   * @returns The Flash and Hogan share in [0,1]: zero before the window, one after it.
+   */
+  export function progress(from: number, to: number, seconds: number): number {
+    return minimumJerk.share(linear(from, to, seconds));
   }
 
   /**
@@ -35,14 +33,6 @@ export namespace AutoMovieMotionInterval {
    * @param to The closing name.
    * @returns Uniform and minimum-jerk readers at actual action-local seconds.
    * @throws {Error} Whatever the clock throws for an unknown name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed names, eager name admission, action-local seconds and returned reader lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation The clock contract fixes named instants for its lifetime; reading each once produces the same numeric interval for every subsequent scalar query, and minimumJerk consumes the same uniform progress.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two original at calls and two scalar closures keep name resolution separate from repeated interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual second still runs the unchanged interval arithmetic and profile; no time rounding, sampled value or alternate easing replaces it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two map queries occur once rather than twice per one of Q reads; each read remains constant arithmetic, and runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the fixed opening and closing seconds are shared. Different clocks or names prepare independently, and the caller must prepare anew if a custom clock changes its named times.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record retains two numeric seconds and reader closures until its owning action releases it; no clock, time history, pose or external handle is retained.
    */
   export function prepare(
     clock: Pick<IAutoMovieMotionClock, "at">,
@@ -61,36 +51,15 @@ export namespace AutoMovieMotionInterval {
 
   /**
    * Fixed-interval scalar readers with the clock's existing rules.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Both members consume actual action-local seconds and return progress in [0,1] with the original short-span step.
-   * @evidence contracts/development/design.md#principled-representation Uniform and minimum-jerk forms share one numeric interval; each is the same function the clock's named query defines.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only linear and progress are exposed because current prepared consumers need these two forms.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No sampled state, mutable clock reference or optional alternative representation is stored.
    */
   export interface IPrepared {
     /**
      * Uniform progress at action-local seconds over this fixed interval.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States action-local seconds and the prepared interval's clamped [0,1] output, retaining the original short-span step.
-     * @evidence contracts/development/implementation.md#principled-implementation The method contract is the original numeric linear map; prepare supplies the reader using this namespace's linear owner.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar method separates actual queried seconds from the fixed named endpoints already owned by the producer.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No alternate easing, rounded sample or changed short-span rule is permitted by this interface.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm; prepare and linear document the actual constant-time arithmetic.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature coordinates no completed work; the producing closure owns its fixed endpoint sharing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration acquires no state or handle; prepare documents the returned reader's numeric lifetime.
      */
     linear(seconds: number): number;
 
     /**
      * Flash and Hogan minimum-jerk progress at action-local seconds.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the [0,1] minimum-jerk result and action-local seconds of the same prepared interval.
-     * @evidence contracts/development/implementation.md#principled-implementation The contract applies the engine minimumJerk profile to the same actual linear progress, preserving its fixed endpoint and short-span semantics.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar method exposes the smooth form while the producer and shared linear owner retain interval arithmetic.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The profile remains the cited engine profile rather than a fitted alternative or stored sample.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm; prepare documents the actual linear read and polynomial cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No evaluated answer is shared by this declaration; the producer owns fixed endpoints only.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration owns no resource; the producing closure's lifetime and fresh actual reads remain with prepare.
      */
     progress(seconds: number): number;
   }

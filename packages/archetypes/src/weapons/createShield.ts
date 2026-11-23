@@ -2,14 +2,14 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The round shield's size, from a secondary source. */
@@ -30,7 +30,7 @@ const ROUND: string =
  * @param params The kind, a buckler's model and any dimension the author fixes.
  * @param seed The seed that picks the model left free and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The shield.
- * @throws {ArchetypeRefusal} For a model not of the kind, a fixed dimension outside its band, or one the model gives.
+ * @throws {AutoMovieArchetypeRefusal} For a model not of the kind, a fixed dimension outside its band, or one the model gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the shield stands, what it is built of and what each contact is.
  * @evidence contracts/development/implementation.md#principled-implementation The disc, boss and grip record the existing mass geometry. The foam variant sizes the arm loop and lateral rim marks from the same radius and thickness as the board.
@@ -43,9 +43,9 @@ const ROUND: string =
 export function createShield(
   params: createShield.IParams,
   seed?: number | string,
-): Archetype<createShield.Affordance, createShield.Dimension> {
-  const draw: ArchetypeDrawSession<createShield.Dimension> =
-    new ArchetypeDrawSession<createShield.Dimension>(
+): AutoMovieArchetype<createShield.Affordance, createShield.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createShield.Dimension> =
+    new AutoMovieArchetypeDrawSession<createShield.Dimension>(
       "shield",
       createShield.UNITS,
       seed,
@@ -69,10 +69,10 @@ export function createShield(
     ...draw.dimensions(createShield.BANDS[kind], createShield.BANDS),
     ...model.figures,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createShield.Affordance,
     createShield.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name:
       kind === "buckler"
@@ -114,7 +114,7 @@ export function createShield(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(grip, v(0, 0, -1), along),
+    frame: AutoMovieArchetypeFrame.facing(grip, v(0, 0, -1), along),
     extent: null,
     grip: "power",
     aperture: createShield.GRIP,
@@ -124,7 +124,11 @@ export function createShield(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(v(0, 0, half), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, 0, half),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
     extent: null,
     width: d.diameter!,
     depth: d.diameter!,
@@ -133,7 +137,7 @@ export function createShield(
     id: "boss",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, 0, half + createShield.BOSS),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -144,7 +148,11 @@ export function createShield(
     id: "rim",
     kind: "ledge",
     direction: "normal",
-    frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, radius, 0),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
   });
   if (strapped) {
@@ -163,7 +171,7 @@ export function createShield(
     builder.affordance({
       id: "forearm",
       kind: "socket",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(strapX, 0, strapBack + bar),
         v(0, 0, -1),
         v(1, 0, 0),
@@ -179,7 +187,7 @@ export function createShield(
       builder.affordance({
         id,
         kind: "ledge",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(sign * radius, 0, 0),
           v(sign, 0, 0),
           v(0, 1, 0),
@@ -196,7 +204,11 @@ export function createShield(
   builder.affordance({
     id: "slung",
     kind: "socket",
-    frame: ArchetypeFrame.facing(v(0, 0, rear), v(0, 0, -1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, 0, rear),
+      v(0, 0, -1),
+      v(1, 0, 0),
+    ),
     extent: null,
   });
   return builder.build(d.mass!);
@@ -260,7 +272,9 @@ export namespace createShield {
   export type Dimension = "diameter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     mass: "kg",
   };
@@ -279,12 +293,15 @@ export namespace createShield {
   > = {
     buckler: {
       a315: {
-        diameter: 17.5 * ArchetypeUnits.INCH,
-        mass: 3 * ArchetypeUnits.POUND + 7 * ArchetypeUnits.OUNCE,
+        diameter: 17.5 * AutoMovieArchetypeUnits.INCH,
+        mass:
+          3 * AutoMovieArchetypeUnits.POUND + 7 * AutoMovieArchetypeUnits.OUNCE,
       },
       a316: {
-        diameter: 20.75 * ArchetypeUnits.INCH,
-        mass: 3 * ArchetypeUnits.POUND + 13 * ArchetypeUnits.OUNCE,
+        diameter: 20.75 * AutoMovieArchetypeUnits.INCH,
+        mass:
+          3 * AutoMovieArchetypeUnits.POUND +
+          13 * AutoMovieArchetypeUnits.OUNCE,
       },
     },
   };
@@ -303,12 +320,12 @@ export namespace createShield {
 
   /** The band of each free dimension a model leaves, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     buckler: {},
     round: {
-      diameter: ArchetypeBand.metres(0.75, 0.9, ROUND, true),
-      mass: ArchetypeBand.of(
+      diameter: AutoMovieArchetypeBand.metres(0.75, 0.9, ROUND, true),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         3.5,
         5,
@@ -317,13 +334,13 @@ export namespace createShield {
       ),
     },
     strapped: {
-      diameter: ArchetypeBand.metres(
+      diameter: AutoMovieArchetypeBand.metres(
         0.72,
         0.92,
         "Authored virtual stage scale.",
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.35,
         0.55,

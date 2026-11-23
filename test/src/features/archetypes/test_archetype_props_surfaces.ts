@@ -1,5 +1,5 @@
 import {
-  type Archetype,
+  type AutoMovieArchetype,
   createBow,
   createProjectile,
   createRock,
@@ -31,7 +31,7 @@ export function test_archetype_props_surfaces(): void {
   const stone: readonly [number | undefined, number | undefined] = [0.57, 0.53];
   const rows: readonly [
     string,
-    Archetype,
+    AutoMovieArchetype,
     Readonly<Record<string, string | null>>,
     readonly [number | undefined, number | undefined],
   ][] = [

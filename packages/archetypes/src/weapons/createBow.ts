@@ -1,19 +1,18 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieGravity } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  type AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { BOW_BANDS } from "./BOW_BANDS";
 import { bowLaunchSpeed } from "./bowLaunchSpeed";
 import { bowLimbs } from "./bowLimbs";
-import { buildCrossbow } from "./buildCrossbow";
+import { createStageHandBowProp } from "./createStageHandBowProp";
+import { createStageStockBowProp } from "./createStageStockBowProp";
 
 /** The Olympic recurve's maker's chart. */
 const HOYT: string =
@@ -27,164 +26,36 @@ const HOYT: string =
  * @param params The kind, the model and a horse bow's draw weight, and any dimension the author fixes.
  * @param seed The seed that picks the model and the draw weight left free and draws every dimension left free inside its band; absent, the first model, the first draw weight and the middle of each band.
  * @returns The bow.
- * @throws {ArchetypeRefusal} For a model or a draw weight not of the kind, a fixed dimension outside its band, or one the model or the draw weight gives.
+ * @throws {AutoMovieArchetypeRefusal} For a model or a draw weight not of the kind, a fixed dimension outside its band, or one the model or the draw weight gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the bow stands, where its back and string face, where it is held, how the string draws and the limbs follow, and where the arrow sits and lies.
- * @evidence contracts/development/implementation.md#principled-implementation Two limbs of the read section from the grip to the nocks, the read length apart, the string a twelfth of that length clear of the belly as the brace rule gives, or a read brace height; the whole lifted so its lowest point is on the floor. The string slides from brace to the draw length; each limb's turn at a travel keeps its tip on its circle about the grip and the string's half length from the nocking point, `asin(c / R) - alpha` with `c` the tip's reach toward the drawn nock, tabulated at the travels where piecewise-linear reading keeps the half within the string's radius of its length.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model and the draw weight, draw the other dimensions, then a crossbow's own branch, or place the nocks, then the limbs, the grip, the string's slider and halves, the limbs' hinges and the contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the legacy selector and calls the selected profile once.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limbs' taper and bend, a recurve's tips and the horn nocks are not drawn: each limb turns stiff about the grip; no contact reads more. The string's radius is half the read arrow nock width it fits. A crossbow's stock is a box of its fore-end's section, its taper not drawn; its cranequin's axle direction and its stirrup's height are unread and placed provisionally; its draw weight is unread, so it has none.
  * @evidence contracts/development/implementation.md#efficient-algorithms Six parts for a bow and nine for a crossbow; the limbs' table is bisected once per bow.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The string's halves are `ArchetypeBuilder.span`'s lines from the limb tips to the nock, so they stay on them in any pose.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The string's halves are `AutoMovieArchetypeBuilder.span`'s lines from the limb tips to the nock, so they stay on them in any pose.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBow(
   params: createBow.IParams,
   seed?: number | string,
-): Archetype<createBow.Affordance, createBow.Dimension> {
-  const draw: ArchetypeDrawSession<createBow.Dimension> =
-    new ArchetypeDrawSession<createBow.Dimension>(
-      "bow",
-      createBow.UNITS,
-      seed,
-      params,
-    );
+): AutoMovieArchetype<createBow.Affordance, createBow.Dimension> {
   const kind: createBow.Kind = ArchetypeDraw.choice(
     "bow",
     "kind",
     params.kind,
     createBow.KINDS,
   );
-  // A longbow is one of the three read approximations, its mass and draw whole; a recurve one of the maker's two lengths with its brace band; a horse bow one of the two read bows, drawn at one of its maker's draw weights.
-  const model: {
-    name: createBow.Model | undefined;
-    figures: Readonly<Partial<Record<createBow.Dimension, number>>>;
-  } = draw.model<createBow.Model>(
-    "model",
-    params.model,
-    createBow.MODELS[kind],
-  );
-  const weight: {
-    figures: Readonly<Partial<Record<createBow.Dimension, number>>>;
-  } = draw.model<createBow.Weight>(
-    "weight",
-    params.weight,
-    createBow.WEIGHTS[kind],
-  );
-  const bands: Readonly<Partial<Record<createBow.Dimension, IArchetypeBand>>> =
-    {
-      ...createBow.BANDS[kind],
-      ...(model.name === undefined ? {} : createBow.BRACES[model.name]),
-    };
-  const d: Partial<Record<createBow.Dimension, number>> = {
-    ...draw.dimensions(bands, createBow.BANDS),
-    ...model.figures,
-    ...weight.figures,
-  };
-  const builder: ArchetypeBuilder<createBow.Affordance, createBow.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name:
-        kind === "longbow"
-          ? "longbow"
-          : kind === "recurve"
-            ? "recurve bow"
-            : kind === "crossbow"
-              ? "crossbow"
-              : "horse bow",
-      draw,
-    });
-  if (kind === "crossbow") return buildCrossbow(builder, d);
-  const v: typeof Vector3.create = Vector3.create;
-
-  // The string a brace height clear of the belly; each limb a straight rod from the grip to its nock, lifted so the lower limb's tilted collider, a capsule as long as the rod, rests on the floor.
-  const length: number = d.length!;
-  const r: number = d.depth! / 2;
-  const string: number = r + (d.brace ?? length * createBow.BRACE);
-  const limb: number = Math.hypot(length / 2, string);
-  const floor: number = r * (1 - length / 2 / limb);
-  const centre: number = floor + length / 2;
-  const low: ReturnType<typeof v> = v(0, floor, string);
-  const high: ReturnType<typeof v> = v(0, floor + length, string);
-  const grip: ReturnType<typeof v> = v(0, centre, 0);
-  const wood: { surface?: "wood" } =
-    kind === "longbow" ? { surface: "wood" } : {};
-  builder.rod("lowerLimb", r, low, grip, { color: "#a8743f", ...wood });
-  builder.rod("upperLimb", r, grip, high, { color: "#a8743f", ...wood });
-  builder.ball("grip", r, grip, { color: "#8a5a2b", ...wood });
-  builder.ball("nockingPoint", createBow.STRING, v(0, centre, string), {
-    color: "#c9a227",
-  });
-
-  // The string: its nocking point slides back along `+Z` from brace to the draw length from the grip.
-  const travel: number = createBow.DRAW_LENGTH[kind] - string;
-  builder.affordance({
-    id: "string",
-    kind: "slider",
-    frame: ArchetypeFrame.facing(v(0, centre, string), v(0, 1, 0), v(0, 0, 1)),
-    extent: null,
-    travel,
-    parts: ["nockingPoint"],
-  });
-  builder.affordance({
-    id: "nock",
-    kind: "socket",
-    frame: ArchetypeFrame.facing(v(0, centre, string), v(0, 0, 1), v(0, 1, 0)),
-    extent: null,
-    rides: "string",
-  });
-
-  // Each limb turns about the grip's sideways axis, the upper's positive turn and the lower's bringing its tip back toward the string, by the table that keeps the tip the string's half length from the nocking point.
-  const table: [number, number][] = createBow.limbs(length / 2, string, travel);
-  for (const [id, sign] of [
-    ["upperLimb", 1],
-    ["lowerLimb", -1],
-  ] as const)
-    builder.affordance({
-      id,
-      kind: "hinge",
-      frame: ArchetypeFrame.facing(grip, v(sign, 0, 0), v(0, 0, 1)),
-      extent: null,
-      travel: table[table.length - 1]![1],
-      parts: [id],
-      follows: { id: "string", table },
-    });
-
-  // The string's halves, each from a limb tip to the nocking point, laid again at every pose.
-  for (const [id, part, at] of [
-    ["string-upper", "upperLimb", limb / 2],
-    ["string-lower", "lowerLimb", -limb / 2],
-  ] as const)
-    builder.span(
-      id,
-      { part, at: v(0, at, 0) },
-      { affordance: "nock" },
-      createBow.STRING,
-      { color: "#e8e1cf" },
-    );
-  builder.affordance({
-    id: "grip",
-    kind: "handle",
-    symmetry: "none",
-    frame: ArchetypeFrame.facing(grip, v(0, 0, 1), v(0, 1, 0)),
-    extent: null,
-    grip: "power",
-    aperture: d.depth!,
-  });
-  // The rest on the stave's side, square to the string the drawn nocking height below the nocking point, as a tuned bow sets it.
-  builder.affordance({
-    id: "rest",
-    kind: "surface",
-    frame: ArchetypeFrame.facing(
-      v(-r, centre - d.nockHeight!, 0),
-      v(-1, 0, 0),
-      v(0, 0, 1),
-    ),
-    extent: null,
-    width: d.depth!,
-    depth: d.depth!,
-  });
-  return builder.build(d.mass!, kind === "longbow" ? { rests: "wood" } : {});
+  /** The legacy surface accepts a broad selector before runtime admission. */
+  type Producer = {
+    build(
+      params: createBow.IParams,
+      seed?: number | string,
+    ): AutoMovieArchetype<createBow.Affordance, createBow.Dimension>;
+  }["build"];
+  // The selected producer validates its options from the saved parameter union.
+  const produce: Producer = createBow.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
 
 /**
@@ -196,6 +67,22 @@ export function createBow(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing between two models or two draw weights is drawn; the grips' power band, the recurve's estimated upper weight and riser masses, and the launch's curve and efficiency are marked provisional.
  */
 export namespace createBow {
+  /** The canonical factories for saved kinds, read after the catalogue loads. */
+  export const PRODUCERS = {
+    get longbow(): typeof createStageHandBowProp {
+      return createStageHandBowProp;
+    },
+    get recurve(): typeof createStageHandBowProp {
+      return createStageHandBowProp;
+    },
+    get horseBow(): typeof createStageHandBowProp {
+      return createStageHandBowProp;
+    },
+    get crossbow(): typeof createStageStockBowProp {
+      return createStageStockBowProp;
+    },
+  } satisfies Readonly<Record<Kind, unknown>>;
+
   /** The kinds: a longbow, after the Mary Rose bow X1-3's approximations, an Olympic recurve, after Hoyt's Grand Prix bows, and a Korean traditional horse bow. */
   export type Kind = "longbow" | "recurve" | "horseBow" | "crossbow";
 
@@ -216,9 +103,9 @@ export namespace createBow {
   export const DRAW_LENGTH: Readonly<
     Record<Exclude<Kind, "crossbow">, number>
   > = {
-    longbow: 30 * ArchetypeUnits.INCH,
-    recurve: 28 * ArchetypeUnits.INCH,
-    horseBow: 31 * ArchetypeUnits.INCH,
+    longbow: 30 * AutoMovieArchetypeUnits.INCH,
+    recurve: 28 * AutoMovieArchetypeUnits.INCH,
+    horseBow: 31 * AutoMovieArchetypeUnits.INCH,
   };
 
   /**
@@ -265,7 +152,9 @@ export namespace createBow {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     depth: "m",
     brace: "m",
@@ -309,43 +198,48 @@ export namespace createBow {
     longbow: {
       s1: {
         mass: 0.905,
-        draw: 108 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 108 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       },
       s2: {
         mass: 0.868,
-        draw: 101 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 101 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       },
       s3: {
         mass: 0.785,
-        draw: 141 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 141 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       },
     },
     recurve: {
-      hoyt68: { length: 68 * ArchetypeUnits.INCH },
-      hoyt70: { length: 70 * ArchetypeUnits.INCH },
+      hoyt68: { length: 68 * AutoMovieArchetypeUnits.INCH },
+      hoyt70: { length: 70 * AutoMovieArchetypeUnits.INCH },
     },
     horseBow: {
-      warrior: { length: 53 * ArchetypeUnits.INCH, mass: 0.33 },
-      zenith: { length: 48 * ArchetypeUnits.INCH, mass: 0.315 },
+      warrior: { length: 53 * AutoMovieArchetypeUnits.INCH, mass: 0.33 },
+      zenith: { length: 48 * AutoMovieArchetypeUnits.INCH, mass: 0.315 },
     },
     crossbow: {},
   };
 
   /** A recurve model's brace band, the maker's for its length on a 25 in Grand Prix riser (Hoyt, p. 15). */
   export const BRACES: Readonly<
-    Partial<Record<Model, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>>
+    Partial<
+      Record<
+        Model,
+        Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>
+      >
+    >
   > = {
     hoyt68: {
-      brace: ArchetypeBand.metres(
-        8.5 * ArchetypeUnits.INCH,
-        9 * ArchetypeUnits.INCH,
+      brace: AutoMovieArchetypeBand.metres(
+        8.5 * AutoMovieArchetypeUnits.INCH,
+        9 * AutoMovieArchetypeUnits.INCH,
         HOYT,
       ),
     },
     hoyt70: {
-      brace: ArchetypeBand.metres(
-        8.75 * ArchetypeUnits.INCH,
-        9.5 * ArchetypeUnits.INCH,
+      brace: AutoMovieArchetypeBand.metres(
+        8.75 * AutoMovieArchetypeUnits.INCH,
+        9.5 * AutoMovieArchetypeUnits.INCH,
         HOYT,
       ),
     },
@@ -361,16 +255,36 @@ export namespace createBow {
     >
   > = {
     horseBow: {
-      lb15: { draw: 15 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
-      lb20: { draw: 20 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
-      lb25: { draw: 25 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
-      lb30: { draw: 30 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
-      lb35: { draw: 35 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
-      lb40: { draw: 40 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
-      lb45: { draw: 45 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
-      lb50: { draw: 50 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
-      lb55: { draw: 55 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
-      lb60: { draw: 60 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
+      lb15: {
+        draw: 15 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      },
+      lb20: {
+        draw: 20 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      },
+      lb25: {
+        draw: 25 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      },
+      lb30: {
+        draw: 30 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      },
+      lb35: {
+        draw: 35 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      },
+      lb40: {
+        draw: 40 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      },
+      lb45: {
+        draw: 45 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      },
+      lb50: {
+        draw: 50 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      },
+      lb55: {
+        draw: 55 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      },
+      lb60: {
+        draw: 60 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      },
     },
   };
 
@@ -391,7 +305,7 @@ export namespace createBow {
 
   /** The band of each free dimension a kind's model and draw weight leave, by kind; a recurve's brace is its model's (`BRACES`). */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = BOW_BANDS;
 
   /**
@@ -412,19 +326,19 @@ export namespace createBow {
     stirrup: number;
     thickness: number;
   }> = {
-    stock: 36 * ArchetypeUnits.INCH,
-    fore: 3.25 * ArchetypeUnits.INCH,
-    nut: 14 * ArchetypeUnits.INCH,
-    rest: 6 * ArchetypeUnits.INCH,
-    travel: 5.5 * ArchetypeUnits.INCH,
+    stock: 36 * AutoMovieArchetypeUnits.INCH,
+    fore: 3.25 * AutoMovieArchetypeUnits.INCH,
+    nut: 14 * AutoMovieArchetypeUnits.INCH,
+    rest: 6 * AutoMovieArchetypeUnits.INCH,
+    travel: 5.5 * AutoMovieArchetypeUnits.INCH,
     turns: 30,
-    handle: 9 * ArchetypeUnits.INCH,
-    axle: 7 * ArchetypeUnits.INCH,
-    trigger: 8.25 * ArchetypeUnits.INCH,
-    triggerDiameter: 0.375 * ArchetypeUnits.INCH,
-    release: 0.125 * ArchetypeUnits.INCH,
-    stirrup: (13 / 8) * ArchetypeUnits.INCH,
-    thickness: 0.5 * ArchetypeUnits.INCH,
+    handle: 9 * AutoMovieArchetypeUnits.INCH,
+    axle: 7 * AutoMovieArchetypeUnits.INCH,
+    trigger: 8.25 * AutoMovieArchetypeUnits.INCH,
+    triggerDiameter: 0.375 * AutoMovieArchetypeUnits.INCH,
+    release: 0.125 * AutoMovieArchetypeUnits.INCH,
+    stirrup: (13 / 8) * AutoMovieArchetypeUnits.INCH,
+    thickness: 0.5 * AutoMovieArchetypeUnits.INCH,
   };
 
   /** Reference numbers for the provisional launch model (Kooi, On the Mechanics of the Bow and Arrow, 1983, https://www.bio.vu.nl/thb/users/kooi/thesis.pdf): straight-end KL q=0.407 and efficiency=0.765 at arrow mass0.02 kg (p.117; Table4.29,p.161), and modern-recurve B1 q=0.426 (Table2.6,p.46). Native q=A/(F D), with D the full grip-to-nock draw; the energy integral starts at brace H (Kooi1994, Eq3, https://www.bio.vu.nl/thb/users/kooi/kooi94.pdf). This prototype reuses those numbers as authored stroke factors A/(F X), X=D-H, without converting or calibrating their normalization. That reinterpretation, the power-law curve and the borrowed efficiency are provisional for these assets; launchSpeed does not reproduce native q or a measured force-draw curve. */

@@ -28,31 +28,17 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * strike owner's, #3244, whose file does not exist yet), the pitch (a row
  * of the throw law), the windmill pitch, the catcher's throw and base
  * running slides.
- *
- * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation seconds: Seconds held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.baseball, params); sport/baseball.ts (baseball.plan, context); sport/baseball.ts (baseball.plan); executable/cases/baseballCases.ts (baseballCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanBaseball {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The position and the hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The position. */
     kind: IAutoMovieMotionHumanBaseball.Kind;
 
-    /** Seconds held; 1 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
-    seconds?: number;
+    /** Seconds held, at least 0; 1 when absent. */
+    hold?: number;
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;
@@ -60,11 +46,6 @@ export namespace IAutoMovieMotionHumanBaseball {
 
   /**
    * Capture cases of the baseball positions (#3248) from quiet standing. The positions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Capture cases of the baseball positions (#3248) from quiet standing. The positions.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "catcherCrouch", "groundBall", "battingStance" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: executable/cases/baseballCases.ts (baseballCases).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in baseballCases.
    */
   export type Kind = "catcherCrouch" | "groundBall" | "battingStance";
 }

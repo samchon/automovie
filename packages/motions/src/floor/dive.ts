@@ -1,5 +1,6 @@
-import { minimumJerk } from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionHumanActionContext,
@@ -8,14 +9,17 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanDive,
+  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -45,17 +49,21 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
  * Landed, the root is placed so the lowest joint centre lies at the
  * ankle's standing height above the floor, as on the feet.
  *
- * Contact windows: the feet plant through the crouch; landed, the seat lies
- * on the floor (the hip) and, in a dive, the lower hand plants beside it.
+ * Toe-off, in a dive: over the crouch's last `TOE_OFF` seconds each planted
+ * foot rolls about its ball, the heel rising, by the angle (solved on the
+ * planted take-off, `SECANT`) that brings the take-off's ankle to what a
+ * weightless ankle reaches (`ANKLE_DORSIFLEXION.unloaded`), so the feet
+ * leave the floor plantarflexed, as the push-off's plantarflexion leaves
+ * them, and stay so in the air.
+ *
+ * Contact windows: the feet plant through the crouch; in a slide they then
+ * bear on the floor, sliding with the body, to the end; landed, the seat
+ * lies on the floor (the hip) and, in a dive, the lower hand plants beside
+ * it.
  *
  * First pass: the take-off is not driven by the legs' push, the landing
  * does not absorb the fall through the arm, and a slide from a run starts
  * from the run's posture at rest, not its speed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two kinds, the root's path, the one airborne axis, the landing and the contacts, and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation A shape of the joints, a turn about one body axis and a root path, with the landed body read off its own lowest point.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the shapes, four constants, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The flight turns about one axis only, as stated; no tumble is faked.
  */
 export namespace dive {
   /** The action's name. */
@@ -84,6 +92,9 @@ export namespace dive {
       rightUpperLeg: [10, 0, 0],
       leftLowerLeg: [20, 0, 0],
       rightLowerLeg: [30, 0, 0],
+      // The toes the toe-off bent relax in the air.
+      leftToes: [0, 0, 0],
+      rightToes: [0, 0, 0],
     },
     slide: {
       spine: [-5, 0, 0],
@@ -115,20 +126,18 @@ export namespace dive {
     Record<IAutoMovieMotionHumanDive.Kind, readonly [number, number, number]>
   > = { dive: [0.3, 0.45, 0.6], slide: [0.2, 0.8, 0.5] };
 
+  /** Seconds the feet take to roll onto their balls before they leave the floor: about a sprint's ground contact, the push-off's plantarflexion (provisional). */
+  export const TOE_OFF: number = 0.1;
+
+  /** The most secant steps the toe-off roll takes toward the unloaded limit: the ankle's response to the roll is nearly linear, so each step leaves a small fraction of the last one's residual. */
+  export const SECANT: number = 4;
+
   /**
    * Plan a dive or a slide.
    *
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the entry is not on both feet.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The crouch keeps the ankles where they stood by planted leg goals, so the lowered root bends the knees; the flight starts from the crouch's solved joints (`GymnasticsFlight.frozen`), so the pose is continuous at take-off; the flight's root is a parabola over the chord from take-off to the landed root, which is read off the landed body's lowest joint; the turn is about the one axis the kind names.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape, the landed root, the three phases, the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body not on both feet is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Target start/difference triples, fixed foot-heading/contact readers and ankle/hip name demands prepare once. Crouch observations keep full direct admission but resolve only goals affecting ankle ancestry; start-hip observation omits independent leg fits. Every actual knee hint, planted goal, landing joint centre and displayed solve remains, with speedup unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Crouch/solved launch joints prepare separate target differences. The same unchanged entry feet feed Trunk.preparePlanted's original leg-goal owner, while every current root/yaw still writes its knee/contact/goal. Genuine name readers and synchronous FK/projector loans share only prerequisites; current joint projection and digit/unsupported full fallback remain.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains original entry, two fixed foot placements/goal readers, two bounded track readers, ankle/hip demands and landed geometry. Query maps/getters release on return/throw; optional FK/projector loans stay synchronous and never enter raw output or retained callbacks. No previous-query result, handle or task is retained.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDive.IParams>,
@@ -223,19 +232,117 @@ export namespace dive {
         left: { ankle: feet.left.ankle, rotation: feet.left.rotation },
         right: { ankle: feet.right.ankle, rotation: feet.right.rotation },
       }, ["left", "right"]);
-    const crouched: (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IAutoMovieMotionHumanPosture = (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IAutoMovieMotionHumanPosture => {
+    const crouchedOn: (share: number, on?: Feet, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IAutoMovieMotionHumanPosture = (share: number, on?: Feet, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IAutoMovieMotionHumanPosture => {
       const posture: IAutoMovieMotionHumanPosture = shape(share / 3, 0);
       const local: IAutoMovieVector3 = ankleMid(posture, resolution, projection);
-      return plant({
+      const placed: IAutoMovieMotionHumanPosture = {
         ...posture,
         root: {
           x: ankles.x - local.x,
           y: ankles.y - local.y - 0.05 * stature * share,
           z: ankles.z - local.z,
         },
-      });
+      };
+      return on === undefined
+        ? plant(placed)
+        : AutoMovieMotionHumanTrunk.planted(body, placed, on, ["left", "right"]);
     };
-    const takeoff: IAutoMovieMotionHumanPosture = crouched(1);
+
+    // Toe-off (a dive's; a slide's feet stay on the floor): each foot rolls
+    // about its ball, toes down, by the angle that brings the take-off's
+    // ankle to the unloaded limit. The heel's rise moves the ankle under the
+    // fixed hips, so the knee and the shank's lean change with the roll too:
+    // the angle is solved on the planted take-off itself, by secant steps
+    // from the flat take-off's excess.
+    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+    const roll: (side: AutoMovieHumanSide) => FootRoll = (side: AutoMovieHumanSide): FootRoll => {
+      const foot: IAutoMovieMotionHumanFoot.IPlacement = feet[side];
+      const local: IAutoMovieVector3 = HumanFoot.offset(body, side, "ball");
+      const ball: IAutoMovieVector3 = Vector3.add(
+        foot.ankle,
+        Quaternion.rotateVector(foot.rotation, local),
+      );
+      const heading: number = HumanFoot.heading(foot.rotation) * Quaternion.DEG2RAD;
+      const along: IAutoMovieVector3 = Number.isFinite(heading)
+        ? { x: Math.sin(heading), y: 0, z: Math.cos(heading) }
+        : HumanFrame.forward(entry.yaw);
+      const axis: IAutoMovieVector3 = Vector3.cross(up, along);
+      return (degrees: number): IAutoMovieMotionHumanFoot.IPlacement => {
+        const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+          Quaternion.fromAxisAngle(axis, degrees),
+          foot.rotation,
+        );
+        return {
+          ankle: Vector3.subtract(ball, Quaternion.rotateVector(rotation, local)),
+          rotation,
+        };
+      };
+    };
+    const rolls: Readonly<Record<AutoMovieHumanSide, FootRoll>> = {
+      left: roll("left"),
+      right: roll("right"),
+    };
+    const rolled: (lift: Lift) => Feet = (lift: Lift): Feet => ({
+      left: rolls.left(lift.left),
+      right: rolls.right(lift.right),
+    });
+    // How far each take-off ankle stays dorsiflexed past the unloaded limit.
+    const excess: (on?: Feet) => Lift = (on?: Feet): Lift => {
+      const joints: IAutoMovieMotionHumanPosture["joints"] = GymnasticsFlight.frozen(
+        body,
+        crouchedOn(1, on),
+      ).joints;
+      return {
+        left: (joints.leftFoot?.[0] ?? 0) - ANKLE_DORSIFLEXION.unloaded,
+        right: (joints.rightFoot?.[0] ?? 0) - ANKLE_DORSIFLEXION.unloaded,
+      };
+    };
+    const lift: Lift = ((): Lift => {
+      if (kind !== "dive") return { left: 0, right: 0 };
+      let before: Lift = { left: 0, right: 0 };
+      let over: Lift = excess();
+      let now: Lift = { left: Math.max(0, over.left), right: Math.max(0, over.right) };
+      for (let k: number = 0; k < SECANT && (now.left > 0 || now.right > 0); ++k) {
+        const after: Lift = excess(rolled(now));
+        if (after.left <= 0 && after.right <= 0) break;
+        const step: (side: AutoMovieHumanSide) => number = (side: AutoMovieHumanSide): number => {
+          if (after[side] <= 0) return now[side];
+          const slope: number = (over[side] - after[side]) / (now[side] - before[side]);
+          // A roll that did not lower the ankle is stepped by the excess.
+          return now[side] + after[side] / (Number.isFinite(slope) && slope > 0 ? slope : 1);
+        };
+        const next: Lift = { left: step("left"), right: step("right") };
+        before = now;
+        over = after;
+        now = next;
+      }
+      return now;
+    })();
+    const toeOff: number = Math.min(TOE_OFF, crouch);
+    const crouched: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IAutoMovieMotionHumanPosture = (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IAutoMovieMotionHumanPosture => {
+      const share: number = minimumJerk.share(seconds / crouch);
+      const toe: number = minimumJerk.share(
+        Math.max(0, (seconds - (crouch - toeOff)) / toeOff),
+      );
+      if (!(toe > 0 && (lift.left > 0 || lift.right > 0)))
+        return crouchedOn(share, undefined, resolution, projection);
+      const posture: IAutoMovieMotionHumanPosture = crouchedOn(
+        share,
+        rolled({ left: lift.left * toe, right: lift.right * toe }),
+        resolution,
+        projection,
+      );
+      // With the heels up the toes bend at their joints and stay on the floor.
+      return {
+        ...posture,
+        joints: {
+          ...posture.joints,
+          leftToes: [lift.left * toe, 0, 0],
+          rightToes: [lift.right * toe, 0, 0],
+        },
+      };
+    };
+    const takeoff: IAutoMovieMotionHumanPosture = crouched(crouch);
     const off: IAutoMovieVector3 = takeoff.root;
 
     // The flight leaves from the take-off's solved joints, its bent knees
@@ -282,6 +389,8 @@ export namespace dive {
           from: 0,
           to: share(crouch),
           support: { kind: "ground" },
+          // A dive's foot rolls about its held ball at the toe-off.
+          ...(kind === "dive" ? { socket: "ball" as const } : {}),
         }),
       ),
       {
@@ -291,6 +400,18 @@ export namespace dive {
         to: 1,
         support: { kind: "ground" },
       },
+      // A slide's feet stay on the floor and slide with it, bearing.
+      ...(kind === "slide"
+        ? (["leftFoot", "rightFoot"] as const).map(
+            (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
+              part,
+              kind: "bear",
+              from: share(crouch),
+              to: 1,
+              support: { kind: "ground" },
+            }),
+          )
+        : []),
       ...(kind === "dive"
         ? [
             {
@@ -313,7 +434,7 @@ export namespace dive {
       physicalWindow: { from: crouch, to: crouch + travel },
       posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= crouch) return crouched(minimumJerk.share(t / crouch), resolution, projection);
+        if (t <= crouch) return crouched(t, resolution, projection);
         if (t >= crouch + travel) return { ...landedShape, root: landed };
         const u: number = (t - crouch) / travel;
         const s: number = kind === "dive" ? u : minimumJerk.share(u);
@@ -343,4 +464,13 @@ export namespace dive {
 
   /** One changing share/turn of a fixed entered or solved-launch articulation. */
   type ShapeReader = (share: number, turn: number) => IAutoMovieMotionHumanPosture;
+
+  /** Each foot's placement, world frame. */
+  type Feet = Readonly<Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>>;
+
+  /** A foot's placement rolled about its ball by an angle, degrees, toes down. */
+  type FootRoll = (degrees: number) => IAutoMovieMotionHumanFoot.IPlacement;
+
+  /** Each foot's toe-off roll, degrees, or each take-off ankle's dorsiflexion past the unloaded limit. */
+  type Lift = Readonly<Record<AutoMovieHumanSide, number>>;
 }

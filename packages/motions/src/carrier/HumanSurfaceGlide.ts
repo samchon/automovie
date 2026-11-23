@@ -29,12 +29,6 @@ const RIGHT: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 /** Forward of the tangent-plane frame before it is turned to the entry. */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-/** Fraction of the action used to reach nominal speed from the entry. */
-const ACQUIRE: number = 0.2;
-
-/** Fraction of the action used to decelerate when a stop is requested. */
-const BRAKE: number = 0.35;
-
 /**
  * One continuous bilateral glide for ice and snow. An authored arc travels
  * in a level or inclined plane and the two ankles travel with that frame.
@@ -52,13 +46,20 @@ const BRAKE: number = 0.35;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The provided speed and slope shape motion in physical units without importing force constants across sports.
  */
 export namespace HumanSurfaceGlide {
+  /** Fraction of the action used to reach nominal speed from the entry (provisional staging, as the speed profile is). */
+  export const ACQUIRE: number = 0.2;
+
+  /** Fraction of the action used to decelerate when a stop is requested (provisional staging, as the speed profile is). */
+  export const BRAKE: number = 0.35;
+
   /**
-   * Plan a straight glide or one arc on the plane of the entered stance.
+   * Plan a straight glide or one arc on the plane of the entered stance;
+   * a descent bears its skis on the slope the scene names (`slope`).
    *
    * @param context The entered stance, body and authored speed and arc.
    * @returns The bearing windows, speed events and pure posture query.
    * @throws {HumanRefusal} For a non-standing entry, missing ground support,
-   * infeasible arc radius or parameters outside the authored bounds.
+   * a grade with no slope named, infeasible arc radius or parameters outside the authored bounds.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the support and timing assumptions and the refusal conditions.
    * @evidence contracts/development/implementation.md#principled-implementation Integrates the cubic speed ramps in closed form, transports ankle positions along circles about the common arc center, and fits each ankle with its own tangent.
@@ -72,7 +73,12 @@ export namespace HumanSurfaceGlide {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISnowGlideParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params }: typeof context = context;
-    const seconds: number = HumanBound.above("seconds", params.seconds, 0, "s");
+    const seconds: number = HumanBound.above(
+      "duration",
+      params.duration,
+      0,
+      "s",
+    );
     const speed: number = HumanBound.above("speed", params.speed, 0, "m/s");
     const turn: number = HumanBound.within(
       "turn",
@@ -88,6 +94,19 @@ export namespace HumanSurfaceGlide {
       20,
       "deg",
     );
+    // A descent glides on the slope the scene declares: the skis bear on
+    // its surface, and with no slope under them a grade would carry the
+    // body below the level ground it stands on.
+    const slope: string | undefined = params.slope;
+    if (grade !== 0 && slope === undefined)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "slope",
+        value: grade,
+        feasible: null,
+        reason: `a ${grade} degree descent glides on a slope, and no slope is named under the skis`,
+        fix: "name the scene's slope the skis glide on, or glide on level snow",
+      });
     if (
       entry.base.kind !== "standing" ||
       SIDES.some(
@@ -186,7 +205,10 @@ export namespace HumanSurfaceGlide {
         kind: "bear",
         from: 0,
         to: 1,
-        support: { kind: "ground" },
+        support:
+          slope === undefined
+            ? { kind: "ground" }
+            : { kind: "prop", subject: slope, carries: false },
       }),
     );
     if (braking > 0 && grade === 0)

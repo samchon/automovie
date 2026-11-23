@@ -235,8 +235,8 @@ catalogs:
       specifier: ^0.37.1
       version: 0.37.1
     '@wrtnlabs/evidence':
-      specifier: ^0.8.2
-      version: 0.8.2
+      specifier: ^0.11.0
+      version: 0.11.0
     tstl:
       specifier: ^3.0.0
       version: 3.0.0
@@ -260,6 +260,9 @@ catalogs:
     prettier:
       specifier: ^3.5.3
       version: 3.8.3
+    prettier-plugin-jsdoc:
+      specifier: ^1.8.1
+      version: 1.8.1
     typescript:
       specifier: ^7.0.2
       version: 7.0.2
@@ -336,7 +339,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       bumpp:
         specifier: catalog:utils
         version: 12.3.0
@@ -358,6 +361,9 @@ importers:
       prettier:
         specifier: catalog:typescript
         version: 3.8.3
+      prettier-plugin-jsdoc:
+        specifier: catalog:typescript
+        version: 1.8.1(prettier@3.8.3)(supports-color@7.2.0)
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -387,7 +393,7 @@ importers:
         version: 0.37.1(ttsc@0.37.1(typescript@7.0.2))
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       tinyglobby:
         specifier: catalog:utils
         version: 0.2.17
@@ -427,7 +433,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       automovie:
         specifier: workspace:^
         version: link:../cli
@@ -485,7 +491,7 @@ importers:
         version: 22.19.20
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -501,9 +507,6 @@ importers:
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
-      '@dimforge/rapier3d-compat':
-        specifier: 0.21.0
-        version: 0.21.0
     devDependencies:
       '@ttsc/evidence':
         specifier: catalog:samchon
@@ -513,7 +516,7 @@ importers:
         version: 0.37.1(ttsc@0.37.1(typescript@7.0.2))
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -528,7 +531,7 @@ importers:
     dependencies:
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
     devDependencies:
       '@ttsc/evidence':
         specifier: catalog:samchon
@@ -636,7 +639,7 @@ importers:
         version: 0.37.1(ttsc@0.37.1(typescript@7.0.2))
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -657,7 +660,7 @@ importers:
         version: 0.37.1(ttsc@0.37.1(typescript@7.0.2))
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -700,7 +703,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       automovie:
         specifier: workspace:^
         version: link:../cli
@@ -752,7 +755,7 @@ importers:
         version: 22.19.20
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -792,7 +795,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -826,7 +829,7 @@ importers:
         version: 22.19.20
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -866,7 +869,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       react:
         specifier: catalog:react
         version: 19.3.1
@@ -961,9 +964,6 @@ importers:
         specifier: catalog:samchon
         version: 15.4.1(ttsc@0.37.1(typescript@7.0.2))
     devDependencies:
-      '@dimforge/rapier3d-compat':
-        specifier: 0.21.0
-        version: 0.21.0
       '@napi-rs/canvas':
         specifier: 1.0.1
         version: 1.0.1
@@ -990,7 +990,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.8.2(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
       chalk:
         specifier: catalog:utils
         version: 4.1.2
@@ -1198,9 +1198,6 @@ packages:
 
   '@dimforge/rapier3d-compat@0.12.0':
     resolution: {integrity: sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==}
-
-  '@dimforge/rapier3d-compat@0.21.0':
-    resolution: {integrity: sha512-tCl1HPGwOhn5aCQbgqWbOH+Nx/5fnr3IPAnzQuR7zIhC/raqi2yxC6LhvZqjdI2El5hQgY5RDAwDrAjAi2FdPA==}
 
   '@emnapi/core@2.0.0-beta.2':
     resolution: {integrity: sha512-MzCVoWtcg4Pm2B3je5mMvYMvj3MmBKw+fU7vbsJc9/iT8ip6/eYIHo/Dsm/mr+wsHB6SEyJDuxB09Yy6r/8+4A==}
@@ -2600,17 +2597,11 @@ packages:
     peerDependencies:
       typescript: '*'
 
-  '@typia/interface@15.3.0':
-    resolution: {integrity: sha512-bVGiBz7fYXd1HiUp9Imnz63vtKLabdBfhfue5buE4EN2NnhlekmebD5YMyc5b4wC7jwOKtv7WKNwc5Zlr1Mr7w==}
-
   '@typia/interface@15.4.0':
     resolution: {integrity: sha512-6D9pv0ex8128ntxAg4CybmCtyw8T+akDx3SqXG5anH5NwE1SauS1PGWwDybK03UoIlDlhzCUTg+VleBn1iVcjg==}
 
   '@typia/interface@15.4.1':
     resolution: {integrity: sha512-faKfnudnyAniFnI4X418qob1TfK1ubNIFabBELWP3ez93o99UmcNXFR3NcRVZmwrjVEw94zoh/AYujdq5PH+Yw==}
-
-  '@typia/utils@15.3.0':
-    resolution: {integrity: sha512-th8jdVJs37gyDz5MqXsBLnUBpzp4nXTXwnnYCoGsE/gLsTlafUFkXd0nvw5EMGW0AzOb+0bgr6CjqsCC1Xj+0Q==}
 
   '@typia/utils@15.4.0':
     resolution: {integrity: sha512-Zmxd9ayFXc53yELoPu/3Y0BtEuw+x6ezrXfz7VUtZ7iGNm9W/8ltGAnmloq89luhWD3x1uKQ7ztQ2FXEzIzvUQ==}
@@ -2669,8 +2660,8 @@ packages:
   '@webassemblyjs/wast-printer@1.14.1':
     resolution: {integrity: sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw==}
 
-  '@wrtnlabs/evidence@0.8.2':
-    resolution: {integrity: sha512-+bYExAn41uqJaF+rnTX5jN0wdGl6uDQP2E0tSiVTfWcbSGP+5kYnaPrR9LoMu3rXt9sHfwBQDRlBfMhQsa1QYw==}
+  '@wrtnlabs/evidence@0.11.0':
+    resolution: {integrity: sha512-eftgpw+au1E2w84+WWn1w82g7PdnxdZceecuHw1h2CfxnAjBcSKCoV+3WHanyFOogxNOEHDar9McVpST6SIr0A==}
     hasBin: true
 
   '@xmldom/xmldom@0.9.12':
@@ -2769,6 +2760,9 @@ packages:
     resolution: {integrity: sha512-K0ceQC+jQmB+NLDogO5HCpqmYf18AU2FxDbLdduYgkHYWZApFggkHE4dIaXCV1NqeoscESYXXo1GSkY6fA295w==}
     peerDependencies:
       react: '>=16.8'
+
+  binary-searching@2.0.5:
+    resolution: {integrity: sha512-v4N2l3RxL+m4zDxyxz3Ne2aTmiPn8ZUpKFpdPtO+ItW1NcTCXA7JeHG5GMBSvoKSkQZ9ycS+EouDVxYB9ufKWA==}
 
   boolean@3.2.0:
     resolution: {integrity: sha512-d0II/GO9uf9lfUHH2BQsjxzRJZBdsjgsBiW4BvhWk/3qoKwQFjIDVN19PfX8F2D/r9PCMTtLWjYVCFrpeYUzsw==}
@@ -2880,6 +2874,10 @@ packages:
   commander@8.3.0:
     resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
     engines: {node: '>= 12'}
+
+  comment-parser@1.4.9:
+    resolution: {integrity: sha512-+2AvZKjJaNq9GQljm3tr0utwrig5BL+jgJGvz5rDpGKNIp+ojcRXWUwBbh/sGIi1QCprR6PsKFakub+w1v+4hQ==}
+    engines: {node: '>= 12.0.0'}
 
   commondir@1.0.1:
     resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
@@ -4283,6 +4281,12 @@ packages:
     resolution: {integrity: sha512-FfR8sjd4em2T6fb3I2MwAJU7HWVMr9zba+enmQeeWFfCbm+UOC/0X4DS8XtpUTMwWMGbjKYP7xjfNekzyGmB3A==}
     engines: {node: ^10 || ^12 || >=14}
 
+  prettier-plugin-jsdoc@1.8.1:
+    resolution: {integrity: sha512-XuMqBWTc3b/8eCOe+OlZlFy9Z413a7WOmF4i5hDGtjbtIFOdvRrVtGjXR2Feye3TrLWhkkkHheNXPTyYKxw3nA==}
+    engines: {node: '>=14.13.1 || >=16.0.0'}
+    peerDependencies:
+      prettier: ^3.0.0
+
   prettier@3.8.3:
     resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
     engines: {node: '>=14'}
@@ -5088,8 +5092,6 @@ snapshots:
       parse-cache-control: 1.0.1
 
   '@dimforge/rapier3d-compat@0.12.0': {}
-
-  '@dimforge/rapier3d-compat@0.21.0': {}
 
   '@emnapi/core@2.0.0-beta.2':
     dependencies:
@@ -6178,15 +6180,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typia/interface@15.3.0': {}
-
   '@typia/interface@15.4.0': {}
 
   '@typia/interface@15.4.1': {}
-
-  '@typia/utils@15.3.0':
-    dependencies:
-      '@typia/interface': 15.3.0
 
   '@typia/utils@15.4.0':
     dependencies:
@@ -6279,11 +6275,11 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
 
-  '@wrtnlabs/evidence@0.8.2(ttsc@0.37.1(typescript@7.0.2))':
+  '@wrtnlabs/evidence@0.11.0(ttsc@0.37.1(typescript@7.0.2))':
     dependencies:
       '@prisma/prisma-schema-wasm': 7.10.0-2.d0368e25c88e68caa4d283b5f2d88d1b76ed9356
-      '@typia/interface': 15.3.0
-      '@typia/utils': 15.3.0
+      '@typia/interface': 15.4.1
+      '@typia/utils': 15.4.1
       tstl: 3.0.0
       typia: 15.4.1(ttsc@0.37.1(typescript@7.0.2))
       web-tree-sitter: 0.27.0
@@ -6361,6 +6357,8 @@ snapshots:
     dependencies:
       mathjax-full: 3.2.2
       react: 19.3.1
+
+  binary-searching@2.0.5: {}
 
   boolean@3.2.0: {}
 
@@ -6452,6 +6450,8 @@ snapshots:
   commander@7.2.0: {}
 
   commander@8.3.0: {}
+
+  comment-parser@1.4.9: {}
 
   commondir@1.0.1: {}
 
@@ -8171,6 +8171,15 @@ snapshots:
       nanoid: 3.3.12
       picocolors: 1.1.1
       source-map-js: 1.2.1
+
+  prettier-plugin-jsdoc@1.8.1(prettier@3.8.3)(supports-color@7.2.0):
+    dependencies:
+      binary-searching: 2.0.5
+      comment-parser: 1.4.9
+      mdast-util-from-markdown: 2.1.0(supports-color@7.2.0)
+      prettier: 3.8.3
+    transitivePeerDependencies:
+      - supports-color
 
   prettier@3.8.3: {}
 

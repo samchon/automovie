@@ -1,6 +1,6 @@
 # Composing a performance
 
-Read the installed [package API](../../automovie/SKILL.md#reading-a-package) first. Compose each beat as a kinematic performance using its actions, parameters and operators.
+Compose each beat as a kinematic performance from the actions of the family namespaces `AutoMovieMotionHuman<Family>` in `@automovie/motions`, reading their JSDoc. Do not copy the vocabulary's values or defaults into the production.
 
 ## Actions
 

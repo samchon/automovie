@@ -1,8 +1,14 @@
-import { Quaternion, Vector3, physicalShapeSpan } from "@automovie/engine";
+import {
+  DEFAULT_HUMANOID_ROM,
+  Quaternion,
+  Vector3,
+  physicalShapeSpan,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieAngleRange,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -21,8 +27,12 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handReach } from "./handReach";
-import { prepareThighSkin } from "./prepareThighSkin";
 import type { prepareSeatedPalms } from "./prepareSeatedPalms";
+import { prepareThighSkin } from "./prepareThighSkin";
+import { seatedFlatHand } from "./seatedFlatHand";
+
+/** A hand's breadth across the palm as a share of its length (provisional anthropometric ratio). */
+const PALM_BREADTH: number = 0.45;
 
 /** Profile-local thigh intersections and hand extents for this seated phase. */
 type PalmRests = ReturnType<typeof prepareSeatedPalms>;
@@ -32,24 +42,11 @@ type PalmRests = ReturnType<typeof prepareSeatedPalms>;
  * owns its resolved bones so its target and hanging origin share one solve.
  * Optional FK/ROM sources are borrowed only for the synchronous placement;
  * every current joint and relevant goal is still admitted and fitted.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the target surfaces and the lifetime of shared resolved bones; members give world-metre and degree inputs.
- * @evidence contracts/development/design.md#principled-representation Existing posture goals, body surfaces and resolved bones describe both resting targets.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The seated facade delegates its four hand operations here: thigh goals, thigh rests, mixed rests and the armrest goal.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the canonical arm goal and posture resolver without a parallel fit or stored target pose.
  */
 export namespace seatedHands {
   /**
    * Lay both palms on their own front thighs, fingers toward the knees.
    * The input's leg goals are solved before the surface is measured.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the surface, direction and solved-leg premise.
-   * @evidence contracts/development/implementation.md#principled-implementation Transforms each body's thigh-front surface through its resolved bone and uses its lower leg to orient a flat palm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One canonical solve feeds the shared thigh-goal builder.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the existing provisional hanging-elbow out share of 0.2 and canonical palm goal construction.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One canonical observational resolution and demanded FK, then constant work for the requested targets; independent world arm goals that cannot change thigh observations need no fit, under the resolver's existing guard.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both targets read the same completed bone map; it is never shared across different input postures.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Bones and goals are invocation-local and no cache or handle is retained.
    */
   export function hands(
     body: IAutoMovieMotionHumanBody,
@@ -77,14 +74,6 @@ export namespace seatedHands {
   /**
    * Move the hands from their posed hanging origins to their thighs by a
    * caller-eased share, clamped by the endpoint branches at zero and one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two endpoints and the caller's eased progress convention.
-   * @evidence contracts/development/implementation.md#principled-implementation The free wrist travels from hanging to bearing with spherical wrist rotation. Where the straight route would cross the thigh, the two current solid support extents determine its radial displacement.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the two active hands to the shared partial-placement operation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original hanging and fully resting branches and elbow hints remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At positive share one pose resolution and FK supplies origins and targets instead of resolving that same posture twice.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses one invocation's exact bone map for target surfaces and hanging wrist frames.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned posture and its goals survive the call.
    */
   export function arms(
     body: IAutoMovieMotionHumanBody,
@@ -110,14 +99,6 @@ export namespace seatedHands {
    * Rest each hand on its armrest when supplied, otherwise on its thigh.
    * Inputs contain placed legs and directly authored hanging arms; share is
    * zero hanging to one bearing, and armrest coordinates are world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States target precedence, input pose and progress, and world-metre rests.
-   * @evidence contracts/development/implementation.md#principled-implementation Each hand retains the same independently defined thigh or armrest interpolation from the posed hanging origin.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects only the thighs that remain visible, then writes supplied armrests with their existing owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Armrest goals still replace thigh goals on that side and become planted only at full share; no reach refusal is added.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Avoids overwritten thigh targets and, when the input has no arm goals, shares one canonical solve between the actual thigh and armrest consumers instead of repeating its identical leg solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Absence of both input arm goals makes the original posture exactly the legs-only posture armrest origins require; those matching inputs share one call-local map. Inputs with arm goals retain separate full and legs-only readings, borrowing one synchronous parent FK/ROM source only for exact prerequisites.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The active-side list and resolved maps end with the invocation; no retained state is added.
    */
   export function rested(
     body: IAutoMovieMotionHumanBody,
@@ -202,7 +183,9 @@ export namespace seatedHands {
   }
 
   /** Preserve the public spread-then-leg-read order and its original present-goal observations. */
-  function legsOnly(posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture["limbs"] {
+  function legsOnly(
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture["limbs"] {
     return {
       ...(posture.limbs.leftLeg === undefined
         ? {}
@@ -228,27 +211,35 @@ export namespace seatedHands {
       const rest: IAutoMovieVector3 | undefined = rests[side];
       if (rest === undefined) continue;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      const goal: IAutoMovieHumanLimbGoal = armrest(body, posture, side, rest, yaw);
-      limbs[`${side}Arm`] = s >= 1 ? goal : {
-        point: Vector3.lerp(hand.worldPosition, goal.point, s),
-        rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s),
-        bend: goal.bend,
-      };
+      const goal: IAutoMovieHumanLimbGoal = armrest(
+        body,
+        posture,
+        side,
+        rest,
+        yaw,
+      );
+      limbs[`${side}Arm`] =
+        s >= 1
+          ? goal
+          : {
+              point: Vector3.lerp(hand.worldPosition, goal.point, s),
+              rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s),
+              bend: goal.bend,
+            };
     }
-    return flattened({ ...posture, limbs }, SIDES.filter((side: AutoMovieHumanSide): boolean => rests[side] !== undefined), s);
+    return flattened(
+      body,
+      { ...posture, limbs },
+      SIDES.filter(
+        (side: AutoMovieHumanSide): boolean => rests[side] !== undefined,
+      ),
+      s,
+    );
   }
 
   /**
    * The bearing wrist that puts the body's flat palm on an armrest,
    * palm down and fingers along the seat's yaw, in world metres and degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the offset, frame, orientation and bearing state.
-   * @evidence contracts/development/implementation.md#principled-implementation Places the exact flat palm surface, with the canonical hand orientation and hanging-elbow preset.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Constructs one world arm goal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the existing elbow share and uses the body's measured palm instead of assuming a wrist height.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work without pose resolution.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Independent point and posture inputs require their own goal.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state or resources.
    */
   export function armrest(
     body: IAutoMovieMotionHumanBody,
@@ -258,15 +249,18 @@ export namespace seatedHands {
     yaw: number,
   ): IAutoMovieHumanLimbGoal {
     const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
-        fingers: HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw },
-          { x: 0, y: 0, z: 1 },
-        ),
-        palm: { x: 0, y: -1, z: 0 },
+      fingers: HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw },
+        { x: 0, y: 0, z: 1 },
+      ),
+      palm: { x: 0, y: -1, z: 0 },
     });
     // The stated rest is beneath the wrist. The palm plane extends from
     // its centre back under the carpus to the bearing heel of the hand.
-    const palm: IAutoMovieVector3 = Quaternion.rotateVector(rotation, HumanHand.offset(body, side, "palm", "flat").point);
+    const palm: IAutoMovieVector3 = Quaternion.rotateVector(
+      rotation,
+      HumanHand.offset(body, side, "palm", "flat").point,
+    );
     const underside: IAutoMovieVector3 = { x: 0, y: Math.min(0, palm.y), z: 0 };
     return {
       point: Vector3.subtract(rest, underside),
@@ -298,16 +292,40 @@ export namespace seatedHands {
         resolution,
         projection,
       );
-    const goals: IAutoMovieMotionHumanPosture["limbs"] = thighs(body, posture, bones, sides, skin);
+    const goals: IAutoMovieMotionHumanPosture["limbs"] = thighs(
+      body,
+      posture,
+      bones,
+      sides,
+      skin,
+    );
     if (share >= 1)
-      return flattened({ ...posture, limbs: { ...posture.limbs, ...goals } }, sides, 1);
-    const shaped: IAutoMovieMotionHumanPosture = flattened(posture, sides, share);
+      return flattened(
+        body,
+        { ...posture, limbs: { ...posture.limbs, ...goals } },
+        sides,
+        1,
+      );
+    const shaped: IAutoMovieMotionHumanPosture = flattened(
+      body,
+      posture,
+      sides,
+      share,
+    );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of sides) {
       const goal: IAutoMovieHumanLimbGoal = goals[`${side}Arm`]!;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      const point: IAutoMovieVector3 = Vector3.lerp(hand.worldPosition, goal.point, share);
-      const rotation: IAutoMovieQuaternion = Quaternion.slerp(hand.worldRotation, goal.rotation!, share);
+      const point: IAutoMovieVector3 = Vector3.lerp(
+        hand.worldPosition,
+        goal.point,
+        share,
+      );
+      const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+        hand.worldRotation,
+        goal.rotation!,
+        share,
+      );
       limbs[`${side}Arm`] = {
         point: clearThigh(body, shaped, side, bones, point, rotation),
         rotation,
@@ -328,44 +346,61 @@ export namespace seatedHands {
   ): IAutoMovieVector3 {
     const bone: AutoMovieHumanoidBone = `${side}UpperLeg`;
     const thigh: IAutoMovieResolvedBone = bones.get(bone)!;
-    const axis: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(
-      bones.get(`${side}LowerLeg`)!.worldPosition, thigh.worldPosition,
-    ));
+    const axis: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(
+        bones.get(`${side}LowerLeg`)!.worldPosition,
+        thigh.worldPosition,
+      ),
+    );
     const arm: IAutoMovieVector3 = Vector3.subtract(point, thigh.worldPosition);
-    const radial: IAutoMovieVector3 = Vector3.addScaled(arm, axis, -Vector3.dot(arm, axis));
+    const radial: IAutoMovieVector3 = Vector3.addScaled(
+      arm,
+      axis,
+      -Vector3.dot(arm, axis),
+    );
     if (Vector3.length(radial) === 0) return point;
     const normal: IAutoMovieVector3 = Vector3.normalize(radial);
-    const only: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map([[bone, thigh]]);
+    const only: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      new Map([[bone, thigh]]);
     let surface: number = -Infinity;
     for (const placed of HumanColliders.placed(body, only))
       for (const shape of placed.shapes)
-        surface = Math.max(surface, physicalShapeSpan(placed.pose, shape, normal)[1]);
+        surface = Math.max(
+          surface,
+          physicalShapeSpan(placed.pose, shape, normal)[1],
+        );
     if (surface === -Infinity) return point;
-    const depth: number = handReach(body, { ...shaped, limbs: {} }, side, rotation, "wrist")(Vector3.scale(normal, -1));
-    return Vector3.addScaled(point, normal, Math.max(0, surface + depth - Vector3.dot(point, normal)));
+    const depth: number = handReach(
+      body,
+      { ...shaped, limbs: {} },
+      side,
+      rotation,
+      "wrist",
+    )(Vector3.scale(normal, -1));
+    return Vector3.addScaled(
+      point,
+      normal,
+      Math.max(0, surface + depth - Vector3.dot(point, normal)),
+    );
   }
 
-  /** Actuate the fingers of each placed hand along with its wrist. */
+  /**
+   * Actuate the fingers of each placed hand along with its wrist: the flat
+   * hand with its thumb's metacarpal twisted until the thumb clears the
+   * palmar plane (`bendFloorHand`), so a palm laid on a thigh or an armrest
+   * does not drive its thumb into it.
+   */
   function flattened(
+    body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     sides: readonly AutoMovieHumanSide[],
     share: number,
   ): IAutoMovieMotionHumanPosture {
-    if (sides.length === 0) return posture;
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    let out: IAutoMovieMotionHumanPosture = posture;
     for (const side of sides) {
-      const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "flat");
-      for (const bone of Object.keys(flat) as AutoMovieHumanoidBone[]) {
-        const from = joints[bone] ?? [0, 0, 0];
-        const to = flat[bone]!;
-        joints[bone] = [
-          from[0] + share * (to[0] - from[0]),
-          from[1] + share * (to[1] - from[1]),
-          from[2] + share * (to[2] - from[2]),
-        ];
-      }
+      out = seatedFlatHand(body, out, side, share);
     }
-    return { ...posture, joints };
+    return out;
   }
 
   /** Measure only target surfaces this invocation will return. */
@@ -391,18 +426,50 @@ export namespace seatedHands {
         thigh.worldRotation,
         frame.normal,
       );
+      // The palm lies on the thigh at any heading about its normal: the
+      // fingers point along the thigh where the arm's own line from the
+      // shoulder to the contact allows it, and within the wrist's deviation
+      // of that line otherwise (`heading`). Along an astride rider's splayed
+      // thigh the fingers asked the forearm for a twist beyond its range,
+      // which the fit met at the range's end with the forearm folded into
+      // the trunk.
       const along: IAutoMovieVector3 = Vector3.subtract(
         bones.get(`${side}LowerLeg`)!.worldPosition,
         thigh.worldPosition,
       );
+      const reach: IAutoMovieVector3 = Vector3.subtract(
+        point,
+        bones.get(`${side}UpperArm`)!.worldPosition,
+      );
+      const laidReach: IAutoMovieVector3 = Vector3.addScaled(
+        reach,
+        normal,
+        -Vector3.dot(reach, normal),
+      );
       const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
-        fingers: along,
+        fingers: heading(
+          side,
+          along,
+          laidReach,
+          normal,
+          Vector3.subtract(thigh.worldPosition, posture.root),
+        ),
         palm: Vector3.scale(normal, -1),
       });
       limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(body, side, {
         surface: "palm",
         shape: "flat",
-        point: laid(body, posture, side, rotation, frame.bone, thigh, point, normal, skin?.[side]),
+        point: laid(
+          body,
+          posture,
+          side,
+          rotation,
+          frame.bone,
+          thigh,
+          point,
+          normal,
+          skin?.[side],
+        ),
         rotation,
         bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
       });
@@ -414,8 +481,9 @@ export namespace seatedHands {
    * The palm's place on a thigh: the thigh's own collider met along the
    * surface's normal, by a ray from outside the thigh's bounding ball, then
    * the flat hand's colliders kept clear of it by how far they reach past
-   * the palm toward the thigh (`handReach`), so the resting hand touches the
-   * thigh without entering it. The surface region's point stands in where
+   * the palm toward the thigh (`handReach`) and by the thigh's curve under
+   * the palm's sides, so the resting hand touches the thigh without entering
+   * it. The surface region's point stands in where
    * the ray finds no collider.
    */
   function laid(
@@ -430,13 +498,30 @@ export namespace seatedHands {
     prepared?: PalmRests[AutoMovieHumanSide],
   ): IAutoMovieVector3 {
     const inward: IAutoMovieVector3 = Vector3.scale(normal, -1);
-    const skin: IAutoMovieVector3 = prepared === undefined
-      ? prepareThighSkin.cast(body, new Map([[bone, thigh]]), point, normal)
-      : prepared.skin(thigh);
-    const depth: number = prepared === undefined
-      ? handReach(body, { ...posture, limbs: {} }, side, rotation, "palm", "flat")(inward)
-      : prepared.reach(Quaternion.rotateVector(Quaternion.inverse(rotation), inward));
-    return Vector3.addScaled(skin, normal, depth);
+    const skin: IAutoMovieVector3 =
+      prepared === undefined
+        ? prepareThighSkin.cast(body, new Map([[bone, thigh]]), point, normal)
+        : prepared.skin(thigh);
+    const depth: number =
+      prepared === undefined
+        ? handReach(
+            body,
+            { ...posture, limbs: {} },
+            side,
+            rotation,
+            "palm",
+            "flat",
+          )(inward)
+        : prepared.reach(
+            Quaternion.rotateVector(Quaternion.inverse(rotation), inward),
+          );
+    // The thigh curves away under the palm's sides, which the reach along
+    // the normal at its middle does not see: the flat hand is lifted by the
+    // sagitta of its half breadth on the thigh's radius, so its thumb and
+    // little finger clear the curve too.
+    const half: number = (PALM_BREADTH * body.measure.hand) / 2;
+    const sagitta: number = (half * half) / (2 * body.measure.thighRadius);
+    return Vector3.addScaled(skin, normal, depth + sagitta);
   }
 
   /** Resolve this call's observed frames under the canonical demand guards. */
@@ -478,6 +563,7 @@ export namespace seatedHands {
           .bone,
       );
       requested.add(`${side}LowerLeg`);
+      requested.add(`${side}UpperArm`);
       if (wrists) requested.add(`${side}Hand`);
     }
     return requested;
@@ -485,4 +571,49 @@ export namespace seatedHands {
 
   /** The body's fixed bilateral ordering, shared by every placement. */
   const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+}
+
+/**
+ * The fingers' direction for a palm laid on a surface: the surface's own
+ * direction (along the thigh) where it lies within the wrist's deviation of
+ * the arm's line laid into the surface, else that line turned by the
+ * deviation toward it. The deviation is the side of the rig's wrist
+ * deviation range (`DEFAULT_HUMANOID_ROM`, the hand's abduction) the turn
+ * goes to: for a palm laid down, fingers turned away from the body's
+ * midline turn toward the little finger, ulnar deviation, the wider side of
+ * the range, and fingers turned toward the midline radially, the narrower
+ * (the table's -30 and 20 degrees; the American Academy of Orthopaedic
+ * Surgeons' norms, Greene and Heckman 1994, give ulnar 30 and radial 20).
+ */
+function heading(
+  side: AutoMovieHumanSide,
+  along: IAutoMovieVector3,
+  reach: IAutoMovieVector3,
+  normal: IAutoMovieVector3,
+  lateral: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  const laid: IAutoMovieVector3 = Vector3.addScaled(
+    along,
+    normal,
+    -Vector3.dot(along, normal),
+  );
+  if (Vector3.length(reach) <= 1e-9 || Vector3.length(laid) <= 1e-9)
+    return along;
+  const range: IAutoMovieAngleRange =
+    DEFAULT_HUMANOID_ROM[`${side}Hand`]!.abduction!;
+  const n: IAutoMovieVector3 = Vector3.normalize(normal);
+  const r: IAutoMovieVector3 = Vector3.normalize(reach);
+  const a: IAutoMovieVector3 = Vector3.normalize(laid);
+  const ulnar: boolean = Vector3.dot(Vector3.subtract(a, r), lateral) > 0;
+  const deviation: number = ulnar
+    ? Math.max(Math.abs(range.min), Math.abs(range.max))
+    : Math.min(Math.abs(range.min), Math.abs(range.max));
+  const turn: number =
+    (Math.atan2(Vector3.dot(Vector3.cross(r, a), n), Vector3.dot(r, a)) * 180) /
+    Math.PI;
+  if (Math.abs(turn) <= deviation) return along;
+  return Quaternion.rotateVector(
+    Quaternion.fromAxisAngle(n, Math.sign(turn) * deviation),
+    r,
+  );
 }

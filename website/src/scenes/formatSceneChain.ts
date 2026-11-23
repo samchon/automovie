@@ -1,4 +1,5 @@
 import { playgroundActionParams } from "../playground/data/playgroundActionParams";
+import { playgroundAidWalkAction } from "../playground/package/playgroundAidWalkAction";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
 import type { ISceneChainNames } from "./structures/ISceneChainNames";
 
@@ -10,7 +11,8 @@ import type { ISceneChainNames } from "./structures/ISceneChainNames";
  * actions performed over it in `over`; the people's chains joined with
  * `with`, each mutual action after them with `next`; the laws the
  * performance registers; each placed archetype as a prop through
- * `HumanObject.prop`, with the person and bone it starts worn on; and the
+ * `HumanObject.prop`, with the person and bone it starts worn on, and a
+ * blade that starts in its carrier staged by `HumanSheath.of`; and the
  * authored impulses. It shows the input `HumanPerformance` is built from,
  * as `PlaygroundPerformance` builds it, ending in the one line `const performance = new
  * HumanPerformance(input);`. A seat is written as `HumanObject.seat` of the
@@ -78,7 +80,11 @@ export function formatSceneChain(
     });
 
   for (const o of objects) {
-    const key: string = names.frames.includes(o.producer) ? "frame" : "kind";
+    const key: string = names.frames.includes(o.producer)
+      ? "frame"
+      : names.formats.includes(o.producer)
+        ? "format"
+        : "kind";
     body.push(
       `const ${identifier(o.subject)} = archetypes.${o.producer}(${options(o, key)}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
       o.rotation === undefined
@@ -86,12 +92,40 @@ export function formatSceneChain(
         : `const ${identifier(o.subject)}At = { position: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, rotation: ${literal(o.rotation, imports)}${o.fixed === true ? ", fixed: true" : ""} };`,
     );
   }
+  for (const object of objects) {
+    if (object.course === undefined) continue;
+    const name: string = identifier(object.subject);
+    const course = {
+      ...object.course,
+      start: { x: object.x, z: object.z, heading: object.yaw },
+    };
+    const lift: string = vehicleCourseCall(
+      object.producer,
+      name,
+      value(course),
+    );
+    body.push(`const ${name}Ride = ${lift};`);
+    if (object.joints === undefined) continue;
+    body.push(
+      `const ${name}Joints = ${value(object.joints)};`,
+      `const ${name}State = (seconds: number) => ({`,
+      `  ...${name}Ride.at(seconds).archetype.state,`,
+      `  ...Object.fromEntries(Object.entries(${name}Joints).map(([joint, keys]) => {`,
+      "    const later = keys.findIndex((key) => key.seconds > seconds);",
+      "    if (later < 1) return [joint, (later === -1 ? keys.at(-1) : keys[0])!.value];",
+      "    const a = keys[later - 1]!;",
+      "    const b = keys[later]!;",
+      "    return [joint, a.value + ((seconds - a.seconds) / (b.seconds - a.seconds)) * (b.value - a.value)];",
+      "  })),",
+      "});",
+    );
+  }
   if (objects.length !== 0) body.push("");
 
   for (const performer of composition.performers) {
     if (performer.actions.length === 0) continue;
     body.push(
-      `// ${performer.subject}: body ${performer.body}, at (${performer.x}, ${performer.z}) m, facing ${performer.yaw}°, ${performer.proficiency}`,
+      `// ${performer.subject}: body ${performer.body}, at (${performer.x}, ${performer.z}) m, facing ${performer.yaw}째, ${performer.proficiency}`,
       `const ${identifier(performer.subject)} = HumanChain.subject(${JSON.stringify(performer.subject)})`,
       ...calls(performer.actions, performer.body, "  "),
     );
@@ -147,12 +181,67 @@ export function formatSceneChain(
       "",
       "const props = [",
       ...objects.map((o: IPlaygroundComposition.IObject): string => {
-        const made: string = `HumanObject.prop(${JSON.stringify(o.subject)}, ${identifier(o.subject)}, ${identifier(o.subject)}At)`;
+        const name: string = identifier(o.subject);
+        const aid = playgroundAidWalkAction(o, composition.performers);
+        const state =
+          o.joints === undefined
+            ? `${name}Ride.at(seconds).archetype.state`
+            : `${name}State(seconds)`;
+        const homeState =
+          o.joints === undefined
+            ? `${name}Ride.at(0).archetype.state`
+            : `${name}State(0)`;
+        const read =
+          o.joints === undefined
+            ? `${name}Ride.frame(id as Parameters<typeof ${name}Ride.frame>[0], seconds)`
+            : `archetypes.AutoMovieArchetypeFrame.compose(${name}Ride.at(seconds).placement, ${name}.articulate(${state}).affordance(id as Parameters<typeof ${name}.affordance>[0]).frame)`;
+        const travel: string =
+          aid !== undefined
+            ? ", " +
+              use("HumanAidWalk") +
+              ".track(HumanObject.frame(" +
+              name +
+              "At), " +
+              value(aid) +
+              ")"
+            : o.course === undefined
+              ? ""
+              : `, (seconds) => {
+    const { translation, rotation } = ${name}Ride.at(seconds).placement;
+    return { position: translation, rotation };
+  }, (id, seconds) => ${read}, Object.keys(${homeState}).map((articulation) => ({
+    articulation, start: 0, travel: (seconds) => Reflect.get(${state}, articulation) ?? 0,
+  }))`;
+        const made: string = `HumanObject.prop(${JSON.stringify(o.subject)}, ${name}, ${name}At${travel})`;
         return o.worn === undefined
           ? `  ${made},`
           : `  { ...${made}, worn: ${indent(literal(o.worn, imports), "  ")} },`;
       }),
       "];",
+    );
+
+    // A blade that starts seated in a carrier is staged with it.
+    objects.forEach(
+      (o: IPlaygroundComposition.IObject, index: number): void => {
+        if (o.sheath === undefined) return;
+        const carrier: number = objects.findIndex(
+          (c: IPlaygroundComposition.IObject): boolean =>
+            c.subject === o.sheath!.carrier,
+        );
+        const params: Omit<IPlaygroundComposition.ISheath, "carrier"> = {
+          mouth: o.sheath.mouth,
+          tip: o.sheath.tip,
+          handle: o.sheath.handle,
+          clearance: o.sheath.clearance,
+        };
+        const staged: string = `${identifier(o.subject)}Sheath`;
+        imports.add("HumanSheath");
+        body.push(
+          `const ${staged} = HumanSheath.of(props[${carrier}]!, props[${index}]!, ${literal(params, imports)});`,
+          `props[${carrier}] = ${staged}.carrier;`,
+          `props[${index}] = ${staged}.blade;`,
+        );
+      },
     );
   }
 
@@ -243,7 +332,7 @@ function literal(value: unknown, imports: Set<string>): string {
   return JSON.stringify(value);
 }
 
-/** A producer's options as code: the stated dimensions, then the kind under the producer's key (`kind` or `frame`); `{}` when there are none. */
+/** Emit the stated parameters and any variant under the producer's declared key, such as `kind`, `frame` or `format`. */
 function options(object: IPlaygroundComposition.IObject, key: string): string {
   const entries: [string, unknown][] = Object.entries({
     ...(object.params ?? {}),
@@ -252,4 +341,24 @@ function options(object: IPlaygroundComposition.IObject, key: string): string {
   return entries.length === 0
     ? "{}"
     : `{ ${entries.map(([key, value]: [string, unknown]): string => `${key}: ${JSON.stringify(value)}`).join(", ")} }`;
+}
+
+/** The same native course constructor used by the playground's scene adapter. */
+function vehicleCourseCall(
+  producer: string,
+  name: string,
+  course: string,
+): string {
+  switch (producer) {
+    case "createCar":
+      return `archetypes.driveCar(${name}, ${course})`;
+    case "createBicycle":
+      return `archetypes.rideBicycle(${name}, ${course})`;
+    case "createMotorcycle":
+      return `archetypes.rideMotorcycle(${name}, ${course})`;
+    case "createCart":
+      return `archetypes.AutoMovieArchetypeRide.along(${name}, ${course})`;
+    default:
+      throw new Error(`"${producer}" does not supply a vehicle course.`);
+  }
 }

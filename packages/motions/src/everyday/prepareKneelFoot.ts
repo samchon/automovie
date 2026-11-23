@@ -1,3 +1,4 @@
+import { minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -81,12 +82,65 @@ export function prepareKneelFoot(
       };
     };
   })();
+  // A foot that lands heel up strikes its toes `STRIKE` into the phase and
+  // bears on its toe pads from then on, while the knee comes down and the
+  // ankle rolls over them; one that leaves heel up bears on its toe pads
+  // until the knee has risen as long, then lifts.
+  const strike: number = prepareKneelFoot.arrival(from, to);
+  const lift: number = prepareKneelFoot.departure(from, to);
   return (
     share: number,
     linear: number,
-  ): { placement: IAutoMovieMotionHumanFoot.IPlacement; planted: boolean; toes: number } => ({
-    placement: place(share, linear),
-    planted: !moves || share <= 0 || share >= 1,
-    toes: from.toes + (to.toes - from.toes) * share,
-  });
+  ): { placement: IAutoMovieMotionHumanFoot.IPlacement; planted: boolean; toes: number } => {
+    const timed: boolean = strike < 1 || lift > 0;
+    const l: number = timed
+      ? Math.min(1, Math.max(0, (linear - lift) / (strike - lift)))
+      : linear;
+    const s: number = timed ? minimumJerk.share(l) : share;
+    return {
+      placement: place(s, l),
+      planted: !moves || s <= 0 || s >= 1,
+      toes: from.toes + (to.toes - from.toes) * s,
+    };
+  };
+}
+
+/**
+ * Companion constants and readers of {@link prepareKneelFoot}: the share by
+ * which a foot landing heel up has struck its toes, and when a foot's course
+ * ends and starts within its phase.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the constant and the two readers the function times its foot by.
+ * @evidence contracts/development/design.md#principled-representation Shares of a phase's linear time, read from the foot's two kneel keys.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The strike share and the arrival and departure readers the kneel's feet use, and nothing else.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The readers classify a foot by the keys' own heel and movement; the strike share is marked provisional.
+ */
+export namespace prepareKneelFoot {
+  /** The share of a phase's linear time by which a foot landing heel up has struck its toes, the rest left for the knee to come down over them (provisional). */
+  export const STRIKE: number = 0.8;
+
+  /**
+   * When a foot's course ends, as a share of its phase: `STRIKE` for a foot
+   * that moves and lands heel up on its toes, the phase's end otherwise.
+   *
+   * @param from The foot's entry key.
+   * @param to The foot's exit key.
+   * @returns The share.
+   */
+  export function arrival(from: kneelKeys.IFoot, to: kneelKeys.IFoot): number {
+    return !kneelKeys.still(from, to) && to.pitch < 0 ? STRIKE : 1;
+  }
+
+  /**
+   * When a foot's course starts, as a share of its phase: `1 - STRIKE` for a
+   * foot that moves off a heel-up stance on its toes, the phase's start
+   * otherwise.
+   *
+   * @param from The foot's entry key.
+   * @param to The foot's exit key.
+   * @returns The share.
+   */
+  export function departure(from: kneelKeys.IFoot, to: kneelKeys.IFoot): number {
+    return !kneelKeys.still(from, to) && from.pitch < 0 ? 1 - STRIKE : 0;
+  }
 }

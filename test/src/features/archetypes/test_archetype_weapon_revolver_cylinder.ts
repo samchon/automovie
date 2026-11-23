@@ -1,4 +1,4 @@
-import { type Archetype, createHandgun } from "@automovie/archetypes";
+import { type AutoMovieArchetype, createHandgun } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,7 +23,7 @@ export function test_archetype_weapon_revolver_cylinder(): void {
   const findings: string[] = [];
   for (const model of ["saa75", "vaquero5104"] as const)
     for (const seed of [0, 3, 7, 12]) {
-      const revolver: Archetype<
+      const revolver: AutoMovieArchetype<
         createHandgun.Affordance,
         createHandgun.Dimension
       > = createHandgun({ frame: "revolver", model }, seed);
@@ -33,7 +33,7 @@ export function test_archetype_weapon_revolver_cylinder(): void {
         [1, 360 / CHAMBERS],
         [0.5, 180 / CHAMBERS],
       ] as const) {
-        const cocked: Archetype<
+        const cocked: AutoMovieArchetype<
           createHandgun.Affordance,
           createHandgun.Dimension
         > = revolver.articulate({ hammer: full * share });
@@ -52,8 +52,10 @@ export function test_archetype_weapon_revolver_cylinder(): void {
       ).length;
       if (chambers !== CHAMBERS)
         findings.push(`${label}: ${chambers} chambers ride the cylinder`);
-      const open: Archetype<createHandgun.Affordance, createHandgun.Dimension> =
-        revolver.articulate({ gate: revolver.affordance("gate").travel! });
+      const open: AutoMovieArchetype<
+        createHandgun.Affordance,
+        createHandgun.Dimension
+      > = revolver.articulate({ gate: revolver.affordance("gate").travel! });
       if (!validateModel({ model: open }).success)
         findings.push(`${label}: the open gate is refused`);
     }

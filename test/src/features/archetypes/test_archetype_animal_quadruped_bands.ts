@@ -1,5 +1,6 @@
 import {
-  ArchetypeRefusal,
+  AutoMovieArchetypeEquine,
+  AutoMovieArchetypeRefusal,
   createHorse,
   createQuadruped,
 } from "@automovie/archetypes";
@@ -104,7 +105,7 @@ export function test_archetype_animal_quadruped_bands(): void {
       .sort((a: string, b: string): number => a.localeCompare(b))
       .join(",");
   for (const kind of createQuadruped.EQUIDS)
-    for (const tack of createHorse.TACKS) {
+    for (const tack of AutoMovieArchetypeEquine.TACKS) {
       const made: string = contacts(
         createQuadruped({ kind, tack }, 3).affordances,
       );
@@ -120,7 +121,10 @@ export function test_archetype_animal_quadruped_bands(): void {
     refused = error;
   }
   if (
-    !(refused instanceof ArchetypeRefusal && refused.axis === "withersHeight")
+    !(
+      refused instanceof AutoMovieArchetypeRefusal &&
+      refused.axis === "withersHeight"
+    )
   )
     findings.push(
       "a fixed height at the withers, a pony breed's own figure, is not refused",

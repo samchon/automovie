@@ -1,6 +1,6 @@
-import { DogBody } from "./DogBody";
-import { HorseGait } from "./HorseGait";
-import type { QuadrupedGait } from "./QuadrupedGait";
+import { AutoMovieArchetypeDogBody } from "./AutoMovieArchetypeDogBody";
+import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 
 /**
  * Provisional canine timing with measured walk data and faster point prototypes.
@@ -40,19 +40,14 @@ import type { QuadrupedGait } from "./QuadrupedGait";
  * The inclusive authored switching speeds 2.69/4.34 are the faster tables' first available points,
  * not measured preferred transitions. Canter remains unavailable. Borrowed
  * horse fold/clearance/bob remain explicit construction proxies for every gait.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Separates measured walk and faster point observations, derived representative cycles, unknown stride spread, authored transitions and provisional phase/shape construction.
- * @evidence contracts/development/design.md#principled-representation Existing rows represent the measured walk interval and exact faster experimental speeds; absolute scaling avoids inventing an experimental reference height. Species-specific phases remain declared data.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The actual dog species reads this table through the shared ride, including the separately declared hind stance without a species branch.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No faster speed band, stride SD, measured gallop phase or preferred transition is invented from single-animal observations and desired robot references; anatomical and transfer limits stay explicit.
  */
 export namespace DogGait {
   /** Canine walking interval and two provisional faster experimental points. */
-  export const TABLE: QuadrupedGait.ITable = {
+  export const TABLE: AutoMovieArchetypeQuadrupedGait.ITable = {
     order: ["walk", "trot", "gallop"],
     gaits: {
       walk: {
-        ...HorseGait.TABLE.gaits.walk!,
+        ...AutoMovieArchetypeEquineGait.TABLE.gaits.walk!,
         nod: { range: 0, timing: "support" },
         phases: {
           leftFore: 0,
@@ -78,7 +73,7 @@ export namespace DogGait {
         ],
       },
       trot: {
-        ...HorseGait.TABLE.gaits.trot!,
+        ...AutoMovieArchetypeEquineGait.TABLE.gaits.trot!,
         change: { kind: "speed", speed: 2.69 },
         nod: { range: 0, timing: "bob" },
         phases: { leftFore: 0, rightFore: 0.5, leftHind: 0.5, rightHind: 0 },
@@ -93,7 +88,7 @@ export namespace DogGait {
         ],
       },
       gallop: {
-        ...HorseGait.TABLE.gaits.gallop!,
+        ...AutoMovieArchetypeEquineGait.TABLE.gaits.gallop!,
         change: { kind: "speed", speed: 4.34 },
         nod: { range: 0, timing: "lead" },
         phases: { leftFore: 0, rightFore: 0.8, leftHind: 0.6, rightHind: 0.3 },
@@ -110,9 +105,9 @@ export namespace DogGait {
     },
 
     // Default query height only: absolute scaling never divides by this value.
-    reference: DogBody.MEASURES.pet.withers / 100,
+    reference: AutoMovieArchetypeDogBody.MEASURES.pet.withers / 100,
     scaling: "absolute",
     hysteresis: 0,
-    follow: HorseGait.FOLLOW,
+    follow: AutoMovieArchetypeEquineGait.FOLLOW,
   };
 }

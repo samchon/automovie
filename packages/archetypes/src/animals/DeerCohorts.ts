@@ -8,30 +8,15 @@
  * skull n60, male limbs n6 and female limbs n7. These are sex-matched controls,
  * not paired individuals or identical age cutoffs. No juvenile model or hard
  * population range is inferred from those grouped observations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both actual study/table sources, sex/age/trait-dependent counts, SI units and the provisional cross-sample use.
- * @evidence contracts/development/design.md#principled-representation Two closed adult references retain whole external body vectors and separate sex-matched skeletal observations.
- * @evidence contracts/development/design.md#minimal-and-owned-surface DeerBody and createDeer consume these existing physical dimensions and cohort keys; juvenile growth and statistical sampling remain unsupported.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Female controls are not labelled male anatomy, group SD is not a hard bound and no unmeasured paired allometry or cohort frequency is encoded.
  */
 export namespace DeerCohorts {
   /**
    * The two source-supported adult body references.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names male4+ and female2+ external body cohorts; skeletal transfer uses older same-sex samples.
-   * @evidence contracts/development/design.md#principled-representation A closed union prevents unimplemented juvenile variants or unknown populations from entering construction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by the producer's input, source body lookup and whole-cohort draw.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reference identity is explicit rather than inferred from mass, shape or antler presence.
    */
   export type Name = "boso-adult-male" | "boso-adult-female";
 
   /**
    * Whole external body means in metres and kilograms.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines actual shoulder height, chest circumference, shoulder-to-rump length and weighed bare mass.
-   * @evidence contracts/development/design.md#principled-representation Four required positive scalar observations remain one selected sex/age vector.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only the body traits current model construction consumes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Equipment weight, soft-tissue head dimensions, individual covariance and hard population limits remain absent.
    */
   export interface IMeasures {
     /** Ground to shoulder landmark, metres. */
@@ -46,11 +31,6 @@ export namespace DeerCohorts {
 
   /**
    * Sex-matched skull and limb means of separately sampled adults age5+.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names actual bone/skull lengths, metre conversion and distinct samples; none is a tape-derived pseudo-bone.
-   * @evidence contracts/development/design.md#principled-representation Two fixed three-bone tuples and actual skull length/breadth preserve the measured traits of each sex.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The coarse body uses these controls; named construction still owns unmeasured neck, distal bars, tail and standing directions.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts These old-adult skeletal means are explicit provisional transfers to the selected external reference, not paired individual measurements or passive joint limits.
    */
   export interface ISkeleton {
     /** Humerus, radius and metacarpus maximum lengths, metres. */

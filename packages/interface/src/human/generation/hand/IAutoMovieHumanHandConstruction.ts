@@ -13,20 +13,9 @@ import type { IAutoMovieHumanHandWrist } from "./IAutoMovieHumanHandWrist";
 
 /**
  * Type contracts exchanged by AutoMovieHumanHandConstruction; runtime evaluation remains in Human.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanHandConstruction exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
- * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IFixedContourInput, IInput, IBuilt. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanHandConstruction; Human retains the computation and source preparation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IFixedContourInput, IInput, IBuilt contracts and adds no alternate implementation, optional mode or runtime state.
  */
 export namespace IAutoMovieHumanHandConstruction {
   /** Authored fixed contour topology before JSON tuple and literal restoration.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Authored fixed contour topology before JSON tuple and literal restoration.
-   * @evidence contracts/development/design.md#principled-representation `sections`: Physical original section coordinates and their closed coefficient loops. `intervals`: Original section-to-section component incidence. `events`: Observed source events with their physical coordinate and incident loops.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by AutoMovieHumanHandConstruction.fixedContour.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts `intervals`: Original section-to-section component incidence.
    */
   export interface IFixedContourInput {
     /** Physical original section coordinates and their closed coefficient loops. */
@@ -69,12 +58,6 @@ export namespace IAutoMovieHumanHandConstruction {
   }
 
   /** What one side's hand reads.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation What one side's hand reads.
-   * @evidence contracts/development/design.md#principled-representation `calibration`: Calibration the body's surface is built on, for the knuckle section's skin. `side`: Which side; the hand is built in the left frame either way. `given`: The person's hand measures for this side.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by AutoMovieHumanHandConstruction.build.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `calibration`, `side`, `given`, `circumference`, `wristTape`, `makeArm`, `key`, `lofted`; callers supply the complete record.
    */
   export interface IInput<A extends IAutoMovieHumanHandWrist> {
     /** Calibration the body's surface is built on, for the knuckle section's skin. */
@@ -94,14 +77,6 @@ export namespace IAutoMovieHumanHandConstruction {
 
     /**
      * The arm the hand grows out of, built for a set of scales.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The arm the hand grows out of, built for a set of scales.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanHandConstruction owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHandConstruction.IInput.makeArm declares the invocation boundary only; AutoMovieHumanHandConstruction and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanHandConstruction.IInput.makeArm must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanHandConstruction.IInput.makeArm owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanHandConstruction and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanHandConstruction producer or caller supplying the callback owns captured state and its lifetime.
      */
     makeArm: (measures: IAutoMovieHumanHandScales) => A;
 
@@ -113,12 +88,6 @@ export namespace IAutoMovieHumanHandConstruction {
   }
 
   /** One side's hand: the solve, the landmarks the skeleton stands on, and the chains.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation One side's hand: the solve, the landmarks the skeleton stands on, and the chains.
-   * @evidence contracts/development/design.md#principled-representation `measures`: The hand's scales as solved. `law`: The arm built with those scales. `joints`: The knuckles and the thumb's base, left frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanArmConstruction.remember, AutoMovieHumanHandConstruction.build. Read by AutoMovieHumanArmConstruction.remember. Also types AutoMovieHumanArmConstruction.BUILT, AutoMovieHumanArmConstruction.built.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `measures`, `law`, `joints`, `lines`, `thumb`, `palm`, `digits`, `poles`, `nails`; callers supply the complete record.
    */
   export interface IBuilt<A extends IAutoMovieHumanHandWrist> {
     /** The hand's scales as solved. */

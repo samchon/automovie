@@ -54,6 +54,7 @@ export type { IAutoMovieCreateCompiledSlotSummary } from "./IAutoMovieCreateComp
 export type { IAutoMovieCreatePerformShotSubjectFramer } from "./IAutoMovieCreatePerformShotSubjectFramer";
 export type { IAutoMovieCreateSourceOracle } from "./IAutoMovieCreateSourceOracle";
 export type { IAutoMovieCurrentSubjectReviewObservation } from "./IAutoMovieCurrentSubjectReviewObservation";
+export type { IAutoMovieClassifyPlaybackBoundary } from "./IAutoMovieClassifyPlaybackBoundary";
 export type { IAutoMovieCut } from "./IAutoMovieCut";
 export type { IAutoMovieDecodedProductionAudioAsset } from "./IAutoMovieDecodedProductionAudioAsset";
 export type { IAutoMovieDerivedArtifactSource } from "./IAutoMovieDerivedArtifactSource";
@@ -235,7 +236,6 @@ export type { IAutoMovieSubjectBounds } from "./IAutoMovieSubjectBounds";
 export type { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
 export type { IAutoMovieSubjectChange } from "./IAutoMovieSubjectChange";
 export type { IAutoMovieSubjectContribution } from "./IAutoMovieSubjectContribution";
-export type { IAutoMovieSubjectDescriber } from "./IAutoMovieSubjectDescriber";
 export type { IAutoMovieSubjectDescription } from "./IAutoMovieSubjectDescription";
 export type { IAutoMovieSubjectDiff } from "./IAutoMovieSubjectDiff";
 export type { IAutoMovieSubjectDiffFanout } from "./IAutoMovieSubjectDiffFanout";

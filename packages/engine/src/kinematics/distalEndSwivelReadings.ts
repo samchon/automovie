@@ -33,20 +33,10 @@ import { swivelJointReadings } from "./swivelJointReadings";
  * the mid joint's place, which circles the root-to-target line as the swivel
  * turns, so every component of `d` is `a + b cos s + c sin s`, fitted exactly
  * from three swivels.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the premise, the derivation of both angles and what each member holds; `of` states every case that returns null.
- * @evidence contracts/development/design.md#principled-representation The direction's three components as exact sinusoids of the swivel and the box as rest-relative degree intervals, the terms both readers of the box are written in.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record and its reader, shared by the refused arcs (`distalEndSwivelArcs`) and the least rotation miss (`distalEndSwivelMiss`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A joint the analysis does not cover is null, never an approximation; the sinusoids and the interval lift are `swivelArcs`'s and `swivelJointReadings`'s.
  */
 export namespace distalEndSwivelReadings {
   /**
    * The readings of one end joint over a turn of the swivel.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation Sinusoids of the swivel in degrees; intervals in rest-relative degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The five members the two readers of the box use, and the sense the twist-range miss reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An unbounded angle is null, not a wide interval.
    */
   export interface IReadings {
     /** The direction's component on the joint's flexion axis; the abduction's sine is its negative. */
@@ -71,11 +61,6 @@ export namespace distalEndSwivelReadings {
   /**
    * What the reader is given: the end joint and the mid segment's direction
    * by swivel.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The joint as its basis, rest frame and range; the direction as a function of the swivel.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The five inputs the reading needs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The basis is the admitted, normalized one the decomposition reads.
    */
   export interface IProps {
     /** The end joint's clinical basis, admitted and normalized (`normalizeJointAxes`), in the proximal order. */
@@ -92,14 +77,6 @@ export namespace distalEndSwivelReadings {
 
     /**
      * The mid segment's world long axis at a swivel, degrees, in the requested end rotation's frame (`R^-1 u_world`), unit.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the reading's argument, its unit and the frame of the direction returned.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
      */
     direction: (swivel: number) => IAutoMovieVector3;
   }
@@ -109,14 +86,6 @@ export namespace distalEndSwivelReadings {
    *
    * @param props The end joint and the mid segment's direction by swivel.
    * @returns The readings, or null when the analysis does not apply (no range, a swing-twist gate, a mobile or explicitly reordered twist chart, a rest that carries the mid segment's axis neither onto the twist axis nor onto its opposite, an abduction interval past a quarter turn or a flexion interval wider than a half turn).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and every case that returns null.
-   * @evidence contracts/development/implementation.md#principled-implementation Three sampled directions fit each component's sinusoid exactly, since the direction is affine in the mid joint's place, which circles the root-to-target line (Tolani, Goswami and Badler 2000, after Korein).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The applicability checks, three samples, three fits, two intervals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A joint or an interval the analysis does not cover returns null rather than a guess.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three directions and nine dot products.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit is `swivelArcs.fitted` and the interval lift `swivelJointReadings.rig`, shared with a root joint's box.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(props: IProps): IReadings | null {
     const constraint: IAutoMovieJointConstraint | null = props.constraint;

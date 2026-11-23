@@ -1,4 +1,4 @@
-import { ArchetypeUnits, createShowcase } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createShowcase } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
@@ -25,12 +25,12 @@ export function test_archetype_showcase(): void {
     if (!(Math.abs(got - wanted) <= MM))
       findings.push(`${what}: ${got}, ${wanted} expected`);
   };
-  const inch: number = ArchetypeUnits.INCH;
+  const inch: number = AutoMovieArchetypeUnits.INCH;
   const read: Readonly<
     Record<createShowcase.Model, readonly [number, number]>
   > = {
-    "PW/SC482": [48 * inch, 170 * ArchetypeUnits.POUND],
-    "PW/SC702": [70 * inch, 190 * ArchetypeUnits.POUND],
+    "PW/SC482": [48 * inch, 170 * AutoMovieArchetypeUnits.POUND],
+    "PW/SC702": [70 * inch, 190 * AutoMovieArchetypeUnits.POUND],
   };
   const models: createShowcase.Model[] = Object.keys(
     read,

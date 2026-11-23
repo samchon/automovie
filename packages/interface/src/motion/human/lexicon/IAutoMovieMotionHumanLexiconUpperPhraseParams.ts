@@ -2,13 +2,6 @@ import type { IAutoMovieMotionHumanArmPhrase } from "../compose/IAutoMovieMotion
 
 /**
  * Open parameters of the upperPhrase lexicon family, keyed by each runtime export name.
- * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
- * HumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
- * @evidence contracts/development/design.md#principled-representation The upperPhrase family is a closed export-name map with the exact Omit projection of each source law.
- * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the upperPhrase row parameter map used by the family registry and schema generator.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
 export interface IAutoMovieMotionHumanLexiconUpperPhraseParams {
   /** The phrase law itself, for a production that states its own phrase, target and hand. */
@@ -17,7 +10,7 @@ export interface IAutoMovieMotionHumanLexiconUpperPhraseParams {
   /** A wave: the open hand oscillates out and in, raised beside the head, palm forward. */
   waveHand: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "target" | "mirror" | "offset" | "swing" | "cycles" | "facing"
+    "phrase" | "target" | "mirror" | "offset" | "swing" | "count" | "facing"
   >;
 
   /** A raised hand: the open hand visits a place above the shoulder, palm forward, and holds it. */
@@ -53,7 +46,7 @@ export interface IAutoMovieMotionHumanLexiconUpperPhraseParams {
   /** A rub: the palm oscillates across the target. */
   rubOn: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "surface" | "shape" | "swing" | "cycles"
+    "phrase" | "surface" | "shape" | "swing" | "count"
   >;
 
   /** A stroke: the palm draws down along the target. */
@@ -83,25 +76,25 @@ export interface IAutoMovieMotionHumanLexiconUpperPhraseParams {
   /** Wiping a surface: the flat palm oscillates across the target. */
   wipeAcross: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "surface" | "shape" | "swing" | "cycles"
+    "phrase" | "surface" | "shape" | "swing" | "count"
   >;
 
   /** Hammering: the fist that holds the hammer strikes down and back on the target, up and down. */
   hammerStrokes: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "surface" | "shape" | "swing" | "cycles"
+    "phrase" | "surface" | "shape" | "swing" | "count"
   >;
 
   /** Sawing: the fist that holds the saw draws forward and back over the target. */
   sawStrokes: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "surface" | "shape" | "swing" | "cycles"
+    "phrase" | "surface" | "shape" | "swing" | "count"
   >;
 
   /** Stirring: the fist that holds the spoon circles out and in over the pot. */
   stirStrokes: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "surface" | "shape" | "swing" | "cycles"
+    "phrase" | "surface" | "shape" | "swing" | "count"
   >;
 
   /** Putting on a hat: the hand that holds it visits the crown and stays a beat. */
@@ -125,7 +118,7 @@ export interface IAutoMovieMotionHumanLexiconUpperPhraseParams {
   /** Scratching the head: the forefinger's tip oscillates on the crown. */
   headScratch: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "target" | "surface" | "shape" | "swing" | "cycles"
+    "phrase" | "target" | "surface" | "shape" | "swing" | "count"
   >;
 
   /** A hand to the cheek: the palm visits the cheek and stays a beat. */
@@ -155,7 +148,7 @@ export interface IAutoMovieMotionHumanLexiconUpperPhraseParams {
   /** Brushing the teeth: the hand that holds the brush oscillates before the mouth. */
   teethBrushing: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "target" | "surface" | "shape" | "swing" | "cycles"
+    "phrase" | "target" | "surface" | "shape" | "swing" | "count"
   >;
 
   /** Combing: the hand that holds the comb draws it back over the crown. */
@@ -167,43 +160,43 @@ export interface IAutoMovieMotionHumanLexiconUpperPhraseParams {
   /** Clapping: both palms meet ahead of the chest and part, out and in. */
   clapHands: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "side" | "target" | "offset" | "swing" | "cycles" | "facing"
+    "phrase" | "hand" | "target" | "offset" | "swing" | "count" | "facing"
   >;
 
   /** Rubbing the hands: both palms together ahead of the chest, sliding up and down. */
   rubPalms: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "side" | "target" | "offset" | "swing" | "cycles" | "facing"
+    "phrase" | "hand" | "target" | "offset" | "swing" | "count" | "facing"
   >;
 
   /** Hands clasped in front: both palms meet before the abdomen and stay. */
   handsTogetherFront: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "side" | "target" | "offset" | "facing" | "hold"
+    "phrase" | "hand" | "target" | "offset" | "facing" | "hold"
   >;
 
   /** A cheer: both open hands visit places above and beside the head, palms forward, for a beat. */
   cheerHands: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "side" | "target" | "offset" | "facing" | "hold"
+    "phrase" | "hand" | "target" | "offset" | "facing" | "hold"
   >;
 
   /** A beckon: the open hand held out ahead, palm up, draws in toward the chest and out again. */
   beckonHand: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "target" | "mirror" | "offset" | "swing" | "cycles" | "facing"
+    "phrase" | "target" | "mirror" | "offset" | "swing" | "count" | "facing"
   >;
 
   /** Folding the arms: each hand visits the far arm before the chest, the forearms folded, and stays (the phrase that reaches `HumanStance.armsCrossed`, which holds the rest itself). */
   foldArms: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "side" | "target" | "offset" | "shape" | "facing" | "hold"
+    "phrase" | "hand" | "target" | "offset" | "shape" | "facing" | "hold"
   >;
 
   /** Hands clasped behind: both palms meet behind the lower back and stay. */
   handsClaspedBehind: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "side" | "target" | "offset" | "facing" | "hold"
+    "phrase" | "hand" | "target" | "offset" | "facing" | "hold"
   >;
 
   /** An arm at rest at the side: the relaxed hand visits a place beside the thigh, palm in, and stays. */
@@ -215,7 +208,7 @@ export interface IAutoMovieMotionHumanLexiconUpperPhraseParams {
   /** A pat: the flat palm bounces on the target, up and down. */
   patOn: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "surface" | "shape" | "swing" | "cycles"
+    "phrase" | "surface" | "shape" | "swing" | "count"
   >;
 
   /** A squeeze: the hand closes on the target and holds. */
@@ -245,6 +238,6 @@ export interface IAutoMovieMotionHumanLexiconUpperPhraseParams {
   /** A scratch: the fingertips oscillate in short strokes on the target. */
   scratchOn: Omit<
     IAutoMovieMotionHumanArmPhrase.IParams,
-    "phrase" | "surface" | "shape" | "swing" | "cycles"
+    "phrase" | "surface" | "shape" | "swing" | "count"
   >;
 }

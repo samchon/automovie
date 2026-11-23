@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieHumanEffectorPointLimit,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionEvent,
@@ -30,6 +31,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingRoll } from "../striking/StrikingRoll";
 
 /** Upright admission allows five degrees of staged placement error. */
 const UPRIGHT: number = Math.cos((5 * Math.PI) / 180);
@@ -72,7 +74,7 @@ export namespace pour {
    * @throws {HumanRefusal} For invalid timing, geometry, volumes, support or grip, and for a pose that misses the sampled mouth or tilt bound.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the entry, retained hold and refusal categories.
-   * @evidence contracts/development/implementation.md#principled-implementation The wrist target is the pivot minus the rotated wrist-to-lip offset. Changing orientation therefore keeps the lip above the opening throughout the tip and righting goals.
+   * @evidence contracts/development/implementation.md#principled-implementation The wrist target is the pivot minus the rotated wrist-to-lip offset. Changing orientation therefore keeps the lip above the opening throughout the tip and righting goals. The lip and a point a hand's length up the vessel's axis are hard task limits within the held-tool bound, so the planned arm holds the lip and the tilt or refuses, instead of trading the attitude away.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admits the staging, constructs one arm trajectory, then checks the trajectory at the relevant phase samples.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Derives the opening from the recipient's affordances and refuses sampled loss of alignment instead of moving the receiving vessel or changing the requested transfer.
    * @evidence contracts/development/implementation.md#efficient-algorithms One arm planning call and seven bounded forward pose reads per instance. Posture evaluation reads the prepared trajectory.
@@ -178,6 +180,27 @@ export namespace pour {
       (clock.progress("tipStart", "flowStart", seconds) -
         clock.progress("flowEnd", "retreatStart", seconds));
 
+    // The lip on its pivot and the vessel's tilt are the pour's outcome, so
+    // the hand holds them as hard task limits, not as an attitude the arm
+    // may trade away: the lip and a point a hand's length up the vessel's
+    // axis from it, each in the hand's frame, kept within the held-tool
+    // bound (`StrikingRoll.MISS`) of where the asked frame puts them. Within
+    // that bound the lip stays inside the 25 mm the check below admits, and
+    // the axis within asin(2 MISS / hand) of the asked tilt, under the
+    // check's 10 degrees for any hand longer than 0.12 m.
+    const limits: IAutoMovieHumanEffectorPointLimit[] = [
+      lipOffset,
+      Vector3.add(
+        lipOffset,
+        Vector3.scale(lip.direction, context.body.measure.hand),
+      ),
+    ].map(
+      (contact: IAutoMovieVector3): IAutoMovieHumanEffectorPointLimit => ({
+        contact,
+        bound: StrikingRoll.MISS,
+      }),
+    );
+
     // One trajectory carries the source between the entry wrist and the lip
     // pivot. On the pivot the planner's contact site is the lip itself.
     const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
@@ -198,6 +221,12 @@ export namespace pour {
             from: 0,
             to: clock.duration,
             span,
+            // Every stage is the law's own, lengthened by a slower tempo.
+            together: AutoMovieMotionHumanArm.together(
+              context.handover,
+              true,
+              context.tempo,
+            ),
             rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
             weight: (seconds: number): number =>
               clock.envelope(
@@ -220,6 +249,7 @@ export namespace pour {
                 ),
                 rotation,
                 contact: lipOffset,
+                limits,
                 bend,
               };
             },

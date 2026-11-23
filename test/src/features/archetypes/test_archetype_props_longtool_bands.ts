@@ -1,4 +1,4 @@
-import { ArchetypeUnits, createLongTool } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createLongTool } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -46,7 +46,7 @@ export function test_archetype_props_longtool_bands(): void {
     ),
     row(
       "axe length",
-      25 * ArchetypeUnits.INCH,
+      25 * AutoMovieArchetypeUnits.INCH,
       0.65,
       "Gränsfors Bruk 430 and its retailer",
       (seed: number): number =>
@@ -62,7 +62,7 @@ export function test_archetype_props_longtool_bands(): void {
     ),
     row(
       "axe edge",
-      3.5 * ArchetypeUnits.INCH,
+      3.5 * AutoMovieArchetypeUnits.INCH,
       0.09,
       "the Axe Book and a retailer",
       (seed: number): number =>
@@ -71,7 +71,7 @@ export function test_archetype_props_longtool_bands(): void {
     row(
       "axe head mass",
       0.9,
-      2 * ArchetypeUnits.POUND,
+      2 * AutoMovieArchetypeUnits.POUND,
       "the Axe Book and a retailer",
       (seed: number): number => {
         // The head's centre is half the edge up, the handle's half-way between the edge and the top.

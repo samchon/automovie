@@ -14,7 +14,7 @@ import { AutoMovieLoftCapRead } from "./AutoMovieLoftCapRead";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
-import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
+import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
@@ -42,25 +42,12 @@ import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
  *
  * The strips, the trims' and lids' cross derivatives and the shading
  * normals read these instead of differences of sampled points.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each jet component and the terms of its product rule.
- * @evidence contracts/development/design.md#principled-representation Represents A chain's surface point with its exact first and second derivatives in station and phase: companion namespace of 13 members (`IJet`, `carries`, `at`, `IControls`, `IStation`, `ILift`, ...); units and frames named in its text: world, radian, second, radians, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftJet` in packages/engine/src/geometry/construction/AutoMovieLoftJet.ts; its surface is the 13 members listed and the text shows 22 other files naming it, mostly test (15), packages/human (4), packages/engine (3), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftJet {
   /**
    * Whether the actual local interval owners carry physical2 and every
    * layer carries its frame2. Projection curvatures are required only by
    * actual legacy intervals. This is not complete numeric/regularity validation.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Requires recorded native source2 availability or legacy coefficient curvature, plus all frame derivative orders at every layer; actual queries still admit their requested station derivatives.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A shared local-capability predicate precedes one frame-presence scan, without another geometry model.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tests field presence only, including the ordinary every semantics for an empty layer list; it is not a complete chain validator.
-   * @evidence contracts/development/common.md#meaningful-documentation Lists the required fields and the validation this predicate does not perform.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Local source-status lookup includes binary searches on clipped rows and O(L*S) law presence for L layers/S laws, followed by O(L) frame checks; no phase/source2 evaluation or cache allocation occurs.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure presence predicate coordinates no requests or reusable station preparation; at owns that cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Reads the supplied chain and retains nothing after returning its boolean.
    */
   export function carries(chain: IAutoMovieLoftChain): boolean {
     return (
@@ -80,14 +67,6 @@ export namespace AutoMovieLoftJet {
    * @param chain Chain that {@link carries} jets.
    * @param s Station within the chain.
    * @param t Phase, radians.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Combines actual native/continuation total2 or the unchanged legacy station/basis jets with the frame product rule, then adds lift and relief derivatives.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One station cache owns local/frame/lift preparation and one extracted world product rule serves both local authorities.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps ordinary interpolation and returned vector ownership; only validated surviving original cap owners bypass row bracketing, reading actual source2/axis2. Truezero or unavailable physical2 fails without a Taylor map or zero fill.
-   * @evidence contracts/development/common.md#meaningful-documentation States station and phase units and the surface product rule above.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Native source2 preparation skips unneeded compatibility derivative weights and each phase reads one numeric inverse plus selected AD source; legacy spline phases retain lazy four-control filling. Native lift arrays are prepared eagerly once in O(N).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Station weights, frame and lift directions are prepared once, and each visited control is combined once while its station remains cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Uses the weak-key eight-station insertion cache and returns fresh mutable jet vectors, never a cached output jet.
    */
   export function at(
     chain: IAutoMovieLoftChain,
@@ -114,27 +93,8 @@ export namespace AutoMovieLoftJet {
     // Hermite of its values, quintic where it carries curvatures, as in AutoMovieLoftChain.ring.
     if (station.lift !== undefined) lift(jet, station.lift, n, t);
 
-    // Reliefs move points along their axes: `P += h e`, with `e` fixed or
-    // turning with the phase alone, so `e_s = 0` and the product rule gives
-    // `h_t e + h e'` and `h_tt e + 2 h_t e' + h e''` in phase.
-    for (const relief of chain.reliefs ?? []) {
-      const h: number[] = AutoMovieLoftRelief.jet(relief, s, t);
-      if (h.every((x: number): boolean => x === 0)) continue;
-      const [e, e1, e2]: [
-        AutoMovieVector3Tuple,
-        AutoMovieVector3Tuple,
-        AutoMovieVector3Tuple,
-      ] = AutoMovieLoftRelief.direction(relief, t);
-      jet.p = sum(jet.p, scale(e, h[0]!));
-      jet.s = sum(jet.s, scale(e, h[1]!));
-      jet.t = sum(sum(jet.t, scale(e, h[2]!)), scale(e1, h[0]!));
-      jet.ss = sum(jet.ss, scale(e, h[3]!));
-      jet.st = sum(sum(jet.st, scale(e, h[4]!)), scale(e1, h[1]!));
-      jet.tt = sum(
-        sum(sum(jet.tt, scale(e, h[5]!)), scale(e1, 2 * h[2]!)),
-        scale(e2, h[0]!),
-      );
-    }
+    // Original native readers and chains add the same reliefs after lift.
+    AutoMovieLoftReliefCompose.jet(jet, chain.reliefs ?? [], s, t);
     if (
       !Object.values(jet).every((row: AutoMovieVector3Tuple): boolean =>
         row.every(Number.isFinite),
@@ -385,14 +345,6 @@ export namespace AutoMovieLoftJet {
 
   /**
    * Unit normal `P_t x P_s` of a finite jet, or null when its length is at most 1e-12.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Normalizes the chart tangent cross product in its existing t-cross-s orientation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One cross product and length test return a fresh unit vector or null.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the 1e-12 singularity threshold and does not invent a direction at a collapsed pole; the caller supplies finite derivatives.
-   * @evidence contracts/development/common.md#meaningful-documentation States orientation, the finite-input premise and the numerical singularity test.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic on two three-component derivatives, independent of chain order.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure vector operation coordinates no repeated work and returns no cached mutable vector.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns no retained state or handles; its returned vector belongs to the caller.
    */
   export function normal(
     jet: IAutoMovieLoftSurfaceJet,

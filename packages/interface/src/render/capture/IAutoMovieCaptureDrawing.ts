@@ -1,3 +1,4 @@
+import type { IAutoMovieInspectionDiagnostics } from "../inspection/IAutoMovieInspectionDiagnostics.js";
 import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
 import type { IAutoMovieRasterLabel } from "../picture/IAutoMovieRasterLabel.js";
 import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution.js";
@@ -5,12 +6,7 @@ import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution.
 /**
  * What a host's draw function returns for one cell: the picture, the anchors of the labels to stamp on it, and what drew it.
  *
- * The capture stamps each label on the still, records the backend and the resolved camera beside the cell, and compares two rounds' stills pixel by pixel only when both name the same backend.
- *
- * @evidence contracts/development/design.md#principled-representation The picture in the raster tools' own record, label anchors in the picture's pixels from its top-left corner, and two identities, the renderer that drew it and the camera it resolved, which `.agents/skills/visual-debugging/capture.md` asks a record to keep so an observation repeats.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the run (picture, labels) and the record and comparison (backend, camera, resolved patterns); drawing itself is the host's.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts An absent backend, camera or resolution is recorded as not stated, never as a guessed default, and a comparison treats an unstated backend as differing.
- * @evidence contracts/development/common.md#meaningful-documentation States the producer, what the capture does with each member, the anchor frame and what an absent identity means.
+ * The capture stamps each label on the still, records the backend and the resolved camera beside the cell, and compares two rounds' stills pixel by pixel only when both name the same backend. When supplied, findings and coverage contribute to the capture's audit.
  */
 export interface IAutoMovieCaptureDrawing {
   /**
@@ -42,4 +38,7 @@ export interface IAutoMovieCaptureDrawing {
    * What each pattern of the cell's request and view resolved to, as `resolveAutoMovieCapturePatterns` gives it on the draw page; absent when the host does not state it.
    */
   resolved?: IAutoMovieCaptureResolution[];
+
+  /** Findings and coverage from this drawing's evaluated sample, when the host supplies them. */
+  diagnostics?: IAutoMovieInspectionDiagnostics;
 }

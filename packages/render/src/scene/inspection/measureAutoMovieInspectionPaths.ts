@@ -12,14 +12,6 @@ import { measureAutoMovieInspectionBounds } from "./measureAutoMovieInspectionBo
  * Measure the world-space box of every chosen path of an inspected scene: of the drawn objects at that path and of the marks at that path, together.
  *
  * An object's box is what `measureAutoMovieInspectionBounds` measures of it as drawn now, its posed vertices and those of the objects beneath it that are drawn, so an isolated object contributes nothing. A mark's box holds its coordinates carried by its anchor's world matrix, through the anchor's first instance when it is an instanced mesh, and an arrow's tips as well as its origins. Paths come in the order the objects, then the marks, first give them; a chosen path with nothing drawn is left out.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each box holds for objects and for marks, what is left out, and the order.
- * @evidence contracts/development/implementation.md#principled-implementation An object is measured as the renderer draws it, and a mark's coordinates are in its anchor's frame, so its world points are those coordinates under the anchor's world matrix.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One map from path to box, filled from the objects and then from the marks.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is measured by name, and a path with nothing drawn has no box instead of a box at the origin.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the chosen objects' drawn vertices and the chosen marks' coordinates.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pose changes between calls, so no earlier box is reused.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain numbers; the objects, marks and anchors are read.
  */
 export function measureAutoMovieInspectionPaths(props: {
   /** Drawn objects with their paths. */

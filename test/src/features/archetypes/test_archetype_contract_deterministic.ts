@@ -1,4 +1,4 @@
-import type { Archetype } from "@automovie/archetypes";
+import type { AutoMovieArchetype } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeCatalog } from "../internal/archetypeCatalog";
@@ -48,7 +48,7 @@ export function test_archetype_contract_deterministic(): void {
   TestValidator.equals("producers are deterministic in the seed", findings, []);
 
   /** Observe authored variant facts without adding them to generated-model JSON. */
-  function snapshot(model: Archetype): string {
+  function snapshot(model: AutoMovieArchetype): string {
     return JSON.stringify({
       model,
       dimensions: model.dimensions,

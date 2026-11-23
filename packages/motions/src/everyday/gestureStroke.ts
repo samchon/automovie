@@ -1,18 +1,24 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanGestureStroke,
   IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanTargetGrid,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanTrunk } from "./HumanTrunk";
 import { gestureJoints } from "./gestureJoints";
 import { gestureSignal } from "./gestureSignal";
 import { gestureStrokeTables } from "./gestureStrokeTables";
@@ -101,6 +107,9 @@ export namespace gestureStroke {
   export interface IInput extends IAutoMovieMotionHumanGestureStroke.IInput {
     /** The plan's touch geometry for this hand, when the gesture prepared it; a stroke read without it computes the geometry itself. */
     prepared?: gestureTouch.IPrepared;
+
+    /** The bend of the trunk the gesture was entered on, read once per plan (`bend`); a straight trunk when absent. */
+    bend?: gestureStroke.IBend;
   }
 
   /** Each gesture's timing (`gestureStrokeTables.RHYTHM`), read here with its kind. */
@@ -129,9 +138,16 @@ export namespace gestureStroke {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Full hand goals and geometry-free finger playback share this same pure formula for identical kind/share/cycle/extent inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains nothing.
    */
-  export function curl(kind: IAutoMovieMotionHumanGestureStroke.Kind, u: number, cycles: number, extent: number): number {
+  export function curl(
+    kind: IAutoMovieMotionHumanGestureStroke.Kind,
+    u: number,
+    cycles: number,
+    extent: number,
+  ): number {
     return kind === "beckon"
-      ? gestureJoints.ANGLES.beckon * extent * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u))
+      ? gestureJoints.ANGLES.beckon *
+          extent *
+          (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u))
       : 0;
   }
   /**
@@ -149,11 +165,190 @@ export namespace gestureStroke {
    * @evidence contracts/development/implementation.md#principled-implementation Builds each goal in the performer's frame from the body's own measure (arm length, shoulder and waist heights), on the eye-to-target line for pointing (Henriques and Crawford 2002, the reach solved as a ray-sphere intersection from the shoulder), or on the body's face regions offset by the finger's collider radius for self-touch, so every gesture fits any stature; periodic strokes ride {@link gestureSignal.oscillation}.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive switch over the kind; pointing and self-touch, which need the posed trunk, live in {@link gestureTouch}; joint gestures live in {@link gestureJoints}.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm-length shares, swing sizes and outward elbow shares are documented provisional values; no body or scene is special-cased. The `thumbsDown` knuckle tilt is a fixed 45 degrees read off the polygon man's thumb (Limitation: it should aim the fist's thumb down from the body's own digit direction).
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for frame gestures: the heading's sine and cosine are computed once per call, on first need, and serve every point and direction. Pointing and self-touch cost one trunk forward-kinematics pass each.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for frame gestures: the heading's sine and cosine are computed once per call, on first need, and serve every point and direction, and the trunk's tilt and its plan-time bend are applied in closed form. Pointing and self-touch cost one trunk forward-kinematics pass each.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one call, the points and directions share one frame preparation of the base's heading; nothing is kept between calls.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
    */
   export function hand(
+    kind: IAutoMovieMotionHumanGestureStroke.Kind,
+    side: AutoMovieHumanSide,
+    u: number,
+    cycles: number,
+    input: gestureStroke.IInput,
+  ): IAutoMovieMotionHumanGestureStroke.IHand {
+    const goal: IAutoMovieMotionHumanGestureStroke.IHand = upright(
+      kind,
+      side,
+      u,
+      cycles,
+      input,
+    );
+    // A place of the air is named in the body's heading frame; a body not
+    // upright carries it with its upper trunk. A tilt of the whole posture
+    // (a prone swimmer, a leaning rider) turns the goal about the root by the
+    // posture's pitch and roll beyond its heading, read at every instant from
+    // the posture alone. A bend of the spine (a trunk bent over a hand that
+    // bears) moves the chest off the tilted trunk too, where the bent trunk
+    // brought the head into the place (a wave over a braced hand, the head
+    // 5.8 mm inside the waving hand): that bend is measured once per plan, on
+    // the posture the gesture is entered on (`bend`), and carried in the
+    // heading frame. Pointing and self-touch already read the posed trunk.
+    if (TRUNK_POSED.has(kind)) return goal;
+    const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(
+      input.base,
+    );
+    const tilt: IAutoMovieQuaternion = Quaternion.multiply(
+      heading,
+      Quaternion.inverse(HumanFrame.turn(input.base.yaw)),
+    );
+    const bent: gestureStroke.IBend | undefined = input.bend;
+    if (
+      Quaternion.angle(tilt, Quaternion.identity()) < 1e-9 &&
+      bent === undefined
+    )
+      return goal;
+    const root: IAutoMovieVector3 = input.base.root;
+    let point: IAutoMovieVector3 = Vector3.add(
+      root,
+      Quaternion.rotateVector(tilt, Vector3.subtract(goal.point, root)),
+    );
+    let rotation: IAutoMovieQuaternion | undefined =
+      goal.rotation === undefined
+        ? undefined
+        : Quaternion.multiply(tilt, goal.rotation);
+    if (bent !== undefined) {
+      const local: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.inverse(heading),
+        Vector3.subtract(point, root),
+      );
+      point = Vector3.add(
+        root,
+        Quaternion.rotateVector(
+          heading,
+          Vector3.add(
+            bent.to,
+            Quaternion.rotateVector(
+              bent.rotation,
+              Vector3.subtract(local, bent.from),
+            ),
+          ),
+        ),
+      );
+      if (rotation !== undefined)
+        rotation = Quaternion.multiply(
+          Quaternion.multiply(
+            Quaternion.multiply(heading, bent.rotation),
+            Quaternion.inverse(heading),
+          ),
+          rotation,
+        );
+    }
+    return {
+      ...goal,
+      point,
+      ...(rotation === undefined ? {} : { rotation }),
+    };
+  }
+
+  /**
+   * The bend of a posture's spine, as a place of the air rides it: the posed
+   * chest against the chest of the same posture with its trunk's joints
+   * straight, in the posture's heading frame about its root. Read once per
+   * plan, on the posture a gesture is entered on.
+   *
+   * @param body The body.
+   * @param posture The posture.
+   * @returns The bend, or none for a straight trunk.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is measured, against what, in which frame and when it is read.
+   * @evidence contracts/development/implementation.md#principled-implementation The posed and the straightened chest by the trunk's own forward kinematics, their relative rigid motion expressed in the heading frame so it rides the root and the tilt.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two chest frames, one relative motion.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A straight trunk gives none, so an upright gesture is untouched.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two trunk forward-kinematics passes demanding the chest alone, once per plan; every goal read applies the result in closed form.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the trunk's resolver and the posture's heading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
+   */
+  export function bend(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): gestureStroke.IBend | undefined {
+    const posed: IAutoMovieResolvedBone = HumanTrunk.resolve(
+      body,
+      posture,
+      undefined,
+      undefined,
+      CHEST,
+    ).get("chest")!;
+    const straight: IAutoMovieResolvedBone = HumanTrunk.resolve(
+      body,
+      posture,
+      { ...posture.joints, ...STRAIGHT },
+      undefined,
+      CHEST,
+    ).get("chest")!;
+    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+      posed.worldRotation,
+      Quaternion.inverse(straight.worldRotation),
+    );
+    if (
+      Quaternion.angle(turn, Quaternion.identity()) < 1e-9 &&
+      Vector3.distance(posed.worldPosition, straight.worldPosition) < 1e-9
+    )
+      return undefined;
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      resolveHumanPosture.heading(posture),
+    );
+    const heading: IAutoMovieQuaternion = Quaternion.inverse(inverse);
+    return {
+      rotation: Quaternion.multiply(
+        Quaternion.multiply(inverse, turn),
+        heading,
+      ),
+      from: Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(straight.worldPosition, posture.root),
+      ),
+      to: Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(posed.worldPosition, posture.root),
+      ),
+    };
+  }
+
+  /** A spine's bend in the heading frame about the root (`bend`). */
+  export interface IBend {
+    /** The chest's turn off the straight trunk. */
+    rotation: IAutoMovieQuaternion;
+
+    /** The straight trunk's chest. */
+    from: IAutoMovieVector3;
+
+    /** The posed chest. */
+    to: IAutoMovieVector3;
+  }
+
+  /** The bone a place of the air rides. */
+  const CHEST: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>(["chest"]);
+
+  /** The trunk's joints of a body standing straight. */
+  const STRAIGHT: IAutoMovieMotionHumanPosture["joints"] = {
+    hips: [0, 0, 0],
+    spine: [0, 0, 0],
+    chest: [0, 0, 0],
+  };
+
+  /** The gesture kinds whose hand goals read the posed trunk already. */
+  const TRUNK_POSED: ReadonlySet<IAutoMovieMotionHumanGestureStroke.Kind> =
+    new Set<IAutoMovieMotionHumanGestureStroke.Kind>([
+      "point",
+      "touchFace",
+      "pushGlasses",
+      "scratchHead",
+    ]);
+
+  /** A hand's goal for an upright body, in its heading frame. */
+  function upright(
     kind: IAutoMovieMotionHumanGestureStroke.Kind,
     side: AutoMovieHumanSide,
     u: number,
@@ -169,14 +364,24 @@ export namespace gestureStroke {
       yaw: input.base.yaw,
     };
     let transform: HumanFrame.IPrepared | undefined;
-    const at: (x: number, y: number, z: number) => IAutoMovieVector3 =
-      (x: number, y: number, z: number): IAutoMovieVector3 =>
-        (transform ??= HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw }))
-          .point({ x, y, z }, frame.origin);
-    const dir: (x: number, y: number, z: number) => IAutoMovieVector3 =
-      (x: number, y: number, z: number): IAutoMovieVector3 =>
-        (transform ??= HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw }))
-          .direction({ x, y, z });
+    const at: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+      x: number,
+      y: number,
+      z: number,
+    ): IAutoMovieVector3 =>
+      (transform ??= HumanFrame.prepare({
+        origin: { x: 0, y: 0, z: 0 },
+        yaw: frame.yaw,
+      })).point({ x, y, z }, frame.origin);
+    const dir: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+      x: number,
+      y: number,
+      z: number,
+    ): IAutoMovieVector3 =>
+      (transform ??= HumanFrame.prepare({
+        origin: { x: 0, y: 0, z: 0 },
+        yaw: frame.yaw,
+      })).direction({ x, y, z });
     // A place of the air by its names, in the performer's own frame: the
     // shares times the stature, the half shoulder width and the arm, ahead
     // of the root, which a lowered posture carries down with it. `reach`
@@ -200,7 +405,9 @@ export namespace gestureStroke {
           : AutoMovieMotionHumanTargetGrid.place(body, side, named);
       const varied: IAutoMovieMotionHumanTarget.IDefault | undefined =
         base === undefined ? undefined : input.vary!(base);
-      const offset: (key: "lateral" | "height" | "range") => number = (key: "lateral" | "height" | "range"): number =>
+      const offset: (key: "lateral" | "height" | "range") => number = (
+        key: "lateral" | "height" | "range",
+      ): number =>
         base === undefined || varied === undefined
           ? 0
           : (varied[key] ?? 0) - (base[key] ?? 0);

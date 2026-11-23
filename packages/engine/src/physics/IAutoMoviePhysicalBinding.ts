@@ -11,31 +11,27 @@ import type {
   IAutoMovieSamplePhysicalAuthoredTargets,
   IAutoMovieSolvePhysicalCompliantContacts,
 } from "@automovie/interface";
-import type { ImpulseJoint, RigidBody } from "@dimforge/rapier3d-compat";
 
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
 
 /**
  * Solver handles are transient and rebuilt in creation order after snapshot restore.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Solver handles are transient and rebuilt in creation order after snapshot restore) and documents 26 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Solver handles are transient and rebuilt in creation order after snapshot restore: interface of 26 members (`profiles`, `floor`, `bodies`, `joints`, `colliders`, `surfaces`, ...). Optional members `floor`, `geometry` express documented absence, and the ranges its member docs state are left to runtime validation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAutoMoviePhysicalBinding` in packages/engine/src/physics/IAutoMoviePhysicalBinding.ts; its surface is the 26 members listed and the text shows 17 other files naming it, mostly packages/engine (17), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 2 optional members (`floor`, `geometry`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
  */
 export interface IAutoMoviePhysicalBinding {
   /** Admitted immutable providers shared by fits within this run. */ profiles: Record<
     string,
     IAutoMoviePhysicalProfile
   >;
-  /** Immobile position-kinematic floor; omitted only while native binding is being constructed. */ floor?: RigidBody;
+  /** Immobile position-kinematic floor; omitted only while the binding is being constructed. */ floor?: AutoMovieXpbdBody;
   /** Scene/body segment keys to live rigid bodies. */ bodies: Map<
     string,
-    RigidBody
+    AutoMovieXpbdBody
   >;
-  /** Body/joint keys to native joint constraints. */ joints: Map<
+  /** Body/joint keys to solver joints. */ joints: Map<
     string,
-    ImpulseJoint
+    AutoMovieXpbdJoint
   >;
   /** Contact source identity indexed by collider handle. */ colliders: Map<
     number,
@@ -47,7 +43,7 @@ export interface IAutoMoviePhysicalBinding {
   >;
   /** Bodies whose persistent motor forces were already cleared on withdrawal. */ released: Set<string>;
   /** Bodies whose declared contact-triggered withdrawal has actually occurred. */ contactReleased: Set<string>;
-  /** Current native dynamic ownership, rebuilt from native body types after restore. */ dynamic: Map<
+  /** Current dynamic ownership, rebuilt from the bodies' kinds after restore. */ dynamic: Map<
     string,
     Set<string>
   >;
@@ -55,9 +51,9 @@ export interface IAutoMoviePhysicalBinding {
     string,
     Record<string, IAutoMoviePhysicalHandoff>
   >;
-  /** Actual native ownership transitions, shared with the replay cache. */ ownership: IAutoMoviePhysicalOwnershipEvent[];
+  /** Actual ownership transitions, shared with the replay cache. */ ownership: IAutoMoviePhysicalOwnershipEvent[];
   /** Virtual requested/allocated support demand, never a measured solver impulse. */ supportWrenches: IAutoMoviePhysicalSupportWrench[];
-  /** Explicit root-withdrawal quality policies currently applied during protective joint effort. */ reflexQuality: Set<string>;
+
   /** At most one transient set of recovery motor goals per body and cached interval. */ planned: Map<
     string,
     IAutoMoviePhysicalTargetInterval.IPlan & {
@@ -70,9 +66,9 @@ export interface IAutoMoviePhysicalBinding {
     string,
     IAutoMoviePhysicalTargetInterval.IPlan
   >;
-  /** Reused per-body segment maps; no native wrappers escape the run. */ segments: Map<
+  /** Reused per-body segment maps; no solver bodies escape the run. */ segments: Map<
     string,
-    Map<string, RigidBody>
+    Map<string, AutoMovieXpbdBody>
   >;
   /** Joint postorder for linear-work downstream gravity moments. */ gravityOrder: Map<
     string,
@@ -111,7 +107,7 @@ export interface IAutoMoviePhysicalBinding {
     string,
     IAutoMovieSamplePhysicalAuthoredTargets.IPlan
   >;
-  /** Fitted interval endpoints; native substeps interpolate one coherent moving reference instead of holding its first sample. */ contactTargets: Map<
+  /** Fitted interval endpoints; solver substeps interpolate one coherent moving reference instead of holding its first sample. */ contactTargets: Map<
     string,
     IAutoMoviePhysicalTargetInterval.IPlan
   >;

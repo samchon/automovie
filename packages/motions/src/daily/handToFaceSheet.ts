@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
@@ -34,6 +35,13 @@ export namespace handToFaceSheet {
   const GAZE: number = (10.3 * Math.PI) / 180;
   const WALK_SIGHT: IAutoMovieVector3 = { x: 0, y: -Math.sin(GAZE), z: Math.cos(GAZE) };
 
+  // The only bones a sheet's place reads, by holding side: both eyes, the
+  // head that turns the walking sight and the holding shoulder.
+  const SIGHT: Readonly<Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>> = {
+    left: new Set<AutoMovieHumanoidBone>(["leftEye", "rightEye", "head", "leftUpperArm"]),
+    right: new Set<AutoMovieHumanoidBone>(["leftEye", "rightEye", "head", "rightUpperArm"]),
+  };
+
   /**
    * The head's flexion while reading a handheld text, degrees: 35, inside
    * the 33 to 45 degrees of neck and head flexion Lee et al. 2015 measured.
@@ -66,7 +74,7 @@ export namespace handToFaceSheet {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolve, one change of frame and one circle intersection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the body's own or the measured reading distance; no direction is typed.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanTrunk.resolve` and `HumanFrame`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass and constant work.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass over the eyes', the head's and the holding shoulder's ancestry only, and constant work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
@@ -75,7 +83,13 @@ export namespace handToFaceSheet {
     side: AutoMovieHumanSide,
   ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
     const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = context.body.measure;
-    const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(context.body, posture);
+    const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
+      context.body,
+      posture,
+      undefined,
+      undefined,
+      SIGHT[side],
+    );
     const eyes: IAutoMovieVector3 = Vector3.scale(
       Vector3.add(
         bones.get("leftEye")!.worldPosition,
@@ -153,7 +167,7 @@ export namespace handToFaceSheet {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One place, one angle and one maximum.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both terms are measured; the sheet's place is the body's own.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the place from `of`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One place read and constant work.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One place read, one forward-kinematics pass over the eyes' ancestry and constant work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function head(
@@ -161,7 +175,13 @@ export namespace handToFaceSheet {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
   ): number {
-    const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(context.body, posture);
+    const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
+      context.body,
+      posture,
+      undefined,
+      undefined,
+      SIGHT[side],
+    );
     const eyes: IAutoMovieVector3 = Vector3.scale(
       Vector3.add(
         bones.get("leftEye")!.worldPosition,

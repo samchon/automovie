@@ -20,6 +20,8 @@
  * smoothly.
  */
 export namespace SceneTrack {
+  /** Prefix of a prop part's model-local placement, relative to the group's first entry. */
+  export const PROP_PART: string = "part:";
   /** Values an entry takes in a frame: position, then rotation. */
   export const STRIDE: number = 7;
 

@@ -1,4 +1,4 @@
-import { ArchetypeUnits, createBeerTap } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createBeerTap } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,8 +26,8 @@ export function test_archetype_beer_tap(): void {
     if (!(Math.abs(got - wanted) <= MM))
       findings.push(`${what}: ${got}, ${wanted} expected`);
   };
-  const inch: number = ArchetypeUnits.INCH;
-  const mm: number = ArchetypeUnits.MILLIMETRE;
+  const inch: number = AutoMovieArchetypeUnits.INCH;
+  const mm: number = AutoMovieArchetypeUnits.MILLIMETRE;
   const tower: ReturnType<typeof createBeerTap> = createBeerTap({}, 2);
   near(
     "the tower's height",

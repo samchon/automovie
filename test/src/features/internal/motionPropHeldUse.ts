@@ -102,8 +102,8 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
       HumanObject.prop("phone", phone, stood),
       HumanChain.subject("a")
         .pickUp({ prop: "phone", handle: "grip" })
-        .handToFace({ task: "phone", prop: "phone", seconds: 1 })
-        .stand({ seconds: 0.5 }),
+        .handToFace({ kind: "phone", prop: "phone", hold: 1 })
+        .stand({ hold: 0.5 }),
     );
     const call: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     const seconds: number =
@@ -148,8 +148,8 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
     [
       "a drink from a glass left on the table",
       HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
-        .handToFace({ task: "drink", prop: "glass" }),
+        .stand({ hold: 0.3 })
+        .handToFace({ kind: "drink", prop: "glass" }),
       "prop",
       null,
     ],
@@ -161,7 +161,7 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
           handle: "body",
           use: { tip: "lip", line: "square", at: "mouth" },
         })
-        .handToFace({ task: "drink", prop: "glass", point: "spout" }),
+        .handToFace({ kind: "drink", prop: "glass", point: "spout" }),
       "point",
       "lip",
     ],

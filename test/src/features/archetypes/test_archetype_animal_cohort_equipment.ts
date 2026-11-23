@@ -1,6 +1,6 @@
 import {
-  ArchetypeRefusal,
-  QuadrupedEquipment,
+  AutoMovieArchetypeQuadrupedEquipment,
+  AutoMovieArchetypeRefusal,
   createCamel,
   createDeer,
 } from "@automovie/archetypes";
@@ -44,7 +44,7 @@ export function test_archetype_animal_cohort_equipment(): void {
     undefined,
     ...Array.from({ length: 32 }, (_: unknown, index: number): number => index),
   ]) {
-    const error: ArchetypeRefusal | undefined = rejected(
+    const error: AutoMovieArchetypeRefusal | undefined = rejected(
       `free camel/${seed}`,
       (): unknown => createCamel({ mass: 450, lead }, seed),
     );
@@ -86,7 +86,7 @@ export function test_archetype_animal_cohort_equipment(): void {
     !nclose(collar.geometry.shape.height, 1.15, 1e-9)
   )
     findings.push("fixed Maur5 did not emit its admitted actual collar");
-  const narrow: ArchetypeRefusal | undefined = rejected(
+  const narrow: AutoMovieArchetypeRefusal | undefined = rejected(
     "fixed Maur1",
     (): unknown => createCamel({ mass: 450, cohort: "maur1", lead }, 73),
   );
@@ -102,7 +102,7 @@ export function test_archetype_animal_cohort_equipment(): void {
     width: 0.27,
   };
   for (const seed of [undefined, 0, 1, 2, 3, 73]) {
-    const error: ArchetypeRefusal | undefined = rejected(
+    const error: AutoMovieArchetypeRefusal | undefined = rejected(
       `free deer/${seed}`,
       (): unknown => createDeer({ mass: 65, lead: deerLead }, seed),
     );
@@ -129,8 +129,8 @@ export function test_archetype_animal_cohort_equipment(): void {
     AnimalEquipmentFixture.create();
   const thirdBody: ReturnType<typeof AnimalEquipmentFixture.create> =
     AnimalEquipmentFixture.create();
-  const plan: ReturnType<typeof QuadrupedEquipment.prepare> =
-    QuadrupedEquipment.prepare(
+  const plan: ReturnType<typeof AutoMovieArchetypeQuadrupedEquipment.prepare> =
+    AutoMovieArchetypeQuadrupedEquipment.prepare(
       firstBody.rig,
       {
         pack: {
@@ -169,12 +169,15 @@ export function test_archetype_animal_cohort_equipment(): void {
   function rejected(
     label: string,
     run: () => unknown,
-  ): ArchetypeRefusal | undefined {
+  ): AutoMovieArchetypeRefusal | undefined {
     try {
       run();
       findings.push(`${label}: unexpectedly accepted`);
     } catch (error) {
-      if (error instanceof ArchetypeRefusal && error.kind === "parameter")
+      if (
+        error instanceof AutoMovieArchetypeRefusal &&
+        error.kind === "parameter"
+      )
         return error;
       findings.push(`${label}: wrong refusal ${String(error)}`);
     }

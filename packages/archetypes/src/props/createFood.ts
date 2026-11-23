@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** A maker's sandwich loaf, read, and a one-pound pan loaf seen only in search results. */
@@ -42,7 +42,7 @@ const NAMES: Readonly<Record<createFood.Kind, string>> = {
  * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
  * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The food.
- * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each food lies, where it is held and bitten, and how two hands tear a loaf.
  * @evidence contracts/development/implementation.md#principled-implementation A loaf as two boxes of half its drawn length each, its drawn width and height, the `+X` one on the slider; an apple as one ball of the drawn diameter; a drumstick as its meat and its knuckle on one axis, the meat as thick as the drawn diameter. Every grip's frame lies at the centre of the part it closes on, with that part's span across the grip as the aperture.
@@ -55,9 +55,9 @@ const NAMES: Readonly<Record<createFood.Kind, string>> = {
 export function createFood(
   params: createFood.IParams,
   seed?: number | string,
-): Archetype<createFood.Affordance, createFood.Dimension> {
-  const draw: ArchetypeDrawSession<createFood.Dimension> =
-    new ArchetypeDrawSession<createFood.Dimension>(
+): AutoMovieArchetype<createFood.Affordance, createFood.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createFood.Dimension> =
+    new AutoMovieArchetypeDrawSession<createFood.Dimension>(
       "food",
       createFood.UNITS,
       seed,
@@ -86,13 +86,15 @@ export function createFood(
     ...drawn,
     ...model.figures,
   };
-  const builder: ArchetypeBuilder<createFood.Affordance, createFood.Dimension> =
-    new ArchetypeBuilder({
-      material: "food",
-      id: params.id,
-      name: NAMES[kind],
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createFood.Affordance,
+    createFood.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "food",
+    id: params.id,
+    name: NAMES[kind],
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
 
   if (kind === "bread") {
@@ -115,7 +117,11 @@ export function createFood(
       id: "grip",
       kind: "handle",
       symmetry: "half",
-      frame: ArchetypeFrame.facing(v(0, height / 2, 0), v(0, 1, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, height / 2, 0),
+        v(0, 1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       grip: "power",
       aperture: height,
@@ -124,7 +130,7 @@ export function createFood(
       id: "hold",
       kind: "handle",
       symmetry: "half",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(-length / 4, height / 2, 0),
         v(0, 1, 0),
         v(0, 0, 1),
@@ -136,7 +142,7 @@ export function createFood(
     builder.affordance({
       id: "tear",
       kind: "slider",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(length / 4, height / 2, 0),
         v(0, 1, 0),
         v(1, 0, 0),
@@ -151,7 +157,10 @@ export function createFood(
       id: "bite",
       kind: "surface",
       direction: "along",
-      frame: ArchetypeFrame.facing(v(-length / 2, height / 2, 0), v(-1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(-length / 2, height / 2, 0),
+        v(-1, 0, 0),
+      ),
       extent: null,
     });
     return builder.build(d.mass!);
@@ -177,7 +186,7 @@ export function createFood(
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(joint + knuckle / 2, r, 0),
         v(0, 1, 0),
         v(1, 0, 0),
@@ -191,7 +200,7 @@ export function createFood(
       id: "bite",
       kind: "surface",
       direction: "along",
-      frame: ArchetypeFrame.facing(v(-length / 2, r, 0), v(-1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(v(-length / 2, r, 0), v(-1, 0, 0)),
       extent: null,
     });
     return builder.build(d.mass!);
@@ -211,7 +220,7 @@ export function createFood(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, r, 0), v(-1, 0, 0), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, r, 0), v(-1, 0, 0), v(0, 1, 0)),
     extent: null,
     grip: "power",
     aperture: 2 * r,
@@ -220,7 +229,7 @@ export function createFood(
     id: "bite",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(v(0, r, r), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, r, r), v(0, 0, 1), v(1, 0, 0)),
     extent: null,
   });
   return builder.build(d.mass!);
@@ -282,7 +291,9 @@ export namespace createFood {
   export type Dimension = "length" | "width" | "height" | "diameter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     height: "m",
@@ -313,59 +324,59 @@ export namespace createFood {
     Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
   > = {
     apple: {
-      extraSmall: { diameter: 2.5 * ArchetypeUnits.INCH, mass: 0.101 },
-      small: { diameter: 2.75 * ArchetypeUnits.INCH, mass: 0.149 },
-      medium: { diameter: 3 * ArchetypeUnits.INCH, mass: 0.182 },
-      large: { diameter: 3.25 * ArchetypeUnits.INCH, mass: 0.223 },
+      extraSmall: { diameter: 2.5 * AutoMovieArchetypeUnits.INCH, mass: 0.101 },
+      small: { diameter: 2.75 * AutoMovieArchetypeUnits.INCH, mass: 0.149 },
+      medium: { diameter: 3 * AutoMovieArchetypeUnits.INCH, mass: 0.182 },
+      large: { diameter: 3.25 * AutoMovieArchetypeUnits.INCH, mass: 0.223 },
     },
   };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     bread: {
-      length: ArchetypeBand.metres(
-        8.5 * ArchetypeUnits.INCH,
-        14.75 * ArchetypeUnits.INCH,
+      length: AutoMovieArchetypeBand.metres(
+        8.5 * AutoMovieArchetypeUnits.INCH,
+        14.75 * AutoMovieArchetypeUnits.INCH,
         BREAD,
         true,
       ),
-      width: ArchetypeBand.metres(
-        4.25 * ArchetypeUnits.INCH,
-        4.5 * ArchetypeUnits.INCH,
+      width: AutoMovieArchetypeBand.metres(
+        4.25 * AutoMovieArchetypeUnits.INCH,
+        4.5 * AutoMovieArchetypeUnits.INCH,
         BREAD,
         true,
       ),
-      height: ArchetypeBand.metres(
-        2.75 * ArchetypeUnits.INCH,
-        4.25 * ArchetypeUnits.INCH,
+      height: AutoMovieArchetypeBand.metres(
+        2.75 * AutoMovieArchetypeUnits.INCH,
+        4.25 * AutoMovieArchetypeUnits.INCH,
         BREAD,
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
-        ArchetypeUnits.POUND,
-        32 * ArchetypeUnits.OUNCE,
+        AutoMovieArchetypeUnits.POUND,
+        32 * AutoMovieArchetypeUnits.OUNCE,
         BREAD,
         true,
       ),
     },
     apple: {},
     drumstick: {
-      length: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(
         ESTIMATES.length,
         ESTIMATES.length,
         DRUMSTICK_SHAPE,
         true,
       ),
-      diameter: ArchetypeBand.metres(
+      diameter: AutoMovieArchetypeBand.metres(
         ESTIMATES.diameter,
         ESTIMATES.diameter,
         DRUMSTICK_SHAPE,
         true,
       ),
-      mass: ArchetypeBand.of("kg", 0.13, 0.13, DRUMSTICK),
+      mass: AutoMovieArchetypeBand.of("kg", 0.13, 0.13, DRUMSTICK),
     },
   };
 }

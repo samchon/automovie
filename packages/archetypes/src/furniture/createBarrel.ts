@@ -2,14 +2,14 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The steel drums read. */
@@ -38,12 +38,12 @@ const NAMES: Readonly<Record<createBarrel.Kind, string>> = {
  *
  * The barrel stands upright on the floor at the origin, its axis along `+Y`. Two hands take it at its top rim on `+X` and `-X`, where a drum's chime and a keg's top skirt are gripped to tip, lift or walk it; its top is a face another load rests on.
  *
- * Both barrels rest on their steel chimes: steel on concrete (`ArchetypeFriction`).
+ * Both barrels rest on their steel chimes: steel on concrete (`AutoMovieArchetypeFriction`).
  *
  * @param params The kind, a drum's model and any dimension the author fixes.
  * @param seed The seed that draws a drum's model when it is not given and every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The barrel, empty.
- * @throws {ArchetypeRefusal} For a model the drum maker does not list or one named for a keg, a fixed dimension outside its band, or one only another kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a model the drum maker does not list or one named for a keg, a fixed dimension outside its band, or one only another kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the barrel stands and where it is held.
  * @evidence contracts/development/implementation.md#principled-implementation One cylinder of the drawn diameter and height; the hands' places are the top rim's two ends of the `X` diameter, and the top's outline a polygon inscribed in the rim.
@@ -56,9 +56,9 @@ const NAMES: Readonly<Record<createBarrel.Kind, string>> = {
 export function createBarrel(
   params: createBarrel.IParams,
   seed?: number | string,
-): Archetype<createBarrel.Affordance, createBarrel.Dimension> {
-  const draw: ArchetypeDrawSession<createBarrel.Dimension> =
-    new ArchetypeDrawSession<createBarrel.Dimension>(
+): AutoMovieArchetype<createBarrel.Affordance, createBarrel.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBarrel.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBarrel.Dimension>(
       "barrel",
       createBarrel.UNITS,
       seed,
@@ -82,10 +82,10 @@ export function createBarrel(
   };
   const radius: number = d.diameter! / 2;
   const height: number = d.height!;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createBarrel.Affordance,
     createBarrel.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: NAMES[kind],
@@ -106,7 +106,7 @@ export function createBarrel(
       id,
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(sign * radius, height, 0),
         Vector3.create(sign, 0, 0),
         Vector3.create(0, 0, 1),
@@ -124,7 +124,7 @@ export function createBarrel(
   builder.affordance({
     id: "top",
     kind: "stack-top",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: outline,
   });
   return builder.build(d.mass!, { rests: "steel" });
@@ -163,7 +163,9 @@ export namespace createBarrel {
   export type Dimension = "diameter" | "height" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     height: "m",
     mass: "kg",
@@ -183,12 +185,12 @@ export namespace createBarrel {
   > = {
     steelDrum: {
       DWG20459: {
-        height: 34.75 * ArchetypeUnits.INCH,
-        mass: 38.4 * ArchetypeUnits.POUND,
+        height: 34.75 * AutoMovieArchetypeUnits.INCH,
+        mass: 38.4 * AutoMovieArchetypeUnits.POUND,
       },
       DWG20443: {
-        height: 35.25 * ArchetypeUnits.INCH,
-        mass: 43 * ArchetypeUnits.POUND,
+        height: 35.25 * AutoMovieArchetypeUnits.INCH,
+        mass: 43 * AutoMovieArchetypeUnits.POUND,
       },
     },
   };
@@ -207,19 +209,19 @@ export namespace createBarrel {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     steelDrum: {
-      diameter: ArchetypeBand.metres(
-        22.5 * ArchetypeUnits.INCH,
-        22.5 * ArchetypeUnits.INCH,
+      diameter: AutoMovieArchetypeBand.metres(
+        22.5 * AutoMovieArchetypeUnits.INCH,
+        22.5 * AutoMovieArchetypeUnits.INCH,
         DRUM,
       ),
     },
     keg: {
-      diameter: ArchetypeBand.metres(0.379, 0.383, KEG),
-      height: ArchetypeBand.metres(0.597, 0.603, KEG),
-      mass: ArchetypeBand.of("kg", 11.2, 12.1, KEG_MASS, true),
+      diameter: AutoMovieArchetypeBand.metres(0.379, 0.383, KEG),
+      height: AutoMovieArchetypeBand.metres(0.597, 0.603, KEG),
+      mass: AutoMovieArchetypeBand.of("kg", 11.2, 12.1, KEG_MASS, true),
     },
   };
 }

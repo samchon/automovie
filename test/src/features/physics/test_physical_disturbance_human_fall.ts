@@ -5,8 +5,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * The canonical Human, standing in its public Stand under internal actuation
- * only, meets a 0.1 s forward push one and a half times the any-step bound: the controller declares the stance unrecoverable, the body loses its height, a part other than a support limb meets the floor, and no support wrench exceeded the body's force bound. The push is stated from the body's own inverted
- * pendulum (`PhysicalDisturbance`).
+ * only, meets a 0.1 s forward push one and a half times the any-step bound:
+ * past it the body is never captured after the push, whether it falls or keeps
+ * stepping, and no support wrench exceeded the body's force bound. The push is
+ * stated from the body's own inverted pendulum (`PhysicalDisturbance`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the push and every condition the outcome must meet.
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation.compute` on the public Stand handed over through `fitHumanPhysicalStandingPose` and reads the recovery record, cache frames, contact receipts and support wrenches.

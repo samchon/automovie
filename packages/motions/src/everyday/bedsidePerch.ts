@@ -40,5 +40,5 @@ export function bedsidePerch(
     placement,
     side === "left" ? "leftSide" : "rightSide",
   );
-  return chain.sit({ seat: edge, seconds }).rise();
+  return chain.sit({ seat: edge, hold: seconds }).rise();
 }

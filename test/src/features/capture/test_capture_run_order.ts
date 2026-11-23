@@ -6,6 +6,7 @@ import type {
   IAutoMovieCaptureRecord,
   IAutoMovieCaptureStorage,
   IAutoMovieCaptureSubject,
+  IAutoMovieInspectionDiagnostics,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
 import {
@@ -19,6 +20,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as fs from "node:fs/promises";
 
+import { nclose } from "../internal/nclose";
 import { createCaptureMemory } from "./createCaptureMemory";
 
 /** A Node host passes `node:fs/promises` as the storage with no adapter; this line fails compilation if it cannot. */
@@ -32,7 +34,14 @@ const SUBJECT: IAutoMovieCaptureSubject = {
   width: 64,
   height: 36,
   views: [],
-  drawables: [],
+  drawables: [
+    { path: "hero/arm", min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 1, z: 1 } },
+    {
+      path: "hero/torso",
+      min: { x: 1, y: 0, z: 0 },
+      max: { x: 2, y: 1, z: 1 },
+    },
+  ],
   marks: [],
 };
 
@@ -48,12 +57,13 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  * 5. A second capture into the same root replaces the first's stills, leaving only its own files and the record.
  * 6. A folder opened for another round than the plan's is refused before anything is written.
  * 7. `node:fs/promises` is assignable to the storage type, checked at compile time.
+ * 8. A capture without diagnostics omits the audit. A sweep groups repeated diagnostic samples in film order, retains the off-grid clock and makes no claim about the full delivery schedule.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public planner, folder and run against a Map-backed storage and reads the calls, the files and the record; a run that wrote a still before claiming it, wrote the record before the stills, touched a path outside its root, or recorded a hash of other bytes fails.
  * @evidence contracts/development/testing.md#independent-expectations The expected call order is the order `AutoMovieCaptureFolder` documents, the names follow the plan's documented form, and the hash is recomputed from the file's own decoded pixels; the drawn colours are written by this test.
  * @evidence contracts/development/testing.md#distinguishing-cases A fresh folder against one holding a previous capture, a matching folder against one opened for another round. Foreign files are owned by `test_capture_folder_ownership`, failed cells by `test_capture_run_failed_cell`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_run_order`; `node:fs/promises` is only assigned, never called, and no file, browser or process is touched.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export async function test_capture_run_order(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();
@@ -89,15 +99,17 @@ export async function test_capture_run_order(): Promise<void> {
   };
   const capture: (
     text: string,
+    drawCell?: typeof draw,
   ) => Promise<
     Extract<IAutoMovieCaptureRecord, { state: "complete" }>
   > = async (
     text: string,
+    drawCell: typeof draw = draw,
   ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> => {
     const planned: IAutoMovieCapturePlan = plan(text);
     return runAutoMovieCapture({
       plan: planned,
-      draw,
+      draw: drawCell,
       folder: await AutoMovieCaptureFolder.open({
         storage: memory.storage,
         root: "out/duel",
@@ -277,5 +289,60 @@ export async function test_capture_run_order(): Promise<void> {
     "node:fs/promises has every storage method",
     typeof NODE.writeFile,
     "function",
+  );
+
+  // 8. A selection sweep returns to the same instants for each selection.
+  TestValidator.predicate(
+    "a legacy capture omits the audit",
+    !("diagnostics" in record),
+  );
+  const inspected: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await capture(
+      "at=0.55,0.6&sweep=hero/*&margin=0",
+      async (
+        cell: IAutoMovieCaptureCell,
+      ): Promise<IAutoMovieCaptureDrawing> => ({
+        ...(await draw(cell)),
+        diagnostics: {
+          scope: "shot/duel",
+          time: { filmSeconds: cell.time.seconds },
+          findings: [],
+          coverage: [
+            {
+              check: "collision",
+              key: "hero/prop",
+              required: true,
+              status: "checked",
+            },
+          ],
+        },
+      }),
+    );
+  const audit: IAutoMovieInspectionDiagnostics.IAudit = inspected.diagnostics!;
+  TestValidator.equals(
+    "repeated observations are counted once",
+    [
+      inspected.rows.length,
+      audit.observedOutputFrames,
+      audit.coverage.map(
+        (range: IAutoMovieInspectionDiagnostics.ICoverageRange): number =>
+          range.samples,
+      ),
+    ],
+    [8, 1, [1, 1]],
+  );
+  TestValidator.predicate(
+    "the off-grid instant precedes frame six in a sparse audit",
+    nclose(audit.coverage[0]!.first.filmSeconds, 0.55) &&
+      audit.coverage[0]!.first.outputFrame === undefined &&
+      nclose(audit.coverage[1]!.first.filmSeconds, 0.6) &&
+      audit.coverage[1]!.first.outputFrame === 6 &&
+      audit.expectedOutputFrames === undefined &&
+      !audit.unresolvedRequiredCoverage,
+  );
+  TestValidator.equals(
+    "the capture writes the sparse audit in its canonical record",
+    JSON.parse(memory.text("out/duel/record.json")).diagnostics,
+    JSON.parse(JSON.stringify(audit)),
   );
 }

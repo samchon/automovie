@@ -38,22 +38,10 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  * Not drafted: floor exercises (push-up, plank, sit-up, glute bridge,
  * mountain climber, burpee), loaded lifts, machines and skipping rope; they
  * need hand and back supports on the floor.
- *
- * @evidence contracts/development/common.md#meaningful-documentation reps: Whole-number repetitions, at least one; 3 when absent. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. depth: A squat's depth; `parallel` when absent. tempo: Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent.
- * @evidence contracts/development/design.md#principled-representation reps: Whole-number repetitions, at least one; 3 when absent. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. depth: A squat's depth; `parallel` when absent. tempo: Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.exercise, params); exercise/exercise.ts (exercise.plan, context); exercise/exercise.ts (exercise.drop, depth); exercise/exercise.ts (exercise.plan); executable/cases/exerciseCases.ts (exerciseCases); exercise/exercise.ts (exercise.THIGH).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanExercise {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The exercise, the count, the depth, the tempo and the lead side.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The tempo is three seconds, as the issue's sketch writes it.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**
@@ -68,15 +56,13 @@ export namespace IAutoMovieMotionHumanExercise {
     /** The exercise. */
     kind: IAutoMovieMotionHumanExercise.Kind;
 
-    /** Whole-number repetitions, at least one; 3 when absent.
-     * Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
-    reps?: number;
+    /** Whole-number repetitions, at least one; 3 when absent. A repetition takes the `tempo` seconds plus 0.3 s at the top (`exercise`): 3.3 s at the default tempo, so 3 repetitions take 9.9 s. */
+    count?: number;
 
     /** A squat's depth; `parallel` when absent. */
     depth?: IAutoMovieMotionHumanExercise.Depth;
 
-    /** Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent. */
+    /** Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent: a controlled 2 s lowering and a 1 s rise. `manner.pace` scales the three; the 0.3 s at the top is fixed. */
     tempo?: readonly [number, number, number];
 
     /** The lunge's lead leg, or the first knee raised; `right` when absent. */
@@ -88,21 +74,11 @@ export namespace IAutoMovieMotionHumanExercise {
 
   /**
    * Capture cases of the standing exercises (#3245), three repetitions each from quiet standing. The exercises.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Capture cases of the standing exercises (#3245), three repetitions each from quiet standing. The exercises.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "squat", "lunge", "highKnees", "jumpingJack" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: executable/cases/exerciseCases.ts (exerciseCases).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in exerciseCases.
    */
   export type Kind = "squat" | "lunge" | "highKnees" | "jumpingJack";
 
   /**
    * The hips' drop of a squat to a depth. A squat's depth by name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The hips' drop of a squat to a depth. A squat's depth by name.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "quarter", "half", "parallel" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/exercise.ts (exercise.drop, depth); exercise/exercise.ts (exercise.THIGH); exercise/exercise.ts (exercise.PITCH); exercise/exercise.ts (exercise.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in exercise.drop.
    */
   export type Depth = "quarter" | "half" | "parallel";
 }

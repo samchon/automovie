@@ -1,18 +1,25 @@
-import { type Archetype, ArchetypeDraw, ArchetypeRefusal } from "../core";
-import { CamelBody } from "./CamelBody";
+import {
+  ArchetypeDraw,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeRefusal,
+} from "../core";
+import { AutoMovieArchetypeCamelBody } from "./AutoMovieArchetypeCamelBody";
+import { AutoMovieArchetypeDeerBody } from "./AutoMovieArchetypeDeerBody";
+import { AutoMovieArchetypeDogBody } from "./AutoMovieArchetypeDogBody";
+import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
+import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
+import { AutoMovieArchetypeEquineGaitedProfile } from "./AutoMovieArchetypeEquineGaitedProfile";
+import { AutoMovieArchetypeOxBody } from "./AutoMovieArchetypeOxBody";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { CamelGait } from "./CamelGait";
 import { CatBody } from "./CatBody";
 import { CatGait } from "./CatGait";
-import { DeerBody } from "./DeerBody";
 import { DeerGait } from "./DeerGait";
-import { DogBody } from "./DogBody";
 import { DogGait } from "./DogGait";
-import { HorseGait } from "./HorseGait";
-import { HorseHarness } from "./HorseHarness";
-import { OxBody } from "./OxBody";
+import { EquineHarness } from "./EquineHarness";
+import { EquineIcelandicProfile } from "./EquineIcelandicProfile";
 import { OxGait } from "./OxGait";
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedGait } from "./QuadrupedGait";
+import type { QuadrupedProportions } from "./QuadrupedProportions";
 import { createCamel } from "./createCamel";
 import { createCat } from "./createCat";
 import type { createCohortQuadruped } from "./createCohortQuadruped";
@@ -25,20 +32,20 @@ import { createOx } from "./createOx";
 import { createPony } from "./createPony";
 
 /**
- * A four-legged animal of a kind, with its kind's tack: every kind shares one body of the horse's bone vocabulary (`QuadrupedBody`) and one ride (`rideQuadruped`), and differs from the others only by its species' data, its proportions, its gaits and its tack.
+ * A four-legged animal of a kind, with its kind's tack: every kind shares one body of the horse's bone vocabulary (`AutoMovieArchetypeQuadrupedBody`) and one ride (`rideQuadruped`), and differs from the others only by its species' data, its proportions, its gaits and its tack.
  *
  * The four equids retain their existing producers and tack. A `dog` is
  * createDog's coarse Husky cohort prototype with required authored mass and
  * optional authored collar. A bare adult domestic cat supplies a level walk.
  * Ox, single-hump camel and Boso sika are coherent
- * coarse cohort references, with actual identifying parts and optional authored
+ * coarse cohort references, with identifying parts and optional authored
  * equipment. Source limitations remain with each body/gait owner; fixed cohort
  * means are not measured population variation or complete animal dynamics.
  *
  * @param params The kind, and the kind's own parameters.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The animal.
- * @throws {ArchetypeRefusal} For a kind that is not one of `KINDS`, and as the kind's producer refuses.
+ * @throws {AutoMovieArchetypeRefusal} For a kind that is not one of `KINDS`, and as the kind's producer refuses.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what every kind shares, what differs and which producer each kind is.
  * @evidence contracts/development/implementation.md#principled-implementation Admit the kind, then call its producer, which builds the shared body from its species' data and adds its tack.
@@ -51,13 +58,14 @@ import { createPony } from "./createPony";
 export function createQuadruped(
   params: createQuadruped.IParams,
   seed?: number | string,
-): Archetype<createQuadruped.Affordance, createQuadruped.Dimension> {
+): AutoMovieArchetype<createQuadruped.Affordance, createQuadruped.Dimension> {
   ArchetypeDraw.choice("quadruped", "kind", params.kind, createQuadruped.KINDS);
   if (params.kind === "dog") return createDog(params, seed);
   if (params.kind === "cat") return createCat(params, seed);
   if (params.kind === "ox") return createOx(params, seed);
   if (params.kind === "camel") return createCamel(params, seed);
   if (params.kind === "deer") return createDeer(params, seed);
+  if (params.kind === "horse") return createHorse(params, seed);
   return createQuadruped.PRODUCERS[params.kind](params, seed);
 }
 
@@ -105,15 +113,16 @@ export namespace createQuadruped {
 
   /** The affordance ids of every kind: each kind's own, as its producer lists them. */
   export type Affordance =
-    | createHorse.Affordance
+    | AutoMovieArchetypeEquine.Affordance
     | createCohortQuadruped.Affordance;
 
   /** The free dimensions of every kind: each kind's own, as its producer lists them. */
-  export type Dimension = createHorse.Dimension;
+  export type Dimension = AutoMovieArchetypeEquine.Dimension;
 
   /** The parameters: the kind, and the kind's own parameters. */
   export type IParams =
-    | ({ kind: "horse" | "pony" | "donkey" | "mule" } & createPony.IParams &
+    | ({ kind: "horse" } & createHorse.IParams)
+    | ({ kind: "pony" | "donkey" | "mule" } & createPony.IParams &
         createMule.IParams)
     | ({ kind: "dog" } & createDog.IParams)
     | ({ kind: "cat" } & createCat.IParams)
@@ -152,54 +161,58 @@ export namespace createQuadruped {
     /** The producer's name, which the animal's `archetype` carries and refusals name. */
     archetype: string;
 
-    /** Producer neutral standing directions, degrees: QuadrupedBody.IBody.stance builds the declared form, while pose solvers recover actual constructed control directions. */
-    stance: QuadrupedBody.IBody["stance"];
+    /** Producer neutral standing directions, degrees: AutoMovieArchetypeQuadrupedBody.IBody.stance builds the declared form, while pose solvers recover constructed control directions. */
+    stance: Readonly<QuadrupedProportions.IStance>;
 
     /** The gaits. */
-    table: QuadrupedGait.ITable;
+    table: AutoMovieArchetypeQuadrupedGait.ITable;
 
-    /** Producer part-id vocabulary carried by the common neck nod, including neck/head themselves and optional tack that need not exist on every actual animal. QuadrupedCarriage binds existing accessories only. */
+    /** Producer part-id vocabulary carried by the common neck nod, including neck/head themselves and optional tack that need not exist on every animal. QuadrupedCarriage binds existing accessories only. */
     nodding: readonly string[];
 
     /** Producer contact-id vocabulary carried by the common neck nod; optional contacts need not exist on every animal. Absent or unlisted contacts preserve trunk carriage, including the legacy equid held-rein policy. */
     noddingContacts?: readonly string[];
   }
 
-  /** Equid head-carried vocabulary: neck, head, bridle and optional actual ear plates. */
+  /** Equid head-carried vocabulary: neck, head, bridle, optional ear plates, the optional jaw, upper lip and nostrils. */
   export const BRIDLED: readonly string[] = [
     "neck",
-    ...HorseHarness.HEAD,
+    ...EquineHarness.HEAD,
     "leftEar",
     "rightEar",
+    "jaw",
+    "lip",
+    "leftNostril",
+    "rightNostril",
   ];
 
-  /** Each kind's species. Every equid stands at the horse's angles (`createHorse.STANCE`; no pony's, donkey's or mule's were found) and rides the horse's measured gaits, `HorseGait.TABLE`, scaled to its height by dynamic similarity, which Bullimore and Burn 2006 (J Exp Biol 209:455, abstract) found to hold across trotting horses of 86 to 714 kg: relative stride length and duty factor at equal Froude number were not related to body mass. For the donkey and the mule the table is provisional: no study gives their duty factors, limb phases or transitions (the searches are in the sources record). */
+  /** Each kind's species. Every equid stands at the horse's angles (`createHorse.STANCE`; no pony's, donkey's or mule's were found) and rides the horse's measured gaits, `AutoMovieArchetypeEquineGait.TABLE`, scaled to its height by dynamic similarity, which Bullimore and Burn 2006 (J Exp Biol 209:455, abstract) found to hold across trotting horses of 86 to 714 kg: relative stride length and duty factor at equal Froude number were not related to body mass. For the donkey and the mule the table is provisional: no study gives their duty factors, limb phases or transitions (the searches are in the sources record). */
   export const SPECIES: Readonly<Record<Kind, ISpecies>> = {
     horse: {
       archetype: createHorse.PROFILE.archetype,
       stance: createHorse.STANCE,
-      table: HorseGait.TABLE,
+      table: AutoMovieArchetypeEquineGait.TABLE,
       nodding: BRIDLED,
       noddingContacts: [],
     },
     pony: {
       archetype: createPony.ARCHETYPE,
       stance: createHorse.STANCE,
-      table: HorseGait.TABLE,
+      table: AutoMovieArchetypeEquineGait.TABLE,
       nodding: BRIDLED,
       noddingContacts: [],
     },
     donkey: {
       archetype: createDonkey.ARCHETYPE,
       stance: createHorse.STANCE,
-      table: HorseGait.TABLE,
+      table: AutoMovieArchetypeEquineGait.TABLE,
       nodding: BRIDLED,
       noddingContacts: [],
     },
     mule: {
       archetype: createMule.ARCHETYPE,
       stance: createHorse.STANCE,
-      table: HorseGait.TABLE,
+      table: AutoMovieArchetypeEquineGait.TABLE,
       nodding: BRIDLED,
       noddingContacts: [],
     },
@@ -207,7 +220,7 @@ export namespace createQuadruped {
       archetype: "dog",
 
       // Each cohort has its own constructed stance; species() reads it below.
-      stance: DogBody("pet").stance,
+      stance: AutoMovieArchetypeDogBody("pet").stance,
       table: DogGait.TABLE,
       nodding: ["neck", "head", "leftEar", "rightEar", "collar", "lead"],
       noddingContacts: ["lead"],
@@ -220,7 +233,7 @@ export namespace createQuadruped {
     },
     ox: {
       archetype: "ox",
-      stance: OxBody().stance,
+      stance: AutoMovieArchetypeOxBody().stance,
       table: OxGait.TABLE,
       nodding: [
         "neck",
@@ -239,18 +252,19 @@ export namespace createQuadruped {
         "yoke-hitch-upright--1",
         "yoke-hitch-upright-1",
       ],
-      noddingContacts: ["lead", "hitch"],
+      // The roper's head and horns targets ride the head with the nod; the heel target between the hocks keeps trunk carriage.
+      noddingContacts: ["lead", "hitch", "head", "horns"],
     },
     camel: {
       archetype: "camel",
-      stance: CamelBody().stance,
+      stance: AutoMovieArchetypeCamelBody().stance,
       table: CamelGait.TABLE,
       nodding: ["neck", "head", "collar", "lead"],
       noddingContacts: ["lead"],
     },
     deer: {
       archetype: "deer",
-      stance: DeerBody().stance,
+      stance: AutoMovieArchetypeDeerBody().stance,
       table: DeerGait.TABLE,
       nodding: [
         "neck",
@@ -273,7 +287,7 @@ export namespace createQuadruped {
    *
    * @param animal The animal.
    * @returns Its species.
-   * @throws {ArchetypeRefusal} When the animal is no quadruped's, listing the kinds.
+   * @throws {AutoMovieArchetypeRefusal} When the animal is no quadruped's, listing the kinds.
    *
    */
   export function species(animal: {
@@ -284,7 +298,7 @@ export namespace createQuadruped {
       (k: Kind): boolean => SPECIES[k].archetype === animal.archetype,
     );
     if (kind === undefined)
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: animal.archetype,
         axis: "animal",
@@ -296,8 +310,23 @@ export namespace createQuadruped {
     if (kind === "dog") {
       const cohort: string | undefined = animal.provenance?.models.cohort;
       if (cohort === "pet" || cohort === "show" || cohort === "sled")
-        return { ...SPECIES.dog, stance: DogBody(cohort).stance };
+        return {
+          ...SPECIES.dog,
+          stance: AutoMovieArchetypeDogBody(cohort).stance,
+        };
     }
+    if (kind === "horse" && animal.provenance?.models.breed === "icelandic")
+      return { ...SPECIES.horse, table: EquineIcelandicProfile.TABLE };
+    const gaited: AutoMovieArchetypeEquineGaitedProfile.Breed | undefined =
+      AutoMovieArchetypeEquineGaitedProfile.BREEDS.find(
+        (breed: AutoMovieArchetypeEquineGaitedProfile.Breed): boolean =>
+          breed === animal.provenance?.models.breed,
+      );
+    if (kind === "horse" && gaited !== undefined)
+      return {
+        ...SPECIES.horse,
+        table: AutoMovieArchetypeEquineGaitedProfile.table(gaited),
+      };
     return SPECIES[kind];
   }
 }

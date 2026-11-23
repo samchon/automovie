@@ -4,11 +4,6 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * One contact episode, shared by geometric measurements and solved performance.
  *
  * Times are film seconds and points are world metres. A geometry-only result carries null impulse; the solver supplies completed-step measurements, so a reader must select samples no later than its inspection time. The receipt records what its producer measured rather than certifying continuous contact between samples. Episode aggregation and physical contact sampling own these values; this data type performs no admission.
- *
- * @evidence contracts/development/design.md#principled-representation Source, interval and collider identities distinguish a geometric proximity measurement from solver impulse evidence; nullable impulse preserves the absence of solved dynamics.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Geometric contact queries and physical simulation publish one receipt consumed by motion audits and impact readers; samples preserve the timing and applied impulse each reader needs.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Positive geometric separation remains a gap, and a geometric receipt cannot claim a solved impulse; completed-step samples do not expose later simulation results.
- * @evidence contracts/development/common.md#meaningful-documentation Defines film time, world geometry, impulse units, source authority and the temporal limits of the optional solver history.
  */
 export interface IAutoMovieContactReceipt {
   /** Unique stable episode id. */
@@ -50,7 +45,7 @@ export interface IAutoMovieContactReceipt {
     /** Completed fixed-step second. */ seconds: number;
     /** Step duration used to convert impulse to mean force. */ duration: number;
     /** This step's normal impulse, N s. */ impulse: number;
-    /** Normal impulse actually transferred to each canonical side after explicit response gain and native f32 rounding. Omission identifies a direct native manifold measurement; compliant-solver support requires this authority explicitly. */ appliedImpulse?: {
+    /** Normal impulse actually transferred to each canonical side after explicit response gain. Omission identifies a direct solver manifold measurement; compliant-solver support requires this authority explicitly. */ appliedImpulse?: {
       /** Impulse delivered to side a, newton seconds. */
       a: number;
 

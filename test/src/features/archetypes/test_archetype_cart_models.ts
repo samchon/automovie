@@ -1,4 +1,4 @@
-import { ArchetypeRefusal, createCart } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, createCart } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeModelSweep } from "../internal/archetypeModelSweep";
@@ -19,11 +19,11 @@ const figures =
     );
 
 /** The refusal a call throws, or null. */
-const refusal = (call: () => unknown): ArchetypeRefusal | null => {
+const refusal = (call: () => unknown): AutoMovieArchetypeRefusal | null => {
   try {
     call();
   } catch (error) {
-    if (error instanceof ArchetypeRefusal) return error;
+    if (error instanceof AutoMovieArchetypeRefusal) return error;
     throw error;
   }
   return null;

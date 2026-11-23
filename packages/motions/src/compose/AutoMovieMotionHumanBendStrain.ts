@@ -26,11 +26,6 @@ import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendS
  * squared, and with a hand rotation the forearm's and the wrist's shares of
  * the turn the hand asks, a place whose turn they cannot make ranking behind
  * every place that makes it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the strain's terms, where they are stated and who reads them.
- * @evidence contracts/development/design.md#principled-representation The strain of a place as a function of the shoulder's clinical angles and the lower arm's world rotation, the two readings every sweep of the arm gives.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by the search's own reading and by a fit that takes its hint from its own sweep.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Ranges and axes are the rig's; no arm or body is named.
  */
 export namespace AutoMovieMotionHumanBendStrain {
   /**
@@ -43,14 +38,6 @@ export namespace AutoMovieMotionHumanBendStrain {
    * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's strain at 0.
    * @param lowerAxes The lower arm's axes.
    * @returns The strain of the shoulder's clinical angles and the lower arm's world rotation, read only with a hand rotation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input and what the returned function reads.
-   * @evidence contracts/development/implementation.md#principled-implementation A joint-range-normalised discomfort (Cruse 1986; Kee and Karwowski 2001): each angle's distance from the hanging arm's over half its range, squared, with the turn the hand asks split between the forearm's twist and the wrist's swing (the engine's `swingTwist`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The ranges once, then one function of the two readings.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A turn the forearm and the wrist cannot make ranks behind every turn they make (`UNMADE`), never as a smaller strain.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Ranges and the hand constraint are read once per scoring factory; each actual place retains its original squares, split and decomposition. Pure angle/range readers are module functions rather than three closures allocated per candidate; runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The engine owns decomposition, split and constraint lookup. All candidates use the same pure scalar readers with their actual current quaternions/ranges; no angle, strain or legality answer is retained.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains the chain's ranges and the hanging arm's angles.
    */
   export function of(
     chain: AutoMovieMotionHumanBendChain.IChain,
@@ -69,22 +56,14 @@ export namespace AutoMovieMotionHumanBendStrain {
   ) => number {
     const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] =
       chain.prepared;
-    const upperRange: IAutoMovieJointConstraint | null =
-      prepared.upperDomain.constraint;
-    const halves: [number | null, number | null, number | null] = [
-      half(upperRange?.flexion ?? null),
-      half(upperRange?.abduction ?? null),
-      half(upperRange?.twist ?? null),
-    ];
+    const halves: IHalves = halvesOf(prepared.upperDomain.constraint);
     const forearm: number | null = half(
       prepared.lowerDomain.constraint?.twist ?? null,
     );
-    const hand: IAutoMovieJointConstraint | null = getConstraint(
-      `${side}Hand`,
-      readHumanBone(body, `${side}Hand`)?.constraint ?? null,
-    );
+    const wristOf: IHand = handOf(chain, body, side);
+    const hand: IAutoMovieJointConstraint | null = wristOf.range;
     const wrist: number | null = half(hand?.flexion ?? null);
-    const handAxes: IAutoMovieJointAxes | undefined = chain.axes[`${side}Hand`];
+    const handAxes: IAutoMovieJointAxes | undefined = wristOf.axes;
     clinical?.(hand, handAxes);
     return (
       u: AutoMovieMotionHumanBendSearch.IAngles,
@@ -140,15 +119,97 @@ export namespace AutoMovieMotionHumanBendStrain {
     };
   }
 
+  /**
+   * A certified lower bound of the strain `of` reads, from the shoulder's
+   * angles alone, for a search that reads the hand's costly share only where
+   * the bound cannot decide a comparison (`hingedSwivelAhead`'s deferred
+   * deviation).
+   *
+   * @param chain The prepared chain.
+   * @param rotation The hand's world rotation; absent, the strain is the shoulder's share alone and nothing is deferred.
+   * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's strain at 0.
+   * @returns The bound of a place from its shoulder angles, or null where the hand's turn adds no strain.
+   */
+  export function least(
+    chain: AutoMovieMotionHumanBendChain.IChain,
+    rotation: IAutoMovieQuaternion | undefined,
+    neutral: AutoMovieMotionHumanBendSearch.IAngles | null,
+  ): ((u: AutoMovieMotionHumanBendSearch.IAngles) => number) | null {
+    if (rotation === undefined) return null;
+    const halves: IHalves = halvesOf(chain.prepared.upperDomain.constraint);
+    return (u: AutoMovieMotionHumanBendSearch.IAngles): number =>
+      Math.min(
+        neutral === null
+          ? 0
+          : share(u.flexion - neutral.flexion, halves[0]) +
+              share(u.abduction - neutral.abduction, halves[1]) +
+              share(u.twist - neutral.twist, halves[2]),
+        UNMADE,
+      );
+  }
+
   /** The strain from which a place counts as leaving the hand's turn unmade; every made place strains less. */
-  const UNMADE: number = 1e6;
+  export const UNMADE: number = 1e6;
+
+  /**
+   * The hand's range and clinical axes the strain decomposes the wrist's swing on.
+   */
+  export interface IHand {
+    /** The hand's range of motion, or null where the rig gives none. */
+    range: IAutoMovieJointConstraint | null;
+
+    /** The hand's clinical axes, or undefined where the rig gives none. */
+    axes: IAutoMovieJointAxes | undefined;
+  }
+
+  /**
+   * The hand's range and axes, as the strain reads them.
+   *
+   * @param chain The prepared chain.
+   * @param body The body.
+   * @param side The arm.
+   * @returns The range and the axes.
+   */
+  export function handOf(
+    chain: AutoMovieMotionHumanBendChain.IChain,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+  ): IHand {
+    return {
+      range: getConstraint(
+        `${side}Hand`,
+        readHumanBone(body, `${side}Hand`)?.constraint ?? null,
+      ),
+      axes: chain.axes[`${side}Hand`],
+    };
+  }
+
+  /**
+   * Half the width of each shoulder axis's range, degrees, in the order
+   * flexion, abduction, twist; null for an axis that does not move.
+   */
+  export type IHalves = readonly [number | null, number | null, number | null];
+
+  /**
+   * The shoulder's half ranges the strain divides by.
+   *
+   * @param range The upper arm's range of motion, or null.
+   * @returns Each axis's half width, degrees, or null.
+   */
+  export function halvesOf(range: IAutoMovieJointConstraint | null): IHalves {
+    return [
+      half(range?.flexion ?? null),
+      half(range?.abduction ?? null),
+      half(range?.twist ?? null),
+    ];
+  }
 
   /**
    * The share of a range kept free at each end when a hand's turn is judged
    * (provisional): the place is solved once while the region then moves with
    * the head, so a turn that ends on a limit is lost a moment later.
    */
-  const RESERVE: number = 0.1;
+  export const RESERVE: number = 0.1;
 
   /**
    * Half the width of a range, degrees, or null for an axis that does not move.
@@ -162,8 +223,14 @@ export namespace AutoMovieMotionHumanBendStrain {
       : (range.max - range.min) / 2;
   }
 
-  /** Original squared share of a clinical range; a fixed axis contributes nothing. */
-  function share(value: number, of: number | null): number {
+  /**
+   * The squared share of a clinical range a departure takes, the term the strain sums; a fixed axis contributes nothing.
+   *
+   * @param value The departure from the hanging arm's angle, degrees.
+   * @param of The axis's half range, degrees, or null for a fixed axis.
+   * @returns The unitless square.
+   */
+  export function share(value: number, of: number | null): number {
     return of === null ? 0 : (value / of) ** 2;
   }
 

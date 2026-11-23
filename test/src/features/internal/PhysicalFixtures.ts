@@ -109,7 +109,6 @@ export namespace PhysicalFixtures {
       impulses: [],
       checkpointEvery: 60,
       yieldEvery: 240,
-      iterations: 12,
       maximumSteps: Math.round(duration * 120),
       maximumSegments: 100,
     };

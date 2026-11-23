@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  ArchetypeAssembly,
-  ArchetypeBuilder,
-  ArchetypeConvexCell,
-  ArchetypeDrawSession,
-  type ArchetypeMass,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeAssembly,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeConvexCell,
+  AutoMovieArchetypeDrawSession,
+  type AutoMovieArchetypeMass,
 } from "@automovie/archetypes";
 import type {
   IAutoMovieModelPart,
@@ -37,7 +37,7 @@ import { nclose, qclose, throwsError, vclose } from "../internal/predicates";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names all six scenarios, SI dimensions, input ownership, current-transform behavior and fracture conservation. Local helpers explain box construction and tensor expectations; convexCellObservation owns coordinate and artifact checks, delegating topology to convexCellClosedBox.
  * @evidence contracts/development/testing.md#behavioral-verification Builds public convex cells and reads actual parts, properties, moments and shapes. Checks every local/world corner, exact per-cell hulls, volume-dependent mass, current transforms, reused-cell geometry identity and real fracture pieces, with convexCellClosedBox checking finite attributes, closed outward mesh triangles and analytic volume; catches hidden primitive substitutes, missing colliders, enclosing hulls, stale poses, per-instance geometry regeneration, aliased caller points and lost cell metadata after splitting.
- * @evidence contracts/development/testing.md#independent-expectations Named box dimensions give V=width*height*depth and central moments m*(the other two squared dimensions)/12. A stated Z rotation gives R*I*transpose(R), and separated cells use volume weights and the parallel-axis theorem. Eight directly enumerated corners give independent local and world bounds at 1e-10 metres; triangle volume and moments use 1e-9 absolute tolerance. ArchetypeConvexCell.of authors the reused fixture once; none of its computed coordinates or mass data supply expectations. These well-conditioned boxes do not certify arbitrary hull numerics or rendered pixels.
+ * @evidence contracts/development/testing.md#independent-expectations Named box dimensions give V=width*height*depth and central moments m*(the other two squared dimensions)/12. A stated Z rotation gives R*I*transpose(R), and separated cells use volume weights and the parallel-axis theorem. Eight directly enumerated corners give independent local and world bounds at 1e-10 metres; triangle volume and moments use 1e-9 absolute tolerance. AutoMovieArchetypeConvexCell.of authors the reused fixture once; none of its computed coordinates or mass data supply expectations. These well-conditioned boxes do not certify arbitrary hull numerics or rendered pixels.
  * @evidence contracts/development/testing.md#distinguishing-cases Off-origin local centroid, nonzero off-diagonal inertia, translation, unequal separated cells, caller mutation, empty/singleton/coplanar/nonfinite inputs, convex and mixed primitive id collisions, raw versus reused cells, moving versus fixed rigid instances, repose, placed prefixed articulation and one detached wall cell are owned here. Existing primitive mass, fracture threshold and assembly tests own their broader contracts.
  * @evidence contracts/development/testing.md#execution-ownership The discovered test_archetype_convex_cell entry owns finite in-memory fixtures and public runtime calls. It starts no compiler, process, viewer, renderer, browser or GPU and registers no dynamic cases.
  */
@@ -56,7 +56,7 @@ export function test_archetype_convex_cell(): void {
     { x: 3, y: 4, z: 5 },
     { x: 0, y: 0, z: Math.sin(angle / 2), w: Math.cos(angle / 2) },
   );
-  const cell: Archetype<"hinge", never> = builder()
+  const cell: AutoMovieArchetype<"hinge", never> = builder()
     .convex("cell", input, placement.translation, {
       rotation: placement.rotation,
     })
@@ -118,7 +118,7 @@ export function test_archetype_convex_cell(): void {
     y: height,
     z: depth,
   });
-  const walls: Archetype<"hinge", never> = builder()
+  const walls: AutoMovieArchetype<"hinge", never> = builder()
     .convex("left", leftCorners, { x: left, y: 0, z: 0 })
     .convex("right", rightCorners, { x: right, y: 0, z: 0 })
     .fracture([{ id: "right-piece", parts: ["right"] }])
@@ -300,9 +300,9 @@ export function test_archetype_convex_cell(): void {
     y: 2,
     z: 0.2,
   });
-  const reusableCell: ArchetypeConvexCell.ICell =
-    ArchetypeConvexCell.of(panelCorners);
-  const panel: Archetype<"hinge", never> = builder()
+  const reusableCell: AutoMovieArchetypeConvexCell.ICell =
+    AutoMovieArchetypeConvexCell.of(panelCorners);
+  const panel: AutoMovieArchetype<"hinge", never> = builder()
     .convex("moving", reusableCell, { x: 1, y: 1, z: 0 })
     .convex("fixed", reusableCell, { x: -2, y: 1, z: 0 })
     .affordance({
@@ -321,7 +321,9 @@ export function test_archetype_convex_cell(): void {
     z: 0,
     w: halfRoot,
   };
-  const opened: Archetype<"hinge", never> = panel.articulate({ hinge: 90 });
+  const opened: AutoMovieArchetype<"hinge", never> = panel.articulate({
+    hinge: 90,
+  });
   observation.expectCell(
     "articulated cell",
     opened,
@@ -342,7 +344,7 @@ export function test_archetype_convex_cell(): void {
     { x: 4, y: 2, z: -3 },
     { x: halfRoot, y: 0, z: 0, w: halfRoot },
   );
-  const reposed: Archetype<"hinge", never> = opened.reposed(
+  const reposed: AutoMovieArchetype<"hinge", never> = opened.reposed(
     opened.parts.map(
       (part: IAutoMovieModelPart): IAutoMovieModelPart =>
         part.id === "moving" ? { ...part, transform: reposeFrame } : part,
@@ -360,9 +362,9 @@ export function test_archetype_convex_cell(): void {
     { x: 7, y: 0, z: 5 },
     aroundY,
   );
-  const assembled: ArchetypeAssembly<{
-    panel: ArchetypeAssembly.IMember<"hinge", never>;
-  }> = ArchetypeAssembly.of("cells", "cells", {
+  const assembled: AutoMovieArchetypeAssembly<{
+    panel: AutoMovieArchetypeAssembly.IMember<"hinge", never>;
+  }> = AutoMovieArchetypeAssembly.of("cells", "cells", {
     panel: { archetype: panel, placement: memberPlacement },
   }).articulate({ "panel/hinge": 90 });
   observation.expectCell(
@@ -381,9 +383,9 @@ export function test_archetype_convex_cell(): void {
     observation.frame({ x: 7, y: 1, z: 7 }, aroundY),
     0.16,
   );
-  const placedRepose: ArchetypeAssembly<{
-    panel: ArchetypeAssembly.IMember<"hinge", never>;
-  }> = ArchetypeAssembly.of("reposed-cells", "reposed cells", {
+  const placedRepose: AutoMovieArchetypeAssembly<{
+    panel: AutoMovieArchetypeAssembly.IMember<"hinge", never>;
+  }> = AutoMovieArchetypeAssembly.of("reposed-cells", "reposed cells", {
     panel: { archetype: reposed, placement: memberPlacement },
   });
   observation.expectCell(
@@ -435,11 +437,15 @@ export function test_archetype_convex_cell(): void {
 }
 
 /** A neutral public producer with no random draws or material-derived mass. */
-function builder(): ArchetypeBuilder<"hinge", never> {
-  return new ArchetypeBuilder<"hinge", never>({
+function builder(): AutoMovieArchetypeBuilder<"hinge", never> {
+  return new AutoMovieArchetypeBuilder<"hinge", never>({
     name: "convex cell fixture",
     material: "steel",
-    draw: new ArchetypeDrawSession<never>("convex-cell-fixture", {}, undefined),
+    draw: new AutoMovieArchetypeDrawSession<never>(
+      "convex-cell-fixture",
+      {},
+      undefined,
+    ),
   });
 }
 
@@ -463,12 +469,12 @@ function boxCorners(
 /** All six central tensor entries are checked, including products that must stay zero. */
 function expectMass(
   label: string,
-  actual: ArchetypeMass.IProperties,
+  actual: AutoMovieArchetypeMass.IProperties,
   mass: number,
   center: IAutoMovieVector3,
-  inertia: ArchetypeMass.IInertia,
+  inertia: AutoMovieArchetypeMass.IInertia,
 ): void {
-  const components: readonly (keyof ArchetypeMass.IInertia)[] = [
+  const components: readonly (keyof AutoMovieArchetypeMass.IInertia)[] = [
     "xx",
     "yy",
     "zz",
@@ -480,7 +486,7 @@ function expectMass(
     `${label} has analytic mass, centroid and inertia`,
     nclose(actual.mass, mass, 1e-12) &&
       vclose(actual.centerOfMass, center, 1e-10) &&
-      components.every((key: keyof ArchetypeMass.IInertia): boolean =>
+      components.every((key: keyof AutoMovieArchetypeMass.IInertia): boolean =>
         nclose(actual.inertia[key], inertia[key], 1e-9),
       ),
   );

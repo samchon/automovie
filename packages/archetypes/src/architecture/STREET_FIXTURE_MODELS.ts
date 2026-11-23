@@ -1,4 +1,4 @@
-import { ArchetypeUnits } from "../core";
+import { AutoMovieArchetypeUnits } from "../core";
 import type { createStreetFixture } from "./createStreetFixture";
 
 /**
@@ -20,29 +20,29 @@ export const STREET_FIXTURE_MODELS: Readonly<
   >
 > = {
   trafficCone: {
-    "cone 18 in": { height: 18 * ArchetypeUnits.INCH },
-    "cone 28 in": { height: 28 * ArchetypeUnits.INCH },
+    "cone 18 in": { height: 18 * AutoMovieArchetypeUnits.INCH },
+    "cone 28 in": { height: 28 * AutoMovieArchetypeUnits.INCH },
   },
   bollard: {
     "R-1007-04": {
-      diameter: 4.5 * ArchetypeUnits.INCH,
-      mass: 76 * ArchetypeUnits.POUND,
+      diameter: 4.5 * AutoMovieArchetypeUnits.INCH,
+      mass: 76 * AutoMovieArchetypeUnits.POUND,
     },
     "R-1007-06": {
-      diameter: 6.625 * ArchetypeUnits.INCH,
-      mass: 133 * ArchetypeUnits.POUND,
+      diameter: 6.625 * AutoMovieArchetypeUnits.INCH,
+      mass: 133 * AutoMovieArchetypeUnits.POUND,
     },
     "R-1007-08": {
-      diameter: 8.625 * ArchetypeUnits.INCH,
-      mass: 200 * ArchetypeUnits.POUND,
+      diameter: 8.625 * AutoMovieArchetypeUnits.INCH,
+      mass: 200 * AutoMovieArchetypeUnits.POUND,
     },
     "R-1007-10": {
-      diameter: 10.75 * ArchetypeUnits.INCH,
-      mass: 284 * ArchetypeUnits.POUND,
+      diameter: 10.75 * AutoMovieArchetypeUnits.INCH,
+      mass: 284 * AutoMovieArchetypeUnits.POUND,
     },
   },
   signPost: {
-    "STOP 30 in": { head: 30 * ArchetypeUnits.INCH },
-    "STOP 36 in": { head: 36 * ArchetypeUnits.INCH },
+    "STOP 30 in": { head: 30 * AutoMovieArchetypeUnits.INCH },
+    "STOP 36 in": { head: 36 * AutoMovieArchetypeUnits.INCH },
   },
 };

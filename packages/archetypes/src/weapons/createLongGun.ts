@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { LONG_GUN_BANDS } from "./LONG_GUN_BANDS";
 import { LONG_GUN_MODELS } from "./LONG_GUN_MODELS";
@@ -20,7 +20,7 @@ import { LongGunLock } from "./LongGunLock";
  * @param params The kind, a carbine's model and any dimension the author fixes.
  * @param seed The seed that picks the model left free and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The long gun.
- * @throws {ArchetypeRefusal} For a model not of the kind, a fixed dimension outside its band, or one the model gives.
+ * @throws {AutoMovieArchetypeRefusal} For a model not of the kind, a fixed dimension outside its band, or one the model gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is and is not modelled, how the gun lies and what each contact is.
  * @evidence contracts/development/implementation.md#principled-implementation Rods and boxes along the barrel's line from the published overall and barrel lengths; the trigger stands at the length of pull from the butt plate, the measure that fits a gun to an arm, and the carbine's stock travel is the difference between its published extended and retracted lengths. The stock stops short of the grip so the firing hand's hold stands clear, and the fixed tube it slides on is longer than the travel, so the drawn stock never parts from the receiver.
@@ -33,9 +33,9 @@ import { LongGunLock } from "./LongGunLock";
 export function createLongGun(
   params: createLongGun.IParams,
   seed?: number | string,
-): Archetype<createLongGun.Affordance, createLongGun.Dimension> {
-  const draw: ArchetypeDrawSession<createLongGun.Dimension> =
-    new ArchetypeDrawSession<createLongGun.Dimension>(
+): AutoMovieArchetype<createLongGun.Affordance, createLongGun.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createLongGun.Dimension> =
+    new AutoMovieArchetypeDrawSession<createLongGun.Dimension>(
       "longGun",
       createLongGun.UNITS,
       seed,
@@ -59,10 +59,10 @@ export function createLongGun(
     ...draw.dimensions(createLongGun.BANDS[kind], createLongGun.BANDS),
     ...model.figures,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createLongGun.Affordance,
     createLongGun.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: createLongGun.NAMES[kind],
@@ -122,7 +122,7 @@ export function createLongGun(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, -0.0825, pull - 0.055),
       v(0, 0, -1),
       v(0, 1, 0),
@@ -135,7 +135,11 @@ export function createLongGun(
   builder.affordance({
     id: "trigger",
     kind: "trigger",
-    frame: ArchetypeFrame.facing(v(0, -0.05, pull), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, -0.05, pull),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
     extent: null,
     travel: createLongGun.TRIGGER,
     parts: ["trigger"],
@@ -144,7 +148,11 @@ export function createLongGun(
     id: "foreEnd",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(v(0, 0, fore), v(0, -1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, 0, fore),
+      v(0, -1, 0),
+      v(0, 0, 1),
+    ),
     extent: null,
     grip: "power",
     aperture: 2 * hand,
@@ -154,7 +162,11 @@ export function createLongGun(
   builder.affordance({
     id: "butt",
     kind: "surface",
-    frame: ArchetypeFrame.facing(v(0, -0.035, 0), v(0, 0, -1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, -0.035, 0),
+      v(0, 0, -1),
+      v(1, 0, 0),
+    ),
     extent: null,
     width: 0.04,
     depth: 0.11,
@@ -165,13 +177,17 @@ export function createLongGun(
     id: "muzzle",
     kind: kind === "musket" ? "socket" : "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(v(0, 0, d.length!), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, 0, d.length!),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
     extent: null,
   });
   builder.affordance({
     id: "sight",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, d.sightHeight!, breech)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.sightHeight!, breech)),
     extent: null,
   });
   if (kind === "musket") LongGunLock.musket(builder, d);
@@ -181,7 +197,11 @@ export function createLongGun(
     builder.affordance({
       id: "stock",
       kind: "slider",
-      frame: ArchetypeFrame.facing(v(0, -0.035, 0), v(0, 1, 0), v(0, 0, -1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, -0.035, 0),
+        v(0, 1, 0),
+        v(0, 0, -1),
+      ),
       extent: null,
       travel: d.travel!,
       parts: ["stock"],
@@ -190,7 +210,11 @@ export function createLongGun(
     builder.affordance({
       id: "pump",
       kind: "slider",
-      frame: ArchetypeFrame.facing(v(0, 0, fore), v(0, -1, 0), v(0, 0, -1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, 0, fore),
+        v(0, -1, 0),
+        v(0, 0, -1),
+      ),
       extent: null,
       travel: d.travel!,
       parts: ["fore-end"],
@@ -245,7 +269,7 @@ export namespace createLongGun {
    * - `sight`: the rear of the sight line, above the barrel's line.
    * - `stock`: a carbine's stock, a slider drawn back to lengthen the pull.
    * - `pump`: a shotgun's fore-end slide, drawn back.
-   * - `cock`, `spur`, `frizzen`, `pan`, `ramrod`, `pipe`, `bayonet`: a musket's lock, the cock's thumb piece riding it, its rod and their sockets (`LongGunLock.musket`); a musket's `muzzle` is a socket.
+   * - `cock`, `spur`, `frizzen`, `pan`, `ramrod`, `pipe`, `bayonet`: a musket's lock, the cock's thumb piece riding it, its rod and their sockets (`LongGunLock.musket`); a musket's `muzzle` is a socket. `bayonetEntry` shares the `bayonet` socket's attitude ahead of the muzzle, where a socket bayonet starts its slide on.
    * - `bolt`, `boltSlide`, `magazine`: a bolt action's lift, its draw and its magazine (`LongGunLock.bolt`).
    * - `lever`, `hammer`: a lever action's lever and the hammer that follows it (`LongGunLock.lever`).
    */
@@ -265,6 +289,7 @@ export namespace createLongGun {
     | "ramrod"
     | "pipe"
     | "bayonet"
+    | "bayonetEntry"
     | "bolt"
     | "boltSlide"
     | "magazine"
@@ -296,7 +321,9 @@ export namespace createLongGun {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     barrel: "m",
     lengthOfPull: "m",
@@ -345,6 +372,6 @@ export namespace createLongGun {
 
   /** The band of each free dimension a model leaves, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = LONG_GUN_BANDS;
 }

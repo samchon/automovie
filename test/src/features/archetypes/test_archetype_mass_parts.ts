@@ -1,4 +1,4 @@
-import { ArchetypeMass } from "@automovie/archetypes";
+import { AutoMovieArchetypeMass } from "@automovie/archetypes";
 import type {
   IAutoMovieModelPart,
   IAutoMoviePrimitiveShape,
@@ -9,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 
 /**
- * `ArchetypeMass.parts` shares a total mass over the parts by the weights `ArchetypeMass.of` uses, so a broken piece weighs what its parts weighed in the whole.
+ * `AutoMovieArchetypeMass.parts` shares a total mass over the parts by the weights `AutoMovieArchetypeMass.of` uses, so a broken piece weighs what its parts weighed in the whole.
  *
  * Scenarios:
  * 1. Two boxes of 1 and 2 cubic metres under 3 kg weigh 1 kg and 2 kg.
@@ -66,7 +66,7 @@ export function test_archetype_mass_parts(): void {
     ["by shares", [a, b], {}, { a: 3, b: 1 }, { a: 2.25, b: 0.75 }],
     ["beside a plane", [a, b, plane], {}, {}, { a: 1, b: 2, floor: 0 }],
   ] as const) {
-    const got: Record<string, number> = ArchetypeMass.parts(
+    const got: Record<string, number> = AutoMovieArchetypeMass.parts(
       parts,
       3,
       density,
@@ -91,7 +91,7 @@ export function test_archetype_mass_parts(): void {
       centre.y += (m * at.y) / total;
       centre.z += (m * at.z) / total;
     }
-    const of: IAutoMovieVector3 = ArchetypeMass.of(
+    const of: IAutoMovieVector3 = AutoMovieArchetypeMass.of(
       parts,
       3,
       density,
@@ -108,28 +108,33 @@ export function test_archetype_mass_parts(): void {
   }
 
   // 4. Planes alone weigh nothing.
-  const planes: Record<string, number> = ArchetypeMass.parts([plane], 3);
+  const planes: Record<string, number> = AutoMovieArchetypeMass.parts(
+    [plane],
+    3,
+  );
   if (
     !nclose(planes.floor ?? Number.NaN, 0, 0) ||
     Object.keys(planes).length !== 1
   )
     findings.push(`planes alone: the floor weighs ${planes.floor} kg`);
-  if (Object.keys(ArchetypeMass.parts([], 3)).length !== 0)
+  if (Object.keys(AutoMovieArchetypeMass.parts([], 3)).length !== 0)
     findings.push("an empty part inventory acquired a mass record");
   const invalid: readonly [string, () => unknown, string][] = [
     [
       "positive-mass body without solids",
-      (): ArchetypeMass.IProperties => ArchetypeMass.of([plane], 3),
+      (): AutoMovieArchetypeMass.IProperties =>
+        AutoMovieArchetypeMass.of([plane], 3),
       "positive solid volume or mass share",
     ],
     [
       "solid with zero shares",
-      (): Record<string, number> => ArchetypeMass.parts([a], 3, {}, { a: 0 }),
+      (): Record<string, number> =>
+        AutoMovieArchetypeMass.parts([a], 3, {}, { a: 0 }),
       "positive solid volume or mass share",
     ],
     [
       "no-solid inventory with invalid total mass",
-      (): Record<string, number> => ArchetypeMass.parts([plane], 0),
+      (): Record<string, number> => AutoMovieArchetypeMass.parts([plane], 0),
       "finite positive total mass",
     ],
   ];

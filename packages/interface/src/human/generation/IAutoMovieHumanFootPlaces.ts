@@ -2,20 +2,9 @@
  * Normalized foot-skin observations, separating projected dorsum heights from toe skin reaches.
  *
  * The interface package owns these declarations; AutoMovieHumanFootPlaces in Human supplies their runtime values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Normalized foot-skin observations, separating projected dorsum heights from toe skin reaches. Member comments specify the individual units, frames and optional-value meanings.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only Forefoot, Toes declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
- * @evidence contracts/development/design.md#principled-representation Forefoot, Toes separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanFootPlaces exchanges the named Forefoot, Toes contracts with its Human callers. Interface owns these type declarations without importing that implementation.
  */
 export namespace IAutoMovieHumanFootPlaces {
   /** Dorsum height per body-X span, at projected shares from heel X.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Dorsum height per body-X span, at projected shares from heel X.
-   * @evidence contracts/development/design.md#principled-representation Dorsum height per body-X span, at projected shares from heel X. The outer tuple/array is readonly; nested element types determine whether their contents can change.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanFootPlaces.Forefoot is the canonical exchange used by AutoMovieHumanFootPlaces.FOREFOOT.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanFootPlaces.FOREFOOT for dorsum height per body-X span, at projected shares from heel X.
    */
   export type Forefoot = readonly {
     /** Projected body-X station ahead of heel X divided by the foot's body-X span. */
@@ -42,12 +31,6 @@ export namespace IAutoMovieHumanFootPlaces {
   Across means are not toe-normal breadths; gap-based width packing is a
   construction proxy. Combining the along maximum and first-loop across
   mean gives a generated apex proxy, not an observed three-dimensional tip.
-   *
- *
- * @evidence contracts/development/common.md#meaningful-documentation The toes' skin reaches, medial (the hallux) to lateral: each foremost point ahead of the heel along the axis from the heel's rearmost to the foot's foremost point, and its first loop's vertex-mean across that axis toward the little toe, per foot length.
- * @evidence contracts/development/design.md#principled-representation The toes' skin reaches, medial (the hallux) to lateral: each foremost point ahead of the heel along the axis from the heel's rearmost to the foot's foremost point, and its first loop's vertex-mean across that axis toward the little toe, per foot length. The outer tuple/array is readonly; nested element types determine whether their contents can change.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanFootPlaces.Toes is the canonical exchange used by AutoMovieHumanFootPlaces.TOES.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanFootPlaces.TOES for the toes' skin reaches, medial (the hallux) to lateral: each foremost point ahead of the heel along the axis from the heel's rearmost to the foot's foremost point, and its first loop's vertex-mean across that axis toward the little toe, per foot length.
  */
   export type Toes = readonly {
     /** Toe tip's forward reach divided by rotated heel-to-foremost foot length. */

@@ -22,6 +22,7 @@ import { prepareStand } from "./prepareStand";
 import { prepareStandingLegs } from "./prepareStandingLegs";
 import { standFeet } from "./standFeet";
 import { standRelaxed } from "./standRelaxed";
+import { standRoot } from "./standRoot";
 import { standUpright } from "./standUpright";
 import { standingLegs } from "./standingLegs";
 
@@ -35,11 +36,14 @@ import { standingLegs } from "./standingLegs";
  * was not planted lands at its rest place beside the other. The root moves
  * from its entry position to the midpoint of the feet over the first 0.5 s on
  * a minimum-jerk profile and sits 5 mm below full extension so the knees are
- * not locked. Each foot turns out 7° from the heading, the mean adult foot
+ * not locked. A planted foot keeps the heading it stands at, a flat sole
+ * turned on the floor sliding across it; a foot set down turns out 7° from the heading, the mean adult foot
  * progression angle (Perry and Burnfield, Gait Analysis, 2nd ed.). Arms hang
  * relaxed (`relaxed`): 12° of elbow flexion, the hand in its position of rest
  * (`HumanHand.shape`, relaxed), and the least shoulder abduction that hangs
- * the hand beside the thigh, its digits clear of the body. Postural sway moves the root on two
+ * the hand beside the thigh, its digits clear of the body, read on the
+ * stance the feet settle in (`standClearArms`), so a staggered or wide
+ * stance kept from the entry hangs its arms clear of its own thighs. Postural sway moves the root on two
  * seeded smooth signals below 1 Hz, side to side and front to back in the
  * body's frame, with an RMS of 3 mm for an elite and 4.8
  * mm for a novice: quiet-stance centre-of-pressure sway of healthy adults is a
@@ -95,8 +99,8 @@ export namespace stand {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
     side: AutoMovieHumanSide = "right",
   ): IAutoMovieMotionHumanActionPlan {
-    const duration: number = context.params.seconds ?? SECONDS;
-    HumanBound.above("seconds", duration, 0, "s");
+    const duration: number = context.params.hold ?? SECONDS;
+    HumanBound.above("hold", duration, 0, "s");
     return prepare(context, side)(duration);
   }
 
@@ -239,7 +243,10 @@ export namespace stand {
    * The root of a quiet stance over two ankle points: the pelvis over the
    * feet's midpoint as it stands over its rest feet, shifted forward by the
    * upright alignment's lean (`standUpright`), and `DROP` below its rest
-   * height above the mean ankle plane so the planted legs are not at full extension. The single owner of
+   * height above the mean ankle plane so the planted legs are not at full extension,
+   * and lowered where feet set wider or staggered than the rest feet would
+   * need a hip farther from its ankle than the quiet stance's, so each leg
+   * spans its foot with the quiet stance's knee. The single owner of
    * standing root placement: any law that ends or rests standing on its feet
    * places its root here.
    *
@@ -249,8 +256,8 @@ export namespace stand {
    * @returns The root, world metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the placement rule, its owner role and the units.
-   * @evidence contracts/development/implementation.md#principled-implementation The rest stance's root-to-feet offset turned to the heading, plus the upright alignment's lean, at the ankles' mean height less the ankle height and `DROP`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rest-centre offset, one lean, one sum.
+   * @evidence contracts/development/implementation.md#principled-implementation The rest stance's root-to-feet offset turned to the heading, plus the upright alignment's lean, at the ankles' mean height less the ankle height and `DROP`, no higher than the closed-form height at which each hip lies the quiet stance's hip-to-ankle distance from its ankle.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation to standRoot, which owns the placement and the reach bound.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height follows from the ankles given, never from a floor assumed at zero.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work after standUpright's per-body alignment.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads standUpright's alignment for the lean.
@@ -261,16 +268,7 @@ export namespace stand {
     feet: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
     yaw: number,
   ): IAutoMovieVector3 {
-    const mid: IAutoMovieVector3 = centre(body, yaw);
-    const lean: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: 0, y: 0, z: standUpright.of(body).lean },
-    );
-    return {
-      x: (feet.left.x + feet.right.x) / 2 - mid.x + lean.x,
-      y: (feet.left.y + feet.right.y) / 2 - body.measure.ankleHeight - DROP,
-      z: (feet.left.z + feet.right.z) / 2 - mid.z + lean.z,
-    };
+    return standRoot(body, feet, yaw, DROP);
   }
 
   /** How far a quiet stance's root sits below its rest height, metres, keeping the planted knees off full extension. */
@@ -420,7 +418,7 @@ export namespace stand {
   ): IFootprints {
     const stood: IAutoMovieMotionHumanActionPlan = plan({
       ...context,
-      params: { seconds: 1 },
+      params: { hold: 1 },
     });
     const standing: IAutoMovieMotionHumanPosture = stood.posture(0);
     const settled: IAutoMovieMotionHumanPosture = stood.posture(stood.duration);
@@ -468,14 +466,4 @@ export namespace stand {
     /** Each foot flat in the settled quiet stance, world metres. */
     settled: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
   }
-}
-
-/** The rest feet's midpoint in world offset for a heading, so a stand centres the pelvis over its feet. */
-function centre(body: IAutoMovieMotionHumanBody, yaw: number): IAutoMovieVector3 {
-  const l: IAutoMovieVector3 = body.rest.get("leftFoot")!;
-  const r: IAutoMovieVector3 = body.rest.get("rightFoot")!;
-  return HumanFrame.point(
-    { origin: { x: 0, y: 0, z: 0 }, yaw },
-    { x: (l.x + r.x) / 2, y: 0, z: (l.z + r.z) / 2 },
-  );
 }

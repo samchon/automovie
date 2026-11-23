@@ -1,13 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
+import { AutoMovieArchetypeUmbrellaRunner } from "./AutoMovieArchetypeUmbrellaRunner";
 
 /** The handle diameters hands rated most comfortable in a power grip. */
 const POWER: string =
@@ -16,17 +17,17 @@ const POWER: string =
 /**
  * A stick umbrella, open over the head or closed and carried.
  *
- * It stands along `+Y` from the bottom of its handle at the origin to the ferrule's tip at its closed length. `grip` is the straight handle a hand closes round, taken from `-Z`. Open, its canopy is a disc of the open diameter whose top is the shaft's top, and `canopy` is the canopy's top, facing up, where the rain falls; closed, it is the shaft and the handle, and declares no canopy. A folding umbrella is not made: no maker read gives its shaft's open length.
+ * It stands along `+Y` from the bottom of its handle at the origin to the ferrule's tip at its closed length. `grip` is the straight handle a hand closes round, taken from `-Z`. Open, its canopy is a disc of the open diameter whose top is the shaft's top, and `canopy` is the canopy's top, facing up, where the rain falls; closed, it is the shaft and the handle with its ribs furled along the shaft, and declares no canopy: its `runner` slides up the shaft and swings the ribs out through their stretchers (`AutoMovieArchetypeUmbrellaRunner`), so an act opens it. A folding umbrella is not made: no maker read gives its shaft's open length.
  *
  * @param params Whether it is open, its model, and any dimension the author fixes.
  * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The umbrella.
- * @throws {ArchetypeRefusal} For a model BLUNT's comparison does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a model BLUNT's comparison does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the umbrella stands, where it is held and what opening it adds.
  * @evidence contracts/development/implementation.md#principled-implementation A handle rod and a shaft rod to the closed length, a stick umbrella's shaft keeping its length open or closed; open adds a canopy disc of the published open diameter.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the handle and its grip, the shaft, then the canopy when open.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The canopy is a flat disc, not a ribbed dome, and the furled canopy of a closed umbrella is not drawn; the handle's length is CCOHS's, and the shaft's radius and the canopy's thickness are construction estimates that no act reads and no band declares; the ferrule is not drawn. Opening is a state of the parameters, not an articulation, because the canopy changes size.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The canopy is a flat disc, not a ribbed dome, and a closed umbrella's fabric is not drawn, only its ribs; the handle's length is CCOHS's, and the shaft's radius and the canopy's thickness are construction estimates that no act reads and no band declares; the ferrule is not drawn. A closed umbrella opens by its runner's articulation, the ribs' span giving the canopy's size; open builds the opened disc whole.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -34,9 +35,9 @@ const POWER: string =
 export function createUmbrella(
   params: createUmbrella.IParams = {},
   seed?: number | string,
-): Archetype<createUmbrella.Affordance, createUmbrella.Dimension> {
-  const draw: ArchetypeDrawSession<createUmbrella.Dimension> =
-    new ArchetypeDrawSession<createUmbrella.Dimension>(
+): AutoMovieArchetype<createUmbrella.Affordance, createUmbrella.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createUmbrella.Dimension> =
+    new AutoMovieArchetypeDrawSession<createUmbrella.Dimension>(
       "umbrella",
       createUmbrella.UNITS,
       seed,
@@ -59,10 +60,10 @@ export function createUmbrella(
     mass: model.figures.mass!,
     gripDiameter: drawn.gripDiameter!,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createUmbrella.Affordance,
     createUmbrella.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: params.open === true ? "open umbrella" : "umbrella",
@@ -86,12 +87,18 @@ export function createUmbrella(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, handle / 2, 0), v(0, 0, -1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, handle / 2, 0),
+      v(0, 0, -1),
+      v(0, 1, 0),
+    ),
     extent: null,
     grip: "power",
     aperture: d.gripDiameter,
     length: handle,
   });
+  if (params.open !== true)
+    AutoMovieArchetypeUmbrellaRunner.furl(builder, d.length, d.canopy);
   if (params.open === true) {
     // The canopy under the shaft's top, the full open diameter across.
     const top: number = d.length;
@@ -105,7 +112,7 @@ export function createUmbrella(
     builder.affordance({
       id: "canopy",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, top, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, top, 0)),
       extent: null,
       width: d.canopy,
       depth: d.canopy,
@@ -137,8 +144,13 @@ export namespace createUmbrella {
    *
    * - `grip`: the handle, taken from `-Z`.
    * - `canopy`: an open canopy's top, facing up.
+   * - `runner`: a closed umbrella's runner, sliding up the shaft to open it.
+   * - `rib<n>`: each rib's hinge at the top notch, following the runner.
    */
-  export type Affordance = "grip" | "canopy";
+  export type Affordance =
+    | "grip"
+    | "canopy"
+    | AutoMovieArchetypeUmbrellaRunner.Affordance;
 
   /**
    * The free dimensions, metres unless stated:
@@ -151,7 +163,9 @@ export namespace createUmbrella {
   export type Dimension = "length" | "canopy" | "gripDiameter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     canopy: "m",
     gripDiameter: "m",
@@ -183,7 +197,9 @@ export namespace createUmbrella {
   };
 
   /** The band of each free dimension the models do not read. */
-  export const BANDS: Readonly<Partial<Record<Dimension, IArchetypeBand>>> = {
-    gripDiameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
+  export const BANDS: Readonly<
+    Partial<Record<Dimension, IAutoMovieArchetypeBand>>
+  > = {
+    gripDiameter: AutoMovieArchetypeBand.metres(0.03, 0.04, POWER, true),
   };
 }

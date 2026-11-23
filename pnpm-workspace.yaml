@@ -8,7 +8,7 @@ catalogs:
   samchon:
     typia: &typia ^15.4.1
     "@nestia/e2e": ^14.3.1
-    "@wrtnlabs/evidence": ^0.8.2
+    "@wrtnlabs/evidence": ^0.11.0
     tstl: ^3.0.0
     ttsc: &ttsc ^0.37.1
     "@ttsc/evidence": *ttsc
@@ -18,6 +18,7 @@ catalogs:
     typescript: ^7.0.2
     "@trivago/prettier-plugin-sort-imports": ^5.2.2
     prettier: ^3.5.3
+    prettier-plugin-jsdoc: ^1.8.1
   three:
     three: &three ^0.186.0
     "@types/three": *three
@@ -84,3 +85,4 @@ minimumReleaseAgeExclude:
   - "@typia/utils@15.4.1"
   - ttsc@0.37.1
   - typia@15.4.1
+  - "@wrtnlabs/evidence@0.11.0"

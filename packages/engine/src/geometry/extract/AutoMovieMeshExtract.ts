@@ -29,11 +29,6 @@ import { AutoMovieNaturalSpline } from "../construction/AutoMovieNaturalSpline";
  * construction profile consumes, which is why this module imports the
  * profile source type and the natural spline; it evaluates the given knots
  * and fits nothing.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the units, the frame convention, the flag meanings and the knot removal rule.
- * @evidence contracts/development/design.md#principled-representation Represents Reverse extraction of sparse 2D lines from a dense triangle mesh: exact plane sections at stations along a frame axis, with their chained loops, extreme points in eight in-plane directions and artifact flags, and the fewest cubic Hermite knots (value and slope on a run, point and tangent on a closed loop) that hold a dense sampled line within a tolerance: companion namespace of 40 members (`V3`, `IMesh`, `IFrame`, `IExtreme`, `ILoop`, `ISection`, ...); units and frames named in its text: frame, world, second, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieMeshExtract` in packages/engine/src/geometry/extract/AutoMovieMeshExtract.ts; its surface is the 40 members listed and the text shows 10 other files naming it, mostly packages/human (6), test (3), packages/engine (1), so no member is declared for a presumed future need; members without their own doc: `at`, `add`, `sub`, `scale`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieMeshExtract {
   /**
@@ -58,14 +53,6 @@ export namespace AutoMovieMeshExtract {
    * @param tolerance Admitted departure of an extreme from its neighbours' mean, millimetres.
    * @param bridge Longest gap between chain ends the outer boundaries close, millimetres (25 by default: wider than a mouth slit or a nostril, narrower than a limb).
    * @returns One section per station, in the given order.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Linear interpolation on each sign-changing edge is the exact intersection of a flat triangle with a plane; the symbolic perturbation (a vertex on the plane counts as above) removes the degenerate cases, so every cut is a set of chains through edges.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass per station collects crossings, segments and their chains; the jump flags are a second pass over neighbours.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Dangling crossings and jumps are flagged and never smoothed; the raw loops stay unbridged, and every gap the outer boundaries bridge is flagged with its length for the viewer check.
-   * @evidence contracts/development/common.md#meaningful-documentation States the perturbation, the chaining, the extreme set and both flags.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(S T) for S stations over T triangles, plus O(S P) for P crossings per station; heights along the axis are computed once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Vertex heights are shared across all stations.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-station maps are released after the station; only the returned sections remain.
    */
   export function outline(
     mesh: IAutoMovieMillimeterMesh,
@@ -478,14 +465,6 @@ export namespace AutoMovieMeshExtract {
    * @param pinned Indices of named landmarks to keep.
    * @param excluded Indices of flagged samples to leave out of the fit and its error (holes, spikes, saw teeth).
    * @returns The knots in station order and the largest deviation of any kept dense sample from its span.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Greedy knot removal ranked by the measured Hermite span deviation, with local least-squares slope refits; prominent features are found by topographic prominence of values and of bend runs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shares the removal engine with reduceLoop; only the feature pins and the scalar dimension differ.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance is measured on every kept sample after each removal; no knot count is targeted.
-   * @evidence contracts/development/common.md#meaningful-documentation States the removal order, the refit, the pins, the noise threshold and its reason.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(N^2) for the best-candidate scans over N samples; each refit is linear in the samples of five neighbouring knots' spans.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Candidate costs are cached and recomputed only for the six positions around a removal.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources O(N) call-local arrays; only the knots are returned.
    */
   export function reduce(
     all: readonly (readonly [number, number])[],
@@ -602,14 +581,6 @@ export namespace AutoMovieMeshExtract {
    * @param pinned Indices of named landmarks to keep.
    * @param excluded Indices of flagged samples to leave out of the fit and its error.
    * @returns The knots in loop order, the loop's chord length and the largest distance of any kept dense point from its span.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The same knot removal as reduce on a periodic chord-length parameter; x and y decouple in the least-squares refit because they share the Hermite basis.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shares the removal engine with reduce; only the parameter, the period and the pins differ.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The distance is measured on every kept dense point after each removal; no knot count is targeted.
-   * @evidence contracts/development/common.md#meaningful-documentation States the parameter, the pins, the held tangent components and the minimum.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(N^2) best-candidate scans over N points with refits linear in five knots' spans.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Candidate costs are cached and recomputed only around a removal.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources O(N) call-local arrays; only the knots are returned.
    */
   export function reduceLoop(
     all: readonly (readonly [number, number])[],
@@ -760,14 +731,6 @@ export namespace AutoMovieMeshExtract {
    *
    * @param stations At least two loops, in strictly increasing station order.
    * @returns The curve family; its domain is the first to the last station.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation A tensor of a periodic cubic Hermite loop in the clock and a natural cubic spline in station; cardinal weights make the station and clock derivatives exact derivatives of the same function.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One adaptor from reduceLoop's output to the profile curve owner; no second representation is kept.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The correspondence across stations is the chord-length fraction from the +a extreme, stated here; where loops change shape sharply it may slide, which the viewer check shows, and nothing is resampled to hide it.
-   * @evidence contracts/development/common.md#meaningful-documentation States the clock, the orientation, the origin, the station interpolation and the coordinates.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation solves S cardinal splines in O(S^2); each reading costs O(S (log S + log K)) for S stations of up to K knots.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The cardinal splines and normalised loops are prepared once and shared by every reading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned curve retains the normalised loops and S cardinal splines for its owner's lifetime.
    */
   export function profileCurve(
     stations: readonly IAutoMovieStationHermiteLoop[],
@@ -983,14 +946,6 @@ export namespace AutoMovieMeshExtract {
    * @param m1 End slope.
    * @param s Station to read.
    * @returns The span's value at `s`; outside `[s0, s1]` the same cubic extended.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The four cubic Hermite basis functions on the normalised parameter, slopes scaled by the span length.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar evaluation; vector spans call it per coordinate.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Equal stations are not admitted and give a non-finite result rather than a guess.
-   * @evidence contracts/development/common.md#meaningful-documentation States the argument order and the outside-span behaviour.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A single evaluation coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains nothing.
    */
   export function hermite(
     s0: number,

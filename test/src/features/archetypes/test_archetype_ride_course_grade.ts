@@ -1,4 +1,7 @@
-import { ArchetypeCourse, ArchetypeFrame } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+} from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -19,29 +22,35 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_archetype_ride_course_grade(): void {
   const findings: string[] = [];
-  const base: Omit<ArchetypeCourse.ICourse, "legs"> = {
+  const base: Omit<AutoMovieArchetypeCourse.ICourse, "legs"> = {
     start: { x: 0, z: 0, heading: 0 },
     cruise: 5,
     acceleration: 2,
     deceleration: 3,
   };
-  const climb = (state: ArchetypeCourse.IState): number => {
-    const forward: IAutoMovieVector3 = ArchetypeFrame.axis(state.placement, "z");
+  const climb = (state: AutoMovieArchetypeCourse.IState): number => {
+    const forward: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+      state.placement,
+      "z",
+    );
     return Math.asin(forward.y);
   };
 
   // 1 and 2. A climb, then a level leg.
-  const plan: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", {
-    ...base,
-    legs: [
-      { kind: "straight", length: 50, rise: 5 },
-      { kind: "straight", length: 10 },
-    ],
-  });
+  const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "test",
+    {
+      ...base,
+      legs: [
+        { kind: "straight", length: 50, rise: 5 },
+        { kind: "straight", length: 10 },
+      ],
+    },
+  );
   const slope: number = Math.sqrt(2525);
   if (Math.abs(plan.length - (slope + 10)) > 1e-9) findings.push("the length");
-  const top: ArchetypeCourse.IState = plan.at(plan.when(slope));
-  const half: ArchetypeCourse.IState = plan.at(plan.when(slope / 2));
+  const top: AutoMovieArchetypeCourse.IState = plan.at(plan.when(slope));
+  const half: AutoMovieArchetypeCourse.IState = plan.at(plan.when(slope / 2));
   if (
     Math.abs(top.placement.translation.y - 5) > 1e-9 ||
     Math.abs(top.placement.translation.z - 50) > 1e-9 ||
@@ -50,21 +59,27 @@ export function test_archetype_ride_course_grade(): void {
     findings.push("the rise is not gained along the run");
   if (
     Math.abs(climb(half) - Math.atan(0.1)) > 1e-9 ||
-    Math.abs(ArchetypeFrame.axis(half.placement, "x").y) > 1e-9
+    Math.abs(AutoMovieArchetypeFrame.axis(half.placement, "x").y) > 1e-9
   )
     findings.push(`the climb pitches ${climb(half)}, not atan 0.1`);
-  const after: ArchetypeCourse.IState = plan.at(plan.when(slope + 5));
-  if (Math.abs(after.placement.translation.y - 5) > 1e-9 || Math.abs(climb(after)) > 1e-9)
+  const after: AutoMovieArchetypeCourse.IState = plan.at(plan.when(slope + 5));
+  if (
+    Math.abs(after.placement.translation.y - 5) > 1e-9 ||
+    Math.abs(climb(after)) > 1e-9
+  )
     findings.push("the level leg after the climb is not level at 5 m");
 
   // 3. A descending turn.
-  const turn: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", {
-    ...base,
-    legs: [{ kind: "turn", radius: 20, angle: 90, rise: -3 }],
-  });
+  const turn: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "test",
+    {
+      ...base,
+      legs: [{ kind: "turn", radius: 20, angle: 90, rise: -3 }],
+    },
+  );
   const arc: number = 10 * Math.PI;
-  const end: ArchetypeCourse.IState = turn.at(turn.duration);
-  const middle: ArchetypeCourse.IState = turn.at(turn.duration / 2);
+  const end: AutoMovieArchetypeCourse.IState = turn.at(turn.duration);
+  const middle: AutoMovieArchetypeCourse.IState = turn.at(turn.duration / 2);
   if (
     Math.abs(end.placement.translation.y + 3) > 1e-9 ||
     Math.abs(climb(middle) + Math.atan(3 / arc)) > 1e-9
@@ -72,16 +87,21 @@ export function test_archetype_ride_course_grade(): void {
     findings.push("the descending turn");
 
   // 4. Reversing up the climb.
-  const back: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", {
-    ...base,
-    legs: [{ kind: "straight", length: 50, rise: 5, reverse: true }],
-  });
-  const going: ArchetypeCourse.IState = back.at(back.duration / 2);
+  const back: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "test",
+    {
+      ...base,
+      legs: [{ kind: "straight", length: 50, rise: 5, reverse: true }],
+    },
+  );
+  const going: AutoMovieArchetypeCourse.IState = back.at(back.duration / 2);
   if (
     !(going.placement.translation.z < 0) ||
     !(going.placement.translation.y > 0) ||
     Math.abs(climb(going) + Math.atan(0.1)) > 1e-9
   )
-    findings.push("reversing up a climb does not point the nose down the grade");
+    findings.push(
+      "reversing up a climb does not point the nose down the grade",
+    );
   TestValidator.equals("a leg climbs at its grade", findings, []);
 }

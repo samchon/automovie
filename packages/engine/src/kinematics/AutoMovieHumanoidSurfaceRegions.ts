@@ -20,20 +20,10 @@ const COSTAL_MARGIN: number = Math.max(1056.3 / 1628.5, 1120.7 / 1756.2);
  * (`resolveAutoMovieHumanoidSurfaces`): each region's station on a bone's
  * segment and its outward direction in the rest frame, the ray that finds
  * its point on the colliders.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds and who reads it.
- * @evidence contracts/development/design.md#principled-representation A station (a bone, a joint it leans toward, a share) and a direction per region, both sides from one table.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The station and definition records and the table the resolver reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Keys are the interface's closed region union.
  */
 export namespace AutoMovieHumanoidSurfaceRegions {
   /**
    * The interface contract (`IAutoMovieHumanoidSurfaceRegions.ILevel`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the interface record this owner's name stands for.
-   * @evidence contracts/development/design.md#principled-representation The record is the interface's; the alias adds nothing.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Kept so this owner's readers name the record by its owner, as master keeps such aliases.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copy of the record: one declaration, in `@automovie/interface`.
    */
   export type ILevel = IAutoMovieHumanoidSurfaceRegions.ILevel;
 
@@ -85,6 +75,11 @@ export namespace AutoMovieHumanoidSurfaceRegions {
       liver: { station: costal, direction: v(-0.8, 0, 0.6) },
       spleen: { station: costal, direction: v(0.8, 0, 0.6) },
       upperBack: { station: chest(0.5), direction: v(0, 0, -1) },
+      // The yoke: the top of the back between the shoulders, behind the
+      // neck's base, where a shoulder-ride's rider sits and a yoke or a
+      // carried pole rests; on the thorax's collider near the neck, facing up
+      // and a little back along the trapezius (provisional).
+      yoke: { station: chest(0.95), direction: v(0, 1, -0.3) },
       abdomen: { station: spine(0.4), direction: v(0, 0, 1) },
       lowerBack: { station: spine(0.4), direction: v(0, 0, -1) },
       groin: {

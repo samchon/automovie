@@ -2,16 +2,16 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeBand,
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import type { createLongTool } from "./createLongTool";
 
 /** A long tool under construction. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createLongTool.Affordance,
   createLongTool.Dimension
 >;
@@ -39,11 +39,6 @@ const PETTIGREW: string =
  * The two throwers among the long tools: a hand sling and a spear-thrower (atlatl), each with its read sizes and the measured speeds it throws at, and the contacts a throwing act reads.
  *
  * A sling hangs folded from the hand at the top, both cords down to the pouch at the origin: `grip` is the finger loop, `release` the release cord's knot held between thumb and finger, and `pouch` the pouch a stone sits in, facing up. An atlatl lies along `+Y` from its butt at the origin: `grip` is its handle with the finger loops, and `spur` the hook at the far end whose groove takes the dart's butt, facing along the shaft.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each thrower stands and what each contact is.
- * @evidence contracts/development/design.md#principled-representation Each thrower as rods and boxes from its read sizes, its contacts as handles and sockets.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two builders `createLongTool` calls for its throwers, and their bands.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sling's cords are straight, a coarse stand-in for flexible cords; every unread size is a named estimate.
  */
 export namespace Throwers {
   /** The finger loop's size and the knot's, metres, and an atlatl's thickness, metres: estimates, no source read giving them (searched: Finney 2005, Skov 2013, Carter 1933, Kidder and Guernsey 1919, Museums Victoria; records-sling-atlatl.md). */
@@ -61,50 +56,52 @@ export namespace Throwers {
   export const BANDS: Readonly<
     Record<
       "sling" | "atlatl",
-      Readonly<Partial<Record<createLongTool.Dimension, IArchetypeBand>>>
+      Readonly<
+        Partial<Record<createLongTool.Dimension, IAutoMovieArchetypeBand>>
+      >
     >
   > = {
     sling: {
-      length: ArchetypeBand.metres(1.78, 1.78, FINNEY),
-      shaftDiameter: ArchetypeBand.metres(0.006, 0.006, FINNEY),
-      pouchLength: ArchetypeBand.metres(0.155, 0.155, FINNEY),
-      pouchWidth: ArchetypeBand.metres(0.04, 0.04, FINNEY),
-      launchSpeed: ArchetypeBand.of("m/s", 32.1, 43.3, SKOV),
-      mass: ArchetypeBand.of(
+      length: AutoMovieArchetypeBand.metres(1.78, 1.78, FINNEY),
+      shaftDiameter: AutoMovieArchetypeBand.metres(0.006, 0.006, FINNEY),
+      pouchLength: AutoMovieArchetypeBand.metres(0.155, 0.155, FINNEY),
+      pouchWidth: AutoMovieArchetypeBand.metres(0.04, 0.04, FINNEY),
+      launchSpeed: AutoMovieArchetypeBand.of("m/s", 32.1, 43.3, SKOV),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.05,
         0.1,
-        `${ArchetypeBand.TYPICAL_MASS}: an estimate, no sling's weight being read (searched: Finney 2005, Skov 2013; records-sling-atlatl.md)`,
+        `${AutoMovieArchetypeBand.TYPICAL_MASS}: an estimate, no sling's weight being read (searched: Finney 2005, Skov 2013; records-sling-atlatl.md)`,
         true,
       ),
     },
     atlatl: {
-      length: ArchetypeBand.metres(
-        26 * ArchetypeUnits.INCH,
-        26 * ArchetypeUnits.INCH,
+      length: AutoMovieArchetypeBand.metres(
+        26 * AutoMovieArchetypeUnits.INCH,
+        26 * AutoMovieArchetypeUnits.INCH,
         BASKETMAKER,
       ),
-      width: ArchetypeBand.metres(
-        (11 / 8) * ArchetypeUnits.INCH,
-        (11 / 8) * ArchetypeUnits.INCH,
+      width: AutoMovieArchetypeBand.metres(
+        (11 / 8) * AutoMovieArchetypeUnits.INCH,
+        (11 / 8) * AutoMovieArchetypeUnits.INCH,
         `${BASKETMAKER}: the spur end`,
       ),
-      spurSetback: ArchetypeBand.metres(
-        3 * ArchetypeUnits.INCH,
-        3 * ArchetypeUnits.INCH,
+      spurSetback: AutoMovieArchetypeBand.metres(
+        3 * AutoMovieArchetypeUnits.INCH,
+        3 * AutoMovieArchetypeUnits.INCH,
         BASKETMAKER,
       ),
-      gripSetback: ArchetypeBand.metres(
-        4 * ArchetypeUnits.INCH,
-        4 * ArchetypeUnits.INCH,
+      gripSetback: AutoMovieArchetypeBand.metres(
+        4 * AutoMovieArchetypeUnits.INCH,
+        4 * AutoMovieArchetypeUnits.INCH,
         BASKETMAKER,
       ),
-      launchSpeed: ArchetypeBand.of("m/s", 16.7, 28.7, PETTIGREW),
-      mass: ArchetypeBand.of(
+      launchSpeed: AutoMovieArchetypeBand.of("m/s", 16.7, 28.7, PETTIGREW),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.1,
         0.3,
-        `${ArchetypeBand.TYPICAL_MASS}: an estimate, no Basketmaker atlatl being weighed (searched: Kidder and Guernsey 1919, Museums Victoria's woomeras; records-sling-atlatl.md)`,
+        `${AutoMovieArchetypeBand.TYPICAL_MASS}: an estimate, no Basketmaker atlatl being weighed (searched: Kidder and Guernsey 1919, Museums Victoria's woomeras; records-sling-atlatl.md)`,
         true,
       ),
     },
@@ -115,14 +112,6 @@ export namespace Throwers {
    *
    * @param builder The tool under construction.
    * @param d The tool's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation Folded in the hand, each cord runs half the read length less the pouch's to the pouch's ends, so the whole sling is its read length; the finger loop and the knot are balls of their sizes where the cords meet the hand, each grip on its own.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Pouch, cords, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cords are straight; the loop and the knot are `ESTIMATES`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one sling.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function sling(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -153,7 +142,7 @@ export namespace Throwers {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(loop, v(0, 0, -1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(loop, v(0, 0, -1), v(1, 0, 0)),
       extent: null,
       grip: "hook",
       aperture: ESTIMATES.loop,
@@ -163,7 +152,7 @@ export namespace Throwers {
       id: "release",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(knot, v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(knot, v(0, 0, 1), v(1, 0, 0)),
       extent: null,
       grip: "lateral",
       aperture: ESTIMATES.knot,
@@ -172,7 +161,7 @@ export namespace Throwers {
     builder.affordance({
       id: "pouch",
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(0, r, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, r, 0)),
       extent: null,
     });
   }
@@ -182,14 +171,6 @@ export namespace Throwers {
    *
    * @param builder The tool under construction.
    * @param d The tool's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation The shaft of the read length and spur-end width; the handle runs from the butt to the read point the handle proper begins, the hand closing across the shaft's thickness from its face, and the spur stands the read setback from the far end.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shaft, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The taper to the grip end, the finger loops and the weight stone are not modelled; the thickness is `ESTIMATES.thickness`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one atlatl.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function atlatl(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -205,7 +186,11 @@ export namespace Throwers {
       id: "grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(v(0, grip / 2, 0), v(0, 0, -1), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, grip / 2, 0),
+        v(0, 0, -1),
+        v(0, 1, 0),
+      ),
       extent: null,
       grip: "power",
       aperture: ESTIMATES.thickness,
@@ -215,7 +200,7 @@ export namespace Throwers {
       id: "spur",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, length - d.spurSetback!, ESTIMATES.thickness / 2),
         v(0, -1, 0),
         v(1, 0, 0),

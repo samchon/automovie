@@ -1,0 +1,258 @@
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
+  IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanClimbStairs,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { HumanSignature } from "../audit/HumanSignature";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHand } from "../posture/HumanHand";
+import { HumanHandTarget } from "../posture/HumanHandTarget";
+import { poseBones } from "../posture/poseBones";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+
+/** Allowed displayed grip residual, in metres. */
+const MISS: number = 0.015;
+
+/** Provisional bracing share of the body weight during a rail-assisted flight. */
+const LOAD: number = 0.12;
+
+/** The longest reach onto and off the rail, seconds (provisional). */
+const TRANSIT: number = 0.4;
+
+/** The reach's largest share of the climb's duration, so the grip bears over at least three fifths of it (provisional). */
+const TRANSIT_SHARE: number = 0.2;
+
+/**
+ * Carry a stance hand along a fixed rail on the stair's existing clock.
+ * The hand closes on the named finite bar, slides along its axis while
+ * bearing and releases before the final landing stance.
+ *
+ * @param context The actor, its actual stair prop and chosen rail.
+ * @param stairs The unchanged tread and pelvis plan.
+ * @param rail The rail affordance and hand that takes it.
+ * @returns The stair plan with a posed, verified rail support window.
+ * @throws {HumanRefusal} If the rail is absent, moves or cannot be reached during the braced part of the flight.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States how the rail and hand move, when the support is released and what refuses.
+ * @evidence contracts/development/implementation.md#principled-implementation Derives the actual bar axis and length from the authored fixture, fitting the grip on that axis over the existing fitted tread trajectory.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the static bar once, then use its axis both to place and verify the same wrist goal.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing or unreachable fixtures refuse; the measured grip comes from resolved bones.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant bar geometry; one arm carry per sample, and one resolve per motion-evidence sample time for the plan-time grip check.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The bar's axis, the hand frame and grip offset are prepared once and shared by placement and check.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the stair plan and the prepared bar.
+ */
+export function climbStairsRail(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbStairs.IParams>,
+  stairs: IAutoMovieMotionHumanActionPlan,
+  rail: IAutoMovieMotionHumanClimbStairs.IRail,
+): IAutoMovieMotionHumanActionPlan {
+  const subject: string | undefined = context.params.on;
+  const refuse = (reason: string): never => {
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "rail.point",
+      value: rail.point,
+      reason,
+      fix: "name a reachable fixed stair rail and stage the performer beside it",
+    });
+  };
+  if (subject === undefined)
+    return refuse("a handrail needs the flight's prop subject");
+  const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
+  const bar: IAutoMovieAffordance | undefined = read.prop.affordances?.find(
+    (affordance: IAutoMovieAffordance): boolean =>
+      affordance.id === rail.point && affordance.kind === "bar",
+  );
+  if (
+    read.prop.fixed !== true ||
+    read.prop.motion !== undefined ||
+    read.prop.hasArticulations === true ||
+    bar?.length === undefined ||
+    !(bar.length > 0)
+  )
+    return refuse(subject + " has no stationary bar " + rail.point);
+  const model: IAutoMovieRigidTransform = read.frame(context.start);
+  const turn: IAutoMovieQuaternion = Quaternion.multiply(
+    model.rotation,
+    bar.frame.rotation,
+  );
+  const center: IAutoMovieVector3 = Vector3.add(
+    model.position,
+    Quaternion.rotateVector(model.rotation, bar.frame.translation),
+  );
+  const along: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+    x: 1,
+    y: 0,
+    z: 0,
+  });
+  const normal: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
+  const levelSquared: number = along.x * along.x + along.z * along.z;
+  if (levelSquared < 0.25)
+    return refuse("the selected bar does not run along the flight");
+  const end: number = Math.max(0, bar.length / 2 - (bar.aperture ?? 0) / 2);
+  const side: AutoMovieHumanSide = rail.hand;
+  const arm: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
+  const body: IAutoMovieMotionHumanBody = context.body;
+  const place: ReturnType<typeof HumanHandTarget.prepareFrame> =
+    HumanHandTarget.prepareFrame(body, side, normal, {
+      surface: "grip",
+      shape: "relaxed",
+      forward: side === "left" ? Vector3.scale(along, -1) : along,
+    });
+  const offset: IAutoMovieVector3 = HumanHand.offset(body, side, "grip").point;
+  const entry: Parameters<typeof AutoMovieMotionHumanArm.carry>[2] = {
+    [side]: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+  };
+  const toPoint = (root: IAutoMovieVector3): IAutoMovieVector3 => {
+    const z: number =
+      ((root.x - center.x) * along.x + (root.z - center.z) * along.z) /
+      levelSquared;
+    return Vector3.add(
+      center,
+      Vector3.scale(along, Math.max(-end, Math.min(end, z))),
+    );
+  };
+
+  const duration: number = stairs.duration;
+  const transit: number = Math.min(TRANSIT, duration * TRANSIT_SHARE);
+  const release: number = duration - transit;
+  const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
+    seconds,
+    channels,
+    resolution,
+    projection,
+  ): IAutoMovieMotionHumanPosture => {
+    const bodyPose: IAutoMovieMotionHumanPosture = stairs.posture(
+      seconds,
+      undefined,
+      resolution,
+      projection,
+    );
+    if (
+      seconds <= 0 ||
+      seconds >= duration ||
+      (channels !== undefined && !channels.includes(arm))
+    )
+      return bodyPose;
+    const wrist: IAutoMovieMotionHumanHand.IWrist = place(bodyPose).place(
+      toPoint(bodyPose.root),
+    );
+    const goal: IAutoMovieHumanLimbGoal =
+      AutoMovieMotionHumanArmTarget.fromWrist(
+        wrist,
+        AutoMovieMotionHumanBend.arm(body, bodyPose, side, "hang"),
+        offset,
+      );
+    const weight: number = Math.min(
+      1,
+      seconds / transit,
+      (duration - seconds) / transit,
+    );
+    const gripped: IAutoMovieMotionHumanPosture = {
+      ...bodyPose,
+      limbs: {
+        ...bodyPose.limbs,
+        [arm]: weight === 1 ? { ...goal, planted: true } : goal,
+      },
+    };
+    return AutoMovieMotionHumanArm.carry(
+      body,
+      gripped,
+      entry,
+      minimumJerk.share(weight),
+      bodyPose,
+      resolution,
+      projection,
+    );
+  };
+
+  const project: ReturnType<typeof prepareHumanPostureProjection> =
+    prepareHumanPostureProjection(body);
+  let miss: number = 0;
+  for (const t of [...HumanSignature.times(transit, release), release]) {
+    const observed: IAutoMovieMotionHumanPosture = posture(t);
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      resolveHumanPosture.seeded(
+        body,
+        observed,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        project,
+      ).pose,
+    );
+    miss = Math.max(
+      miss,
+      Vector3.length(
+        Vector3.subtract(
+          HumanHand.frame(body, bones, side, "grip").point,
+          toPoint(observed.root),
+        ),
+      ),
+    );
+  }
+  if (miss > MISS)
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "rail.point",
+      value: rail.point,
+      feasible: { kind: "range", minimum: 0, maximum: MISS, unit: "m" },
+      reason:
+        "the displayed grip misses " +
+        rail.point +
+        " by " +
+        miss.toFixed(3) +
+        " m",
+      fix: "stage the performer nearer the named rail or choose a nearer grip",
+    });
+  return {
+    ...stairs,
+    posture,
+    yields: stairs.yields?.filter(
+      (channel) => channel !== arm && channel !== side + "Hand",
+    ) ?? [
+      "head",
+      side === "left" ? "rightArm" : "leftArm",
+      side === "left" ? "rightHand" : "leftHand",
+    ],
+    events: [
+      ...stairs.events,
+      { name: "railContact", share: transit / duration },
+      { name: "railRelease", share: release / duration },
+    ].sort((a, b) => a.share - b.share),
+    contacts: [
+      ...stairs.contacts,
+      {
+        part: side === "left" ? "leftHand" : "rightHand",
+        kind: "grip",
+        support: { kind: "prop", subject, carries: false },
+        from: transit / duration,
+        to: release / duration,
+        load: LOAD,
+      },
+    ],
+  };
+}

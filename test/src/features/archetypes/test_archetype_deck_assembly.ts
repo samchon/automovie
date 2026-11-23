@@ -1,10 +1,10 @@
 import {
-  ArchetypeAssembly,
-  type ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeRide,
-  ArchetypeSea,
+  AutoMovieArchetypeAssembly,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeRide,
+  AutoMovieArchetypeSea,
   createCannon,
   createDeck,
 } from "@automovie/archetypes";
@@ -183,7 +183,8 @@ export function test_archetype_deck_assembly(): void {
     try {
       createDeck(params);
     } catch (error) {
-      refused = error instanceof ArchetypeRefusal ? error.axis : String(error);
+      refused =
+        error instanceof AutoMovieArchetypeRefusal ? error.axis : String(error);
     }
     if (refused !== field)
       findings.push(`a deck with a bad ${field} was refused at ${refused}`);
@@ -191,23 +192,21 @@ export function test_archetype_deck_assembly(): void {
 
   // 3. A gun amidships, trained abeam to the left.
   type Members = {
-    deck: ArchetypeAssembly.IMember<
+    deck: AutoMovieArchetypeAssembly.IMember<
       createDeck.Affordance,
       createDeck.Dimension
     >;
-    gun: ArchetypeAssembly.IMember<
+    gun: AutoMovieArchetypeAssembly.IMember<
       createCannon.Affordance,
       createCannon.Dimension
     >;
   };
-  type Id = ArchetypeAssembly.Ids<Members>;
-  const ship: ArchetypeAssembly<Members> = ArchetypeAssembly.of<Members>(
-    "ship",
-    "gun deck",
-    {
+  type Id = AutoMovieArchetypeAssembly.Ids<Members>;
+  const ship: AutoMovieArchetypeAssembly<Members> =
+    AutoMovieArchetypeAssembly.of<Members>("ship", "gun deck", {
       deck: {
         archetype: deck,
-        placement: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+        placement: AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
       },
       gun: {
         archetype: createCannon({ kind: "fieldGun" }),
@@ -217,8 +216,7 @@ export function test_archetype_deck_assembly(): void {
           scale: { x: 1, y: 1, z: 1 },
         },
       },
-    },
-  );
+    });
   if (!validateModel({ model: ship }).success)
     findings.push("the deck and its gun are not admitted");
   for (const id of ["deck/deck", "gun/muzzle"] as const)
@@ -229,35 +227,33 @@ export function test_archetype_deck_assembly(): void {
   const knots: number = 1852 / 3600;
   const cruise: number = 11 * knots;
   const length: number = createDeck.REFERENCE.length;
-  const course: ArchetypeCourse.ICourse = {
+  const course: AutoMovieArchetypeCourse.ICourse = {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length }],
     cruise,
     startSpeed: cruise,
     endSpeed: cruise,
   };
-  const sea: ArchetypeSea.IOptions = {
+  const sea: AutoMovieArchetypeSea.IOptions = {
     height: 1.25,
     heading: 90,
     seed: "deck",
   };
-  const still: ArchetypeRide.IRide<Id, never> = ArchetypeRide.along(
-    ship,
-    course,
-  );
-  const floating: ArchetypeRide.IRide<Id, never> = ArchetypeSea.float(
-    still,
-    ArchetypeSea.of(sea),
-  );
-  const again: ArchetypeRide.IRide<Id, never> = ArchetypeSea.float(
-    ArchetypeRide.along(ship, course),
-    ArchetypeSea.of(sea),
-  );
-  const calm: ArchetypeRide.IRide<Id, never> = ArchetypeSea.float(
-    still,
-    ArchetypeSea.of({ ...sea, height: 0 }),
-  );
-  const surface: ArchetypeSea.ISea = ArchetypeSea.of(sea);
+  const still: AutoMovieArchetypeRide.IRide<Id, never> =
+    AutoMovieArchetypeRide.along(ship, course);
+  const floating: AutoMovieArchetypeRide.IRide<Id, never> =
+    AutoMovieArchetypeSea.float(still, AutoMovieArchetypeSea.of(sea));
+  const again: AutoMovieArchetypeRide.IRide<Id, never> =
+    AutoMovieArchetypeSea.float(
+      AutoMovieArchetypeRide.along(ship, course),
+      AutoMovieArchetypeSea.of(sea),
+    );
+  const calm: AutoMovieArchetypeRide.IRide<Id, never> =
+    AutoMovieArchetypeSea.float(
+      still,
+      AutoMovieArchetypeSea.of({ ...sea, height: 0 }),
+    );
+  const surface: AutoMovieArchetypeSea.ISea = AutoMovieArchetypeSea.of(sea);
   const within = (seconds: number): IAutoMovieTransform => {
     const frame: IAutoMovieTransform = floating.frame("deck/deck", seconds);
     const muzzle: IAutoMovieTransform = floating.frame("gun/muzzle", seconds);

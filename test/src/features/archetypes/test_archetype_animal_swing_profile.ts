@@ -1,4 +1,4 @@
-import { QuadrupedMotion } from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedMotion } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -31,8 +31,8 @@ export function test_archetype_animal_swing_profile(): void {
     [0.875, 0.98394775390625, 0.103515625],
     [1, 1, 0],
   ] as const) {
-    const actual: ReturnType<typeof QuadrupedMotion.swing> =
-      QuadrupedMotion.swing(u);
+    const actual: ReturnType<typeof AutoMovieArchetypeQuadrupedMotion.swing> =
+      AutoMovieArchetypeQuadrupedMotion.swing(u);
     if (actual.along !== along || actual.rise !== rise)
       findings.push(`${u}: the path missed its literal quintic anchor`);
   }
@@ -40,8 +40,10 @@ export function test_archetype_animal_swing_profile(): void {
   let previous: number = 0;
   for (let index: number = 0; index <= 4096; index++) {
     const u: number = index / 4096;
-    const actual: ReturnType<typeof QuadrupedMotion.swing> = observe(u);
-    const reverse: ReturnType<typeof QuadrupedMotion.swing> = observe(1 - u);
+    const actual: ReturnType<typeof AutoMovieArchetypeQuadrupedMotion.swing> =
+      observe(u);
+    const reverse: ReturnType<typeof AutoMovieArchetypeQuadrupedMotion.swing> =
+      observe(1 - u);
     if (actual.along < previous || actual.rise !== reverse.rise)
       findings.push(`${u}: progress reversed or lift lost time symmetry`);
     previous = actual.along;
@@ -52,27 +54,29 @@ export function test_archetype_animal_swing_profile(): void {
   }
   for (const u of [NaN, Infinity, -Infinity]) {
     try {
-      QuadrupedMotion.swing(u);
+      AutoMovieArchetypeQuadrupedMotion.swing(u);
       findings.push(`${u}: a nonfinite phase was accepted`);
     } catch (error) {
       if (!(error instanceof Error))
         findings.push(`${u}: a nonfinite phase lost its explicit refusal`);
     }
   }
-  const mutated: ReturnType<typeof QuadrupedMotion.swing> =
-    QuadrupedMotion.swing(0.25);
+  const mutated: ReturnType<typeof AutoMovieArchetypeQuadrupedMotion.swing> =
+    AutoMovieArchetypeQuadrupedMotion.swing(0.25);
   mutated.along = -1;
   mutated.rise = -1;
-  const repeat: ReturnType<typeof QuadrupedMotion.swing> =
-    QuadrupedMotion.swing(0.25);
+  const repeat: ReturnType<typeof AutoMovieArchetypeQuadrupedMotion.swing> =
+    AutoMovieArchetypeQuadrupedMotion.swing(0.25);
   if (repeat.along !== 0.103515625 || repeat.rise !== 0.5)
     findings.push("a result mutation changed the prepared path");
   TestValidator.equals("bounded actual foot-swing shares", findings, []);
 
   /** Domain bounds are semantic constraints and receive no numerical slack. */
-  function observe(u: number): ReturnType<typeof QuadrupedMotion.swing> {
-    const actual: ReturnType<typeof QuadrupedMotion.swing> =
-      QuadrupedMotion.swing(u);
+  function observe(
+    u: number,
+  ): ReturnType<typeof AutoMovieArchetypeQuadrupedMotion.swing> {
+    const actual: ReturnType<typeof AutoMovieArchetypeQuadrupedMotion.swing> =
+      AutoMovieArchetypeQuadrupedMotion.swing(u);
     if (
       !Number.isFinite(actual.along) ||
       !Number.isFinite(actual.rise) ||

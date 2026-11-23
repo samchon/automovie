@@ -141,7 +141,7 @@ export namespace HumanArmClearing {
 
   /**
    * The shares of the way at which a carry's clearing is solved: the tenths,
-   * and the twentieth between the rest and the first tenth (provisional:
+   * and the twentieths beside both ends (provisional:
    * each a few centimetres of a hand's way).
    *
    * Under the minimum-jerk profile every carry's weight follows
@@ -150,17 +150,25 @@ export namespace HumanArmClearing {
    * the middle tenth takes one. A hand at rest lies against the thigh and
    * leaves it over that first tenth, so the tenth is halved: a blown kiss's
    * fingertips, the rest and the first tenth both clear, pressed 11.3 mm
-   * into the thigh between them. The last tenth is not: beside the arrival
-   * the hand meets its place, whose room the arrival holds, and a key there
-   * read the goal's own contact as room to clear (22 to 31 degrees at a
-   * bite's mouth, an elbow swung 104.5 mm in a frame). The keys are fixed,
+   * into the thigh between them. The last tenth is halved too: beside the
+   * arrival the hand meets its place, and a hand cleared at the ninth tenth
+   * and arriving clear can still sweep through the body between them (a
+   * parade rest's fingers 17 mm in the hips at 0.93 of the way). A key there
+   * once read the goal's own contact as room to clear (22 to 31 degrees at a
+   * bite's mouth, an elbow swung 104.5 mm in a frame); beside the arrival a
+   * key's allowance is therefore no less than the arrival's own room
+   * (`AutoMovieMotionHumanArmCarryCourse`), so the place's contact is never
+   * cleared away. The keys are fixed,
    * so the course never chooses between two layouts from one instant to the
    * next: a layout chosen by whether the proportion cleared the arm flipped
    * as a picking hand's fingers closed, and stepped its fingertip 9.4 mm.
    */
   const SHARES: readonly number[] = [
-    0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1,
+    0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1,
   ];
+
+  /** The share of the way past which a key lies beside the arrival: its allowance is no less than the arrival's own room. */
+  export const BESIDE: number = 0.9;
 
   /**
    * Deprecated with `AutoMovieMotionHumanArmCarry.carry`, its only reader: a

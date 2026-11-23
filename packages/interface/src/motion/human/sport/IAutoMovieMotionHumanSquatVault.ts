@@ -22,28 +22,16 @@
  * end of that depth farther along the heading. A landing that lies no
  * farther ahead than the push-off is refused: no flight carries the body
  * over the box to it. Events: `handsDown`, `tucked` (the push-off), `touchdown`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation seconds: How long the landing is held, seconds; 0.5 when absent.
- * @evidence contracts/development/design.md#principled-representation seconds: How long the landing is held, seconds; 0.5 when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/squatVault.ts (squatVault.plan, context).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in squatVault.plan.
  */
 export namespace IAutoMovieMotionHumanSquatVault {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The box by its subject id and the landing's hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A subject id, resolved through the prop's own affordance.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The box vaulted over, its subject id; its `surface` is the top the hands are set on. */
     on: string;
 
     /** How long the landing is held, seconds; 0.5 when absent. */
-    seconds?: number;
+    hold?: number;
   }
 }

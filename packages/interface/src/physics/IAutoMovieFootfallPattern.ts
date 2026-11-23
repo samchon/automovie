@@ -4,11 +4,6 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * Contact timing and support geometry for arbitrary articulated limbs.
  *
  * Chains use actual profile bone identities in proximal-to-distal order. Phase and duty are cycle fractions; stride tables map nonnegative metres-per-second speeds to positive metre lengths. admitPhysicalSupportPattern checks finite coordinates, existing distinct carriers, consecutive chains, at most 64 floor witnesses per limb and strictly increasing nonempty stride samples. Its stepping mode requires at least one limb beyond minimumSupports. Omitted localPoint selects the bone origin; omitted contacts selects the endpoint carrier.
- *
- * @evidence contracts/development/design.md#principled-representation Each limb combines its chain and support patch with phase, planted duty and a speed-to-stride law; the minimum count expresses whether suspension is permitted.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The physical step planner, balance solver and floor-target planner share this support vocabulary independently of humanoid bone names or an open-loop gait oscillator.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Support endpoints are not inferred from anatomy; the profile-aware admission function checks carrier and chain identities instead of inventing missing bones.
- * @evidence contracts/development/common.md#meaningful-documentation States time fractions, physical units, ordered stride samples, admission bounds and default endpoint/contact behavior.
  */
 export interface IAutoMovieFootfallPattern {
   /** Stable description identity. */

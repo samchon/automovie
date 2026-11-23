@@ -8,11 +8,6 @@ import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
  * Both faces draw on one shared ring, whose sample count is independent of section order. The author's endpoints must be regular and open. A selected pole, an end cut away or consumed by either subtree, an unavailable actual derivative, or an unsupported boundary correspondence leaves the continuation out with its diagnostic and the host unchanged. Phase correspondence is identity for opposite end kinds and reflection for matching kinds; first station derivatives receive the same sign and second derivatives keep theirs. Arbitrary phase offsets or station scales are not declared by this node.
  *
  * Engine admission: `hostFace` a view part of the host's subtree and `partFace` one of the part's; `name` unique in the tree.
- *
- * @evidence contracts/development/design.md#principled-representation One owner publishes the shared section and its station jets and the neighbour copies them, so the two chains are C2 across the ring by the station rule both use. The band retains physical rail depth and bounded row/column counts while each face owns its own section representation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two faces and their ends select a shared ring; the optional band instead supplies a physical rail depth, sampling counts and rail correspondence while preserving each face's own section representation. Continuation realization reads this single optional band record; ordinary shared-ring continuation needs none.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Equal-order boundaries use the explicit whole-field replacement; different-order native boundaries require original full scalar2/frame2/lift2 equivalence and a sufficient regularity certificate, preserving all rows and intervals without fitting or coarsening. No new section fit or searched rail is implied by these authored parameters.
- * @evidence contracts/development/common.md#meaningful-documentation States the meeting, copied derivatives and their direction, shared-ring failure effects and admission, and the optional band's units, references and absence behavior.
  */
 export interface IAutoMovieConstructionContinuation {
   /** Discriminator. */
@@ -59,11 +54,6 @@ export namespace IAutoMovieConstructionContinuation {
    *
    * Engine admission: `rail` positive and finite and inside the part's domain; `count` a multiple of 4 of at least 8; `rows` a positive
    * integer.
-   *
-   * @evidence contracts/development/design.md#principled-representation The band is the split's join strip between each side's own 2-jet across its ring (Hartmann 2001, parametric G^n blending), here with one stretch round the whole ring and no seam, so two faces of any orders meet G2 without either being re-expressed in the other's sections.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A rail depth, the columns, the rows and how the rail is matched: the strip's existing inputs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The rail is an authored depth, not searched; a rail outside the part's domain is a diagnostic, never clamped.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field, its unit and its admission.
    */
   export interface IBand {
     /** The rail's distance from the part's end into the part along its station, metres, positive: the part keeps the stations beyond it. */

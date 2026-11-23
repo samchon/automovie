@@ -207,7 +207,6 @@ function physical(
     gravity: { x: 0, y: -9.81, z: 0 },
     floor: 0,
     substeps: 32,
-    iterations: 64,
   });
   return input;
 }
@@ -274,7 +273,7 @@ function measure(
   };
 }
 
-/** Fit the public settled Stand once, as test_human_motion_stand_support_geometry does. */
+/** Fit the public settled Stand once, as test_motion_support_stand_support_geometry does. */
 function stand(
   human: IAutoMovieMotionHumanBody,
 ): Record<string, IAutoMovieRigidTransform> {
@@ -282,7 +281,7 @@ function stand(
   const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
     "physical-authored-locomotion",
     [{ subject: profile.id, body: human }],
-    HumanChain.subject(profile.id).stand({ seconds: 1, sway: 0 }),
+    HumanChain.subject(profile.id).stand({ hold: 1, sway: 0 }),
   );
   const settled: number = motionHumanLaw.event(film, "settled", profile.id);
   const bones: motionHumanLaw.Bones = film.bones(

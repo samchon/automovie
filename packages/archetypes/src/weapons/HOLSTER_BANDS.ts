@@ -1,4 +1,8 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createHolster } from "./createHolster";
 
 /** What no scabbard maker read gives. */
@@ -17,74 +21,80 @@ const BOX: string =
 export const HOLSTER_BANDS: Readonly<
   Record<
     createHolster.Kind,
-    Readonly<Partial<Record<createHolster.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createHolster.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   holster: {
-    depth: ArchetypeBand.of(
+    depth: AutoMovieArchetypeBand.of(
       "m",
       0.12,
       0.16,
       "pouch depth for a 102 to 119 mm barrel, an estimate",
       true,
     ),
-    mass: ArchetypeBand.of("kg", 0.15, 0.3, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      0.15,
+      0.3,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   scabbard: {
-    thickness: ArchetypeBand.metres(0.015, 0.025, UNREAD, true),
-    mass: ArchetypeBand.of("kg", 0.3, 0.6, UNREAD, true),
+    thickness: AutoMovieArchetypeBand.metres(0.015, 0.025, UNREAD, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.3, 0.6, UNREAD, true),
   },
   sheath: {
-    thickness: ArchetypeBand.metres(0.012, 0.02, UNREAD, true),
-    mass: ArchetypeBand.of("kg", 0.05, 0.15, UNREAD, true),
+    thickness: AutoMovieArchetypeBand.metres(0.012, 0.02, UNREAD, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.05, 0.15, UNREAD, true),
   },
   quiver: {
-    length: ArchetypeBand.metres(
-      18 * ArchetypeUnits.INCH,
-      22.5 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      18 * AutoMovieArchetypeUnits.INCH,
+      22.5 * AutoMovieArchetypeUnits.INCH,
       QUIVER,
       true,
     ),
-    diameter: ArchetypeBand.metres(
-      3.5 * ArchetypeUnits.INCH,
-      3.5 * ArchetypeUnits.INCH,
+    diameter: AutoMovieArchetypeBand.metres(
+      3.5 * AutoMovieArchetypeUnits.INCH,
+      3.5 * AutoMovieArchetypeUnits.INCH,
       QUIVER,
       true,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       0.62,
-      1.5 * ArchetypeUnits.POUND,
+      1.5 * AutoMovieArchetypeUnits.POUND,
       QUIVER,
       true,
     ),
   },
   pouch: {
-    length: ArchetypeBand.metres(
-      7.7 * ArchetypeUnits.INCH,
-      7.7 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      7.7 * AutoMovieArchetypeUnits.INCH,
+      7.7 * AutoMovieArchetypeUnits.INCH,
       BOX,
     ),
-    thickness: ArchetypeBand.metres(
-      1.6 * ArchetypeUnits.INCH,
-      1.6 * ArchetypeUnits.INCH,
+    thickness: AutoMovieArchetypeBand.metres(
+      1.6 * AutoMovieArchetypeUnits.INCH,
+      1.6 * AutoMovieArchetypeUnits.INCH,
       BOX,
     ),
-    depth: ArchetypeBand.metres(
-      5.8 * ArchetypeUnits.INCH,
-      5.8 * ArchetypeUnits.INCH,
+    depth: AutoMovieArchetypeBand.metres(
+      5.8 * AutoMovieArchetypeUnits.INCH,
+      5.8 * AutoMovieArchetypeUnits.INCH,
       BOX,
     ),
-    width: ArchetypeBand.metres(
-      8.5 * ArchetypeUnits.INCH,
-      8.5 * ArchetypeUnits.INCH,
+    width: AutoMovieArchetypeBand.metres(
+      8.5 * AutoMovieArchetypeUnits.INCH,
+      8.5 * AutoMovieArchetypeUnits.INCH,
       `${BOX}: the flap's width at its bottom`,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       0.3,
       0.6,
-      `${ArchetypeBand.TYPICAL_MASS}: an empty leather box with its two tins, an estimate; no empty weight is given (searched: the 1841, 1850 and 1861 Ordnance Manuals, Colonial Williamsburg; records-cartridge-pouch.md)`,
+      `${AutoMovieArchetypeBand.TYPICAL_MASS}: an empty leather box with its two tins, an estimate; no empty weight is given (searched: the 1841, 1850 and 1861 Ordnance Manuals, Colonial Williamsburg; records-cartridge-pouch.md)`,
       true,
     ),
   },

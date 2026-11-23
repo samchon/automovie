@@ -7,11 +7,6 @@ import type { IAutoMovieVector3 } from "../../geometry/IAutoMovieVector3";
  * The target is named, never placed: its world point is read from the target
  * subject's actual pose when the goal resolves, frozen at the window's start
  * (`freeze`) or followed through the window (`track`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation Separates bone-local effector coordinates from world arrival direction and film-time target sampling.
- * @evidence contracts/development/design.md#principled-representation freeze samples the target at the inclusive window start and track at the requested active second; callers supply ordered finite times and coherent unit directions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface resolveAutoMovieRelationalGoal resolves subject/region ids and forwards point and optional paired-direction goals to whole-body fitting.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Direction fitting requires both approach and localDirection; either field alone is admitted but leaves only point fitting active.
  */
 export interface IAutoMovieRelationalGoal {
   /** The performer's effector: a segment and a point and outward direction in its frame. */

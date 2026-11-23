@@ -38,6 +38,5 @@ export * from "./resolveAutoMovieSemanticMask";
 export * from "./resolveAutoMovieShadowProfile";
 export * from "./sealAutoMovieRenderTarget";
 export * from "./sumAutoMovieRenderTextureAllocations";
-export * from "./texturesOf";
 export * from "./utf8Bytes";
 export * from "./verifyAutoMovieSemanticMask";

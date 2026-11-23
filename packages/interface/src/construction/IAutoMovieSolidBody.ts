@@ -8,20 +8,10 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * Mutable multi-face solid assembly, merge outcomes and serialized boundaries.
- *
- * @evidence contracts/development/design.md#principled-representation Body faces retain original surface charts while shared mesh IDs and neighbor cycles connect their boundaries.
- * @evidence contracts/development/design.md#minimal-and-owned-surface SolidBody creates, draws and publishes this state; BodyMerge owns atlas snapshots and merge/diff updates.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Assembly records are not certificates of closure or manifoldness; callers preserve source/chart ownership and the append-only mutation protocol.
- * @evidence contracts/development/common.md#meaningful-documentation Distinguishes live body ownership, sampled grids and serialized source addresses.
  */
 export namespace IAutoMovieSolidBody {
   /**
    * One face.
-   *
-   * @evidence contracts/development/design.md#principled-representation A borrowed surface, tessellation grid and mutable trim cycles describe one body face with an optional cutter orientation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One record keeps source geometry and current chart boundaries together while shared vertices remain in the body's mesh.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record validates neither grid order nor boundary correspondence, regularity or inclusive cycle ownership.
-   * @evidence contracts/development/common.md#meaningful-documentation Fields identify chart grids, cycle ownership and the optional inward cutter flag.
    */
   export interface IFace {
     /** Borrowed analytic surface; keep its geometry and chart identity stable while the face or an atlas snapshot retains it. */
@@ -57,11 +47,6 @@ export namespace IAutoMovieSolidBody {
 
   /**
    * The body.
-   *
-   * @evidence contracts/development/design.md#principled-representation Faces share one indexed mesh, while the original blend publications identify the surfaces later joins can use.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One mutable aggregate holds assembly order and its published geometric records.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type proves no manifoldness, closure or mutation safety; draw appends to the current buffers rather than resetting them.
-   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish face, mesh and publication ownership.
    */
   export interface IBody {
     /** Name in diagnostics. */
@@ -79,11 +64,6 @@ export namespace IAutoMovieSolidBody {
 
   /**
    * A face to add, before it has cycles.
-   *
-   * @evidence contracts/development/design.md#principled-representation A surface and two chart grids describe a face before assembly supplies its cycles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the same surface/grid meanings as the eventual face without pretending it already owns trims.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Finite ordered grids and an appropriate source surface remain caller premises, not validated by the shape.
-   * @evidence contracts/development/common.md#meaningful-documentation States that grid coordinates belong to the source surface chart.
    */
   export interface IFaceInput {
     /** Borrowed source surface retained by create or merge; it is not cloned. */
@@ -98,11 +78,6 @@ export namespace IAutoMovieSolidBody {
 
   /**
    * One merge or diff onto the body.
-   *
-   * @evidence contracts/development/design.md#principled-representation One request names merge/diff, an existing or new part and the original join/publication grid inputs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Separates body face ownership from the join's surfaces by omitting part/host in the borrowed join request.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Valid indices, count/rows and callbacks remain caller/operator premises; the type adds no numeric fallback.
-   * @evidence contracts/development/common.md#meaningful-documentation States index versus descriptor input, column/row meaning and original callback ownership.
    */
   export interface IMerge {
     /** The blend chain's name. */
@@ -126,11 +101,6 @@ export namespace IAutoMovieSolidBody {
 
   /**
    * A merge's outcome.
-   *
-   * @evidence contracts/development/design.md#principled-representation A nullable blend/join pair and ordered diagnostics report the original body operation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps failure information with the exact accepted join and publication without inferring success from empty diagnostics.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The shape does not turn a thrown callback into a returned rollback result or certify global geometry.
-   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish nullable geometry from diagnostics.
    */
   export interface IMerged {
     /** The published blend, or null when a premise broke. */
@@ -150,11 +120,6 @@ export namespace IAutoMovieSolidBody {
    * cycles as indices into those points. The skin (`AutoMovieHumanBodySurfaceSolids`)
    * makes one vertex per point, so the faces share their boundaries as the
    * body does.
-   *
-   * @evidence contracts/development/design.md#principled-representation Renumbers shared cycle vertex indices into boundary point identities and names each evaluating chain/chart.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A serializable boundary projection omits surface callbacks and full interior tessellation buffers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Preserves domain versus cut roles through serialization; carries inversion without proving closed topology, standalone source availability or repaired geometry.
-   * @evidence contracts/development/common.md#meaningful-documentation States chain/chart correspondence and that faces reference shared point identifiers.
    */
   export interface IPublished {
     /** Name in diagnostics. */
@@ -209,11 +174,6 @@ export namespace IAutoMovieSolidBody {
    * The atlas snapshots cycle data and source-atlas address records, while
    * surface functions and cycle along callbacks remain borrowed. The index
    * array translates the compact atlas face order back into the body.
-   *
-   * @evidence contracts/development/design.md#principled-representation Separates compact solver face indices from mutable body assembly indices without changing any surface chart units.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface BodyMerge passes the atlas to joins and the reverse index to rail clipping.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The snapshot isolates later cycle edits but cannot isolate mutations to borrowed surfaces or callbacks.
-   * @evidence contracts/development/common.md#meaningful-documentation States index direction and copied versus retained dependencies.
    */
   export type IAtlasResult = {
     /** Atlas of all included body faces with cycle state captured at construction. */

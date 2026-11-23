@@ -4,11 +4,6 @@ import type { IAutoMoviePrepareBicubicAtlasBoundary64Binding } from "./IAutoMovi
 
 /**
  * Canonical boundary coefficient identities and shared position evaluation state.
- *
- * @evidence contracts/development/design.md#principled-representation Exact normalized authority phases and declared control identities index shared millimetre coefficient positions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IResult connects canonical boundary preparation to atlas planning, registry and emission.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Inconsistent constructed assignments remain conflicts; equal positions never manufacture authority identity.
- * @evidence contracts/development/common.md#meaningful-documentation The result states input borrowing, cache aliases, callback premises and incident-patch omission.
  */
 export namespace IAutoMoviePrepareBicubicAtlasBoundary64 {
   /**
@@ -24,11 +19,6 @@ export namespace IAutoMoviePrepareBicubicAtlasBoundary64 {
    * Maps and cached tuples are shared implementation state; preserve them until
    * the entire atlas run is complete. Conflicts are reported without a replacement
    * assignment and cause incident patch omission in the planning consumer.
-   *
-   * @evidence contracts/development/design.md#principled-representation Directed normalized authority intervals constrain millimetre coefficients while equivalence roots identify endpoints independently of position equality.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Boundary preparation supplies one registry to atlas planning, incidence registration and vertex emission rather than duplicating authority evaluation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Exact disagreement marks coefficient identities as conflicting; matching finite coordinates never create an undeclared authority relation.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines borrowed controls, mutable cache aliases, key formats, callback premises and conflict propagation.
    */
   export type IResult = {
     /** Authority ID to its four borrowed cubic control IDs in input.controlsMm; the map is new, but control-ID arrays are not cloned. */
@@ -39,27 +29,11 @@ export namespace IAutoMoviePrepareBicubicAtlasBoundary64 {
 
     /**
      * Resolve a control:id or authority:name:phaseKey identity to its equivalence representative, path-compressing the private alias map. An unrelated key returns unchanged; this callback performs no admission.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States canonical key forms, representative resolution, path-compression effects and unchanged unrelated keys without repeated admission.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; prepareAutoMovieBicubicAtlasBoundary64's identity and position-cache closures own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; prepareAutoMovieBicubicAtlasBoundary64's identity and position-cache closures own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by prepareAutoMovieBicubicAtlasBoundary64's identity and position-cache closures.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; prepareAutoMovieBicubicAtlasBoundary64's identity and position-cache closures own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; prepareAutoMovieBicubicAtlasBoundary64's identity and position-cache closures decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; prepareAutoMovieBicubicAtlasBoundary64's identity and position-cache closures own references retained by the supplied callable.
      */
     root: (key: string) => string;
 
     /**
      * Return the shared cached millimetre point for an admitted authority and exact canonical phase. Missing authority/key admission is a caller error; evaluation exceptions propagate. The returned tuple aliases positions and must not be mutated.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States admitted authority/phase inputs, millimetre units, shared cached tuple identity, immutability and propagated evaluation failure.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; prepareAutoMovieBicubicAtlasBoundary64's identity and position-cache closures own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; prepareAutoMovieBicubicAtlasBoundary64's identity and position-cache closures own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by prepareAutoMovieBicubicAtlasBoundary64's identity and position-cache closures.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; prepareAutoMovieBicubicAtlasBoundary64's identity and position-cache closures own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; prepareAutoMovieBicubicAtlasBoundary64's identity and position-cache closures decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; prepareAutoMovieBicubicAtlasBoundary64's identity and position-cache closures own references retained by the supplied callable.
      */
     canonicalPoint: (
       authority: string,

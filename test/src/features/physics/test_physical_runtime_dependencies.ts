@@ -1,4 +1,5 @@
 import {
+  AutoMovieXpbdWorld,
   PhysicalTargetInterval as Interval,
   Quaternion,
   Vector3,
@@ -20,7 +21,6 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
-import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -34,7 +34,7 @@ import { vclose } from "../internal/vclose";
  * Scenarios:
  * 1. Prepared coefficients match the original arithmetic, detect in-place edits, and return independent mutable vectors.
  * 2. Fitted intervals invalidate replaced/edited endpoints and altered interval clocks.
- * 3. One real native scene refresh owns only changed transforms; prior snapshots and unchanged branches survive.
+ * 3. One real solver-world scene refresh owns only changed transforms; prior snapshots and unchanged branches survive.
  * 4. A transformed support branch whose endpoint task has no null space carries its prior local correction through an authored turn without moving unrelated ancestors.
  * 5. Direct support-chain fitting detaches its written descendants while preserving an unrelated root and the input snapshot.
  *
@@ -108,9 +108,12 @@ export async function test_physical_runtime_dependencies(): Promise<void> {
       vclose(intervalActual.velocity, intervalExpected.velocity),
   );
 
-  await RAPIER.init();
-  const world: World = new RAPIER.World({ x: 0, y: 0, z: 0 });
-  try {
+  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({
+    x: 0,
+    y: 0,
+    z: 0,
+  });
+  {
     const profile: P = PhysicalPointFixtures.profile();
     const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       "assembly",
@@ -130,7 +133,7 @@ export async function test_physical_runtime_dependencies(): Promise<void> {
     bound.segments
       .get(body.id)!
       .get("carrier")!
-      .setTranslation({ x: 0.4, y: 1, z: 0 }, true);
+      .setTranslation({ x: 0.4, y: 1, z: 0 });
     const updated: typeof scene = readPhysicalScene(bound, scene, body.id);
     assert.equal(JSON.stringify(scene), original);
     assert.notEqual(updated.assembly!.carrier, scene.assembly!.carrier);
@@ -272,7 +275,5 @@ export async function test_physical_runtime_dependencies(): Promise<void> {
     );
     assert.equal(fitted.targets.root, current.root);
     assert.equal(JSON.stringify({ poses, current, prior }), unchanged);
-  } finally {
-    world.free();
   }
 }

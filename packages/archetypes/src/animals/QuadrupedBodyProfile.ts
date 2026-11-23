@@ -1,5 +1,6 @@
-import { ArchetypeUnits } from "../core";
-import type { QuadrupedBody } from "./QuadrupedBody";
+import { AutoMovieArchetypeUnits } from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { QuadrupedProportions } from "./QuadrupedProportions";
 
 /**
  * Map one declared coarse shape into the quadruped's shared rigid-bar format.
@@ -9,16 +10,16 @@ import type { QuadrupedBody } from "./QuadrupedBody";
  * owner only performs the common geometry: circular girth, trigonometric
  * control projections, an exact withers apex, a head capsule of the requested
  * total axial length, and a distinct hip-to-rump run behind the trunk.
- * Directions are the initial authored conformation. QuadrupedBody owns the
- * subsequent explicit neutral connection to its actual parent solids; it does
+ * Directions are the initial authored conformation. AutoMovieArchetypeQuadrupedBody owns the
+ * subsequent explicit neutral connection to its parent solids; it does
  * not change these reference measurements or infer measured joint anatomy.
  *
  * @param props Reference shape, four controls per limb, authored construction, colors and optional admitted instance height.
- * @returns Fresh dimensionless body controls, with metre lateral inset for the actual height.
+ * @returns Fresh dimensionless body controls, with metre lateral inset for the height.
  * @throws {RangeError} For invalid/nonfinite dimensions, impossible capsule/trunk extents, invalid construction ratios or unrepresentable normalized output.
  * @evidence contracts/development/common.md#meaningful-documentation Defines reference/instance metres, control directions, circular/capsule interpretations, producer-owned provenance, resource ownership and refusals; no anatomical or visual result is asserted.
- * @evidence contracts/development/implementation.md#principled-implementation Divide lengths by reference height and project straight controls with sine/cosine. A radius-w withers sphere centered at height-w reaches exactly height. Removing both head caps from its total axial length gives the actual bar span; reserving a positive pelvic run avoids a zero-length hindquarters bar.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit source and construction scalars, derive the common controls once, then return the existing body representation to all three actual species adapters.
+ * @evidence contracts/development/implementation.md#principled-implementation Divide lengths by reference height and project straight controls with sine/cosine. A radius-w withers sphere centered at height-w reaches exactly height. Removing both head caps from its total axial length gives the bar span; reserving a positive pelvic run avoids a zero-length hindquarters bar.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit source and construction scalars, derive the common controls once, then return the existing body representation to all three species adapters.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species branch, borrowed horse profile, measured-pose claim, fitted patch, arbitrary numeric fallback or physical coefficient is supplied. The source adapter declares every measurement transfer and authored estimate.
  * @evidence contracts/development/implementation.md#efficient-algorithms Admission and construction each inspect a fixed number of scalars and eight limb controls; O(1) time/space and no mesh generation, geometry search or iterative numerical solve occurs.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One shared mapping serves ox, camel and deer. Immutable-in-type source data is read directly, and fresh arrays/records prevent a result mutation from changing source choices or a later result.
@@ -26,7 +27,7 @@ import type { QuadrupedBody } from "./QuadrupedBody";
  */
 export function QuadrupedBodyProfile(
   props: QuadrupedBodyProfile.IProps,
-): QuadrupedBody.IBody {
+): AutoMovieArchetypeQuadrupedBody.IBody {
   const m: QuadrupedBodyProfile.IMeasures = props.measures;
   const c: QuadrupedBodyProfile.IConstruction = props.construction;
   const h: number = m.withers;
@@ -88,17 +89,17 @@ export function QuadrupedBodyProfile(
   const barrel: number = m.girth / (2 * Math.PI);
   const trunk: number = (m.body * (1 - c.pelvisRun) - barrel) / h;
   const buttock: number = m.body / h;
-  const neckPitch: number = c.neckPitch * ArchetypeUnits.DEGREE;
-  const headPitch: number = c.headPitch * ArchetypeUnits.DEGREE;
+  const neckPitch: number = c.neckPitch * AutoMovieArchetypeUnits.DEGREE;
+  const headPitch: number = c.headPitch * AutoMovieArchetypeUnits.DEGREE;
   const headControl: number = m.head - m.headDiameter;
-  const tailPitch: number = c.tailPitch * ArchetypeUnits.DEGREE;
-  const fore: QuadrupedBody.IBody["lengths"]["fore"] = [
+  const tailPitch: number = c.tailPitch * AutoMovieArchetypeUnits.DEGREE;
+  const fore: QuadrupedProportions.LimbValues = [
     props.fore[0] / h,
     props.fore[1] / h,
     props.fore[2] / h,
     props.fore[3] / h,
   ];
-  const hind: QuadrupedBody.IBody["lengths"]["hind"] = [
+  const hind: QuadrupedProportions.LimbValues = [
     props.hind[0] / h,
     props.hind[1] / h,
     props.hind[2] / h,
@@ -150,7 +151,7 @@ export function QuadrupedBodyProfile(
 }
 
 /**
- * Input contracts shared by the actual ox, camel and deer profile adapters.
+ * Input contracts shared by the ox, camel and deer profile adapters.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Every member defines its metre, height fraction, direction or ownership; reference measurements are distinct from authored construction choices.
  * @evidence contracts/development/design.md#principled-representation Four fixed controls per limb and positive SI reference dimensions map to the existing quadruped representation. Runtime admission checks numeric finiteness, positive capsule/trunk spans and construction domains.
@@ -224,7 +225,7 @@ export namespace QuadrupedBodyProfile {
     barRadii: readonly [number, number, number, number];
   }
 
-  /** One caller-normalized shape with actual construction and display inputs. */
+  /** One caller-normalized shape with construction and display inputs. */
   export interface IProps {
     /** SI reference measurements/proxies and their normalization height. */
     measures: IMeasures;
@@ -239,7 +240,7 @@ export namespace QuadrupedBodyProfile {
     construction: IConstruction;
 
     /** Authored display colors; no photometric measurement is implied. */
-    colors: QuadrupedBody.IBody["colors"];
+    colors: Readonly<QuadrupedProportions.IColors>;
 
     /** Admitted instance height in metres, defaulting to the reference height. */
     withersHeight?: number;

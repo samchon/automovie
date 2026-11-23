@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -15,7 +15,7 @@ import {
  * @param params The model, and any dimension the author fixes.
  * @param seed The seed that picks the model when none is given; absent, the first model.
  * @returns The torch.
- * @throws {ArchetypeRefusal} For a model the torch does not have, or a fixed dimension that is the model's own figure.
+ * @throws {AutoMovieArchetypeRefusal} For a model the torch does not have, or a fixed dimension that is the model's own figure.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the torch stands and its three contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A barrel rod of the model's length and diameter and a head rod of the maker's head diameter at its top, the switch a point on the barrel's side below the head.
@@ -28,9 +28,9 @@ import {
 export function createTorch(
   params: createTorch.IParams = {},
   seed?: number | string,
-): Archetype<createTorch.Affordance, createTorch.Dimension> {
-  const draw: ArchetypeDrawSession<createTorch.Dimension> =
-    new ArchetypeDrawSession<createTorch.Dimension>(
+): AutoMovieArchetype<createTorch.Affordance, createTorch.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createTorch.Dimension> =
+    new AutoMovieArchetypeDrawSession<createTorch.Dimension>(
       "torch",
       createTorch.UNITS,
       seed,
@@ -46,10 +46,10 @@ export function createTorch(
     diameter: model.figures.diameter!,
     mass: model.figures.mass!,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createTorch.Affordance,
     createTorch.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "aluminium",
     id: params.id,
     name: "torch",
@@ -73,7 +73,11 @@ export function createTorch(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, barrel / 2, 0), v(0, 0, -1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, barrel / 2, 0),
+      v(0, 0, -1),
+      v(0, 1, 0),
+    ),
     extent: null,
     grip: "power",
     aperture: d.diameter,
@@ -83,13 +87,17 @@ export function createTorch(
     id: "lens",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(v(0, d.length, 0), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, d.length, 0),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
   });
   builder.affordance({
     id: "switch",
     kind: "button",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, barrel - 0.02, r),
       v(0, 0, 1),
       v(0, 1, 0),
@@ -137,7 +145,9 @@ export namespace createTorch {
   export type Dimension = "length" | "diameter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     mass: "kg",

@@ -102,7 +102,8 @@ export namespace AutoMovieMotionHumanAuditRange {
    * (`ANKLE_DORSIFLEXION.loaded`); a foot that bears no weight reaches only
    * the passive, unloaded one (`ANKLE_DORSIFLEXION.unloaded`), read here
    * apart from the range table's one limit for the joint. A foot bears
-   * weight while a plant window on the ground holds it, the windows the
+   * weight while a plant, a pivot or a bearing slide window holds it, on the ground or on a prop or a
+   * person that bears it (a tread, a deck, a partner's hands), the windows the
    * contact audit reads (`AutoMovieMotionHumanAuditMotion.windows`), so a
    * foot's load has one source. At each grid instant each foot outside such a
    * window is read: its dorsiflexion past the unloaded limit overshoots. An
@@ -138,7 +139,9 @@ export namespace AutoMovieMotionHumanAuditRange {
     const plants: IAutoMovieMotionHumanAuditMotion.IWindow[] =
       HumanAuditMotion.windows(motion, subject).filter(
         (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
-          w.contact.kind === "plant" && w.contact.support.kind === "ground",
+          w.contact.kind === "plant" ||
+          w.contact.kind === "pivot" ||
+          w.contact.kind === "bear",
       );
     const bears = (part: "leftFoot" | "rightFoot", seconds: number): boolean =>
       plants.some(

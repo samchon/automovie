@@ -4,11 +4,6 @@ import type { IAutoMovieConstructionOutline } from "./IAutoMovieConstructionOutl
  * Fullness owned by a tube's taut-tape girth: at each station the one common shoulder whose section's convex-hull perimeter is the girth, plus each quarter's departure from it.
  *
  * The perimeter rises from the rhombus `2 sqrt(W^2 + D^2)` toward the rectangle `2 (W + D)` of the box's breadth `W` and depth `D`, so one girth gives one shoulder; a girth outside the shoulders the section can reach keeps the reach's end shape and records one diagnostic naming the part, the station and the numbers.
- *
- * @evidence contracts/development/design.md#principled-representation The taut tape is the convex hull's perimeter, monotone in the shoulder, so the girth is solved by a bracketing root finder rather than by scaling a section about its centre.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One girth curve and an optional set of departures are the whole owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Departures need a published source or a derivation; the record carries them as inputs and never fits them, and an unreachable girth is reported rather than forced.
- * @evidence contracts/development/common.md#meaningful-documentation States the girth's definition, its range in the box, the solve's uniqueness, the out-of-reach effect and the departures' meaning and null.
  */
 export interface IAutoMovieConstructionGirth {
   /** Discriminator. */

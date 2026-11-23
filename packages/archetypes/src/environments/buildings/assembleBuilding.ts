@@ -22,7 +22,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import { buildingDoor } from "./buildingDoor";
 import { buildingModel } from "./buildingModel";
 import type { buildingPlans } from "./buildingPlans";
@@ -51,14 +51,6 @@ interface IAssembly {
 
 /**
  * Lower an admitted upright building plan to normal stage, runtime and anchor records.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes use of the admitted plan, canonical staged set, room support and room and aperture frames.
- * @evidence contracts/development/implementation.md#principled-implementation The floor polygon, exact prism cells and slab share the same region, split walls share both incidences, and opening metadata drives the real wall cut. All world support and anchors are placed from the same upright transform used for visible elements.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Separates room, wall, butt joint and aperture ownership before invoking the existing building lowering gate.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A facade contributes no false interior support. Door fills are the actual aperture dimensions and closed portals have no declared traversal connector.
- * @evidence contracts/development/implementation.md#efficient-algorithms Assembly pays the geometry and topology algorithms of its rooms and apertures, O(E log E) total for small joint hulls, and existing validation at lowering. The measured mesh kernels own their own complexity.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses one admitted region for plan, enclosure and slab; independent live nodes preserve their own instance identity.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The flat result is bounded by planned room edges, apertures, levels, mesh tessellation and zone names. Returns caller-owned records without handles or an assembly cache.
  */
 export function assembleBuilding(
   plan: buildingPlans.IPlan,
@@ -129,14 +121,16 @@ export function assembleBuilding(
     }
     for (const stair of plan.stairs) {
       emitBuildingStair(assembly.environment, ROOT, context.frame, stair);
-      assembly.anchors[`stairs/${stair.id}/from`] = ArchetypeFrame.compose(
-        context.frame,
-        frame(stair.endpoints[0]),
-      );
-      assembly.anchors[`stairs/${stair.id}/to`] = ArchetypeFrame.compose(
-        context.frame,
-        frame(stair.endpoints[1]),
-      );
+      assembly.anchors[`stairs/${stair.id}/from`] =
+        AutoMovieArchetypeFrame.compose(
+          context.frame,
+          frame(stair.endpoints[0]),
+        );
+      assembly.anchors[`stairs/${stair.id}/to`] =
+        AutoMovieArchetypeFrame.compose(
+          context.frame,
+          frame(stair.endpoints[1]),
+        );
     }
   }
   return {
@@ -166,7 +160,7 @@ function addWall(
       Math.atan2(-dz, dx) / Quaternion.DEG2RAD,
     ),
   );
-  const world: IAutoMovieTransform = ArchetypeFrame.compose(
+  const world: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     context.frame,
     local,
   );
@@ -193,7 +187,7 @@ function addWall(
     assembly.environment,
     id,
   );
-  const center: IAutoMovieTransform = ArchetypeFrame.compose(
+  const center: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     local,
     frame(Vector3.create(width / 2, level.height / 2, 0)),
   );
@@ -261,11 +255,11 @@ function addOpening(
   const facing: IAutoMovieQuaternion = turn
     ? Quaternion.fromAxisAngle(Vector3.create(0, 1, 0), 180)
     : Quaternion.identity();
-  const datum: IAutoMovieTransform = ArchetypeFrame.compose(
+  const datum: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     local,
     frame(Vector3.create(center, sill, 0), facing),
   );
-  const world: IAutoMovieTransform = ArchetypeFrame.compose(
+  const world: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     context.frame,
     datum,
   );
@@ -279,10 +273,8 @@ function addOpening(
       ["right", clearCenter + clearWidth / 2, 0],
       ["head", clearCenter, clearHeight],
     ] as const)
-      assembly.anchors[`${leafKey}/clear/${edge}`] = ArchetypeFrame.compose(
-        world,
-        frame(Vector3.create(x, y, 0)),
-      );
+      assembly.anchors[`${leafKey}/clear/${edge}`] =
+        AutoMovieArchetypeFrame.compose(world, frame(Vector3.create(x, y, 0)));
   assembly.environment.openings.push({
     id: leafKey,
     kind: opening.kind,
@@ -305,7 +297,7 @@ function addOpening(
       leafKey,
       "door leaf",
       room,
-      ArchetypeFrame.compose(datum, frame(door.pivot)),
+      AutoMovieArchetypeFrame.compose(datum, frame(door.pivot)),
       door.leaf,
     );
     assembly.props.push({ node: id, model: door.leaf, articulation: null });

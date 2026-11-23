@@ -8,11 +8,6 @@ import type { IAutoMoviePreparePhysicalGeometry } from "./IAutoMoviePreparePhysi
 
 /**
  * One bounded articulation fit for explicit contacts, supports and optional avoidance.
- *
- * @evidence contracts/development/design.md#principled-representation Actual receiver geometry, original supports and floor/avoidance rows contribute to one measured residual vector while the source root is rebased to its actual pose.
- * @evidence contracts/development/design.md#minimal-and-owned-surface planPhysicalContactTargets composes existing geometry queries and articulation rows rather than adding native dynamics to the input. planPhysicalContactTargets allocates target and residual records for the tracking caller; ids retain the original relationships.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Bounded fitting preserves unmet intent rather than generating a contact receipt; self/floor constraints have no per-binding result row and an empty residual map alone is not proof of success.
- * @evidence contracts/development/common.md#meaningful-documentation Explains simultaneous actual receivers, original support promises and shared residual budgets. Identifies coherent motor poses and binding-attributed residuals after a bounded fit.
  */
 export namespace IAutoMoviePlanPhysicalContactTargets {
   /**
@@ -21,11 +16,6 @@ export namespace IAutoMoviePlanPhysicalContactTargets {
    * vector. The root stays at its actual pose; joint limits and anchors remain
    * intact. No actual body, impulse or receipt changes. Unreachable intent remains
    * a residual, rather than becoming a claimed successful contact.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Explains simultaneous actual receivers, original support promises and shared residual budgets.
-   * @evidence contracts/development/design.md#principled-representation Canonical bindings and point bounds select relationship tasks over world poses; floor and residual tolerance are metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface planPhysicalContactTargets composes existing geometry queries and articulation rows rather than adding native dynamics to the input.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional avoidance/supports add only declared tasks; unreachable relationships remain residuals without changing receipts or actual poses.
    */
   export type IInput = {
     /** Source scene identity. */ body: string;
@@ -55,11 +45,6 @@ export namespace IAutoMoviePlanPhysicalContactTargets {
    * vector. The root stays at its actual pose; joint limits and anchors remain
    * intact. No actual body, impulse or receipt changes. Unreachable intent remains
    * a residual, rather than becoming a claimed successful contact.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies coherent motor poses and binding-attributed residuals after a bounded fit.
-   * @evidence contracts/development/design.md#principled-representation World-metre/unit-quaternion transforms retain the actual root; residual norms use metres with binding weights included.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface planPhysicalContactTargets allocates target and residual records for the tracking caller; ids retain the original relationships.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Floor/self rows are not entries in the residual map, and an empty map with no selected joints is not proof every relationship succeeded.
    */
   export type IResult = {
     /** Coherent fitted world motor poses with the root at its actual pose; no physical teleport. */

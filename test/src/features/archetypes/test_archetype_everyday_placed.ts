@@ -1,6 +1,6 @@
 import {
-  ArchetypeUnits,
-  type Archetype,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeUnits,
   createCareItem,
   createCleaning,
   createHolster,
@@ -37,7 +37,7 @@ export function test_archetype_everyday_placed(): void {
   const kinds = <Kind extends string>(
     name: string,
     all: readonly Kind[],
-    make: (kind: Kind) => Archetype,
+    make: (kind: Kind) => AutoMovieArchetype,
     yaw: number,
   ): archetypePlaced.IRow[] =>
     all.map(
@@ -62,31 +62,34 @@ export function test_archetype_everyday_placed(): void {
     ...kinds(
       "vessel",
       createVessel.KINDS,
-      (kind: createVessel.Kind): Archetype => createVessel({ kind }),
+      (kind: createVessel.Kind): AutoMovieArchetype => createVessel({ kind }),
       60,
     ),
     ...kinds(
       "wearable",
       createWearable.KINDS,
-      (kind: createWearable.Kind): Archetype => createWearable({ kind }),
+      (kind: createWearable.Kind): AutoMovieArchetype =>
+        createWearable({ kind }),
       80,
     ),
     ...kinds(
       "keyboard",
       createKeyboard.KINDS,
-      (kind: createKeyboard.Kind): Archetype => createKeyboard({ kind }),
+      (kind: createKeyboard.Kind): AutoMovieArchetype =>
+        createKeyboard({ kind }),
       100,
     ),
     ...kinds(
       "cleaning",
       createCleaning.KINDS,
-      (kind: createCleaning.Kind): Archetype => createCleaning({ kind }),
+      (kind: createCleaning.Kind): AutoMovieArchetype =>
+        createCleaning({ kind }),
       120,
     ),
     ...kinds(
       "tray",
       createTray.KINDS,
-      (kind: createTray.Kind): Archetype => createTray({ kind }),
+      (kind: createTray.Kind): AutoMovieArchetype => createTray({ kind }),
       140,
     ),
     { name: "torch", archetype: createTorch(), yaw: 160 },
@@ -94,13 +97,14 @@ export function test_archetype_everyday_placed(): void {
     ...kinds(
       "holster",
       ["scabbard", "sheath", "quiver"] as const,
-      (kind: createHolster.Kind): Archetype => createHolster({ kind }),
+      (kind: createHolster.Kind): AutoMovieArchetype => createHolster({ kind }),
       200,
     ),
     ...kinds(
       "weaponLoop",
       createWeaponLoop.KINDS,
-      (kind: createWeaponLoop.Kind): Archetype => createWeaponLoop({ kind }),
+      (kind: createWeaponLoop.Kind): AutoMovieArchetype =>
+        createWeaponLoop({ kind }),
       220,
     ),
     { name: "weaponRack", archetype: createWeaponRack(), yaw: 240 },
@@ -125,7 +129,7 @@ export function test_archetype_everyday_placed(): void {
       row(
         "razor length",
         0.129,
-        5.4 * ArchetypeUnits.INCH,
+        5.4 * AutoMovieArchetypeUnits.INCH,
         "Mach3 razors, 129 mm and 5.4 in",
         (seed: number): number =>
           archetypeExtent(createCareItem({ kind: "razor" }, seed), "z").size,
@@ -156,8 +160,8 @@ export function test_archetype_everyday_placed(): void {
       ),
       row(
         "pram handle height",
-        41.3 * ArchetypeUnits.INCH,
-        41.3 * ArchetypeUnits.INCH,
+        41.3 * AutoMovieArchetypeUnits.INCH,
+        41.3 * AutoMovieArchetypeUnits.INCH,
         "Bugaboo Fox 5, 41.3 in open",
         (seed: number): number =>
           createPram({}, seed).affordance("handle").frame.translation.y,

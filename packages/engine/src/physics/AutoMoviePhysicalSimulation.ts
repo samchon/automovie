@@ -6,14 +6,11 @@ import type {
   IAutoMoviePhysicsCache,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import RAPIER, {
-  type PhysicsHooks,
-  type RigidBody,
-  type World,
-} from "@dimforge/rapier3d-compat";
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
 import type { IPhysicalCoupledTargetSchedule } from "./IPhysicalCoupledTargetSchedule";
@@ -26,7 +23,6 @@ import { computePhysicalKinematicFrames } from "./computePhysicalKinematicFrames
 import { freezePhysicalRecord } from "./freezePhysicalRecord";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
 import { physicalInputDigest } from "./physicalInputDigest";
-import { physicalNativeVector } from "./physicalNativeVector";
 import { preparePhysicalContactHooks } from "./preparePhysicalContactHooks";
 import { preparePhysicalCoupledTargetSchedule } from "./preparePhysicalCoupledTargetSchedule";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
@@ -36,33 +32,26 @@ import { restorePhysicalSimulationCheckpoint } from "./restorePhysicalSimulation
 import { samplePhysicalTracking } from "./samplePhysicalTracking";
 import { samplePhysicalTrackingTarget } from "./samplePhysicalTrackingTarget";
 import { solvePhysicalCompliantContacts as solveCompliance } from "./solvePhysicalCompliantContacts";
+import type { solveXpbdContacts } from "./solveXpbdContacts";
 import { trackPhysicalWorld } from "./trackPhysicalWorld";
 import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
 
 /**
  * Precompute fixed-step physics, then replay by time. Inputs are sampled bytes,
- * not callbacks hidden behind a cache key. The run frees its assigned WASM
- * World and event queue on exit; restoration allocates before that transfer.
+ * not callbacks hidden behind a cache key. The run steps its own in-house extended position-based dynamics world, which lives only for the run.
  * A late edit reuses a checkpoint only after every earlier input matches;
  * changed geometry, solver settings or modes require a complete restart.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents sampled-input ownership, checkpoint reuse conditions and native-world release; public results retain replay data, recomputed-step counts and tracking diagnostics for the completed run.
- * @evidence contracts/development/design.md#principled-representation Represents a completed fixed-step simulation over film seconds and SI physical inputs. The private constructor follows admission and execution; the run path validates and owns the input snapshot before allocating native state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Engine owns simulation and checkpoint admission while interface owns input, diagnostic and replay contracts. Retained input and step counts support equivalence checks and incremental-run accounting.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Sampled body and profile data carry variation instead of scene-specific members. Public readonly fields prevent reassignment, not mutation of every nested record; callers must preserve the admitted snapshot when requesting checkpoint reuse.
  */
 export class AutoMoviePhysicalSimulation {
-  /** Share the one asynchronous WASM initialization, including concurrent callers. */
-  private static initialization: Promise<void> | undefined;
   /** Own the immutable input snapshot needed to verify checkpoint equivalence. */
   private constructor(
     /** Owned sampled inputs establishing checkpoint equivalence. */
     public readonly input: IAutoMoviePhysicalSimulationInput.IInput,
     /** Complete replay state. */
     public readonly cache: IAutoMoviePhysicsCache,
-    /** Native fixed steps performed by this run. */
+    /** Fixed steps performed by this run. */
     public readonly recomputedSteps: number,
-    /** Pre-solve PD demands exceeding the native enforced motor torque cap. */
+    /** Pre-solve PD demands exceeding the enforced motor torque cap. */
     public readonly tracking: IAutoMoviePhysicalSimulationInput.IDiagnostic[],
     /** Converged coupled-group target fits by output step and group id; omitted when no target declares a group. */
     public readonly coupledTargetFits?: IAutoMoviePhysicalCoupledTargetFit.ISeries,
@@ -73,15 +62,7 @@ export class AutoMoviePhysicalSimulation {
    *
    * Errors are shortest relative-rotation distances in radians. Saturation
    * lists are the last completed step's pre-solve torque-cap forecasts, not
-   * measured native motor impulses. Invalid time is rejected by cache.at.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes radian joint error from cap forecasts and records the cached-time failure boundary.
-   * @evidence contracts/development/implementation.md#principled-implementation samplePhysicalTracking samples the cached pose and authored targets, compares joint-frame relative rotations and selects forecasts from floor(seconds*rate)/rate.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates target interpolation, cached-pose sampling and quaternion operations to their existing owners; the simulation supplies its admitted inputs and retained diagnostics.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Recovery may intentionally depart from authored goals; reported error is not hidden by replacing the authored reference, and forecasts are not relabeled as measured torque.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For s segments, j joints and d retained diagnostics, cache/target sampling and comparison take O(s+j+d) work plus copied saturation entries, with transient maps and an O(j) result.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the completed cache and recorded forecasts without rerunning the solver. Dense arbitrary-time errors are computed on demand rather than retained for every film sample.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The simulation owns inputs/cache/forecast history; the query returns new diagnostic records and copies saturation lists, retaining no query result or native resource.
+   * measured motor impulses. Invalid time is rejected by cache.at.
    */
   public trackingAt(
     seconds: number,
@@ -99,15 +80,7 @@ export class AutoMoviePhysicalSimulation {
    *
    * Clones the input, supplies the same defaults as compute and rejects invalid
    * physical settings/targets before hashing. The digest includes cache policy
-   * and solver-version identity; this path initializes no native solver.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States defensive ownership, shared defaults/admission, digest scope and the solver-free boundary.
-   * @evidence contracts/development/implementation.md#principled-implementation admitted clones, defaults, validates and freezes the physical input; physicalInputDigest canonicalizes all admitted data and hashes it with the protocol and pinned solver version.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Identity and compute call the same admitted boundary and digest owner, so omitted defaults do not create a different runtime interpretation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The key derives from actual profiles, settings, impulses and sampled targets, not an edit timestamp or caller-asserted manifest.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Work includes cloning/freezing the input, full physical admission, target canonicalization/hashing and final metadata hashing; sizes of sampled targets, profiles and impulses drive cost. Canonicalization sorts object keys and admission may scan referenced populations.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The digest owner hashes each identical target object once within the cloned graph using a call-local Map; distinct equal objects are still hashed separately. No digest is cached across independently mutable input arguments.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owned snapshot, canonical strings and target-digest Map live only for this synchronous call; only the digest string escapes, with no native solver allocation.
+   * and solver-version identity; this path builds no solver world.
    */
   public static identity(
     input: IAutoMoviePhysicalSimulationInput.IInput,
@@ -126,7 +99,7 @@ export class AutoMoviePhysicalSimulation {
     const owned: IAutoMoviePhysicalSimulationInput.IInput =
       structuredClone(input);
     if (owned.substeps === undefined) owned.substeps = 16;
-    if (owned.internalIterations === undefined) owned.internalIterations = 1;
+
     if (owned.contactTolerance === undefined) owned.contactTolerance = 0.0001;
     if (owned.contactFrequency === undefined) owned.contactFrequency = 240;
     for (const body of owned.bodies) {
@@ -135,7 +108,9 @@ export class AutoMoviePhysicalSimulation {
       if (body.handoffLimits === undefined)
         body.handoffLimits = {
           maximumLinearError: owned.contactTolerance,
-          maximumJointViolation: 64 * 2 ** -23,
+          // Post-stabilization at return entry projects each joint exactly,
+          // leaving the float64 rounding of its composed rotations: 64 ulps.
+          maximumJointViolation: 64 * Number.EPSILON,
         };
     }
     admitPhysicalSimulation(owned);
@@ -147,21 +122,12 @@ export class AutoMoviePhysicalSimulation {
    * Compute or resume a complete film from an admitted input snapshot.
    *
    * An equal full identity returns previous unchanged. Otherwise a compatible
-   * unchanged prefix can resume from a native/controller/balance checkpoint;
-   * fully kinematic inputs generate frames without a native dynamics world.
+   * unchanged prefix can resume from a solver/controller/balance checkpoint; fully kinematic inputs generate frames without a dynamics world.
    * Progress reports completed intervals synchronously. Cancellation or an
    * error rejects rather than returning a partial successful performance.
    * Each declared coupled group fits its members against one snapshot. The
    * result keeps every converged report, and a resumed run keeps the reports
    * of its reused prefix. A failed group throws its typed error.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents owned admission, exact-result reuse, compatible-prefix resumption, kinematic execution and progress/cancellation behavior.
-   * @evidence contracts/development/implementation.md#principled-implementation Integrates admitted SI inputs at 1/(rate*substeps) seconds, applies interval policy and first-substep impulses, and records completed cache frames and causal contacts. Prefix equivalence is established from actual settings/targets/impulses before restoration.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission/digest, prefix selection/restoration, world binding, tracking/contact owners and replay storage have separate responsibilities; this method coordinates their fixed-step order and native cleanup.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Kinematic and exaggerated modes are explicit authored policy. Admitted body/segment/target populations and selected checkpoints justify internal lookups; valid previous results must retain their original input/checkpoint consistency. Missing geometry or exceeded floor bounds remain errors.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For r recomputed steps and u substeps, native solves and tracking/contact work dominate, with segment/shape and active-contact populations as dimensions. Each substep also scans all impulses, and prefix selection serializes prior samples while scanning impulses per candidate step; replay storage grows with total steps*segments plus checkpoint and contact data.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Equal complete identity returns the prior object; compatible prefixes reuse prior frames/receipts and coupled reports up to the resume step and restore copied native/controller/balance state. A static promise shares concurrent WASM initialization. Changed solver/profile/settings force restart; separate effectful compute calls are otherwise not merged.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Restoration copies the causal prefix before allocating its World and transfers native ownership immediately on return; nested finally blocks then free the World and EventQueue on success, error or cancellation. Returned inputs, frames, receipts and checkpoint bytes remain caller-owned; step/segment admission bounds their populations but there is no total retained-byte budget. The initialization promise persists process-wide.
    */
   public static async compute(
     input: IAutoMoviePhysicalSimulationInput.IInput,
@@ -209,7 +175,7 @@ export class AutoMoviePhysicalSimulation {
       },
     };
 
-    // A fully kinematic film constructs no dynamics world and takes no native steps.
+    // A fully kinematic film constructs no dynamics world and takes no solver steps.
     if (
       owned.bodies.every(
         (body: (typeof owned.bodies)[number]): boolean =>
@@ -233,16 +199,9 @@ export class AutoMoviePhysicalSimulation {
         fits,
       );
     }
-    this.initialization ??= RAPIER.init();
-    await this.initialization;
-    signal?.throwIfAborted();
-    let world: World | undefined;
-    // Rapier 0.21 dispatches PhysicsHooks only through stepWithEvents.
-    // Auto-drain prevents event accumulation even if future colliders enable it.
-    const events: RAPIER.EventQueue = new RAPIER.EventQueue(true);
-    try {
+    {
       const start: number = checkpointPhysicalSimulation(owned, previous);
-      world = restorePhysicalSimulationCheckpoint(
+      const world: AutoMovieXpbdWorld = restorePhysicalSimulationCheckpoint(
         owned,
         previous,
         cache,
@@ -324,20 +283,8 @@ export class AutoMoviePhysicalSimulation {
               start / owned.rate,
               bound.contactReleased,
             );
-          if (
-            body.mode.kind !== "kinematic" &&
-            bound.dynamic.get(body.id)!.size > 0 &&
-            body.releasedQuality?.duringReflex &&
-            (target.strength === 0 ||
-              [...bound.segments.get(body.id)!.values()].some(
-                (rigid: RigidBody): boolean =>
-                  rigid.additionalSolverIterations() > 0 ||
-                  rigid.additionalPgsIterations() > 0,
-              ))
-          )
-            bound.reflexQuality.add(body.id);
+
           // The snapshot already owns the cleared forces and passive motors.
-          // Reconfiguring them invalidates an articulation's native warm start.
           if (
             body.mode.kind !== "kinematic" &&
             bound.dynamic.get(body.id)!.size > 0 &&
@@ -349,22 +296,19 @@ export class AutoMoviePhysicalSimulation {
             bound.released.add(body.id);
         }
       world.timestep = 1 / (owned.rate * owned.substeps!);
-      world.numSolverIterations = owned.iterations;
-      world.numInternalPgsIterations = owned.internalIterations!;
-      // Contact receipts require touching surfaces. Predictive contacts can
-      // otherwise stop a slow approach while its measured gap is still positive.
-      world.integrationParameters.normalizedPredictionDistance = 0;
-      world.integrationParameters.normalizedAllowedLinearError =
-        owned.contactTolerance!;
-      world.integrationParameters.contact_natural_frequency =
-        owned.contactFrequency!;
+
+      world.allowedError = owned.contactTolerance!;
+      world.contactFrequency = owned.contactFrequency!;
       if (start === 0) {
         cache.frames.push(readPhysicalFrame(bound, 0));
         cache.checkpoints.set(0, world.takeSnapshot());
       }
       const active: Map<string, IAutoMovieContactReceipt> = new Map();
       const softened: Map<string, number> = new Map();
-      const hooks: PhysicsHooks = preparePhysicalContactHooks(owned, bound);
+      const filter: solveXpbdContacts.Filter = preparePhysicalContactHooks(
+        owned,
+        bound,
+      );
       if (start > 0) {
         const state: NonNullable<
           ReturnType<typeof cache.controllerCheckpoints.get>
@@ -408,14 +352,11 @@ export class AutoMoviePhysicalSimulation {
               bound.bodies
                 .get(`${impulse.body}/${impulse.bone}`)!
                 .applyImpulseAtPoint(
-                  physicalNativeVector(
-                    Vector3.scale(
-                      impulse.impulse,
-                      body.mode.kind === "exaggerated" ? body.mode.impulse : 1,
-                    ),
+                  Vector3.scale(
+                    impulse.impulse,
+                    body.mode.kind === "exaggerated" ? body.mode.impulse : 1,
                   ),
-                  physicalNativeVector(impulse.point),
-                  true,
+                  impulse.point,
                 );
               if (Vector3.length(impulse.impulse) > 0)
                 softened.set(
@@ -423,20 +364,14 @@ export class AutoMoviePhysicalSimulation {
                   instant + body.complianceSeconds,
                 );
             }
-          bound.floor!.setNextKinematicTranslation({
-            x: (owned.floorBounds.min.x + owned.floorBounds.max.x) / 2,
-            y: owned.floor - owned.floorBounds.thickness / 2,
-            z: (owned.floorBounds.min.z + owned.floorBounds.max.z) / 2,
-          });
-          bound.floor!.setNextKinematicRotation({ x: 0, y: 0, z: 0, w: 1 });
-          world.step(events, hooks);
+          world.step(filter);
           assertPhysicalReturnPath(owned, bound, tick, "after");
           for (const body of owned.bodies)
             for (const segment of body.profile.segments) {
-              const rigid: RigidBody = bound.bodies.get(
+              const rigid: AutoMovieXpbdBody = bound.bodies.get(
                 `${body.id}/${segment.bone}`,
               )!;
-              if (rigid.isSleeping()) continue;
+
               const pose: IAutoMovieRigidTransform = {
                 position: rigid.translation(),
                 rotation: rigid.rotation(),
@@ -555,12 +490,6 @@ export class AutoMoviePhysicalSimulation {
         diagnostics,
         fits,
       );
-    } finally {
-      try {
-        world?.free();
-      } finally {
-        events.free();
-      }
     }
   }
 }

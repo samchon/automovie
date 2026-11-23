@@ -1,12 +1,20 @@
+import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieMotionHumanSword,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingSkill } from "../striking/StrikingSkill";
@@ -85,6 +93,62 @@ export namespace HumanSwordTiming {
     from: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     to: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
   ): number => StrikingHeld.strayed(tool, from, to, 0);
+
+  /**
+   * How far the arm travels as it sets from the entry hold to the path's
+   * start, metres: the greater of the tool's travel (`travel`) and the
+   * elbow's, read once on the two fitted arms, the entry's as it stands and
+   * the start's on the entry's body with its elbow hinted from the landing's
+   * carried with the hand, so a setting that swings the elbow from the
+   * hold's arm to the landing's takes as long as the arm needs.
+   */
+  export const setting = (
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    entered: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    start: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    landed: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    posture: IAutoMovieMotionHumanPosture,
+  ): number => {
+    const side: AutoMovieHumanSide = tool.side;
+    const elbows: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([`${side}LowerArm`]);
+    const goalAt: ReturnType<typeof StrikingHeld.prepareGoal> =
+      StrikingHeld.prepareGoal(context, tool, 0);
+    const elbowOf = (
+      on: IAutoMovieMotionHumanPosture,
+      frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+      bend: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
+      poseBones(
+        context.body,
+        resolveHumanPosture(context.body, {
+          ...on,
+          limbs: { ...on.limbs, [`${side}Arm`]: goalAt(frame, bend) },
+        }),
+        undefined,
+        elbows,
+      ).get(`${side}LowerArm`)!.worldPosition;
+    const landedElbow: IAutoMovieVector3 = elbowOf(
+      posture,
+      landed,
+      AutoMovieMotionHumanBend.hang(context.body, posture, side),
+    );
+    const startElbow: IAutoMovieVector3 = elbowOf(
+      context.entry.posture,
+      start,
+      Vector3.add(landedElbow, Vector3.subtract(start.point, landed.point)),
+    );
+    return Math.max(
+      travel(tool, entered, start),
+      Vector3.distance(
+        poseBones(context.body, context.entry.pose, undefined, elbows).get(
+          `${side}LowerArm`,
+        )!.worldPosition,
+        startElbow,
+      ),
+    );
+  };
 
   /** A minimum-jerk unit's peak speed over its mean speed, `30/16`: the profile `30 u^2 (1 - u)^2` at its middle (Flash and Hogan 1985), so a unit of a path at a peak speed lasts this times the path over the speed. */
   export const UNIT: number = 1.875;

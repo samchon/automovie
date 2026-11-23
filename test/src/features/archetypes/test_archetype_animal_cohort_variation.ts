@@ -1,7 +1,7 @@
 import {
-  ArchetypeRefusal,
-  CamelBody,
-  DeerBody,
+  AutoMovieArchetypeCamelBody,
+  AutoMovieArchetypeDeerBody,
+  AutoMovieArchetypeRefusal,
   createCamel,
   createDeer,
   createQuadruped,
@@ -338,7 +338,7 @@ export function test_archetype_animal_cohort_variation(): void {
     (): unknown => Reflect.apply(createCamel, undefined, [{ mass: null }, 0]),
     "mass",
   );
-  for (const body of [CamelBody, DeerBody])
+  for (const body of [AutoMovieArchetypeCamelBody, AutoMovieArchetypeDeerBody])
     for (const height of [null, Number.NaN, Infinity, 0, -1]) {
       try {
         Reflect.apply(body, undefined, [height]);
@@ -370,7 +370,7 @@ export function test_archetype_animal_cohort_variation(): void {
       findings.push(`${label}: accepted`);
     } catch (error) {
       if (
-        !(error instanceof ArchetypeRefusal) ||
+        !(error instanceof AutoMovieArchetypeRefusal) ||
         error.kind !== "parameter" ||
         error.axis !== axis
       )

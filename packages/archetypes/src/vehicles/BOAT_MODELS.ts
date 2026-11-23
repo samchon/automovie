@@ -1,14 +1,14 @@
-import { ArchetypeUnits } from "../core";
+import { AutoMovieArchetypeUnits } from "../core";
 import type { createBoat } from "./createBoat";
 
 /** One boat's or option's figures by dimension. */
 type Figures = Readonly<Partial<Record<createBoat.Dimension, number>>>;
 
 /** Inches. */
-const IN: number = ArchetypeUnits.INCH;
+const IN: number = AutoMovieArchetypeUnits.INCH;
 
 /** Pounds. */
-const LB: number = ArchetypeUnits.POUND;
+const LB: number = AutoMovieArchetypeUnits.POUND;
 
 /**
  * The read boats by kind, each whole, and the options a canoe is built in and the oars a rowboat is rowed with.
@@ -20,21 +20,74 @@ const LB: number = ArchetypeUnits.POUND;
  * Oars, Fyne Boat Kits' standard oars by length, each blade's size (https://fyneboatkits.co.uk/accessories/oars/oars-standard): a rowboat rows with the oar whose length is nearest the one Shaw and Tenney's rule gives its span (`BoatOars`), so its blade is that oar's.
  */
 export const BOAT_MODELS: Readonly<{
-  hulls: Readonly<Record<createBoat.Kind, Readonly<Partial<Record<createBoat.Model, Figures>>>>>;
-  layups: Readonly<Partial<Record<createBoat.Model, Readonly<Partial<Record<createBoat.Layup, Figures>>>>>>;
-  oars: readonly Readonly<{ length: number; bladeLength: number; bladeWidth: number }>[];
+  hulls: Readonly<
+    Record<
+      createBoat.Kind,
+      Readonly<Partial<Record<createBoat.Model, Figures>>>
+    >
+  >;
+  layups: Readonly<
+    Partial<
+      Record<
+        createBoat.Model,
+        Readonly<Partial<Record<createBoat.Layup, Figures>>>
+      >
+    >
+  >;
+  oars: readonly Readonly<{
+    length: number;
+    bladeLength: number;
+    bladeWidth: number;
+  }>[];
 }> = {
   hulls: {
     rowboat: {
-      thamesSkiff: { length: 168 * IN, beam: 50 * IN, depth: 18 * IN, draft: 5 * IN, mass: 85 * LB },
-      whitehallSkiff: { length: 186 * IN, beam: 53.5 * IN, depth: 18.5 * IN, draft: 7 * IN, mass: 95 * LB },
-      whitehall17: { length: 203 * IN, beam: 54 * IN, depth: 22 * IN, mass: 350 * LB },
+      thamesSkiff: {
+        length: 168 * IN,
+        beam: 50 * IN,
+        depth: 18 * IN,
+        draft: 5 * IN,
+        mass: 85 * LB,
+      },
+      whitehallSkiff: {
+        length: 186 * IN,
+        beam: 53.5 * IN,
+        depth: 18.5 * IN,
+        draft: 7 * IN,
+        mass: 95 * LB,
+      },
+      whitehall17: {
+        length: 203 * IN,
+        beam: 54 * IN,
+        depth: 22 * IN,
+        mass: 350 * LB,
+      },
     },
     canoe: {
-      prospector16: { length: 192 * IN, beam: 36 * IN, depth: 15 * IN, endHeight: 23 * IN },
-      discovery169: { length: 201 * IN, beam: 37 * IN, depth: 15 * IN, endHeight: 23 * IN },
-      spiritII: { length: 204 * IN, beam: 35 * IN, depth: 14 * IN, endHeight: 22 * IN },
-      minnesotaII: { length: 222 * IN, beam: 33.5 * IN, depth: 13.5 * IN, endHeight: 20.5 * IN },
+      prospector16: {
+        length: 192 * IN,
+        beam: 36 * IN,
+        depth: 15 * IN,
+        endHeight: 23 * IN,
+      },
+      discovery169: {
+        length: 201 * IN,
+        beam: 37 * IN,
+        depth: 15 * IN,
+        endHeight: 23 * IN,
+      },
+      spiritII: {
+        length: 204 * IN,
+        beam: 35 * IN,
+        depth: 14 * IN,
+        endHeight: 22 * IN,
+      },
+      minnesotaII: {
+        length: 222 * IN,
+        beam: 33.5 * IN,
+        depth: 13.5 * IN,
+        endHeight: 20.5 * IN,
+      },
     },
     launch: {},
   },
@@ -63,13 +116,45 @@ export const BOAT_MODELS: Readonly<{
     },
   },
   oars: [
-    { length: 6 * ArchetypeUnits.FOOT, bladeLength: 0.54, bladeWidth: 0.112 },
-    { length: 6.5 * ArchetypeUnits.FOOT, bladeLength: 0.54, bladeWidth: 0.112 },
-    { length: 7 * ArchetypeUnits.FOOT, bladeLength: 0.58, bladeWidth: 0.112 },
-    { length: 7.5 * ArchetypeUnits.FOOT, bladeLength: 0.58, bladeWidth: 0.112 },
-    { length: 8 * ArchetypeUnits.FOOT, bladeLength: 0.6, bladeWidth: 0.115 },
-    { length: 8.5 * ArchetypeUnits.FOOT, bladeLength: 0.6, bladeWidth: 0.115 },
-    { length: 9 * ArchetypeUnits.FOOT, bladeLength: 0.6, bladeWidth: 0.115 },
-    { length: 10 * ArchetypeUnits.FOOT, bladeLength: 0.7, bladeWidth: 0.12 },
+    {
+      length: 6 * AutoMovieArchetypeUnits.FOOT,
+      bladeLength: 0.54,
+      bladeWidth: 0.112,
+    },
+    {
+      length: 6.5 * AutoMovieArchetypeUnits.FOOT,
+      bladeLength: 0.54,
+      bladeWidth: 0.112,
+    },
+    {
+      length: 7 * AutoMovieArchetypeUnits.FOOT,
+      bladeLength: 0.58,
+      bladeWidth: 0.112,
+    },
+    {
+      length: 7.5 * AutoMovieArchetypeUnits.FOOT,
+      bladeLength: 0.58,
+      bladeWidth: 0.112,
+    },
+    {
+      length: 8 * AutoMovieArchetypeUnits.FOOT,
+      bladeLength: 0.6,
+      bladeWidth: 0.115,
+    },
+    {
+      length: 8.5 * AutoMovieArchetypeUnits.FOOT,
+      bladeLength: 0.6,
+      bladeWidth: 0.115,
+    },
+    {
+      length: 9 * AutoMovieArchetypeUnits.FOOT,
+      bladeLength: 0.6,
+      bladeWidth: 0.115,
+    },
+    {
+      length: 10 * AutoMovieArchetypeUnits.FOOT,
+      bladeLength: 0.7,
+      bladeWidth: 0.12,
+    },
   ],
 };

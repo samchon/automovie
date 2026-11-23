@@ -74,12 +74,7 @@ type IVertex = HumanPhysicalSolePlant.IVertex;
  * place on the floor, until the heel and forefoot hulls touch the floor
  * together: about 16 degrees of dorsiflexion, which leaves the ankle about
  * 38 mm lower and 15 mm further back (m-average; 44 mm lower m-tall, 32 mm
- * f-small). Set down so, each sole bears on one heel and one forefoot
- * vertex alone: a rigid sole has no area across the line between them, and
- * the ankle's load, which comes down beside that line, rolls it there by a
- * few degrees as soon as it stands. So the foot is then rolled about that
- * line toward the ankle until a third hull vertex meets the floor, seating
- * it on a heel-and-forefoot tripod (`HumanPhysicalSolePlant.roll`). A standing leg is within a few millimetres of full extension and
+ * f-small). A standing leg is within a few millimetres of full extension and
  * cannot reach that ankle from the authored pelvis, so the body above the
  * feet is set straight down by the drop the most demanding leg needs to
  * stand its knee a shank's length from its planted ankle, about 41 mm
@@ -109,8 +104,8 @@ type IVertex = HumanPhysicalSolePlant.IVertex;
  * leaves it the fit's tolerance clear of every collider outside it, 0.5 degrees (m-average; 2.1 degrees
  * m-large, under 0.01 degrees f-small and m-tall; `HumanPhysicalArmRoom`).
  *
- * The physical pose therefore differs from the authored one by those turns
- * at the feet, those leg turns, that drop of the body and that opening of the
+ * The physical pose therefore differs from the authored one by that turn at
+ * the feet, those leg turns, that drop of the body and that opening of the
  * arms; the difference is this handoff's correction of the rigid colliders'
  * mismatch with the drawn feet and the soft body, not motion.
  *
@@ -231,7 +226,7 @@ export function fitHumanPhysicalStandingPose(
       );
     if (flexion === undefined)
       return { kind: "unresolved", reason: "support-geometry" };
-    const flexed: IAutoMovieRigidTransform | undefined =
+    const placed: IAutoMovieRigidTransform | undefined =
       HumanPhysicalSolePlant.plant(
         targets[foot]!,
         own,
@@ -242,23 +237,7 @@ export function fitHumanPhysicalStandingPose(
           z: flexion.axis === "z" ? 1 : 0,
         }),
       );
-    // Planted on its heel and forefoot points alone, the sole rolls about
-    // the line between them; it is seated on a third point toward the ankle,
-    // whose load would roll it there.
-    const placed: IAutoMovieRigidTransform | undefined =
-      flexed &&
-      HumanPhysicalSolePlant.roll(
-        flexed,
-        own,
-        floor,
-        physicalSupportPoint(
-          flexed,
-          profile.joints.find(
-            (joint: IAutoMoviePhysicalJoint): boolean => joint.child === foot,
-          )!.childFrame.position,
-        ),
-        tolerance,
-      );
+
     if (placed === undefined)
       return { kind: "unresolved", reason: "support-geometry" };
     const planted: Poses = { ...targets, [foot]: placed };

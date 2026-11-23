@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The maker's pram, read. */
@@ -22,7 +22,7 @@ const BUGABOO: string =
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The pram.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the pram stands, who pushes it from where and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Four wheel discs at the chassis' corners, a bassinet box of the drawn length and width on them, two push rods from its back up and back to the drawn handle height, and the push bar across their tops.
@@ -35,9 +35,9 @@ const BUGABOO: string =
 export function createPram(
   params: createPram.IParams = {},
   seed?: number | string,
-): Archetype<createPram.Affordance, createPram.Dimension> {
-  const draw: ArchetypeDrawSession<createPram.Dimension> =
-    new ArchetypeDrawSession<createPram.Dimension>(
+): AutoMovieArchetype<createPram.Affordance, createPram.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createPram.Dimension> =
+    new AutoMovieArchetypeDrawSession<createPram.Dimension>(
       "pram",
       createPram.UNITS,
       seed,
@@ -46,13 +46,15 @@ export function createPram(
   const d: Record<createPram.Dimension, number> = draw.dimensions(
     createPram.BANDS,
   );
-  const builder: ArchetypeBuilder<createPram.Affordance, createPram.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: "pram",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createPram.Affordance,
+    createPram.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: "pram",
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const wheel: number = createPram.WHEEL.rear;
   const hx: number = d.width / 2;
@@ -105,7 +107,7 @@ export function createPram(
     id: "handle",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.upright(v(0, d.handleHeight, back)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.handleHeight, back)),
     extent: null,
     grip: "power",
     aperture: grip,
@@ -114,7 +116,7 @@ export function createPram(
   builder.affordance({
     id: "bassinet",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, floor + createPram.FLOOR, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, floor + createPram.FLOOR, 0)),
     extent: null,
     width: d.width - 0.1,
     depth: 2 * hz - 0.04,
@@ -133,8 +135,8 @@ export function createPram(
 export namespace createPram {
   /** The wheels' radii, metres: the Bugaboo Fox 5's 8.5 in front and 12 in rear wheels. */
   export const WHEEL: Readonly<{ front: number; rear: number }> = {
-    front: (8.5 * ArchetypeUnits.INCH) / 2,
-    rear: (12 * ArchetypeUnits.INCH) / 2,
+    front: (8.5 * AutoMovieArchetypeUnits.INCH) / 2,
+    rear: (12 * AutoMovieArchetypeUnits.INCH) / 2,
   };
 
   /** The bassinet's underside above the wheels' tops, metres: an estimate. */
@@ -171,7 +173,9 @@ export namespace createPram {
   export type Dimension = "length" | "width" | "handleHeight" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     handleHeight: "m",
@@ -185,26 +189,26 @@ export namespace createPram {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(
-      36.6 * ArchetypeUnits.INCH,
-      36.6 * ArchetypeUnits.INCH,
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(
+      36.6 * AutoMovieArchetypeUnits.INCH,
+      36.6 * AutoMovieArchetypeUnits.INCH,
       BUGABOO,
     ),
-    width: ArchetypeBand.metres(
-      23.6 * ArchetypeUnits.INCH,
-      23.6 * ArchetypeUnits.INCH,
+    width: AutoMovieArchetypeBand.metres(
+      23.6 * AutoMovieArchetypeUnits.INCH,
+      23.6 * AutoMovieArchetypeUnits.INCH,
       BUGABOO,
     ),
-    handleHeight: ArchetypeBand.metres(
-      41.3 * ArchetypeUnits.INCH,
-      41.3 * ArchetypeUnits.INCH,
+    handleHeight: AutoMovieArchetypeBand.metres(
+      41.3 * AutoMovieArchetypeUnits.INCH,
+      41.3 * AutoMovieArchetypeUnits.INCH,
       `${BUGABOO}: its height open, the push bar's`,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      22.9 * ArchetypeUnits.POUND,
-      27.8 * ArchetypeUnits.POUND,
+      22.9 * AutoMovieArchetypeUnits.POUND,
+      27.8 * AutoMovieArchetypeUnits.POUND,
       BUGABOO,
     ),
   };

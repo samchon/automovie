@@ -40,20 +40,10 @@
  * its pelvis is where the way says: each step is then as long as the way
  * gone in it, as a drilled soldier keeps his place at a called cadence by
  * the length of his step.
- *
- * @evidence contracts/development/common.md#meaningful-documentation distance: The path's length, metres. period: The realised step period for a planned one, seconds. lead: How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent.
- * @evidence contracts/development/design.md#principled-representation distance: The path's length, metres. period: The realised step period for a planned one, seconds. lead: How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/WalkPace.ts (WalkPace.fit, props); actions/WalkPace.ts (WalkPace.travelled, props); actions/walkStation.ts (walkStation.cadenced, return); actions/WalkPace.ts (WalkPace).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in WalkPace.fit.
  */
 export namespace IAutoMovieMotionHumanWalkPace {
   /**
    * The timing with the fewest steps whose cruising step is no longer than the longest one: at least two steps whenever there is a way to go, one step the whole way being a lunge, the pelvis crossing the distance over a single stance. What a timing is planned from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation distance: The path's length, metres. period: The realised step period for a planned one, seconds. lead: How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent.
-   * @evidence contracts/development/design.md#principled-representation distance: The path's length, metres. period: The realised step period for a planned one, seconds. lead: How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/WalkPace.ts (WalkPace.fit, props); actions/WalkPace.ts (WalkPace.travelled, props); actions/walkStation.ts (walkStation.cadenced, return); actions/WalkPace.ts (WalkPace).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in WalkPace.fit.
    */
   export interface IProps {
     /** The path's length, metres. */
@@ -67,30 +57,20 @@ export namespace IAutoMovieMotionHumanWalkPace {
 
     /**
      * The realised step period for a planned one, seconds.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkPace.IProps.period: The realised step period for a planned one, seconds.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkPace.IProps.period is used through packages/motions/src/actions/WalkPace.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkPace.IProps.period is used through packages/motions/src/actions/WalkPace.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkPace.IProps.period is used through packages/motions/src/actions/WalkPace.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkPace.IProps.period is used through packages/motions/src/actions/WalkPace.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkPace.IProps.period is used through packages/motions/src/actions/WalkPace.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkPace.IProps.period is used through packages/motions/src/actions/WalkPace.ts.
      */
     period(seconds: number): number;
 
     /** How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent. */
     lead?: number;
 
+    /** The pelvis's speed along the way as the gait is entered, m/s, never negative: the ramp up starts from it, and from rest when absent. */
+    entrySpeed?: number;
+
+    /** How long the standing foot of a gait entered in stride has stood at the start, seconds, never negative: one foot standing and the other in the air (a run out of a hurdle clearance), so the foot in the air lands one period after the standing foot's stance began, as the next footfall of a gait in progress does, instead of after a standing start's initiation (`WalkPace.FIRST`). A standing start when absent. */
+    stride?: number;
+
     /**
      * The share of the way the pelvis has gone at a second of the walk, from 0, never falling and reaching 1, when the way is set from outside (a cadenced station, `walkStation.cadenced`); the pelvis ramps, cruises and ramps by itself when absent.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkPace.IProps.travel: The share of the way the pelvis has gone at a second of the walk, from 0, never falling and reaching 1, when the way is set from outside (a cadenced station, `walkStation.cadenced`); the pelvis ramps, cruises and ramps by itself when absent.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkPace.IProps.travel is used through packages/motions/src/actions/WalkPace.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkPace.IProps.travel is used through packages/motions/src/actions/WalkPace.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkPace.IProps.travel is used through packages/motions/src/actions/WalkPace.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkPace.IProps.travel is used through packages/motions/src/actions/WalkPace.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkPace.IProps.travel is used through packages/motions/src/actions/WalkPace.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkPace.IProps.travel is used through packages/motions/src/actions/WalkPace.ts.
      */
     travel?: (seconds: number) => number;
   }

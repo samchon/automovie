@@ -39,7 +39,11 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * independent and need no order. Arms that meet are solved together, the
  * still configuration of both arms (`HumanArmTrajectoryModel`, the two arms'
  * probes kept clear of each other) drawn to the two independent fits, each
- * hand held on its goal, by the trajectory's own optimiser.
+ * hand held on its goal, by the trajectory's own optimiser. Arms both
+ * placed at a prescribed swivel course (a display read of a course or an
+ * anchor whose swivels the coupled solve left) are decoupled: each hand's
+ * goal is the plan's own contact frame at that second and each arm its own
+ * closed-form fit, so the coupled solve runs only where the course is made.
  *
  * The coupled solve is computed on a canonical representative of the pair
  * and its mirror image: of the posture and its mirror, the one whose inputs
@@ -48,39 +52,23 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * posture that is its own mirror image is its own representative.
  *
  * Each arm's own fit may continue a nearby one (`IAutoMovieSwivelNear`),
- * and reports the seed it was chosen at. Either representative solves an
- * arm the same way, as the right arm in its own side's frame
+ * and reports the seed it was chosen at; arms solved together report the
+ * swivel and branch their coupled configuration sits at, so a placement
+ * prescribed there reproduces it in closed form. Either representative
+ * solves an arm the same way, as the right arm in its own side's frame
  * (`HumanLimbFit.fit`), so an arm's seed and its `near` are that arm's
  * whichever representative is taken.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two stages, when the second runs, what it minimises and how its symmetry is made.
- * @evidence contracts/development/design.md#principled-representation Two interacting arms are one problem; the canonical form under the mirror is a representative of the pair's orbit.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by `resolveHumanPosture` for two arms with goals.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No order between the arms: independent fits, or one joint solve.
  */
 export namespace HumanLimbPair {
   /**
    * Observe the returned two-arm fit during this static posture request. In
    * analytic mode a trial that needs the general optimiser returns its direct
    * result and reports that result's residual for the caller to reject.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the observed posture, the lifetime of the observer and the analytic-only trial behavior.
-   * @evidence contracts/development/design.md#principled-representation The callback observes the existing native evaluation, which carries the fit's geometric residuals in their original units. The flag selects whether the general optimiser can run.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The paired fitter owns this request. The caller needs one native residual report and one search policy to compare its posture trials.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both search modes report the actual evaluation through the same typed callback. The mode does not mark a failed candidate as accepted.
    */
   export interface Assessment {
     /**
      * Read the complete native model at the returned pair. Consume the
      * evaluation during the call if a stable observation is needed.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Specifies the evaluation passed to the receiver and its request lifetime.
-     * @evidence contracts/development/implementation.md#principled-implementation The fitter supplies the evaluation from the accepted direct or adjusted pair, the returned direct trial, or the general optimiser's result.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One callback receives the already available evaluation on the selected return branch.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No residual is synthesized or replaced by a convenience success value.
-     * @evidence contracts/development/implementation.md#efficient-algorithms The fitter passes the current evaluation without another model evaluation.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The same reading serves native branch admission and the caller's trial comparison.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fitter holds the callback only for the current request and does not attach it to the returned fit.
      */
     inspect(reading: Readonly<M.IEvaluation>): void;
     /** Only certified ordinary analytic branches can win a speculative trial. */
@@ -96,14 +84,6 @@ export namespace HumanLimbPair {
    * @param near Each arm's nearby fit to continue, if any.
    * @param resolution Optional parent-owned exact reader or lazy supplier; a standalone pair creates a reader only on first actual FK demand.
    * @returns The pose with both arms fitted, and the seed each arm's own fit was chosen at.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Independent fits where the arms keep clear; a coupled still solve where they meet, on the pair's canonical representative under the mirror.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two fits, one clearance reading per arm, then one coupled solve when they meet.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither arm is fitted against the other's fit; the representative is chosen from the inputs alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two directly solved arm fits, followed by the existing coupled optimizer only on actual overlap. Source attachment FK stays lazy, and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the existing fit, clearance and trajectory owners. A supplied person/refit reader crosses only these synchronous calls; actual mirror/root-frame poses and changed arm descendants still invalidate scalar dependencies, and near/target/result choices remain unchanged.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Pair-local source FK and temporary callbacks end with this call. A borrowed reader remains with its synchronous parent, or a lazily created standalone reader ends here; no returned pose, seed, value or retained optimizer context captures the reader or supplier.
    */
   export function fitted(
     body: IAutoMovieMotionHumanBody,
@@ -149,11 +129,6 @@ export namespace HumanLimbPair {
 
   /**
    * Both arms fitted, with the seed each arm's own fit was chosen at.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its content.
-   * @evidence contracts/development/design.md#principled-representation The pose and one seed per arm, null where the fit has none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Pose, per-arm seeds and per-arm fit values are the existing data the refit caller consumes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `IAutoMovieSwivelSeed`.
    */
   export interface IFitted {
     /** The pose with both arms fitted. */
@@ -257,6 +232,22 @@ function solved(
     "right",
     fits.right,
   );
+
+  // Both arms placed at a prescribed course (a display read): the course's
+  // swivels come from coupled solves at its knots and anchors, and each
+  // hand's goal is the plan's own contact frame at this second, so the arms
+  // are decoupled, each its own closed-form fit clear of its obstruction,
+  // and the coupled solve never runs per displayed second.
+  if (
+    assess === undefined &&
+    near.left?.prescribed === true &&
+    near.right?.prescribed === true
+  )
+    return {
+      pose: both,
+      seeds,
+      values: { left: own.left.value, right: own.right.value },
+    };
 
   // Each arm's forearm against the other arm's segments alone.
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
@@ -402,7 +393,20 @@ function solved(
       G.arm(context.setups[a]!, result.x[a]![1]!),
     );
   });
-  return { pose: out, seeds, values: { left: undefined, right: undefined } };
+
+  // Each arm's seed is the swivel and branch the coupled solve left it at,
+  // the one free parameter of an arm on its goal (Tolani, Goswami and Badler
+  // 2000, §3.2.4), so a placement prescribed at it, or between two such
+  // solves, reproduces the pair's clear configuration in closed form and
+  // needs this solve again only where it does not stay clear.
+  return {
+    pose: out,
+    seeds: {
+      left: HumanLimbFit.seed(body, out, "leftArm") ?? seeds.left,
+      right: HumanLimbFit.seed(body, out, "rightArm") ?? seeds.right,
+    },
+    values: { left: undefined, right: undefined },
+  };
 }
 
 /** Only the two actual arm chains feed the independent-fit mutual-clearance check. */

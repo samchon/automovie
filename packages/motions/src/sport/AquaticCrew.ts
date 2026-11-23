@@ -45,8 +45,14 @@ export namespace AquaticCrew {
   /** Anatomical side. */
   export type Side = "left" | "right";
 
-  /** Obtain support anchors once from the entered performer and the moving scene prop. */
-  export function bind(context: AquaticPosture.Context): IHull {
+  /** The limb goal key of one leg. */
+  export type Leg = `${Side}Leg`;
+
+  /** Obtain entered anchors, with native handle validation for laws that pose the whole rig. */
+  export function bind(
+    context: AquaticPosture.Context,
+    native: boolean = false,
+  ): IHull {
     const { params, entry, start } = context;
     const id: string | undefined = params.support;
     if (id === undefined)
@@ -81,19 +87,28 @@ export namespace AquaticCrew {
         ? undefined
         : carrier.prop.point?.(name, start + seconds)?.point;
     };
-    for (const side of ["left", "right"] as const)
+    for (const side of ["left", "right"] as const) {
+      const name: string | undefined =
+        side === "left" ? params.leftGrip : params.rightGrip;
       if (
-        (side === "left" ? params.leftGrip : params.rightGrip) !== undefined &&
-        grip(side, 0) === undefined
+        name !== undefined &&
+        grip(side, 0) === undefined &&
+        !(
+          native &&
+          carrier.prop.affordances?.some(
+            (contact) => contact.id === name && contact.kind === "handle",
+          ) === true
+        )
       )
         throw new HumanRefusal({
           kind: "affordance",
           axis: `${side}Grip`,
-          value: (side === "left" ? params.leftGrip : params.rightGrip)!,
+          value: name,
           feasible: null,
           reason: "the supporting craft has no such grip point",
-          fix: "name a socket furnished by the boat's performance prop",
+          fix: "name a handle or placed socket on the boat's performance prop",
         });
+    }
     return {
       id,
       inverse,
@@ -108,7 +123,10 @@ export namespace AquaticCrew {
     };
   }
 
-  /** Convert staged hull-local motion to the displayed pose and fit the active wrists and ankles. */
+  /**
+   * Convert staged hull-local motion to the displayed pose and fit the
+   * active wrists and ankles; a foot keeps its entered orientation in the hull.
+   */
   export function apply(
     context: AquaticPosture.Context,
     hull: IHull,

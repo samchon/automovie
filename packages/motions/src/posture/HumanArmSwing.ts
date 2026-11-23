@@ -1,5 +1,6 @@
 import { bracketedBisection } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanActionPlan,
@@ -29,11 +30,6 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * `HumanArmClearance.swung` is this module's `of`; it lives apart because
  * the swing needs only one freedom, the upper arm's abduction, and its own
  * baseline, the room the arm has in the quiet stance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is cleared, by which freedom and against what.
- * @evidence contracts/development/design.md#principled-representation One function over a posture and the arms to clear, with the stance baseline kept per body.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The swing's clearance and its three bounds; `HumanArmClearance` owns the room readings and calls it as `swung`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts An arm with a hand goal is the fit's to clear and is left alone.
  */
 export namespace HumanArmSwing {
   /** The most abduction a swing is let out by, degrees (provisional: beyond it the arm is no longer the gait's). */
@@ -66,14 +62,6 @@ export namespace HumanArmSwing {
    *
    * @param body The body.
    * @returns Degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the tolerance and its owner, its unit, the lever and its source, the conversion and the resulting precision on one body.
-   * @evidence contracts/development/implementation.md#principled-implementation A turn of the shoulder by an angle moves a point at a lever along an arc of the lever times the angle, which bounds its chord.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quotient.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The length is the audit's own limit and the lever the body's own measure.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the audit's limit and the body's measure.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function precision(body: IAutoMovieMotionHumanBody): number {
     const lever: number =
@@ -95,15 +83,8 @@ export namespace HumanArmSwing {
    * @param source Optional exact FK source borrowed only from this synchronous same-body operation.
    * @param projection Optional genuine same-body ROM projector for the complete current pose and initial stance fit.
    * @param resolved The cold resolve of this very posture, when its caller already holds it (`resolveHumanPosture.seeded` or `fit` of its assembly); absent, the posture is resolved here.
+   * @param entered Each arm's room as it entered the action, where it entered lying deeper than in the quiet stance (a hand left on a thigh by the action before); the stance's alone when absent.
    * @returns The posture with the arms' upper arm joints let out.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which arms, against what allowance and what is written back.
-   * @evidence contracts/development/implementation.md#principled-implementation A hanging arm's fingers lie against the thigh in the quiet stance, which the tangle audit takes as its baseline; the swing may come that near and no nearer, the same rule the audit reads.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve and one ordered current-joint scan per free arm precede its bisection in the pose earlier arms produced; the same continuous room crossing determines least abduction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm with a hand goal is the fit's to clear and is left alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps all current arm fits, clearance and bisection readings and fresh outputs. In a call that needs both quiet-stance allowances, both read the same stance fit and collider placement. When all needed allowances already exist, it prepares no quiet stance.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Complete seeded pose and stance fits may borrow one same-operation FK workspace and genuine ROM projector. Each candidate remains fully admitted. A quiet-stance allowance reads the bones and shapes of the same unchanged modeled stance on either side.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing weak stance map retains two scalars per body/arm only. Local/parent FK and ROM loans end with the synchronous operation; neither returned posture nor stance cache stores a reader, projector, current pose or callback.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
@@ -112,9 +93,17 @@ export namespace HumanArmSwing {
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
     resolved?: IAutoMoviePose,
+    entered?: HumanArmSwing.Entered,
   ): IAutoMovieMotionHumanPosture {
-    return cleared(body, posture, sides, source, projection, resolved);
+    return cleared(body, posture, sides, source, projection, resolved, undefined, entered);
   }
+
+  /**
+   * Each arm's room as it entered an action, by side (`of`'s `entered`).
+   */
+  export type Entered = Readonly<
+    Partial<Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance.IBaseline>>
+  >;
 
   /** The exact pose search, or a final-arm certificate in a stride-maximum reduction. */
   function cleared(
@@ -125,6 +114,7 @@ export namespace HumanArmSwing {
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
     resolved?: IAutoMoviePose,
     maxima?: Readonly<Record<"left" | "right", number>>,
+    entered?: Entered,
   ): IAutoMovieMotionHumanPosture {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
     let pose: IAutoMoviePose = resolved ??
@@ -168,11 +158,21 @@ export namespace HumanArmSwing {
       // The least added abduction that keeps the arm's room within its
       // stance baseline, by bisection: the least moves continuously as the
       // swing does, where a local search could jump between frames.
-      const baseline: IAutoMovieMotionHumanArmClearance.IBaseline = stance(
+      const quietRoom: IAutoMovieMotionHumanArmClearance.IBaseline = stance(
         body,
         side,
         standing,
       );
+      // An arm handed on lying deeper may stay as deep as it entered.
+      const handed: IAutoMovieMotionHumanArmClearance.IBaseline | undefined =
+        entered?.[side];
+      const baseline: IAutoMovieMotionHumanArmClearance.IBaseline =
+        handed === undefined
+          ? quietRoom
+          : {
+              forearm: Math.max(quietRoom.forearm, handed.forearm),
+              segments: Math.max(quietRoom.segments, handed.segments),
+            };
       const out: (a: number) => IAutoMovieMotionHumanArmClearance.IArm = (a: number): IAutoMovieMotionHumanArmClearance.IArm => ({
         ...arm,
         upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],
@@ -262,14 +262,6 @@ export namespace HumanArmSwing {
    * @param source Optional same-body synchronous FK source.
    * @param projection Optional genuine ROM projector borrowed only for this operation.
    * @returns Degrees of abduction per arm.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read, over what, why it is held, and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation Each sample's least clearing abduction is `of`'s own; the carriage is the greatest of them, so every sample is clear by the same measure and the take's arms move only as the gait writes them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Accumulate the maximum while preserving earlier-arm geometry. A last-arm search may end at its first certified upper bound below that maximum.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm with a hand goal in a sample is the fit's and adds nothing.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Evaluate every requested posture, then only native room candidates that can change its maximum or affect another arm. An already dominated bisection omits the rest of its candidate evaluations.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every actual phase callback and of call receives one operation-local/borrowed FK source and genuine ROM projector. The native full fits and room/bisection observations still run; only fixed ROM indexing and exact checked FK work are shared across phases.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous carriage owns its getter and at most one genuine projector, first demanded after an actual posture callback, until return/throw. Only two numeric abductions escape; no current posture, workspace or callback is retained.
    */
   export function carriage(
     body: IAutoMovieMotionHumanBody,
@@ -303,14 +295,6 @@ export namespace HumanArmSwing {
    * @param posture The posture.
    * @param carried Degrees of abduction per arm (`carriage`).
    * @returns The posture with the arms carried.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is raised and which arms are left.
-   * @evidence contracts/development/implementation.md#principled-implementation The carriage is an abduction added to the gait's own angles, so the swing it rides is unchanged.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One map over two arms.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm with a hand goal is left alone.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function carry(
     posture: IAutoMovieMotionHumanPosture,

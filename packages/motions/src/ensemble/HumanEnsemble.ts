@@ -45,7 +45,7 @@ export namespace HumanEnsemble {
    * @throws {HumanRefusal} When the count, the pool, a distribution, a role or a place cannot be met, naming the ensemble and the axis.
    */
   export function of(
-    input: IAutoMovieMotionHumanEnsemble,
+    input: IAutoMovieMotionHumanEnsemble.IInput,
     read?: IAutoMovieMotionHumanFormation.Reader,
   ): IAutoMovieMotionHumanEnsemble.IEnsemble {
     return HumanEnsembleMembers.resolve(input, read);
@@ -162,7 +162,7 @@ export namespace HumanEnsemble {
           );
           return HumanChain.subject(m.subject).registered(instance.name, {
             of: template.subject,
-            seconds,
+            duration: seconds,
             shift,
           }).node;
         },

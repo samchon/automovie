@@ -1,20 +1,10 @@
 /**
  * Close a private rectangle split under laminar opposed interface intervals. Bounds are global unit-square [u0,u1,v0,v1] coordinates; axes 0 and 1 vary u and v. An exact endpoint sweep first establishes one covering layer over every positive-area cell. Every subsequent strict split preserves that partition without moving an endpoint. Proper overlaps propagate an existing smaller end into the opposite leaf; identical, contained and disjoint interfaces need no additional split. Stable geometric and name ordering makes input permutations equivalent. Failure is atomic: invalid coverage, exhausted leaf budgets, unrepresentable levels or colliding child names throw without changing input. Low and high children append .0 and .1 to the parent ID, increment its level and retain its root. This operation establishes rectangle coverage and laminar interfaces only; C0 control relations, field prolongation, approximation improvement and normal or source correspondence remain consumer obligations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Current normalized chart leaves with stable identities and disjoint interiors covering the declared domain. Stable identity within the owning chart, boundary or occurrence registry; equal coordinates do not create identity.
- * @evidence contracts/development/design.md#principled-representation Current normalized chart leaves with stable identities and disjoint interiors covering the declared domain.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartLeafFit, RecoveryChartRefinementClosure share IAutoMovieRecoveryChartRefinementClosure's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Stable identity within the owning chart, boundary or occurrence registry; equal coordinates do not create identity.
  */
 
 export namespace IAutoMovieRecoveryChartRefinementClosure {
   /**
    * Close a private rectangle split under laminar opposed interface intervals. Bounds are global unit-square [u0,u1,v0,v1] coordinates; axes 0 and 1 vary u and v. An exact endpoint sweep first establishes one covering layer over every positive-area cell. Every subsequent strict split preserves that partition without moving an endpoint. Proper overlaps propagate an existing smaller end into the opposite leaf; identical, contained and disjoint interfaces need no additional split. Stable geometric and name ordering makes input permutations equivalent. Failure is atomic: invalid coverage, exhausted leaf budgets, unrepresentable levels or colliding child names throw without changing input. Low and high children append .0 and .1 to the parent ID, increment its level and retain its root. This operation establishes rectangle coverage and laminar interfaces only; C0 control relations, field prolongation, approximation improvement and normal or source correspondence remain consumer obligations.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Current normalized chart leaves with stable identities and disjoint interiors covering the declared domain. Stable identity within the owning chart, boundary or occurrence registry; equal coordinates do not create identity.
-   * @evidence contracts/development/design.md#principled-representation Current normalized chart leaves with stable identities and disjoint interiors covering the declared domain.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartLeafFit, RecoveryChartRefinementClosure share IAutoMovieRecoveryChartRefinementClosure's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stable identity within the owning chart, boundary or occurrence registry; equal coordinates do not create identity.
    */
 
   export type Operation = (input: {

@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "../core";
 import { SEAT_BANDS } from "./SEAT_BANDS";
 
@@ -55,7 +55,7 @@ const METAL: string = "#5b5f66";
  * @param params The kind, the number of places and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The seat.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a number of places the kind does not have.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a number of places the kind does not have.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, where the seat frame stands, how places are addressed and where the origin is.
  * @evidence contracts/development/implementation.md#principled-implementation Dimensioned boxes and rods placed from the drawn seat height, depth, width and back height; the seat affordance follows the `seat` convention of `AutoMovieAffordanceKind`.
@@ -68,9 +68,9 @@ const METAL: string = "#5b5f66";
 export function createSeat(
   params: createSeat.IParams,
   seed?: number | string,
-): Archetype<createSeat.Affordance, createSeat.Dimension> {
-  const draw: ArchetypeDrawSession<createSeat.Dimension> =
-    new ArchetypeDrawSession<createSeat.Dimension>(
+): AutoMovieArchetype<createSeat.Affordance, createSeat.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createSeat.Dimension> =
+    new AutoMovieArchetypeDrawSession<createSeat.Dimension>(
       "seat",
       createSeat.UNITS,
       seed,
@@ -85,7 +85,7 @@ export function createSeat(
   const shared: boolean = kind === "bench" || kind === "sofa";
   const places: number = params.places ?? (shared ? 2 : 1);
   if (!Number.isInteger(places) || places < 1 || places > (shared ? 4 : 1))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "seat",
       axis: "places",
@@ -109,13 +109,15 @@ export function createSeat(
   const depth: number = round ? width : d.seatDepth!;
   const back: number | undefined = d.backHeight;
   const arm: number | undefined = d.armHeight;
-  const builder: ArchetypeBuilder<createSeat.Affordance, createSeat.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: NAMES[kind],
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createSeat.Affordance,
+    createSeat.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: NAMES[kind],
+    draw,
+  });
 
   // The seat: a slab whose top is the sitting surface, round for a stool.
   if (round)
@@ -136,7 +138,9 @@ export function createSeat(
   builder.affordance({
     id: "seat",
     kind: "seat",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, depth / 2)),
+    frame: AutoMovieArchetypeFrame.upright(
+      Vector3.create(0, height, depth / 2),
+    ),
     extent: null,
     depth,
     width,
@@ -202,7 +206,7 @@ export function createSeat(
         id: "footrest",
         kind: "bar",
         symmetry: "round",
-        frame: ArchetypeFrame.upright(Vector3.create(0, rest, z)),
+        frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, rest, z)),
         extent: null,
         length: 2 * x,
         aperture: 0.024,
@@ -222,7 +226,7 @@ export function createSeat(
     builder.affordance({
       id: "back",
       kind: "surface",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, height + back / 2, -depth / 2),
         Vector3.create(0, 0, 1),
         Vector3.create(1, 0, 0),
@@ -235,7 +239,7 @@ export function createSeat(
       id: "grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, height + back - PANEL / 2, z),
         Vector3.create(0, 0, -1),
         Vector3.create(1, 0, 0),
@@ -280,7 +284,7 @@ export function createSeat(
       builder.affordance({
         id: `${side}Arm`,
         kind: "surface",
-        frame: ArchetypeFrame.upright(
+        frame: AutoMovieArchetypeFrame.upright(
           Vector3.create(x, height + arm, -depth * 0.15),
         ),
         extent: null,
@@ -294,7 +298,7 @@ export function createSeat(
     builder.affordance({
       id: "lie",
       kind: "surface",
-      frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
       extent: null,
       width,
       depth,
@@ -372,7 +376,9 @@ export namespace createSeat {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     seatHeight: "m",
     seatDepth: "m",
     seatWidth: "m",

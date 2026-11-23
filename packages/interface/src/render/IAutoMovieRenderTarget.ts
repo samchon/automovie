@@ -10,11 +10,6 @@ import type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSet
  * Identical declared renderer, settings, asset and optional texture facts produce the same fingerprint across hosts. Fixed-position JSON tuples preserve embedded tabs and newlines, and asset ordering uses UTF-16 code units rather than locale collation.
  *
  * Sealing validates supplied facts rather than acquiring a renderer or reading assets; closure completeness and byte provenance belong to the caller. The returned settings and asset array are new, but renderer and asset records remain shared and mutable, so a later mutation can make the stored digest stale. Target comparison checks the represented fields rather than recomputing or authenticating their digests.
- *
- * @evidence contracts/development/design.md#principled-representation Target sealing records admitted renderer identity, normalized shadow settings and sorted exact asset digests, adding host texture facts in protocol v2 before hashing fixed-position JSON tuples.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Separates implementation identity, frame configuration and byte dependencies so a report can compare the complete cost basis rather than only design or compile revision.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Version-one omission cannot certify decoded texture facts and reported unknown hardware remains explicit; tuple positions and JSON escaping preserve embedded separators. Asset completeness, current byte identity and closed boolean/tone-mapping shapes are caller premises; neither sealing nor comparison independently proves an observed frame or freezes the target.
- * @evidence contracts/development/common.md#meaningful-documentation Defines protocol compatibility, optional host texture facts, sorted exact assets and the dependence of reuse on current target equality.
  */
 export interface IAutoMovieRenderTarget {
   /** Versioned fingerprint protocol. */

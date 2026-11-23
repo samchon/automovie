@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeTrack,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeTrack,
   createDoor,
 } from "@automovie/archetypes";
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
@@ -15,7 +15,7 @@ import { TestValidator } from "@nestia/e2e";
  * A body released on its hinge swings as a rigid pendulum: at the small-angle period for a small release, at the exact period for a large one, and the same release always swings the same.
  *
  * Scenarios, for a rod with a bob hung on a level hinge (the whole body swings), released 1 s into the film:
- * 1. Released at the closed form's reach (`ArchetypeTrack.SMALL`) from where it hangs, its period, read from the times the travel crosses rest, is within 0.5 % of `2 pi sqrt(I / (m g d))` for the body's own moment `I` about the hinge (`Archetype.moment`), its mass and its centre of mass's distance `d` below the hinge (#3476).
+ * 1. Released at the closed form's reach (`AutoMovieArchetypeTrack.SMALL`) from where it hangs, its period, read from the times the travel crosses rest, is within 0.5 % of `2 pi sqrt(I / (m g d))` for the body's own moment `I` about the hinge (`AutoMovieArchetype.moment`), its mass and its centre of mass's distance `d` below the hinge (#3476).
  * 2. Released level with its hinge, 90 degrees, past the closed form's reach, its period is within 0.5 % of the exact period, the small-angle one over the arithmetic-geometric mean of 1 and `cos(θ0 / 2)` (Carvalhaes and Suppes 2008), and through three swings it never reaches past its release by more than 1e-6 degrees, as a swing without friction conserves its energy.
  * 3. Two tracks of the same release give bit-identical travels at every second read; before the release the travel holds the release.
  * 4. Released level with its hinge with a launch at rest, the launch comes a quarter of the exact period after the release, within 0.5 %, at the rate energy gives at the bottom, `ω sqrt(2)`, from `sqrt(2 ω^2 (1 - cos θ0))` at 90 degrees, within 1e-6 of it.
@@ -32,23 +32,24 @@ export function test_archetype_track_swing(): void {
   const findings: string[] = [];
   const v: typeof Vector3.create = Vector3.create;
   const pivot: IAutoMovieVector3 = v(0, 1, 0);
-  const body: Archetype<"hinge", never> = new ArchetypeBuilder<"hinge", never>({
-    material: "steel",
-    name: "pendulum",
-    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
-  })
-    .rod("rod", 0.01, pivot, v(0, 0.2, 0))
-    .box("bob", v(0.1, 0.1, 0.1), v(0, 0.15, 0))
-    .affordance({
-      id: "hinge",
-      kind: "hinge",
-      frame: ArchetypeFrame.facing(pivot, v(1, 0, 0), v(0, 0, 1)),
-      extent: null,
-      travel: 179,
-      reverse: 179,
-      parts: ["rod", "bob"],
+  const body: AutoMovieArchetype<"hinge", never> =
+    new AutoMovieArchetypeBuilder<"hinge", never>({
+      material: "steel",
+      name: "pendulum",
+      draw: new AutoMovieArchetypeDrawSession<never>("fixture", {}, undefined),
     })
-    .build(2);
+      .rod("rod", 0.01, pivot, v(0, 0.2, 0))
+      .box("bob", v(0.1, 0.1, 0.1), v(0, 0.15, 0))
+      .affordance({
+        id: "hinge",
+        kind: "hinge",
+        frame: AutoMovieArchetypeFrame.facing(pivot, v(1, 0, 0), v(0, 0, 1)),
+        extent: null,
+        travel: 179,
+        reverse: 179,
+        parts: ["rod", "bob"],
+      })
+      .build(2);
   const START: number = 1;
   const g: number = AutoMovieGravity.STANDARD;
   const d: number = pivot.y - body.properties.centerOfMass.y;
@@ -68,8 +69,8 @@ export function test_archetype_track_swing(): void {
     small / mean(1, Math.cos((release * Math.PI) / 180 / 2));
 
   // The period: twice the mean time between successive crossings of rest.
-  const period: (track: ArchetypeTrack.ITrack<"hinge">) => number = (
-    track: ArchetypeTrack.ITrack<"hinge">,
+  const period: (track: AutoMovieArchetypeTrack.ITrack<"hinge">) => number = (
+    track: AutoMovieArchetypeTrack.ITrack<"hinge">,
   ): number => {
     const crossings: number[] = [];
     const step: number = 1e-3;
@@ -86,26 +87,24 @@ export function test_archetype_track_swing(): void {
   };
 
   // 1. A small release.
-  const gentle: ArchetypeTrack.ITrack<"hinge"> = ArchetypeTrack.swing(
-    body,
-    "hinge",
-    {
+  const gentle: AutoMovieArchetypeTrack.ITrack<"hinge"> =
+    AutoMovieArchetypeTrack.swing(body, "hinge", {
       start: START,
-      release: ArchetypeTrack.SMALL * (180 / Math.PI),
+      release: AutoMovieArchetypeTrack.SMALL * (180 / Math.PI),
       seconds: 4 * small,
-    },
-  );
+    });
   if (!(Math.abs(period(gentle) / small - 1) <= 0.005))
     findings.push(
       `released at the closed form's reach it swings at ${period(gentle)} s, ${small} s expected`,
     );
 
   // 2. A large release.
-  const wide: ArchetypeTrack.ITrack<"hinge"> = ArchetypeTrack.swing(
-    body,
-    "hinge",
-    { start: START, release: 90, seconds: 3 * exact(90) },
-  );
+  const wide: AutoMovieArchetypeTrack.ITrack<"hinge"> =
+    AutoMovieArchetypeTrack.swing(body, "hinge", {
+      start: START,
+      release: 90,
+      seconds: 3 * exact(90),
+    });
   if (!(Math.abs(period(wide) / exact(90) - 1) <= 0.005))
     findings.push(
       `released 90 degrees it swings at ${period(wide)} s, ${exact(90)} s expected`,
@@ -117,11 +116,12 @@ export function test_archetype_track_swing(): void {
     findings.push(`released 90 degrees it reaches ${reach} degrees`);
 
   // 3. The same release swings the same, and holds before it.
-  const twin: ArchetypeTrack.ITrack<"hinge"> = ArchetypeTrack.swing(
-    body,
-    "hinge",
-    { start: START, release: 90, seconds: 3 * exact(90) },
-  );
+  const twin: AutoMovieArchetypeTrack.ITrack<"hinge"> =
+    AutoMovieArchetypeTrack.swing(body, "hinge", {
+      start: START,
+      release: 90,
+      seconds: 3 * exact(90),
+    });
   for (let t: number = 0; t <= wide.end + 1; t += 0.137)
     if (twin.travel(t) !== wide.travel(t))
       findings.push(`two tracks of one release differ at ${t} s`);
@@ -131,11 +131,13 @@ export function test_archetype_track_swing(): void {
     );
 
   // 4. A launch at the bottom.
-  const thrown: ArchetypeTrack.ITrack<"hinge"> = ArchetypeTrack.swing(
-    body,
-    "hinge",
-    { start: START, release: 90, seconds: exact(90), launch: 0 },
-  );
+  const thrown: AutoMovieArchetypeTrack.ITrack<"hinge"> =
+    AutoMovieArchetypeTrack.swing(body, "hinge", {
+      start: START,
+      release: 90,
+      seconds: exact(90),
+      launch: 0,
+    });
   const bottom: number =
     (Math.sqrt(2 * omega * omega * (1 - Math.cos(Math.PI / 2))) * 180) /
     Math.PI;
@@ -151,16 +153,13 @@ export function test_archetype_track_swing(): void {
     );
 
   // 4b. The closed form's launch: released at its reach, the bottom comes a quarter of the small-angle period after.
-  const tossed: ArchetypeTrack.ITrack<"hinge"> = ArchetypeTrack.swing(
-    body,
-    "hinge",
-    {
+  const tossed: AutoMovieArchetypeTrack.ITrack<"hinge"> =
+    AutoMovieArchetypeTrack.swing(body, "hinge", {
       start: START,
-      release: ArchetypeTrack.SMALL * (180 / Math.PI),
+      release: AutoMovieArchetypeTrack.SMALL * (180 / Math.PI),
       seconds: small,
       launch: 0,
-    },
-  );
+    });
   if (
     tossed.launch === null ||
     !(Math.abs(tossed.launch.seconds - START - small / 4) <= 1e-9)
@@ -174,7 +173,7 @@ export function test_archetype_track_swing(): void {
     [
       "hinge",
       (): unknown =>
-        ArchetypeTrack.swing(createDoor({ kind: "hinged" }), "hinge", {
+        AutoMovieArchetypeTrack.swing(createDoor({ kind: "hinged" }), "hinge", {
           start: 0,
           release: 30,
           seconds: 1,
@@ -183,7 +182,7 @@ export function test_archetype_track_swing(): void {
     [
       "release",
       (): unknown =>
-        ArchetypeTrack.swing(body, "hinge", {
+        AutoMovieArchetypeTrack.swing(body, "hinge", {
           start: 0,
           release: 180,
           seconds: 1,
@@ -192,9 +191,9 @@ export function test_archetype_track_swing(): void {
     [
       "launch",
       (): unknown =>
-        ArchetypeTrack.swing(body, "hinge", {
+        AutoMovieArchetypeTrack.swing(body, "hinge", {
           start: 0,
-          release: ArchetypeTrack.SMALL * (180 / Math.PI),
+          release: AutoMovieArchetypeTrack.SMALL * (180 / Math.PI),
           seconds: 1,
           launch: 90,
         }),
@@ -204,7 +203,8 @@ export function test_archetype_track_swing(): void {
     try {
       make();
     } catch (error) {
-      refused = error instanceof ArchetypeRefusal ? error.axis : String(error);
+      refused =
+        error instanceof AutoMovieArchetypeRefusal ? error.axis : String(error);
     }
     if (refused !== field)
       findings.push(`a bad ${field} was refused at ${refused}`);

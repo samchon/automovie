@@ -2,11 +2,6 @@ import type { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 
 /**
  * Section and angular resolution for extracting a positive radial profile.
- *
- * @evidence contracts/development/common.md#meaningful-documentation A metre section and safe angular sample count yield radii at evenly spaced polar directions. The finite star-shapedness walk rejects observed violations but does not certify all unsampled intervals.
- * @evidence contracts/development/design.md#principled-representation A metre section and safe angular sample count yield radii at evenly spaced polar directions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface sampleAutoMovieSweepSection uses the canonical section discriminants and existing curve parameterizer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The finite star-shapedness walk rejects observed violations but does not certify all unsampled intervals.
  */
 export namespace IAutoMovieSampleSweepSection {
   /**
@@ -28,11 +23,6 @@ export namespace IAutoMovieSampleSweepSection {
    * counterclockwise: the polar angle must strictly increase between successive
    * points and turn once in total, or the curve is refused, because the sampled walk would not pair its points by direction.
    * This finite walk does not certify monotone polar angle between probes.
-   *
-   * @evidence contracts/development/design.md#principled-representation A section-plane metre curve is sampled at evenly spaced polar directions; the sampler checks count and authored data, with finite-walk admission for general curves.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface compileAutoMovieSweep uses this radius array for direction correspondence, while parameter correspondence keeps its own Cartesian section evaluator.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The finite walk is not a proof of unsampled star-shapedness; sampled radial spline values are checked for positive finiteness rather than clipped.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives angular convention, metre units, output cardinality, validation owner and the finite-walk limitation.
    */
   export type IProps = {
     /** Borrowed section in metre x/y coordinates. The sampler validates radial data or delegates curve admission to parameterizeAutoMovieSweepSection; its finite walk rejects observed origin crossings and nonincreasing polar angles, without certifying unsampled curve intervals. */

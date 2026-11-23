@@ -8,6 +8,7 @@ import { operate } from "../affordance/operate";
 import { handOver } from "../handling/handOver";
 import { putDown } from "../handling/putDown";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_MILITARY_DRILL_COVER_VENT } from "../next/presets/HUMAN_MILITARY_DRILL_COVER_VENT";
 import { touch } from "../touch/touch";
 
 /**
@@ -48,10 +49,7 @@ export namespace HumanGunDrill {
   /** Cover the vent with the fingertips. */
   export const coverVent: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gunDrill"]["coverVent"]
-  > = HumanActionRow.of("coverVent", touch, {
-    with: "fingertips",
-    kind: "hold",
-  });
+  > = HumanActionRow.of("coverVent", touch, HUMAN_MILITARY_DRILL_COVER_VENT);
 
   /** Sponge the bore. */
   export const spongeBore: IAutoMovieMotionHumanActionLaw<

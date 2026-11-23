@@ -5,6 +5,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanPutDown,
   IAutoMoviePose,
@@ -266,6 +267,52 @@ export namespace putDownTarget {
   }
 
   /**
+   * The prop's frame in the frame of the socket it is set on (`onto`): the
+   * inverse of its own `via` socket, so that socket lands on the receiving
+   * one, as `of` places it; the identity without a `via`.
+   *
+   * @param context The authored destination, props and entry second.
+   * @returns The prop's frame in the receiving socket's frame, metres and a unit quaternion.
+   * @throws {HumanRefusal} On onto when the prop's `via` socket is absent.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, its two cases and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The rigid inverse of the source socket, the same relation `of` composes on the receiving socket.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One case without a via, one rigid inverse with it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The source socket is read from the prop's posed affordances, as `of` reads it.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One socket read.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reader.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function seated(
+    context: Pick<
+      IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
+      "params" | "prop" | "start"
+    >,
+  ): IAutoMovieRigidTransform {
+    const via: string | undefined = context.params.onto?.via;
+    if (via === undefined)
+      return {
+        position: { x: 0, y: 0, z: 0 },
+        rotation: Quaternion.identity(),
+      };
+    const source: IAutoMovieRigidTransform = socketFrame(
+      context.prop(context.params.prop),
+      via,
+      context.start,
+    );
+    const inverse: IAutoMovieRigidTransform["rotation"] = Quaternion.inverse(
+      source.rotation,
+    );
+    return {
+      position: Quaternion.rotateVector(
+        inverse,
+        Vector3.scale(source.position, -1),
+      ),
+      rotation: inverse,
+    };
+  }
+
+  /**
    * The prop's fixed placing frame, or undefined for a free world placement.
    *
    * @param context The authored destination, body, props and entry second.
@@ -288,14 +335,20 @@ export namespace putDownTarget {
     >,
     pose: IAutoMoviePose | (() => IAutoMoviePose),
   ): IAutoMovieRigidTransform | undefined {
-    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] = context.params.onto;
+    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
+      context.params.onto;
     if (onto === undefined) {
       const on: IAutoMovieMotionHumanPutDown.IParams["on"] = context.params.on;
       if (on === undefined) return undefined;
       return HumanPropFrame.compose(
-        HumanPropFrame.bone(poseBones(context.body,
-          typeof pose === "function" ? pose() : pose, undefined,
-          new Set<AutoMovieHumanoidBone>([on.bone])).get(on.bone)!),
+        HumanPropFrame.bone(
+          poseBones(
+            context.body,
+            typeof pose === "function" ? pose() : pose,
+            undefined,
+            new Set<AutoMovieHumanoidBone>([on.bone]),
+          ).get(on.bone)!,
+        ),
         on.offset,
       );
     }
@@ -361,12 +414,24 @@ export namespace putDownTarget {
     return frame;
   }
 
-  /** Read the socket in world metres at a film second. */
+  /**
+   * Read the socket in world metres at a film second. A receiver that publishes its contacts' displayed frames (a horse's head, a carrier on a moving body) is read there, so the socket follows what moves within the prop; otherwise the prop's rigid frame carries its declared socket.
+   */
   function worldSocket(
     reader: IAutoMovieMotionHumanPropReader,
     id: string,
     seconds: number,
   ): IAutoMovieRigidTransform {
+    const placed: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+      reader.prop.point?.(id, seconds);
+    if (placed?.rotation !== undefined) {
+      const moving: IAutoMovieRigidTransform = {
+        position: placed.point,
+        rotation: placed.rotation,
+      };
+      requireRigid(moving, `${reader.prop.subject}.${id}`, seconds);
+      return moving;
+    }
     const world: IAutoMovieRigidTransform = reader.frame(seconds);
     requireRigid(world, reader.prop.subject, seconds);
     return HumanPropFrame.compose(world, socketFrame(reader, id, seconds));

@@ -2,11 +2,6 @@ import type { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
 
 /**
  * Structural opening dimensions and resolved lining layers for autoMovieAssemblyOpeningReveal.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Structural opening dimensions and resolved lining layers for autoMovieAssemblyOpeningReveal. Required width and height are structural metres; the operation checks finite positive dimensions and refuses non-positive clear dimensions after lining.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The resolved layers must already have finite nonnegative thicknesses; this input does not brand an assembly as validated.
- * @evidence contracts/development/design.md#principled-representation Required width and height are structural metres; the operation checks finite positive dimensions and refuses non-positive clear dimensions after lining.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The reveal operation borrows IAutoMovieResolvedAssembly from material resolution and returns its independently allocated reveal; no alternative layer schema is introduced.
  */
 export namespace IAutoMovieAssemblyOpeningReveal {
   /**
@@ -29,11 +24,6 @@ export namespace IAutoMovieAssemblyOpeningReveal {
    *
    * Throws when either structural dimension is not a finite number above zero,
    * and when the lining leaves no positive clear width or height.
-   *
-   * @evidence contracts/development/design.md#principled-representation Required width and height are structural metres; the operation checks finite positive dimensions and refuses non-positive clear dimensions after lining.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The reveal operation borrows IAutoMovieResolvedAssembly from material resolution and returns its independently allocated reveal; no alternative layer schema is introduced.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The resolved layers must already have finite nonnegative thicknesses; this input does not brand an assembly as validated.
-   * @evidence contracts/development/common.md#meaningful-documentation Structural opening dimensions and resolved lining layers for autoMovieAssemblyOpeningReveal. Required width and height are structural metres; the operation checks finite positive dimensions and refuses non-positive clear dimensions after lining.
    */
   export type IProps = {
     /** Borrowed admitted layer order and thicknesses in metres; only face-accessible wrapping runs line the opening. */

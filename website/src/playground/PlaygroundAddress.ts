@@ -1,7 +1,4 @@
-import {
-  compressToEncodedURIComponent,
-  decompressFromEncodedURIComponent,
-} from "lz-string";
+import LZString from "lz-string";
 
 import type { IPlaygroundComposition } from "./structures/IPlaygroundComposition";
 
@@ -31,7 +28,7 @@ export namespace PlaygroundAddress {
    */
   export function encode(composition: IPlaygroundComposition): string {
     admitForces(composition);
-    return `#${KEY}=${compressToEncodedURIComponent(JSON.stringify(composition))}`;
+    return `#${KEY}=${LZString.compressToEncodedURIComponent(JSON.stringify(composition))}`;
   }
 
   /**
@@ -49,7 +46,9 @@ export namespace PlaygroundAddress {
 
     let value: unknown;
     try {
-      value = JSON.parse(decompressFromEncodedURIComponent(text) ?? "");
+      value = JSON.parse(
+        LZString.decompressFromEncodedURIComponent(text) ?? "",
+      );
     } catch {
       throw new Error("The address carries a composition that cannot be read");
     }
@@ -149,7 +148,31 @@ export namespace PlaygroundAddress {
       (k: string): boolean => typeof value[k] === "number",
     );
 
-  /** Whether a value has the members the adapter reads of a placed object. */
+  /** Admit a serialized native path before the SDK validates its geometry. */
+  function course(value: unknown): boolean {
+    return (
+      record(value) &&
+      (value.kind === undefined || value.kind === "course") &&
+      Number.isFinite(value.cruise) &&
+      Array.isArray(value.legs) &&
+      value.legs.every(
+        (leg: unknown): boolean =>
+          record(leg) &&
+          (leg.kind === "straight"
+            ? Number.isFinite(leg.length)
+            : leg.kind === "turn" &&
+              Number.isFinite(leg.radius) &&
+              Number.isFinite(leg.angle)),
+      ) &&
+      ["acceleration", "deceleration", "startSpeed", "endSpeed", "at"].every(
+        (field: string): boolean =>
+          value[field] === undefined || Number.isFinite(value[field]),
+      ) &&
+      (value.speeds === undefined ||
+        (Array.isArray(value.speeds) && value.speeds.every(Number.isFinite)))
+    );
+  }
+
   const object: (value: unknown) => boolean = (value: unknown): boolean =>
     record(value) &&
     typeof value.subject === "string" &&
@@ -159,12 +182,29 @@ export namespace PlaygroundAddress {
     (value.params === undefined ||
       (record(value.params) &&
         Object.values(value.params).every(
-          (n: unknown): boolean => typeof n === "number",
+          (n: unknown): boolean =>
+            typeof n === "number" || typeof n === "string",
         ))) &&
     typeof value.x === "number" &&
     typeof value.z === "number" &&
     (value.y === undefined || typeof value.y === "number") &&
     (value.rotation === undefined || quaternion(value.rotation)) &&
+    (value.course === undefined || course(value.course)) &&
+    (value.aidWalk === undefined ||
+      (record(value.aidWalk) && token(value.aidWalk.subject))) &&
+    (value.joints === undefined ||
+      (value.course !== undefined &&
+        record(value.joints) &&
+        Object.values(value.joints).every(
+          (keys: unknown) =>
+            Array.isArray(keys) &&
+            keys.every(
+              (key: unknown) =>
+                record(key) &&
+                Number.isFinite(key.seconds) &&
+                Number.isFinite(key.value),
+            ),
+        ))) &&
     (value.worn === undefined ||
       (record(value.worn) &&
         typeof value.worn.subject === "string" &&
@@ -179,6 +219,14 @@ export namespace PlaygroundAddress {
         ) &&
         quaternion(value.worn.offset.rotation))) &&
     (value.fixed === undefined || typeof value.fixed === "boolean") &&
+    (value.sheath === undefined ||
+      (record(value.sheath) &&
+        value.worn === undefined &&
+        ["carrier", "mouth", "tip", "handle"].every(
+          (k: string): boolean =>
+            typeof (value.sheath as Record<string, unknown>)[k] === "string",
+        ) &&
+        typeof value.sheath.clearance === "number")) &&
     typeof value.yaw === "number";
 
   /** Whether a value has the members the editor reads of a performer. */

@@ -24,30 +24,16 @@
  *
  * Events: `handsDown` (the first hand bears), `inverted` (half the wheel),
  * `feetDown` (the feet bear again), `relax` (the end).
- *
- * @evidence contracts/development/common.md#meaningful-documentation lead: The hand that goes down first; `left` when absent. seconds: Seconds the round-off takes; `SECONDS` when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation lead: The hand that goes down first; `left` when absent. seconds: Seconds the round-off takes; `SECONDS` when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/roundOff.ts (roundOff.plan, context).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in roundOff.plan.
  */
 export namespace IAutoMovieMotionHumanRoundOff {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The leading hand and the seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The hand is a closed union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The hand that goes down first; `left` when absent. */
     lead?: "left" | "right";
 
-    /** Seconds the round-off takes; `SECONDS` when absent.
-     * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
-    seconds?: number;
+    /** Seconds the round-off takes, positive; 1.2 s when absent (`roundOff.SECONDS`, provisional: quicker than the cartwheel, the entry to a tumbling run). */
+    duration?: number;
   }
 }

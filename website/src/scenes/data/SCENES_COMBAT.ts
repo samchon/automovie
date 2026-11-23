@@ -1,13 +1,10 @@
-import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
+import { SceneBuild } from "./SceneBuild";
 import { SceneTakes } from "./SceneTakes";
 
-/** A region of another person, as a motion target. */
-function at(subject: string, region: string): Record<string, unknown> {
-  return { kind: "person", subject, region };
-}
+const { at }: typeof SceneBuild = SceneBuild;
 
-const SPARRING: IPlaygroundComposition = {
+const SPARRING: SceneBuild.Composition = {
   version: 1,
   seed: "sparring",
   performers: [
@@ -19,7 +16,10 @@ const SPARRING: IPlaygroundComposition = {
       yaw: 0,
       proficiency: "trained",
       actions: [
-        { name: "guard", params: { seconds: 0.8, facing: at("blue", "face") } },
+        {
+          name: "guard",
+          params: { duration: 0.8, facing: at("blue", "face") },
+        },
         { name: "step", params: { direction: "forward", steps: 1 } },
         {
           name: "punch",
@@ -50,7 +50,7 @@ const SPARRING: IPlaygroundComposition = {
         },
         {
           name: "guard",
-          params: { seconds: 1.4, facing: at("blue", "face") },
+          params: { duration: 1.4, facing: at("blue", "face") },
           anchor: "shell",
         },
         { name: "step", params: { direction: "left", steps: 1 } },
@@ -96,15 +96,15 @@ const SPARRING: IPlaygroundComposition = {
           params: { at: at("blue", "abdomen") },
           anchor: "knee",
         },
-        { name: "guard", params: { seconds: 1, facing: at("blue", "face") } },
+        { name: "guard", params: { duration: 1, facing: at("blue", "face") } },
         {
           name: "pushed",
-          params: { from: at("blue", "soleRight") },
+          params: { target: at("blue", "soleRight") },
           anchor: "teeped",
         },
         { name: "step", params: { direction: "back", steps: 1 } },
         { name: "step", params: { direction: "right", steps: 2 } },
-        { name: "guard", params: { seconds: 1, facing: at("blue", "face") } },
+        { name: "guard", params: { duration: 1, facing: at("blue", "face") } },
       ],
     },
     {
@@ -115,7 +115,7 @@ const SPARRING: IPlaygroundComposition = {
       yaw: 180,
       proficiency: "trained",
       actions: [
-        { name: "guard", params: { seconds: 1.2, facing: at("red", "face") } },
+        { name: "guard", params: { duration: 1.2, facing: at("red", "face") } },
         { name: "defend", params: { kind: "parry", against: "jab" } },
         { name: "defend", params: { kind: "slip", against: "cross" } },
         { name: "defend", params: { kind: "elbowBlock", against: "body" } },
@@ -153,14 +153,14 @@ const SPARRING: IPlaygroundComposition = {
           sync: { of: "teeped", event: "start", align: "impact" },
         },
         { name: "step", params: { direction: "left", steps: 2 } },
-        { name: "guard", params: { seconds: 1, facing: at("red", "face") } },
+        { name: "guard", params: { duration: 1, facing: at("red", "face") } },
       ],
     },
   ],
   mutuals: [],
 };
 
-const DOJO: IPlaygroundComposition = {
+const DOJO: SceneBuild.Composition = {
   version: 1,
   seed: "dojo",
   performers: [
@@ -201,10 +201,10 @@ const DOJO: IPlaygroundComposition = {
  * out. The push runs at 2.1 times its natural rate, which keeps it slow
  * (about six seconds) and lets the class end with the bow.
  */
-function lesson(): IPlaygroundComposition.IAction[] {
+function lesson(): SceneBuild.Action[] {
   return [
     { name: "gesture", params: { kind: "bow" } },
-    { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },
+    { name: "martialArt", params: { kind: "horseStance", hold: 1 } },
     { name: "martialArt", params: { kind: "chokuZuki", count: 3 } },
     {
       name: "martialArt",

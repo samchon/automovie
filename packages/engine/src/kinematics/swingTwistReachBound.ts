@@ -27,11 +27,6 @@ import { Vector3 } from "../math/Vector3";
  * each interval admits are intervals with closed-form ends, and the farthest
  * swing either reading admits bounds the reach. The swing cone only removes
  * directions, so the bound stands with it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the chart the bound rests on, both readings, the monotone pieces and why the cone keeps the bound valid.
- * @evidence contracts/development/design.md#principled-representation A bound per great circle in degrees, the one thing the scan reads; the admitted intervals behind it stay private.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `prepare` and its `MARGIN`, read by `swingTwistRegion`'s reach scan alone.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint is named; a basis the chart's premises do not hold on gets no bound and keeps the whole scan.
  */
 export namespace swingTwistReachBound {
   /** How far past its closed-form end an admitted interval is taken, degrees: past the rounding of the scan's own reading of a direction, far under the scan's half-degree step. */
@@ -40,11 +35,6 @@ export namespace swingTwistReachBound {
   /**
    * What the scan's grid can read of a ray's reached swings, written beside
    * the bound for a caller that gives the grid's step.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, its meaning and its empty value.
-   * @evidence contracts/development/design.md#principled-representation The scan reads grid steps, so the closed form answers in them: the farthest step an interval of reached swings holds, and that interval's ends when it alone decides the step's cell.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One input and three outputs, all read by `swingTwistRegion`'s reach scan.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record is the caller's and reused per ray; an interval is reported only where the closed forms hold and nothing else reaches into the cell.
    */
   export interface ISpan {
     /** The scan grid's step, degrees; given by the caller. */
@@ -67,14 +57,6 @@ export namespace swingTwistReachBound {
    * @param basis The joint's swing frame.
    * @param across `(f x u) . a` of that frame.
    * @returns For a great circle's azimuth cosine and sine, an upper bound in degrees within [0, 180] of every swing the intervals reach on it, 0 when none is reached, and, when a span is given, what the scan's grid can read of them ({@link ISpan}); null when an interval is absent or the basis is not orthonormal to rounding, so the chart's closed forms do not hold.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States inputs, units, the bound's meaning and the null cases.
-   * @evidence contracts/development/implementation.md#principled-implementation The latitude and longitude chart of two successive rotations about orthogonal axes. Each admitted interval of rig angles, with its full-turn aliases (`nearestAngleAlias` admits an angle when any alias lies inside), maps to swings through `asin` and `atan2`, monotone on the pieces used. Where the circle passes within 1e-4 of the abduction axis (`|c|` under it) the longitude is undefined or nearly so and the scan tests three fixed abductions instead, so there the latitude alone bounds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admitted rig intervals once a joint, their swing intervals per reading, and the farthest end of their intersections.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An upper bound only: the scan and its bisection still decide the reach on the same grid, and every interval is widened by `MARGIN` (and its sines by 1e-9) so rounding cannot place a reached swing above it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work a great circle: at most three aliases of two intervals on two readings.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; the admitted rig intervals are computed once a joint by construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned closure holds three short interval lists and is released with the table's build.
    */
   export function prepare(
     constraint: IAutoMovieJointConstraint,

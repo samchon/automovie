@@ -1,4 +1,7 @@
-import { type createHorse, createPony } from "@automovie/archetypes";
+import {
+  type AutoMovieArchetypeEquine,
+  createPony,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { equidAttachmentMatrix } from "../internal/equidAttachmentMatrix";
@@ -29,7 +32,7 @@ import { equidAttachmentMatrix } from "../internal/equidAttachmentMatrix";
 export function test_archetype_animal_attachment_equids_pony_fast(): void {
   const findings: string[] = [];
   equidAttachmentMatrix(
-    (tack: createHorse.Tack): ReturnType<typeof createPony> =>
+    (tack: AutoMovieArchetypeEquine.Tack): ReturnType<typeof createPony> =>
       createPony(
         { breed: "connemara", tack, tempo: 0, stirrupDrop: 0.575 },
         43,

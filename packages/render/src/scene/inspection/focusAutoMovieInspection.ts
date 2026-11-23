@@ -13,14 +13,6 @@ import { measureAutoMovieInspectionPaths } from "./measureAutoMovieInspectionPat
  * Measure the world-space box a view's focus frames: the drawn objects and marks a path pattern matches, or every drawn flagged mark, so a close-up on a part or on a defect's region is one request.
  *
  * The boxes are those `measureAutoMovieInspectionPaths` measures, joined into one. It throws when a pattern matches nothing drawn, and when the flagged focus finds no flagged mark, saying no mark is flagged.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each focus frames, where the boxes come from, and both refusals.
- * @evidence contracts/development/implementation.md#principled-implementation A flagged mark is where a measurement found an anomaly, so its region is the place a close-up frames; a pattern focus uses the same path grammar as every other selection.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Measure the matched paths, then join their boxes.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An empty focus is refused instead of falling back to the whole picture, which would frame a still with no defect in it.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the matched objects' drawn vertices and marks' coordinates.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pose changes between calls, so no earlier box is reused.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain numbers and keeps nothing.
  */
 export function focusAutoMovieInspection(props: {
   /** What to frame. */

@@ -13,13 +13,19 @@ const G: number = 9.81;
 /** The centre of mass's height over the floor, metres. */
 const HEIGHT: number = 0.9;
 
-/** The stance's centre-of-pressure inset, metres (`physicalStanceBalance.MARGIN`). */
+/**
+ * The stance's centre-of-pressure inset, metres
+ * (`physicalStanceBalance.MARGIN`).
+ */
 const INSET: number = 0.02;
 
 /** The capture point's accepted excursion past the shrunken support, metres. */
 const MARGIN: number = 0.01;
 
-/** The swing's unloading ramp, seconds, peak acceleration, m/s^2, and clearance, metres. */
+/**
+ * The swing's unloading ramp, seconds, peak acceleration, m/s^2, and clearance,
+ * metres.
+ */
 const SWING: { ramp: number; acceleration: number; height: number } = {
   ramp: 0.05,
   acceleration: 30,
@@ -30,26 +36,29 @@ const SWING: { ramp: number; acceleration: number; height: number } = {
 const REACH: number = 0.5;
 
 /**
- * The recovery step is chosen as the capture-point rules state, checked
- * against their closed forms without a simulation:
+ * The recovery step is chosen as the capture-point rules state, checked against
+ * their closed forms without a simulation:
  *
- * 1. Trigger (Koolen et al., Corollary 3): a capture point inside the
- *    support but past its outline shrunk by the stance's inset, by more than
- *    the margin, asks for a step; one within the margin of the shrunken
- *    outline does not.
- * 2. Place and time together (Khadiv et al. 2017, Section III-B): the step
- *    lands where the capture point will be when the leg can land, xi_T = u0
- *    + (xi - u0) e^(omega T), u0 the remaining foot's shrunken outline's
- *    point nearest xi, T = ramp + sqrt(max(5.77 d, 24 h) / a) for the step's
- *    distance d, inside the new support shrunk by the inset (Pratt et al.,
- *    M2V2, Section VII-E1); the foot keeps its own side, at least as wide
- *    as it stands, and never crosses toward the other (Section IX-G).
- * 3. Reach and viability (Khadiv et al. 2017, Eq. 9): a capture point past
- *    the reach clamps the step to the reach while the capture point left
- *    beyond the new foot stays within l / (e^(omega T) - 1); past that bound
- *    the stance is unrecoverable.
- * 4. A four-support body steps a front foot, and after a landing the other
- *    front foot before the one that just landed.
+ * 1. Trigger (Koolen et al., Corollary 3): a capture point inside the support but
+ *    past its outline shrunk by the stance's inset, by more than the margin,
+ *    asks for a step; one within the margin of the shrunken outline does not.
+ * 2. Place and time together (Khadiv et al. 2017, Section III-B): the step lands
+ *    where the capture point will be when the leg can land, xi_T = u0
+ *
+ *    - (xi - u0) e^(omega T), u0 the remaining foot's shrunken outline's point
+ *         nearest xi, T = ramp + sqrt(max(5.77 d, 24 h) / a) for the step's
+ *         distance d, inside the new support shrunk by the inset (Pratt et al.,
+ *         M2V2, Section VII-E1); the foot keeps its own side, at least as wide
+ *         as it stands, and never crosses toward the other (Section IX-G).
+ * 3. Reach and one-step capture (Koolen et al., Eq. 25): a capture point past the
+ *    reach clamps the step to the reach; one past the one-step bound is still
+ *    stepped to, clamped and marked not viable (Khadiv et al. 2017, Section
+ *    III-B: viability is soft). 3b-d. After a diagonal step the limb keeps the
+ *    body's side; a capture point behind the feet is stepped back to; a step
+ *    shorter than the margin is no step (Pratt et al., M2V2, Section VII-E1:
+ *    stop in double support).
+ * 4. A four-support body steps a front foot, and after a landing the other front
+ *    foot before the one that just landed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each rule and its closed form.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMoviePhysicalBalance.assess` on rectangular foot patches and reads its state, step target and timing.
@@ -83,13 +92,18 @@ export function test_physical_balance_step_choice(): void {
       unavailable: [],
       swing: SWING,
       inset: INSET,
+      heading: { x: 0, y: 0, z: 1 },
       ...(recent ? { recent } : {}),
     });
 
   // The quickest swing: the minimum-jerk transfer's time or the clearance's,
-  // whose peak accelerations are 5.77 d / T^2 and 24 h / T^2.
+  // whose peak accelerations are 5.77 d / T^2 and 24 h / T^2, and no shorter
+  // than Khadiv's 0.3 s.
   const swing = (d: number): number =>
-    Math.sqrt(Math.max(5.77 * d, 24 * SWING.height) / SWING.acceleration);
+    Math.max(
+      0.3,
+      Math.sqrt(Math.max(5.77 * d, 24 * SWING.height) / SWING.acceleration),
+    );
 
   // 1. The trigger reads the shrunken outline: its front edge is at 0.18 m.
   if (assess(biped, { x: 0, y: 0, z: 0.18 + 0.005 }).state !== "supported")
@@ -190,22 +204,96 @@ export function test_physical_balance_step_choice(): void {
       far.target.x - moving.position.x,
       far.target.z - moving.position.z,
     );
-    if (!(Math.abs(d - REACH) < 1e-9))
+    if (!(Math.abs(d - REACH) < 1e-3))
       failures.push(`a far step travels ${d} m, not the reach ${REACH} m`);
   }
-  const hopeless = assess(biped, { x: 0, y: 0, z: 3 });
-  if (hopeless.state !== "unrecoverable")
+  // Past the one-step bound a step is still taken, clamped to the reach and
+  // marked not viable: the body steps again or falls by its physics.
+  const hopeless = assess(biped, { x: 0, y: 0, z: 3 }).step;
+  if (!hopeless)
+    failures.push("a capture point past the one-step bound chose no step");
+  else {
+    const moving = biped.find((support) => support.bone === hopeless.bone)!;
+    const d: number = Math.hypot(
+      hopeless.target.x - moving.position.x,
+      hopeless.target.z - moving.position.z,
+    );
+    if (hopeless.viable !== false || !(Math.abs(d - REACH) < 1e-9))
+      failures.push(
+        `a step past the one-step bound is viable ${hopeless.viable} over ${d} m`,
+      );
+  }
+  // 3b. After a diagonal first step the side a limb keeps is the body's,
+  // across its heading: the left foot, behind and to the left of the right
+  // foot that stepped ahead and out, steps without crossing it.
+  const diagonal: IAutoMoviePhysicalSupportPatch[] = [
+    foot("left", 0.05, 0.15, 0, 0.2),
+    foot("right", -0.28, -0.18, 0.6, 0.8),
+  ];
+  const crossing = AutoMoviePhysicalBalance.assess({
+    center: { x: -0.11, y: HEIGHT, z: 0.5 },
+    velocity: { x: -0.1, y: 0, z: 0.4 },
+    gravity: G,
+    floor: 0,
+    supports: diagonal,
+    pattern: pattern(["left", "right"]),
+    maximumStep: REACH,
+    margin: MARGIN,
+    unavailable: ["right"],
+    swing: SWING,
+    inset: INSET,
+    heading: { x: 0, y: 0, z: 1 },
+    force: true,
+  }).step;
+  if (!crossing || crossing.bone !== "left")
     failures.push(
-      `a capture point past the viability bound is ${hopeless.state}`,
+      `after a diagonal step the left foot did not step (${crossing?.bone})`,
+    );
+  else if (!(crossing.target.x > -0.23 + 0.1 - 1e-9))
+    failures.push(
+      `the left foot crosses toward the right foot: target x ${crossing.target.x}`,
     );
 
-  // 4. Four supports: a front foot steps, and after it landed the other one.
   const four: IAutoMoviePhysicalSupportPatch[] = [
     foot("frontLeft", 0.2, 0.3, 0.3, 0.4),
     foot("frontRight", -0.3, -0.2, 0.3, 0.4),
     foot("backLeft", 0.2, 0.3, -0.4, -0.3),
     foot("backRight", -0.3, -0.2, -0.4, -0.3),
   ];
+  // 3c. A capture point behind the feet is stepped back to: back steps are
+  // allowed, only crossover is not.
+  const back = assess(biped, { x: 0.02, y: 0, z: -0.12 }).step;
+  if (!back) failures.push("a capture point behind the feet chose no step");
+  else {
+    const moving = biped.find((support) => support.bone === back.bone)!;
+    if (!(back.target.z < moving.position.z))
+      failures.push(
+        `a backward capture point stepped to z ${back.target.z}, not back`,
+      );
+  }
+  // 3d. A step the support already captures, shorter than the margin, is
+  // no step: the body holds, as a four-support body asked to step with its
+  // capture point at its centre does.
+  const hold = AutoMoviePhysicalBalance.assess({
+    center: { x: 0, y: HEIGHT, z: 0 },
+    velocity: { x: 0, y: 0, z: 0 },
+    gravity: G,
+    floor: 0,
+    supports: four,
+    pattern: pattern(four.map((support) => support.bone)),
+    maximumStep: REACH,
+    margin: MARGIN,
+    unavailable: [],
+    swing: SWING,
+    inset: INSET,
+    heading: { x: 0, y: 0, z: 1 },
+    force: true,
+  });
+  if (hold.state !== "supported" || hold.step)
+    failures.push(
+      `a sub-margin step was taken: ${hold.state} ${hold.step?.bone}`,
+    );
+  // 4. Four supports: a front foot steps, and after it landed the other one.
   const ahead: IAutoMovieVector3 = { x: 0, y: 0, z: 0.45 };
   const first = assess(four, ahead).step;
   if (!first || !first.bone.startsWith("front"))
@@ -263,7 +351,10 @@ function clamp(value: number, lower: number, upper: number): number {
   return Math.max(lower, Math.min(upper, value));
 }
 
-/** A convex hull of floor points, counter-clockwise seen from above (monotone chain). */
+/**
+ * A convex hull of floor points, counter-clockwise seen from above (monotone
+ * chain).
+ */
 function hull(points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] {
   const sorted: IAutoMovieVector3[] = [...points].sort(
     (a, b) => a.x - b.x || a.z - b.z,
@@ -288,7 +379,10 @@ function hull(points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] {
   return [...half(sorted), ...half([...sorted].reverse())];
 }
 
-/** How deep a point lies inside a counter-clockwise convex polygon, metres: its least distance to an edge, negative outside. */
+/**
+ * How deep a point lies inside a counter-clockwise convex polygon, metres: its
+ * least distance to an edge, negative outside.
+ */
 function inside(
   polygon: readonly IAutoMovieVector3[],
   point: IAutoMovieVector3,

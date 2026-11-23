@@ -1,4 +1,7 @@
-import { type Archetype, createSiegeEngine } from "@automovie/archetypes";
+import {
+  type AutoMovieArchetype,
+  createSiegeEngine,
+} from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -49,14 +52,14 @@ export function test_archetype_siege_trebuchet(): void {
       findings.push(`mangonel ${name} is ${m[name]}, not ${expected}`);
   for (const kind of createSiegeEngine.KINDS)
     for (const seed of [0, 3, 7, 12]) {
-      const engine: Archetype<
+      const engine: AutoMovieArchetype<
         createSiegeEngine.Affordance,
         createSiegeEngine.Dimension
       > = createSiegeEngine({ kind }, seed);
       const d: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>> =
         engine.dimensions;
       const label: string = `${kind}@${seed}`;
-      const cocked: Archetype<
+      const cocked: AutoMovieArchetype<
         createSiegeEngine.Affordance,
         createSiegeEngine.Dimension
       > = engine.articulate({ arm: -d.cocked! });
@@ -65,7 +68,7 @@ export function test_archetype_siege_trebuchet(): void {
           `${label}: the winch turns ${cocked.travel("winch")}, not the ratio times the cocked travel`,
         );
       for (const arm of [-d.cocked!, 0, 90, d.release!, d.reach!]) {
-        const posed: Archetype<
+        const posed: AutoMovieArchetype<
           createSiegeEngine.Affordance,
           createSiegeEngine.Dimension
         > = engine.articulate({ arm });

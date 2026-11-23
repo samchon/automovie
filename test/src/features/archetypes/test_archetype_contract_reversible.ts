@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "@automovie/archetypes";
 import {
   Vector3,
@@ -26,14 +26,18 @@ function fixture(
   carried: boolean = false,
   driveLimit: number = 1,
   followerLimit: number = 90,
-): Archetype<Id, never> {
+): AutoMovieArchetype<Id, never> {
   const v: typeof Vector3.create = Vector3.create;
-  const frame: ReturnType<typeof ArchetypeFrame.upright> =
-    ArchetypeFrame.upright(v(0, 0, 0));
-  return new ArchetypeBuilder<Id, never>({
+  const frame: ReturnType<typeof AutoMovieArchetypeFrame.upright> =
+    AutoMovieArchetypeFrame.upright(v(0, 0, 0));
+  return new AutoMovieArchetypeBuilder<Id, never>({
     material: "steel",
     name: "reversible-fixture",
-    draw: new ArchetypeDrawSession<never>("reversible-fixture", {}, undefined),
+    draw: new AutoMovieArchetypeDrawSession<never>(
+      "reversible-fixture",
+      {},
+      undefined,
+    ),
   })
     .box("driver", v(0.1, 0.1, 0.1), v(0, 0, 0))
     .box("leaf", v(0.1, 0.1, 0.1), v(0.2, 0, 0))
@@ -76,7 +80,7 @@ function refused(operation: () => unknown): boolean {
   try {
     operation();
   } catch (error) {
-    return error instanceof ArchetypeRefusal;
+    return error instanceof AutoMovieArchetypeRefusal;
   }
   return false;
 }
@@ -132,7 +136,7 @@ export function test_archetype_contract_reversible(): void {
     [1, 90],
   ];
   for (const rule of rules) {
-    const rest: Archetype<Id, never> = fixture(rule);
+    const rest: AutoMovieArchetype<Id, never> = fixture(rule);
     if (!validateModel({ model: rest }).success)
       findings.push("a one-to-one coupling is refused by admission");
     for (const [drive, tableValue] of samples) {
@@ -140,8 +144,10 @@ export function test_archetype_contract_reversible(): void {
         rule.table === undefined
           ? rule.ratio * drive
           : (rule.table[0]![1] > 0 ? -1 : 1) * tableValue;
-      const posed: Archetype<Id, never> = rest.articulate({ follower });
-      const nested: Archetype<Id, never> = rest.articulate({
+      const posed: AutoMovieArchetype<Id, never> = rest.articulate({
+        follower,
+      });
+      const nested: AutoMovieArchetype<Id, never> = rest.articulate({
         tip: follower / 2,
       });
       if (
@@ -164,7 +170,7 @@ export function test_archetype_contract_reversible(): void {
         findings.push(`out-of-domain follower ${follower} is admitted`);
   }
   for (const reversible of [undefined, false]) {
-    const ordinary: Archetype<Id, never> = fixture({
+    const ordinary: AutoMovieArchetype<Id, never> = fixture({
       id: "drive",
       ratio: 90,
       reversible,
@@ -172,7 +178,7 @@ export function test_archetype_contract_reversible(): void {
     if (!refused(() => ordinary.articulate({ follower: 10 })))
       findings.push("an unmarked follower is reverse-driven");
   }
-  const narrow: Archetype<Id, never> = fixture({
+  const narrow: AutoMovieArchetype<Id, never> = fixture({
     id: "drive",
     table: [
       [-1, -20],
@@ -207,7 +213,7 @@ export function test_archetype_contract_reversible(): void {
       reversible: true,
     },
   ] satisfies IAutoMovieAffordanceCoupling[]) {
-    const invalid: Archetype<Id, never> = fixture(rule);
+    const invalid: AutoMovieArchetype<Id, never> = fixture(rule);
     if (validateModel({ model: invalid }).success)
       findings.push("a non-invertible reversible rule is admitted");
     if (affordanceLeadingTravel(rule, 0) !== null)
@@ -240,7 +246,7 @@ export function test_archetype_contract_reversible(): void {
     findings.push("a malformed map has an inverse");
 
   // A mixed edge loop is valid: its two evaluation graphs remain acyclic.
-  const mixed: Archetype<Id, never> = fixture(rules[0]!, true);
+  const mixed: AutoMovieArchetype<Id, never> = fixture(rules[0]!, true);
   if (
     !validateModel({ model: mixed }).success ||
     Math.abs(mixed.articulate({ follower: 45 }).travel("drive") - 0.5) > 1e-12
@@ -266,14 +272,14 @@ export function test_archetype_contract_reversible(): void {
       ratio,
       reversible: true,
     };
-    const rest: Archetype<Id, never> = fixture(rule, false, 7, 3);
+    const rest: AutoMovieArchetype<Id, never> = fixture(rule, false, 7, 3);
     if (!validateModel({ model: rest }).success)
       findings.push(`ratio ${ratio}: its wider follower range is not admitted`);
     for (const bound of [-7, 7]) {
       const image: number = rest
         .articulate({ drive: bound })
         .travel("follower");
-      const reversed: Archetype<Id, never> = rest.articulate({
+      const reversed: AutoMovieArchetype<Id, never> = rest.articulate({
         follower: image,
       });
       if (

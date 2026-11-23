@@ -1,6 +1,9 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-/** A sex-specific peak-torque regression: intercept, age, height and mass coefficients. */
+/**
+ * A sex-specific peak-torque regression: intercept, age, height and mass
+ * coefficients.
+ */
 type Model = readonly [number, number, number, number];
 
 /** One motion's male and female models. */
@@ -12,15 +15,15 @@ interface IMotion {
 }
 
 /**
- * Peak joint torque models of Harbo, Brincks and Andersen (2012),
- * "Maximal isokinetic and isometric muscle strength of major muscle groups
- * related to age, body mass, height, and sex in 178 healthy subjects",
- * Eur J Appl Physiol 112:267-275, Tables 1 and 2: torque (N m) = intercept +
- * b1 age (y) + b2 height (m) + b3 mass (kg). The paper's "ankle flexion" is
- * plantar flexion and its "ankle extension" dorsiflexion. An isometric model,
- * measured at the neutral joint position, is used where the paper gives one;
- * otherwise its isokinetic one, which the paper reports no stronger than
- * isometric except for shoulder abduction in women and elbow flexion.
+ * Peak joint torque models of Harbo, Brincks and Andersen (2012), "Maximal
+ * isokinetic and isometric muscle strength of major muscle groups related to
+ * age, body mass, height, and sex in 178 healthy subjects", Eur J Appl Physiol
+ * 112:267-275, Tables 1 and 2: torque (N m) = intercept + b1 age (y) + b2
+ * height (m) + b3 mass (kg). The paper's "ankle flexion" is plantar flexion and
+ * its "ankle extension" dorsiflexion. An isometric model, measured at the
+ * neutral joint position, is used where the paper gives one; otherwise its
+ * isokinetic one, which the paper reports no stronger than isometric except for
+ * shoulder abduction in women and elbow flexion.
  */
 const HARBO: Readonly<Record<string, IMotion>> = {
   // Isometric.
@@ -107,11 +110,14 @@ const COVERED: Readonly<
 };
 
 /**
- * The strength the canonical Human's joints have: a person's peak joint
- * torques by sex, height and mass at the stated adult age.
+ * The strength the canonical Human's joints have: a person's peak joint torques
+ * by sex, height and mass at the stated adult age.
  */
 export namespace AutoMovieHumanJointStrength {
-  /** The adult age the canonical profile represents, years, stated rather than measured. */
+  /**
+   * The adult age the canonical profile represents, years, stated rather than
+   * measured.
+   */
   export const AGE: number = 40;
 
   /** The person the strength is evaluated for. */

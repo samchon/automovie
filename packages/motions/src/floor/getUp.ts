@@ -65,11 +65,6 @@ import { lieDown } from "./lieDown";
  *
  * Not yet: a partial rotation (one hand pushing from the side) and the
  * half kneel out of the symmetric squat, VanSant's other adult variants.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the movement's regions and patterns with their source, the method, the timing with its source and what is missing, with provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A law record whose plan is a support sequence of the route's stances, chosen by the entry's base and a closed pattern.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters, the postures, what each bears on, the routes and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The keys, the course and the windows are the support planner's; the route starts from the displayed entry.
  */
 export namespace getUp {
   /** The action's name. */
@@ -172,14 +167,6 @@ export namespace getUp {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} `base` when the body already stands, sits on a seat or hangs, and what the support planner refuses.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The route is the pattern's from the lying side the entry displays, cut to the postures after the entry's own; each is a stance of the support planner, which solves its key posture on what bears, places a stance's new supports before it releases the old and carries the body between keys about a held support, resting on the floor by its colliders.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The route, then one support plan of its stances.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Angles and the time split are named provisional; no posture is placed by this law.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The support planner's keys, two fits per stance after the first.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The support planner owns the keys, the course and the windows.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan is the support planner's.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGetUp.IParams>,
@@ -307,14 +294,6 @@ export namespace getUp {
    *
    * @param body The body.
    * @returns The tilt, none, and the joints.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the posture is and who reads it.
-   * @evidence contracts/development/implementation.md#principled-implementation The stand law's own posture, its leg goals resolved to joints, so a rise ends where a performer starts.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One actual posture resolve precedes one ordered copy into the existing typed joint record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No joint is typed here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One original resolve per plan followed by O(J) output copying for J joints, without a second tuple/map array and Object.fromEntries conversion.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses stand.posture and the actual ordinary resolver, retaining live fit-memory behavior on every call rather than introducing a body-owned quiet-pose cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns its own joint dictionary/triples and retains no pose, reader, body result or history.
    */
   export function quiet(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanLieDown.IPose {
     const pose: IAutoMoviePose = resolveHumanPosture(
@@ -331,14 +310,6 @@ export namespace getUp {
   /**
    * The half-kneeling key with the specified leading foot. The other knee
    * is the bearing knee. The same key seeds transfers onto a raised knee.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which side names the key and which site bears.
-   * @evidence contracts/development/implementation.md#principled-implementation The route's own half-kneel pose, with its limb roles mirrored when the other foot leads.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses the existing authored key and mirror helper.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No limb angles or surface coordinates are added.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Copies only the named body key's joints on a mirror.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The canonical authored key is the source.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No runtime data is retained.
    */
   export function halfKneeling(lead: AutoMovieHumanSide): IAutoMovieMotionHumanLieDown.IPose {
     return lead === "left" ? mirrored(POSES.halfKneel) : POSES.halfKneel;

@@ -37,7 +37,7 @@ export namespace HumanEnsembleMembers {
    * @throws {HumanRefusal} When the count, the pool, a distribution, a role or a place cannot be met, naming the ensemble and the axis.
    */
   export function resolve(
-    input: IAutoMovieMotionHumanEnsemble,
+    input: IAutoMovieMotionHumanEnsemble.IInput,
     read?: IAutoMovieMotionHumanFormation.Reader,
   ): IAutoMovieMotionHumanEnsemble.IEnsemble {
     const refuse = (

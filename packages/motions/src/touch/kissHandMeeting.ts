@@ -24,7 +24,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanReach } from "../compose/AutoMovieMotionHumanReach";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import { touchPrimitive } from "../compose/touchPrimitive";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
@@ -157,7 +157,7 @@ export namespace kissHandMeeting {
     return composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
-      primitives: AutoMovieMotionHumanTouch.touch({
+      primitives: touchPrimitive({
         body,
         clock,
         side,

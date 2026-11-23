@@ -3,11 +3,6 @@ import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion";
 
 /**
  * Data and callback contracts shared by the CameraClearanceSampleTimes operations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Build the clearance sample clock of one shot: a function from a take's camera motion to the strictly increasing shot-local seconds at which that take must be inspected. Member documentation states the supplied records, units and absence meanings used by cameraClearanceSampleTimes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sample-clock input retains the source clips and their common timebase; interpolation/seam admission and rotation bounds remain required, and sampling alone does not prove continuous collision freedom.
- * @evidence contracts/development/design.md#principled-representation duration is shot-local seconds and sampleRate is finite positive hertz; actor motions and object clips refine the fixed clock with their key boundaries before each take adds its camera boundaries.
- * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieCameraClearanceSampleTimes, used by cameraClearanceSampleTimes. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
  */
 export namespace IAutoMovieCameraClearanceSampleTimes {
   /**
@@ -16,11 +11,6 @@ export namespace IAutoMovieCameraClearanceSampleTimes {
    * The clock is the endpoint-inclusive fixed clock of `sampleRate` over `duration`, refined by every key time of every actor motion, object clip and the take's camera clip that falls strictly inside the shot, repeated per cycle for a looping sequence. Each interval stays within one key segment. Under admitted motion inputs, linear, step and named non-overshooting easing keep translation and scale within their endpoint ranges; quaternion rotation follows an arc instead of that chord and needs the evaluator's separate rotation bound. This clock refuses `cubicBezier` actor easing, `cubicspline` clip tracks and an open loop seam on a channel the bound reads. It does not certify the evaluator's normalized-lerp or changing-scale limits.
    *
    * The actor/object part is computed once and each take adds its camera boundaries. Unboundable motion/clip interpolation or seams throw Error at the corresponding call; a loop cycle count must also be a non-negative safe integer so incrementing its enumeration index can progress. This representability gate is not a workload budget, and representable populations can still exhaust host resources.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build the clearance sample clock of one shot: a function from a take's camera motion to the strictly increasing shot-local seconds at which that take must be inspected. Member documentation states the supplied records, units and absence meanings used by cameraClearanceSampleTimes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The sample-clock input retains the source clips and their common timebase; interpolation/seam admission and rotation bounds remain required, and sampling alone does not prove continuous collision freedom.
-   * @evidence contracts/development/design.md#principled-representation duration is shot-local seconds and sampleRate is finite positive hertz; actor motions and object clips refine the fixed clock with their key boundaries before each take adds its camera boundaries.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieCameraClearanceSampleTimes.IProps, used by cameraClearanceSampleTimes. Its duration, sampleRate, motions, objectMotions members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** Shot length in seconds. */

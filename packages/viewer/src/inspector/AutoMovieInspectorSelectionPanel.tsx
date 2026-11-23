@@ -30,14 +30,6 @@ const DISCLOSURE: number = 16;
  * A header names the four columns. Each node edits the request by its pattern, the one that selects the node and its subtree: a checkbox puts the pattern in or takes it out of `parts`, `hide` or `label`, and the colour input gives it a `color` pair, which the clear button takes back. A node is checked when its own pattern is in the list, so a pattern typed in the address that matches several nodes checks none of them, and stays in the request. The empty path has no pattern and only a name.
  *
  * A node with children is folded until opened, with the number of paths under it, so a figure's dozens of bones do not fill the panel. Its disclosure button, between the controls and the name, opens and folds it and states whether it is open; it sits beside the controls, never around them, so no control is nested in another. The filter keeps the nodes whose path contains the typed text, with their ancestors, and opens them; while it does, their disclosure buttons are disabled.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the header, what each control edits, when a node is checked, what happens to typed patterns and the empty path, and how folding and the filter work.
- * @evidence contracts/development/implementation.md#principled-implementation The tree and each node's pattern come from `buildAutoMovieInspectorPathTree`, and every edit is a reducer action through the grammar, so the panel restates no path rule; folding is the disclosure pattern, a button with `aria-expanded` that owns no other control.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One memoized tree, one filter, and one recursive row per node.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A checked state is read from the request, never kept in the panel; the filter hides rows and changes no request.
- * @evidence contracts/development/implementation.md#efficient-algorithms The tree is rebuilt only when the path list changes; a render is linear in the nodes times the lists' lengths, and a folded subtree is not rendered.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work `useMemo` keeps the tree while the path list is the same array, which the mount reports once per instance.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the memoized tree and the filter text only while mounted.
  */
 export function AutoMovieInspectorSelectionPanel(props: {
   /** The request shown. */

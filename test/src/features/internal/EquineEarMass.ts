@@ -1,7 +1,8 @@
 import {
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  QuadrupedHead,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeEquine,
+  AutoMovieArchetypeQuadrupedHead,
   createHorse,
   type createQuadruped,
 } from "@automovie/archetypes";
@@ -76,28 +77,35 @@ export namespace EquineEarMass {
 
   /** Existing fracture output exposes actual positive plate masses and the preserved head total. */
   export function fragments(findings: string[]): void {
-    const rig: createHorse.IRig = createHorse.rig({
+    const rig: AutoMovieArchetypeEquine.IRig = AutoMovieArchetypeEquine.rig({
       withersHeight: 1.6,
       girth: (1.6 * 2.04) / 1.72,
       mass: 400,
       tempo: 0,
     });
     for (const share of [undefined, 4.4]) {
-      const draw: ArchetypeDrawSession<never> = new ArchetypeDrawSession<never>(
-        "head-mass-observation",
-        {},
-        undefined,
-      );
-      const builder: ArchetypeBuilder<never, never> = new ArchetypeBuilder<
-        never,
-        never
-      >({ name: "actual head assembly", draw, material: "skin" });
-      QuadrupedHead(
+      const draw: AutoMovieArchetypeDrawSession<never> =
+        new AutoMovieArchetypeDrawSession<never>(
+          "head-mass-observation",
+          {},
+          undefined,
+        );
+      const builder: AutoMovieArchetypeBuilder<never, never> =
+        new AutoMovieArchetypeBuilder<never, never>({
+          name: "actual head assembly",
+          draw,
+          material: "skin",
+        });
+      AutoMovieArchetypeQuadrupedHead(
         builder,
         rig,
         1.6,
         {
-          ...createHorse.BODY.head,
+          // The head capsule and pinnae only: the horse's massless jaw is no fracture piece.
+          poll: createHorse.BODY.head.poll,
+          nose: createHorse.BODY.head.nose,
+          radius: createHorse.BODY.head.radius,
+          mouth: createHorse.BODY.head.mouth,
           ears: {
             length: 0.2,
             width: 0.08,

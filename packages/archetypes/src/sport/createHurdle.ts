@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The World Athletics rule as read. */
@@ -22,7 +22,7 @@ const RULE: string =
  * @param params The race and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The hurdle.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the hurdle stands, which side the runner comes from and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Two upright rods at the drawn width's ends, a foot box under each running back from it, and a top bar box of the rule's depth whose top is the drawn height.
@@ -35,9 +35,9 @@ const RULE: string =
 export function createHurdle(
   params: createHurdle.IParams,
   seed?: number | string,
-): Archetype<createHurdle.Affordance, createHurdle.Dimension> {
-  const draw: ArchetypeDrawSession<createHurdle.Dimension> =
-    new ArchetypeDrawSession<createHurdle.Dimension>(
+): AutoMovieArchetype<createHurdle.Affordance, createHurdle.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createHurdle.Dimension> =
+    new AutoMovieArchetypeDrawSession<createHurdle.Dimension>(
       "hurdle",
       createHurdle.UNITS,
       seed,
@@ -53,10 +53,10 @@ export function createHurdle(
     createHurdle.BANDS[kind],
     createHurdle.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createHurdle.Affordance,
     createHurdle.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "hurdle",
@@ -91,7 +91,7 @@ export function createHurdle(
   builder.affordance({
     id: "top",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, d.height, -createHurdle.BAR_DEPTH / 2),
       v(0, 1, 0),
       v(-1, 0, 0),
@@ -103,7 +103,7 @@ export function createHurdle(
     id: "bar",
     kind: "bar",
     symmetry: "half",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, d.height - bar / 2, 0),
       v(0, 0, -1),
       v(1, 0, 0),
@@ -166,7 +166,9 @@ export namespace createHurdle {
   export type Dimension = "height" | "width" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     width: "m",
     mass: "kg",
@@ -182,15 +184,15 @@ export namespace createHurdle {
   }
 
   /** A height band: the rule's height to 3 mm either way. */
-  const height = (metres: number, race: string): IArchetypeBand =>
-    ArchetypeBand.metres(
+  const height = (metres: number, race: string): IAutoMovieArchetypeBand =>
+    AutoMovieArchetypeBand.metres(
       metres - 0.003,
       metres + 0.003,
       `${RULE}: the ${race} ${metres.toFixed(3)} m, with a 3 mm tolerance above and below`,
     );
 
   /** The height band of each race. */
-  export const HEIGHTS: Readonly<Record<Kind, IArchetypeBand>> = {
+  export const HEIGHTS: Readonly<Record<Kind, IAutoMovieArchetypeBand>> = {
     men110: height(1.067, "men's 110 m"),
     women100: height(0.838, "women's 100 m"),
     men400: height(0.914, "men's 400 m"),
@@ -198,9 +200,15 @@ export namespace createHurdle {
   };
 
   /** The bands every race shares. */
-  export const SHARED: Readonly<Record<"width" | "mass", IArchetypeBand>> = {
-    width: ArchetypeBand.metres(1.18, 1.2, `${RULE}: 1.18 to 1.20 m wide`),
-    mass: ArchetypeBand.of(
+  export const SHARED: Readonly<
+    Record<"width" | "mass", IAutoMovieArchetypeBand>
+  > = {
+    width: AutoMovieArchetypeBand.metres(
+      1.18,
+      1.2,
+      `${RULE}: 1.18 to 1.20 m wide`,
+    ),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       10,
       12,
@@ -211,7 +219,7 @@ export namespace createHurdle {
 
   /** Each race's bands, its height with the shared width and mass, the table every producer draws from and the gallery lists. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men110: { ...SHARED, height: HEIGHTS.men110 },
     women100: { ...SHARED, height: HEIGHTS.women100 },

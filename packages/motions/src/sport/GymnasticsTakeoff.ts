@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanGymnasticsTakeoff,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieVector3,
@@ -26,11 +27,6 @@ import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
  * asked velocity on the next plan; the heading moves with the place, so the
  * correction is made three times. The jump's plan is used up to its
  * `takeoff`; what the body does in the air is the caller's.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is reused, why the correction converges and what the caller takes.
- * @evidence contracts/development/design.md#principled-representation The jump's plan with its take-off second, centre and launch velocity read off its displayed postures.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The take-off record and one function, read by the high jump and the pole vault.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The push-off is the jump's, never restated.
  */
 export namespace GymnasticsTakeoff {
   /** How many times the landing place is corrected. */
@@ -44,14 +40,6 @@ export namespace GymnasticsTakeoff {
    * @param foot The optional authored support foot for the push-off.
    * @returns The take-off.
    * @throws {HumanRefusal} When the velocity asked does not rise, or the jump refuses its push-off.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The apex is v_y² / 2g, the jump's own law; the landing place is corrected by the missing horizontal velocity times the jump's flight time, which is linear in the place.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A guess, then the corrections.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The velocity returned is the one the last plan shows, not the one asked.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four original jump plans and all eight actual millisecond COM samples remain. One genuine fixed-name mass FK preparation serves all four launch readings; each still fully resolves its own current demands, with speedup unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body/model shares only its prepared bone-name membership. Each launch owns separate synchronous FK/projector loans for its two actual samples, never sharing a posture, time result, requested velocity or source between correction passes.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local launch reader's bounded demand releases with this synchronous correction operation; no FK/projector loan or query history enters the result. Only the last original jump plan and its numeric launch vectors escape.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -130,5 +118,35 @@ export namespace GymnasticsTakeoff {
       apex = apexOf(asked);
     }
     return taken!;
+  }
+
+  /**
+   * The push-off's contacts up to the take-off, rescaled to the action that
+   * goes on from it: every window the jump declared before its take-off,
+   * cut there, so the feet bear exactly where the push-off bears them.
+   *
+   * @param takeoff The take-off.
+   * @param duration The whole action's seconds.
+   * @returns The windows, shares of `duration`.
+   */
+  export function contacts(
+    takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff,
+    duration: number,
+  ): IAutoMovieMotionHumanContactWindow[] {
+    const span: number = takeoff.plan.duration;
+    return takeoff.plan.contacts
+      .filter(
+        (c: IAutoMovieMotionHumanContactWindow): boolean =>
+          c.from * span < takeoff.seconds - 1e-9,
+      )
+      .map(
+        (
+          c: IAutoMovieMotionHumanContactWindow,
+        ): IAutoMovieMotionHumanContactWindow => ({
+          ...c,
+          from: (c.from * span) / duration,
+          to: Math.min(c.to * span, takeoff.seconds) / duration,
+        }),
+      );
   }
 }

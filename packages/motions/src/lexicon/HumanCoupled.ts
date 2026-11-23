@@ -63,6 +63,8 @@ export namespace HumanCoupled {
    * The performance registers the `grapple` law for both roles.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Both actors receive the same scene settings and the other actor's subject.
+   *
+   * Timing is the authored scene's clock (`IAutoMovieMotionHumanGrapple`); no timing of its own.
    */
   export const grappling: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanGrapple.IScene,
@@ -84,7 +86,7 @@ export namespace HumanCoupled {
     }),
   };
 
-  /** One person carries another: the bearer `bearing`, the borne `borne`, coupled. */
+  /** One person carries another: the bearer `bearing`, the borne `borne`, coupled. It lasts `seconds`, 2 s when absent, lift and set-down inside (`IAutoMovieMotionHumanCoupled.ICarry`, provisional); a rescue, a piggyback, carrying a child or a casualty. */
   export const carry: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.ICarry,
     "bearer" | "borne"
@@ -98,7 +100,7 @@ export namespace HumanCoupled {
     ): IAutoMovieMotionHumanMutual.IAct => {
       const shared: object = {
         ...(params?.carry === undefined ? {} : { carry: params.carry }),
-        ...(params?.seconds === undefined ? {} : { seconds: params.seconds }),
+        ...(params?.hold === undefined ? {} : { seconds: params.hold }),
         ...(params?.mass === undefined ? {} : { mass: params.mass }),
       };
       return role === "bearer"
@@ -123,6 +125,8 @@ export namespace HumanCoupled {
    * helped person rises through sitting and squatting to standing with
    * that hand gripping the helper's palm, which bears on the helper while
    * the hand holds and lets go once the feet bear alone.
+   *
+   * The helped person rises through sitting and squatting to standing; no timing of its own, the support planner's `support.SECONDS`, 1 s a stance (provisional).
    */
   export const helpUp: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.IHelpUp,
@@ -153,7 +157,7 @@ export namespace HumanCoupled {
       };
       const seconds: number = supportAssist.step();
       const paramsOf: IAutoMovieMotionHumanSupport.IParams = {
-        assist: { role, partner, side },
+        assist: { role, partner, hand: side },
         stances: [
           {
             contacts:
@@ -194,7 +198,7 @@ export namespace HumanCoupled {
     },
   };
 
-  /** One person walked between two helpers: each helper `bearing` on its side of a supported walk, the helped person `borne` on both. */
+  /** One person walked between two helpers: each helper `bearing` on its side of a supported walk, the helped person `borne` on both. The walk speed is the bearers' own walk's (use the slow pace of `IAutoMovieMotionHumanWalkParams` for a frail person), and the pair lasts `seconds`, 2 s when absent (provisional); helping a frail or injured person walk. */
   export const supportWalk: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.ISupportWalk,
     "helper" | "second" | "helped"
@@ -207,7 +211,7 @@ export namespace HumanCoupled {
       cast: Readonly<Record<"helper" | "second" | "helped", string>>,
     ): IAutoMovieMotionHumanMutual.IAct => {
       const seconds: object =
-        params?.seconds === undefined ? {} : { seconds: params.seconds };
+        params?.duration === undefined ? {} : { seconds: params.duration };
       return role === "helped"
         ? {
             name: "borne",
@@ -243,7 +247,7 @@ export namespace HumanCoupled {
   /** The thrown body's region that lies on the fulcrum: the front of the trunk, as a hip or a shoulder throw loads it. */
   export const ON: AutoMovieHumanoidRegion = "abdomen";
 
-  /** One person throws another: the thrower grips (`clinch`), the thrown answers the pull (`perturb`). */
+  /** One person throws another: the thrower grips (`clinch`), the thrown answers the pull (`perturb`). Timing is the clinch's and the force input's (`clinch`, `HumanForceExchange`); no timing of its own (provisional); a judo or wrestling throw. */
   export const throwing: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.IThrow,
     "thrower" | "thrown"

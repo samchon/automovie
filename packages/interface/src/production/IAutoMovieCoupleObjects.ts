@@ -12,11 +12,6 @@ import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
  * Inputs and bake outcome for shot attachments and persistent mounts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Inputs and bake outcome for shot attachments and persistent mounts. Coupling uses scene-world transforms and shot-local seconds. Inputs require already admitted attach jobs and staged nodes; coupleObjects separately checks mount rigs/bones and coupling cycles.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A cycle or invalid mount reports a violation while other children may still bake; only the caller's stage gate decides whether the partial result is usable.
- * @evidence contracts/development/design.md#principled-representation Coupling uses scene-world transforms and shot-local seconds. Inputs require already admitted attach jobs and staged nodes; coupleObjects separately checks mount rigs/bones and coupling cycles.
- * @evidence contracts/development/design.md#minimal-and-owned-surface performShot supplies compiled poses and registry lookups; coupleObjects returns clips/events/violations for that stage's acceptance decision without retaining the callbacks.
  */
 export namespace IAutoMovieCoupleObjects {
   /**
@@ -27,11 +22,6 @@ export namespace IAutoMovieCoupleObjects {
    * Couplings chain (#1140): a parent that is itself a coupled child this shot, such as a rider mounted on an animal and carrying a pole, is baked first, and its riders compose onto its baked frame per sample through any depth. That frame is read from all of the parent's baked clips through {@link bakedTransformFromClipsAt}, the channel authority playback uses, so before the parent's first coupling starts its riders follow its staged placement and across a handoff they follow whichever coupling is in effect. A coupling cycle has no world composition, so its members are reported in one violation and never baked.
    *
    * Returns the baked clips in bake order, parents before riders, with a child's attach clips in start order and repeats suffixed `attach:<child>:2`, ...; the handoff events; and the violations.
-   *
-   * @evidence contracts/development/design.md#principled-representation Coupling uses scene-world transforms and shot-local seconds. Inputs require already admitted attach jobs and staged nodes; coupleObjects separately checks mount rigs/bones and coupling cycles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface performShot supplies compiled poses and registry lookups; coupleObjects returns clips/events/violations for that stage's acceptance decision without retaining the callbacks.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A cycle or invalid mount reports a violation while other children may still bake; only the caller's stage gate decides whether the partial result is usable.
-   * @evidence contracts/development/common.md#meaningful-documentation Inputs and bake outcome for shot attachments and persistent mounts. Coupling uses scene-world transforms and shot-local seconds. Inputs require already admitted attach jobs and staged nodes; coupleObjects separately checks mount rigs/bones and coupling cycles.
    */
   export type IProps = {
     /** Validated `attachTo` jobs of this shot. */
@@ -50,27 +40,11 @@ export namespace IAutoMovieCoupleObjects {
 
     /**
      * Synchronous borrowed rig lookup, stable for each node throughout the call. Null rejects a persistent mount; attachment jobs require a previously admitted nonnull answer. Exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous borrowed rig lookup, stable for each node throughout the call. Null rejects a persistent mount; attachment jobs require a previously admitted nonnull answer. Exceptions propagate. Member documentation states the supplied records, units and absence meanings used by coupleObjects, performShot.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts skeleton declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot must justify constants and special cases in the supplied body; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms skeleton declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot owns callback traversal and allocation costs; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work skeleton declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot owns any callback memoization and its input equivalence; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources skeleton declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot owns callback captures and their release; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation skeleton declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot provides the callback body and its numerical method; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure skeleton declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot owns the callback body and its decomposition; the invocation and result obligations remain on this member.
      */
     skeleton: (node: string) => IAutoMovieSkeleton | null;
 
     /**
      * Synchronous per-parent clinical axis lookup. Missing callback or undefined answer uses HUMANOID_JOINT_AXES; returned records are borrowed and exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous per-parent clinical axis lookup. Missing callback or undefined answer uses HUMANOID_JOINT_AXES; returned records are borrowed and exceptions propagate. Member documentation states the supplied records, units and absence meanings used by coupleObjects, performShot.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts jointAxes declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot must justify constants and special cases in the supplied body; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms jointAxes declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot owns callback traversal and allocation costs; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work jointAxes declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot owns any callback memoization and its input equivalence; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources jointAxes declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot owns callback captures and their release; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation jointAxes declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot provides the callback body and its numerical method; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure jointAxes declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot owns the callback body and its decomposition; the invocation and result obligations remain on this member.
      */
     jointAxes?: (
       node: string,
@@ -80,14 +54,6 @@ export namespace IAutoMovieCoupleObjects {
 
     /**
      * Synchronous per-parent rest-frame lookup matching the renderer. Missing callback or undefined answer uses the rig's own frames; records are borrowed only during baking and exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous per-parent rest-frame lookup matching the renderer. Missing callback or undefined answer uses the rig's own frames; records are borrowed only during baking and exceptions propagate. Member documentation states the supplied records, units and absence meanings used by coupleObjects, performShot.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts restFrames declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot must justify constants and special cases in the supplied body; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms restFrames declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot owns callback traversal and allocation costs; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work restFrames declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot owns any callback memoization and its input equivalence; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources restFrames declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot owns callback captures and their release; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation restFrames declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot provides the callback body and its numerical method; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure restFrames declares a callable signature with no body. The implementation supplied to or returned by coupleObjects, performShot owns the callback body and its decomposition; the invocation and result obligations remain on this member.
      */
     restFrames?: (
       node: string,
@@ -103,11 +69,6 @@ export namespace IAutoMovieCoupleObjects {
 
   /**
    * Caller-owned coupling artifacts and diagnostics. Parent clips precede their riders; each child's attachment clips are ordered by action start with input order breaking ties. Failed mounts and cycle members are omitted while their violations remain.
-   *
-   * @evidence contracts/development/design.md#principled-representation Coupling uses scene-world transforms and shot-local seconds. Inputs require already admitted attach jobs and staged nodes; coupleObjects separately checks mount rigs/bones and coupling cycles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface performShot supplies compiled poses and registry lookups; coupleObjects returns clips/events/violations for that stage's acceptance decision without retaining the callbacks.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A cycle or invalid mount reports a violation while other children may still bake; only the caller's stage gate decides whether the partial result is usable.
-   * @evidence contracts/development/common.md#meaningful-documentation Inputs and bake outcome for shot attachments and persistent mounts. Coupling uses scene-world transforms and shot-local seconds. Inputs require already admitted attach jobs and staged nodes; coupleObjects separately checks mount rigs/bones and coupling cycles.
    */
   export type IResult = {
     /**

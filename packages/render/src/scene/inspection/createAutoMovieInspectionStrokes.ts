@@ -17,14 +17,6 @@ const VIEW_SPACE_ENDS: string =
  * `positions` holds two xyz vertices per segment and `colors` the matching linear rgb. Both buffers are kept by the geometry, not copied, so the caller rewrites `positions` in place and marks it changed to move the marks. The object does not update its own matrix and is never frustum-culled, because its owner places it and its vertices move.
  *
  * With `xray` the marks ignore depth and draw after everything else. Without it they are depth-tested `AUTO_MOVIE_INSPECTION_DEPTH_LEAD` nearer the camera than they lie, through a patch to the line shader that leads both ends toward the eye, so a mark on a surface is not lost to that surface.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the object used and why, what the width is measured in and who sets the resolution, the buffer layout and sharing, why the matrix and culling are fixed, and both depth behaviours.
- * @evidence contracts/development/implementation.md#principled-implementation A mark on a surface has the surface's depth, so its ends are led toward the camera along their lines of sight in view space before the shader widens the segment, which keeps their pixels; an orthographic view has one line of sight for every point.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Geometry, material, then the object flags; the depth lead is one inserted pair of shader lines.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The width is three.js's own screen-space line, not a widened mesh of our own, the lead is the inspection's one stated constant, and mismatched buffers are refused.
- * @evidence contracts/development/implementation.md#efficient-algorithms One instanced draw call for every segment of the object, whatever the number of colours.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Every mark builder draws its lines through this one factory.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The geometry and material are created here and owned by the caller, who disposes both; nothing else is retained.
  */
 export function createAutoMovieInspectionStrokes(
   positions: Float32Array,

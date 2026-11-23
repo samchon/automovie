@@ -1,6 +1,6 @@
 import {
-  ArchetypeRefusal,
-  ArchetypeTrack,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeTrack,
   createHatch,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
@@ -28,8 +28,8 @@ export function test_archetype_track_ease(): void {
   const open: number = hatch.affordance("hinge").travel!;
   const START: number = 1;
   const SECONDS: number = 3;
-  const closing: ArchetypeTrack.ITrack<createHatch.Affordance> =
-    ArchetypeTrack.ease(hatch, "hinge", {
+  const closing: AutoMovieArchetypeTrack.ITrack<createHatch.Affordance> =
+    AutoMovieArchetypeTrack.ease(hatch, "hinge", {
       start: START,
       from: open,
       to: 0,
@@ -83,8 +83,8 @@ export function test_archetype_track_ease(): void {
   }
 
   // 1c. The range's own ends are admitted: the cover eased open from shut to its full travel.
-  const opening: ArchetypeTrack.ITrack<createHatch.Affordance> =
-    ArchetypeTrack.ease(hatch, "hinge", {
+  const opening: AutoMovieArchetypeTrack.ITrack<createHatch.Affordance> =
+    AutoMovieArchetypeTrack.ease(hatch, "hinge", {
       start: 0,
       from: 0,
       to: open,
@@ -106,9 +106,10 @@ export function test_archetype_track_ease(): void {
   ] as const) {
     let refused: string | null = null;
     try {
-      ArchetypeTrack.ease(hatch, "hinge", props);
+      AutoMovieArchetypeTrack.ease(hatch, "hinge", props);
     } catch (error) {
-      refused = error instanceof ArchetypeRefusal ? error.axis : String(error);
+      refused =
+        error instanceof AutoMovieArchetypeRefusal ? error.axis : String(error);
     }
     if (refused !== field)
       findings.push(`a bad ${field} was refused at ${refused}`);

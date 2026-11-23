@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDensity,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDensity,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -23,10 +23,10 @@ import {
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The dumbbell.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it lies, how the heads are sized and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation The heads' size follows from the mass at steel's density (`ArchetypeDensity.STEEL`, EN 1991-1-1's), so no head size is stated beside the mass and the two cannot disagree.
+ * @evidence contracts/development/implementation.md#principled-implementation The heads' size follows from the mass at steel's density (`AutoMovieArchetypeDensity.STEEL`, EN 1991-1-1's), so no head size is stated beside the mass and the two cannot disagree.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, size the heads, lay three rods, one contact.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Round heads stand for the hexagonal ones of a rubber dumbbell, and no maker's sizes were read: every band is an estimate and says so.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three rods.
@@ -36,9 +36,9 @@ import {
 export function createDumbbell(
   params: createDumbbell.IParams,
   seed?: number | string,
-): Archetype<createDumbbell.Affordance, createDumbbell.Dimension> {
-  const draw: ArchetypeDrawSession<createDumbbell.Dimension> =
-    new ArchetypeDrawSession<createDumbbell.Dimension>(
+): AutoMovieArchetype<createDumbbell.Affordance, createDumbbell.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createDumbbell.Dimension> =
+    new AutoMovieArchetypeDrawSession<createDumbbell.Dimension>(
       "dumbbell",
       createDumbbell.UNITS,
       seed,
@@ -62,18 +62,20 @@ export function createDumbbell(
   const steel: number =
     Math.max(
       0,
-      d.mass! - ArchetypeDensity.STEEL * Math.PI * slim * slim * d.handle!,
+      d.mass! -
+        AutoMovieArchetypeDensity.STEEL * Math.PI * slim * slim * d.handle!,
     ) / 2;
   const radius: number = Math.max(
     slim,
     Math.cbrt(
-      steel / (ArchetypeDensity.STEEL * Math.PI * createDumbbell.SQUAT),
+      steel /
+        (AutoMovieArchetypeDensity.STEEL * Math.PI * createDumbbell.SQUAT),
     ),
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createDumbbell.Affordance,
     createDumbbell.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: "dumbbell",
@@ -98,7 +100,7 @@ export function createDumbbell(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, 0, -1),
       Vector3.create(1, 0, 0),
@@ -142,7 +144,9 @@ export namespace createDumbbell {
   export type Dimension = "handle" | "diameter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     handle: "m",
     diameter: "m",
     mass: "kg",
@@ -159,22 +163,22 @@ export namespace createDumbbell {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     fixed: {
-      handle: ArchetypeBand.metres(
+      handle: AutoMovieArchetypeBand.metres(
         0.12,
         0.14,
         "an estimate: a handle a little longer than a hand's breadth; no maker's sheet was read",
         true,
       ),
-      diameter: ArchetypeBand.metres(
+      diameter: AutoMovieArchetypeBand.metres(
         0.028,
         0.034,
         "an estimate: from a barbell's 28 mm grip to a thick rubber dumbbell's handle; no maker's sheet was read",
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         1,
         40,

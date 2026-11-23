@@ -5,11 +5,6 @@ import type {
 
 /** Source-registered polynomial or bitangent conic coefficient record.
  * Polynomial u=(t-a)/(b-a); a conic's u is its own rational parameter.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Distinguishes source registration from rational speed and identifies sampled error and millimetre controls.
- * @evidence contracts/development/design.md#principled-representation The closed union requires exactly the fields for polynomial or normalized rational evaluation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Polynomial pieces retain their degree-specific fields while the conic arm reuses the actual record forwarded from conic fitting; the union serves coefficient evaluation and storage comparison.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source evaluator or dense sample table is retained in output.
  */
 export type IAutoMovieRegisteredPlanarCurvePiece =
   | {

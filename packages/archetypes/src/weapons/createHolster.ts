@@ -1,31 +1,16 @@
-import { Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  type AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
-import { CartridgeBox } from "./CartridgeBox";
 import { HOLSTER_BANDS } from "./HOLSTER_BANDS";
 import { HOLSTER_BLADES } from "./HOLSTER_BLADES";
-
-/** The readable name of each kind. */
-const NAMES: Readonly<Record<createHolster.Kind, string>> = {
-  holster: "belt holster",
-  scabbard: "scabbard",
-  sheath: "sheath",
-  quiver: "quiver",
-  pouch: "cartridge box",
-};
+import { createStageBladeCarrier } from "./createStageBladeCarrier";
+import { createStageHolster } from "./createStageHolster";
+import { createStagePouch } from "./createStagePouch";
+import { createStageQuiver } from "./createStageQuiver";
 
 /**
  * A container worn on the body that a weapon or its ammunition is drawn from and returned to: a belt holster for a handgun, a sword's scabbard, a knife's or a dagger's sheath, an archer's quiver, or a soldier's cartridge box.
@@ -40,11 +25,11 @@ const NAMES: Readonly<Record<createHolster.Kind, string>> = {
  * @param params The kind, a holster's ride, the blade a scabbard or a sheath is made to, the number of slots of a quiver, and any dimension the author fixes.
  * @param seed The seed that picks the ride and the blade left free and draws every dimension left free inside its band; absent, the first ride, the first blade and the middle of each band.
  * @returns The container.
- * @throws {ArchetypeRefusal} For a ride or a blade not of the kind, a fixed dimension outside its band or one the ride gives, or a number of slots that is not a whole number from 1 to the kind's capacity.
+ * @throws {AutoMovieArchetypeRefusal} For a ride or a blade not of the kind, a fixed dimension outside its band or one the ride gives, or a number of slots that is not a whole number from 1 to the kind's capacity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind hangs and stands, what each contact is and where a carried item sits.
- * @evidence contracts/development/implementation.md#principled-implementation A holster as a pouch box under a belt loop box with the socket at one of the maker's ride offsets; a scabbard as one body box and a throat box, as long and as wide as the blade it is made to with the maker's fit; a quiver as one tube with its arrows' places spread over the mouth on Vogel's sunflower spiral, the even packing of points in a disc.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the slots, pick the ride or the blade, draw the other dimensions, then one branch per kind: its parts, then its contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the legacy selector and calls the selected profile once.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No retention strap, cant, hanging angle, buckle or stitching; a scabbard is straight and does not taper or curve with a sabre's blade. The scabbard's throat's length and lip are the shipped scabbard's construction estimates, which only its belt hanger's offset reads, as it did; a quiver's hangers sit at its rim and its middle.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two parts, and one contact per slot.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -53,213 +38,23 @@ const NAMES: Readonly<Record<createHolster.Kind, string>> = {
 export function createHolster(
   params: createHolster.IParams = {},
   seed?: number | string,
-): Archetype<createHolster.Affordance, createHolster.Dimension> {
-  const draw: ArchetypeDrawSession<createHolster.Dimension> =
-    new ArchetypeDrawSession<createHolster.Dimension>(
-      "holster",
-      createHolster.UNITS,
-      seed,
-      params,
-    );
+): AutoMovieArchetype<createHolster.Affordance, createHolster.Dimension> {
   const kind: createHolster.Kind = ArchetypeDraw.choice(
     "holster",
     "kind",
     params.kind ?? "holster",
     createHolster.KINDS,
   );
-
-  // The slots a quiver holds, from one to the most its source holds.
-  const slotted: createHolster.ISlots | undefined = createHolster.SLOTS[kind];
-  const capacity: number | undefined = slotted?.capacity;
-  const slots: number =
-    slotted === undefined ? 0 : (params.slots ?? slotted.slots);
-  if (
-    params.slots !== undefined &&
-    (capacity === undefined ||
-      !Number.isInteger(params.slots) ||
-      params.slots < 1 ||
-      params.slots > capacity)
-  )
-    throw new ArchetypeRefusal({
-      kind: "parameter",
-      archetype: "holster",
-      axis: "slots",
-      value: params.slots,
-      feasible:
-        capacity === undefined
-          ? { kind: "alternatives", values: ["quiver"] }
-          : { kind: "range", minimum: 1, maximum: capacity, unit: "" },
-      reason:
-        capacity === undefined
-          ? `a ${kind} has no slots`
-          : `a ${kind} holds 1 to ${capacity}, not ${params.slots}`,
-      fix:
-        capacity === undefined
-          ? "leave slots out, or choose a quiver"
-          : "give a whole number of slots",
-    });
-  // A holster rides at one of the maker's three heights; a scabbard or a sheath is made to one blade, its length and width that blade's with the maker's fit.
-  const ride: {
-    figures: Readonly<Partial<Record<createHolster.Dimension, number>>>;
-  } = draw.model<createHolster.Ride>(
-    "model",
-    params.model,
-    createHolster.MODELS[kind],
-  );
-  const blades:
-    | Readonly<Partial<Record<createHolster.Blade, createHolster.Fitted>>>
-    | undefined =
-    kind === "scabbard"
-      ? createHolster.BLADES.scabbard
-      : kind === "sheath"
-        ? createHolster.BLADES.sheath
-        : undefined;
-  // The blade is picked by name; its fitted bands are what it gives, so it carries no figures.
-  const blade: createHolster.Blade | undefined =
-    draw.model<createHolster.Blade>(
-      "blade",
-      params.blade,
-      blades === undefined
-        ? undefined
-        : (Object.fromEntries(
-            Object.keys(blades).map(
-              (name: string): [string, Readonly<Record<never, number>>] => [
-                name,
-                {},
-              ],
-            ),
-          ) as Readonly<
-            Record<
-              createHolster.Blade,
-              Readonly<Partial<Record<createHolster.Dimension, number>>>
-            >
-          >),
-    ).name;
-  const fitted: Readonly<
-    Partial<Record<createHolster.Dimension, IArchetypeBand>>
-  > = blade === undefined || blades === undefined ? {} : blades[blade]!;
-  const d: Partial<Record<createHolster.Dimension, number>> = {
-    ...draw.dimensions(
-      { ...createHolster.BANDS[kind], ...fitted },
-      {
-        ...createHolster.BANDS,
-        ...createHolster.BLADES.scabbard,
-        ...createHolster.BLADES.sheath,
-      },
-    ),
-    ...ride.figures,
-  };
-  const builder: ArchetypeBuilder<
-    createHolster.Affordance,
-    createHolster.Dimension
-  > = new ArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw,
-  });
-  const v: typeof Vector3.create = Vector3.create;
-  const facingWearer = (at: IAutoMovieVector3): IAutoMovieTransform =>
-    ArchetypeFrame.facing(at, v(-1, 0, 0), v(0, 0, 1));
-
-  if (kind === "holster") {
-    builder.box("loop", v(0.01, 0.06, 0.06), v(0, 0, 0), {
-      color: "#2c2f33",
-    });
-    builder.box(
-      "pouch",
-      v(0.04, d.depth!, 0.07),
-      v(0.025, d.ride! - d.depth! / 2, 0),
-      { color: "#2c2f33" },
-    );
-    builder.affordance({
-      id: "socket",
-      kind: "socket",
-      frame: ArchetypeFrame.upright(v(0.025, d.ride!, 0)),
-      extent: null,
-    });
-    builder.affordance({
-      id: "belt",
-      kind: "hook",
-      frame: facingWearer(v(0, 0, 0)),
-      extent: null,
-    });
-    return builder.build(d.mass!);
-  }
-
-  if (kind === "scabbard" || kind === "sheath") {
-    const length: number = d.length!;
-    const throat: number = createHolster.THROAT;
-    const thick: number = d.thickness! + createHolster.THROAT_LIP;
-    builder.box(
-      "body",
-      v(d.thickness!, length - throat, d.width!),
-      v(0, (length - throat) / 2, 0),
-      { color: "#4a3426" },
-    );
-    builder.box(
-      "throat",
-      v(thick, throat, d.width! + createHolster.THROAT_LIP),
-      v(0, length - throat / 2, 0),
-      { color: "#8a8d91" },
-    );
-    builder.affordance({
-      id: "mouth",
-      kind: "socket",
-      frame: ArchetypeFrame.upright(v(0, length, 0)),
-      extent: null,
-    });
-    builder.affordance({
-      id: "belt",
-      kind: "hook",
-      frame: facingWearer(v(-thick / 2, length - throat / 2, 0)),
-      extent: null,
-    });
-    return builder.build(d.mass!);
-  }
-
-  if (kind === "pouch") {
-    CartridgeBox.lay(builder, d, slots, facingWearer);
-    return builder.build(d.mass!);
-  }
-
-  // A quiver: a tube standing on its bottom, open at the top.
-  const length: number = d.length!;
-  const r: number = d.diameter! / 2;
-  builder.rod("tube", r, v(0, 0, 0), v(0, length, 0), { color: "#6b4a2b" });
-  builder.affordance({
-    id: "socket",
-    kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, length, 0)),
-    extent: null,
-  });
-
-  // The arrows' places on Vogel's spiral: the k-th at radius r sqrt((k + 1/2) / n) and k golden angles round, so they spread evenly over the mouth.
-  const golden: number = Math.PI * (3 - Math.sqrt(5));
-  for (let k: number = 0; k < slots; k++) {
-    const radius: number = r * Math.sqrt((k + 0.5) / slots);
-    builder.affordance({
-      id: `slot${k + 1}`,
-      kind: "socket",
-      frame: ArchetypeFrame.upright(
-        v(radius * Math.cos(golden * k), length, radius * Math.sin(golden * k)),
-      ),
-      extent: null,
-    });
-  }
-  builder.affordance({
-    id: "belt",
-    kind: "hook",
-    frame: facingWearer(v(-r, length, 0)),
-    extent: null,
-  });
-  builder.affordance({
-    id: "strap",
-    kind: "hook",
-    frame: facingWearer(v(-r, length / 2, 0)),
-    extent: null,
-  });
-  return builder.build(d.mass!);
+  /** The legacy surface accepts a broad selector before runtime admission. */
+  type Producer = {
+    build(
+      params: createHolster.IParams,
+      seed?: number | string,
+    ): AutoMovieArchetype<createHolster.Affordance, createHolster.Dimension>;
+  }["build"];
+  // The selected producer validates its options from the saved parameter union.
+  const produce: Producer = createHolster.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
 
 /**
@@ -271,6 +66,25 @@ export function createHolster(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each container is a kind of one producer, not a producer per weapon; the holster is the default kind, so a call without a kind builds the holster as before. Bands a source read gives are cited; the others are provisional with their search, and the throat, the flap and the hangers are named estimates. A ride is one of the maker's three, and a scabbard is made to one blade, a read sword whole or a kind whose source states a range, never to a length between two swords.
  */
 export namespace createHolster {
+  /** The canonical factories for saved kinds, read after the catalogue loads. */
+  export const PRODUCERS = {
+    get holster(): typeof createStageHolster {
+      return createStageHolster;
+    },
+    get scabbard(): typeof createStageBladeCarrier {
+      return createStageBladeCarrier;
+    },
+    get sheath(): typeof createStageBladeCarrier {
+      return createStageBladeCarrier;
+    },
+    get quiver(): typeof createStageQuiver {
+      return createStageQuiver;
+    },
+    get pouch(): typeof createStagePouch {
+      return createStagePouch;
+    },
+  } satisfies Readonly<Record<Kind, unknown>>;
+
   /** The kinds: a handgun's belt holster, a sword's scabbard, a knife's or a dagger's sheath, and an archer's quiver. */
   export type Kind = "holster" | "scabbard" | "sheath" | "quiver" | "pouch";
 
@@ -345,7 +159,9 @@ export namespace createHolster {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     ride: "m",
     depth: "m",
     length: "m",
@@ -369,8 +185,8 @@ export namespace createHolster {
   > = {
     holster: {
       midRide: { ride: 0 },
-      lowRide: { ride: -1.5 * ArchetypeUnits.INCH },
-      highRide: { ride: 1.5 * ArchetypeUnits.INCH },
+      lowRide: { ride: -1.5 * AutoMovieArchetypeUnits.INCH },
+      highRide: { ride: 1.5 * AutoMovieArchetypeUnits.INCH },
     },
   };
 
@@ -391,7 +207,9 @@ export namespace createHolster {
   export type Blade = ScabbardBlade | SheathBlade;
 
   /** A scabbard's or a sheath's two bands made to one blade, both always given: `length` from the tip to the mouth and `width` across the blade from edge to back, each the blade's with the fit. */
-  export type Fitted = Readonly<Record<"length" | "width", IArchetypeBand>>;
+  export type Fitted = Readonly<
+    Record<"length" | "width", IAutoMovieArchetypeBand>
+  >;
 
   /** The blades by kind, the default first, each made with Wulflund's fit: a read sword's figures whole, or a kind's blade bands moved out, provisional where the blade's are. */
   export const BLADES: Readonly<{
@@ -419,6 +237,6 @@ export namespace createHolster {
 
   /** The band of each free dimension a ride or a blade leaves, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = HOLSTER_BANDS;
 }

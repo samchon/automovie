@@ -12,12 +12,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanHandover,
+  AutoMovieMotionHumanThrowCatch,
   HumanChain,
-  HumanFoot,
   HumanObject,
-  catchObject,
-  handshake,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -95,9 +95,9 @@ const meeting = (
   a: IAutoMovieMotionHumanBody,
   b: IAutoMovieMotionHumanBody,
 ): number =>
-  handshake.gap(a, b) +
-  handshake.stance(a).sternum +
-  handshake.stance(b).sternum;
+  AutoMovieMotionHumanHandover.handshake.gap(a, b) +
+  AutoMovieMotionHumanHandover.handshake.stance(a).sternum +
+  AutoMovieMotionHumanHandover.handshake.stance(b).sternum;
 
 /**
  * `a` picks the bottle up and hands it to `b`. The receiver takes with the
@@ -119,9 +119,9 @@ const handing = (
     meeting(a, b),
     HumanChain.pair(
       S.chain()
-        .act("stand", { seconds: 0.3, sway: 0 })
+        .act("stand", { hold: 0.3, sway: 0 })
         .act("pickUp", { prop: "bottle", handle: "low", hand }),
-      S.chain("b").act("stand", { seconds: 0.3, sway: 0 }),
+      S.chain("b").act("stand", { hold: 0.3, sway: 0 }),
     ).handOver({
       prop: "bottle",
       handle: "high",
@@ -153,11 +153,12 @@ const throwing = (
       S.chain().act(
         "throwObject",
         {
-          at: S.point(
+          target: S.point(
             0,
             b.measure.chestHeight,
             distance -
-              catchObject.REACH * (b.measure.upperArm + b.measure.forearm),
+              AutoMovieMotionHumanThrowCatch.catchObject.REACH *
+                (b.measure.upperArm + b.measure.forearm),
           ),
           style,
           ...thrower,
@@ -165,7 +166,7 @@ const throwing = (
         "throw",
       ),
       S.chain("b").act("catchObject", {
-        from: "throw",
+        partner: "throw",
         ball: "ball",
         ...catcher,
       }),
@@ -223,7 +224,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     return S.solo(
       a,
       S.chain()
-        .act("stand", { seconds: 0.4, sway: 0 })
+        .act("stand", { hold: 0.4, sway: 0 })
         .act("pickUp", { prop: "bottle", handle: "low", hand }),
       [bottle(place(a, hand))],
     );
@@ -237,9 +238,9 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     return S.solo(
       a,
       S.chain()
-        .act("stand", { seconds: 0.4, sway: 0 })
+        .act("stand", { hold: 0.4, sway: 0 })
         .act("pickUp", { prop: "bottle", handle: "low", hand })
-        .act("putDown", { prop: "bottle", at, yaw: 0, hand }),
+        .act("putDown", { prop: "bottle", to: at, yaw: 0, hand }),
       [bottle(at)],
     );
   },
@@ -253,7 +254,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     return S.solo(
       a,
       S.chain()
-        .act("stand", { seconds: 0.4, sway: 0 })
+        .act("stand", { hold: 0.4, sway: 0 })
         .act("pickUp", { prop: "bottle", handle: "low", hand })
         .act("release", { hand }),
       [bottle(place(a, hand))],
@@ -271,8 +272,8 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
       b,
       meeting(a, b),
       HumanChain.pair(
-        S.chain().act("stand", { seconds: 0.4, sway: 0 }),
-        S.chain("b").act("stand", { seconds: 0.4, sway: 0 }),
+        S.chain().act("stand", { hold: 0.4, sway: 0 }),
+        S.chain("b").act("stand", { hold: 0.4, sway: 0 }),
       ).handshake(S.set(pick, "hand") as object).node,
     ),
   throwObject: (
@@ -286,13 +287,13 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     a: IAutoMovieMotionHumanBody,
     b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
-    throwing(a, b, "toss", {}, S.set(pick, "hands", "side")),
+    throwing(a, b, "toss", {}, S.set(pick, "hands", "hand")),
   operate: (
     pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const hand: string | undefined = pick("hand");
-    const kind: string = pick("mechanism") ?? "button";
+    const kind: string = pick("kind") ?? "button";
     const mechanism: object =
       kind === "knob"
         ? { kind, at: wall(hand, 0.2, 0.95, 0.5), turn: 90 }
@@ -309,7 +310,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     return S.solo(
       a,
       S.chain().act("operate", {
-        mechanism,
+        kind: mechanism,
         ...(hand === undefined ? {} : { hand }),
       }),
     );
@@ -376,7 +377,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     return S.solo(
       a,
       S.chain()
-        .act("stand", { seconds: 0.3, sway: 0 })
+        .act("stand", { hold: 0.3, sway: 0 })
         .act("pickUp", {
           prop: "tool",
           handle: "grip",
@@ -396,7 +397,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
               : tool === "screwdriver"
                 ? wall(hand, 0.2, 1.15, 0.55)
                 : wall(hand, 0.2, 0.85, 0.5),
-          cycles: 3,
+          count: 3,
           hand,
         }),
       props,
@@ -415,7 +416,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
           a.measure.shoulderHeight - a.measure.upperArm - 0.225,
           0.4,
         ),
-        cycles: 3,
+        count: 3,
         ...(hand === undefined ? {} : { hand }),
       }),
     );
@@ -428,7 +429,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     return S.solo(
       a,
       S.chain()
-        .act("stand", { seconds: 0.3 })
+        .act("stand", { hold: 0.3 })
         .act("pickUp", {
           prop: "item",
           handle: "hold",

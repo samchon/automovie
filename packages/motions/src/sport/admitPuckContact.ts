@@ -35,6 +35,7 @@ const PUCK_CONTACT_ALLOWANCE: number = 0.015;
  * @param rim The world point on the puck's rim that the blade must meet.
  * @param direction The authored puck's horizontal departure direction.
  * @param seconds The action-local contact second.
+ * @param closed The action-local second the new grips close at: 0 for grips held from the entry, the end of the reach for a stick the hands take.
  * @throws {HumanRefusal} If the achieved finite face cannot make the authored contact.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the local contact time, fitted face, puck rim and refusal conditions.
@@ -53,6 +54,7 @@ export function admitPuckContact(
   rim: IAutoMovieVector3,
   direction: IAutoMovieVector3,
   seconds: number,
+  closed: number,
 ): void {
   const body: typeof context.body = context.body;
   const requested: ReadonlySet<AutoMovieHumanoidBone> =
@@ -74,7 +76,7 @@ export function admitPuckContact(
       undefined,
       requested,
     );
-  const entry: ReturnType<typeof poseBones> = fittedHands(0);
+  const entry: ReturnType<typeof poseBones> = fittedHands(closed);
   const impact: ReturnType<typeof poseBones> = fittedHands(seconds);
   const grip = (side: AutoMovieHumanSide): HumanPropHold.IHand => ({
     hand: HumanPropHold.frame(body, impact, { side }),

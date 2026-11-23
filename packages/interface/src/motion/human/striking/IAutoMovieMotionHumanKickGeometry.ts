@@ -14,11 +14,6 @@ import type { IAutoMovieMotionHumanStrikingRecord } from "./IAutoMovieMotionHuma
  * knee's bend hint and the foot's rotation) and the feet's contact windows,
  * each a pure function of the seconds since the kick's own start, plus what
  * the kick decided. A redirect reads its source's geometry to continue it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation origin: The kicking ankle at the launch, world metres. back: The kicking ankle at the replant, world metres. contacts: The feet's contact windows, as shares of the kick's full duration. start: Film second of its time zero. turn: The pelvis's turn about the vertical from the entry heading, degrees. lean: The whole body's tilt away from the target about the support hip, degrees.
- * @evidence contracts/development/design.md#principled-representation origin: The kicking ankle at the launch, world metres. back: The kicking ankle at the replant, world metres. contacts: The feet's contact windows, as shares of the kick's full duration. start: Film second of its time zero. turn: The pelvis's turn about the vertical from the entry heading, degrees. lean: The whole body's tilt away from the target about the support hip, degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/kick.ts (kick.plan.geometry, return); striking/KickGeometry.ts (KickGeometry.build, return); striking/KickGeometry.ts (KickGeometry.compose, parts); striking/KickGeometry.ts (KickGeometry.compose, return); striking/KickRedirect.ts (KickRedirect.build, return); striking/kick.ts (kick.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieVector3, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanStrikingRecord.IRecord identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. Shares the canonical IAutoMovieMotionHumanKick.IParams, IAutoMovieMotionHumanActionContext, IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanKickGeometry {
   /**
@@ -29,14 +24,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @param resolution Optional exact FK supplier borrowed only by this synchronous course evaluation.
    * @param projection Optional genuine same-body ROM metadata borrowed only within this synchronous unchanged-table operation.
    * @returns The demanded posture, with guard and kicking leg included when demand is omitted.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines local seconds, supported observation demand and same-body unchanged-table loan lifetime.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
    */
   posture(
     seconds: number,
@@ -61,14 +48,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @param resolution Optional exact reader borrowed only within this synchronous person's evaluation.
    * @param projection Optional genuine same-body ROM metadata borrowed only within this synchronous unchanged-table operation.
    * @returns The posture, both leg goals being the stance's.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.base: The body's posture without the kicking leg's goal, under a given carriage.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanKickGeometry.base is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanKickGeometry.base is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanKickGeometry.base is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanKickGeometry.base is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanKickGeometry.base is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanKickGeometry.base is used through packages/motions/src/striking/kick.ts.
    */
   base(
     seconds: number,
@@ -84,14 +63,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
    *
    * @param turning Seconds since the start at which the turn is read.
    * @returns The carriage.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.shown: The carriage this kick shows in full at a second: the launch plan's, moved by every correction of the aim that has started by then.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanKickGeometry.shown is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanKickGeometry.shown is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanKickGeometry.shown is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanKickGeometry.shown is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanKickGeometry.shown is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanKickGeometry.shown is used through packages/motions/src/striking/kick.ts.
    */
   shown(turning: number): IAutoMovieMotionHumanKickGeometry.ICarriage;
 
@@ -104,14 +75,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @param shift How far the launch plant has moved, world metres: zero on the approach, the replant's share on a withdrawal.
    * @param hip Optional kicking hip already read from this exact body/base within the current synchronous evaluation.
    * @returns The leg's goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.leg: The kicking leg's goal on its free path, as if the leg met nothing, under a given body.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanKickGeometry.leg is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanKickGeometry.leg is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanKickGeometry.leg is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanKickGeometry.leg is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanKickGeometry.leg is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanKickGeometry.leg is used through packages/motions/src/striking/kick.ts.
    */
   leg(
     clock: number,
@@ -140,11 +103,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
 export namespace IAutoMovieMotionHumanKickGeometry {
   /**
    * A planned kick another kick may continue from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation start: Film second of its time zero.
-   * @evidence contracts/development/design.md#principled-representation start: Film second of its time zero.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/kick.ts (kick.redirected, return); striking/KickRedirect.ts (KickRedirect.build, source); striking/kick.ts (kick.plan); striking/kick.ts (kick.redirected).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanKickGeometry.ITiming, IAutoMovieMotionHumanKickGeometry, IAutoMovieMotionHumanKick.IParams, IAutoMovieMotionHumanActionContext identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ISource {
     /** Its timing. */
@@ -154,14 +112,6 @@ export namespace IAutoMovieMotionHumanKickGeometry {
      * Its geometry, built on demand.
      *
      * @returns The geometry.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.ISource.geometry: Its geometry, built on demand.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanKickGeometry.ISource.geometry is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanKickGeometry.ISource.geometry is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanKickGeometry.ISource.geometry is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanKickGeometry.ISource.geometry is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanKickGeometry.ISource.geometry is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanKickGeometry.ISource.geometry is used through packages/motions/src/striking/kick.ts.
      */
     geometry(): IAutoMovieMotionHumanKickGeometry;
 
@@ -177,11 +127,6 @@ export namespace IAutoMovieMotionHumanKickGeometry {
 
   /**
    * A kick's timing, seconds from its start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation side: The kicking side. lead: The stance's lead side. prep: The preparation's end: the launch of the knee.
-   * @evidence contracts/development/design.md#principled-representation side: The kicking side. lead: The stance's lead side. prep: The preparation's end: the launch of the knee.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/kick.ts (kick.measure, return); striking/KickGeometry.ts (KickGeometry.build, timing); striking/KickGeometry.ts (KickGeometry.compose, timing); striking/KickGeometry.ts (KickGeometry.windows, timing); striking/kick.ts (kick.plan); striking/KickCarriage.ts (KickCarriage).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in kick.measure.
    */
   export interface ITiming {
     /** The kicking side. */
@@ -205,11 +150,6 @@ export namespace IAutoMovieMotionHumanKickGeometry {
 
   /**
    * How the body carries a kick at its contact; every member is zero in the stance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation turn: The pelvis's turn about the vertical from the entry heading, degrees. lean: The whole body's tilt away from the target about the support hip, degrees. pitch: The body's forward tip added to the entry's, degrees.
-   * @evidence contracts/development/design.md#principled-representation turn: The pelvis's turn about the vertical from the entry heading, degrees. lean: The whole body's tilt away from the target about the support hip, degrees. pitch: The body's forward tip added to the entry's, degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/KickCarriage.ts (KickCarriage.posture, carriage); striking/KickContact.ts (KickContact.choose, set); striking/KickContact.ts (KickContact.choose.under, carriage); striking/KickGeometry.ts (KickGeometry.build, shown); striking/KickPlans.ts (KickPlans.create, return); striking/KickPlans.ts (KickPlans.create, c).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in KickCarriage.posture.
    */
   export interface ICarriage {
     /** The pelvis's turn about the vertical from the entry heading, degrees. */
@@ -230,11 +170,6 @@ export namespace IAutoMovieMotionHumanKickGeometry {
 
   /**
    * The kicking leg's goal at one instant.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation ankle: The ankle joint, world metres. hint: The knee's bend hint, world metres.
-   * @evidence contracts/development/design.md#principled-representation ankle: The ankle joint, world metres. hint: The knee's bend hint, world metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/KickPlans.ts (KickPlans.create, return); striking/KickRedirect.ts (KickRedirect.build, return); striking/KickSwing.ts (KickSwing.create, return); striking/KickGeometry.ts (KickGeometry); striking/KickPlans.ts (KickPlans); striking/KickPlans.ts (KickPlans.create).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ILeg {
     /** The ankle joint, world metres. */
@@ -245,15 +180,13 @@ export namespace IAutoMovieMotionHumanKickGeometry {
 
     /** The foot's world rotation from its rest. */
     rotation: IAutoMovieQuaternion;
+
+    /** The toes' extension from the foot, degrees, while the foot rocks on its forefoot; none when flat. */
+    toes?: number;
   }
 
   /**
    * What a redirect keeps of its source: the committed line, the support foot's step and the pelvis's drive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation step: The source's step-up, metres. drive: The source's pelvis drive, metres.
-   * @evidence contracts/development/design.md#principled-representation step: The source's step-up, metres. drive: The source's pelvis drive, metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/KickGeometry.ts (KickGeometry.build, kept).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IKept {
     /** The source's line. */

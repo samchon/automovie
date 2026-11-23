@@ -1,3 +1,4 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
@@ -19,22 +20,10 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * First pass: the free distance is the composition's (where the two runs put
  * the runners at `at`); the runners do not adjust their speed to meet, and
  * the fingers do not close on the baton.
- *
- * @evidence contracts/development/common.md#meaningful-documentation baton: The baton's subject id, worn on the incoming runner's passing hand; mimed when absent. side: The passing hand of both runners; `right` when absent.
- * @evidence contracts/development/design.md#principled-representation baton: The baton's subject id, worn on the incoming runner's passing hand; mimed when absent. side: The passing hand of both runners; `right` when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/relayPass.ts (relayPass.plan, context); handling/relayPass.ts (relayPass.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanRelayPass {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The role, the partner, the baton and the shared instant.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The instant is stated, so both roles agree without reading each other's plan.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** Which runner: the one bringing the baton or the one taking it. */
@@ -53,6 +42,22 @@ export namespace IAutoMovieMotionHumanRelayPass {
     end?: string;
 
     /** The passing hand of both runners; `right` when absent. */
-    side?: AutoMovieHumanSide;
+    hand?: AutoMovieHumanSide;
+
+    /** The takeover zone the baton must pass in; unchecked when absent. */
+    zone?: IAutoMovieMotionHumanRelayPass.IZone;
+  }
+
+  /**
+   * A relay takeover zone on the track: the lane's middle at the zone's
+   * entry line and at its exit line, world metres on the floor. The pass at
+   * `at` must fall between them (World Athletics TR24.19: a 30 m zone).
+   */
+  export interface IZone {
+    /** The lane's middle on the zone's entry line, world metres. */
+    from: IAutoMovieVector3;
+
+    /** The lane's middle on the zone's exit line, world metres. */
+    to: IAutoMovieVector3;
   }
 }

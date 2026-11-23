@@ -9,11 +9,6 @@ import type { IAutoMovieCubicBezierCurve64 } from "./IAutoMovieCubicBezierCurve6
  * Sections must have increasing coordinates and use one consistent cutting-plane orientation.
  * Optional explicit intervals own ordinary continuation; absent them, legacy intervals use nearest geometric continuation. Declared events own every topology change.
  * This representation neither identifies anatomical equations nor certifies a surface without folds.
- *
- * @evidence contracts/development/design.md#principled-representation Complete cubic coefficients and signed event incidence define a contour loft independently of any source mesh.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Sections, event relationships and a physical chord tolerance are the input; output mesh and actual sampled construction remain separate records.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No original surface vertices, triangle indices, normals or anatomical defaults are admitted by this contract.
- * @evidence contracts/development/common.md#meaningful-documentation States chart units, ordering, orientation, topology ownership and the absence of a fold guarantee.
  */
 export interface IAutoMovieContourLoft64 {
   /** Ordered physical section coordinates and their oriented closed curves. */
@@ -39,11 +34,6 @@ export namespace IAutoMovieContourLoft64 {
    * Each loop belongs to exactly one group. Unsupported groups remain local
    * gaps, including a zero-boundary unsupported group for an active hidden component and open-contour or critical-cluster evidence retained by the
    * observation producer. A supported flag does not certify embedding or C1.
-   *
-   * @evidence contracts/development/design.md#principled-representation Exact saved-cut coordinates and local curve ordinals carry observed incidence without source mesh addresses or geometric rematching.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One interval partitions both boundary loop lists into independent surface groups.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Unsupported groups carry an explicit reason and are never silently assigned to a nearby contour or capped.
-   * @evidence contracts/development/common.md#meaningful-documentation States complete coverage, local indices, physical millimetres and the limits of a supported declaration.
    */
   export interface IInterval {
     /** Exact lower saved-section coordinate in millimetres. */
@@ -65,11 +55,6 @@ export namespace IAutoMovieContourLoft64 {
 
   /**
    * One cut's independently defined cubic boundaries; outer and cavity senses use the same plane frame.
-   *
-   * @evidence contracts/development/design.md#principled-representation A physical coordinate groups the complete generating curves of one cut.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The coordinate and ordered loop list carry the section without a second sampled definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A loop index is local to this section and is not a source mesh vertex address.
-   * @evidence contracts/development/common.md#meaningful-documentation States coordinate units, orientation meaning and curve ownership.
    */
   export interface ISection {
     /** Physical coordinate along the common cutting direction, millimetres. */
@@ -88,11 +73,6 @@ export namespace IAutoMovieContourLoft64 {
    * A named critical level's incident contours and optional isolated extremum terminal.
    * The before/after coordinates select saved sections; their local loop numbers encode adjacency.
    * A terminal is used only for a declared regular minimum or maximum, never to cap a finite unmatched loop.
-   *
-   * @evidence contracts/development/design.md#principled-representation Explicit incident-contour relationships preserve split, merge and cavity events even when loop counts do not change.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One event publishes both sides and its extremum or saddle kind.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Proximity alone does not invent a topology event, and a missing continuation is not permission to close a cavity.
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes local contour indices, physical event coordinates, regularity and terminal use.
    */
   export interface IEvent {
     /** Stable event identifier within this loft. */
@@ -126,11 +106,6 @@ export namespace IAutoMovieContourLoft64 {
   /**
    * Newly generated mesh and the evaluated section samples that actually supplied its boundaries.
    * Unresolved boundaries remain visible and are reported instead of receiving an invented cap.
-   *
-   * @evidence contracts/development/design.md#principled-representation The result separates emitted geometry, generating construction and unresolved topology.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One result lets rendering and provenance consume the same generation without reevaluation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Normals derive from the new mesh and no missing surface is replaced by another mesh.
-   * @evidence contracts/development/common.md#meaningful-documentation States metre output, construction meaning and unresolved-boundary behavior.
    */
   export interface IResult {
     /** Actual retained generated triangles, addressed by zero-based mesh triangle ordinal and source-free incidence group. Omission means this kernel did not publish ownership; it never authorizes inferred attribution. */

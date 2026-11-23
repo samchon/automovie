@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The pool table read. */
@@ -15,12 +15,12 @@ const WPA: string =
   "WPA Recommended Equipment Specifications: a 9 ft table's playing surface 100 (+1/8) x 50 (+1/8) in (5); the bed 29 1/4 to 31 in above the floor (2); the cushion's nose 62 1/2 to 64 1/2% of the ball's diameter above the bed (7); rails 4 to 7 1/2 in wide with the cushions (6); balls 2 1/4 in across (16) (https://wpapool.com/wp-content/uploads/2024/01/RECOMMENDED-EQUIPMENT-SPECIFICATIONS.pdf)";
 
 /** The ball's diameter, metres: WPA 16, 2 1/4 in. */
-const BALL: number = 2.25 * ArchetypeUnits.INCH;
+const BALL: number = 2.25 * AutoMovieArchetypeUnits.INCH;
 
 /** Mouth widths at the lower end of WPA §9, metres. */
 const MOUTH = {
-  corner: 4.5 * ArchetypeUnits.INCH,
-  side: 5 * ArchetypeUnits.INCH,
+  corner: 4.5 * AutoMovieArchetypeUnits.INCH,
+  side: 5 * AutoMovieArchetypeUnits.INCH,
 } as const;
 
 /**
@@ -31,7 +31,7 @@ const MOUTH = {
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The table.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the table stands, its contacts, and what is left out with why.
  * @evidence contracts/development/implementation.md#principled-implementation The WPA's playing surface, bed height, nose height as its share of the ball's diameter and rail width.
@@ -44,9 +44,9 @@ const MOUTH = {
 export function createCueTable(
   params: createCueTable.IParams = {},
   seed?: number | string,
-): Archetype<createCueTable.Affordance, createCueTable.Dimension> {
-  const draw: ArchetypeDrawSession<createCueTable.Dimension> =
-    new ArchetypeDrawSession<createCueTable.Dimension>(
+): AutoMovieArchetype<createCueTable.Affordance, createCueTable.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createCueTable.Dimension> =
+    new AutoMovieArchetypeDrawSession<createCueTable.Dimension>(
       "cueTable",
       createCueTable.UNITS,
       seed,
@@ -55,10 +55,10 @@ export function createCueTable(
   const d: Record<createCueTable.Dimension, number> = draw.dimensions(
     createCueTable.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createCueTable.Affordance,
     createCueTable.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "pool table",
@@ -71,6 +71,8 @@ export function createCueTable(
   const nose: number = bed + d.nose * BALL;
   const rail: number = d.rail;
   const corner: number = MOUTH.corner / Math.SQRT2;
+
+  // The cabinet's top 9 cm below the bed is authored; no rule states it.
   const drop: number = 0.09;
   const tray: number = bed - drop;
   const edge: number = length / 2 - corner;
@@ -123,13 +125,13 @@ export function createCueTable(
     builder.affordance({
       id,
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(x, bed, z)),
+      frame: AutoMovieArchetypeFrame.upright(v(x, bed, z)),
       extent: null,
     });
   builder.affordance({
     id: "bed",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, bed, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, bed, 0)),
     extent: null,
     width,
     depth: length,
@@ -143,7 +145,7 @@ export function createCueTable(
     builder.affordance({
       id,
       kind: "ledge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v((x * width) / 2, nose, center),
         v(0, 1, 0),
         v(z, 0, -x),
@@ -201,7 +203,9 @@ export namespace createCueTable {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     length: "m",
     height: "m",
@@ -217,28 +221,34 @@ export namespace createCueTable {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(
-      50 * ArchetypeUnits.INCH,
-      50.125 * ArchetypeUnits.INCH,
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    width: AutoMovieArchetypeBand.metres(
+      50 * AutoMovieArchetypeUnits.INCH,
+      50.125 * AutoMovieArchetypeUnits.INCH,
       WPA,
     ),
-    length: ArchetypeBand.metres(
-      100 * ArchetypeUnits.INCH,
-      100.125 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      100 * AutoMovieArchetypeUnits.INCH,
+      100.125 * AutoMovieArchetypeUnits.INCH,
       WPA,
     ),
-    height: ArchetypeBand.metres(
-      29.25 * ArchetypeUnits.INCH,
-      31 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      29.25 * AutoMovieArchetypeUnits.INCH,
+      31 * AutoMovieArchetypeUnits.INCH,
       WPA,
     ),
-    nose: ArchetypeBand.of("", 0.625, 0.645, WPA),
-    rail: ArchetypeBand.metres(
-      4 * ArchetypeUnits.INCH,
-      7.5 * ArchetypeUnits.INCH,
+    nose: AutoMovieArchetypeBand.of("", 0.625, 0.645, WPA),
+    rail: AutoMovieArchetypeBand.metres(
+      4 * AutoMovieArchetypeUnits.INCH,
+      7.5 * AutoMovieArchetypeUnits.INCH,
       WPA,
     ),
-    mass: ArchetypeBand.of("kg", 300, 450, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      300,
+      450,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

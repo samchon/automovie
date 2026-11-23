@@ -1,4 +1,4 @@
-import { ArchetypeUnits } from "../core";
+import { AutoMovieArchetypeUnits } from "../core";
 
 /** The 1862 Ordnance Manual, read at its scan. */
 const ORDNANCE: string =
@@ -9,20 +9,15 @@ const GIBBON: string =
   "John Gibbon, The Artillerist's Manual, Van Nostrand, New York 1860 (https://archive.org/details/bub_gb_8FEkwTZd9FMC)";
 
 /** An inch, metres. */
-const IN: number = ArchetypeUnits.INCH;
+const IN: number = AutoMovieArchetypeUnits.INCH;
 
 /** A yard, metres: three feet. */
-const YARD: number = 3 * ArchetypeUnits.FOOT;
+const YARD: number = 3 * AutoMovieArchetypeUnits.FOOT;
 
 /**
  * The 6-pdr bronze field gun, Model 1839-1844, on its M1841 carriage, as the 1862 Ordnance Manual gives them, in metres, kilograms and degrees: kept apart from `createCannon` so each file stays within its size, and drawn by `buildFieldGun`.
  *
  * The gun stands on level ground at `y = 0`, its axle across `X` at `z = 0`, its muzzle toward `+Z`. Every place an act reads comes from a read figure or is derived from read figures; the construction estimates below size only parts no act reads, and the elevating screw's place, read from an undimensioned plate, is provisional.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, what each figure is and its page, and which places are provisional or construction.
- * @evidence contracts/development/design.md#principled-representation The read figures as named members converted through `ArchetypeUnits`, the construction estimates apart; the builder is `buildFieldGun`'s.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `createCannon`'s bands and by `buildFieldGun`, which its producer calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every construction estimate is named as one; the vent's lean and the screw's place say where they come from; the service figures (`SERVICE`) are each the manual's or Gibbon's, with their pages.
  */
 export namespace FIELD_GUN {
   /** The tube's table (p. 19), the carriage's (p. 74), the wheel's and axle's (p. 68), the vent (p. 16), Plate 2, and Gibbon's vent and trunnions. */
@@ -67,9 +62,9 @@ export namespace FIELD_GUN {
     /** From the trunnions' axis to the face of the muzzle, 34.91 in. */
     trunnionToFace: 34.91 * IN,
     /** The piece's weight, 884 lb. */
-    mass: 884 * ArchetypeUnits.POUND,
+    mass: 884 * AutoMovieArchetypeUnits.POUND,
     /** Its preponderance, 47 lb: the weight the breech bears on a support at the rear of the base-ring, the piece hung on its trunnions (p. 15). */
-    preponderance: 47 * ArchetypeUnits.POUND,
+    preponderance: 47 * AutoMovieArchetypeUnits.POUND,
   };
 
   /** The carriage (pp. 68 and 74). */
@@ -121,11 +116,11 @@ export namespace FIELD_GUN {
     /** Wheel No. 1's spokes, 14. */
     spokes: 14,
     /** The gun-carriage without wheels, 540 lb. */
-    mass: 540 * ArchetypeUnits.POUND,
+    mass: 540 * AutoMovieArchetypeUnits.POUND,
     /** One wheel, 180 lb. */
-    wheelMass: 180 * ArchetypeUnits.POUND,
+    wheelMass: 180 * AutoMovieArchetypeUnits.POUND,
     /** Axle-tree No. 1, 116 lb, part of the carriage's 540. */
-    axleMass: 116 * ArchetypeUnits.POUND,
+    axleMass: 116 * AutoMovieArchetypeUnits.POUND,
   };
 
   /** The vent (p. 16): it "is in the vertical plane passing through the axis, and makes an angle of 80° with it. It enters the bore at a distance from the bottom equal to one-fourth the diameter of the bore"; its outer end leans to the rear, the gunner's side (Gibbon, p. 306: "The vent of most pieces being inclined to the rear"). */
@@ -155,10 +150,10 @@ export namespace FIELD_GUN {
     handspike: number;
   }> = {
     shot: 3.58 * IN,
-    shotMass: 6.1 * ArchetypeUnits.POUND,
-    velocity: 1439 * ArchetypeUnits.FOOT,
+    shotMass: 6.1 * AutoMovieArchetypeUnits.POUND,
+    velocity: 1439 * AutoMovieArchetypeUnits.FOOT,
     recoil: { least: 1.5 * YARD, most: 2 * YARD },
-    lanyard: 12 * ArchetypeUnits.FOOT,
+    lanyard: 12 * AutoMovieArchetypeUnits.FOOT,
     line: 0.2 * IN,
     toggle: { diameter: 0.75 * IN, length: 4 * IN },
     tube: 1.75 * IN,

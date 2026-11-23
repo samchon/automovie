@@ -8,6 +8,7 @@ import { stand } from "../actions/stand";
 import { exercise } from "../exercise/exercise";
 import { workout } from "../exercise/workout";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_STANCE_MOUNTAIN_POSE } from "../next/presets/HUMAN_STANCE_MOUNTAIN_POSE";
 
 /**
  * Exercises, stretches, yoga poses, dance holds and turns, and a few sport
@@ -21,168 +22,173 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * shown and nothing is held. A flow (a sun salutation, a kata) is these
  * rows in sequence in the composition.
  *
+ * A row's time is its kind's: an entry of 0.8 to 2.4 s, then the default
+ * count of repetitions, each a few seconds of its steps, or one pose held for
+ * the stated seconds. Each row states its own, all provisional. `reps` and
+ * `hold` replace them.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what it leaves open and where its limits are stated.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a registered or shipped law (`HumanActionRow`), so it is data over a law that plans and refuses.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One row per exercise a screenplay names; a production registers the ones it uses.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; a workout row fixes its kind alone, and the rows of other laws fix the value their name means (the mountain pose's provisional ten seconds, the strides' pace).
  */
 export namespace HumanSportWorkout {
-  /** Push-ups. */
+  /** Push-ups. Default 5 repetitions of 2 s after a 1.5 s entry; provisional ({@link WorkoutFloor.KINDS}). */
   export const pushUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["pushUp"]
   > = HumanActionRow.of("pushUp", workout, {
     kind: "pushUp",
   });
 
-  /** Wide push-ups. */
+  /** Wide push-ups. Default 5 repetitions of 2 s after a 1.5 s entry; provisional ({@link WorkoutFloor.KINDS}). */
   export const widePushUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["widePushUp"]
   > = HumanActionRow.of("widePushUp", workout, {
     kind: "widePushUp",
   });
 
-  /** A plank on the straight arms. */
+  /** A plank on the straight arms. Held 30 s after a 1.5 s entry; provisional ({@link WorkoutFloor.KINDS}). */
   export const plank: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["plank"]
   > = HumanActionRow.of("plank", workout, { kind: "plank" });
 
-  /** Mountain climbers. */
+  /** Mountain climbers. Default 8 repetitions of 0.6 s after a 1.5 s entry; provisional ({@link WorkoutFloor.KINDS}). */
   export const mountainClimber: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["mountainClimber"]
   > = HumanActionRow.of("mountainClimber", workout, {
     kind: "mountainClimber",
   });
 
-  /** Burpees, without the jump. */
+  /** Burpees, without the jump. Default 3 repetitions of 1.1 s after a 0.8 s entry; provisional ({@link WorkoutFloor.KINDS}). */
   export const burpee: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["burpee"]
   > = HumanActionRow.of("burpee", workout, {
     kind: "burpee",
   });
 
-  /** The downward dog of yoga. */
+  /** The downward dog of yoga. Held 15 s after a 2 s entry; provisional ({@link WorkoutFloor.KINDS}). */
   export const downwardDog: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["downwardDog"]
   > = HumanActionRow.of("downwardDog", workout, {
     kind: "downwardDog",
   });
 
-  /** The cobra of yoga. */
+  /** The cobra of yoga. Held 10 s after a 2.4 s entry; provisional ({@link WorkoutFloor.KINDS}). */
   export const cobra: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["cobra"]
   > = HumanActionRow.of("cobra", workout, { kind: "cobra" });
 
-  /** Sit-ups. */
+  /** Sit-ups. Default 5 repetitions of 2 s after a 2.4 s entry; provisional ({@link WorkoutLying.KINDS}). */
   export const sitUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["sitUp"]
   > = HumanActionRow.of("sitUp", workout, { kind: "sitUp" });
 
-  /** Crunches. */
+  /** Crunches. Default 8 repetitions of 1.6 s after a 2.4 s entry; provisional ({@link WorkoutLying.KINDS}). */
   export const crunch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["crunch"]
   > = HumanActionRow.of("crunch", workout, {
     kind: "crunch",
   });
 
-  /** Glute bridges. */
+  /** Glute bridges. Default 5 repetitions of 3 s after a 2.4 s entry; provisional ({@link WorkoutLying.KINDS}). */
   export const gluteBridge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["gluteBridge"]
   > = HumanActionRow.of("gluteBridge", workout, {
     kind: "gluteBridge",
   });
 
-  /** A partner's hamstring stretch, the stretched person's part. */
+  /** A partner's hamstring stretch, the stretched person's part. Held 20 s after a 2.4 s entry; provisional ({@link WorkoutLying.KINDS}). */
   export const pnfHamstring: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["pnfHamstring"]
   > = HumanActionRow.of("pnfHamstring", workout, {
     kind: "pnfHamstring",
   });
 
-  /** A side plank. */
+  /** A side plank. Held 20 s after a 2.4 s entry; provisional ({@link WorkoutLying.KINDS}). */
   export const sidePlank: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["sidePlank"]
   > = HumanActionRow.of("sidePlank", workout, {
     kind: "sidePlank",
   });
 
-  /** The seated forward fold of yoga, and the seated hamstring stretch. */
+  /** The seated forward fold of yoga, and the seated hamstring stretch. Held 20 s after a 2 s entry; provisional ({@link WorkoutLying.KINDS}). */
   export const seatedFold: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["seatedFold"]
   > = HumanActionRow.of("seatedFold", workout, {
     kind: "seatedFold",
   });
 
-  /** The hurdler's hamstring stretch. */
+  /** The hurdler's hamstring stretch. Held 20 s after a 2 s entry; provisional ({@link WorkoutLying.KINDS}). */
   export const hurdlerStretch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["hurdlerStretch"]
   > = HumanActionRow.of("hurdlerStretch", workout, {
     kind: "hurdlerStretch",
   });
 
-  /** A bench press, without its bar and bench. */
+  /** A bench press, without its bar and bench. Default 5 repetitions of 2.5 s after a 2.4 s entry; provisional ({@link WorkoutLying.KINDS}). */
   export const benchPress: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["benchPress"]
   > = HumanActionRow.of("benchPress", workout, {
     kind: "benchPress",
   });
 
-  /** Rowing on a machine. */
+  /** Rowing on a machine. Default 5 repetitions of 2.2 s after a 2 s entry; provisional ({@link WorkoutLying.KINDS}). */
   export const rowing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["rowing"]
   > = HumanActionRow.of("rowing", workout, {
     kind: "rowing",
   });
 
-  /** Pedalling a stationary bicycle. */
+  /** Pedalling a stationary bicycle. Default 8 repetitions of 0.8 s after a 2 s entry; provisional ({@link WorkoutLying.KINDS}). */
   export const cycling: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["cycling"]
   > = HumanActionRow.of("cycling", workout, {
     kind: "cycling",
   });
 
-  /** Deadlifts, without the bar. */
+  /** Deadlifts, without the bar. Default 5 repetitions of 2.7 s after a 0 s entry; provisional ({@link WorkoutStanding.KINDS}). */
   export const deadlift: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["deadlift"]
   > = HumanActionRow.of("deadlift", workout, {
     kind: "deadlift",
   });
 
-  /** Back squats, without the bar. */
+  /** Back squats, without the bar. Default 5 repetitions of 3 s after a 0.8 s entry; provisional ({@link WorkoutStanding.KINDS}). */
   export const backSquat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["backSquat"]
   > = HumanActionRow.of("backSquat", workout, {
     kind: "backSquat",
   });
 
-  /** Kettlebell swings, without the bell. */
+  /** Kettlebell swings, without the bell. Default 8 repetitions of 0.9 s after a 0.8 s entry; provisional ({@link WorkoutStanding.KINDS}). */
   export const kettlebellSwing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["kettlebellSwing"]
   > = HumanActionRow.of("kettlebellSwing", workout, {
     kind: "kettlebellSwing",
   });
 
-  /** Overhead presses, without the bar. */
+  /** Overhead presses, without the bar. Default 5 repetitions of 2 s after a 0.8 s entry; provisional ({@link WorkoutStanding.KINDS}). */
   export const overheadPress: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["overheadPress"]
   > = HumanActionRow.of("overheadPress", workout, {
     kind: "overheadPress",
   });
 
-  /** Arm circles. */
+  /** Arm circles. Default 5 repetitions of 1.4 s after a 0.3 s entry; provisional ({@link WorkoutStanding.KINDS}). */
   export const armCircles: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["armCircles"]
   > = HumanActionRow.of("armCircles", workout, {
     kind: "armCircles",
   });
 
-  /** Leg swings. */
+  /** Leg swings. Default 6 repetitions of 1.3 s after a 0 s entry; provisional ({@link WorkoutStanding.KINDS}). */
   export const legSwings: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["legSwings"]
   > = HumanActionRow.of("legSwings", workout, {
     kind: "legSwings",
   });
 
-  /** Butt kicks in place. */
+  /** Butt kicks in place. Default 8 repetitions of 0.4 s after a 0 s entry; provisional ({@link WorkoutStanding.KINDS}). */
   export const buttKicks: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["buttKicks"]
   > = HumanActionRow.of("buttKicks", workout, {
@@ -196,7 +202,7 @@ export namespace HumanSportWorkout {
     kind: "highKnees",
   });
 
-  /** The B-skip in place. */
+  /** The B-skip in place. Default 6 repetitions of 0.65 s after a 0 s entry; provisional ({@link WorkoutStanding.KINDS}). */
   export const bSkip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["bSkip"]
   > = HumanActionRow.of("bSkip", workout, { kind: "bSkip" });
@@ -206,7 +212,7 @@ export namespace HumanSportWorkout {
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["strides"]
   > = HumanActionRow.of("strides", run, { pace: "run" });
 
-  /** Skipping rope, the rope not shown. */
+  /** Skipping rope, the rope not shown. Default 10 repetitions of 0.3 s after a 0.3 s entry; provisional ({@link WorkoutStanding.KINDS}). */
   export const jumpRope: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["jumpRope"]
   > = HumanActionRow.of("jumpRope", workout, {
@@ -244,9 +250,7 @@ export namespace HumanSportWorkout {
   /** The mountain pose of yoga: standing still ten seconds (provisional). */
   export const mountainPose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["mountainPose"]
-  > = HumanActionRow.of("mountainPose", stand, {
-    seconds: 10,
-  });
+  > = HumanActionRow.of("mountainPose", stand, HUMAN_STANCE_MOUNTAIN_POSE);
 
   /** Warrior I of yoga. */
   export const warriorOne: IAutoMovieMotionHumanActionLaw<
@@ -344,35 +348,56 @@ export namespace HumanSportWorkout {
     kind: "closedHold",
   });
 
-  /** A dead hang from a bar. */
+  /** A ballet arabesque on the left foot. */
+  export const arabesque: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportWorkout"]["arabesque"]
+  > = HumanActionRow.of("arabesque", workout, {
+    kind: "arabesque",
+  });
+
+  /** A breaking baby freeze on both hands. Held 2 s after a 1.5 s entry; provisional ({@link WorkoutDance.KINDS}). */
+  export const babyFreeze: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportWorkout"]["babyFreeze"]
+  > = HumanActionRow.of("babyFreeze", workout, {
+    kind: "babyFreeze",
+  });
+
+  /** A street rock with chest and head isolations. */
+  export const streetRock: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportWorkout"]["streetRock"]
+  > = HumanActionRow.of("streetRock", workout, {
+    kind: "streetRock",
+  });
+
+  /** A dead hang from a bar. Held 10 s after a 1 s entry; provisional ({@link WorkoutHanging.KINDS}). */
   export const deadHang: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["deadHang"]
   > = HumanActionRow.of("deadHang", workout, {
     kind: "deadHang",
   });
 
-  /** Pull-ups. */
+  /** Pull-ups. Default 3 repetitions of 2.5 s after a 1 s entry; provisional ({@link WorkoutHanging.KINDS}). */
   export const pullUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["pullUp"]
   > = HumanActionRow.of("pullUp", workout, {
     kind: "pullUp",
   });
 
-  /** Chin-ups. */
+  /** Chin-ups. Default 3 repetitions of 2.5 s after a 1 s entry; provisional ({@link WorkoutHanging.KINDS}). */
   export const chinUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["chinUp"]
   > = HumanActionRow.of("chinUp", workout, {
     kind: "chinUp",
   });
 
-  /** Hanging knee raises. */
+  /** Hanging knee raises. Default 5 repetitions of 2 s after a 1 s entry; provisional ({@link WorkoutHanging.KINDS}). */
   export const kneeRaise: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["kneeRaise"]
   > = HumanActionRow.of("kneeRaise", workout, {
     kind: "kneeRaise",
   });
 
-  /** A swing on a bar. */
+  /** A swing on a bar. Default 3 repetitions of 1.9 s after a 1 s entry; provisional ({@link WorkoutHanging.KINDS}). */
   export const barSwing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["barSwing"]
   > = HumanActionRow.of("barSwing", workout, {

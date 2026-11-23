@@ -1,13 +1,13 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The lectern read. */
@@ -25,7 +25,7 @@ const ESTIMATES: Readonly<{ slab: number }> = { slab: 0.02 };
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The lectern.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the lectern stands, where the speaker is and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The maker's width, depth, height and slope; the front edge's height follows from the slope over the surface's depth.
@@ -38,9 +38,9 @@ const ESTIMATES: Readonly<{ slab: number }> = { slab: 0.02 };
 export function createLectern(
   params: createLectern.IParams = {},
   seed?: number | string,
-): Archetype<createLectern.Affordance, createLectern.Dimension> {
-  const draw: ArchetypeDrawSession<createLectern.Dimension> =
-    new ArchetypeDrawSession<createLectern.Dimension>(
+): AutoMovieArchetype<createLectern.Affordance, createLectern.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createLectern.Dimension> =
+    new AutoMovieArchetypeDrawSession<createLectern.Dimension>(
       "lectern",
       createLectern.UNITS,
       seed,
@@ -49,17 +49,17 @@ export function createLectern(
   const d: Record<createLectern.Dimension, number> = draw.dimensions(
     createLectern.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createLectern.Affordance,
     createLectern.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "wood",
     id: params.id,
     name: "lectern",
     draw,
   });
   const v: typeof Vector3.create = Vector3.create;
-  const slope: number = d.slope * ArchetypeUnits.DEGREE;
+  const slope: number = d.slope * AutoMovieArchetypeUnits.DEGREE;
   const run: number = d.depth * Math.cos(slope);
   const front: number = d.height - d.depth * Math.sin(slope);
   builder.box("cabinet", v(d.width, front, run), v(0, front / 2, 0), {
@@ -83,7 +83,7 @@ export function createLectern(
   builder.affordance({
     id: "top",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, (d.height + front) / 2, 0),
       normal,
       v(1, 0, 0),
@@ -95,7 +95,11 @@ export function createLectern(
   builder.affordance({
     id: "front",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(v(0, front, run / 2), normal, v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, front, run / 2),
+      normal,
+      v(1, 0, 0),
+    ),
     extent: null,
     length: d.width,
   });
@@ -130,7 +134,9 @@ export namespace createLectern {
   export type Dimension = "width" | "depth" | "height" | "slope" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     depth: "m",
     height: "m",
@@ -145,23 +151,29 @@ export namespace createLectern {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(
-      23 * ArchetypeUnits.INCH,
-      23 * ArchetypeUnits.INCH,
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    width: AutoMovieArchetypeBand.metres(
+      23 * AutoMovieArchetypeUnits.INCH,
+      23 * AutoMovieArchetypeUnits.INCH,
       SAFCO,
     ),
-    depth: ArchetypeBand.metres(
-      15.75 * ArchetypeUnits.INCH,
-      15.75 * ArchetypeUnits.INCH,
+    depth: AutoMovieArchetypeBand.metres(
+      15.75 * AutoMovieArchetypeUnits.INCH,
+      15.75 * AutoMovieArchetypeUnits.INCH,
       SAFCO,
     ),
-    height: ArchetypeBand.metres(
-      46 * ArchetypeUnits.INCH,
-      46 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      46 * AutoMovieArchetypeUnits.INCH,
+      46 * AutoMovieArchetypeUnits.INCH,
       SAFCO,
     ),
-    slope: ArchetypeBand.of("degrees", 15, 15, SAFCO),
-    mass: ArchetypeBand.of("kg", 15, 30, ArchetypeBand.TYPICAL_MASS, true),
+    slope: AutoMovieArchetypeBand.of("degrees", 15, 15, SAFCO),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      15,
+      30,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

@@ -5,21 +5,11 @@ import type {
 
 /**
  * Observe actual distal extrema and PL critical brackets from existing source-loop incidence. The open half-space is bounded above by the next representable value beyond the source maximum. Private vertex-face probes let the existing slab graph identify exactly the seeded indexed-source component; original point positions are published only as measured extrema and critical event observations. A one-tip result requires unique incidence, two-use original edges, one nonflat manifold maximum and no other critical event; branch and plateau observations remain explicit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Source incidence or chart preparation shared by the operation; its borrowed arrays remain stable for the pass. Finite scalar projections aligned with source vertices, in the same units as query levels.
- * @evidence contracts/development/design.md#principled-representation Source incidence or chart preparation shared by the operation; its borrowed arrays remain stable for the pass.
- * @evidence contracts/development/design.md#minimal-and-owned-surface observeRecoverySourceTerminals, observeAutoMovieRecoverySections share IAutoMovieRecoverySourceTerminalsObservationOperation's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Stable saved coefficient identity, retained without inferring anatomical or material correspondence.
  */
 
 export namespace IAutoMovieRecoverySourceTerminalsObservationOperation {
   /**
    * Observe actual distal extrema and PL critical brackets from existing source-loop incidence. The open half-space is bounded above by the next representable value beyond the source maximum. Private vertex-face probes let the existing slab graph identify exactly the seeded indexed-source component; original point positions are published only as measured extrema and critical event observations. A one-tip result requires unique incidence, two-use original edges, one nonflat manifold maximum and no other critical event; branch and plateau observations remain explicit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Source incidence or chart preparation shared by the operation; its borrowed arrays remain stable for the pass. Finite scalar projections aligned with source vertices, in the same units as query levels.
-   * @evidence contracts/development/design.md#principled-representation Source incidence or chart preparation shared by the operation; its borrowed arrays remain stable for the pass.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface observeRecoverySourceTerminals, observeAutoMovieRecoverySections share IAutoMovieRecoverySourceTerminalsObservationOperation's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stable saved coefficient identity, retained without inferring anatomical or material correspondence.
    */
 
   export type Operation = (input: {

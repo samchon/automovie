@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -54,6 +55,34 @@ export namespace ExerciseKey {
       lift: 0,
       joints: stand.relaxed(body),
     };
+  }
+
+  /**
+   * The key of a displayed pose: every joint as the pose shows it, with no
+   * tilt, turn or lift of its own, so a law that leaves the pose starts from
+   * the body as it was shown, its stance and its feet, rather than from a
+   * relaxed stand the cut would jump to.
+   *
+   * @param pose The displayed pose, an action's entry.
+   * @returns The key.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the key holds and why a law reads it.
+   * @evidence contracts/development/implementation.md#principled-implementation The pose's own clinical angles, the joints a key holds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the pose's joints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent angle is zero, as the pose states it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the pose's joints.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function shown(pose: IAutoMoviePose): IAutoMovieMotionHumanExerciseKey.IKey {
+    const joints: IAutoMovieMotionHumanJoints.Angles = {};
+    for (const joint of pose.joints)
+      joints[joint.bone] = [
+        joint.flexion ?? 0,
+        joint.abduction ?? 0,
+        joint.twist ?? 0,
+      ];
+    return { pitch: 0, roll: 0, yaw: 0, lift: 0, joints };
   }
 
   /**

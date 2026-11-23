@@ -18,20 +18,10 @@ import type { IAutoMovieMotionHumanAuditTangle } from "./IAutoMovieMotionHumanAu
  * fall is meant to lose its balance). What an action intends (which hand
  * reaches where, at which beat) is not the audit's: that is pinned by the
  * action's own tests.
- *
- * @evidence contracts/development/common.md#meaningful-documentation rate: Grid samples per second; 24 by default. limits: Limits that replace the defaults. measures: Every check's reading; absent for a check left unread.
- * @evidence contracts/development/design.md#principled-representation rate: Grid samples per second; 24 by default. limits: Limits that replace the defaults. measures: Every check's reading; absent for a check left unread.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run, options); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run, return); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.describe, report); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.describe, f); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.LIMITS); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.CHECKS).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditTangle.IPair identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanAudit {
   /**
    * The name of a check.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The name of a check.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "tangle", "floor", "slip", "lift", "jump", "reversal", "speed", "balance" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.LIMITS); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.CHECKS).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The literal vocabulary is declared independently of runtime values; implementations are checked against this exact set.
    */
   export type Check =
     | "tangle"
@@ -45,21 +35,11 @@ export namespace IAutoMovieMotionHumanAudit {
 
   /**
    * The largest reading each check allows; `null` leaves a check unread.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The largest reading each check allows; `null` leaves a check unread.
-   * @evidence contracts/development/design.md#principled-representation Closed choices null distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanAudit.Check identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type ILimits = Record<IAutoMovieMotionHumanAudit.Check, number | null>;
 
   /**
    * Audit one person of a motion. How an audit is run.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation rate: Grid samples per second; 24 by default. limits: Limits that replace the defaults.
-   * @evidence contracts/development/design.md#principled-representation rate: Grid samples per second; 24 by default. limits: Limits that replace the defaults.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run, options).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanAudit.ILimits identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IOptions {
     /** Grid samples per second; 24 by default. */
@@ -71,11 +51,6 @@ export namespace IAutoMovieMotionHumanAudit {
 
   /**
    * A reading above its limit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation check: The check that read it. limit: The limit it exceeds.
-   * @evidence contracts/development/design.md#principled-representation check: The check that read it. limit: The limit it exceeds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.describe, f); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanAudit.Check identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IFinding extends IAutoMovieMotionHumanAuditMeasure {
     /** The check that read it. */
@@ -87,11 +62,6 @@ export namespace IAutoMovieMotionHumanAudit {
 
   /**
    * Audit one person of a motion. What an audit read.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation measures: Every check's reading; absent for a check left unread.
-   * @evidence contracts/development/design.md#principled-representation measures: Every check's reading; absent for a check left unread.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run, return); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.describe, report); audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run); audit/HumanVerdicts.ts (HumanVerdicts.of).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanAudit.Check, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditTangle.IPair, IAutoMovieMotionHumanAudit.IFinding identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IReport {
     /** Every check's reading; absent for a check left unread. */

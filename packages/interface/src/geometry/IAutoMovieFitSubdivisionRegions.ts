@@ -5,11 +5,6 @@ import type { IAutoMovieSubdivisionLevel } from "./IAutoMovieSubdivisionLevel";
  * Disjoint source-face fits composed on the joined subdivision domain.
  *
  * Source face and vertex identities survive local crop solves; positions retain cage-local metres and indexed UVs refine globally. The producer checks levels 2 through 6, nonempty disjoint regions and constraint membership; caller checks still cover measurements, intersections and poses.
- *
- * @evidence contracts/development/design.md#principled-representation Source face and vertex identities survive local crop solves; positions retain cage-local metres and indexed UVs refine globally.
- * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieSubdivisionRegions owns region cropping and composition and reuses fitAutoMovieSubdivisionDomain for each supported solve.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer checks levels 2 through 6, nonempty disjoint regions and constraint membership; caller checks still cover measurements, intersections and poses.
- * @evidence contracts/development/common.md#meaningful-documentation Disjoint source-face fits composed on the joined subdivision domain. Source face and vertex identities survive local crop solves; positions retain cage-local metres and indexed UVs refine globally.
  */
 export namespace IAutoMovieFitSubdivisionRegions {
   /**
@@ -31,11 +26,6 @@ export namespace IAutoMovieFitSubdivisionRegions {
    * requires the caller's physical measurement, intersection and pose checks.
    *
    * Input arrays, maps and sets are borrowed synchronously. The producer validates nonempty disjoint face sets and constraint membership, applies cage admission and propagates each domain fitter's refusal; it retains no caller collections.
-   *
-   * @evidence contracts/development/design.md#principled-representation Source face and vertex identities survive local crop solves; positions retain cage-local metres and indexed UVs refine globally.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieSubdivisionRegions owns region cropping and composition and reuses fitAutoMovieSubdivisionDomain for each supported solve.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer checks levels 2 through 6, nonempty disjoint regions and constraint membership; caller checks still cover measurements, intersections and poses.
-   * @evidence contracts/development/common.md#meaningful-documentation Disjoint source-face fits composed on the joined subdivision domain. Source face and vertex identities survive local crop solves; positions retain cage-local metres and indexed UVs refine globally.
    */
   export type IProps = {
     /** Joined original controls and indexed face-varying UV topology, metres. */
@@ -70,11 +60,6 @@ export namespace IAutoMovieFitSubdivisionRegions {
 
   /**
    * The globally joined fitted generating level and the largest local solve residual. All output level arrays are generated for this call; zero regions still refine the original cage to the requested level.
-   *
-   * @evidence contracts/development/design.md#principled-representation Source face and vertex identities survive local crop solves; positions retain cage-local metres and indexed UVs refine globally.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieSubdivisionRegions owns region cropping and composition and reuses fitAutoMovieSubdivisionDomain for each supported solve.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer checks levels 2 through 6, nonempty disjoint regions and constraint membership; caller checks still cover measurements, intersections and poses.
-   * @evidence contracts/development/common.md#meaningful-documentation Disjoint source-face fits composed on the joined subdivision domain. Source face and vertex identities survive local crop solves; positions retain cage-local metres and indexed UVs refine globally.
    */
   export type IResult = {
     /**

@@ -1,8 +1,8 @@
 import {
-  ArchetypeCourse,
-  ArchetypeRefusal,
-  ArchetypeRide,
-  ArchetypeUnits,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeRide,
+  AutoMovieArchetypeUnits,
   createCar,
   createCart,
   createMotorcycle,
@@ -28,8 +28,8 @@ function circle(
   speed: number,
   seconds: number,
   step: number,
-): ArchetypeCourse.ISample[] {
-  const samples: ArchetypeCourse.ISample[] = [];
+): AutoMovieArchetypeCourse.ISample[] {
+  const samples: AutoMovieArchetypeCourse.ISample[] = [];
   for (let t: number = 0; t <= seconds + 1e-9; t += step) {
     const angle: number = (speed * t) / radius;
     samples.push({
@@ -60,8 +60,11 @@ function circle(
  */
 export function test_archetype_ride_course_timed(): void {
   const findings: string[] = [];
-  const samples: ArchetypeCourse.ISample[] = circle(20, 6, 10, 0.5);
-  const plan: ArchetypeCourse.IPlan = ArchetypeCourse.timed("test", samples);
+  const samples: AutoMovieArchetypeCourse.ISample[] = circle(20, 6, 10, 0.5);
+  const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
+    "test",
+    samples,
+  );
 
   // 1. Through every sample.
   for (const sample of samples)
@@ -75,11 +78,11 @@ export function test_archetype_ride_course_timed(): void {
       findings.push(`the path misses the sample at ${sample.seconds} s`);
 
   // 2. Continuous, steady, bending left.
-  let before: ArchetypeCourse.IState = plan.at(0);
+  let before: AutoMovieArchetypeCourse.IState = plan.at(0);
   for (let k: number = 1; k <= 2000; k++) {
     const t: number = (10 * k) / 2000;
-    const now: ArchetypeCourse.IState = plan.at(t);
-    const heading = (s: ArchetypeCourse.IState): number =>
+    const now: AutoMovieArchetypeCourse.IState = plan.at(t);
+    const heading = (s: AutoMovieArchetypeCourse.IState): number =>
       Math.atan2(
         2 *
           (s.placement.rotation.x * s.placement.rotation.z +
@@ -107,8 +110,10 @@ export function test_archetype_ride_course_timed(): void {
   }
 
   // 4. Ridden like any course.
-  const cart: ArchetypeRide.IRide<createCart.Affordance, createCart.Dimension> =
-    ArchetypeRide.along(createCart({ kind: "trolley" }, 1), plan);
+  const cart: AutoMovieArchetypeRide.IRide<
+    createCart.Affordance,
+    createCart.Dimension
+  > = AutoMovieArchetypeRide.along(createCart({ kind: "trolley" }, 1), plan);
   if (
     !vclose(
       cart.at(3).placement.translation,
@@ -125,14 +130,16 @@ export function test_archetype_ride_course_timed(): void {
   const fast: unknown = caught(() =>
     rideMotorcycle(
       createMotorcycle({ kind: "motorcycle" }, 1),
-      ArchetypeCourse.timed("motorcycle", circle(5, 12, 4, 0.05)),
+      AutoMovieArchetypeCourse.timed("motorcycle", circle(5, 12, 4, 0.05)),
     ),
   );
   const allowed: number = Math.sqrt(
-    AutoMovieGravity.STANDARD * 5 * Math.tan(50 * ArchetypeUnits.DEGREE),
+    AutoMovieGravity.STANDARD *
+      5 *
+      Math.tan(50 * AutoMovieArchetypeUnits.DEGREE),
   );
   if (
-    !(fast instanceof ArchetypeRefusal) ||
+    !(fast instanceof AutoMovieArchetypeRefusal) ||
     !fast.axis.startsWith("samples[") ||
     fast.feasible?.kind !== "range" ||
     Math.abs(fast.feasible.maximum! - allowed) > 0.05 * allowed ||
@@ -140,10 +147,10 @@ export function test_archetype_ride_course_timed(): void {
   )
     findings.push(`a motorcycle past its lean: ${String(fast)}`);
   const tight: unknown = caught(() =>
-    driveCar(car, ArchetypeCourse.timed("car", circle(2, 2, 3, 0.25))),
+    driveCar(car, AutoMovieArchetypeCourse.timed("car", circle(2, 2, 3, 0.25))),
   );
   if (
-    !(tight instanceof ArchetypeRefusal) ||
+    !(tight instanceof AutoMovieArchetypeRefusal) ||
     !tight.axis.startsWith("samples[")
   )
     findings.push(`a car past its lock: ${String(tight)}`);
@@ -154,8 +161,10 @@ export function test_archetype_ride_course_timed(): void {
     ["samples[1].seconds", [samples[0]!, { ...samples[1]!, seconds: 0 }]],
     ["samples[1].x", [samples[0]!, { ...samples[1]!, x: Number.NaN }]],
   ] as const) {
-    const thrown: unknown = caught(() => ArchetypeCourse.timed("test", bad));
-    if (!(thrown instanceof ArchetypeRefusal) || thrown.axis !== axis)
+    const thrown: unknown = caught(() =>
+      AutoMovieArchetypeCourse.timed("test", bad),
+    );
+    if (!(thrown instanceof AutoMovieArchetypeRefusal) || thrown.axis !== axis)
       findings.push(`expected a refusal at ${axis}, got ${String(thrown)}`);
   }
   TestValidator.equals("a timed course passes its samples", findings, []);

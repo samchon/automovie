@@ -1,6 +1,10 @@
 import { AutoMovieGravity } from "@automovie/engine";
 
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createBow } from "./createBow";
 
 /** The Mary Rose bow X1-3 and its approximations, read in the bowyers' study. */
@@ -40,65 +44,69 @@ const NOCK_BORROWED: string = `borrowed from ${EASTON}, because no nocking heigh
 export const BOW_BANDS: Readonly<
   Record<
     createBow.Kind,
-    Readonly<Partial<Record<createBow.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createBow.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   longbow: {
-    length: ArchetypeBand.metres(1.67, 66 * ArchetypeUnits.INCH, WARBOW),
-    depth: ArchetypeBand.metres(0.02979, 0.02979, WARBOW),
-    nockHeight: ArchetypeBand.metres(
-      0.5 * ArchetypeUnits.INCH,
-      0.5 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      1.67,
+      66 * AutoMovieArchetypeUnits.INCH,
+      WARBOW,
+    ),
+    depth: AutoMovieArchetypeBand.metres(0.02979, 0.02979, WARBOW),
+    nockHeight: AutoMovieArchetypeBand.metres(
+      0.5 * AutoMovieArchetypeUnits.INCH,
+      0.5 * AutoMovieArchetypeUnits.INCH,
       NOCK_BORROWED,
       true,
     ),
   },
   recurve: {
-    depth: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-    draw: ArchetypeBand.of(
+    depth: AutoMovieArchetypeBand.metres(0.03, 0.04, POWER, true),
+    draw: AutoMovieArchetypeBand.of(
       "N",
-      49 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
-      54 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      49 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      54 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       KSL,
       true,
     ),
-    mass: ArchetypeBand.of("kg", 1.133, 1.338, RISERS, true),
-    nockHeight: ArchetypeBand.metres(
-      0.5 * ArchetypeUnits.INCH,
-      0.5 * ArchetypeUnits.INCH,
+    mass: AutoMovieArchetypeBand.of("kg", 1.133, 1.338, RISERS, true),
+    nockHeight: AutoMovieArchetypeBand.metres(
+      0.5 * AutoMovieArchetypeUnits.INCH,
+      0.5 * AutoMovieArchetypeUnits.INCH,
       EASTON,
     ),
   },
   horseBow: {
-    depth: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-    brace: ArchetypeBand.metres(0.14, 0.15, HORSE_BOW),
-    nockHeight: ArchetypeBand.metres(
-      0.5 * ArchetypeUnits.INCH,
-      0.5 * ArchetypeUnits.INCH,
+    depth: AutoMovieArchetypeBand.metres(0.03, 0.04, POWER, true),
+    brace: AutoMovieArchetypeBand.metres(0.14, 0.15, HORSE_BOW),
+    nockHeight: AutoMovieArchetypeBand.metres(
+      0.5 * AutoMovieArchetypeUnits.INCH,
+      0.5 * AutoMovieArchetypeUnits.INCH,
       NOCK_BORROWED,
       true,
     ),
   },
   crossbow: {
-    length: ArchetypeBand.metres(
-      30 * ArchetypeUnits.INCH,
-      30 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      30 * AutoMovieArchetypeUnits.INCH,
+      30 * AutoMovieArchetypeUnits.INCH,
       `${PAYNE}: p. 101, the bow "Between extremes, 2 ft. 6 in."`,
     ),
-    depth: ArchetypeBand.metres(
-      1.5 * ArchetypeUnits.INCH,
-      1.5 * ArchetypeUnits.INCH,
+    depth: AutoMovieArchetypeBand.metres(
+      1.5 * AutoMovieArchetypeUnits.INCH,
+      1.5 * AutoMovieArchetypeUnits.INCH,
       `${PAYNE}: p. 93, the stock's "Thickness, 1½ in.", the fore-stock the bow hand takes`,
     ),
-    brace: ArchetypeBand.metres(
-      5 * ArchetypeUnits.INCH,
-      5 * ArchetypeUnits.INCH,
+    brace: AutoMovieArchetypeBand.metres(
+      5 * AutoMovieArchetypeUnits.INCH,
+      5 * AutoMovieArchetypeUnits.INCH,
       `${PAYNE}: p. 116, "the front of the string should be 5 in. from the inside upper edge of the centre of the bow"`,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      10 * ArchetypeUnits.POUND,
-      12 * ArchetypeUnits.POUND,
+      10 * AutoMovieArchetypeUnits.POUND,
+      12 * AutoMovieArchetypeUnits.POUND,
       `${PAYNE}: p. 15, the sporting crossbow "from 10 lbs. to 12 lbs. if a cranequin"; Chapter XIX's crossbow, built here, is the sporting one, "of slightly larger size" in war`,
     ),
   },

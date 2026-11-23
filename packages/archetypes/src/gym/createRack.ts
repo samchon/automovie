@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -21,7 +21,7 @@ import {
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The rack.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it stands, which side the lifter is on and the contact.
  * @evidence contracts/development/implementation.md#principled-implementation Two uprights the rack's width apart and a short hook on each at the rest's height; the rest is where a bar laid on both hooks has its middle.
@@ -34,9 +34,9 @@ import {
 export function createRack(
   params: createRack.IParams,
   seed?: number | string,
-): Archetype<createRack.Affordance, createRack.Dimension> {
-  const draw: ArchetypeDrawSession<createRack.Dimension> =
-    new ArchetypeDrawSession<createRack.Dimension>(
+): AutoMovieArchetype<createRack.Affordance, createRack.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createRack.Dimension> =
+    new AutoMovieArchetypeDrawSession<createRack.Dimension>(
       "rack",
       createRack.UNITS,
       seed,
@@ -53,13 +53,15 @@ export function createRack(
     createRack.BANDS,
   );
   const half: number = d.width! / 2;
-  const builder: ArchetypeBuilder<createRack.Affordance, createRack.Dimension> =
-    new ArchetypeBuilder({
-      material: "steel",
-      id: params.id,
-      name: "squat rack",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createRack.Affordance,
+    createRack.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "steel",
+    id: params.id,
+    name: "squat rack",
+    draw,
+  });
   for (const side of [1, -1] as const) {
     const name: string = side === 1 ? "left" : "right";
     builder.box(
@@ -82,7 +84,7 @@ export function createRack(
   builder.affordance({
     id: "rest",
     kind: "ledge",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       Vector3.create(0, d.rest!, -(createRack.POST + createRack.HOOK) / 2),
     ),
     extent: null,
@@ -133,7 +135,9 @@ export namespace createRack {
   export type Dimension = "height" | "width" | "rest" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     width: "m",
     rest: "m",
@@ -151,28 +155,28 @@ export namespace createRack {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     squat: {
-      height: ArchetypeBand.metres(
+      height: AutoMovieArchetypeBand.metres(
         1.8,
         2.3,
         "an estimate; no maker's sheet was read",
         true,
       ),
-      width: ArchetypeBand.metres(
+      width: AutoMovieArchetypeBand.metres(
         1.05,
         1.2,
         "an estimate: inside a barbell's 1.31 m between collars; no maker's sheet was read",
         true,
       ),
-      rest: ArchetypeBand.metres(
+      rest: AutoMovieArchetypeBand.metres(
         0.9,
         1.6,
         "an estimate: from a bench press's rest to a tall lifter's shoulders; no maker's sheet was read",
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         30,
         80,

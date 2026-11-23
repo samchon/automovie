@@ -1,17 +1,12 @@
-import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
-  AutoMovieMotionHumanChannelClaim,
-  IAutoMovieHumanoidSurfaces,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionTarget,
@@ -19,22 +14,17 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
-import { crawl } from "../floor/crawl";
 import { getUp } from "../floor/getUp";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { prepareSupportFloor } from "./prepareSupportFloor";
-import { prepareSupportHelperGrip } from "./prepareSupportHelperGrip";
-import { prepareSupportInterval } from "./prepareSupportInterval";
 import { prepareSupportPreference } from "./prepareSupportPreference";
 import { supportAssist } from "./supportAssist";
-import { supportBalance } from "./supportBalance";
 import { supportContact } from "./supportContact";
+import { supportCourse } from "./supportCourse";
 import { supportKey } from "./supportKey";
-import { supportWindows } from "./supportWindows";
+import { supportPlan } from "./supportPlan";
+import { supportStep } from "./supportStep";
 
 /** Offset decay time of a cut from a support sequence into standing, seconds (provisional: no study of the transition was located). */
 const BLEND: number = 0.3;
@@ -59,17 +49,26 @@ type Place = (contact: IAutoMovieMotionHumanSupport.IContact) => Point;
  * stance from its parent. Between two stances the planner solves a third key
  * on the union of both stances' contacts, so the new contacts bear before
  * the old ones release (Escande et al.'s transition configurations, in
- * both stances at once), and the body moves between keys on a minimum-jerk
+ * both stances at once), except a part the stance lets go free
+ * (`IStance.free`), which bears no more from the stance's start and hangs as
+ * the posture carries it; the body moves between keys on a minimum-jerk
  * course in joint space (Flash and Hogan 1985), each joint on its own range
  * (`blendHumanJoint`). A part that bears in two stances in a row on
  * different targets steps: the planner first solves a key without its old
  * contact, the part over the middle of its step lifted a stepping limb's
  * rise (`crawl.LIFT`) clear of the higher end and bearing on nothing, then
  * the transition key with it set down, so a contact is broken before it is
- * made again. Along the joint-space course the root keeps the first common
+ * made again; a foot stepping across the floor lifts over its old place
+ * and lowers from over its new one instead, so it never travels within the
+ * floor band (`supportStep`). Along the joint-space course the root keeps the first common
  * contact on its point, and every held hand and foot is then fitted by its
  * own two-bone chain to where the two keys hold it (`prepareSupportInterval`);
  * a held knee or trunk contact rides the root pin and the floor bound alone.
+ * A staged route may add a course (`supportCourse`): a stepping foot then
+ * passes the course's world waypoints over a fixture edge, one lift key per
+ * waypoint and a straight toe course between them, and a foot the course
+ * names as level bears flat with its heel level at every key and through
+ * every interval that holds it.
  * A contact no key
  * posture reaches is refused with the contact, its stance and the miss.
  *
@@ -112,6 +111,7 @@ export namespace support {
    * Plan a support sequence.
    *
    * @param context The action's context.
+   * @param course A staged route's waypoints, level feet and window reader; the ordinary sequence when absent.
    * @returns The plan.
    * @throws {HumanRefusal} When there is no stance, a stance's seconds are not positive, or a key posture leaves a contact more than `MISS` off its target.
    *
@@ -125,6 +125,7 @@ export namespace support {
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
+    course?: supportCourse.ICourse,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     // Each contact marked by the stance it was set down in.
@@ -175,10 +176,27 @@ export namespace support {
       limbs: {},
     };
 
-    // Each contact's target, read once at the start.
-    const at: Place = (c: IAutoMovieMotionHumanSupport.IContact): Point => {
+    // Each stance's key second: the end of its move, the instant its key is
+    // solved at.
+    const ends: number[] = [];
+    for (const stance of stances)
+      ends.push((ends.at(-1) ?? 0) + (stance.seconds ?? SECONDS));
+
+    // Each contact's target. A prop moves on its own track, which the scene
+    // knows at every second, so a contact on a prop is read where the prop
+    // stands at the key that places it (a hand on a crutch the walk carries
+    // forward); every other target is read once at the start, a partner's
+    // pose being unsettled while the schedule is still being placed.
+    const at = (
+      c: IAutoMovieMotionHumanSupport.IContact,
+      seconds: number = 0,
+    ): Point => {
       if (c.target === undefined) return null;
-      if (c.target !== "on") return context.aim(c.target, context.start).point;
+      if (c.target !== "on")
+        return context.aim(
+          c.target,
+          context.start + (c.target.kind === "prop" ? seconds : 0),
+        ).point;
       const on: IAutoMovieMotionTarget | undefined = context.params.on;
       if (on === undefined)
         throw new HumanRefusal({
@@ -191,7 +209,8 @@ export namespace support {
       return supportContact.onSurface(
         body,
         c,
-        context.aim(on, context.start).point,
+        context.aim(on, context.start + (on.kind === "prop" ? seconds : 0))
+          .point,
         entry.yaw,
       );
     };
@@ -206,15 +225,25 @@ export namespace support {
         paired?.(c, 0) ?? at(c),
       context,
     );
-    const locate: (phase: number) => Place =
-      (phase: number): Place =>
+    const locate: (phase: number, seconds: number) => Place =
+      (phase: number, seconds: number): Place =>
       (c: IAutoMovieMotionHumanSupport.IContact): Point =>
-        paired?.(c, phase) ?? at(c) ?? laid.get(supportContact.id(c)) ?? null;
+        paired?.(c, phase) ??
+        at(c, seconds) ??
+        laid.get(supportContact.id(c)) ??
+        null;
 
     // Root translation may differ at the bridge and its following stance.
     // Both place the same authored angular configuration and floor shape.
     const preference: ReturnType<typeof prepareSupportPreference> =
       prepareSupportPreference(body, preferred);
+
+    // A course's level feet keep their heels level on their fixture.
+    const heels = (
+      contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
+      place: Place,
+    ): IAutoMovieMotionHumanBodyFitTypes.ITarget[] =>
+      supportCourse.levels(body, course, contacts, place);
 
     // Every key and swing on this body shares the same anatomical datums.
     const form: ReturnType<typeof supportContact.prepareForm> =
@@ -226,28 +255,39 @@ export namespace support {
     // chapter 17). The first stance starts from its stated posture, else
     // the entry; every later key from the key before, which bears on all its
     // contacts but the one being set down.
-    const keys: IKey[] = [
+    const keys: supportPlan.IKey[] = [
       {
         posture: preferred,
         seconds: 0,
         name: "start",
         contacts: inherited,
-        place: locate(0),
+        place: locate(0, 0),
       },
     ];
-    const push: (key: IKey) => void = (key: IKey): void => {
+    const push: (key: supportPlan.IKey) => void = (
+      key: supportPlan.IKey,
+    ): void => {
       keys.push(key);
       recordFloors(key.posture, key.contacts);
     };
+    // The waypoint courses of stepping feet, by the interval they span.
+    const routes: Map<number, supportCourse.ILeg[]> = new Map();
     let seconds: number = 0;
     stances.forEach(
       (stance: IAutoMovieMotionHumanSupport.IStance, i: number): void => {
         const move: number = stance.seconds ?? SECONDS;
-        const place: Place = locate(i);
+        const place: Place = locate(i, ends[i]!);
         const before: IAutoMovieMotionHumanPosture =
           keys[keys.length - 1]!.posture;
+        // A part the stance lets go free bears no more from its start: it is
+        // neither held through the move nor kept beside the new contacts.
         const previous: readonly IAutoMovieMotionHumanSupport.IContact[] =
-          i === 0 ? [] : stances[i - 1]!.contacts;
+          i === 0
+            ? []
+            : stances[i - 1]!.contacts.filter(
+                (c: IAutoMovieMotionHumanSupport.IContact): boolean =>
+                  stance.free?.includes(c.part) !== true,
+              );
         const added: IAutoMovieMotionHumanSupport.IContact[] =
           stance.contacts.filter(
             (c: IAutoMovieMotionHumanSupport.IContact): boolean =>
@@ -296,85 +336,28 @@ export namespace support {
           // stance's posture and starts from the key before; the set-down
           // places the limb where the stance it arrives at lays it, from the
           // lift, which holds every support but the swinging limb's.
-          const leaving: IAutoMovieMotionHumanSupport.IStance = stances[i - 1]!;
-          const oldPlace: Place = keys.at(-1)!.place;
-          seconds += move / 3;
-          push({
-            posture: supportKey.solved(
-              body,
-              preference(leaving, before, oldPlace),
-              before,
-              kept,
-              oldPlace,
-              `lift${i}`,
-              MISS,
-              moved.flatMap(
-                (
-                  m: IAutoMovieMotionHumanSupport.IContact,
-                ): IAutoMovieMotionHumanBodyFitTypes.ITarget[] => {
-                  const was: IAutoMovieMotionHumanSupport.IContact = from(m)!;
-
-                  const top: IAutoMovieMotionHumanBodyFitTypes.ITarget | null =
-                    supportContact.swing(
-                      form,
-                      m,
-                      oldPlace(was),
-                      place(m),
-                      crawl.LIFT,
-                    );
-                  if (top === null) return [];
-                  if (!m.part.endsWith("Foot")) return [top];
-                  // The toe joint's elevation alone leaves the ankle free to
-                  // point the heel into the floor. Level the rigid hindfoot
-                  // beneath the raised toe, preserving its free heading.
-                  const heel: IAutoMovieHumanoidSurfaces.IFrame =
-                    body.surfaces.sockets[
-                      m.part === "leftFoot" ? "heelLeft" : "heelRight"
-                    ];
-                  return [
-                    top,
-                    {
-                      bone: heel.bone,
-                      axes: [],
-                      goal: top.goal,
-                      normal: {
-                        local: heel.normal,
-                        world: { x: 0, y: -1, z: 0 },
-                      },
-                    },
-                  ];
-                },
-              ),
-              form,
-            ),
-            seconds,
-            name: `lift${i}`,
-            contacts: kept,
-            place: oldPlace,
-          });
-          seconds += move / 3;
-          const union: IAutoMovieMotionHumanSupport.IContact[] = [
-            ...kept,
-            ...added,
-          ];
-          push({
-            posture: supportKey.solved(
-              body,
-              preference(stance, keys[keys.length - 1]!.posture, place),
-              keys[keys.length - 1]!.posture,
-              union,
-              place,
-              `bear${i}`,
-              MISS,
-              [],
-              form,
-            ),
-            seconds,
-            name: `bear${i}`,
-            contacts: union,
+          seconds = supportStep({
+            body,
+            index: i,
+            keys,
+            push,
+            course,
+            routes,
+            moved,
+            from,
+            kept,
+            added,
+            leaving: { ...stances[i - 1]!, contacts: previous },
+            stance,
+            oldPlace: keys.at(-1)!.place,
             place,
+            preference,
+            heels,
+            form,
+            miss: MISS,
+            seconds,
+            move,
           });
-          seconds += move / 3;
         } else if (
           i > 0 &&
           (added.length > 0 || (paired !== undefined && i === 1))
@@ -386,7 +369,9 @@ export namespace support {
           // The helped performer sets the feet down halfway from take to seat.
           // The helper needs the same grip key to follow the same timed course.
           const midway: Place =
-            paired !== undefined && i === 1 ? locate(i - 0.5) : place;
+            paired !== undefined && i === 1
+              ? locate(i - 0.5, (ends[i - 1]! + ends[i]!) / 2)
+              : place;
           seconds += move / 2;
           push({
             posture: supportKey.solved(
@@ -397,7 +382,7 @@ export namespace support {
               midway,
               `bear${i}`,
               MISS,
-              [],
+              heels(union, midway),
               form,
             ),
             seconds,
@@ -407,7 +392,7 @@ export namespace support {
           });
           seconds += move / 2;
         } else seconds += move;
-        const prior: IKey = keys.at(-1)!;
+        const prior: supportPlan.IKey = keys.at(-1)!;
         const arriving: IAutoMovieMotionHumanPosture = prior.posture;
         const intended: IAutoMovieMotionHumanPosture = preference(
           stance,
@@ -433,7 +418,7 @@ export namespace support {
             place,
             `stance${i}`,
             MISS,
-            [],
+            heels(stance.contacts, place),
             form,
             held,
           ),
@@ -444,131 +429,6 @@ export namespace support {
         });
       },
     );
-    const duration: number = seconds;
-    const contacts: IAutoMovieMotionHumanActionPlan["contacts"] =
-      supportWindows.of(context, keys, duration);
-    // Contact windows own the arm that reaches and the hand that holds.
-    const yields: AutoMovieMotionHumanChannelClaim[] = ["head"];
-    for (const side of ["left", "right"] as const)
-      if (
-        !contacts.some(
-          (contact: IAutoMovieMotionHumanContactWindow): boolean =>
-            contact.part === side + "Hand",
-        )
-      )
-        yields.push(
-          side === "left" ? "leftArm" : "rightArm",
-          side === "left" ? "leftHand" : "rightHand",
-        );
-    const follow: ReturnType<typeof prepareSupportHelperGrip> =
-      prepareSupportHelperGrip(context, contacts, duration);
-    const intervals: ReturnType<typeof prepareSupportInterval>[] = keys
-      .slice(0, Math.max(1, keys.length - 1))
-      .map(
-        (key: IKey, i: number): ReturnType<typeof prepareSupportInterval> =>
-          prepareSupportInterval(
-            body,
-            key,
-            keys[Math.min(i + 1, keys.length - 1)]!,
-            key.place,
-          ),
-      );
-
-    /** Carry a support interval after the containing transfer has been selected. */
-    const transfer = (
-      index: number,
-      seconds: number,
-      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IAutoMovieMotionHumanPosture => {
-      const a: IKey = keys[index]!;
-      const b: IKey = keys[Math.min(index + 1, keys.length - 1)]!;
-      const span: number = b.seconds - a.seconds;
-      const w: number =
-        span > 0 ? minimumJerk.share((seconds - a.seconds) / span) : 1;
-      if (w === 0) return index === 0 ? entry : a.posture;
-      if (w === 1) return b.posture;
-
-      const posed: IAutoMovieMotionHumanPosture = intervals[index]!.write(
-        w,
-        resolution,
-        projection,
-      );
-      return follow?.(posed, seconds, channels) ?? posed;
-    };
-    const unbalanced: IAutoMovieMotionHumanActionPlan = {
-      duration,
-      events: keys.slice(1).map((k: IKey): { name: string; share: number } => ({
-        name: k.name,
-        share: k.seconds / duration,
-      })),
-      contacts,
-      yields,
-      settle: (): void => {
-        for (const interval of intervals) interval.settle();
-      },
-      posture: (
-        t: number,
-        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-        projection?: ReturnType<typeof prepareHumanPostureProjection>,
-      ): IAutoMovieMotionHumanPosture => {
-        const s: number = Math.min(duration, Math.max(0, t));
-        let k: number = 0;
-        let hi: number = keys.length - 2;
-        while (k < hi) {
-          const mid: number = Math.ceil((k + hi) / 2);
-          if (keys[mid]!.seconds <= s) k = mid;
-          else hi = mid - 1;
-        }
-        return transfer(k, s, _channels, resolution, projection);
-      },
-    };
-    const planned: IAutoMovieMotionHumanActionPlan = supportBalance(
-      context,
-      unbalanced,
-    );
-    if (
-      planned.posture === unbalanced.posture &&
-      follow === undefined &&
-      keys.every(
-        (key: IKey, i: number): boolean =>
-          i === 0 || key.seconds > keys[i - 1]!.seconds,
-      )
-    )
-      HumanPreparedPlayback.attach(planned, body, {
-        mode: "posture",
-        phases: keys.slice(0, -1).map(
-          (key: IKey, i: number): IAutoMovieMotionHumanPlayback.IPhase => ({
-            from: key.seconds,
-            to: keys[i + 1]!.seconds,
-            sample: (
-              ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
-            ): IAutoMovieMotionHumanPlayback.ISample => ({
-              posture: transfer(i, ...args),
-            }),
-          }),
-        ),
-      });
-    return planned;
-  }
-
-  /** A key posture of the plan. */
-  interface IKey {
-    /** The posture, by joint angles alone. */
-    posture: IAutoMovieMotionHumanPosture;
-
-    /** When it is reached, seconds since the action's start. */
-    seconds: number;
-
-    /** Its event's name. */
-    name: string;
-
-    /** The contacts it rests on. */
-    contacts: readonly IAutoMovieMotionHumanSupport.IContact[];
-
-    /** The contact positions used to form this key's goals. */
-    place: Place;
+    return supportPlan.of(context, keys, seconds, entry, course, routes);
   }
 }

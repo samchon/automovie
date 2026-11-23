@@ -180,6 +180,10 @@ const remember = (
   return {
     duration: source.duration,
     segments: (subject: string) => source.segments(subject),
+    ...(source.support === undefined
+      ? {}
+      : { support: source.support.bind(source) }),
+    ...(source.water === undefined ? {} : { water: source.water.bind(source) }),
     bones: (
       subject: string,
       seconds: number,

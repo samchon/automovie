@@ -17,20 +17,10 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * body that keeps its shape turns at the constant mean rate of its kept
  * angular momentum, so a turn's angle is that rate times the time. A turn
  * about the centre of mass leaves that point on its parabola.
- *
- * @evidence contracts/development/common.md#meaningful-documentation centre: Launch centre of mass in world metres. velocity: Launch centre-of-mass velocity in world metres per second.
- * @evidence contracts/development/design.md#principled-representation centre: Launch centre of mass in world metres. velocity: Launch centre-of-mass velocity in world metres per second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/GymnasticsFlight.ts (GymnasticsFlight.model, return); sport/GymnasticsFlight.ts (GymnasticsFlight.centre, model); sport/GymnasticsFlight.ts (GymnasticsFlight.placed, model); sport/GymnasticsFlight.ts (GymnasticsFlight.launch, model); sport/GymnasticsFlight.ts (GymnasticsFlight.launch, return); sport/GymnasticsMat.ts (GymnasticsMat.lie).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieResolveCenterOfMass.IModel, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanGymnasticsFlight {
   /**
    * The centre and its velocity at a ballistic instant of a plan: an instant from which the plan's displayed centre follows a parabola. Result returned by GymnasticsFlight.launch. The centre, world metres, and its velocity, m/s.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation centre: Launch centre of mass in world metres. velocity: Launch centre-of-mass velocity in world metres per second.
-   * @evidence contracts/development/design.md#principled-representation centre: Launch centre of mass in world metres. velocity: Launch centre-of-mass velocity in world metres per second.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/GymnasticsFlight.ts (GymnasticsFlight.launch, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type ILaunchResult = {
     /** Launch centre of mass in world metres. */

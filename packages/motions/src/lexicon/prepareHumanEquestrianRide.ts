@@ -58,7 +58,9 @@ interface IPrepared {
  * walk and trot show opposing saddle and pelvic pitch during early stance,
  * with the lumbar spine extending in early trot stance (Byström et al.,
  * PMID 20525053 and 19469236). Uses that relative phase and small authored
- * amplitudes. Canter varies with lead, using authored timing and amplitude.
+ * amplitudes. Canter varies with lead, using authored timing and amplitude;
+ * the gallop rocks and rolls as the canter does, at the canter's amplitudes
+ * (provisional: no source read gives a rider's pelvis at the gallop).
  * Jump flight starts at last hind liftoff and ends at first fore landing
  * (Clayton 1989, doi:10.1016/S0737-0806(89)80073-5). The scene author supplies
  * those instants from a jumping support. The over-shoulder pose follows a
@@ -74,7 +76,7 @@ interface IPrepared {
  * @evidence contracts/development/implementation.md#principled-implementation Resolve finite local times from film cues at planning. Use endpoint-flat functions and a rotation about the carried seat point. A raised seat transfers support to the existing stirrup goals. The film turn uses the available joint ranges.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the three optional timelines separately, then sample their offsets once before ordinary limb fitting.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The horse remains the original moving carrier. No aim target, projectile, joint-bound override or ground contact is fabricated.
- * @evidence contracts/development/implementation.md#efficient-algorithms Prepare and sort the cue times once. A sample locates its stride with binary search, then does fixed pose math.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Prepare and sort the cue tracks and their times once. A sample uses one binary search for the track and one for its stride, then does fixed pose math.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The ride provides the current support frame and measured seat drift and keeps ownership of its existing goal fits. The clocks, saddle offset and joint bounds are prepared once.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds only this ride's sorted cue times, ordered jump instants and body reference. Sampling keeps no history.
  */
@@ -107,23 +109,12 @@ export function prepareHumanEquestrianRide(
       "choose stride, jump or lookBack",
     );
 
-  const seconds: number = context.params.seconds;
-  const stride: typeof options.stride = options.stride;
-  const strides: readonly number[] =
-    stride === undefined ? [] : times(context, stride.cue);
-  if (
-    stride !== undefined &&
-    !strides.some(
-      (t: number, index: number): boolean =>
-        index + 1 < strides.length && t < seconds && strides[index + 1]! > 0,
-    )
-  )
-    refuse(
-      "equestrian.stride.cue",
-      stride.cue,
-      "no consecutive touchdowns enclose any part of the ride",
-      "provide successive touchdowns from the same hoof or diagonal",
-    );
+  const seconds: number = context.params.duration;
+  const strides: readonly IStrideWindow[] = strideWindows(
+    context,
+    options.stride,
+    seconds,
+  );
 
   let jump: Jump | undefined;
   if (options.jump !== undefined) {
@@ -173,12 +164,12 @@ export function prepareHumanEquestrianRide(
       options.lookBack.cue,
       "equestrian.lookBack.cue",
     );
-    const length: number = options.lookBack.seconds;
-    HumanBound.above("equestrian.lookBack.seconds", length, 0, "s");
+    const length: number = options.lookBack.duration;
+    HumanBound.above("equestrian.lookBack.duration", length, 0, "s");
     const half: number = length / 2;
     if (!(half > 0 && peak - half >= 0 && peak + half <= seconds))
       refuse(
-        "equestrian.lookBack.seconds",
+        "equestrian.lookBack.duration",
         length,
         "the turn and return do not fit inside the ride about the film cue",
         "shorten the turn or place its cue within the ride",
@@ -216,7 +207,8 @@ export function prepareHumanEquestrianRide(
       seatDrift: IAutoMovieVector3,
       up: IAutoMovieVector3,
     ): void => {
-      const gait: number = phase(strides, at);
+      const stride: IStrideWindow | undefined = strideAt(strides, at);
+      const gait: number = stride === undefined ? 0 : phase(stride.times, at);
       const active: number =
         gait === 0 || fade === 0
           ? 0
@@ -241,12 +233,16 @@ export function prepareHumanEquestrianRide(
         stride === undefined
           ? 0
           : active *
-            Math.sin(stride.gait === "canter" ? cycle : 2 * cycle) *
+            Math.sin(
+              stride.gait === "canter" || stride.gait === "gallop"
+                ? cycle
+                : 2 * cycle,
+            ) *
             (1 - Math.cos(cycle)) *
             (stride.gait === "walk" ? 1.5 : 2.5);
       const roll: number =
-        stride?.gait === "canter"
-          ? (stride.lead === "right" ? -1 : 1) *
+        stride?.gait === "canter" || stride?.gait === "gallop"
+          ? (stride!.lead === "right" ? -1 : 1) *
             active *
             Math.sin(cycle) *
             (1 - Math.cos(cycle))
@@ -321,7 +317,7 @@ function times(context: Context, id: string): readonly number[] {
 /** The single cue event inside this ride. */
 function instant(context: Context, id: string, axis: string): number {
   const active: readonly number[] = times(context, id).filter(
-    (at: number): boolean => at >= 0 && at <= context.params.seconds,
+    (at: number): boolean => at >= 0 && at <= context.params.duration,
   );
   if (active.length !== 1)
     refuse(
@@ -331,6 +327,81 @@ function instant(context: Context, id: string, axis: string): number {
       "provide one instant in the ride",
     );
   return active[0]!;
+}
+
+/** One response and its independently sampled actual hoof clock. */
+interface IStrideWindow extends IAutoMovieMotionHumanRide.IEquestrianStride {
+  /** The track's distinct touchdowns, ride-local seconds in increasing order. */
+  times: readonly number[];
+}
+
+/** Admit ordered stride windows that can share one endpoint without overlap. */
+function strideWindows(
+  context: Context,
+  input: IAutoMovieMotionHumanRide.EquestrianStrides | undefined,
+  seconds: number,
+): readonly IStrideWindow[] {
+  if (input === undefined) return [];
+  const entries: readonly IAutoMovieMotionHumanRide.IEquestrianStride[] =
+    "cue" in input ? [input] : input;
+  if (entries.length === 0)
+    refuse(
+      "equestrian.stride",
+      input,
+      "the stride sequence is empty",
+      "supply at least one actual touchdown track",
+    );
+  const result: IStrideWindow[] = entries
+    .map(
+      (entry: IAutoMovieMotionHumanRide.IEquestrianStride): IStrideWindow => {
+        const track: readonly number[] = times(context, entry.cue);
+        if (
+          !(
+            track.length >= 2 &&
+            track[0]! < seconds &&
+            track[track.length - 1]! > 0
+          )
+        )
+          refuse(
+            "equestrian.stride.cue",
+            entry.cue,
+            "no consecutive touchdowns enclose any part of the ride",
+            "provide successive touchdowns from the same hoof or diagonal",
+          );
+        return { ...entry, times: track };
+      },
+    )
+    .sort(
+      (left: IStrideWindow, right: IStrideWindow): number =>
+        left.times[0]! - right.times[0]!,
+    );
+  for (let index: number = 1; index < result.length; index++) {
+    const previous: IStrideWindow = result[index - 1]!;
+    const current: IStrideWindow = result[index]!;
+    if (current.times[0]! < previous.times[previous.times.length - 1]!)
+      refuse(
+        "equestrian.stride",
+        current.cue,
+        "actual touchdown windows overlap",
+        "end the first hoof track before starting the next gait or lead track",
+      );
+  }
+  return result;
+}
+
+/** Locate the last begun cue track. Its phase reader owns the endpoint and gap semantics. */
+function strideAt(
+  strides: readonly IStrideWindow[],
+  at: number,
+): IStrideWindow | undefined {
+  let low: number = 0;
+  let high: number = strides.length;
+  while (low < high) {
+    const middle: number = low + Math.floor((high - low) / 2);
+    if (strides[middle]!.times[0]! <= at) low = middle + 1;
+    else high = middle;
+  }
+  return strides[low - 1];
 }
 
 /** Phases are fractions between adjacent touchdowns, with rest outside the track. */

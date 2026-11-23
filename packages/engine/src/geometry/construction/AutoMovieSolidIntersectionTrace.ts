@@ -10,6 +10,7 @@ import type {
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidIntersectionWalk } from "./AutoMovieSolidIntersectionWalk";
 import { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
+import type { AutoMovieSolidTraceObservation } from "./AutoMovieSolidTraceObservation";
 import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
@@ -26,11 +27,6 @@ const { norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
 /**
  * Existing trace orchestration and public host/domain adapters behind the original API.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Operations document the original input references, failure paths and sampled acceptance limits.
- * @evidence contracts/development/design.md#principled-representation Represents Existing trace orchestration and public host/domain adapters behind the original API: companion namespace of 3 members (`create`, `beyond`, `atlas`); units and frames named in its text: radians, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidIntersectionTrace` in packages/engine/src/geometry/construction/AutoMovieSolidIntersectionTrace.ts; its surface is the 3 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidIntersectionTrace {
   /**
@@ -41,14 +37,6 @@ export namespace AutoMovieSolidIntersectionTrace {
    * @param walkPoints Original public reference-point multiplier, unchanged at 4.
    * @param closingSteps Original public secant trial limit, unchanged at 6.
    * @returns The curve and its diagnostics.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the original declared-law continuation, closure/domain observations and grazing diagnostics; the same nearest-parameter reader corrects later queries.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation stages law creation, seed correction, continuation and publication without moving numerical solves into the façade.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains count>=8 admission, tolerances, raw residual limitations and all returned/throwing behavior; finite integral counts and regular callbacks remain premises.
-   * @evidence contracts/development/common.md#meaningful-documentation Explains original callback/points ownership, public step controls and the limits of sampled domain/grazing checks.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Stores C traced points; each continuation includes the existing solver and accepted-substep costs, while arc adds the original preparation walks.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned at closure shares the same public points array, surfaces and law; it corrects from the nearest stored parameter without retracing or snapshotting.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The curve retains those original references and traced points for its lifetime; null results retain diagnostics only and no new task/cache is created.
    */
   export function create(
     input: IAutoMovieSolidIntersection.IInput,
@@ -105,6 +93,23 @@ export namespace AutoMovieSolidIntersectionTrace {
 
     /** Seed corrected by the existing law-specific solve. */
     let first: IPoint | null;
+
+    /** The last meeting attempt's refusal, named in the diagnostic when the seed or the trace is lost. */
+    const attempt: AutoMovieSolidTraceObservation.IState = {
+      failure: null,
+      trial: null,
+      meeting: null,
+      step: null,
+    };
+
+    /** That refusal as text, where the solver recorded one: its guard, face, chart point, residual and crossings left. */
+    const refusal: () => string = (): string => {
+      const last: AutoMovieSolidTraceObservation.IFailure | null =
+        attempt.failure;
+      return last === null
+        ? ""
+        : `: ${last.reason} on host face ${host.faces[last.face]?.name ?? last.face} at [${last.chart.join(", ")}], gap ${last.gap ?? "unread"} mm, crossings left ${last.budget ?? "unread"}`;
+    };
     if (parameter.kind === "arc") {
       /** Arc preparation with the unchanged public step constants. */
       const walked: IAutoMovieSolidIntersectionWalk.IWalk | string =
@@ -129,6 +134,7 @@ export namespace AutoMovieSolidIntersectionTrace {
         walked.x,
         walked.face,
         tolerance,
+        attempt,
       );
     } else {
       /** Original phase/angle law admission result. */
@@ -159,12 +165,13 @@ export namespace AutoMovieSolidIntersectionTrace {
         [input.seed.s, input.seed.phi, input.seed.y, input.seed.theta],
         input.seed.face ?? 0,
         tolerance,
+        attempt,
       );
     }
     if (first === null)
       return report(
         "one loop per contact",
-        `no meeting near the seed (phi ${input.seed.phi}, s ${input.seed.s}, y ${input.seed.y}, theta ${input.seed.theta})`,
+        `no meeting near the seed (phi ${input.seed.phi}, s ${input.seed.s}, y ${input.seed.y}, theta ${input.seed.theta})${refusal()}`,
       );
 
     // Continuation over one turn, each target reached by halving steps.
@@ -186,11 +193,15 @@ export namespace AutoMovieSolidIntersectionTrace {
         current,
         target,
         tolerance,
+        attempt,
       );
       if (next === null)
         return report(
           "traced loop",
-          `lost at t ${current.t}, toward ${target}`,
+          `lost at t ${current.t}, toward ${target}${refusal()}; from host face ${host.faces[current.face]?.name ?? current.face} at [${[current.s, current.phi, current.y, current.theta].join(", ")}]` +
+            (attempt.step === null
+              ? ""
+              : `, last step ${attempt.step.h}, correction ${attempt.step.distance ?? "none"} mm against ${attempt.step.allowance ?? "none"} mm`),
         );
       current = next;
       if (i < count) points.push(next);
@@ -331,14 +342,6 @@ export namespace AutoMovieSolidIntersectionTrace {
    * @param surface The surface.
    * @param u Its first chart parameter.
    * @returns A description with the numbers, or null inside the domain or without one.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the current optional u interval and reports the unchanged inclusive-range predicate's outside value.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A scalar domain reader remains separate from numerical continuation and geometric admission.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the exact comparison/string and borrowed domain reads; adds no clamp, periodic adjustment or tolerance.
-   * @evidence contracts/development/common.md#meaningful-documentation States null for an absent domain or an included u, with the existing numeric description outside.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant property/scalar work, without reading a surface jet.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Queries the current domain rather than retaining a stale interval.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns null or a string and retains no surface or domain.
    */
   export function beyond(
     surface: IAutoMovieSolidSurface,
@@ -356,14 +359,6 @@ export namespace AutoMovieSolidIntersectionTrace {
    *
    * @param host The host.
    * @returns The atlas.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Preserves an existing atlas by identity or wraps one surface with the original always-kept/no-neighbour callbacks.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One adapter keeps normalization of the public host union beside trace orchestration.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Performs no domain or boundary admission; the single-face callbacks remain exactly true/null.
-   * @evidence contracts/development/common.md#meaningful-documentation States identity reuse and the one-face interpretation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and one fixed-size wrapper for a single surface.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work An atlas input is reused unchanged rather than copied or rebuilt.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a wrapper referencing its original surface; this adapter keeps no global cache.
    */
   export function atlas(
     host: IAutoMovieSolidSurface | IAutoMovieSolidAtlas,

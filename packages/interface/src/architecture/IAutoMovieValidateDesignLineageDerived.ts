@@ -4,11 +4,6 @@ import type { IAutoMovieDesignVariant } from "./IAutoMovieDesignVariant";
 
 /**
  * Derived-artifact validation context for identity, freshness, provenance and comparison consistency.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Derived-artifact validation context for identity, freshness, provenance and comparison consistency. Lineage identities and sha256-prefixed digest strings are checked against the supplied subject, phase and variant indexes; validation appends diagnostics without rewriting stamps.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Digest syntax and recorded citations do not verify external bytes; typed record structure is assumed and collector exceptions propagate.
- * @evidence contracts/development/design.md#principled-representation Lineage identities and sha256-prefixed digest strings are checked against the supplied subject, phase and variant indexes; validation appends diagnostics without rewriting stamps.
- * @evidence contracts/development/design.md#minimal-and-owned-surface validateDesignLineage builds these indexes once and shares its collector with validateDesignLineageDerived for artifact and decision checks.
  */
 export namespace IAutoMovieValidateDesignLineageDerived {
   /**
@@ -30,11 +25,6 @@ export namespace IAutoMovieValidateDesignLineageDerived {
    * Findings are pushed to `out` with `<root>.derived[i]` paths, in artifact
    * order and then decision order for the fairness check. The operation does not
    * deliberately throw for findings; exceptions from the supplied sink propagate.
-   *
-   * @evidence contracts/development/design.md#principled-representation Lineage identities and sha256-prefixed digest strings are checked against the supplied subject, phase and variant indexes; validation appends diagnostics without rewriting stamps.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface validateDesignLineage builds these indexes once and shares its collector with validateDesignLineageDerived for artifact and decision checks.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Digest syntax and recorded citations do not verify external bytes; typed record structure is assumed and collector exceptions propagate.
-   * @evidence contracts/development/common.md#meaningful-documentation Derived-artifact validation context for identity, freshness, provenance and comparison consistency. Lineage identities and sha256-prefixed digest strings are checked against the supplied subject, phase and variant indexes; validation appends diagnostics without rewriting stamps.
    */
   export type IProps = {
     /** Borrowed lineage whose head, subjects, derived artifacts and decisions are compared without mutation. */

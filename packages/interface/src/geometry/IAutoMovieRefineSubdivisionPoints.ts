@@ -4,11 +4,6 @@ import type { IAutoMovieSubdivisionVertexMask } from "./IAutoMovieSubdivisionVer
  * New Catmull-Clark points and the parent-vertex masks used to compute them.
  *
  * Packed xyz positions retain local metres; output order is parent vertices, parent edges, then parent faces. This numerical step relies on admitted topology and aligned finite position arrays; it does not perform cage admission or repair.
- *
- * @evidence contracts/development/design.md#principled-representation Packed xyz positions retain local metres; output order is parent vertices, parent edges, then parent faces.
- * @evidence contracts/development/design.md#minimal-and-owned-surface refineSubdivisionLevel uses these positions for child topology and reuses the masks in refineSubdivisionUvs; limitSubdivisionLevel also reads the points.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts This numerical step relies on admitted topology and aligned finite position arrays; it does not perform cage admission or repair.
- * @evidence contracts/development/common.md#meaningful-documentation New Catmull-Clark points and the parent-vertex masks used to compute them. Packed xyz positions retain local metres; output order is parent vertices, parent edges, then parent faces.
  */
 export namespace IAutoMovieRefineSubdivisionPoints {
   /**
@@ -24,11 +19,6 @@ export namespace IAutoMovieRefineSubdivisionPoints {
    * neighbours and the new face points of its fan.
    *
    * Both arrays and every returned mask belong to the caller. Finite aligned positions and admitted connectivity are premises; this step neither mutates nor retains the parent.
-   *
-   * @evidence contracts/development/design.md#principled-representation Packed xyz positions retain local metres; output order is parent vertices, parent edges, then parent faces.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface refineSubdivisionLevel uses these positions for child topology and reuses the masks in refineSubdivisionUvs; limitSubdivisionLevel also reads the points.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts This numerical step relies on admitted topology and aligned finite position arrays; it does not perform cage admission or repair.
-   * @evidence contracts/development/common.md#meaningful-documentation New Catmull-Clark points and the parent-vertex masks used to compute them. Packed xyz positions retain local metres; output order is parent vertices, parent edges, then parent faces.
    */
   export type IResult = {
     /**

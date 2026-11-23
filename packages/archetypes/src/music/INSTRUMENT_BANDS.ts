@@ -1,4 +1,8 @@
-import { ArchetypeUnits, ArchetypeBand, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createInstrument } from "./createInstrument";
 
 /** The upright piano, from a search only. */
@@ -47,55 +51,113 @@ const BUGLE: string =
 export const INSTRUMENT_BANDS: Readonly<
   Record<
     createInstrument.Kind,
-    Readonly<Partial<Record<createInstrument.Dimension, IArchetypeBand>>>
+    Readonly<
+      Partial<Record<createInstrument.Dimension, IAutoMovieArchetypeBand>>
+    >
   >
 > = {
   uprightPiano: {
-    height: ArchetypeBand.metres(1.21, 1.21, U1, true),
-    width: ArchetypeBand.metres(1.53, 1.53, U1, true),
-    depth: ArchetypeBand.metres(0.61, 0.62, U1, true),
-    keyHeight: ArchetypeBand.metres(28 * ArchetypeUnits.INCH, 30.5 * ArchetypeUnits.INCH, KEYTOP, true),
-    octave: ArchetypeBand.metres(0.164, 0.165, KEYS, true),
-    keyLength: ArchetypeBand.metres(0.15, 0.15, KEYS, true),
-    blackLength: ArchetypeBand.metres(0.095, 0.095, KEYS, true),
-    dip: ArchetypeBand.metres((3 / 8) * ArchetypeUnits.INCH, (1 / 2) * ArchetypeUnits.INCH, ACTION, true),
-    blackRise: ArchetypeBand.metres((1 / 2) * ArchetypeUnits.INCH, (1 / 2) * ArchetypeUnits.INCH, ACTION, true),
-    mass: ArchetypeBand.of("kg", 228, 228, U1, true),
+    height: AutoMovieArchetypeBand.metres(1.21, 1.21, U1, true),
+    width: AutoMovieArchetypeBand.metres(1.53, 1.53, U1, true),
+    depth: AutoMovieArchetypeBand.metres(0.61, 0.62, U1, true),
+    keyHeight: AutoMovieArchetypeBand.metres(
+      28 * AutoMovieArchetypeUnits.INCH,
+      30.5 * AutoMovieArchetypeUnits.INCH,
+      KEYTOP,
+      true,
+    ),
+    octave: AutoMovieArchetypeBand.metres(0.164, 0.165, KEYS, true),
+    keyLength: AutoMovieArchetypeBand.metres(0.15, 0.15, KEYS, true),
+    blackLength: AutoMovieArchetypeBand.metres(0.095, 0.095, KEYS, true),
+    dip: AutoMovieArchetypeBand.metres(
+      (3 / 8) * AutoMovieArchetypeUnits.INCH,
+      (1 / 2) * AutoMovieArchetypeUnits.INCH,
+      ACTION,
+      true,
+    ),
+    blackRise: AutoMovieArchetypeBand.metres(
+      (1 / 2) * AutoMovieArchetypeUnits.INCH,
+      (1 / 2) * AutoMovieArchetypeUnits.INCH,
+      ACTION,
+      true,
+    ),
+    mass: AutoMovieArchetypeBand.of("kg", 228, 228, U1, true),
   },
   guitar: {
-    scale: ArchetypeBand.metres(25.4 * ArchetypeUnits.INCH, 25.4 * ArchetypeUnits.INCH, D28),
-    nut: ArchetypeBand.metres(1.75 * ArchetypeUnits.INCH, 1.75 * ArchetypeUnits.INCH, D28),
-    saddle: ArchetypeBand.metres((2 + 5 / 32) * ArchetypeUnits.INCH, (2 + 5 / 32) * ArchetypeUnits.INCH, D28),
-    bodyLength: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 20 * ArchetypeUnits.INCH, D28_BODY, true),
-    bodyWidth: ArchetypeBand.metres((15 + 5 / 8) * ArchetypeUnits.INCH, (15 + 5 / 8) * ArchetypeUnits.INCH, D28_BODY, true),
-    bodyDepth: ArchetypeBand.metres((4 + 7 / 8) * ArchetypeUnits.INCH, (4 + 7 / 8) * ArchetypeUnits.INCH, D28_BODY, true),
-    mass: ArchetypeBand.of("kg", 4 * ArchetypeUnits.POUND + 4 * ArchetypeUnits.OUNCE, 4 * ArchetypeUnits.POUND + 12 * ArchetypeUnits.OUNCE, D28_BODY, true),
+    scale: AutoMovieArchetypeBand.metres(
+      25.4 * AutoMovieArchetypeUnits.INCH,
+      25.4 * AutoMovieArchetypeUnits.INCH,
+      D28,
+    ),
+    nut: AutoMovieArchetypeBand.metres(
+      1.75 * AutoMovieArchetypeUnits.INCH,
+      1.75 * AutoMovieArchetypeUnits.INCH,
+      D28,
+    ),
+    saddle: AutoMovieArchetypeBand.metres(
+      (2 + 5 / 32) * AutoMovieArchetypeUnits.INCH,
+      (2 + 5 / 32) * AutoMovieArchetypeUnits.INCH,
+      D28,
+    ),
+    bodyLength: AutoMovieArchetypeBand.metres(
+      20 * AutoMovieArchetypeUnits.INCH,
+      20 * AutoMovieArchetypeUnits.INCH,
+      D28_BODY,
+      true,
+    ),
+    bodyWidth: AutoMovieArchetypeBand.metres(
+      (15 + 5 / 8) * AutoMovieArchetypeUnits.INCH,
+      (15 + 5 / 8) * AutoMovieArchetypeUnits.INCH,
+      D28_BODY,
+      true,
+    ),
+    bodyDepth: AutoMovieArchetypeBand.metres(
+      (4 + 7 / 8) * AutoMovieArchetypeUnits.INCH,
+      (4 + 7 / 8) * AutoMovieArchetypeUnits.INCH,
+      D28_BODY,
+      true,
+    ),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      4 * AutoMovieArchetypeUnits.POUND + 4 * AutoMovieArchetypeUnits.OUNCE,
+      4 * AutoMovieArchetypeUnits.POUND + 12 * AutoMovieArchetypeUnits.OUNCE,
+      D28_BODY,
+      true,
+    ),
   },
   violin: {
-    bodyLength: ArchetypeBand.metres(0.355, 0.355, VIOLIN),
-    scale: ArchetypeBand.metres(0.327, 0.327, VIOLIN),
-    neck: ArchetypeBand.metres(0.138, 0.138, VIOLIN),
-    upperBout: ArchetypeBand.metres(0.168, 0.168, VIOLIN),
-    waist: ArchetypeBand.metres(0.116, 0.116, VIOLIN),
-    lowerBout: ArchetypeBand.metres(0.206, 0.206, VIOLIN),
-    rib: ArchetypeBand.metres(0.03, 0.03, LUTHIER),
-    neckThickness: ArchetypeBand.metres(0.0195, 0.0195, LUTHIER),
-    fingerboard: ArchetypeBand.metres(0.0245, 0.0245, LUTHIER),
-    nutSpacing: ArchetypeBand.metres(0.0165, 0.0165, LUTHIER),
-    bridgeSpacing: ArchetypeBand.metres(0.034, 0.034, LUTHIER),
-    bridgeHeight: ArchetypeBand.metres(0.033, 0.033, LUTHIER),
-    mass: ArchetypeBand.of(
+    bodyLength: AutoMovieArchetypeBand.metres(0.355, 0.355, VIOLIN),
+    scale: AutoMovieArchetypeBand.metres(0.327, 0.327, VIOLIN),
+    neck: AutoMovieArchetypeBand.metres(0.138, 0.138, VIOLIN),
+    upperBout: AutoMovieArchetypeBand.metres(0.168, 0.168, VIOLIN),
+    waist: AutoMovieArchetypeBand.metres(0.116, 0.116, VIOLIN),
+    lowerBout: AutoMovieArchetypeBand.metres(0.206, 0.206, VIOLIN),
+    rib: AutoMovieArchetypeBand.metres(0.03, 0.03, LUTHIER),
+    neckThickness: AutoMovieArchetypeBand.metres(0.0195, 0.0195, LUTHIER),
+    fingerboard: AutoMovieArchetypeBand.metres(0.0245, 0.0245, LUTHIER),
+    nutSpacing: AutoMovieArchetypeBand.metres(0.0165, 0.0165, LUTHIER),
+    bridgeSpacing: AutoMovieArchetypeBand.metres(0.034, 0.034, LUTHIER),
+    bridgeHeight: AutoMovieArchetypeBand.metres(0.033, 0.033, LUTHIER),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       0.4,
       0.5,
-      ArchetypeBand.TYPICAL_MASS,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
       true,
     ),
   },
   sideDrum: {
-    diameter: ArchetypeBand.metres(14 * ArchetypeUnits.INCH, 14 * ArchetypeUnits.INCH, SONOR),
-    depth: ArchetypeBand.metres(ArchetypeUnits.FOOT, ArchetypeUnits.FOOT, SONOR),
-    mass: ArchetypeBand.of(
+    diameter: AutoMovieArchetypeBand.metres(
+      14 * AutoMovieArchetypeUnits.INCH,
+      14 * AutoMovieArchetypeUnits.INCH,
+      SONOR,
+    ),
+    depth: AutoMovieArchetypeBand.metres(
+      AutoMovieArchetypeUnits.FOOT,
+      AutoMovieArchetypeUnits.FOOT,
+      SONOR,
+    ),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       4.9,
       6,
@@ -104,8 +166,13 @@ export const INSTRUMENT_BANDS: Readonly<
     ),
   },
   bugle: {
-    length: ArchetypeBand.metres(14.5 * ArchetypeUnits.INCH, 15 * ArchetypeUnits.INCH, BUGLE, true),
-    bell: ArchetypeBand.metres(0.107, 0.126, BUGLE, true),
-    mass: ArchetypeBand.of("kg", 0.68, 0.68, BUGLE, true),
+    length: AutoMovieArchetypeBand.metres(
+      14.5 * AutoMovieArchetypeUnits.INCH,
+      15 * AutoMovieArchetypeUnits.INCH,
+      BUGLE,
+      true,
+    ),
+    bell: AutoMovieArchetypeBand.metres(0.107, 0.126, BUGLE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.68, 0.68, BUGLE, true),
   },
 };

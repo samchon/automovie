@@ -84,8 +84,8 @@ function plan(
     "minimum",
   );
   const duration: number = HumanBound.above(
-    "seconds",
-    params.seconds ?? 1.8 * Math.sqrt(body.measure.hipHeight / 0.93),
+    "duration",
+    params.duration ?? 1.8 * Math.sqrt(body.measure.hipHeight / 0.93),
     0,
     "s",
   );
@@ -243,7 +243,7 @@ function plan(
   )
     throw new HumanRefusal({
       kind: "parameter",
-      axis: "seconds",
+      axis: "duration",
       value: duration,
       reason: "the crossing, dip and recovery need distinct clock phases",
       fix: "give the curtsy a longer duration",

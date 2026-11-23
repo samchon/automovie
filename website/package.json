@@ -12,12 +12,12 @@
     "bake": "ttsx --no-plugins -P build/tsconfig.json build/bake.ts",
     "bundles": "ttsx --no-plugins -P build/tsconfig.json build/bundles.ts",
     "check": "ttsx --no-plugins -P build/tsconfig.json build/imports.ts && ttsx --no-plugins -P build/tsconfig.json build/contrast.ts",
-    "deploy": "ttsx --no-plugins -P build/tsconfig.json build/deploy.ts",
     "dev": "next dev",
     "serve": "ttsx --no-plugins -P build/tsconfig.json build/serve.ts",
     "posters": "ttsx --no-plugins -P build/tsconfig.json build/posters.ts",
     "shots": "ttsx --no-plugins -P build/tsconfig.json build/shots.ts",
     "smoke": "ttsx --no-plugins -P build/tsconfig.json build/smoke.ts",
+    "scenes": "ttsx --no-plugins -P build/tsconfig.json build/scenes.ts",
     "typecheck": "ttsc --noEmit -P tsconfig.check.json && ttsc --noEmit -P build/tsconfig.json"
   },
   "author": "Samchon",

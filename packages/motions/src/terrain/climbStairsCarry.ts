@@ -1,0 +1,270 @@
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieMotionHumanChannel,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupportCarry,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+
+/** A carry that leaves everything where it is. */
+const STILL: IAutoMovieMotionHumanSupportCarry.ICarry = {
+  point: (p: IAutoMovieVector3): IAutoMovieVector3 => p,
+  turn: { x: 0, y: 0, z: 0, w: 1 },
+  yaw: 0,
+};
+
+/**
+ * A flight climbed onto a moving prop, carried footprint by footprint: the
+ * climb is planned in the world as the prop stood at its start, a foot on a
+ * floor print stays where it stands in the world, and a foot on a tread
+ * aims at where the tread will be at its touchdown and is carried by the
+ * prop from then on, a swing passing from the one carry to the other on a
+ * minimum-jerk weight. The root and the heading pass from the floor's
+ * stillness to the prop's carry as the weight passes onto it, from the first
+ * tread touchdown to the last floor print's lift.
+ *
+ * @param context The action's context.
+ * @param plan The climb planned in the world at the start.
+ * @param prop The moving prop the flight belongs to.
+ * @returns The carried plan.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the per-footprint rule, the swing, the root and the result.
+ * @evidence contracts/development/implementation.md#principled-implementation A floor plant is the identity; a tread plant is the prop's rigid motion from the plan's start to the later of the second and its touchdown (`HumanSupportCarry.of`); a swing and the root blend the two carries (`HumanSupportCarry.blend`).
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Read each foot's plants, then carry the root and each leg goal by its own rule.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A floor print is never carried, so a grounded foot does not slide with the prop.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per leg per sample: a scan of the foot's few plants and at most two carries.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each sample carries its own plan posture.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the plan and its plant lists.
+ */
+export function climbStairsCarry(
+  context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+  plan: IAutoMovieMotionHumanActionPlan,
+  prop: string,
+): IAutoMovieMotionHumanActionPlan {
+  const frame: (seconds: number) => IAutoMovieRigidTransform = (
+    seconds: number,
+  ): IAutoMovieRigidTransform => context.prop(prop).frame(seconds);
+  const duration: number = plan.duration;
+  const plants: Record<AutoMovieHumanSide, IAutoMovieMotionHumanContactWindow[]> =
+    {
+      left: footPlants(plan.contacts, "leftFoot"),
+      right: footPlants(plan.contacts, "rightFoot"),
+    };
+  const onProp: (w: IAutoMovieMotionHumanContactWindow) => boolean = (
+    w: IAutoMovieMotionHumanContactWindow,
+  ): boolean => w.support.kind === "prop" && w.support.subject === prop;
+  // The prop's carry of a plan-start point to a second, from the later of
+  // that second and a touchdown.
+  const carried: (
+    at: number,
+    down: number,
+  ) => IAutoMovieMotionHumanSupportCarry.ICarry = (
+    at: number,
+    down: number,
+  ): IAutoMovieMotionHumanSupportCarry.ICarry =>
+    HumanSupportCarry.of(
+      frame,
+      context.start,
+      context.start + Math.max(at, down),
+    );
+  const borne: (
+    w: IAutoMovieMotionHumanContactWindow,
+    at: number,
+  ) => IAutoMovieMotionHumanSupportCarry.ICarry = (
+    w: IAutoMovieMotionHumanContactWindow,
+    at: number,
+  ): IAutoMovieMotionHumanSupportCarry.ICarry =>
+    onProp(w) ? carried(at, w.from * duration) : STILL;
+  const footCarry: (
+    side: AutoMovieHumanSide,
+    at: number,
+    anchor: IAutoMovieVector3,
+  ) => IAutoMovieMotionHumanSupportCarry.ICarry = (
+    side: AutoMovieHumanSide,
+    at: number,
+    anchor: IAutoMovieVector3,
+  ): IAutoMovieMotionHumanSupportCarry.ICarry => {
+    const list: IAutoMovieMotionHumanContactWindow[] = plants[side];
+    if (list.length === 0) return STILL;
+    const share: number = at / duration;
+    for (let k: number = 0; k < list.length; ++k) {
+      const w: IAutoMovieMotionHumanContactWindow = list[k]!;
+      if (share < w.from) {
+        if (k === 0) return borne(w, at);
+        const before: IAutoMovieMotionHumanContactWindow = list[k - 1]!;
+        return HumanSupportCarry.blend(
+          borne(before, at),
+          borne(w, at),
+          anchor,
+          minimumJerk.share((share - before.to) / (w.from - before.to)),
+        );
+      }
+      if (share <= w.to) return borne(w, at);
+    }
+    return borne(list[list.length - 1]!, at);
+  };
+  // The weight passes onto the prop from the first tread touchdown to the
+  // last floor print's lift.
+  const all: IAutoMovieMotionHumanContactWindow[] = [
+    ...plants.left,
+    ...plants.right,
+  ];
+  const first: number = Math.min(
+    1,
+    ...all.filter(onProp).map((w: IAutoMovieMotionHumanContactWindow): number => w.from),
+  );
+  const last: number = Math.max(
+    first,
+    ...all
+      .filter((w: IAutoMovieMotionHumanContactWindow): boolean => !onProp(w))
+      .map((w: IAutoMovieMotionHumanContactWindow): number => w.to),
+  );
+  const leg: (
+    goal: IAutoMovieHumanLimbGoal,
+    carry: IAutoMovieMotionHumanSupportCarry.ICarry,
+  ) => IAutoMovieHumanLimbGoal = (
+    goal: IAutoMovieHumanLimbGoal,
+    carry: IAutoMovieMotionHumanSupportCarry.ICarry,
+  ): IAutoMovieHumanLimbGoal => {
+    if (goal.on !== undefined) return goal;
+    const rotation: IAutoMovieQuaternion | undefined = goal.rotation;
+    return {
+      ...goal,
+      point: carry.point(goal.point),
+      bend: carry.point(goal.bend),
+      ...(rotation === undefined
+        ? {}
+        : {
+            rotation: Quaternion.normalize(
+              Quaternion.multiply(carry.turn, rotation),
+            ),
+          }),
+    };
+  };
+  const { still: _still, legsStill: _legsStill, ...moving } = plan;
+  return {
+    ...moving,
+    posture: (
+      seconds: number,
+      channels?: readonly AutoMovieMotionHumanChannel[],
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture => {
+      const at: number = Math.max(0, Math.min(duration, seconds));
+      const made: IAutoMovieMotionHumanPosture = plan.posture(
+        seconds,
+        channels,
+        resolution,
+        projection,
+      );
+      const share: number = at / duration;
+      const weight: number =
+        last > first
+          ? minimumJerk.share(
+              Math.max(0, Math.min(1, (share - first) / (last - first))),
+            )
+          : share >= first
+            ? 1
+            : 0;
+      // The root moves with the weight onto the prop; the trunk turns with it
+      // only once the floor foot has lifted, so a planted floor leg is not
+      // twisted under a trunk the disc turns.
+      const turning: number = minimumJerk.share(
+        Math.max(0, Math.min(1, (share - last) / Math.max(1e-9, 1 - last))),
+      );
+      const now: IAutoMovieMotionHumanSupportCarry.ICarry = carried(at, 0);
+      const moved: IAutoMovieMotionHumanSupportCarry.ICarry =
+        HumanSupportCarry.blend(STILL, now, made.root, weight);
+      const turned: IAutoMovieMotionHumanSupportCarry.ICarry =
+        HumanSupportCarry.blend(STILL, now, made.root, turning);
+      const anchor: IAutoMovieVector3 = moved.point(made.root);
+      const body: IAutoMovieMotionHumanSupportCarry.ICarry = {
+        point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
+          Vector3.add(
+            anchor,
+            Quaternion.rotateVector(turned.turn, Vector3.subtract(p, made.root)),
+          ),
+        turn: turned.turn,
+        yaw: turned.yaw,
+      };
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
+      for (const [limb, goal] of Object.entries(made.limbs) as [
+        keyof IAutoMovieMotionHumanPosture["limbs"],
+        IAutoMovieHumanLimbGoal,
+      ][])
+        limbs[limb] =
+          limb === "leftLeg" || limb === "rightLeg"
+            ? leg(
+                goal,
+                footCarry(limb === "leftLeg" ? "left" : "right", at, goal.point),
+              )
+            : leg(goal, body);
+      return {
+        ...made,
+        root: body.point(made.root),
+        yaw: made.yaw + body.yaw,
+        limbs,
+      };
+    },
+  };
+}
+
+/**
+ * Companions of {@link climbStairsCarry}.
+ */
+export namespace climbStairsCarry {
+  /** How far above the world floor a standing ankle's own height may lie and still stand on it, metres (provisional: a sole's give). */
+  const FLOOR: number = 0.02;
+
+  /**
+   * Whether the body already stands on the moving prop at the climb's start,
+   * a rider on an escalator's steps rather than one boarding from the floor:
+   * its feet stand raised off the world floor, which only the prop beneath
+   * them holds up.
+   *
+   * @param context The action's context.
+   * @returns Whether the feet stand above the world floor.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the test and its use.
+   * @evidence contracts/development/implementation.md#principled-implementation Each entry ankle against the world floor raised by the body's own ankle height.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two feet, one comparison each.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The floor is the world's; a raised fixed floor under a moving prop is not staged here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the entry.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function boarded(
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry" | "body">,
+  ): boolean {
+    return (["left", "right"] as const).every(
+      (side: AutoMovieHumanSide): boolean =>
+        context.entry.feet[side].ankle.y >
+        context.body.measure.ankleHeight + FLOOR,
+    );
+  }
+}
+/** A foot's plant windows, in order. */
+function footPlants(
+  contacts: readonly IAutoMovieMotionHumanContactWindow[],
+  part: IAutoMovieMotionHumanContactWindow["part"],
+): IAutoMovieMotionHumanContactWindow[] {
+  return contacts
+    .filter(
+      (w: IAutoMovieMotionHumanContactWindow): boolean =>
+        w.part === part && w.kind === "plant",
+    )
+    .sort(
+      (a: IAutoMovieMotionHumanContactWindow, b: IAutoMovieMotionHumanContactWindow): number =>
+        a.from - b.from,
+    );
+}

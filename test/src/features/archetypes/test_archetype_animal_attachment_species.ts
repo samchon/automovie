@@ -1,8 +1,8 @@
 import {
-  type ArchetypeRide,
-  type QuadrupedBody,
-  type QuadrupedGait,
-  QuadrupedLocomotion,
+  type AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedGait,
+  AutoMovieArchetypeQuadrupedLocomotion,
+  type AutoMovieArchetypeRide,
   createCamel,
   createDeer,
   createOx,
@@ -22,13 +22,13 @@ interface ICase {
   /** Actual coherent source reference with a real lead. */
   animal: Animal;
   /** Declared shared gait name. */
-  gait: QuadrupedGait.Gait;
+  gait: AutoMovieArchetypeQuadrupedGait.Gait;
   /** Speed in metres per second, at an actual supported point. */
   speed: number;
   /** Independent seconds, derived from source fractions or explicitly authored. */
   clock: scenario.IClock;
   /** Explicit faster clocks; absent means the actual registered walking table. */
-  table?: QuadrupedGait.ITable;
+  table?: AutoMovieArchetypeQuadrupedGait.ITable;
 }
 
 /**
@@ -59,10 +59,11 @@ export function test_archetype_animal_attachment_species(): void {
   const ox: Animal = createOx({ mass: 300, tempo: 0, lead }, 73);
   const camel: Animal = createCamel({ mass: 450, tempo: 0, lead }, 73);
   const deer: Animal = createDeer({ mass: 70, tempo: 0, lead }, 73);
-  const deerTable: QuadrupedGait.ITable = QuadrupedLocomotion.deer({
-    trot: [{ speed: 2, stride: 0.6, foreStance: 0.3, hindStance: 0.3 }],
-    gallop: [{ speed: 4, stride: 0.5, foreStance: 0.2, hindStance: 0.2 }],
-  });
+  const deerTable: AutoMovieArchetypeQuadrupedGait.ITable =
+    AutoMovieArchetypeQuadrupedLocomotion.deer({
+      trot: [{ speed: 2, stride: 0.6, foreStance: 0.3, hindStance: 0.3 }],
+      gallop: [{ speed: 4, stride: 0.5, foreStance: 0.2, hindStance: 0.2 }],
+    });
   const cases: readonly ICase[] = [
     {
       name: "ox/walk",
@@ -103,7 +104,7 @@ export function test_archetype_animal_attachment_species(): void {
       gait: "pace",
       speed: 3,
       clock: { period: 1, foreStance: 0.45, hindStance: 0.45 },
-      table: QuadrupedLocomotion.camel({
+      table: AutoMovieArchetypeQuadrupedLocomotion.camel({
         pace: [{ speed: 3, stride: 1, foreStance: 0.45, hindStance: 0.45 }],
       }),
     },
@@ -128,9 +129,9 @@ export function test_archetype_animal_attachment_species(): void {
     for (const side of ["left", "right"] as const)
       scenario(
         item.animal,
-        (): ArchetypeRide.IRide<
+        (): AutoMovieArchetypeRide.IRide<
           Parameters<Animal["affordance"]>[0],
-          QuadrupedBody.Dimension
+          AutoMovieArchetypeQuadrupedBody.Dimension
         > =>
           rideQuadruped(
             item.animal,

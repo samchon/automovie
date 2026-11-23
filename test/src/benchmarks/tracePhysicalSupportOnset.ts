@@ -78,8 +78,6 @@ export namespace tracePhysicalSupportOnset {
         weight: -prefix.gravity.y * body.profile.mass,
         rate: prefix.rate,
         substeps: prefix.substeps,
-        iterations: prefix.iterations,
-        internalIterations: prefix.internalIterations,
         reactionSeconds: body.balance!.reactionSeconds ?? 0,
         recomputedSteps: result.recomputedSteps,
         integrationMs,

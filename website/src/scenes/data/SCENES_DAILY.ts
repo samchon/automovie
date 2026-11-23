@@ -49,7 +49,7 @@ export const SCENES_DAILY: readonly IScene[] = [
     "rehearsing-reactions",
     [
       person("walker", "m1", -0.75, 0, 0, [
-        act("stand", { seconds: 0.3 }),
+        act("stand", { hold: 0.3 }),
         act(
           "walk",
           { to: to(-0.75, 2) },
@@ -65,18 +65,18 @@ export const SCENES_DAILY: readonly IScene[] = [
         act("look", {
           target: at("partner", "face"),
           cue: "signal",
-          seconds: 1.4,
+          duration: 1.4,
         }),
         act("gesture", { kind: "clap" }),
         act("thumbsUp"),
       ]),
       person("partner", "f1", 0.75, 1, 0, [
-        act("coverFace", { seconds: 0.8 }),
-        act("wipeTears", { side: "right" }),
+        act("coverFace", { hold: 0.8 }),
+        act("wipeTears", { hand: "right" }),
         act("look", { target: at("walker", "face") }),
         act("facepalm"),
-        act("coverFace", { seconds: 0.8 }),
-        act("wipeTears", { side: "left" }),
+        act("coverFace", { hold: 0.8 }),
+        act("wipeTears", { hand: "left" }),
         act("gesture", { kind: "bow" }),
       ]),
     ],
@@ -96,24 +96,24 @@ export const SCENES_DAILY: readonly IScene[] = [
     "cafe",
     [
       person("ana", "f1", -0.66, 1.5, 90, [
-        act("sit", { seat: seat("chairA"), seconds: 1 }),
+        act("sit", { seat: seat("chairA"), hold: 1 }),
         act("pickUp", { prop: "mugA", handle: "handle" }),
         act("toastSip", { prop: "mugA" }),
         act("putDown", {
           prop: "mugA",
-          at: { x: -0.45, y: DINING_TOP, z: 1.62 },
+          to: { x: -0.45, y: DINING_TOP, z: 1.62 },
         }),
         act("gesture", { kind: "nod" }),
         act("handOnHeart"),
       ]),
       person("ben", "m1", 0.66, 1.5, 270, [
-        act("sit", { seat: seat("chairB"), seconds: 1 }),
-        act("checkPhone", { seconds: 2 }),
+        act("sit", { seat: seat("chairB"), hold: 1 }),
+        act("checkPhone", { hold: 2 }),
         act("pickUp", { prop: "mugB", handle: "handle" }),
         act("toastSip", { prop: "mugB" }),
         act("putDown", {
           prop: "mugB",
-          at: { x: 0.45, y: DINING_TOP, z: 1.38 },
+          to: { x: 0.45, y: DINING_TOP, z: 1.38 },
         }),
       ]),
       person("cal", "m2", 3, -1, 0, [
@@ -139,30 +139,39 @@ export const SCENES_DAILY: readonly IScene[] = [
       setting: "everyday",
       roles: { dee: "writer", eli: "colleague" },
       needs: [],
-      refusedUntil: 3556,
+      practicalLights: [
+        {
+          prop: "lamp",
+          emitter: "light",
+          on: { subject: "eli", action: "operate", event: "stroke" },
+          color: 0xffdf9d,
+          intensity: 8,
+        },
+      ],
     },
     "office",
     [
       person("dee", "f2", -1.2, 0.3, 0, [
-        act("sit", { seat: seat("chairD"), seconds: 0.5 }),
+        act("sit", { seat: seat("chairD"), hold: 0.5 }),
         act("typeText", { keyboard: "keyboard", text: "the scene opens" }),
         act("rubEyes"),
-        act("thinking", { seconds: 1.5 }),
+        act("thinking", { hold: 1.5 }),
       ]),
       person("eli", "m2", 1, 0.15, 0, [
-        act("sit", { seat: seat("chairE"), seconds: 0.5 }),
+        act("sit", { seat: seat("chairE"), hold: 0.5 }),
         act("checkWatch"),
         act("shift", { by: 0.1 }),
-        act("handToFace", { task: "phone" }),
+        act("handToFace", { kind: "phone" }),
         act("rise"),
         act("approach", {
           target: { kind: "prop", subject: "switch", point: "press" },
           at: 0.15,
         }),
         act("operate", {
-          mechanism: {
+          kind: {
             kind: "button",
             at: { kind: "prop", subject: "switch", point: "press" },
+            travel: 0.003,
           },
         }),
       ]),
@@ -175,8 +184,8 @@ export const SCENES_DAILY: readonly IScene[] = [
       // Turned half round, so its typist's +Z side faces the chair.
       object(
         "keyboard",
-        "createKeyboard",
-        "keyboard",
+        "createDesktopKeyboard",
+        undefined,
         -1.2,
         0.48,
         180,
@@ -185,6 +194,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       object("deskE", "createTable", "desk", 1, 0.75),
       object("chairE", "createSeat", "office", 1, -0.15),
       object("switch", "createSwitch", "rocker", 2.2, 0, 270),
+      object("lamp", "createLight", "tableLamp", -1.45, 0.92, 0, DESK_TOP),
     ],
   ),
   scene(
@@ -239,16 +249,16 @@ export const SCENES_DAILY: readonly IScene[] = [
             frame: "world",
           },
         }),
-        act("scratchNape", { side: "left" }),
+        act("scratchNape", { hand: "left" }),
       ]),
       person("hal", "m1", 1.1, 0.6, 270, [
         act("lightCigarette"),
-        act("handsInPockets", { seconds: 0.9 }),
+        act("handsInPockets", { hold: 0.9 }),
         act("look", { target: at("gus", "face") }),
         act("gesture", { kind: "palmsUp" }),
-        act("armsCrossed", { seconds: 1.1 }),
+        act("armsCrossed", { hold: 1.1 }),
         act("gesture", { kind: "nod" }),
-        act("thinking", { seconds: 1.1 }),
+        act("thinking", { hold: 1.1 }),
         act("gesture", { kind: "shrug" }),
         act("checkWatch"),
       ]),
@@ -257,8 +267,8 @@ export const SCENES_DAILY: readonly IScene[] = [
       object("counter", "createTable", "counter", 0, 0.65, 180),
       object(
         "cig",
-        "createSmoking",
-        "cigarette",
+        "createCigarette",
+        undefined,
         -0.18,
         0.42,
         90,
@@ -275,7 +285,6 @@ export const SCENES_DAILY: readonly IScene[] = [
       setting: "everyday",
       roles: { ivy: "photographer", jay: "tourist", kit: "tourist" },
       needs: [],
-      refusedUntil: 3549,
     },
     "tourists",
     [
@@ -288,7 +297,7 @@ export const SCENES_DAILY: readonly IScene[] = [
           use: { tip: "screen", line: "across", at: { region: "noseBridge" } },
         }),
         act("photograph", { prop: "camera" }),
-        act("comeHere", { side: "left" }),
+        act("comeHere", { hand: "left" }),
       ]),
       person("jay", "m1", 0, -0.5, 0, [
         act("stroll", { to: to(0, 1.6) }),
@@ -297,12 +306,12 @@ export const SCENES_DAILY: readonly IScene[] = [
       ]),
       person("kit", "f1", 1, 0, 0, [
         act("stroll", { to: to(1, 2.2) }),
-        act("checkPhone", { seconds: 2 }),
+        act("checkPhone", { hold: 2 }),
         act("thumbsUp"),
       ]),
     ],
     [
-      worn("camera", "createDevice", "camera", "ivy", "chest", {
+      worn("camera", "createCamera", undefined, "ivy", "chest", {
         x: 0,
         y: 0,
         z: 0.14,
@@ -350,7 +359,7 @@ export const SCENES_DAILY: readonly IScene[] = [
     [
       person("pat", "m2", -1.5, 0, 0, [
         act("walk", { to: to(-1.5, 1.5) }),
-        act("stand", { seconds: 1.5 }),
+        act("stand", { hold: 1.5 }),
         act("startle", {}, { anchor: "fr-bang" }),
         act("takeCover"),
         act("look", { target: at("ray", "face"), cue: "seen" }),
@@ -359,25 +368,25 @@ export const SCENES_DAILY: readonly IScene[] = [
         act("walk", { to: to(-1.5, 2.8) }),
       ]),
       person("quy", "f1", -0.5, 0.5, 0, [
-        act("checkPhone", { seconds: 1 }),
-        act("stand", { seconds: 0.6 }),
+        act("checkPhone", { hold: 1 }),
+        act("stand", { hold: 0.6 }),
         act(
           "wince",
           {},
           { sync: { of: "fr-bang", event: "start", offset: 0.1 } },
         ),
         act("braceForImpact"),
-        act("look", { target: at("ray", "face"), cue: "seen", seconds: 1.2 }),
+        act("look", { target: at("ray", "face"), cue: "seen", duration: 1.2 }),
         act("coverMouth"),
         act("gesture", { kind: "shakeHead" }),
         act("walk", { to: to(-0.5, 3) }),
       ]),
       person("ray", "m1", 0.5, 0, 0, [
         act("checkWatch"),
-        act("stand", { seconds: 3 }),
+        act("stand", { hold: 3 }),
         act(
           "lieDown",
-          { position: "prone", hold: 1 },
+          { kind: "prone", hold: 1 },
           { sync: { of: "fr-bang", event: "start", offset: 0.15 } },
         ),
         act("getUp"),
@@ -386,14 +395,14 @@ export const SCENES_DAILY: readonly IScene[] = [
       ]),
       person("sue", "f2", 1.5, 0.5, 0, [
         act("walk", { to: to(1.5, 1.8) }),
-        act("stand", { seconds: 3 }),
+        act("stand", { hold: 3 }),
         act(
           "stumble",
           {},
           { sync: { of: "fr-bang", event: "start", offset: 0.1 } },
         ),
         act("kneelBriefly"),
-        act("look", { target: at("ray", "face"), cue: "seen", seconds: 1.2 }),
+        act("look", { target: at("ray", "face"), cue: "seen", duration: 1.2 }),
         act("walk", { to: to(1.5, 3.5) }),
       ]),
     ],
@@ -407,27 +416,93 @@ export const SCENES_DAILY: readonly IScene[] = [
       setting: "everyday",
       roles: { tia: "traveller", uli: "friend", val: "friend" },
       needs: [],
-      refusedUntil: 3552,
     },
     "farewell",
     [
       person("tia", "f1", 0, 0, 0, [
-        act("cheekKiss", { partner: "uli" }),
-        act("fistBump", { partner: "val" }),
-        act("pinkyPromise", { partner: "val" }),
+        act("cheekKiss", { partner: "val", side: "left" }),
+
+        // Show the cheek, then lower the gaze while Val kisses the forehead.
+        // The planted stance holds each offered surface still.
+        act(
+          "stand",
+          { hold: 3.7, sway: 0 },
+          {
+            over: [
+              act(
+                "headTilt",
+                { degrees: -20, duration: 3.6 },
+                { anchor: "farewell-cheek" },
+              ),
+            ],
+          },
+        ),
+        act(
+          "stand",
+          { hold: 3.7, sway: 0 },
+          {
+            over: [
+              act(
+                "look",
+                {
+                  target: {
+                    kind: "point",
+                    frame: "world",
+                    at: { x: 0, y: 1.25, z: 0.65 },
+                  },
+                  recruit: "head",
+                  duration: 3.4,
+                },
+                { anchor: "farewell-forehead" },
+              ),
+            ],
+          },
+        ),
+
+        // Make room for both forearms before the two separate hand meetings.
+        act("walk", {
+          to: to(0, -0.61),
+          face: 0,
+          facing: { yaw: 0 },
+          pace: "slow",
+          armSwing: 0,
+        }),
+        act("stand", { hold: 0.5, sway: 0 }, { anchor: "farewell-apart" }),
+        act("fistBump", { partner: "val", window: { from: 14, to: 14.1 } }),
+        act("pinkyPromise", {
+          partner: "val",
+          window: { from: 16.1, to: 16.2 },
+        }),
         act("blownKiss"),
         act("blownKissSend"),
         act("trudge", { to: to(0, -3) }),
       ]),
-      person("uli", "m1", -0.1, 0.75, 180, [
-        act("cheekKiss", { partner: "tia" }),
-        act("kiss", { partner: "tia", region: "forehead" }),
-        act("shoulderPat", { target: at("val", "shoulderLeft") }),
-        act("comfort", { target: at("val", "shoulderRight") }),
+      person("uli", "m1", 0.02, 1.08, 180, [
+        act("stand", { hold: 18.9, sway: 0 }),
+        act("shoulderPat", { hand: "left", target: at("val", "shoulderLeft") }),
+        act("comfort", { hand: "right", target: at("val", "shoulderRight") }),
       ]),
-      person("val", "f2", 0.5, 0.45, 240, [
-        act("fistBump", { partner: "tia" }),
-        act("pinkyPromise", { partner: "tia" }),
+      person("val", "f2", 0, 0.6, 175, [
+        act(
+          "cheekKiss",
+          { partner: "tia", side: "left", hold: 0.32 },
+          { sync: { of: "farewell-cheek", event: "stroke" } },
+        ),
+        act(
+          "foreheadKiss",
+          { partner: "tia", hold: 0.32 },
+          { sync: { of: "farewell-forehead", event: "settled", offset: 0.55 } },
+        ),
+        // Read Tia's new position after her step back has settled.
+        act(
+          "fistBump",
+          { partner: "tia", window: { from: 14, to: 14.1 } },
+          { sync: { of: "farewell-apart", event: "end" } },
+        ),
+        act("pinkyPromise", {
+          partner: "tia",
+          window: { from: 16.1, to: 16.2 },
+        }),
         act("handOnHeart"),
       ]),
     ],
@@ -441,7 +516,6 @@ export const SCENES_DAILY: readonly IScene[] = [
       setting: "everyday",
       roles: { wes: "friend", xan: "friend", yui: "friend" },
       needs: [],
-      refusedUntil: 3552,
     },
     "charades",
     [

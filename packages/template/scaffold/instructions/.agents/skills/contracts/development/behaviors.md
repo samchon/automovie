@@ -19,7 +19,7 @@ What facts or observations support the behavior's choices, timing and outcomes?
 
 Identify the screenplay facts, installed actions and operators the relation uses. For skilled practice, cite the [study](../../story/planning/research.md#performance-study) passage that supports how the participants coordinate their actions. Settle each action under [action axes](../../motion/compose/composition.md#action-axes). Repair a faulty action at its owner. Test the relation's choices and coordination through [motion checks](../../development/testing.md#motion-checks).
 
-Add and [register](../../motion/laws/extension.md) a motion law only for an action the installed vocabulary cannot compose. Derive its poses, reach, contacts and variation from the study. Scale [time and speed](../../motion/laws/declaration.md#time-scale) to the body and test them against the observations. Give the factor and reason for deliberate stylization.
+Add and register a [motion law](../../motion/laws/SKILL.md) only for an action the installed vocabulary cannot compose. Derive its poses, reach, contacts and variation from the study. Scale [time and speed](../../motion/laws/declaration.md#time-scale) to the body and test them against the observations. Give the factor and reason for deliberate stylization.
 
 Test a rule or table against independently expected classifications and boundaries.
 

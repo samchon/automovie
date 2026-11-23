@@ -144,7 +144,6 @@ async function stance(
     }
   const input: IAutoMoviePhysicalSimulationInput.IInput =
     createPhysicalBalanceInput(profile, "internal", 0, DURATION, subject);
-  input.iterations = 32;
   input.impulses.length = 0;
   const run: IAutoMoviePhysicalSimulation =
     await AutoMoviePhysicalSimulation.compute(input);

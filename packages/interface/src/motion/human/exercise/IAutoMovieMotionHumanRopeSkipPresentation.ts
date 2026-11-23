@@ -5,11 +5,6 @@ import type { IAutoMovieMotionHumanPerformance } from "../perform/IAutoMovieMoti
 
 /**
  * Dimensions and film address of a driven skipping rope.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the action address and dimensions, with the cord measured between the handle tips.
- * @evidence contracts/development/design.md#principled-representation Uses metre dimensions and an anchored action on the performance's film clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The presentation reads the placed action and pose through the performance. The host supplies the cable and handle dimensions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Handle mounts and cord shape stay coupled to the same displayed hand samples. No dynamics parameters are implied.
  */
 export interface IAutoMovieMotionHumanRopeSkipPresentation {
   /** Performance containing the registered `ropeSkip` action. */
@@ -43,11 +38,6 @@ export interface IAutoMovieMotionHumanRopeSkipPresentation {
 export namespace IAutoMovieMotionHumanRopeSkipPresentation {
   /**
    * Rigid handle placements and the derived tube path at one film instant.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States handle axes, attachment points and world-space ownership.
-   * @evidence contracts/development/design.md#principled-representation Both handle transforms and four cord positions use world metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses rigid transforms and the render soft-prop frame.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both handle tips attach to the emitted cord at their drawn coordinates.
    */
   export interface IFrame {
     /** Derived unindexed cord surface, ready for the host's soft-prop draw binding. */

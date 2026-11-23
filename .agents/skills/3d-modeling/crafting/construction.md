@@ -36,7 +36,7 @@ Size a feature on a surface in physical units through the surface's metric, beca
 
 ## Resolution
 
-Use resolution and local curvature or silhouette to allocate primitives. Keep defining dimensions and feature locations independent of tessellation. Use parametric surfaces, subdivision, cards, instances or levels of detail where applicable.
+Let the number of emitted primitives follow the resolution setting, not the number of crafted features, and spend them where the surface curves or forms the silhouette. Keep defining dimensions and feature locations independent of tessellation. A more compact representation of the same form keeps the same mesh. Use parametric surfaces, subdivision, cards, instances or levels of detail where applicable.
 
 On a subdivision surface, place extraordinary vertices where curvature is low and keep them at valence 3 or 5 where the layout allows, because higher valences and clustered poles leave visible pinches on the limit surface.
 

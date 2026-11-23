@@ -1,4 +1,7 @@
-import { ArchetypeFrame, createTransitBus } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeFrame,
+  createTransitBus,
+} from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -57,7 +60,11 @@ export function test_archetype_transit_bus(): void {
       seat.kind === "seat" &&
       seat.frame.translation.x - seat.width! / 2 >= aisle.width! / 2 - 1e-6 &&
       nclose(seat.frame.translation.y, floor + 0.46) &&
-      vclose(ArchetypeFrame.axis(seat.frame, "z"), { x: 0, y: 0, z: 1 }),
+      vclose(AutoMovieArchetypeFrame.axis(seat.frame, "z"), {
+        x: 0,
+        y: 0,
+        z: 1,
+      }),
   );
 
   const front: IAutoMovieAffordance = bus.affordance("frontDoorway");
@@ -93,7 +100,7 @@ export function test_archetype_transit_bus(): void {
       () =>
         doorway.kind === "aperture" &&
         vclose(doorway.frame.translation, { x: -width / 2, y: floor, z }) &&
-        vclose(ArchetypeFrame.axis(doorway.frame, "z"), {
+        vclose(AutoMovieArchetypeFrame.axis(doorway.frame, "z"), {
           x: -1,
           y: 0,
           z: 0,
@@ -121,7 +128,11 @@ export function test_archetype_transit_bus(): void {
         rail.aperture! <= 1.5 * 0.0254 &&
         -rail.frame.translation.x - rail.aperture! / 2 > aisle.width! / 2 &&
         Math.abs(rail.frame.translation.z - z) - rail.aperture! / 2 > 0.45 &&
-        vclose(ArchetypeFrame.axis(rail.frame, "x"), { x: 0, y: 1, z: 0 }),
+        vclose(AutoMovieArchetypeFrame.axis(rail.frame, "x"), {
+          x: 0,
+          y: 1,
+          z: 0,
+        }),
     );
 
     for (const travel of [0, 0.225, 0.45]) {

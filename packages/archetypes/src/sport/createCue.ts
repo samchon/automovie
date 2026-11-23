@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The cue's length read. */
@@ -26,7 +26,7 @@ const WEIGHT: string =
  * @param params The butt, the shaft and any dimension the author fixes.
  * @param seed The seed that draws the butt and the shaft when they are not given and every dimension left free inside its band; absent, the first of each and the middle of each band.
  * @returns The cue.
- * @throws {ArchetypeRefusal} For a butt Viking or a shaft McDermott does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a butt Viking or a shaft McDermott does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the cue lies, its halves and its three contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The makers' 58 in from McDermott's statement that a carom cue is 2 in shorter than a pool cue's, split as Cuetec's 29 in butt and 29 in shaft; the butt one of Viking's three diameters; the tip one of McDermott's four shaft diameters, each within the WPA's limit; the mass at the makers' standard weights.
@@ -39,9 +39,9 @@ const WEIGHT: string =
 export function createCue(
   params: createCue.IParams = {},
   seed?: number | string,
-): Archetype<createCue.Affordance, createCue.Dimension> {
-  const draw: ArchetypeDrawSession<createCue.Dimension> =
-    new ArchetypeDrawSession<createCue.Dimension>(
+): AutoMovieArchetype<createCue.Affordance, createCue.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createCue.Dimension> =
+    new AutoMovieArchetypeDrawSession<createCue.Dimension>(
       "cue",
       createCue.UNITS,
       seed,
@@ -60,13 +60,15 @@ export function createCue(
     butt: buttModel.figures.butt!,
     tip: shaft.figures.tip!,
   };
-  const builder: ArchetypeBuilder<createCue.Affordance, createCue.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: `pool cue, ${buttModel.name} butt, ${shaft.name} shaft`,
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createCue.Affordance,
+    createCue.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: `pool cue, ${buttModel.name} butt, ${shaft.name} shaft`,
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const butt: number = d.butt / 2;
   const half: number = d.length / 2;
@@ -98,7 +100,11 @@ export function createCue(
     id: "butt",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(back / 2, butt, 0), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(back / 2, butt, 0),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
     extent: null,
     grip: "power",
     aperture: d.butt,
@@ -108,7 +114,11 @@ export function createCue(
     id: "shaft",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(half / 2, butt, 0), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(half / 2, butt, 0),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
     extent: null,
     grip: "precision",
     length: half,
@@ -117,7 +127,11 @@ export function createCue(
     id: "tip",
     kind: "socket",
     direction: "along",
-    frame: ArchetypeFrame.facing(v(half, butt, 0), v(1, 0, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(half, butt, 0),
+      v(1, 0, 0),
+      v(0, 0, 1),
+    ),
     extent: null,
   });
   return builder.build(d.mass);
@@ -152,7 +166,9 @@ export namespace createCue {
   export type Dimension = "length" | "butt" | "tip" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     butt: "m",
     tip: "m",
@@ -166,9 +182,9 @@ export namespace createCue {
   export const BUTTS: Readonly<
     Record<Butt, Readonly<Partial<Record<Dimension, number>>>>
   > = {
-    standard: { butt: 1.25 * ArchetypeUnits.INCH },
-    skinny: { butt: 1.205 * ArchetypeUnits.INCH },
-    average: { butt: 1.295 * ArchetypeUnits.INCH },
+    standard: { butt: 1.25 * AutoMovieArchetypeUnits.INCH },
+    skinny: { butt: 1.205 * AutoMovieArchetypeUnits.INCH },
+    average: { butt: 1.295 * AutoMovieArchetypeUnits.INCH },
   };
 
   /** McDermott's shaft tip diameters. */
@@ -178,10 +194,10 @@ export namespace createCue {
   export const SHAFTS: Readonly<
     Record<Shaft, Readonly<Partial<Record<Dimension, number>>>>
   > = {
-    "11.5mm": { tip: 11.5 * ArchetypeUnits.MILLIMETRE },
-    "12mm": { tip: 12 * ArchetypeUnits.MILLIMETRE },
-    "12.5mm": { tip: 12.5 * ArchetypeUnits.MILLIMETRE },
-    "13mm": { tip: 13 * ArchetypeUnits.MILLIMETRE },
+    "11.5mm": { tip: 11.5 * AutoMovieArchetypeUnits.MILLIMETRE },
+    "12mm": { tip: 12 * AutoMovieArchetypeUnits.MILLIMETRE },
+    "12.5mm": { tip: 12.5 * AutoMovieArchetypeUnits.MILLIMETRE },
+    "13mm": { tip: 13 * AutoMovieArchetypeUnits.MILLIMETRE },
   };
 
   /** The parameters: the butt, the shaft, and any free dimension fixed to a value inside its band. */
@@ -200,17 +216,17 @@ export namespace createCue {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<
-    Record<Exclude<Dimension, "butt" | "tip">, IArchetypeBand>
+    Record<Exclude<Dimension, "butt" | "tip">, IAutoMovieArchetypeBand>
   > = {
-    length: ArchetypeBand.metres(
-      58 * ArchetypeUnits.INCH,
-      58 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      58 * AutoMovieArchetypeUnits.INCH,
+      58 * AutoMovieArchetypeUnits.INCH,
       LENGTH,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      18 * ArchetypeUnits.OUNCE,
-      21 * ArchetypeUnits.OUNCE,
+      18 * AutoMovieArchetypeUnits.OUNCE,
+      21 * AutoMovieArchetypeUnits.OUNCE,
       WEIGHT,
     ),
   };

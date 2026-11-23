@@ -2,6 +2,35 @@ import type { IAutoMovieModel } from "@automovie/interface";
 
 /** Read-only display contracts for the isolated Node software experiment; metres throughout. */
 export namespace NodeCanvasTypes {
+  /**
+   * Caller-reported run evidence, independent of the stage displayed by this frame.
+   * A returned mesh records execution, not successful anatomy or an empty diagnostic list.
+   *
+   * @evidence contracts/development/design.md#principled-representation A closed union distinguishes an unrequested realization from a returned mesh; null diagnostic count means unavailable, while zero is a known empty list.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The raster annotation and durable frame record share this display-only state; geometry and diagnostic arrays remain with their existing producers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stage and run evidence are independent; mesh presence does not imply zero diagnostics or acceptance, and unknown counts are not converted to zero.
+   * @evidence contracts/development/common.md#meaningful-documentation Members state display identity, execution evidence and the meaning of null versus zero.
+   */
+  export type Observation = {
+    /** Existing display stage, such as reference, original guides, raw loft curves or clay. */
+    stage: string;
+  } & (
+    | {
+        /** This invocation did not request whole-tree realization. */
+        realization: "not-requested";
+
+        /** No realization diagnostic list exists for this invocation. */
+        diagnosticCount: null;
+      }
+    | {
+        /** The producer returned a mesh; this is not a completeness or shape verdict. */
+        realization: "mesh-returned";
+
+        /** Nonnegative integer length of the actual diagnostic list, or null when unavailable. */
+        diagnosticCount: number | null;
+      }
+  );
+
   /** Cartesian coordinates, not a new anatomical or construction representation. */
   export type Point = [number, number, number];
 
@@ -121,6 +150,9 @@ export namespace NodeCanvasTypes {
 
     /** Display stage; raw operands are not a final Boolean skin. */
     stage: string;
+
+    /** Exact caller-reported run evidence also drawn in the annotation; absent means unspecified, not unrequested. */
+    observation?: Observation;
 
     /** Requested part group. */
     scope: string;

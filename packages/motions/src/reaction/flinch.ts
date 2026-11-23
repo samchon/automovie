@@ -62,11 +62,6 @@ import { ReactionSource } from "./ReactionSource";
  * that all rise to the `stroke` instant and fall to the end on the clock's envelope. A guard or a
  * defence may cancel it from the peak on, a stagger or a knockdown at any
  * time.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the startle pattern, its timing with sources, the provisional sizes, that the feet stay planted and how the action is composed.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters and a plan composed of part primitives on one clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing and size constants and the plan the law table and the performance dispatch through.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, target, clock and primitive types; no body is special-cased.
  */
 export namespace flinch {
   /** The action's name. */
@@ -109,14 +104,6 @@ export namespace flinch {
    * @param context The action's context.
    * @returns The plan.
    * @throws {Error} When the intensity lies outside (0, 1], or the manner is out of range.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Every part rises to the measured startle peak and falls to the end on the clock's envelope; the gloves' goals come from the face region and the fist sockets, and each arm is carried in joint space between the angles the entry held and the angles its goal solves to.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and four rows; the threat is read once.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An intensity outside its range throws; the sizes are named provisional constants.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each arm keeps its original complete trunk admission/digit solves, elbow sweep and carried-arm fit, while final observation FK computes only the actual face ancestry. One fixed body/name demand serves both callbacks, fixed fist width is read once, and the lazy threat read requests head ancestry only; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each cover callback forwards its current same-body FK/genuine ROM loans to the existing complete trunk producer; every changed posture still runs native admission. Fixed face demand and fist geometry belong to the unchanged body, while the original one-direction memo still clears on settle.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed body/face-demand metadata and its original single cached direction until settle/release. Each cover invocation borrows dynamic FK/ROM only until return or throw; fresh face maps and goals contain no loan, callback result or queried-pose history.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFlinch.IParams>,
@@ -129,7 +116,8 @@ export namespace flinch {
       });
     const intensity: number = modifiers.extent;
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+      body.measure;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
 
     // The startle's rise is a reflex and keeps its time; the return follows
@@ -170,12 +158,13 @@ export namespace flinch {
         AutoMovieMotionHumanTarget.away(
           ReactionSource.at(
             context,
-            p.from,
+            p.target,
             context.start - StrikingTarget.LOOK,
             entry,
             AutoMovieMotionHumanTarget.DEFAULTS.ahead,
           ),
-          StrikingBody.trunk(body, entry, undefined, HEAD).get("head")!.worldPosition,
+          StrikingBody.trunk(body, entry, undefined, HEAD).get("head")!
+            .worldPosition,
           entry.yaw,
         ),
       );
@@ -183,31 +172,41 @@ export namespace flinch {
     };
 
     // A glove before the face on the trunk the action has placed so far.
-    const faceBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-      body.surfaces.regions.face.bone,
-    ]);
-    const faceAt: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, faceBones);
+    const faceBones: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([body.surfaces.regions.face.bone]);
+    const faceAt: ReturnType<typeof StrikingBody.prepareTrunk> =
+      StrikingBody.prepareTrunk(body, faceBones);
     const fist: number = StrikingQuality.fist(m.hand);
-    const cover: (side: "left" | "right") => Parameters<typeof AutoMovieMotionHumanArm.carried>[0]["goal"] =
-      (side: "left" | "right"): Parameters<typeof AutoMovieMotionHumanArm.carried>[0]["goal"] =>
+    const cover: (
+      side: "left" | "right",
+    ) => Parameters<typeof AutoMovieMotionHumanArm.carried>[0]["goal"] =
+      (
+        side: "left" | "right",
+      ): Parameters<typeof AutoMovieMotionHumanArm.carried>[0]["goal"] =>
       (
         posture: IAutoMovieMotionHumanPosture,
         _seconds: number,
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieHumanLimbGoal => {
-        const bones: ReturnType<typeof faceAt> = faceAt(posture, resolution, projection);
-        const face: ReturnType<typeof StrikingBody.region> = StrikingBody.region(body, bones, "face");
+        const bones: ReturnType<typeof faceAt> = faceAt(
+          posture,
+          resolution,
+          projection,
+        );
+        const face: ReturnType<typeof StrikingBody.region> =
+          StrikingBody.region(body, bones, "face");
         const out: IAutoMovieVector3 = HumanFrame.point(
           { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
           { x: side === "left" ? fist : -fist, y: 0, z: 0 },
         );
-        const rotation: ReturnType<typeof StrikingBody.fist> = StrikingBody.fist(
-          body,
-          side,
-          { x: 0, y: 1, z: 0 },
-          Vector3.scale(face.normal, -1),
-        );
+        const rotation: ReturnType<typeof StrikingBody.fist> =
+          StrikingBody.fist(
+            body,
+            side,
+            { x: 0, y: 1, z: 0 },
+            Vector3.scale(face.normal, -1),
+          );
         const point: IAutoMovieVector3 = Vector3.subtract(
           Vector3.add(
             Vector3.add(
@@ -240,7 +239,9 @@ export namespace flinch {
       };
 
     // Each arm leaves the angles the entry held and comes back to them.
-    const arm: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
+    const arm: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanArm.carried({
         body,
         side,
@@ -306,5 +307,6 @@ export namespace flinch {
   }
 
   /** The lazy entry-direction observation reads only the head's actual ancestry. */
-  const HEAD: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(["head"]);
+  const HEAD: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>(["head"]);
 }

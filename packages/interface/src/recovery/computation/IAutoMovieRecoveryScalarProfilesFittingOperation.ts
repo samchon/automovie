@@ -1,20 +1,10 @@
 /**
  * Fit co-charted scalar profiles in one clamped uniform cubic B-spline space. Unpivoted Householder QR acts on the original design and all right-hand sides; the diagonal ratio is an operational rank test, not a certified condition. Endpoint values and derivatives convert each polynomial interval exactly to Bernstein controls before binary64 rounding. Input coordinates/values use millimetres; returned physical intervals and controls use metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Fitted cubic scalar spans in increasing physical station order. Ordinal of the adjacent saved-plane interval in the complete observation sequence.
- * @evidence contracts/development/design.md#principled-representation Ordinal of the adjacent saved-plane interval in the complete observation sequence.
- * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieRecoveryImageSupportLoft, fitRecoveryImageProfiles, fitRecoveryScalarProfiles share IAutoMovieRecoveryScalarProfilesFittingOperation's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
  */
 
 export namespace IAutoMovieRecoveryScalarProfilesFittingOperation {
   /**
    * Fit co-charted scalar profiles in one clamped uniform cubic B-spline space. Unpivoted Householder QR acts on the original design and all right-hand sides; the diagonal ratio is an operational rank test, not a certified condition. Endpoint values and derivatives convert each polynomial interval exactly to Bernstein controls before binary64 rounding. Input coordinates/values use millimetres; returned physical intervals and controls use metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Fitted cubic scalar spans in increasing physical station order. Ordinal of the adjacent saved-plane interval in the complete observation sequence.
-   * @evidence contracts/development/design.md#principled-representation Ordinal of the adjacent saved-plane interval in the complete observation sequence.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieRecoveryImageSupportLoft, fitRecoveryImageProfiles, fitRecoveryScalarProfiles share IAutoMovieRecoveryScalarProfilesFittingOperation's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
    */
 
   export type Operation = (

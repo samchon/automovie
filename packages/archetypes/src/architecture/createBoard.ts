@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The whiteboard read. */
@@ -74,8 +74,8 @@ function sized(
     names.map((name: createBoard.Size) => [
       name,
       {
-        height: INCHES[name][0] * ArchetypeUnits.INCH,
-        width: INCHES[name][1] * ArchetypeUnits.INCH,
+        height: INCHES[name][0] * AutoMovieArchetypeUnits.INCH,
+        width: INCHES[name][1] * AutoMovieArchetypeUnits.INCH,
       },
     ]),
   );
@@ -99,7 +99,7 @@ const NAMES: Readonly<Record<createBoard.Kind, string>> = {
  * @param params The kind, its size and any dimension the author fixes.
  * @param seed The seed that draws the size when it is not given and every dimension left free inside its band; absent, the kind's first size and the middle of each band.
  * @returns The board.
- * @throws {ArchetypeRefusal} For a size the kind's maker does not list, a fixed dimension outside its band, or one only another kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a size the kind's maker does not list, a fixed dimension outside its band, or one only another kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the board hangs, where each kind is mounted and its contacts.
  * @evidence contracts/development/implementation.md#principled-implementation One of the maker's standard sizes whole, its height and width together; the makers' depths and trays; the whiteboard's base at the classroom standard's 915 mm.
@@ -112,9 +112,9 @@ const NAMES: Readonly<Record<createBoard.Kind, string>> = {
 export function createBoard(
   params: createBoard.IParams,
   seed?: number | string,
-): Archetype<createBoard.Affordance, createBoard.Dimension> {
-  const draw: ArchetypeDrawSession<createBoard.Dimension> =
-    new ArchetypeDrawSession<createBoard.Dimension>(
+): AutoMovieArchetype<createBoard.Affordance, createBoard.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBoard.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBoard.Dimension>(
       "board",
       createBoard.UNITS,
       seed,
@@ -138,10 +138,10 @@ export function createBoard(
     ...draw.dimensions(createBoard.BANDS[kind], createBoard.BANDS),
     ...size.figures,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createBoard.Affordance,
     createBoard.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `${NAMES[kind]} ${size.name}`,
@@ -168,7 +168,7 @@ export function createBoard(
   builder.affordance({
     id: "face",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, bottom + height / 2, depth),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -185,7 +185,7 @@ export function createBoard(
     builder.affordance({
       id: "tray",
       kind: "ledge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, bottom + ESTIMATES.lip / 2, tray),
         v(0, 1, 0),
         v(1, 0, 0),
@@ -306,7 +306,9 @@ export namespace createBoard {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     height: "m",
     depth: "m",
@@ -331,46 +333,64 @@ export namespace createBoard {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     whiteboard: {
-      depth: ArchetypeBand.metres(
-        (5 / 8) * ArchetypeUnits.INCH,
-        (5 / 8) * ArchetypeUnits.INCH,
+      depth: AutoMovieArchetypeBand.metres(
+        (5 / 8) * AutoMovieArchetypeUnits.INCH,
+        (5 / 8) * AutoMovieArchetypeUnits.INCH,
         GHENT_M1,
       ),
-      tray: ArchetypeBand.metres(
-        (3 + 1 / 8) * ArchetypeUnits.INCH,
-        (3 + 1 / 8) * ArchetypeUnits.INCH,
+      tray: AutoMovieArchetypeBand.metres(
+        (3 + 1 / 8) * AutoMovieArchetypeUnits.INCH,
+        (3 + 1 / 8) * AutoMovieArchetypeUnits.INCH,
         GHENT_M1,
       ),
-      mount: ArchetypeBand.metres(
-        915 * ArchetypeUnits.MILLIMETRE,
-        915 * ArchetypeUnits.MILLIMETRE,
+      mount: AutoMovieArchetypeBand.metres(
+        915 * AutoMovieArchetypeUnits.MILLIMETRE,
+        915 * AutoMovieArchetypeUnits.MILLIMETRE,
         LETHBRIDGE,
       ),
-      mass: ArchetypeBand.of("kg", 5, 40, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        5,
+        40,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     blackboard: {
-      depth: ArchetypeBand.metres(
-        0.5 * ArchetypeUnits.INCH,
-        0.5 * ArchetypeUnits.INCH,
+      depth: AutoMovieArchetypeBand.metres(
+        0.5 * AutoMovieArchetypeUnits.INCH,
+        0.5 * AutoMovieArchetypeUnits.INCH,
         CLARIDGE,
       ),
-      tray: ArchetypeBand.metres(
-        1 * ArchetypeUnits.INCH,
-        1 * ArchetypeUnits.INCH,
+      tray: AutoMovieArchetypeBand.metres(
+        1 * AutoMovieArchetypeUnits.INCH,
+        1 * AutoMovieArchetypeUnits.INCH,
         CLARIDGE,
       ),
-      mass: ArchetypeBand.of("kg", 5, 60, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        5,
+        60,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     noticeBoard: {
-      depth: ArchetypeBand.metres(
-        (11 / 16) * ArchetypeUnits.INCH,
-        (11 / 16) * ArchetypeUnits.INCH,
+      depth: AutoMovieArchetypeBand.metres(
+        (11 / 16) * AutoMovieArchetypeUnits.INCH,
+        (11 / 16) * AutoMovieArchetypeUnits.INCH,
         GHENT_059,
       ),
-      mass: ArchetypeBand.of("kg", 4, 15, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        4,
+        15,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
   };
 }

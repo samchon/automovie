@@ -24,14 +24,6 @@ const COLOUR_TYPES: Readonly<
  * It reads every non-interlaced PNG the specification allows: grey, RGB, palette, grey with alpha and RGBA, at every bit depth of each, so a still this package encoded and a still FFmpeg wrote read alike. A sample of 16 bits keeps its high byte and a sample under 8 bits is scaled to the full byte. Alpha comes from an alpha channel when the file has one and is 255 otherwise; transparency chunks are ignored, because the picture record is opaque and no consumer reads alpha. The zlib stream is inflated by `DecompressionStream("deflate")`, a global of Node 22 and every current browser, so the call is asynchronous and imports no Node built-in.
  *
  * It rejects a file that is not a PNG, a chunk whose CRC disagrees, a missing header, palette or image data, an interlaced file, an unknown colour type, bit depth, compression, filter method or row filter, and image data that does not inflate to the size the header states, each with the reason; the caller adds the file's name.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the output layout, the colour types and depths read, how samples become bytes, what alpha holds and why transparency is ignored, where inflation comes from, and every refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Chunk walking, CRC checking, the five row filters with the Paeth predictor and sample unpacking follow the PNG specification (sections 5, 7, 9 and 11); the Compression Streams `deflate` format is the zlib stream an IDAT sequence holds.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Walk the chunks, inflate the joined image data, undo each row's filter, then expand each pixel to RGBA.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Interlaced files are refused rather than read as if they were not; a corrupt or truncated file throws instead of yielding a partial picture.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the file and the pixel count: one CRC pass per chunk, one inflation, one unfiltering pass and one expansion pass, reusing the previous row in place.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The CRC table is shared with the encoder.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the joined image data, the inflated rows and the returned pixels until the call ends; only the returned picture outlives it.
  */
 export async function decodeAutoMovieRasterPng(
   bytes: Uint8Array,

@@ -1,4 +1,4 @@
-import { ArchetypeUnits, createBed } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createBed } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -30,10 +30,13 @@ const CRIB: Readonly<{
   top: readonly [number, number];
   width: readonly [number, number];
 }> = {
-  rail: 26 * ArchetypeUnits.INCH,
+  rail: 26 * AutoMovieArchetypeUnits.INCH,
   gap: 0.06,
-  top: [35 * ArchetypeUnits.INCH, 35 * ArchetypeUnits.INCH],
-  width: [(28 - 5 / 8) * ArchetypeUnits.INCH, (28 + 5 / 8) * ArchetypeUnits.INCH],
+  top: [35 * AutoMovieArchetypeUnits.INCH, 35 * AutoMovieArchetypeUnits.INCH],
+  width: [
+    (28 - 5 / 8) * AutoMovieArchetypeUnits.INCH,
+    (28 + 5 / 8) * AutoMovieArchetypeUnits.INCH,
+  ],
 };
 
 /** IKEA MYDAL's 20 cm under the bed, 91 cm between the beds, 19 cm mattress at most, 206 x 97 x 157 cm frame; 16 CFR 1513.3's 5 in of guardrail over the mattress and 15 in opening. */

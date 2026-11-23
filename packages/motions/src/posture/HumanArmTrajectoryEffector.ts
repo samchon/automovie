@@ -31,7 +31,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
  * @evidence contracts/development/implementation.md#principled-implementation Each target uses the engine's hinge law and exact half-angle coefficients. The swivel that maximizes the quaternion dot product is analytic, and the wrist is checked with rig-projected forward kinematics.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare endpoint geometry and hinge source once, then solve at most two branch candidates for a requested progress.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig projection that takes the wrist off its target refuses the analytic candidate. Clearance, speed, contacts and all other terms belong to the unchanged trajectory model.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and at most two analytic branch poses and their single-arm FK per requested point. No posture fit, swivel sweep or collider placement occurs here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and at most two analytic branch poses and their single-arm FK per requested point, tried nearest the reference first and stopped at the first that passes, so a farther branch is posed only when the nearer fails. No posture fit, swivel sweep or collider placement occurs here.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares canonical hinge geometry, coordinate encoding and arm placement with the rig and trajectory owners.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The transport keeps endpoint poses and prepared rest geometry. Each actual target, branch and candidate releases before the next call.
  */
@@ -101,8 +101,12 @@ export function HumanArmTrajectoryEffector(
       flexion,
     );
     const wanted: IAutoMovieQuaternion = G.shoulder(setup, reference);
-    let best: number[] | undefined;
-    let nearest: number = -Infinity;
+
+    // The branch kept is the one nearest the reference among those whose
+    // pose passes the checks below, the first on a tie: the branches are
+    // tried nearest first, in their order on a tie, and the first that
+    // passes is that one, so a farther branch is never posed for nothing.
+    const reached: IReached[] = [];
     for (const branch of target.branches() ?? []) {
       if (branch.shortfall > precision) continue;
       const turn: IAutoMovieHingedArmSwivel.IHarmonic | undefined =
@@ -110,10 +114,12 @@ export function HumanArmTrajectoryEffector(
       if (turn === undefined) continue;
       const cos: number = dot(wanted, turn.cosine);
       const sin: number = dot(wanted, turn.sine);
-      const match: number = Math.hypot(cos, sin);
-      if (match <= nearest) continue;
-      const upper: IAutoMovieQuaternion = turn.pose()(
-        (2 * Math.atan2(sin, cos)) / rad,
+      reached.push({ theta: branch.theta, turn, cos, sin, match: Math.hypot(cos, sin) });
+    }
+    reached.sort((p: IReached, q: IReached): number => q.match - p.match);
+    for (const root of reached) {
+      const upper: IAutoMovieQuaternion = root.turn.pose()(
+        (2 * Math.atan2(root.sin, root.cos)) / rad,
       ).upper;
       const arm: IAutoMovieMotionHumanArmClearance.IArm = G.arm(
         setup,
@@ -123,7 +129,7 @@ export function HumanArmTrajectoryEffector(
       const c: number[] = G.encode(setup, {
         ...arm,
         lower: [
-          (branch.theta / rad) * (frame?.sign ?? 1) + (frame?.neutral ?? 0),
+          (root.theta / rad) * (frame?.sign ?? 1) + (frame?.neutral ?? 0),
           arm.lower[1],
           arm.lower[2],
         ],
@@ -136,11 +142,28 @@ export function HumanArmTrajectoryEffector(
         if (1 - Math.abs(dot(hand, shown.hand)) > Math.sqrt(Number.EPSILON) ||
           Vector3.distance(shown.wrist, wrist) > precision) continue;
       }
-      best = c;
-      nearest = match;
+      return c;
     }
-    return best;
+    return undefined;
   };
+}
+
+/** A hinge root that reaches the wrist, read against the reference shoulder. */
+interface IReached {
+  /** The root's hinge flexion, radians. */
+  theta: number;
+
+  /** Its shoulder swivel harmonic. */
+  turn: IAutoMovieHingedArmSwivel.IHarmonic;
+
+  /** The reference shoulder's dot with the harmonic's cosine coefficient. */
+  cos: number;
+
+  /** The reference shoulder's dot with the harmonic's sine coefficient. */
+  sin: number;
+
+  /** How near the reference the root's best swivel comes: the two dots' norm. */
+  match: number;
 }
 
 /** The geometry of an arm before placing any collision probes. */

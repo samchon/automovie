@@ -39,11 +39,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * normalized T-pose), so a hand or foot posed by a world rotation `G` from its
  * rest carries a socket point `p` to `wrist + G p` (the convention
  * `HumanFoot` uses for the sole).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each fact is for and the identity-rest premise the socket convention rests on.
- * @evidence contracts/development/design.md#principled-representation A namespace of pure functions over the body, its resolved bones and world rotations, in world metres and clinical degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The actual trunk and fixed-demand trunk producer, region/socket/hand/foot geometry and collider readings serve striking, reactions and captures; canonical pose/FK preparation remains with its existing owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's surface resolver and the interface's region and socket unions; the collider list overlaps the posture package's HumanColliders, which owns the signed distances, and is kept only as the shape list the floor rest reads.
  */
 export namespace StrikingBody {
   /**
@@ -57,14 +52,6 @@ export namespace StrikingBody {
    * @param requested Optional output bones whose ancestry is needed; every authored joint is still admitted and clamped.
    * @param projection Optional genuine same-body ROM projector borrowed from this synchronous operation; the posture owner checks provenance and still projects every current joint.
    * @returns Resolved bones by rig bone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States dropped limb goals, the result's role as limb-solve input, unchanged-skeleton topology and the optional synchronous borrowed FK workspace.
-   * @evidence contracts/development/implementation.md#principled-implementation The posture resolved with no limb goals, then complete forward kinematics with the canonical axes, rest frames and the body's parent-first topology.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture resolution and the canonical poseBones adapter keep mapping, topology and direct Map insertion with their existing owners.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual posture clamp, digit solve and needed FK ancestor remains; requested output names omit only unused transforms, and the optional reader shares exact scalar prerequisites without a posed-result cache or changed goal policy.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Posture assembly/clamping still scans rig/joints and retains actual digit searches. Requested final FK admits all joints but computes only demanded ancestry and allocates only requested transforms; omitted demand returns the full map. A parent reader shares only equal scalar prerequisites, and a genuine same-operation projector reuses only fixed ROM metadata while every joint is projected; no measured speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses body topology and, only when supplied, one parent-owned exact FK workspace across actual posture and displayed-frame reads; every posture and authored record still executes normally with fresh output transforms.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh map/transforms. An optional local getter borrows at most one parent reader only until return or throw; no reader, supplier or posed result enters body memory, a returned plan or persistent state.
    */
   export function trunk(
     body: IAutoMovieMotionHumanBody,
@@ -86,14 +73,6 @@ export namespace StrikingBody {
    * @param body The unchanged canonical body and its existing rig producer.
    * @param requested Optional real output demand, snapshotted once; all outputs when absent.
    * @returns A reader of each actual posture, optional synchronous FK source and optional genuine same-body ROM projector, neither retained by the producer.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed canonical body/name demand, snapshot behavior, changing posture/source and independent output ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation The same trunkPose owner clears only limb goals and executes original seeded assembly/clamping/digit semantics. poseBones.prepare binds the body's genuine requested-name producer once; each current admitted pose still supplies its actual FK.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One demand preparation returns one reader; the original one-shot trunk and this repeated-demand path share the exact posture owner, and canonical poseBones retains name/topology/FK ownership.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current authored joint, root rotation, digit demand and clamp remains. No fabricated indices, caller resolved flag, pose answer, target, seed or query history enters the factory; omitting demand preserves complete FK output.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed K-name sorting/reachable-demand preparation runs once for N queries. Each query retains full authored admission and actual digit work, followed by its original requested FK ancestry and fresh maps/frames; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work An explicit unchanged body and snapshotted real bone set establish demand equivalence. Every changing posture, borrowed FK source and genuine ROM projection loan is used only by its current synchronous invocation. Canonical owners check exact dependencies/provenance and every authored joint is still projected.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one bounded body/demand producer until its action or search ends; it retains neither source set, pose, reader nor answers. Each invocation creates or borrows one local exact workspace released on return or throw, and only its fresh bone map escapes.
    */
   export function prepareTrunk(
     body: IAutoMovieMotionHumanBody,
@@ -121,14 +100,6 @@ export namespace StrikingBody {
    * @param tangent A point of the region's surface beside its own point, as an offset on its tangent plane; absent or zero, the region's own point.
    * @returns World point and outward normal.
    * @throws {Error} When an offset is asked of a region the engine does not place by a ray.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result's frame and what the offset selects.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's bone-local region frame or exact authored tangent-offset ray is placed on its actual world bone; pointNormal retains the original point and normal math while omitting unconsumed forward.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one placement.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant point/normal work at the region centre, or the original rest-pose/skin-ray cost at an offset. The canonical pointNormal producer omits unused forward rotation and an extra stripping wrapper; both actual consumed vectors stay fresh and speedup is unmeasured.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; a strike reads its offset point a few times per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function region(
     body: IAutoMovieMotionHumanBody,
@@ -149,14 +120,6 @@ export namespace StrikingBody {
    * @param region The named anatomical region.
    * @param tangent Optional fixed offset on its tangent plane; absent or zero keeps the prepared centre frame.
    * @returns The actual engine frame in its owning bone's coordinates.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States bone-local units/frame, canonical-body stability and the central-versus-offset cases.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the prepared anatomical centre frame, or the engine's existing offset ray on the same skeleton/profile for the exact requested tangent.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One centre/offset branch owns the choice shared by region placement and fixed-target consumers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the same region, tangent, skin ray and out-of-domain refusal; no surface tolerance or target point is changed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Centre selection is constant work; a nonzero tangent pays the engine's original rest-pose/skin-ray cost once when a fixed-target consumer prepares it. No speedup is measured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable canonical body contract fixes skeleton/profile and a caller's explicit region/tangent fixes this bone-local frame; consumers may retain that metadata while still placing the actual posed bone at every observation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This function stores no cache; callers borrow the central frame or own the offset result for their geometry's lifetime, without retaining a world pose, observation or FK reader.
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,
@@ -182,14 +145,6 @@ export namespace StrikingBody {
    * @param region The region.
    * @returns The radius, metres.
    * @throws {Error} When the body's surface table gives the region no extent, a defect of the body's producer.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the definition, its owner and the producer defect thrown on.
-   * @evidence contracts/development/implementation.md#principled-implementation The body's own region extent: half the way to the nearest region facing the same way, within its segment's half breadth, read from the body's rest pose when the body is built.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read of the body's surface table.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No radius is typed or recomputed here; a missing extent throws rather than falling back.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The extent is the one the body owns, the same the touch law's landing disc reads; no store beside the body keeps a second copy.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function radius(
     body: IAutoMovieMotionHumanBody,
@@ -209,14 +164,6 @@ export namespace StrikingBody {
    * @param socket The socket.
    * @param rotation The hand's or foot's world rotation from its rest.
    * @returns The offset, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rotation's meaning and the result's frame.
-   * @evidence contracts/development/implementation.md#principled-implementation The bone-local socket point rotated by the world rotation, valid because the canonical rig rests unrotated.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function socket(
     body: IAutoMovieMotionHumanBody,
@@ -240,14 +187,6 @@ export namespace StrikingBody {
    * @param knuckles Where the fist's front faces, world direction.
    * @param palm Where the palm faces, world direction (not parallel to `knuckles`).
    * @returns The rotation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rest axes mapped and the non-parallel premise.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand's two-axis frame alignment from the rest finger axis and palm normal onto the requested ones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rest-axis read and one alignment.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function fist(
     body: IAutoMovieMotionHumanBody,
@@ -273,14 +212,6 @@ export namespace StrikingBody {
    * @param toes Where the toes point, world direction.
    * @param instep Where the instep faces, world direction (not parallel to `toes`).
    * @returns The rotation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rest axes mapped and the non-parallel premise.
-   * @evidence contracts/development/implementation.md#principled-implementation The same two-axis frame alignment from the rest toe axis and instep normal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One alignment.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function foot(
     toes: IAutoMovieVector3,
@@ -302,14 +233,6 @@ export namespace StrikingBody {
    *
    * @param side The hand.
    * @returns Clinical angles by bone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each joint's angle, its source range and why angles are used.
-   * @evidence contracts/development/implementation.md#principled-implementation Fixed clinical flexions inside the AAOS normal ranges.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the four fingers and the thumb's two joints.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function curl(
     side: "left" | "right",
@@ -336,14 +259,6 @@ export namespace StrikingBody {
    * @param body The other body.
    * @param bones Its resolved bones.
    * @returns The colliders, named by bone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which shapes and who places them.
-   * @evidence contracts/development/implementation.md#principled-implementation Placement is `HumanColliders.placed`; this function only lists each placed segment's shapes with the segment's pose and bone.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over placed segments and shapes.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in shapes.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function colliders(
     body: IAutoMovieMotionHumanBody,

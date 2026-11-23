@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The mirror's mounting read. */
@@ -37,7 +37,7 @@ const ESTIMATES: Readonly<{ panel: number; foot: number }> = {
  * @param params The kind, a wall mirror's size and any dimension the author fixes.
  * @param seed The seed that draws a wall mirror's size when it is not given and every dimension left free inside its band; absent, the first size and the middle of each band.
  * @returns The mirror.
- * @throws {ArchetypeRefusal} For a size Bobrick does not list or one named for a standing mirror, a fixed dimension outside its band, or one only another kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a size Bobrick does not list or one named for a standing mirror, a fixed dimension outside its band, or one only another kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States where each kind stands and its contact.
  * @evidence contracts/development/implementation.md#principled-implementation One of Bobrick's standard sizes whole, its frame and wall offset, at the ADA's limit for the bottom edge; IKEA's overall width, height and depth for the standing mirror.
@@ -50,9 +50,9 @@ const ESTIMATES: Readonly<{ panel: number; foot: number }> = {
 export function createMirror(
   params: createMirror.IParams,
   seed?: number | string,
-): Archetype<createMirror.Affordance, createMirror.Dimension> {
-  const draw: ArchetypeDrawSession<createMirror.Dimension> =
-    new ArchetypeDrawSession<createMirror.Dimension>(
+): AutoMovieArchetype<createMirror.Affordance, createMirror.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createMirror.Dimension> =
+    new AutoMovieArchetypeDrawSession<createMirror.Dimension>(
       "mirror",
       createMirror.UNITS,
       seed,
@@ -76,10 +76,10 @@ export function createMirror(
     ...draw.dimensions(createMirror.BANDS[kind], createMirror.BANDS),
     ...size.figures,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createMirror.Affordance,
     createMirror.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name:
@@ -129,7 +129,7 @@ export function createMirror(
   builder.affordance({
     id: "face",
     kind: "surface",
-    frame: ArchetypeFrame.facing(centre, v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(centre, v(0, 0, 1), v(1, 0, 0)),
     extent: null,
     width,
     depth: kind === "wall" ? height : height - ESTIMATES.foot,
@@ -175,32 +175,32 @@ export namespace createMirror {
   > = {
     wall: {
       "18x30": {
-        width: 18 * ArchetypeUnits.INCH,
-        height: 30 * ArchetypeUnits.INCH,
+        width: 18 * AutoMovieArchetypeUnits.INCH,
+        height: 30 * AutoMovieArchetypeUnits.INCH,
       },
       "18x36": {
-        width: 18 * ArchetypeUnits.INCH,
-        height: 36 * ArchetypeUnits.INCH,
+        width: 18 * AutoMovieArchetypeUnits.INCH,
+        height: 36 * AutoMovieArchetypeUnits.INCH,
       },
       "24x30": {
-        width: 24 * ArchetypeUnits.INCH,
-        height: 30 * ArchetypeUnits.INCH,
+        width: 24 * AutoMovieArchetypeUnits.INCH,
+        height: 30 * AutoMovieArchetypeUnits.INCH,
       },
       "24x36": {
-        width: 24 * ArchetypeUnits.INCH,
-        height: 36 * ArchetypeUnits.INCH,
+        width: 24 * AutoMovieArchetypeUnits.INCH,
+        height: 36 * AutoMovieArchetypeUnits.INCH,
       },
       "24x48": {
-        width: 24 * ArchetypeUnits.INCH,
-        height: 48 * ArchetypeUnits.INCH,
+        width: 24 * AutoMovieArchetypeUnits.INCH,
+        height: 48 * AutoMovieArchetypeUnits.INCH,
       },
       "24x60": {
-        width: 24 * ArchetypeUnits.INCH,
-        height: 60 * ArchetypeUnits.INCH,
+        width: 24 * AutoMovieArchetypeUnits.INCH,
+        height: 60 * AutoMovieArchetypeUnits.INCH,
       },
       "24x72": {
-        width: 24 * ArchetypeUnits.INCH,
-        height: 72 * ArchetypeUnits.INCH,
+        width: 24 * AutoMovieArchetypeUnits.INCH,
+        height: 72 * AutoMovieArchetypeUnits.INCH,
       },
     },
   };
@@ -227,7 +227,9 @@ export namespace createMirror {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     height: "m",
     bottom: "m",
@@ -251,43 +253,55 @@ export namespace createMirror {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     wall: {
-      bottom: ArchetypeBand.metres(
-        40 * ArchetypeUnits.INCH,
-        40 * ArchetypeUnits.INCH,
+      bottom: AutoMovieArchetypeBand.metres(
+        40 * AutoMovieArchetypeUnits.INCH,
+        40 * AutoMovieArchetypeUnits.INCH,
         ADA,
       ),
-      frame: ArchetypeBand.metres(
-        0.75 * ArchetypeUnits.INCH,
-        0.75 * ArchetypeUnits.INCH,
+      frame: AutoMovieArchetypeBand.metres(
+        0.75 * AutoMovieArchetypeUnits.INCH,
+        0.75 * AutoMovieArchetypeUnits.INCH,
         BOBRICK,
       ),
-      offset: ArchetypeBand.metres(
-        0.75 * ArchetypeUnits.INCH,
-        0.75 * ArchetypeUnits.INCH,
+      offset: AutoMovieArchetypeBand.metres(
+        0.75 * AutoMovieArchetypeUnits.INCH,
+        0.75 * AutoMovieArchetypeUnits.INCH,
         BOBRICK,
       ),
-      mass: ArchetypeBand.of("kg", 4, 15, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        4,
+        15,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     cheval: {
-      width: ArchetypeBand.metres(
-        52 * ArchetypeUnits.CENTIMETRE,
-        52 * ArchetypeUnits.CENTIMETRE,
+      width: AutoMovieArchetypeBand.metres(
+        52 * AutoMovieArchetypeUnits.CENTIMETRE,
+        52 * AutoMovieArchetypeUnits.CENTIMETRE,
         IKORNNES,
       ),
-      height: ArchetypeBand.metres(
-        167 * ArchetypeUnits.CENTIMETRE,
-        167 * ArchetypeUnits.CENTIMETRE,
+      height: AutoMovieArchetypeBand.metres(
+        167 * AutoMovieArchetypeUnits.CENTIMETRE,
+        167 * AutoMovieArchetypeUnits.CENTIMETRE,
         IKORNNES,
       ),
-      depth: ArchetypeBand.metres(
-        52 * ArchetypeUnits.CENTIMETRE,
-        52 * ArchetypeUnits.CENTIMETRE,
+      depth: AutoMovieArchetypeBand.metres(
+        52 * AutoMovieArchetypeUnits.CENTIMETRE,
+        52 * AutoMovieArchetypeUnits.CENTIMETRE,
         IKORNNES,
       ),
-      mass: ArchetypeBand.of("kg", 8, 12, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        8,
+        12,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
   };
 }

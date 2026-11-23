@@ -2,11 +2,6 @@ import type { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 
 /**
  * Wrapped section-curve evaluator and its natural equal-span count.
- *
- * @evidence contracts/development/common.md#meaningful-documentation A wrapped unit curve parameter yields section-plane metre points and an integer equal-span count. Curve phase is distinct from polar angle and arclength; radial sections are unsupported and retained source coefficients must remain stable.
- * @evidence contracts/development/design.md#principled-representation A wrapped unit curve parameter yields section-plane metre points and an integer equal-span count.
- * @evidence contracts/development/design.md#minimal-and-owned-surface parameterizeAutoMovieSweepSection compiles the section evaluator consumed by radial inversion and direct parameter sampling.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Curve phase is distinct from polar angle and arclength; radial sections are unsupported and retained source coefficients must remain stable.
  */
 export namespace IAutoMovieParameterizeSweepSection {
   /**
@@ -22,23 +17,10 @@ export namespace IAutoMovieParameterizeSweepSection {
    * anchor, evaluated with the cubic Bernstein basis. A polygon has one per
    * side, linear between corners, so `t = k / n` is corner `k` exactly. Radial
    * sections are read by direction instead and are not accepted here.
-   *
-   * @evidence contracts/development/design.md#principled-representation Dimensionless t wraps modulo one and yields metre section-plane points; parameterizeAutoMovieSweepSection checks authored curve data, while finite t remains a query premise.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface compileAutoMovieSweep samples this evaluator for parameter correspondence and sampleAutoMovieSweepSection uses segments to set its angular-inversion walk density.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Curve parameter is not mislabeled as arc length or polar angle; radial sections are excluded from the producer's input type.
-   * @evidence contracts/development/common.md#meaningful-documentation Explains each supported basis, wrapping, returned-point ownership, source retention and segment cardinality.
    */
   export type IResult = {
     /**
      * Evaluate finite t modulo one; returns a new mutable metre point in section x/y axes. The compiled closure retains authored point/axis/exponent data, so keep the section immutable. This is curve parameter, not generally polar angle or arc-length share.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States modulo-one parameter queries, newly owned metre points, retained immutable section coefficients and distinction from angle or arclength.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; parameterizeAutoMovieSweepSection's retained curve evaluator own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; parameterizeAutoMovieSweepSection's retained curve evaluator own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by parameterizeAutoMovieSweepSection's retained curve evaluator.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; parameterizeAutoMovieSweepSection's retained curve evaluator own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; parameterizeAutoMovieSweepSection's retained curve evaluator decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; parameterizeAutoMovieSweepSection's retained curve evaluator own references retained by the supplied callable.
      */
     point: (t: number) => IAutoMovieSweepSection.IPoint;
 

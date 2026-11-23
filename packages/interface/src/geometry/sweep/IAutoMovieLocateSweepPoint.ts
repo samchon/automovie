@@ -3,22 +3,12 @@ import type { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 
 /**
  * Polar section-plane location of a model-space point near a direction-correspondence sweep.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Model-metre points yield normalized u, polar turns v and signed in-plane metre radial residual. Sampled roots can miss tangencies; endpoint fallback is not proof of being beyond an end, and the residual is not closest-surface distance.
- * @evidence contracts/development/design.md#principled-representation Model-metre points yield normalized u, polar turns v and signed in-plane metre radial residual.
- * @evidence contracts/development/design.md#minimal-and-owned-surface locateAutoMovieSweepPoint performs section-plane inversion against a compiled direction-correspondence sweep.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Sampled roots can miss tangencies; endpoint fallback is not proof of being beyond an end, and the residual is not closest-surface distance.
  */
 export namespace IAutoMovieLocateSweepPoint {
   /**
    * A model-space point and a compiled direction-correspondence sweep for section-plane inversion.
    *
    * The locator samples signed plane distance over 128 intervals and bisects sign changes 48 times. It selects the candidate with the smallest absolute radial offset. If no candidate is detected, it uses the end plane with smaller absolute signed distance. Tangential roots and multiple crossings between samples can be missed, so fallback does not prove the point lies beyond an end.
-   *
-   * @evidence contracts/development/design.md#principled-representation The point uses the compiled surface's model-metre frame; the locator checks finite coordinates and rejects parameter correspondence before querying polar radius.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface locateAutoMovieSweepPoint queries the canonical compiled surface's frame and radius, avoiding an independent geometry representation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The common surface type permits parameter correspondence, so the locator explicitly refuses that unsupported domain instead of interpreting its curve parameter as polar angle.
-   * @evidence contracts/development/common.md#meaningful-documentation States the required correspondence, finite-input check, model frame and endpoint projection behavior.
    */
   export type IProps = {
     /** Compiled surface queried by section frame and polar radius. Parameter correspondence throws; explicit direction and omitted/default correspondence are accepted. */
@@ -30,11 +20,6 @@ export namespace IAutoMovieLocateSweepPoint {
 
   /**
    * Newly allocated section-plane address and signed radial residual from the locator's selected candidate. This record is mutable and retains neither the source point nor the compiled surface.
-   *
-   * @evidence contracts/development/design.md#principled-representation u and v are dimensionless spine share and polar turns; offset is a signed radial length, not nearest-surface distance.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The locator returns a new mutable record with only the chosen section, direction and signed radial residual.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Finite plane sampling and local bisection do not establish a global projection or a valid parameter-correspondence address.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines ranges, sign, units and sampled-root limitations of each result field.
    */
   export type IResult = {
     /** Chosen normalized spine coordinate in [0,1]; the sampled root search can miss tangential roots or multiple crossings between probes. */

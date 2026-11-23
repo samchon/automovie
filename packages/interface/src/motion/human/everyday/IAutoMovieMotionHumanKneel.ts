@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
 
@@ -28,22 +29,10 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  * its foot. Events: `stepBack` at the start, `kneeContact`, `secondKnee` for
  * both knees, `seatOnHeels` for sitting back, `settled`, and when it rises
  * `kneeOff` and `stood`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation kind: The kneeling posture; `one` when absent. knee: The knee that goes down first; `right` when absent. hold: Seconds held kneeling, at least zero; 1.5 when absent. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation kind: The kneeling posture; `one` when absent. knee: The knee that goes down first; `right` when absent. hold: Seconds held kneeling; 1.5 when absent. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.kneel, params); everyday/kneel.ts (kneel.plan, context); executable/cases/crouchCases.ts (crouchCases); everyday/kneel.ts (kneel.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanKneel {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its default.
-   * @evidence contracts/development/design.md#principled-representation A closed kind, a side, a hold and whether to rise.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five optional members, all read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No place or angle is typed by the author.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**
@@ -61,13 +50,21 @@ export namespace IAutoMovieMotionHumanKneel {
     /** The knee that goes down first; `right` when absent. */
     knee?: "left" | "right";
 
-    /** Seconds held kneeling; 1.5 when absent.
-     * Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds held kneeling; 1.5 when absent. */
     hold?: number;
 
     /** Whether the body rises again at the end; `true` when absent. */
     rise?: boolean;
+
+    /**
+     * Where the first knee comes down, such as beside a lying person's
+     * chest: its point on the floor, its height ignored. The kneeling leg
+     * steps there, forward, aside or back, the hip coming down over it while
+     * the other foot stays planted, and the kneel is refused when that foot
+     * would be out of the other leg's reach. Absent, the reverse lunge places
+     * the knee about a thigh behind the other foot.
+     */
+    at?: IAutoMovieMotionTarget;
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;
@@ -75,11 +72,6 @@ export namespace IAutoMovieMotionHumanKneel {
 
   /**
    * On one knee, on both knees upright, or sitting back on the heels.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation On one knee, on both knees upright, or sitting back on the heels.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "one", "both", "sitBack" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/kneel.ts (kneel.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in kneel.plan.
    */
   export type Kind = "one" | "both" | "sitBack";
 }

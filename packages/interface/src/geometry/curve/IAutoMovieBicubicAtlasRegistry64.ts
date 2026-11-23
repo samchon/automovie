@@ -4,22 +4,12 @@ import type { IAutoMovieCanonicalBoundaryPhase64 } from "./IAutoMovieCanonicalBo
 
 /**
  * Shared corner/edge incidence and mutable totals for one atlas emission.
- *
- * @evidence contracts/development/design.md#principled-representation Exact phases and declared identities index registry objects independently of rounded Cartesian positions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IResult is the shared state exchanged between the atlas registry and emitter.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Open-atom incidence avoids equating three coarse/fine uses with three overlapping surface incidents.
- * @evidence contracts/development/common.md#meaningful-documentation The result defines shared mutation, phase comparison premises and omitted-patch accounting.
  */
 export namespace IAutoMovieBicubicAtlasRegistry64 {
   /**
    * Per-invocation registries created before atlas emission. Maps, sets, summary
    * and nested receipts remain shared with the emitter; external mutation while
    * emission is running invalidates its identity and count assumptions.
-   *
-   * @evidence contracts/development/design.md#principled-representation Exact canonical phase keys retain identity despite rounded collisions; patch ordinals govern deterministic ownership and last-use release.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieBicubicAtlasRegistry64 supplies incidence, phase transport and mutable terminal totals to the emitter and vertex owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Excessive incidence is measured per canonical open atom, so coarse/fine subdivisions are not rejected merely for having three global uses.
-   * @evidence contracts/development/common.md#meaningful-documentation States shared mutation, index domains, comparator admission premises and omitted-work accounting.
    */
   export type IResult = {
     /** Mutable per-tessellation edge registry keyed by declared authority or canonical ordered control-ID sequence. Incidents share exact phase requests and render vertex caches; coordinate equality alone never merges entries. */
@@ -32,14 +22,6 @@ export namespace IAutoMovieBicubicAtlasRegistry64 {
     occurrences: (IAutoMovieBicubicAtlas64.Occurrence | undefined)[][];
     /**
      * Compare admitted normalized phase records by exact value, returning -1, 0 or 1. Distinct dyadic keys break equal rounded numeric values. Call only with canonical keys produced by the boundary owner; this optimized comparator does not repeat key admission.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States canonical-key admission, exact ordering, rounded-value tie handling and the -1/0/1 result convention.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; AutoMovieBicubicAtlasRegistry64's admitted exact-phase comparator own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; AutoMovieBicubicAtlasRegistry64's admitted exact-phase comparator own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by AutoMovieBicubicAtlasRegistry64's admitted exact-phase comparator.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; AutoMovieBicubicAtlasRegistry64's admitted exact-phase comparator own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; AutoMovieBicubicAtlasRegistry64's admitted exact-phase comparator decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; AutoMovieBicubicAtlasRegistry64's admitted exact-phase comparator own references retained by the supplied callable.
      */
     comparePhase: (
       a: IAutoMovieCanonicalBoundaryPhase64,

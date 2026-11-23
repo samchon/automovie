@@ -105,8 +105,8 @@ export namespace crawlInchworm {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const cycles: number = context.params.cycles ?? 3;
-    HumanBound.whole("cycles", cycles);
+    const cycles: number = context.params.count ?? 3;
+    HumanBound.whole("count", cycles);
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
 
@@ -117,7 +117,7 @@ export namespace crawlInchworm {
       "inchworm",
       "feet",
       (): IAutoMovieMotionHumanPosture =>
-        stand.plan({ ...context, params: { seconds: 1 } }).posture(0),
+        stand.plan({ ...context, params: { hold: 1 } }).posture(0),
     );
     const frame: IAutoMovieMotionHumanFrame = {
       origin: { ...standing.root, y: 0 },
@@ -198,7 +198,9 @@ export namespace crawlInchworm {
         leftFoot: point("leftFoot"),
         rightFoot: point("rightFoot"),
       };
-      const contacts = (only?: readonly Limb[]): IAutoMovieMotionHumanSupport.IContact[] =>
+      const contacts = (
+        only?: readonly Limb[],
+      ): IAutoMovieMotionHumanSupport.IContact[] =>
         (only ?? LIMBS).map(
           (limb: Limb): IAutoMovieMotionHumanSupport.IContact => ({
             part: limb,

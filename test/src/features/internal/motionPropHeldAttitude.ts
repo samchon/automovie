@@ -13,10 +13,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTouch,
-  AutoMovieMotionHumanTouchDrink,
   HumanChain,
-  HumanHabit,
   HumanObject,
   HumanPerformance,
   HumanSignature,
@@ -25,6 +24,8 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
 import { motionPropHeldDrift } from "./motionPropHeldDrift";
+
+const { AutoMovieMotionHumanTouchDrink } = AutoMovieMotionHumanTouch;
 
 /** How far a glass may lean away from the face and still count as upright: the sine of 1 degree. */
 const AWAY: number = Math.sin(Math.PI / 180);
@@ -104,7 +105,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "held",
-      laws: [HumanHabit.smoke],
+      laws: [AutoMovieMotionHumanStance.HumanHabit.smoke],
       props: [prop],
       performers: [
         {
@@ -167,8 +168,8 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
           handle: "body",
           use: { tip: "lip", line: "square", at: "mouth" },
         })
-        .handToFace({ task: "drink", prop: "glass" })
-        .stand({ seconds: 0.5 }),
+        .handToFace({ kind: "drink", prop: "glass" })
+        .stand({ hold: 0.5 }),
     );
     const lift: IAutoMovieMotionHumanSegment = drunk.segments("a")[0]!;
     const drink: IAutoMovieMotionHumanSegment = drunk.segments("a")[1]!;

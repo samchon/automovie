@@ -1,3 +1,5 @@
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
@@ -16,8 +18,8 @@ const point = (
   x: number,
   y: number,
   z: number,
-  normal?: { x: number; y: number; z: number },
-): Record<string, unknown> => ({
+  normal?: IAutoMovieVector3,
+): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y, z },
   frame: "world",
@@ -25,10 +27,10 @@ const point = (
 });
 
 /** The bench top's upward normal. */
-const UP: { x: number; y: number; z: number } = { x: 0, y: 1, z: 0 };
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /** The nail the carpenter drives, on the bench top ahead of the right hand. */
-const NAIL: Record<string, unknown> = point(-0.1, SceneBuild.COUNTER_TOP, 0.4);
+const NAIL: SceneBuild.PointTarget = point(-0.1, SceneBuild.COUNTER_TOP, 0.4);
 
 /**
  * The seven upper-body lexicon families in four everyday sequences: a
@@ -54,14 +56,14 @@ export const SCENES_UPPER: readonly IScene[] = [
         act("gesturePalmsUp", { hold: 0.3 }),
         act("pointAt", {
           target: point(-0.18, 1.35, 0.45, { x: 0, y: 0, z: -1 }),
-          side: "right",
+          hand: "right",
         }),
         act("countOne"),
         act("countTwo"),
         act("countThree"),
         act("gestureNod", { count: 2 }),
         act("thumbsUp"),
-        act("restSide", { seconds: 0.8 }),
+        act("restSide", { hold: 0.8 }),
       ]),
     ],
   ),
@@ -80,22 +82,22 @@ export const SCENES_UPPER: readonly IScene[] = [
       person("lee", "f1", 0, 0, 0, [
         act("wipeAcross", {
           target: point(-0.18, SceneBuild.COUNTER_TOP, 0.3, UP),
-          side: "right",
+          hand: "right",
         }),
         act("touchTap", {
           target: point(-0.18, SceneBuild.COUNTER_TOP, 0.3, UP),
-          with: "palm",
-          side: "right",
+          effector: "palm",
+          hand: "right",
           count: 2,
           hold: 0.2,
         }),
-        act("faceWipeMouth", { side: "right", count: 1 }),
+        act("faceWipeMouth", { hand: "right", count: 1 }),
         act("selfNeckRoll", { count: 2 }),
         act("selfShoulderRoll", { count: 2 }),
-        act("handOnHip", { side: "left" }),
+        act("handOnHip", { hand: "left" }),
         act("patOn", {
           target: point(-0.18, SceneBuild.COUNTER_TOP, 0.3, UP),
-          side: "right",
+          hand: "right",
         }),
       ]),
     ],
@@ -114,8 +116,8 @@ export const SCENES_UPPER: readonly IScene[] = [
     "upper-hat",
     [
       person("tai", "f2", 0, 0, 0, [
-        act("look", { target: point(0.18, 1, 0.3), seconds: 1 }),
-        act("chinOnFist", { side: "right" }),
+        act("look", { target: point(0.18, 1, 0.3), duration: 1 }),
+        act("chinOnFist", { hand: "right" }),
         act("pickUp", {
           prop: "hat",
           handle: "hold",
@@ -130,13 +132,13 @@ export const SCENES_UPPER: readonly IScene[] = [
         act("dressHat", { prop: "hat", hand: "left" }),
 
         // A mirror would stand ahead of her: she checks the hat in it.
-        act("look", { target: point(0, 1.6, 1.2), seconds: 1 }),
-        act("handOnHip", { side: "left" }),
+        act("look", { target: point(0, 1.6, 1.2), duration: 1 }),
+        act("handOnHip", { hand: "left" }),
         act("gestureChinLift"),
         act("gestureBow", { depth: 20 }),
         act("victorySign"),
         act("gestureNod", { count: 1 }),
-        act("restSide", { seconds: 0.8 }),
+        act("restSide", { hold: 0.8 }),
       ]),
     ],
     [
@@ -144,8 +146,8 @@ export const SCENES_UPPER: readonly IScene[] = [
       object("counter", "createTable", "counter", 0.6, 0.53, 180),
       object(
         "hat",
-        "createWearable",
-        "hat",
+        "createHat",
+        undefined,
         0.18,
         0.3,
         0,
@@ -176,28 +178,28 @@ export const SCENES_UPPER: readonly IScene[] = [
           prop: "hammer",
           hand: "right",
           on: NAIL,
-          cycles: 2,
+          count: 2,
         }),
-        act("look", { target: NAIL, seconds: 0.8 }),
+        act("look", { target: NAIL, duration: 0.8 }),
         act("toolHammer", {
           prop: "hammer",
           hand: "right",
           on: NAIL,
-          cycles: 7,
+          count: 7,
         }),
         act("rubOn", {
           target: point(-0.1, SceneBuild.COUNTER_TOP, 0.4, UP),
-          side: "left",
+          hand: "left",
         }),
         act("toolHammer", {
           prop: "hammer",
           hand: "right",
           on: NAIL,
-          cycles: 2,
+          count: 2,
         }),
         act("putDown", {
           prop: "hammer",
-          at: { x: -0.18, y: SceneBuild.COUNTER_TOP, z: 0.42 },
+          to: { x: -0.18, y: SceneBuild.COUNTER_TOP, z: 0.42 },
         }),
         act("gestureRubHands"),
       ]),
@@ -205,12 +207,12 @@ export const SCENES_UPPER: readonly IScene[] = [
     [
       object("bench", "createTable", "counter", 0, 0.65, 180),
 
-      // createTool's +Y working line lies forward on the bench.
+      // The hammer's +Y working line lies forward on the bench.
       {
         ...object(
           "hammer",
-          "createTool",
-          "hammer",
+          "createHammer",
+          undefined,
           -0.18,
           0.42,
           0,

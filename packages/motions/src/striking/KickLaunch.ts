@@ -24,6 +24,7 @@ import { StrikingQuality } from "./StrikingQuality";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+import { strikingStepSupport } from "./strikingStepSupport";
 
 /**
  * What a kick fixes when it is launched: the point it aims at as the kicker
@@ -146,16 +147,19 @@ export namespace KickLaunch {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const round: boolean = p.technique === "round";
-    const feint: boolean = p.feint === true;
+    const feint: boolean = p.feint !== undefined;
+    const recovery: strikingStepSupport.ISupport | undefined =
+      strikingStepSupport(context);
     const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+      { ...StrikingTarget.feet(context.entry), ...recovery?.landings };
 
     // Where the target is, and the range a standing target is read at, from
     // the stance centre: how far ahead of it the root stands over the support
     // foot at contact, plus the leg's comfortable length for the push kick,
     // or for the round kick the comfortable share of the lower shin's
     // horizontal reach at the target's height from the hip's standing height.
-    const stance: IAutoMovieMotionHumanStrikingTarget.IStance = StrikingTarget.stance(context.entry);
+    const stance: IAutoMovieMotionHumanStrikingTarget.IStance =
+      StrikingTarget.stance(context.entry);
     const ahead: number = Vector3.dot(
       Vector3.subtract(
         Vector3.lerp(
@@ -258,6 +262,7 @@ export namespace KickLaunch {
       line,
       timing,
       amplitude,
+      ...(recovery === undefined ? {} : { recovery }),
       rise: Math.max(0, m.hipHeight - KickCarriage.hip(body, entry, support).y),
     };
     const origin: IAutoMovieVector3 = feet[side].ankle;

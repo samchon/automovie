@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeRefusal,
   createHandgun,
   createLongGun,
 } from "@automovie/archetypes";
@@ -93,15 +93,19 @@ export function test_archetype_weapon_firearm_models(): void {
       },
     ]),
   );
-  const musket: Archetype<createLongGun.Affordance, createLongGun.Dimension> =
-    createLongGun({ kind: "musket" }, 3);
+  const musket: AutoMovieArchetype<
+    createLongGun.Affordance,
+    createLongGun.Dimension
+  > = createLongGun({ kind: "musket" }, 3);
   if (
     !close(musket.dimensions.length!, 1.473) ||
     !close(musket.dimensions.barrel!, 1.068)
   )
     findings.push("the musket is not the Short Land");
-  const lever: Archetype<createLongGun.Affordance, createLongGun.Dimension> =
-    createLongGun({ kind: "leverAction" }, 3);
+  const lever: AutoMovieArchetype<
+    createLongGun.Affordance,
+    createLongGun.Dimension
+  > = createLongGun({ kind: "leverAction" }, 3);
   for (const [name, expected] of [
     ["length", 38.625 * IN],
     ["barrel", 20.25 * IN],
@@ -117,12 +121,16 @@ export function test_archetype_weapon_firearm_models(): void {
   if (!close(kar98k, 23.4 * IN))
     findings.push(`the Kar 98k's barrel is ${kar98k}`);
 
-  const rifle: Archetype<createLongGun.Affordance, createLongGun.Dimension> =
-    createLongGun({ kind: "rifle" }, 3);
+  const rifle: AutoMovieArchetype<
+    createLongGun.Affordance,
+    createLongGun.Dimension
+  > = createLongGun({ kind: "rifle" }, 3);
   const lift: number = rifle.affordance("bolt").travel!;
   const stroke: number = rifle.affordance("boltSlide").travel!;
-  const drawn: Archetype<createLongGun.Affordance, createLongGun.Dimension> =
-    rifle.articulate({ bolt: lift, boltSlide: stroke });
+  const drawn: AutoMovieArchetype<
+    createLongGun.Affordance,
+    createLongGun.Dimension
+  > = rifle.articulate({ bolt: lift, boltSlide: stroke });
   const back: number =
     archetypeExtent(rifle, "z", ["bolt"]).low -
     archetypeExtent(drawn, "z", ["bolt"]).low;
@@ -137,8 +145,10 @@ export function test_archetype_weapon_firearm_models(): void {
   const swing: number = lever.affordance("lever").travel!;
   const fall: number = lever.affordance("hammer").travel!;
   for (const share of [0.5, 1]) {
-    const posed: Archetype<createLongGun.Affordance, createLongGun.Dimension> =
-      lever.articulate({ lever: swing * share });
+    const posed: AutoMovieArchetype<
+      createLongGun.Affordance,
+      createLongGun.Dimension
+    > = lever.articulate({ lever: swing * share });
     if (!(Math.abs(posed.travel("hammer") - fall * share) < 1e-9))
       findings.push(
         `at ${share} of the swing the hammer is at ${posed.travel("hammer")}`,
@@ -166,7 +176,9 @@ export function test_archetype_weapon_firearm_models(): void {
     } catch (error) {
       refused = error;
     }
-    if (!(refused instanceof ArchetypeRefusal && refused.axis === axis))
+    if (
+      !(refused instanceof AutoMovieArchetypeRefusal && refused.axis === axis)
+    )
       findings.push(`a fixed ${label} is not refused`);
   }
   TestValidator.equals("each firearm is one read model whole", findings, []);

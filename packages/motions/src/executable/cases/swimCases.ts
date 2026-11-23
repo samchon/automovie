@@ -74,7 +74,7 @@ export function swimCases(
           composition: HumanChain.subject("a").act("swim", {
             kind,
             water,
-            cycles: 3,
+            count: 3,
           }).node,
         });
       } catch (error) {

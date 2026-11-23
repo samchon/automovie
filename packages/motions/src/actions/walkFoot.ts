@@ -34,7 +34,8 @@ import { HumanFoot } from "../posture/HumanFoot";
  * ends, so the lift adds no velocity at toe-off and the foot meets the floor
  * at rest (the heel's vertical velocity at contact is near zero, Winter
  * 1992), and raised
- * further wherever the toe or heel would come within `CLEARANCE` of the floor. The
+ * further wherever the toe or heel would come nearer the floor than the lift
+ * itself, up to `CLEARANCE`, or within `CLEARANCE` of it at mid-swing. The
  * travel, the turn and the descent of the placements end early, at the share
  * of the swing where the lift has fallen to the contact height of the floor
  * (`AutoMovieMotionHumanAuditContact.HEIGHT`, half the minimum toe
@@ -207,6 +208,12 @@ export namespace walkFoot {
     /** The mid-swing lift, hip heights. */
     lift: number;
 
+    /** The least clearance of the toe and heel at mid-swing, metres; `CLEARANCE` when absent. */
+    clearance?: number;
+
+    /** How far the ankle bows out horizontally at the middle of its travel, world metres, on the lift's raised-cosine profile over the travel's progress: a swing passing a stance foot on a curve keeps its width (`walkSwing`); none when absent. */
+    bow?: IAutoMovieVector3;
+
     /** Whether the leg is kept straight (`STIFF`, `LEVEL`); false when absent. */
     stiff?: boolean;
 
@@ -224,7 +231,7 @@ export namespace walkFoot {
    * @returns The swinging foot at each share of the swing.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fixed inputs, random-access share reader and lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk travel with the carried departure rates, a raised-cosine lift, a sole-clearance correction and the lowest departing socket held horizontally until the lift interval passes.
+   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk travel with the carried departure rates, a raised-cosine lift, a sole-clearance correction that keeps the sole at least as high as the lift up to the least clearance, and the lowest departing socket held horizontally until the lift interval passes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed swing geometry precedes one reader of its varying share.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored lift, stiffness, rates, duration and landing rule enter as given; `CLEARANCE` is the cited minimum toe clearance.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and work per share; endpoint quaternion decompositions, coordinate deltas, lift height, fixed time prefixes and terminal-settle inverse trigonometry run once per prepared swing. Read the departure socket's horizontal components only while the release correction is active.
@@ -295,14 +302,15 @@ export namespace walkFoot {
         ? carriedRate(levelSeconds, u * props.seconds)
         : carried;
       const a: IAutoMovieVector3 = props.from.ankle;
+      const bowed: number = Math.sin(Math.PI * s) ** 2;
       const ankle: IAutoMovieVector3 = {
-        x: a.x + delta.x * s + props.velocity.x * carried,
+        x: a.x + delta.x * s + props.velocity.x * carried + (props.bow?.x ?? 0) * bowed,
         y:
           a.y +
           delta.y * level +
           props.velocity.y * rising +
           height * bump,
-        z: a.z + delta.z * s + props.velocity.z * carried,
+        z: a.z + delta.z * s + props.velocity.z * carried + (props.bow?.z ?? 0) * bowed,
       };
       const heading: number = leaving + headingDelta * s;
       const turning: number = carriedRate(
@@ -328,7 +336,18 @@ export namespace walkFoot {
         toe(toes)(placement),
         heel(placement),
       );
-      const clearance: number = CLEARANCE * bump;
+
+      // The sole rises at least with the lift until the least clearance
+      // takes over, then keeps that clearance through mid-swing: the toe,
+      // which the pitch and the relaxing toes turn down after toe-off, stays
+      // over the floor's contact height from the share the travel is
+      // released at (`settle`, where the lift reaches that height), so no
+      // sole is on the floor while it travels.
+      const least: number = props.clearance ?? CLEARANCE;
+      const clearance: number = Math.max(
+        least * bump,
+        Math.min(height * bump, least),
+      );
       if (low < clearance) ankle.y += clearance - low;
       if (departure !== undefined && u < settle + settle) {
         const sole: IAutoMovieVector3 = HumanFoot.point(body, side, departure.socket, placement, toes);

@@ -1,17 +1,16 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import { BOAT_MODELS } from "./BOAT_MODELS";
 import { createBoat } from "./createBoat";
 
 /**
  * A rowboat's oars: their sizes from the oarlocks' span, their places in the oarlocks, and the angles of a stroke.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what it builds and what it gives the rowing ride.
- * @evidence contracts/development/design.md#principled-representation Each oar a swivel of two chained articulations, a turn about the upright and a lift about the pin riding it, with the handle riding the lift; the geometry one record the builder and the ride share.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `build` for `createBoat`, `geometry` for `rowBoat`, and the read rules both use.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The oars' sizes follow from the span by the boatbuilders' rules, not from a separate guess per boat.
  */
 export namespace BoatOars {
   /** The oarlock's pivot above the rowing thwart, as a share of the span between the oarlocks: 0.17, WoodenBoat's oar geometry table (column C = A x 0.17; https://www.woodenboat.com/sites/default/files/bonus-content/oar-geometry-calculation-table.pdf). */
@@ -21,7 +20,7 @@ export namespace BoatOars {
   export const AFT: number = 0.22;
 
   /** An oar's inboard length beyond half the span, metres: 2 in, Shaw and Tenney's rule, the inboard half the span plus 2 in, the whole oar 25/7 of the inboard (WoodenBoat, https://www.woodenboat.com/online-exclusives/choosing-proper-length-oars). */
-  export const INBOARD: number = 2 * ArchetypeUnits.INCH;
+  export const INBOARD: number = 2 * AutoMovieArchetypeUnits.INCH;
 
   /** An oar's whole length over its inboard length: 25/7, the same rule. */
   export const RATIO: number = 25 / 7;
@@ -31,14 +30,6 @@ export namespace BoatOars {
    *
    * @param span The span between the oarlocks, metres, the boat's beam.
    * @returns The blade's length and width, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule and the choice.
-   * @evidence contracts/development/implementation.md#principled-implementation The boatbuilders' oar length from the span, then the read oar nearest it, whose blade is taken whole.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One length, one nearest.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A scan of eight oars.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function blade(span: number): {
     bladeLength: number;
@@ -59,7 +50,7 @@ export namespace BoatOars {
   export const LOOM: number = 0.044;
 
   /** The handle's diameter, metres: 1.25 in finished, Angus Rowboats' oar plan (https://cdn.shopify.com/s/files/1/1566/1423/files/oarplansfinalsmall.pdf). */
-  export const HANDLE: number = 1.25 * ArchetypeUnits.INCH;
+  export const HANDLE: number = 1.25 * AutoMovieArchetypeUnits.INCH;
 
   /** The handle's held run, metres: a construction estimate, one hand's breadth and a little. */
   export const GRIP: number = 0.12;
@@ -78,11 +69,6 @@ export namespace BoatOars {
 
   /**
    * An oar's measures and its lift's angles, worked from the boat's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation Lengths in metres and angles in degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; made by `geometry` and read by `build` and `rowBoat`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IGeometry {
     /** Between the oarlocks' pivots, metres: the beam, the oarlocks standing on the gunwale at the widest beam. */
@@ -112,14 +98,6 @@ export namespace BoatOars {
    *
    * @param d The rowboat's drawn dimensions.
    * @returns The geometry.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is worked out.
-   * @evidence contracts/development/implementation.md#principled-implementation The span is the beam and the pivot `createBoat.LOCK` above the gunwale; the inboard and the whole oar by Shaw and Tenney's rule; a square blade on the oar's line, its corners a half width either side of it in the upright plane, so a corner's height is the pivot's less its distance along the oar times the sine of the oar's angle, plus or less the half width times the cosine: at rest the blade's upper root corner is at the water, wholly buried, and at the touch its lower tip corner is, wholly out.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A few expressions.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function geometry(
     d: Readonly<Partial<Record<createBoat.Dimension, number>>>,
@@ -131,7 +109,7 @@ export namespace BoatOars {
     const half: number = d.bladeWidth! / 2;
     const root: number = outboard - d.bladeLength!;
     const degrees = (radians: number): number =>
-      radians / ArchetypeUnits.DEGREE;
+      radians / AutoMovieArchetypeUnits.DEGREE;
 
     // At rest the blade's upper root corner meets the water; lifted, its lower tip corner stands at a height above it.
     const rest: number = degrees(
@@ -159,22 +137,17 @@ export namespace BoatOars {
    *
    * @param builder The rowboat under construction.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rest pose.
-   * @evidence contracts/development/implementation.md#principled-implementation Each oar is a loom from its handle's end to its blade's root and a square blade on its line, at the rest angle `geometry` gives. The oarlock's turn is a two-sided `wheel` about the upright through the pivot, `+Y` down on the left and up on the right so a positive turn swings either blade toward the bow, reaching the catch's arc; the lift is a `hinge` about the pin, square to the oar and level, riding the turn, `+Y` along `+Z` on the left and `-Z` on the right so a positive lift raises either blade, reaching `clear`; the handle rides the lift.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the two sides.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The blade is a flat board; its spoon and the oar's leather, button and feathering are not built.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three parts per oar.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function build(
-    builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createBoat.Affordance,
+      createBoat.Dimension
+    >,
     d: Readonly<Partial<Record<createBoat.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const g: IGeometry = geometry(d);
-    const rest: number = g.rest * ArchetypeUnits.DEGREE;
+    const rest: number = g.rest * AutoMovieArchetypeUnits.DEGREE;
     for (const [side, sign] of [
       ["left", 1],
       ["right", -1],
@@ -216,14 +189,22 @@ export namespace BoatOars {
       builder.affordance({
         id: `${side}Oarlock`,
         kind: "wheel",
-        frame: ArchetypeFrame.facing(pivot, v(0, -sign, 0), v(0, 0, 1)),
+        frame: AutoMovieArchetypeFrame.facing(
+          pivot,
+          v(0, -sign, 0),
+          v(0, 0, 1),
+        ),
         extent: null,
         travel: ARC.catch,
       });
       builder.affordance({
         id: `${side}Oar`,
         kind: "hinge",
-        frame: ArchetypeFrame.facing(pivot, v(0, 0, sign), v(sign, 0, 0)),
+        frame: AutoMovieArchetypeFrame.facing(
+          pivot,
+          v(0, 0, sign),
+          v(sign, 0, 0),
+        ),
         extent: null,
         travel: g.clear,
         parts: [loom, grip, blade],
@@ -233,7 +214,7 @@ export namespace BoatOars {
         id: `${side}Handle`,
         kind: "handle",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           at(-g.inboard + GRIP / 2),
           v(sign * Math.sin(rest), Math.cos(rest), 0),
           out,

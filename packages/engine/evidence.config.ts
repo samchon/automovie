@@ -10,6 +10,7 @@ export default {
       name: "engine documentation",
       type: "typescript",
       files,
+      evidenceFiles: ["evidence/**/*.md"],
       symbol: ["type", "function"],
       reference: {
         type: "markdown",
@@ -23,6 +24,7 @@ export default {
       name: "engine types",
       type: "typescript",
       files,
+      evidenceFiles: ["evidence/**/*.md"],
       symbol: "type",
       reference: {
         type: "markdown",
@@ -36,6 +38,7 @@ export default {
       name: "engine functions",
       type: "typescript",
       files,
+      evidenceFiles: ["evidence/**/*.md"],
       symbol: "function",
       reference: {
         type: "markdown",

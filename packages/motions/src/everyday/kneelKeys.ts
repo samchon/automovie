@@ -11,6 +11,8 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { kneelPlace } from "./kneelPlace";
+import { kneelTrailingFoot } from "./kneelTrailingFoot";
 
 /**
  * The key states of a kneel, solved from the body: standing, the kneeling
@@ -351,6 +353,7 @@ export namespace kneelKeys {
    * @param standing The standing posture the kneel starts from.
    * @param kind On one knee, on both knees or sitting back.
    * @param k The knee that goes down first.
+   * @param at The floor point that knee comes down on, world metres; the reverse lunge's when absent.
    * @returns The key states.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result; the namespace gives the geometry.
@@ -366,6 +369,7 @@ export namespace kneelKeys {
     standing: IAutoMovieMotionHumanPosture,
     kind: "one" | "both" | "sitBack",
     k: "left" | "right",
+    at?: IAutoMovieVector3,
   ): IKeys {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const f: "left" | "right" = k === "left" ? "right" : "left";
@@ -421,17 +425,10 @@ export namespace kneelKeys {
     );
     const standingHips: Record<"left" | "right", IAutoMovieVector3> =
       hipJoints(body, standing.root, HumanFrame.turn(yaw));
-    const hipK: IAutoMovieVector3 = {
-      ...Vector3.add(
-        standingHips[k],
-        Vector3.scale(
-          forward,
-          Vector3.dot(Vector3.subtract(frontAnkle, standingHips[k]), forward) -
-            behind,
-        ),
-      ),
-      y: hipY,
-    };
+    const hipK: IAutoMovieVector3 = kneelPlace({
+      body, hip: standingHips[k], front: frontAnkle, forward, behind, height: hipY,
+      across: Vector3.subtract(rest[f], rest[k]), ...(at === undefined ? {} : { at }),
+    });
     const rootKneel: IAutoMovieVector3 = Vector3.subtract(hipK, rest[k]);
 
     const kneeK: IAutoMovieVector3 = Vector3.subtract(
@@ -442,10 +439,12 @@ export namespace kneelKeys {
 
     const feet: (front: IFoot) => IKey["feet"] = (front: IFoot): IKey["feet"] =>
       f === "left" ? { left: front, right: backFoot } : { left: backFoot, right: front };
+    // A front foot the knee came down ahead of trails it on its toes.
+    const trail: IFoot = kneelTrailingFoot(body, f, Vector3.add(rootKneel, rest[f]), foot0[f], forward);
     const keys: IKey[] = [
       { root: standing.root, feet: foot0 },
-      { root: rootKneel, feet: feet(foot0[f]) },
-      { root: rootKneel, feet: feet(foot0[f]) },
+      { root: rootKneel, feet: feet(trail) },
+      { root: rootKneel, feet: feet(trail) },
     ];
     if (kind !== "one") {
       const secondFoot: IFoot = tucked(

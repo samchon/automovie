@@ -18,7 +18,7 @@ import type {
  * @evidence contracts/development/common.md#meaningful-documentation States the staging, contact sides, timing in seconds, out-of-reach rule and source.
  */
 export const shoulderClasp: IAutoMovieMotionHumanMutual<
-  { hold?: number },
+  IAutoMovieMotionHumanTouch.IHold,
   "one" | "other"
 > = {
   name: "shoulderClasp",
@@ -26,7 +26,7 @@ export const shoulderClasp: IAutoMovieMotionHumanMutual<
   /** Each role performs a palm hold on the opposite role's left shoulder. */
   act: (
     role: "one" | "other",
-    params: { hold?: number },
+    params: IAutoMovieMotionHumanTouch.IHold,
     cast: Readonly<Record<"one" | "other", string>>,
   ): IAutoMovieMotionHumanMutual.IAct => ({
     name: "touch",
@@ -36,8 +36,8 @@ export const shoulderClasp: IAutoMovieMotionHumanMutual<
         subject: cast[role === "one" ? "other" : "one"],
         region: "shoulderLeft",
       },
-      side: "right",
-      with: "palm",
+      hand: "right",
+      effector: "palm",
       kind: "hold",
       hold: params.hold ?? 1,
     } satisfies IAutoMovieMotionHumanTouch.IParams,

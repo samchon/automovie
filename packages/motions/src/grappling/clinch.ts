@@ -5,9 +5,9 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
-  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   AutoMovieMotionHumanChannel,
   IAutoMovieHumanoidSurfaces,
@@ -79,7 +79,14 @@ export namespace clinch {
     knee: [
       { window: ["ready", 1], kind: "inertialize", entry: 0, blend: 0.15 },
     ],
-    stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
+    stand: [
+      {
+        window: [0, 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
+    ],
   };
 
   /** How far each plum hand lies from the nape's middle, a share of the partner's half shoulder width (provisional). */
@@ -96,8 +103,7 @@ export namespace clinch {
   export function regions(
     grip: IAutoMovieMotionHumanClinch.Grip,
     collar: AutoMovieHumanSide,
-  ): IAutoMovieMotionHumanClinch.IRegionsResult
-    {
+  ): IAutoMovieMotionHumanClinch.IRegionsResult {
     if (grip === "plum")
       return {
         left: { region: "nape", across: -SPREAD },
@@ -135,8 +141,11 @@ export namespace clinch {
     region: AutoMovieHumanoidRegion,
     across: number,
   ): IAutoMovieMotionHumanClinch.IPlaceResult {
-    const frame: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
-    const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.pointNormal> = resolveAutoMovieHumanoidSurfaces.pointNormal(
+    const frame: IAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.regions[region];
+    const placed: ReturnType<
+      typeof resolveAutoMovieHumanoidSurfaces.pointNormal
+    > = resolveAutoMovieHumanoidSurfaces.pointNormal(
       frame,
       bones.get(frame.bone)!,
     );
@@ -174,11 +183,15 @@ export namespace clinch {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClinch.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    HumanPhysics.fixed(context.params, "the paired contact plan owns both grips and has no independent support correction");
+    HumanPhysics.fixed(
+      context.params,
+      "the paired contact plan owns both grips and has no independent support correction",
+    );
     const body: IAutoMovieMotionHumanBody = context.body;
     const hold: number = context.params.hold ?? 2;
     HumanBound.least("hold", hold, 0, "s");
-    const grip: IAutoMovieMotionHumanClinch.Grip = context.params.grip ?? "plum";
+    const grip: IAutoMovieMotionHumanClinch.Grip =
+      context.params.grip ?? "plum";
     const table = regions(grip, context.params.hand ?? "right");
     const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
       context.params.partner,
@@ -192,9 +205,18 @@ export namespace clinch {
       requested.add("rightUpperArm");
     }
     /** Exact partner frames owned only by the current explicit posture call. */
-    let scope: { seconds: number; bones?: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> } | undefined;
+    let scope:
+      | {
+          seconds: number;
+          bones?: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]>;
+        }
+      | undefined;
     /** Both hands may read one partner snapshot before this invocation returns. */
-    const partnerAt: (seconds: number) => ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> = (seconds: number): ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> =>
+    const partnerAt: (
+      seconds: number,
+    ) => ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> = (
+      seconds: number,
+    ): ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> =>
       scope === undefined || scope.seconds !== seconds
         ? partner.bones(context.start + seconds, requested)
         : (scope.bones ??= partner.bones(context.start + seconds, requested));
@@ -218,11 +240,19 @@ export namespace clinch {
     // The body stands under the clinch, its sway signed in the gripping
     // hand's frame, so a left clinch mirrors a right one (`stand.plan`).
     const base: IAutoMovieMotionHumanActionPlan = stand.plan(
-      { ...context, params: { seconds: duration } },
+      { ...context, params: { hold: duration } },
       context.params.hand ?? "right",
     );
-    const bones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]));
-    const placeColliders = HumanColliders.preparePlaced(partner.body, requested);
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]),
+    );
+    const placeColliders = HumanColliders.preparePlaced(
+      partner.body,
+      requested,
+    );
     const arm = (side: AutoMovieHumanSide) =>
       AutoMovieMotionHumanArm.visit({
         body,
@@ -254,21 +284,36 @@ export namespace clinch {
             table[side].region,
             table[side].across,
           );
-          const bearing: AutoMovieHumanoidBone = partner.body.surfaces.regions[table[side].region].bone;
+          const bearing: AutoMovieHumanoidBone =
+            partner.body.surfaces.regions[table[side].region].bone;
           let closest: IAutoMoviePhysicalShapeNearest.IResult | undefined;
           for (const segment of placeColliders(partnerBones)) {
             if (segment.bone !== bearing) continue;
             for (const shape of segment.shapes) {
-              const witness = physicalShapeNearest(segment.pose, shape, at.point, at.point);
-              if (Vector3.dot(witness.normal, at.normal) > 0 && (closest === undefined || witness.distance < closest.distance))
+              const witness = physicalShapeNearest(
+                segment.pose,
+                shape,
+                at.point,
+                at.point,
+              );
+              if (
+                Vector3.dot(witness.normal, at.normal) > 0 &&
+                (closest === undefined || witness.distance < closest.distance)
+              )
                 closest = witness;
             }
           }
-          return AutoMovieMotionHumanTarget.hand(body, posture, side, closest ?? at, {
-            surface: "palm",
-            shape: "relaxed",
-            ...(grip === "plum" ? {} : { bend: "forward" as const }),
-          });
+          return AutoMovieMotionHumanTarget.hand(
+            body,
+            posture,
+            side,
+            closest ?? at,
+            {
+              surface: "palm",
+              shape: "relaxed",
+              ...(grip === "plum" ? {} : { bend: "forward" as const }),
+            },
+          );
         },
       });
     const under = context.params.under;
@@ -288,13 +333,20 @@ export namespace clinch {
           who.surfaces.regions[region];
         return resolveAutoMovieHumanoidSurfaces.point(
           frame,
-          HumanTrunk.resolve(who, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([frame.bone])).get(frame.bone)!,
+          HumanTrunk.resolve(
+            who,
+            posture,
+            undefined,
+            undefined,
+            new Set<AutoMovieHumanoidBone>([frame.bone]),
+          ).get(frame.bone)!,
         );
       };
       // The fulcrum goes across to the region and down to the partner's centre
       // of mass, under it, as the thrower's hips go below the thrown body's
       // in a hip or shoulder throw (Kano, Kodokan Judo, 1986).
-      const theirs: IAutoMovieMotionHumanPosture | undefined = partner.posture?.(context.start);
+      const theirs: IAutoMovieMotionHumanPosture | undefined =
+        partner.posture?.(context.start);
       const gap: IAutoMovieVector3 =
         theirs === undefined
           ? { x: 0, y: 0, z: 0 }
@@ -315,10 +367,21 @@ export namespace clinch {
           seconds: number,
           channels?: readonly AutoMovieMotionHumanChannel[],
           source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-          projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+          projection?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[3],
         ): IAutoMovieMotionHumanPosture => {
-          const posture: IAutoMovieMotionHumanPosture = base.posture(seconds, channels, source, projection);
-          const entered: number = clock.progress(AutoMovieMotionClock.START, "ready", seconds);
+          const posture: IAutoMovieMotionHumanPosture = base.posture(
+            seconds,
+            channels,
+            source,
+            projection,
+          );
+          const entered: number = clock.progress(
+            AutoMovieMotionClock.START,
+            "ready",
+            seconds,
+          );
           return {
             ...posture,
             root: {
@@ -330,12 +393,13 @@ export namespace clinch {
         },
       };
     }
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: entryBase(),
-      clock,
-      contact: "stroke",
-      primitives: [arm("left"), arm("right")],
-    });
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: entryBase(),
+        clock,
+        contact: "stroke",
+        primitives: [arm("left"), arm("right")],
+      });
     return {
       ...composed,
       posture: (

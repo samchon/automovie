@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { HumanHandShape } from "@automovie/motions";
+import { HumanHandShape } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -25,7 +25,9 @@ const SPREAD: number = 8;
  * 20; thumb MCP flexion 50-55; thumb IP flexion 85-90, extension 0-5) and
  * the thumb carpometacarpal arcs of Cooney, Lucca, Chao and Linscheid 1981
  * (J Bone Joint Surg Am 63:1371-1381: flexion-extension 53, abduction-
- * adduction 42, axial rotation 17 degrees).
+ * adduction 42, axial rotation 17 degrees), with the carpometacarpal's
+ * retroposition behind the palm's plane at the low end of the normal 25-38
+ * degrees of Barakat, Field and Taylor 2013 (Hand 8(2):179-182).
  *
  * Scenarios:
  *
@@ -62,7 +64,7 @@ export function test_engine_finger_rom(): void {
     Intermediate: { flexion: range(0, 115), abduction: null, twist: null },
     Distal: { flexion: range(-20, 90), abduction: null, twist: null },
     ThumbMetacarpal: {
-      flexion: range(0, 42),
+      flexion: range(-25, 42),
       abduction: range(-26.5, 26.5),
       twist: range(-8.5, 8.5),
     },

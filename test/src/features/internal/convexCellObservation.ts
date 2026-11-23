@@ -1,4 +1,4 @@
-import type { Archetype } from "@automovie/archetypes";
+import type { AutoMovieArchetype } from "@automovie/archetypes";
 import type {
   IAutoMovieMesh,
   IAutoMovieModelPart,
@@ -103,7 +103,7 @@ export namespace convexCellObservation {
    */
   export function expectCell(
     label: string,
-    archetype: Archetype,
+    archetype: AutoMovieArchetype,
     id: string,
     corners: readonly IAutoMovieVector3[],
     expected: IAutoMovieTransform,

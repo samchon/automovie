@@ -4,6 +4,8 @@ import type {
   IAutoMovieCapturePlan,
   IAutoMovieCaptureSubject,
   IAutoMovieDrawCall,
+  IAutoMovieDrawResult,
+  IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
 import {
   AutoMovieDrawSession,
@@ -38,18 +40,39 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  * 3. The label scale is the capture run's, so labels the page keeps apart stay apart once stamped.
  * 4. The session opens by injecting the subject's name and props before loading, then loads the address, waits for the draw function and describes the subject; the subject it plans against is the one described.
  * 5. Each drawing carries the legend as a swatch in the bottom-left corner, clear of the sheet caption over the top-left, with its text label beside it, then the page's labels, the backend joining the host's launch with the page's renderer, the resolved camera as JSON, the fixed view text that repeats it, and the page's pattern resolutions unchanged.
+ * 6. A finding packet attached by the draw page reaches the capture drawing unchanged, and the other drawings omit it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Opens a session over a recording page, plans with the public planner and draws every cell through `drawing`, then reads the calls the page received; a session that dropped a cell's view or pass, sent a stale second, the wrong raster, a single-second framing span, an unstated backend or dropped pattern resolutions fails.
  * @evidence contracts/development/testing.md#independent-expectations Expected seconds, views and passes come from the request text written here and the cell order the planner documents (selection, time, view, pass); the raster is the subject's; the label scale is `scaleAutoMovieCaptureLabels`, the rule the capture run documents for stamping, so the assertion pins that both use one rule rather than a number.
  * @evidence contracts/development/testing.md#distinguishing-cases Two views of different forms (a fitted name and the film camera), two passes and two seconds, so a swapped axis changes a call. Pixel decoding is owned by `test_draw_pixels_round_trip`, timeouts by `test_draw_ready_timeout`, delivery frames by `test_draw_delivery_frame`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_cell_call`; the page is an in-memory double and no browser starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export async function test_draw_cell_call(): Promise<void> {
+  const diagnostics: IAutoMovieInspectionDiagnostics = {
+    scope: "shot/duel",
+    time: { filmSeconds: 1, shot: { path: "shot/duel", seconds: 0 } },
+    findings: [],
+    coverage: [
+      {
+        check: "collision",
+        key: "hero/prop",
+        required: true,
+        status: "checked",
+      },
+    ],
+  };
   const double: createDrawPageDouble.IDouble = createDrawPageDouble({
     subject: SUBJECT,
     renderer: "ANGLE (SwiftShader)",
-    answer: answerDrawCall,
+    answer: (call: IAutoMovieDrawCall): IAutoMovieDrawResult => ({
+      ...answerDrawCall(call),
+      ...(call.seconds === 1 &&
+      call.view === "front" &&
+      call.request.shade === "beauty"
+        ? { diagnostics }
+        : {}),
+    }),
   });
 
   // 4. Opening.
@@ -135,6 +158,22 @@ export async function test_draw_cell_call(): Promise<void> {
       scaleAutoMovieCaptureLabels(SUBJECT, plan.layout),
     );
   });
+
+  // 6. Only the page's first call supplies diagnostics.
+  TestValidator.equals(
+    "the capture drawing forwards the diagnostics packet",
+    drawings[0]!.diagnostics,
+    diagnostics,
+  );
+  TestValidator.predicate(
+    "other drawings omit diagnostics",
+    drawings
+      .slice(1)
+      .every(
+        (drawing: IAutoMovieCaptureDrawing): boolean =>
+          !("diagnostics" in drawing),
+      ),
+  );
 
   // 5. What a drawing carries: the legend row is one stamped label box high, nine font pixels, at the bottom of the 30-pixel still.
   const scale: number = scaleAutoMovieCaptureLabels(SUBJECT, plan.layout);

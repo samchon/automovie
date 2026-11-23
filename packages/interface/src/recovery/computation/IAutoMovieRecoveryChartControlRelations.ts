@@ -1,20 +1,10 @@
 /**
  * Eliminate acyclic affine control relations without changing their coefficients. Original control IDs remain the independent term addresses; they are never replaced by compact solver slots. Fixed positions and returned constants are millimetres. Relations may have signed weights or sums other than one. Equal terms combine, exact zero sums disappear, and fixed terms fold into the constant. No epsilon deletion, weight normalization or convexity repair occurs. maxTerms bounds each intermediate flattened provenance map, including fixed sources, and every final independent expression. maxDepth counts relation edges; fixed and independent controls have depth zero. Cycles are rejected even when a declared dependency has zero weight or later cancels. Weight diagnostics describe flattened fixed and independent source weights before fixed-position folding. They do not certify a dependent enclosure. Invalid identities, conflicts, budget exhaustion or nonfinite arithmetic throw without mutating input or returning a partial relation system.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Nonnegative native-array control count, at most 2^32-1 original IDs. Each listed control has exactly this finite millimetre position.
- * @evidence contracts/development/design.md#principled-representation Each listed control has exactly this finite millimetre position.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartControlRelations, RecoveryChartFitPrepare, RecoveryChartFitReport share IAutoMovieRecoveryChartControlRelations's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Zero-based ordinal in this record's owning cell, component or control registry; it is not a source coordinate.
  */
 
 export namespace IAutoMovieRecoveryChartControlRelations {
   /**
    * Eliminate acyclic affine control relations without changing their coefficients. Original control IDs remain the independent term addresses; they are never replaced by compact solver slots. Fixed positions and returned constants are millimetres. Relations may have signed weights or sums other than one. Equal terms combine, exact zero sums disappear, and fixed terms fold into the constant. No epsilon deletion, weight normalization or convexity repair occurs. maxTerms bounds each intermediate flattened provenance map, including fixed sources, and every final independent expression. maxDepth counts relation edges; fixed and independent controls have depth zero. Cycles are rejected even when a declared dependency has zero weight or later cancels. Weight diagnostics describe flattened fixed and independent source weights before fixed-position folding. They do not certify a dependent enclosure. Invalid identities, conflicts, budget exhaustion or nonfinite arithmetic throw without mutating input or returning a partial relation system.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Nonnegative native-array control count, at most 2^32-1 original IDs. Each listed control has exactly this finite millimetre position.
-   * @evidence contracts/development/design.md#principled-representation Each listed control has exactly this finite millimetre position.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartControlRelations, RecoveryChartFitPrepare, RecoveryChartFitReport share IAutoMovieRecoveryChartControlRelations's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Zero-based ordinal in this record's owning cell, component or control registry; it is not a source coordinate.
    */
 
   export type Operation = (input: {

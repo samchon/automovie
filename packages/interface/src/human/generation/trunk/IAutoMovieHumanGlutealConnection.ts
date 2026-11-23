@@ -5,20 +5,9 @@ import type { IAutoMovieHumanGlutealParent } from "./IAutoMovieHumanGlutealParen
 
 /**
  * Type contracts exchanged by AutoMovieHumanGlutealConnection; runtime evaluation remains in Human.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanGlutealConnection exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
- * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IInput, IContact, IConnection. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanGlutealConnection; Human retains the computation and source preparation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IInput, IContact, IConnection contracts and adds no alternate implementation, optional mode or runtime state.
  */
 export namespace IAutoMovieHumanGlutealConnection {
   /** Independent mass law and the identical original parent definitions.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Independent mass law and the identical original parent definitions.
-   * @evidence contracts/development/design.md#principled-representation `trunk`: Current tape pass's original trunk, calibration mm. `leg`: Same-side original leg and its authoritative metre declaration. `target`: Public posterior AP apex; its height and across position remain fixed.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by AutoMovieHumanGlutealConnection.create.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `trunk`, `leg`, `target`, `footprint`, `shoulder`, `lateral`; callers supply the complete record.
    */
   export interface IInput {
     /** Current tape pass's original trunk, calibration mm. */
@@ -41,12 +30,6 @@ export namespace IAutoMovieHumanGlutealConnection {
   }
 
   /** One whole-phase root position and its actual local parent chord.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation One whole-phase root position and its actual local parent chord.
-   * @evidence contracts/development/design.md#principled-representation `point`: Point of the gluteal root curve, calibration mm. `chord`: Parent chord with its original boundary owners/stations/phases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanGlutealConnection.IContact is the canonical exchange used by AutoMovieHumanGlutealConnection.create.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `point`, `chord`; callers supply the complete record.
    */
   export interface IContact {
     /** Point of the gluteal root curve, calibration mm. */
@@ -56,12 +39,6 @@ export namespace IAutoMovieHumanGlutealConnection {
   }
 
   /** Parent-supported placement candidate and the local field that determined it.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Parent-supported placement candidate and the local field that determined it.
-   * @evidence contracts/development/design.md#principled-representation `parent`: Identical parent definitions, also consumed by their production lofts. `wall`: Composite parent's posterior wall at the apex's unchanged Y/Z, mm. `normal`: Fixed anatomical posterior direction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanGlutealConnection.create.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `parent`, `wall`, `normal`, `amplitude`, `root`, `embed`, `rootInterval`, `phases`; callers supply the complete record.
    */
   export interface IConnection {
     /** Identical parent definitions, also consumed by their production lofts. */
@@ -82,14 +59,6 @@ export namespace IAutoMovieHumanGlutealConnection {
     phases: number;
     /**
      * Exact candidate-ring contact query; a retained original root must publish its own matching contact reader.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Exact candidate-ring contact query; a retained original root must publish its own matching contact reader.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanGlutealConnection owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanGlutealConnection.IConnection.contact declares the invocation boundary only; AutoMovieHumanGlutealConnection and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanGlutealConnection.IConnection.contact must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanGlutealConnection.IConnection.contact owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanGlutealConnection and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanGlutealConnection producer or caller supplying the callback owns captured state and its lifetime.
      */
     contact(phi: number): IContact | string;
   }

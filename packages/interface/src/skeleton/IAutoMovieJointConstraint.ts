@@ -1,4 +1,5 @@
 import type { IAutoMovieAngleRange } from "./IAutoMovieAngleRange";
+import type { IAutoMovieFlexedAbduction } from "./IAutoMovieFlexedAbduction";
 import type { IAutoMovieSwingTwistLimit } from "./IAutoMovieSwingTwistLimit";
 
 /**
@@ -17,11 +18,6 @@ import type { IAutoMovieSwingTwistLimit } from "./IAutoMovieSwingTwistLimit";
  * The numeric tables live in `@automovie/engine` (sourced from goniometry norms), not here; this type only describes their _shape_. Per-character overrides are possible (a contortionist, a stylized non-human rig) by supplying a different constraint on the bone.
  *
  * Reference: clinical goniometry / joint ROM norms (AAOS, Norkin & White, _Measurement of Joint Motion_).
- *
- * @evidence contracts/development/design.md#principled-representation Per-axis finite degree intervals admit clinical flexion, abduction and twist, while optional swing bounds their combined quaternion-derived sweep on top of the axis boxes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three nullable ranges and one optional combined cap describe rig-specific motion limits independently from engine default tables and FK axis definitions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Null axis admits neutral null/zero and rejects nonzero motion. Under the usual per-axis absolute bounds of 180 degrees, the swing metric stays at most 180, so a 180-degree cap adds no restriction; broader or multi-turn angles need that premise stated and are not a complete anatomy or dynamics proof.
- * @evidence contracts/development/common.md#meaningful-documentation Defines clinical signs and degrees, null-axis meaning, rig overrides, the combined-swing formula and headroom limit, and the optional swing-twist gate of a ball joint.
  */
 export interface IAutoMovieJointConstraint {
   /**
@@ -33,6 +29,11 @@ export interface IAutoMovieJointConstraint {
    * Frontal-plane range: abduction (+) / adduction (−). `null` for a pure hinge joint that does not abduct/adduct.
    */
   abduction: IAutoMovieAngleRange | null;
+
+  /**
+   * Optional rise of the abduction ceiling with flexion, for a joint that abducts further flexed (a hip); the `abduction` interval holds as given when absent or null. It applies to the three-angle gate only, not to a `swingTwist` gate.
+   */
+  abductionFlexed?: IAutoMovieFlexedAbduction | null;
 
   /**
    * Transverse-plane range: external (+) / internal (−) axial rotation. `null` if the joint does not twist.

@@ -12,20 +12,10 @@
  * their placed poses show them (`resolveAutoMovieContactEvents`); the
  * flights and the blasts are the hit record's own. Once everything is
  * placed the record's resolved hits are read instead.
- *
- * @evidence contracts/development/common.md#meaningful-documentation by: The striking prop, or the striker's subject; any striker when absent. index: Which of the matching hits, from 0; the first when absent.
- * @evidence contracts/development/design.md#principled-representation by: The striking prop, or the striker's subject; any striker when absent. index: Which of the matching hits, from 0; the first when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanHitTrack.ts (HumanHitTrack.name, hit).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanHitTrack.name.
  */
 export namespace IAutoMovieMotionHumanHitTrack {
   /**
    * The name of a hit's track. A hit to sync to.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation by: The striking prop, or the striker's subject; any striker when absent. index: Which of the matching hits, from 0; the first when absent.
-   * @evidence contracts/development/design.md#principled-representation by: The striking prop, or the striker's subject; any striker when absent. index: Which of the matching hits, from 0; the first when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanHitTrack.ts (HumanHitTrack.name, hit).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanHitTrack.name.
    */
   export interface IHit {
     /** The struck subject, a performer or a prop. */

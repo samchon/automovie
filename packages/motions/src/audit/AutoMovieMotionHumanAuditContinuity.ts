@@ -21,8 +21,23 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * - `jump`: the displacement that is still there when the interval around it
  *   is `1 / (rate * 4^LEVELS)` long ({@link resolve}). At 24 Hz that is 41
  *   microseconds, in which a joint at 100 m/s covers 4 mm. A frame interval is
- *   resolved when some joint's displacement over it departs from the mean of
- *   its two neighbours' by more than the limit.
+ *   resolved when some joint's displacement over it departs by more than the
+ *   limit from the one the quadratic through the two displacements on each
+ *   side predicts (from the mean of its two neighbours' within two intervals
+ *   of an end): a smooth path departs from it by its fourth derivative, a
+ *   step by the step. Inside, a quartered interval is quartered again only
+ *   for a joint whose four displacements depart from a constant-jerk path
+ *   (their third difference, the residual of the same quadratic predictor)
+ *   by at least the limit, and, below the first quartering, by more
+ *   than a sixteenth of that joint's departure over the enclosing interval:
+ *   a Richardson test (Richardson 1911, Phil Trans R Soc A 210:307: an
+ *   order-p error falls by the refinement ratio to the p-th power, and the
+ *   ratio fails where the path is not smooth), since a smooth path's
+ *   departure falls 256-fold a quartering and a step's not at all, so a fast smooth turn (a somersault,
+ *   a swing) is not chased. The parts entered are those where such a joint
+ *   departs from the line through its other three displacements by at least
+ *   the limit and half the largest such departure; a step departs there
+ *   by its whole size.
  * - `reversal`: a joint that goes out and straight back within two
  *   intervals of `1 / REVERSAL` seconds, read as the shorter of the two
  *   displacements times the cosine of their opposition. A fit that flips for
@@ -31,15 +46,18 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  *   coarser grid a stroke that oscillates by design (a rub, a wave) would go
  *   out and back within two intervals, so a turn found on the coarse grid is
  *   read again on intervals of that length across its two.
- * - `speed`: the fastest any joint centre travels over a grid interval,
- *   metres per second, the bound a caller sets from the action (a hand
- *   raised to the face does not reach a punch's speed).
+ * - `speed`: the fastest any joint centre travels relative to the hips over
+ *   a grid interval, metres per second, the bound a caller sets from the
+ *   action (a hand raised to the face does not reach a punch's speed). The
+ *   hips carry the body's bulk motion, so a body carried, falling or riding
+ *   as a whole reads only its own limbs' speed; a pop of the whole body is
+ *   the `jump`'s to read.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the premise, each reading, its unit and what the resolution reaches.
- * @evidence contracts/development/implementation.md#principled-implementation The definition of continuity applied directly: over equal sub-intervals a smooth path's displacements differ by acceleration times the interval squared, which vanishes sixteenfold per quartering, while a step keeps its size.
+ * @evidence contracts/development/implementation.md#principled-implementation The definition of continuity applied directly: over equal sub-intervals a smooth path's departure from a constant-jerk path vanishes 256-fold per quartering while a step keeps its size, so a Richardson comparison of a joint's departure with its enclosing interval's tells a step from a fast smooth path; a step in one part leaves at least its size in the third difference and its whole size at its own part against the line through the other three.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the grid for the three readings, one recursive quartering per departing interval.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones only; no bone, action or instant is exempt, and every bone is followed, so a small flip is not hidden by a faster limb.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in grid frames and bones; a quartering costs three poses a level and is entered only where a displacement departs from its neighbours, and a turn on a grid coarser than `REVERSAL` costs the poses of its two intervals at that rate, read once per grid instant and only where the grid's own reading exceeds the worst found.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones only; no bone, action or instant is exempt, and every bone is followed, so a small flip is not hidden by a faster limb; the speed subtracts only the hips' own displacement, which the jump still reads.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in grid frames and bones; a quartering costs three poses a level and is entered only where a displacement departs from its neighbours, and goes deeper only for a joint that may step there, so a fast smooth path costs one quartering's three poses and a step about three a part entered at each level, and a turn on a grid coarser than `REVERSAL` costs the poses of its two intervals at that rate, read once per grid instant and only where the grid's own reading exceeds the worst found.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -102,6 +120,22 @@ export namespace AutoMovieMotionHumanAuditContinuity {
     };
     for (let i: number = 0; i + 1 < times.length; i++) {
       let departs: boolean = false;
+      // The body's bulk motion over the interval, read at the hips.
+      const hipsHere: IAutoMovieVector3 | undefined = frames[i]!.get("hips");
+      const hipsNext: IAutoMovieVector3 | undefined =
+        frames[i + 1]!.get("hips");
+      const hx: number =
+        hipsHere === undefined || hipsNext === undefined
+          ? 0
+          : hipsNext.x - hipsHere.x;
+      const hy: number =
+        hipsHere === undefined || hipsNext === undefined
+          ? 0
+          : hipsNext.y - hipsHere.y;
+      const hz: number =
+        hipsHere === undefined || hipsNext === undefined
+          ? 0
+          : hipsNext.z - hipsHere.z;
       for (const bone of frames[i]!.keys()) {
         // This interval's displacement, the one before and the one after (this
         // one's at either end of the motion), a component each: the numbers
@@ -130,12 +164,14 @@ export namespace AutoMovieMotionHumanAuditContinuity {
           az = far.z - next.z;
         }
         const travelled: number = Math.hypot(nx, ny, nz);
-        const speed: number = travelled / (times[i + 1]! - times[i]!);
+        const speed: number =
+          Math.hypot(nx - hx, ny - hy, nz - hz) / (times[i + 1]! - times[i]!);
         if (speed > result.speed.value)
           result.speed = { value: speed, seconds: times[i]!, where: bone };
         const coarse: number =
           i + 2 < times.length
-            ? -(nx * ax + ny * ay + nz * az) / Math.max(travelled, Math.hypot(ax, ay, az))
+            ? -(nx * ax + ny * ay + nz * az) /
+              Math.max(travelled, Math.hypot(ax, ay, az))
             : 0;
         if (coarse > result.reversal.value && coarse <= floor)
           result.reversal = {
@@ -173,7 +209,31 @@ export namespace AutoMovieMotionHumanAuditContinuity {
               };
           }
         }
-        if (Math.hypot(nx - (bx + ax) / 2, ny - (by + ay) / 2, nz - (bz + az) / 2) > limit)
+        if (i >= 2 && i + 3 < times.length) {
+          // Away from the ends, the displacement is predicted from the two
+          // on each side by the quadratic through them, exact for any path
+          // whose third derivative is constant: a smooth joint departs from
+          // it by its fourth derivative times the interval to the fourth,
+          // while a step departs by the step, so smooth fast motion (a
+          // rider on a trot) is not quartered for nothing.
+          const before: IAutoMovieVector3 = frames[i - 2]!.get(bone)!;
+          const after: IAutoMovieVector3 = frames[i + 3]!.get(bone)!;
+          const last: IAutoMovieVector3 = frames[i - 1]!.get(bone)!;
+          const far: IAutoMovieVector3 = frames[i + 2]!.get(bone)!;
+          const px: number =
+            (-(last.x - before.x) + 4 * bx + 4 * ax - (after.x - far.x)) / 6;
+          const py: number =
+            (-(last.y - before.y) + 4 * by + 4 * ay - (after.y - far.y)) / 6;
+          const pz: number =
+            (-(last.z - before.z) + 4 * bz + 4 * az - (after.z - far.z)) / 6;
+          if (Math.hypot(nx - px, ny - py, nz - pz) > limit) departs = true;
+        } else if (
+          Math.hypot(
+            nx - (bx + ax) / 2,
+            ny - (by + ay) / 2,
+            nz - (bz + az) / 2,
+          ) > limit
+        )
           departs = true;
       }
       if (!departs) continue;
@@ -197,12 +257,17 @@ export namespace AutoMovieMotionHumanAuditContinuity {
    * joint centre that is still there when the interval around it has been
    * quartered `LEVELS` times.
    *
-   * The interval is cut into four equal parts. Over a smooth path the four
-   * displacements of a joint differ by its acceleration times the part's
-   * length squared; a step makes its part's displacement depart from the mean
-   * of the other three by the step. Every part where some joint departs by at
-   * least `limit`, and by at least half the largest departure of the four, is
-   * quartered again; a part where none does holds no jump of that size.
+   * The interval is cut into four equal parts. Over a smooth path a joint's
+   * four displacements lie on a constant-jerk path up to its fourth
+   * derivative times the part's length to the fourth, which falls 256-fold a
+   * quartering; a step leaves at least its size in their third difference. A
+   * joint is followed while that departure reaches `limit` and, below
+   * the first quartering, has not fallen to a sixteenth of its departure over
+   * the enclosing interval (the Richardson test that tells a step from a fast
+   * smooth path). Every part where a followed joint departs from the line
+   * through its other three displacements by at least `limit`, and by
+   * at least half the largest such departure of the four, is quartered again;
+   * an interval where no joint is followed holds no jump of that size.
    *
    * @param motion The motion.
    * @param subject The person.
@@ -234,6 +299,31 @@ export namespace AutoMovieMotionHumanAuditContinuity {
 /** Every bone's joint centre at an instant. */
 type IPoints = Map<AutoMovieHumanoidBone, IAutoMovieVector3>;
 
+/** Each joint's departure from a constant-jerk path over one quartered interval, metres: the joints that may hold a step there. */
+type IStepping = Map<AutoMovieHumanoidBone, number>;
+
+/**
+ * The line through three of a joint's four displacements, read at the fourth,
+ * for each part: the least-squares line through the other three, as weights on
+ * the four displacements (part `k`'s own weight zero). A path of constant
+ * acceleration has displacements on a line, so the line predicts them exactly,
+ * while a step in part `k` leaves part `k` departing by the whole step.
+ */
+const LINE: readonly (readonly number[])[] = [
+  [0, 4 / 3, 1 / 3, -2 / 3],
+  [4 / 7, 0, 2 / 7, 1 / 7],
+  [1 / 7, 2 / 7, 0, 4 / 7],
+  [-2 / 3, 1 / 3, 4 / 3, 0],
+];
+
+/**
+ * How far a smooth path's departure from a constant-jerk path falls in one
+ * quartering, at most, for a part to be entered: a sixteenth, the geometric
+ * mean of the 256-fold fall of a fourth-order residual (a quarter of the
+ * interval to the fourth power) and a step's 1, which does not fall.
+ */
+const RICHARDSON: number = 16;
+
 /** One level of {@link AutoMovieMotionHumanAuditContinuity.resolve}. */
 const quarter = (
   motion: IAutoMovieMotionHumanAuditMotion,
@@ -244,6 +334,7 @@ const quarter = (
   last: IPoints,
   limit: number,
   level: number,
+  parent?: IStepping,
 ): IAutoMovieMotionHumanAuditMeasure => {
   let worst: IAutoMovieMotionHumanAuditMeasure = {
     value: 0,
@@ -268,14 +359,15 @@ const quarter = (
     last,
   ];
   const departures: number[] = [0, 0, 0, 0];
+  const stepping: IStepping = new Map();
 
   // One joint's four displacements, a component each, written anew for every
-  // joint: the differences, their sums and each departure are the numbers the
-  // vector forms gave, without a record per displacement.
+  // joint. Only a joint that may step here is read: every joint at the first
+  // level, then those that departed over the enclosing interval.
   const dx: number[] = [0, 0, 0, 0];
   const dy: number[] = [0, 0, 0, 0];
   const dz: number[] = [0, 0, 0, 0];
-  for (const bone of first.keys()) {
+  for (const bone of parent === undefined ? first.keys() : parent.keys()) {
     let earlier: IAutoMovieVector3 = frames[0]!.get(bone)!;
     for (let k: number = 0; k < 4; k++) {
       const later: IAutoMovieVector3 = frames[k + 1]!.get(bone)!;
@@ -284,19 +376,39 @@ const quarter = (
       dz[k] = later.z - earlier.z;
       earlier = later;
     }
-    const sumX: number = dx[0]! + dx[1]! + dx[2]! + dx[3]!;
-    const sumY: number = dy[0]! + dy[1]! + dy[2]! + dy[3]!;
-    const sumZ: number = dz[0]! + dz[1]! + dz[2]! + dz[3]!;
-    for (let k: number = 0; k < 4; k++)
+
+    // The departure from a constant-jerk path, the third difference of the
+    // displacements: the residual of the quadratic predictor the grid reads
+    // with, zero on a cubic path. A smooth path's falls with the fourth power
+    // of the interval, 256-fold a quartering, and a step of `s` in any part
+    // leaves at least `s`. A joint is followed while its departure reaches
+    // the limit and, below the first level, has not fallen like a smooth
+    // path's from the enclosing interval's (the Richardson test).
+    const jerk: number = Math.hypot(
+      dx[3]! - 3 * dx[2]! + 3 * dx[1]! - dx[0]!,
+      dy[3]! - 3 * dy[2]! + 3 * dy[1]! - dy[0]!,
+      dz[3]! - 3 * dz[2]! + 3 * dz[1]! - dz[0]!,
+    );
+    if (jerk < limit) continue;
+    if (parent !== undefined && RICHARDSON * jerk <= parent.get(bone)!)
+      continue;
+    stepping.set(bone, jerk);
+
+    // Which part holds the step: each part's departure from the line through
+    // the other three, which a step leaves at its own part in full.
+    for (let k: number = 0; k < 4; k++) {
+      const w: readonly number[] = LINE[k]!;
       departures[k] = Math.max(
         departures[k]!,
         Math.hypot(
-          dx[k]! - (sumX - dx[k]!) / 3,
-          dy[k]! - (sumY - dy[k]!) / 3,
-          dz[k]! - (sumZ - dz[k]!) / 3,
+          dx[k]! - (w[0]! * dx[0]! + w[1]! * dx[1]! + w[2]! * dx[2]! + w[3]! * dx[3]!),
+          dy[k]! - (w[0]! * dy[0]! + w[1]! * dy[1]! + w[2]! * dy[2]! + w[3]! * dy[3]!),
+          dz[k]! - (w[0]! * dz[0]! + w[1]! * dz[1]! + w[2]! * dz[2]! + w[3]! * dz[3]!),
         ),
       );
+    }
   }
+  if (stepping.size === 0) return worst;
   const largest: number = Math.max(...departures);
   for (let k: number = 0; k < 4; k++) {
     if (departures[k]! < limit || departures[k]! < largest / 2) continue;
@@ -309,6 +421,7 @@ const quarter = (
       frames[k + 1]!,
       limit,
       level + 1,
+      stepping,
     );
     if (found.value > worst.value) worst = found;
   }

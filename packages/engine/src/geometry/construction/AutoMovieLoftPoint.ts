@@ -11,18 +11,13 @@ import { AutoMovieLoftCapRead } from "./AutoMovieLoftCapRead";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
-import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
+import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
 /**
  * Value-only loft station samplers and the existing bounded lazy point cache.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Public readers state physical units, immutable source equivalence and bounded cache lifetime.
- * @evidence contracts/development/design.md#principled-representation Represents Value-only loft station samplers and the existing bounded lazy point cache: companion namespace of 8 members (`sampler`, `point`, `phaseSampler`, `lazy`, `RECENT`, `SAMPLERS`, ...); units and frames named in its text: world, local, frame, radians, radian. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftPoint` in packages/engine/src/geometry/construction/AutoMovieLoftPoint.ts; its surface is the 8 members listed and the text shows 2 other files naming it, mostly packages/engine (1), packages/human (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftPoint {
   /**
@@ -34,14 +29,6 @@ export namespace AutoMovieLoftPoint {
    *
    * @param chain Chain to evaluate.
    * @param s Station within the chain; world height for horizontal layers.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Reads a validated original cap directly, or the station's explicit local field/legacy basis with its actual frame/lift/relief owners; the original collapsed tip supplies only its actual phase-constant value.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared value sampler serves many phases without rebuilding its station data.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the existing phase, lift-normal and relief arithmetic; actual source fields are validated by their owning readers.
-   * @evidence contracts/development/common.md#meaningful-documentation States station/phase units, borrowed immutable chain data and caller-owned returned vectors.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Native source validation/scalar lookup and fixed geometry, or O(N) legacy coefficients, are prepared once; a native phase uses one numeric inverse, while lift keeps its existing basis support.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the station's frame and prepared arrays across every requested phase.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure retains the immutable chain, including its source owners, and one station's prepared arrays/frame until its caller releases it; no cache is added here.
    */
   export function sampler(
     chain: IAutoMovieLoftChain,
@@ -81,16 +68,7 @@ export namespace AutoMovieLoftPoint {
         )[0];
         for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
       }
-      // Reliefs move the base point along their axes.
-      for (const relief of chain.reliefs ?? []) {
-        const d: number = AutoMovieLoftRelief.height(relief, s, t)[0];
-        if (d === 0) continue;
-        const e: [number, number, number] = AutoMovieLoftRelief.direction(
-          relief,
-          t,
-        )[0];
-        for (let k: number = 0; k < 3; k++) q[k]! += d * e[k]!;
-      }
+      AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
       if (source !== null && !q.every(Number.isFinite))
         throw new Error("The actual native point has no finite world value.");
       return q;
@@ -107,14 +85,6 @@ export namespace AutoMovieLoftPoint {
    * @param chain Chain to evaluate.
    * @param s Station within the chain.
    * @param t Phase in radians.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Reuses a station sampler under the immutable chain identity; spline controls are combined lazily with the same explicit coefficient interpolation as the eager reader.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The original eight-insertion sampler cache owns single-point reuse in this one module.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves legacy arithmetic, nonpromoting hits, insertion/eviction and fresh vectors; explicit native data alone selects the actual field and raw phases reach its own wrapping owner.
-   * @evidence contracts/development/common.md#meaningful-documentation States immutable chain/cache equivalence and station-mm/phase-radian units; only explicit surviving original ends authorize cap values beyond principal rows.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Native misses use the value-only source sampler including validation/scalar lookup; source-absent spline misses retain O(N) holey rows/bitmap and at most four new control combinations per phase.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same last eight inserted station preparations without promoting hits.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak chain key owns at most eight O(N) sampler records; eviction releases a record and returned points are fresh.
    */
   export function point(
     chain: IAutoMovieLoftChain,
@@ -137,14 +107,6 @@ export namespace AutoMovieLoftPoint {
 
   /**
    * Actual world value and phase tangent without physical station2 admission.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the same explicit local field or legacy basis as sampler, its frame value and the actual lift/relief phase derivatives.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One caller-owned station closure serves numerical-station normal consumers independently of analytic station jets.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No missing physical derivative is inferred and neither eight-station module cache receives this plan.
-   * @evidence contracts/development/common.md#meaningful-documentation Returns fresh world p/t in mm and mm per radian on regular rows or validated original caps; a collapsed original tip is phase-constant but has no asserted physical station jet.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One local value/frame/lift preparation precedes each fixed native inverse or existing basis phase lookup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The closure shares its prepared station geometry, frame and lift across phases.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller alone retains this plan until release; every result owns fresh vectors and no new module cache exists.
    */
   export function phaseSampler(
     chain: IAutoMovieLoftChain,
@@ -182,18 +144,7 @@ export namespace AutoMovieLoftPoint {
           dt[k]! += h[2] * n[k]!;
         }
       }
-      for (const relief of chain.reliefs ?? []) {
-        const h: [number, number, number] = AutoMovieLoftRelief.height(
-          relief,
-          s,
-          t,
-        );
-        const [e, e1] = AutoMovieLoftRelief.direction(relief, t);
-        for (let k: number = 0; k < 3; k++) {
-          p[k]! += h[0] * e[k]!;
-          dt[k]! += h[2] * e[k]! + h[0] * e1[k]!;
-        }
-      }
+      AutoMovieLoftReliefCompose.phase({ p, t: dt }, chain.reliefs ?? [], s, t);
       if (![...p, ...dt].every(Number.isFinite))
         throw new Error("The actual phase-only world reading is nonfinite.");
       return { p, t: dt };
@@ -317,16 +268,7 @@ export namespace AutoMovieLoftPoint {
         const h: number = AutoMovieSplineCurve.evaluate(lifted, N, t)[0];
         for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
       }
-      // Reliefs move the base point along their axes.
-      for (const relief of chain.reliefs ?? []) {
-        const d: number = AutoMovieLoftRelief.height(relief, s, t)[0];
-        if (d === 0) continue;
-        const e: [number, number, number] = AutoMovieLoftRelief.direction(
-          relief,
-          t,
-        )[0];
-        for (let k: number = 0; k < 3; k++) q[k]! += d * e[k]!;
-      }
+      AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
       return q;
     };
   }

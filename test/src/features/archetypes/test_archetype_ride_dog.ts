@@ -1,9 +1,9 @@
 import {
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  type QuadrupedBody,
-  QuadrupedGait,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeQuadrupedGait,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createDog,
   createQuadruped,
   rideQuadruped,
@@ -62,13 +62,13 @@ export function test_archetype_ride_dog(): void {
       );
   };
   const foot: <Id extends string, D extends string>(
-    ride: ArchetypeRide.IRide<Id, D>,
+    ride: AutoMovieArchetypeRide.IRide<Id, D>,
     seconds: number,
-    bone?: QuadrupedBody.Bone,
+    bone?: AutoMovieArchetypeQuadrupedBody.Bone,
   ) => IAutoMovieVector3 = <Id extends string, D extends string>(
-    ride: ArchetypeRide.IRide<Id, D>,
+    ride: AutoMovieArchetypeRide.IRide<Id, D>,
     seconds: number,
-    bone: QuadrupedBody.Bone = "leftForePastern",
+    bone: AutoMovieArchetypeQuadrupedBody.Bone = "leftForePastern",
   ): IAutoMovieVector3 => {
     const sample: ReturnType<typeof ride.at> = ride.at(seconds);
     const part: IAutoMovieModelPart | undefined = sample.archetype.parts.find(
@@ -91,7 +91,7 @@ export function test_archetype_ride_dog(): void {
         z: 0,
       }),
     );
-    return ArchetypeFrame.point(sample.placement, endpoint);
+    return AutoMovieArchetypeFrame.point(sample.placement, endpoint);
   };
   for (const cohort of ["pet", "show", "sled"] as const) {
     const animal: ReturnType<typeof createQuadruped> = createQuadruped({
@@ -101,13 +101,14 @@ export function test_archetype_ride_dog(): void {
       tempo: 0,
     });
     const species: createQuadruped.ISpecies = createQuadruped.species(animal);
-    const timing: QuadrupedGait.ITiming = QuadrupedGait.timing(
-      species,
-      "walk",
-      0.75,
-      0,
-      animal.dimensions.withersHeight!,
-    );
+    const timing: AutoMovieArchetypeQuadrupedGait.ITiming =
+      AutoMovieArchetypeQuadrupedGait.timing(
+        species,
+        "walk",
+        0.75,
+        0,
+        animal.dimensions.withersHeight!,
+      );
     near(`${cohort} pooled stride`, timing.stride, 1.11, 1e-12);
     near(`${cohort} pooled fore duty`, timing.duty, 0.62 / 1.11, 1e-12);
     if (timing.hindDuty === undefined)
@@ -116,7 +117,7 @@ export function test_archetype_ride_dog(): void {
       );
     else
       near(`${cohort} pooled hind duty`, timing.hindDuty, 0.56 / 1.11, 1e-12);
-    const ride: ArchetypeRide.IRide<
+    const ride: AutoMovieArchetypeRide.IRide<
       createQuadruped.Affordance,
       createQuadruped.Dimension
     > = rideQuadruped<createQuadruped.Affordance, createQuadruped.Dimension>(
@@ -179,7 +180,7 @@ export function test_archetype_ride_dog(): void {
       );
     }
     const phaseCases: readonly (readonly [
-      `${QuadrupedBody.Limb}On`,
+      `${AutoMovieArchetypeQuadrupedBody.Limb}On`,
       number,
     ])[] = [
       ["rightHindOn", 0.35],
@@ -288,10 +289,13 @@ export function test_archetype_ride_dog(): void {
       leadRadius: 0.004,
     },
   });
-  const led: ArchetypeRide.IRide<
+  const led: AutoMovieArchetypeRide.IRide<
     createDog.Affordance,
-    QuadrupedBody.Dimension
-  > = rideQuadruped<createDog.Affordance, QuadrupedBody.Dimension>(
+    AutoMovieArchetypeQuadrupedBody.Dimension
+  > = rideQuadruped<
+    createDog.Affordance,
+    AutoMovieArchetypeQuadrupedBody.Dimension
+  >(
     dressed,
     {
       start: { x: 2, z: -1, heading: 31 },
@@ -310,7 +314,7 @@ export function test_archetype_ride_dog(): void {
     if (rope?.transform === null || rope?.transform === undefined)
       findings.push("the shared dog ride lost its physical lead");
     else {
-      const centre: IAutoMovieVector3 = ArchetypeFrame.point(
+      const centre: IAutoMovieVector3 = AutoMovieArchetypeFrame.point(
         sample.placement,
         rope.transform.translation,
       );
@@ -326,8 +330,8 @@ export function test_archetype_ride_dog(): void {
   }
   const species: createQuadruped.ISpecies = createQuadruped.species(dressed);
   const refusals: readonly (() => unknown)[] = [
-    (): unknown => QuadrupedGait.of(species, "canter"),
-    (): unknown => QuadrupedGait.timing(species, "walk", 1),
+    (): unknown => AutoMovieArchetypeQuadrupedGait.of(species, "canter"),
+    (): unknown => AutoMovieArchetypeQuadrupedGait.timing(species, "walk", 1),
   ];
   for (const refuse of refusals) {
     let error: unknown = null;
@@ -336,7 +340,7 @@ export function test_archetype_ride_dog(): void {
     } catch (caught) {
       error = caught;
     }
-    if (!(error instanceof ArchetypeRefusal))
+    if (!(error instanceof AutoMovieArchetypeRefusal))
       findings.push(
         "an unsupported dog gait request did not explicitly refuse",
       );
@@ -346,9 +350,9 @@ export function test_archetype_ride_dog(): void {
 
 /** The whole actual terminal surface must touch ground; its distal joint need not. */
 function sole<Id extends string, D extends string>(
-  ride: ArchetypeRide.IRide<Id, D>,
+  ride: AutoMovieArchetypeRide.IRide<Id, D>,
   seconds: number,
-  bone: QuadrupedBody.Bone = "leftForePastern",
+  bone: AutoMovieArchetypeQuadrupedBody.Bone = "leftForePastern",
 ): number {
   const sample: ReturnType<typeof ride.at> = ride.at(seconds);
   const part: IAutoMovieModelPart | undefined = sample.archetype.parts.find(

@@ -1,13 +1,13 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeTrack,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeTrack,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { SIEGE_BANDS } from "./SIEGE_BANDS";
 import { SiegeArm } from "./SiegeArm";
@@ -15,16 +15,16 @@ import { SiegeArm } from "./SiegeArm";
 /**
  * A siege engine that throws a stone: a counterweight trebuchet, its arm swung up by a box hanging from its short end, or a mangonel, a traction trebuchet whose short end the crew hauls down, its pull taken as the weight that would pull as hard.
  *
- * The engine stands on its base at the origin, its arm across its posts' actual crossshaft, the long end toward `+Z` and level at rest. `arm` is the throwing arm's hinge, a positive travel raising the long end; it is cocked by its reverse, the long end down. The unsourced arm/cradle section is designed together to clear model floor zero over every declared angle; fixed base/control stock stays separate. A trebuchet's `counterweight` hangs from the short end on a hinge that turns against the arm, so it stays plumb. `pouch` is the inner floor of the real-section arm-tip cradle, joined to the arm by two folded sling spans, with no independent sling swing. `pin` is the real release rod, its cocked-tip drawbar and fixed guide/trestle. `winch` is the cross-post windlass with its radial crank and axial grip, turning by its ratio as the arm is wound. `frame` is the base the crew stands on. `throwAt` uses the same source launch law and the current actual pouch origin. Actual-solid composite mass distribution under the drawn total is separate from that law's provisional armMass/counterweight controls.
+ * The engine stands on its base at the origin, its arm across its posts' crossshaft, the long end toward `+Z` and level at rest. `arm` is the throwing arm's hinge, a positive travel raising the long end; it is cocked by its reverse, the long end down. The unsourced arm/cradle section is designed together to clear model floor zero over every declared angle; fixed base/control stock stays separate. A trebuchet's `counterweight` hangs from the short end on a hinge that turns against the arm, so it stays plumb. `pouch` is the inner floor of the real-section arm-tip cradle, joined to the arm by two folded sling spans, with no independent sling swing. `pin` is the real release rod, its cocked-tip drawbar and fixed guide/trestle. `winch` is the cross-post windlass with its radial crank and axial grip, turning by its ratio as the arm is wound. `frame` is the base the crew stands on. `throwAt` uses the same source launch law and the current pouch origin. Solid composite mass distribution under the drawn total is separate from that law's provisional armMass/counterweight controls.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The engine.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the kind lacks.
- * @throws {RangeError} If no positive representable moving section or actual fitting clears its complete declared angular floor domain.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or one the kind lacks.
+ * @throws {RangeError} If no positive representable moving section or fitting clears its complete declared angular floor domain.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the engine stands, each contact and articulation, and what the throw does.
- * @evidence contracts/development/implementation.md#principled-implementation Draw the unchanged dimensions, then lay the frame, actual pivot/control fittings and tip-carried cradle through SiegeArm.lay and SiegeStructure. Generic articulation and actual-part spans realize the same contacts in every pose.
+ * @evidence contracts/development/implementation.md#principled-implementation Draw the unchanged dimensions, then lay the frame, pivot/control fittings and tip-carried cradle through SiegeArm.lay and SiegeStructure. Generic articulation and part spans realize the same contacts in every pose.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, lay, build.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No crew is built in. Unsourced moving sections are designed by complete angular solid support and the real socket follows that section. Every real solid participates in the existing total-mass composite volume/default-density allocation; it is not a measured component-mass calibration. Source lengths, angle/band/seed contracts and the separate reduced beam-tip launch law remain unchanged; independent sling dynamics or rated strength are not claimed.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One builder pass.
@@ -34,9 +34,12 @@ import { SiegeArm } from "./SiegeArm";
 export function createSiegeEngine(
   params: createSiegeEngine.IParams,
   seed?: number | string,
-): Archetype<createSiegeEngine.Affordance, createSiegeEngine.Dimension> {
-  const draw: ArchetypeDrawSession<createSiegeEngine.Dimension> =
-    new ArchetypeDrawSession<createSiegeEngine.Dimension>(
+): AutoMovieArchetype<
+  createSiegeEngine.Affordance,
+  createSiegeEngine.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createSiegeEngine.Dimension> =
+    new AutoMovieArchetypeDrawSession<createSiegeEngine.Dimension>(
       "siegeEngine",
       createSiegeEngine.UNITS,
       seed,
@@ -54,10 +57,10 @@ export function createSiegeEngine(
   const d: Partial<Record<createSiegeEngine.Dimension, number>> = {
     ...draw.values,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createSiegeEngine.Affordance,
     createSiegeEngine.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: kind,
@@ -126,7 +129,9 @@ export namespace createSiegeEngine {
     | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     armLength: "m",
     shortArm: "m",
     armMass: "kg",
@@ -153,13 +158,13 @@ export namespace createSiegeEngine {
 
   /** The band of each dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = SIEGE_BANDS;
 
   /** A throw: the arm's swing and the stone's launch from the pouch. */
   export interface IThrow {
     /** The arm's track from the pin's second. */
-    track: ArchetypeTrack.ITrack<Affordance>;
+    track: AutoMovieArchetypeTrack.ITrack<Affordance>;
 
     /** The film second the stone leaves. */
     second: number;
@@ -172,38 +177,36 @@ export namespace createSiegeEngine {
   }
 
   /**
-   * The throw from a pin pulled at a second: the arm released from its cocked travel swings under gravity as SiegeArm.pendulum gives it. The stone leaves the actual section-sized pouch socket at its release travel with the existing armLength-based tangential velocity approximation. The socket's section-radius offset and independent sling motion do not enter that reduced velocity law, whose armMass/counterweight controls are not a calibration of the coarse composite's actual solid allocation.
+   * The throw from a pin pulled at a second: the arm released from its cocked travel swings under gravity as SiegeArm.pendulum gives it. The stone leaves the section-sized pouch socket at its release travel with the existing armLength-based tangential velocity approximation. The socket's section-radius offset and independent sling motion do not enter that reduced velocity law, whose armMass/counterweight controls are not a calibration of the coarse composite's solid allocation.
    *
    * @param engine A siege engine.
    * @param start The film second the pin is pulled.
    * @returns The throw.
-   * @throws {ArchetypeRefusal} As `ArchetypeTrack.swing` refuses: a swing that leaves the arm's range, or a release it never passes.
+   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeTrack.swing` refuses: a swing that leaves the arm's range, or a release it never passes.
    */
   export function throwAt(
-    engine: Archetype<Affordance, Dimension>,
+    engine: AutoMovieArchetype<Affordance, Dimension>,
     start: number,
   ): IThrow {
     const d: Readonly<Partial<Record<Dimension, number>>> = engine.dimensions;
-    const track: ArchetypeTrack.ITrack<Affordance> = ArchetypeTrack.swing(
-      engine,
-      "arm",
-      {
+    const track: AutoMovieArchetypeTrack.ITrack<Affordance> =
+      AutoMovieArchetypeTrack.swing(engine, "arm", {
         start,
         release: -d.cocked!,
         seconds: SWING,
         pendulum: SiegeArm.pendulum(d),
         launch: d.release!,
-      },
-    );
-    const launch: ArchetypeTrack.ILaunch = track.launch!;
-    const posed: Archetype<Affordance, Dimension> = engine.articulate({
+      });
+    const launch: AutoMovieArchetypeTrack.ILaunch = track.launch!;
+    const posed: AutoMovieArchetype<Affordance, Dimension> = engine.articulate({
       arm: launch.travel,
     });
     const pouch: IAutoMovieVector3 =
       posed.affordance("pouch").frame.translation;
     // The long end at travel a stands at (0, L sin a, L cos a) from the axle, so its velocity is the rate times (0, L cos a, -L sin a).
-    const angle: number = launch.travel * ArchetypeUnits.DEGREE;
-    const rate: number = launch.rate * ArchetypeUnits.DEGREE * d.armLength!;
+    const angle: number = launch.travel * AutoMovieArchetypeUnits.DEGREE;
+    const rate: number =
+      launch.rate * AutoMovieArchetypeUnits.DEGREE * d.armLength!;
     return {
       track,
       second: launch.seconds,

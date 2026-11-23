@@ -51,7 +51,10 @@ export namespace WorkoutFloor {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function plank(body: IAutoMovieMotionHumanBody, height: number): number {
+  export function plank(
+    body: IAutoMovieMotionHumanBody,
+    height: number,
+  ): number {
     const length: number =
       body.measure.shoulderHeight - body.measure.ankleHeight;
     return 90 - (Math.asin(Math.min(1, height / length)) * 180) / Math.PI;
@@ -142,8 +145,16 @@ export namespace WorkoutFloor {
     const colliders: AutoMovieHumanoidBone[] = [...HumanColliders.bones(body)];
     const minima: ReturnType<typeof HumanColliders.prepareMinima> =
       HumanColliders.prepareMinima(body, [
-        new Set(colliders.filter((bone: AutoMovieHumanoidBone): boolean => on.test(bone))),
-        new Set(colliders.filter((bone: AutoMovieHumanoidBone): boolean => /(Foot|Toes)$/.test(bone))),
+        new Set(
+          colliders.filter((bone: AutoMovieHumanoidBone): boolean =>
+            on.test(bone),
+          ),
+        ),
+        new Set(
+          colliders.filter((bone: AutoMovieHumanoidBone): boolean =>
+            /(Foot|Toes)$/.test(bone),
+          ),
+        ),
       ]);
     const above: (roll: number) => number = (roll: number): number => {
       const [bearing, feet]: number[] = minima(read(key(roll)).bones);
@@ -200,7 +211,12 @@ export namespace WorkoutFloor {
   ];
 
   /** The exercises. */
-  export const KINDS: Readonly<Record<IAutoMovieMotionHumanWorkoutFloor.Name, IAutoMovieMotionHumanWorkoutKind>> = {
+  export const KINDS: Readonly<
+    Record<
+      IAutoMovieMotionHumanWorkoutFloor.Name,
+      IAutoMovieMotionHumanWorkoutKind
+    >
+  > = {
     /** A push-up: 1 s down, 1 s up (provisional). */
     pushUp: {
       base: "leaning",
@@ -209,8 +225,10 @@ export namespace WorkoutFloor {
       hands: true,
       supports: PRONE,
       enter: 1.5,
-      reps: 5,
-      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      count: 5,
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(top(body), 1, "press", "top"),
         WorkoutKind.step(bottom(body), 1, "lower", "bottom"),
       ],
@@ -224,8 +242,10 @@ export namespace WorkoutFloor {
       hands: true,
       supports: PRONE,
       enter: 1.5,
-      reps: 5,
-      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      count: 5,
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(top(body, 30), 1, "press", "top"),
         WorkoutKind.step(bottom(body, 30), 1, "lower", "bottom"),
       ],
@@ -239,8 +259,10 @@ export namespace WorkoutFloor {
       hands: true,
       supports: PRONE,
       enter: 1.5,
-      reps: 1,
-      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      count: 1,
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(top(body), 0, 30),
       ],
     },
@@ -262,8 +284,10 @@ export namespace WorkoutFloor {
       ],
       alternate: true,
       enter: 1.5,
-      reps: 8,
-      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
+      count: 8,
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
         const up: IAutoMovieMotionHumanExerciseKey.IKey = top(body);
         return [
           WorkoutKind.step(up, 0.3, "back", "extended"),
@@ -300,8 +324,10 @@ export namespace WorkoutFloor {
         { part: "rightFoot", kind: "plant", at: ["plank"] },
       ],
       enter: 0.8,
-      reps: 3,
-      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      count: 3,
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           ExerciseKey.from(
             body,
@@ -332,8 +358,10 @@ export namespace WorkoutFloor {
       hands: true,
       supports: PRONE,
       enter: 2,
-      reps: 1,
-      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      count: 1,
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(
           ExerciseKey.from(
             body,
@@ -357,8 +385,10 @@ export namespace WorkoutFloor {
         { part: "rightHand", kind: "plant" },
       ],
       enter: 2.4,
-      reps: 1,
-      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      count: 1,
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           ExerciseKey.from(
             body,

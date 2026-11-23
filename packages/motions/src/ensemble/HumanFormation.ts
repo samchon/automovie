@@ -11,6 +11,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFormationPath } from "./HumanFormationPath";
+import { formationCourseFrame } from "./formationCourseFrame";
 
 /**
  * Formations: validating one, and reading where each member's slot stands at
@@ -247,7 +248,7 @@ export namespace HumanFormation {
     const f: IAutoMovieMotionHumanFormation.Frame = formation.frame;
     if (f.kind === "fixed") return { at: f.at, heading: f.heading };
     if (f.kind === "path") return laid(f).at(seconds);
-    if (f.kind === "course") return coursed(f, seconds);
+    if (f.kind === "course") return formationCourseFrame(f, seconds);
     if (read === undefined)
       throw new HumanRefusal({
         kind: "participant",
@@ -320,7 +321,7 @@ export namespace HumanFormation {
   /**
    * A slot's way between two film seconds, sampled every `step` seconds and at
    * both ends: the samples a march's `via` or a timed course
-   * (`ArchetypeCourse.timed`) takes.
+   * (`AutoMovieArchetypeCourse.timed`) takes.
    *
    * @param formation The formation.
    * @param index The slot.
@@ -439,69 +440,6 @@ function laid(
     LAID.set(frame, out);
   }
   return out;
-}
-
-/** A course frame at a second: linear between its samples, heading the way it moves, kept while it stands (the first way it moves before it sets off), or the samples' own headings when they carry them. */
-function coursed(
-  frame: IAutoMovieMotionHumanFormation.ICourse,
-  seconds: number,
-): { at: IAutoMovieVector3; heading: number } {
-  const s: readonly IAutoMovieMotionHumanFormation.ISample[] = frame.samples;
-  if (s.length === 0) throw new RangeError("A course frame has no samples");
-
-  // The last span start at or before the second, at most the second to last
-  // sample, found by bisection: a steered crowd's course holds a sample
-  // every film frame, and every member reads it at every frame.
-  let i: number = 0;
-  let hi: number = Math.max(0, s.length - 2);
-  while (i < hi) {
-    const mid: number = (i + hi + 1) >> 1;
-    if (s[mid]!.seconds <= seconds) i = mid;
-    else hi = mid - 1;
-  }
-  const a: IAutoMovieMotionHumanFormation.ISample = s[i]!;
-  const b: IAutoMovieMotionHumanFormation.ISample =
-    s[Math.min(i + 1, s.length - 1)]!;
-  const span: number = b.seconds - a.seconds;
-  const u: number =
-    span <= 0 ? 0 : Math.min(1, Math.max(0, (seconds - a.seconds) / span));
-  // A course that carries its headings (a wheel) turns as they say, read
-  // between samples along the shorter arc, so two samples written either
-  // side of the ±180 seam do not spin the frame the long way round.
-  if (a.heading !== undefined && b.heading !== undefined)
-    return {
-      at: {
-        x: a.x + (b.x - a.x) * u,
-        y: a.y + (b.y - a.y) * u,
-        z: a.z + (b.z - a.z) * u,
-      },
-      heading:
-        a.heading + (((((b.heading - a.heading) % 360) + 540) % 360) - 180) * u,
-    };
-  const heading = (k: number): number | null => {
-    const p: IAutoMovieMotionHumanFormation.ISample = s[k]!;
-    const q: IAutoMovieMotionHumanFormation.ISample = s[k + 1]!;
-    return Math.hypot(q.x - p.x, q.z - p.z) < 1e-9
-      ? null
-      : (Math.atan2(q.x - p.x, q.z - p.z) * 180) / Math.PI;
-  };
-  let yaw: number | null = null;
-  for (let k: number = Math.min(i, s.length - 2); k >= 0 && yaw === null; --k)
-    yaw = heading(k);
-  for (
-    let k: number = Math.min(i, s.length - 2) + 1;
-    k < s.length - 1 && yaw === null;
-    ++k
-  )
-    yaw = heading(k);
-  return {
-    at: {
-      x: a.x + (b.x - a.x) * u,
-      y: a.y + (b.y - a.y) * u,
-      z: a.z + (b.z - a.z) * u,
-    },
-    heading: yaw ?? 0,
-  };
 }
 
 /**

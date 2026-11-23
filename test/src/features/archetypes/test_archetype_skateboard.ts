@@ -1,4 +1,7 @@
-import { ArchetypeUnits, createSkateboard } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeUnits,
+  createSkateboard,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
@@ -36,12 +39,12 @@ export function test_archetype_skateboard(): void {
     near(
       `board ${size}: width`,
       archetypeExtent(board, "x", ["deck"]).size,
-      width * ArchetypeUnits.INCH,
+      width * AutoMovieArchetypeUnits.INCH,
     );
     near(
       `board ${size}: length`,
       archetypeExtent(board, "z", ["deck"]).size,
-      length * ArchetypeUnits.INCH,
+      length * AutoMovieArchetypeUnits.INCH,
     );
     const front: { low: number; high: number } = archetypeExtent(board, "z", [
       "wheel-front-left",
@@ -52,14 +55,18 @@ export function test_archetype_skateboard(): void {
     near(
       `board ${size}: wheelbase`,
       (back.low + back.high) / 2 - (front.low + front.high) / 2,
-      wheelbase * ArchetypeUnits.INCH,
+      wheelbase * AutoMovieArchetypeUnits.INCH,
     );
     const deck: { low: number; high: number; size: number } = archetypeExtent(
       board,
       "y",
       ["deck"],
     );
-    near(`board ${size}: thickness`, deck.size, (7 / 16) * ArchetypeUnits.INCH);
+    near(
+      `board ${size}: thickness`,
+      deck.size,
+      (7 / 16) * AutoMovieArchetypeUnits.INCH,
+    );
     near(`board ${size}: underside`, deck.low, 0.026 + 0.055);
     near(
       `board ${size}: the deck contact`,
@@ -69,12 +76,12 @@ export function test_archetype_skateboard(): void {
     near(
       `board ${size}: the nose`,
       board.affordance("nose").frame.translation.z,
-      -(length * ArchetypeUnits.INCH) / 2,
+      -(length * AutoMovieArchetypeUnits.INCH) / 2,
     );
     near(
       `board ${size}: the tail`,
       board.affordance("tail").frame.translation.z,
-      (length * ArchetypeUnits.INCH) / 2,
+      (length * AutoMovieArchetypeUnits.INCH) / 2,
     );
     near(
       `board ${size}: the wheels`,
@@ -95,8 +102,8 @@ export function test_archetype_skateboard(): void {
       [8.5, 33.5],
     ].findIndex(
       ([w, l]: number[]): boolean =>
-        Math.abs(w! * ArchetypeUnits.INCH - width) <= 1e-9 &&
-        Math.abs(l! * ArchetypeUnits.INCH - length) <= 1e-9,
+        Math.abs(w! * AutoMovieArchetypeUnits.INCH - width) <= 1e-9 &&
+        Math.abs(l! * AutoMovieArchetypeUnits.INCH - length) <= 1e-9,
     );
     if (index < 0)
       findings.push(

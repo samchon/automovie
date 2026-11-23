@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The accessibility standard's ramp clauses. */
@@ -21,7 +21,7 @@ const ADA: string =
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The ramp.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the ramp's direction, origin and the two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The run is the rise divided by the slope; the incline is a thin slab whose upper face lies in the slope, from where its lower edge meets the floor to the landing's edge, over a block under its upper half, and the landing a box at the rise; no part reaches below the floor.
@@ -34,9 +34,9 @@ const ADA: string =
 export function createRamp(
   params: createRamp.IParams = {},
   seed?: number | string,
-): Archetype<createRamp.Affordance, createRamp.Dimension> {
-  const draw: ArchetypeDrawSession<createRamp.Dimension> =
-    new ArchetypeDrawSession<createRamp.Dimension>(
+): AutoMovieArchetype<createRamp.Affordance, createRamp.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createRamp.Dimension> =
+    new AutoMovieArchetypeDrawSession<createRamp.Dimension>(
       "ramp",
       createRamp.UNITS,
       seed,
@@ -46,13 +46,15 @@ export function createRamp(
     createRamp.BANDS,
   );
   const run: number = d.rise / d.slope;
-  const builder: ArchetypeBuilder<createRamp.Affordance, createRamp.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: "ramp",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createRamp.Affordance,
+    createRamp.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: "ramp",
+    draw,
+  });
 
   // The incline: a thin slab whose upper face lies in the slope, which runs from the floor at z = 0 to the rise at z = run.
   const length: number = Math.hypot(run, d.rise);
@@ -76,7 +78,7 @@ export function createRamp(
     ),
     {
       color: "#b9b4a8",
-      rotation: ArchetypeFrame.facing(
+      rotation: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, 0, 0),
         Vector3.create(0, normal.y, normal.z),
         Vector3.create(1, 0, 0),
@@ -100,7 +102,7 @@ export function createRamp(
   builder.affordance({
     id: "slope",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, middle.y, middle.z),
       Vector3.create(0, normal.y, normal.z),
       Vector3.create(1, 0, 0),
@@ -112,7 +114,7 @@ export function createRamp(
   builder.affordance({
     id: "top",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, d.rise, run),
       Vector3.create(0, 1, 0),
       Vector3.create(-1, 0, 0),
@@ -123,7 +125,7 @@ export function createRamp(
   builder.affordance({
     id: "landing",
     kind: "surface",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       Vector3.create(0, d.rise, run + createRamp.LANDING / 2),
     ),
     extent: null,
@@ -165,7 +167,9 @@ export namespace createRamp {
   export type Dimension = "slope" | "rise" | "width" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     slope: "",
     rise: "m",
     width: "m",
@@ -179,26 +183,32 @@ export namespace createRamp {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    slope: ArchetypeBand.of(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    slope: AutoMovieArchetypeBand.of(
       "",
       1 / 20,
       1 / 12,
       `${ADA} 405.2, a ramp run no steeper than 1:12; a surface no steeper than 1:20 is a walk, not a ramp (106.5, the definition of a ramp, not re-read)`,
     ),
-    rise: ArchetypeBand.of(
+    rise: AutoMovieArchetypeBand.of(
       "m",
       0.15,
       0.76,
       `${ADA} 405.6, a run rises at most 30 in (760 mm); 405.8 requires handrails above 6 in (150 mm), taken as the least rise worth a ramp`,
     ),
-    width: ArchetypeBand.of(
+    width: AutoMovieArchetypeBand.of(
       "m",
       0.915,
       1.2,
       `${ADA} 405.5, clear width at least 36 in (915 mm); the upper end is an estimate`,
       true,
     ),
-    mass: ArchetypeBand.of("kg", 200, 600, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      200,
+      600,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

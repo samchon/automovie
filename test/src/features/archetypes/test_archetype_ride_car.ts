@@ -1,12 +1,15 @@
 import {
-  ArchetypeUnits,
-  type ArchetypeCourse,
-  ArchetypeRefusal,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
   createCar,
   driveCar,
 } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** A tenth of a degree, the issue's bound for a road wheel's steering angle (#3475). */
@@ -39,7 +42,9 @@ export function test_archetype_ride_car(): void {
         archetype: ReturnType<typeof createCar>,
         part: string,
       ): IAutoMovieModelPart =>
-        archetype.parts.find((p: IAutoMovieModelPart): boolean => p.id === part)!;
+        archetype.parts.find(
+          (p: IAutoMovieModelPart): boolean => p.id === part,
+        )!;
       const track: number =
         centre(car, "wheel-front-left").transform!.translation.x -
         centre(car, "wheel-front-right").transform!.translation.x;
@@ -54,10 +59,13 @@ export function test_archetype_ride_car(): void {
           { x: 0, y: 1, z: 0 },
         );
         const sign: number = axle.x < 0 ? -1 : 1;
-        return Math.atan2(-sign * axle.z, sign * axle.x) / ArchetypeUnits.DEGREE;
+        return (
+          Math.atan2(-sign * axle.z, sign * axle.x) /
+          AutoMovieArchetypeUnits.DEGREE
+        );
       };
       for (const side of [1, -1]) {
-        const course: ArchetypeCourse.ICourse = {
+        const course: AutoMovieArchetypeCourse.ICourse = {
           start: { x: 0, z: 0, heading: 0 },
           legs: [
             { kind: "straight", length: 10 },
@@ -80,10 +88,13 @@ export function test_archetype_ride_car(): void {
         ).archetype;
 
         // 1. Each wheel's axle points at the turn's centre on the rear axle's line.
-        const axle: number = Math.sqrt(RADIUS * RADIUS - (wheelbase * wheelbase) / 4);
+        const axle: number = Math.sqrt(
+          RADIUS * RADIUS - (wheelbase * wheelbase) / 4,
+        );
         const expected = (offset: number): number =>
           side *
-          (Math.atan(wheelbase / (axle - side * offset)) / ArchetypeUnits.DEGREE);
+          (Math.atan(wheelbase / (axle - side * offset)) /
+            AutoMovieArchetypeUnits.DEGREE);
         const left: number = steered(turning, "wheel-front-left");
         const right: number = steered(turning, "wheel-front-right");
         for (const [name, angle, offset, id] of [
@@ -95,18 +106,23 @@ export function test_archetype_ride_car(): void {
               `${label}: the ${name} wheel steers ${angle}, not ${expected(offset)}`,
             );
           if (Math.abs(turning.travel(id) - angle) > 1e-6)
-            findings.push(`${label}: the ${name} wheel's travel is ${turning.travel(id)}`);
+            findings.push(
+              `${label}: the ${name} wheel's travel is ${turning.travel(id)}`,
+            );
         }
 
         // 2. The inner wheel more than the outer, both toward the turn.
-        const [inner, outer]: [number, number] = side > 0 ? [left, right] : [right, left];
+        const [inner, outer]: [number, number] =
+          side > 0 ? [left, right] : [right, left];
         if (!(side * outer > 0 && side * inner > side * outer))
           findings.push(`${label}: inner ${inner} and outer ${outer}`);
 
         // 3. The equivalent single wheel is the steering wheel's turn over the ratio.
-        const cot = (degrees: number): number => 1 / Math.tan(degrees * ArchetypeUnits.DEGREE);
+        const cot = (degrees: number): number =>
+          1 / Math.tan(degrees * AutoMovieArchetypeUnits.DEGREE);
         const equivalent: number =
-          Math.atan(2 / (cot(left) + cot(right))) / ArchetypeUnits.DEGREE;
+          Math.atan(2 / (cot(left) + cot(right))) /
+          AutoMovieArchetypeUnits.DEGREE;
         if (Math.abs(equivalent - turning.travel("wheel") / ratio) > TENTH)
           findings.push(
             `${label}: the wheels' equivalent ${equivalent} is not the steering ${turning.travel("wheel") / ratio}`,
@@ -121,12 +137,18 @@ export function test_archetype_ride_car(): void {
         thrown = error;
       }
       if (
-        !(thrown instanceof ArchetypeRefusal) ||
+        !(thrown instanceof AutoMovieArchetypeRefusal) ||
         thrown.axis !== "frontLeftWheel" ||
         thrown.feasible?.kind !== "alternatives" ||
         thrown.feasible.values.join() !== "wheel"
       )
-        findings.push(`${kind}@${seed}: a road wheel's travel is admitted in a state`);
+        findings.push(
+          `${kind}@${seed}: a road wheel's travel is admitted in a state`,
+        );
     }
-  TestValidator.equals("road wheels steer with the steering wheel", findings, []);
+  TestValidator.equals(
+    "road wheels steer with the steering wheel",
+    findings,
+    [],
+  );
 }

@@ -21,20 +21,10 @@ import type { IAutoMovieMotionHumanStrikingHeld } from "./IAutoMovieMotionHumanS
  * floor at `strokeStart` and lands at `stroke`, the pelvis travels a share of
  * the foot's travel and sinks until both legs reach their feet, and the foot
  * and the pelvis come back from `relax` to `end` (`StrikingAdvance`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation offset: Its grip socket from the first hand's, metres: `x` along the tool's axis, `y` along its edge, `z` along their cross product. back: The point of the tool that must stay on its path where the wrist cannot turn as asked, metres behind the working point. support: Where the other hand holds the tool, or null when one hand holds it.
- * @evidence contracts/development/design.md#principled-representation offset: Its grip socket from the first hand's, metres: `x` along the tool's axis, `y` along its edge, `z` along their cross product. back: The point of the tool that must stay on its path where the wrist cannot turn as asked, metres behind the working point. support: Where the other hand holds the tool, or null when one hand holds it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.setup, return); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.supported, return); striking/StrikingSupport.ts (StrikingSupport.goal, support); striking/StrikingSupport.ts (StrikingSupport.posture, support); striking/StrikingBlade.ts (StrikingBlade.plan, stroke); striking/StrikingBlade.ts (StrikingBlade.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanStrikingHeld.ITool, IAutoMovieMotionClock, IAutoMovieMotionHumanStrikingHeld.IHandFrame, IAutoMovieMotionHumanStrikingAdvance.Advance identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanStrikingBlade {
   /**
    * The other hand's hold on a tool held in both hands.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation offset: Its grip socket from the first hand's, metres: `x` along the tool's axis, `y` along its edge, `z` along their cross product.
-   * @evidence contracts/development/design.md#principled-representation offset: Its grip socket from the first hand's, metres: `x` along the tool's axis, `y` along its edge, `z` along their cross product.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.setup, return); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.supported, return); striking/StrikingSupport.ts (StrikingSupport.goal, support); striking/StrikingSupport.ts (StrikingSupport.posture, support).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ISupport {
     /** Its grip socket from the first hand's, metres: `x` along the tool's axis, `y` along its edge, `z` along their cross product. */
@@ -46,11 +36,6 @@ export namespace IAutoMovieMotionHumanStrikingBlade {
 
   /**
    * Plan a stroke. * A stroke.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation back: The point of the tool that must stay on its path where the wrist cannot turn as asked, metres behind the working point. support: Where the other hand holds the tool, or null when one hand holds it. decisive: The instant that is the action's decisive one; `stroke` when absent.
-   * @evidence contracts/development/design.md#principled-representation back: The point of the tool that must stay on its path where the wrist cannot turn as asked, metres behind the working point. support: Where the other hand holds the tool, or null when one hand holds it. decisive: The instant that is the action's decisive one; `stroke` when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/StrikingBlade.ts (StrikingBlade.plan, stroke); striking/StrikingBlade.ts (StrikingBlade.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanStrikingHeld.ITool, IAutoMovieMotionClock, IAutoMovieMotionHumanStrikingHeld.IHandFrame, IAutoMovieMotionHumanStrikingBlade.ISupport, IAutoMovieMotionHumanStrikingAdvance.Advance, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IStroke {
     /** The tool. */
@@ -65,14 +50,6 @@ export namespace IAutoMovieMotionHumanStrikingBlade {
      * @param progress 0 at the ready pose, 1 at the decisive pose, more than 1 through the follow-through.
      * @param seconds Seconds since the action's start, for a path that follows something moving (an aim kept on a walking target); a path of a stroke ignores it.
      * @returns The hand's grip frame, world.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the progress's three marks, what the seconds are for and the result's frame.
-     * @evidence contracts/development/implementation.md#principled-implementation A stroke's path is a pure function of its progress, so the planner alone decides the time course; the seconds are given beside it because a held pose's progress stays at 1 while what it is held on may move.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The planner passes the progress unclamped above 1, so a follow-through is the path's own.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
      */
     path(
       progress: number,
@@ -81,6 +58,19 @@ export namespace IAutoMovieMotionHumanStrikingBlade {
 
     /** The point of the tool that must stay on its path where the wrist cannot turn as asked, metres behind the working point. */
     back: number;
+
+    /**
+     * A displacement added to the path's hand point at a second since the
+     * action's start, world metres: the landing's following of a target that
+     * moves after the stroke is planned, or a blade carried aside by a parry
+     * and the taken blade carried with it. The arm's reference at the decisive
+     * pose is planned on the path alone, so two strokes that follow each
+     * other never wait on each other's plan. None when absent.
+     *
+     * @param seconds Seconds since the action's start.
+     * @returns The displacement, world metres.
+     */
+    follow?(seconds: number): IAutoMovieVector3;
 
     /** Where the other hand holds the tool, or null when one hand holds it. */
     support: IAutoMovieMotionHumanStrikingBlade.ISupport | null;

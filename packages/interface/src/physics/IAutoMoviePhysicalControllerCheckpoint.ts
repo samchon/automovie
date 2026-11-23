@@ -6,11 +6,6 @@ import type { IAutoMoviePhysicalTargetInterval } from "./IAutoMoviePhysicalTarge
  * Engine controller state captured at one completed fixed step alongside the separate native-world snapshot.
  *
  * `AutoMoviePhysicalSimulation.run` constructs this record from its contact ledger and fitted target plans. Restoring a checkpoint clones it after `checkpointPhysicalSimulation` establishes an unchanged sampled-input prefix and matching cache protocol. It contains no solver handles, callbacks or native object layouts. A structurally valid record alone does not establish input equivalence or authorize resuming an arbitrary world snapshot.
- *
- * @evidence contracts/development/design.md#principled-representation Contact and ownership prefix lengths, active episode identities and engine-authored interval plans describe the causal state required at a completed cache step; times and poses retain their simulation-local SI units.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMoviePhysicalSimulation writes these fields and restores controller plans; restorePhysicalSimulationCheckpoint restores the associated ledgers for the same admitted simulation prefix.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The record spells out existing engine data instead of deriving its shape from the Rapier binding or copying an SDK structure; optional historical fields retain their existing empty-state restoration behavior.
- * @evidence contracts/development/common.md#meaningful-documentation States snapshot pairing, ownership, input-equivalence admission, index domains, clocks and absent-field restoration behavior.
  */
 export interface IAutoMoviePhysicalControllerCheckpoint {
   /** Number of contact episodes in the cache prefix; restoration copies only entries before this index. */

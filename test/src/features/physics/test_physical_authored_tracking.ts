@@ -1,4 +1,5 @@
 import {
+  AutoMovieXpbdWorld,
   AutoMoviePhysicalSimulation as Simulation,
   assertPhysicalReturnPath,
   bindPhysicalWorld,
@@ -7,7 +8,6 @@ import type {
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
-import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -75,35 +75,33 @@ async function strictReturnBoundary(): Promise<void> {
   input.substeps = 8;
   const defaults: IAutoMoviePhysicalSimulation =
     await Simulation.compute(input);
-  const world: World = new RAPIER.World(input.gravity);
-  try {
-    const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
-      world,
-      defaults.input,
-      false,
-    );
-    bound.segments
-      .get(body.id)!
-      .get("source")!
-      .setRotation(
-        { x: 0, y: 0, z: Math.sin(0.001 / 2), w: Math.cos(0.001 / 2) },
-        true,
-      );
-    bound.handoffs.set(body.id, {
-      source: {
-        tick: 0,
-        duration: defaults.input.bodies[0]!.handoffSeconds!,
-        position: { x: 0, y: 0, z: 0 },
-        velocity: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0 },
-        angularVelocity: { x: 0, y: 0, z: 0 },
-      },
+  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(input.gravity);
+  const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
+    world,
+    defaults.input,
+    false,
+  );
+  bound.segments
+    .get(body.id)!
+    .get("source")!
+    .setRotation({
+      x: 0,
+      y: 0,
+      z: Math.sin(0.001 / 2),
+      w: Math.cos(0.001 / 2),
     });
-    assert.throws(
-      (): void => assertPhysicalReturnPath(defaults.input, bound, 1, "after"),
-      /Physical return violates joint limit envelope/,
-    );
-  } finally {
-    world.free();
-  }
+  bound.handoffs.set(body.id, {
+    source: {
+      tick: 0,
+      duration: defaults.input.bodies[0]!.handoffSeconds!,
+      position: { x: 0, y: 0, z: 0 },
+      velocity: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      angularVelocity: { x: 0, y: 0, z: 0 },
+    },
+  });
+  assert.throws(
+    (): void => assertPhysicalReturnPath(defaults.input, bound, 1, "after"),
+    /Physical return violates joint limit envelope/,
+  );
 }

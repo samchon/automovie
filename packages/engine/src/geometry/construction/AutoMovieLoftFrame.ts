@@ -43,23 +43,10 @@ import type { IAutoMovieLoftSectionFrame } from "@automovie/interface";
  * plane (the underside of the chin, the nape, the upper lip) each jump was a
  * crease of up to four degrees along the layer. Without angular velocities
  * the interpolation is slerp.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame's axes, the normal convention and both interpolation rules.
- * @evidence contracts/development/design.md#principled-representation Represents Section planes of a chain: where each harmonic section lies in the world: companion namespace of 17 members (`IFrame`, `horizontal`, `place`, `local`, `interpolate`, `rate`, ...); units and frames named in its text: frames, world, frame, local, radians. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftFrame` in packages/engine/src/geometry/construction/AutoMovieLoftFrame.ts; its surface is the 17 members listed and the text shows 77 other files naming it, mostly packages/human (40), packages/engine (22), test (15), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftFrame {
   /**
    * Horizontal frame at a world height in mm: the default of an unframed layer.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Origin (0,y,0) with +X/+Z planar axes makes station equal world height and v-cross-u point upward.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One literal record defines the shared unframed-layer convention.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The given height is preserved without offsets or input-specific frame choices.
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the world-height units and default-layer role.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constructs three fixed triples in constant work and space.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure frame constructor owns no coordinated or cached work.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns all returned tuples; the function retains none.
    */
   export function horizontal(y: number): IAutoMovieLoftSectionFrame {
     return { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] };
@@ -67,14 +54,6 @@ export namespace AutoMovieLoftFrame {
 
   /**
    * World point of planar coordinates x/z in mm, preserving the supplied basis.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Applies origin+x*u+z*v, the affine map that defines the section chart.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The three coordinate formulas expose placement without matrix allocation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not renormalize axes or discard their supplied scale; geometric frame admission belongs to the producer.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives planar/world units and the basis-preserving transformation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed three-component affine arithmetic and one tuple take constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One point placement has no interval preparation or shared effects to coordinate.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh world tuple and keeps no reference to the frame.
    */
   export function place(
     frame: IAutoMovieLoftSectionFrame,
@@ -94,14 +73,6 @@ export namespace AutoMovieLoftFrame {
    * Used when a child chain assigns phases to vertices it inherits from a
    * parent ring: the inherited ring lies in (or near) the child's end plane,
    * and the projection discards only the off-plane component.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Dot products of p-origin against orthonormal u/v give planar projection coordinates; with a nonorthonormal interpolated basis these are dot coordinates, not the affine inverse of place.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One displacement and two dot products keep projection at the frame owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Discards the off-plane component by the declared projection rather than moving a ring or solving a hidden corrected frame.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the inherited-ring use and explicitly states the orthonormal-basis premise and its limitation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic allocates one displacement triple and one returned pair.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both coordinates share the same p-origin displacement.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the new pair escapes; frame and point remain unmodified and unretained.
    */
   export function local(
     frame: IAutoMovieLoftSectionFrame,
@@ -126,14 +97,6 @@ export namespace AutoMovieLoftFrame {
    * @param wa World angular velocity at `a` per unit parameter, rad;
    *   absent with `wb` for the constant velocity of slerp.
    * @param wb World angular velocity at `b` per unit parameter, rad.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Cubic Hermite interpolates origin; a relative rotation logarithm, exponential and inverse right Jacobian interpolate orientation with endpoint angular velocities on admitted orthonormal frames.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Translation and rotation share the interval parameter while separate local helpers own fixed-size rotation algebra.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing angular velocities use the constant relative turn; near-identical axes and absent or sub-1e-12 total angular velocities take the explicit still branch, which reuses a's axes.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives parameter range, tangent/angular units, omitted-velocity meaning and the still-branch ownership/tolerance here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size 3x3 rotation operations and one Hermite origin use constant work/storage, with the still branch avoiding rotation construction.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares origin basis values and relative rotation within this reading; repeated interval queries reconstruct that local preparation rather than using a cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rotation matrices and vectors are local; the output owns its origin and normally new axes, but borrows a's axes in the still branch.
    */
   export function interpolate(
     a: IAutoMovieLoftSectionFrame,
@@ -199,14 +162,6 @@ export namespace AutoMovieLoftFrame {
    * The rotation vector of `Ra^T Rb` in world axes, divided by the span: a
    * turn about a fixed axis leaves that axis in place, so the world vector
    * is the same anywhere along the turn.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Maps the principal relative rotation logarithm from a's body frame to world axes and divides by the nonzero station span; orthonormal endpoint frames are required.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One relative-turn calculation returns the world angular velocity consumed by chain frame interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the principal turn in [0,pi], not an inferred multi-turn history; zero or ill-scaled spans are not repaired here.
-   * @evidence contracts/development/common.md#meaningful-documentation States radians per station unit, world-axis convention and constant-turn interpretation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of 3x3 operations and three divisions take constant time and storage.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The local rotation matrix/logarithm supplies all three returned components; no inter-query turn cache is retained.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the new angular-velocity triple escapes; endpoint frames and local matrices are not retained.
    */
   export function rate(
     a: IAutoMovieLoftSectionFrame,

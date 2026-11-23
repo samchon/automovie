@@ -1,6 +1,8 @@
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieChainBone,
   IAutoMovieFitChainToTargetProps,
+  IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieSeededChainFit,
@@ -14,6 +16,7 @@ import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeleto
 import type { IAutoMovieChainContinuationObserver } from "./IAutoMovieChainContinuationObserver";
 import { continueHingedOrientation } from "./continueHingedOrientation";
 import { fitChainBend } from "./fitChainBend";
+import { fitHingedChainAt } from "./fitHingedChainAt";
 import { fitHingedChainBend } from "./fitHingedChainBend";
 import { orientChainEffector } from "./orientChainEffector";
 import { prepareChainFit } from "./prepareChainFit";
@@ -25,7 +28,7 @@ import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
  *
  * For a hinged mid joint (an elbow or a knee, whose abduction is immobile) the swivel parameterisation of Tolani, Goswami and Badler (2000) comes first and wins whenever it reaches: the hinge angle follows from the span and the swivel about the root-to-target axis is swept for the least range-of-motion overshoot and then the least continuous cost of effector-rotation error, swing from the hint's side and turn from the `referencePose` (`fitHingedChainCandidate`), because a free-swing candidate turns the hinge about the plane normal and the clamp of its abduction moves the effector. Otherwise, and for other chains, the bend hint's plane and then the 32-plane sweep follow, the first exact one winning. When nothing reaches, the least clamped residual is returned, so an unreachable target leaves the effector on the reachable shell, not a pretended reach.
  *
- * A hinged chain's answer comes with its seed, the branch and swivel its candidate was chosen at, which a fit of a nearby target continues from (`near`, `IAutoMovieSwivelNear`): that fit refines the seed alone instead of sweeping. The seed is null when another candidate is the answer.
+ * A hinged chain's answer comes with its seed, the branch and swivel its candidate was chosen at and the mid bone's twist it chose, which a fit of a nearby target continues from (`near`, `IAutoMovieSwivelNear`): that fit refines the seed alone instead of sweeping, and keeps the twist's basin (`solveDistalTwist`'s `reference`). The seed is null when another candidate is the answer.
  *
  * With `effectorRotation`, a mid bone that declares a distal twist (a forearm) first takes the twist share of the requested rotation about its own length (swing-twist decomposition), clamped to its range, and the effector the remaining swing, so pronation and supination are the forearm's and the wrist keeps its place.
  *
@@ -97,7 +100,12 @@ export namespace fitSeededChainToTarget {
    * Keep that target's coordinate record unchanged until the fit returns.
      * An optional `near` replaces the source's cold/near mode for this target
      * only: the fit continues that seed (a later contact re-aim pass
-     * continuing the previous pass's answer for a target millimetres away).
+     * continuing its first pass's answer for a target millimetres away).
+     * A prescribed seed (`IAutoMovieSwivelNear.prescribed`) is placed in
+     * closed form where that placement reaches the target within range and
+     * clear of the obstruction, and refined from otherwise; this call's
+     * prescribed `near` wins over the source's, so a re-aim pass keeps the
+     * swivel its first pass settled on.
      * An optional `incumbent` (ignored with `near`) is a seed the caller holds
      * for this swept fit: it only starts the bounded sweep's stop
      * (`IAutoMovieFitChainToTargetProps.incumbent`), so the answer is the
@@ -244,6 +252,23 @@ export namespace fitSeededChainToTarget {
   }
 }
 
+/**
+ * A fit's seed with the mid bone's twist it chose (`IAutoMovieSwivelSeed.twist`),
+ * which a fit continued from the seed keeps its basin of; the seed as it is
+ * where the mid bone has no twist or there is no seed.
+ */
+function twisted(
+  seed: IAutoMovieSwivelSeed | null,
+  pose: IAutoMoviePose,
+  lower: AutoMovieHumanoidBone,
+): IAutoMovieSwivelSeed | null {
+  if (seed === null) return null;
+  const twist: number | null | undefined = pose.joints.find(
+    (joint: IAutoMovieJointPose): boolean => joint.bone === lower,
+  )?.twist;
+  return typeof twist === "number" ? { ...seed, twist } : seed;
+}
+
 /** One owner of actual search/orientation and result rotation for both preparation scopes. */
 function preparedWorkspace(
   workspace: prepareChainFit.IWorkspace,
@@ -253,15 +278,48 @@ function preparedWorkspace(
   const finish: (props: IAutoMovieFitChainToTargetProps,
     bend: IAutoMovieSeededChainFit, capture?: orientChainEffector.IReading) => IAutoMovieSeededChainFit = (
     props: IAutoMovieFitChainToTargetProps, bend: IAutoMovieSeededChainFit, capture?: orientChainEffector.IReading,
-  ): IAutoMovieSeededChainFit => ({
-    pose: orientChainEffector(
+  ): IAutoMovieSeededChainFit => {
+    const pose: IAutoMoviePose = orientChainEffector(
       props, bend.pose, workspace.prepared ?? undefined, workspace.rig, capture,
-    ),
-    seed: bend.seed,
-    ...(bend.value === undefined ? {} : { value: bend.value }),
-  });
+    );
+    return {
+      pose,
+      seed: twisted(bend.seed, pose, props.chain.lower),
+      ...(bend.value === undefined ? {} : { value: bend.value }),
+    };
+  };
   return {
       fit: (target: IAutoMovieVector3, near?: IAutoMovieSwivelNear, incumbent?: IAutoMovieSwivelSeed, capture?: orientChainEffector.IReading): IAutoMovieSeededChainFit => {
+        // A prescribed seed, this call's or else the workspace's own, is
+        // placed in closed form at every target (a contact's re-aims
+        // included): the course chose the swivel, so nothing is searched or
+        // refined. This call's wins, so a re-aim pass keeps the swivel its
+        // first pass settled on, even where that pass had to refine away
+        // from the workspace's.
+        const prescribed: IAutoMovieSwivelNear | undefined =
+          near?.prescribed === true ? near
+            : workspace.props.near?.prescribed === true ? workspace.props.near : undefined;
+        if (prescribed !== undefined) {
+          // The placement's orientation continues the prescribed seed's twist.
+          const placed: ReturnType<typeof fitHingedChainAt> = fitHingedChainAt(
+            { ...workspace.props, target, near: prescribed }, prescribed.swivel, prescribed.branch);
+          // The closed form stands only where it reaches the target within the
+          // range of motion and keeps clear of the request's obstruction, the
+          // one probe that confirms the swivel; elsewhere the fit continues
+          // from the course's seed.
+          if (placed !== null && placed.shortfall <= 0 && !placed.clamped && placed.blocked <= 0)
+            return {
+              pose: placed.pose,
+              seed: twisted(placed.seed, placed.pose, workspace.props.chain.lower),
+            };
+          const continued: IAutoMovieSwivelNear = {
+            swivel: prescribed.swivel,
+            branch: prescribed.branch,
+            tolerance: prescribed.tolerance,
+          };
+          const props: IAutoMovieFitChainToTargetProps = { ...workspace.props, target, near: continued };
+          return finish(props, fitChainBend(props, workspace), capture);
+        }
         const props: IAutoMovieFitChainToTargetProps = near === undefined
           ? { ...workspace.props, target, ...(incumbent === undefined ? {} : { incumbent }) } : { ...workspace.props, target, near };
         return finish(props, fitChainBend(props, workspace), capture);

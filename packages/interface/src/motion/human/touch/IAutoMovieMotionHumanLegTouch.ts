@@ -26,32 +26,15 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  * marked), the shin is the round kick's and has no slow stroke here, the
  * contact is not declared as a window, and the standing balance is the
  * static one, not checked through the lift.
- *
- * @evidence contracts/development/common.md#meaningful-documentation with: The part of the leg; the toes when absent. side: The leg; `right` when absent. hold: Seconds the leg stays on the place; 0.5 when absent.
- * @evidence contracts/development/design.md#principled-representation with: The part of the leg; the toes when absent. side: The leg; `right` when absent. hold: Seconds the leg stays on the place; 0.5 when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: touch/legTouch.ts (legTouch.plan, context); touch/legTouch.ts (legTouch.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanLegTouch {
   /**
    * The part of the leg that touches.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The part of the leg that touches.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "toes", "heel", "knee" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: touch/legTouch.ts (legTouch.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in legTouch.plan.
    */
   export type With = "toes" | "heel" | "knee";
 
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The place as the shared target union, the part as a closed union, the hold in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**

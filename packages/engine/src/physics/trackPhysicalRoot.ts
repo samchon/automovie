@@ -10,26 +10,24 @@ import type {
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { RigidBody, SdpMatrix3 } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracking";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
-import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { distributePhysicalSupportWrench } from "./distributePhysicalSupportWrench";
+import { physicalCentroidalTask } from "./physicalCentroidalTask";
 import { physicalJointInertia } from "./physicalJointInertia";
-import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalStanceBalance } from "./physicalStanceBalance";
-import { physicalStanceBranches } from "./physicalStanceBranches";
-import { physicalStanceDynamics } from "./physicalStanceDynamics";
-import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalSupportFootprint } from "./physicalSupportFootprint";
 
 /**
- * Realize one bounded root demand through an external wrench or feasible actual-support joint torques.
+ * Realize one bounded root demand through an external wrench, or under internal actuation as the root task of the motors' whole-body solve.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Realize one bounded root demand through an external wrench or feasible actual-support joint torques) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Realize one bounded root demand through an external wrench or feasible actual-support joint torques) directly over its typed inputs (`input`) as nested iteration of depth 3 (map over (["x", "y", "z"] as const); filter over ( body.supportTracking?.pattern ??; flatMap over supports .filter((support: (type), delegating to `Vector3.add`, `Tracking.force`, `Vector3.subtract`, `base.translation`, `base.velocityAtPoint`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Realize one bounded root demand through an external wrench, or under internal actuation as the root task of the motors' whole-body solve) as stated in this comment.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Realize one bounded root demand through an external wrench, or under internal actuation as the root task of the motors' whole-body solve) directly over its typed inputs (`input`) as nested iteration of depth 3 (map over (["x", "y", "z"] as const); filter over ( body.supportTracking?.pattern ??; flatMap over supports .filter((support: (type), delegating to `Vector3.add`, `Tracking.force`, `Vector3.subtract`, `base.translation`, `base.velocityAtPoint`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 165 lines and 8 top-level statements that reuses `Vector3.add`, `Tracking.force`, `Vector3.subtract`, `base.translation`, `base.velocityAtPoint` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 7 non-null assertion(s); these are the remaining shortcuts and are not justified here.
  * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 3 (map over (["x", "y", "z"] as const); filter over ( body.supportTracking?.pattern ??; flatMap over supports .filter((support: (type), performed once per call with 14 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
@@ -50,16 +48,12 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
     landed,
     planted,
     seating,
-    ankleCaps,
-    dynamics,
     integral,
     pushed,
     gravity,
     actuation,
     supports,
     recoveryBone,
-    step,
-    seconds,
     dt,
   }: trackPhysicalRoot.IInput = input;
   const rootStrength: number = target.strength;
@@ -71,7 +65,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
     ? Tracking.force(
         Vector3.subtract(rootGoal, base.translation()),
         Vector3.subtract(
-          base.velocityAtPoint(physicalNativeVector(base.translation())),
+          base.velocityAtPoint(base.translation()),
           rootIntent.velocity,
         ),
         body.profile.mass,
@@ -99,9 +93,8 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
       );
   }
   let rootTorque: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  // Without internal actuation the root is held by an external servo; with
-  // it, the stance solve's orientation rows hold the torso instead.
-  if (rootDynamic && !actuation && body.rootTorque && rootStrength > 0) {
+  let orientation: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  if (rootDynamic && body.rootTorque && rootStrength > 0) {
     const axes: IAutoMoviePhysicalJointAxis[] = (["x", "y", "z"] as const).map(
       (axis: "x" | "y" | "z"): IAutoMoviePhysicalJointAxis => ({
         axis,
@@ -111,16 +104,17 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         ...body.rootTorque!,
       }),
     );
+    orientation = Tracking.torque(
+      base.rotation(),
+      rootIntent.pose.rotation,
+      Vector3.subtract(base.angvel(), rootIntent.angularVelocity),
+      axes,
+      physicalJointInertia({ x: 0, y: 0, z: 0, w: 1 }, base),
+      dt,
+      rootStrength,
+    ).torque;
     const torque: IAutoMovieVector3 = Vector3.add(
-      Tracking.torque(
-        base.rotation(),
-        rootIntent.pose.rotation,
-        Vector3.subtract(base.angvel(), rootIntent.angularVelocity),
-        axes,
-        physicalJointInertia({ x: 0, y: 0, z: 0, w: 1 }, base),
-        dt,
-        rootStrength,
-      ).torque,
+      orientation,
       Vector3.scale(gravity, rootStrength),
     );
     const limit: number = body.rootTorque.maximumTorque * rootStrength;
@@ -148,12 +142,12 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
     // Internal actuation balances by the centre of pressure, not by holding
     // the pelvis (`physicalStanceBalance`). The supports carry the pendulum's
     // force and any swing hip's reaction (Yin, Loken and van de Panne 2007,
-    // Section 3.2); the torso's orientation is a task of the stance solve
-    // below, bounded by the same contact rows.
-    const segments: ReadonlyMap<string, RigidBody> = bound.segments.get(
+    // Section 3.2) and the trunk's orientation servo, within the centre of
+    // pressure's room.
+    const segments: ReadonlyMap<string, AutoMovieXpbdBody> = bound.segments.get(
       body.id,
     )!;
-    const origin: IAutoMovieVector3 = physicalNativeVector(base.worldCom());
+    const origin: IAutoMovieVector3 = base.worldCom();
     // Each stance foot's bearing and flatness shares, ramped through contact
     // changes (`advancePhysicalBalance`); a foot that is not flat bears toward
     // its ankle joint centre (Coros, Beaudoin and van de Panne 2010, Section
@@ -163,24 +157,67 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         (candidate: IAutoMoviePhysicalJoint): boolean =>
           candidate.child === limb.bone,
       )!;
-      const parent: RigidBody = segments.get(joint.parent)!;
+      const parent: AutoMovieXpbdBody = segments.get(joint.parent)!;
       return Vector3.add(
-        physicalNativeVector(parent.translation()),
+        parent.translation(),
         Quaternion.rotateVector(parent.rotation(), joint.parentFrame.position),
       );
     };
+    // An unseated foot still bearing bears on its edge where it is now: its
+    // bearing face at its present pose (`physicalStanceBalance.support`).
     const feet: Record<
       string,
-      { bearing: number; flat: number; ankle: IAutoMovieVector3 }
+      {
+        bearing: number;
+        flat: number;
+        ankle: IAutoMovieVector3;
+        edge?: IAutoMovieVector3[];
+      }
     > = Object.fromEntries(
-      limbs.map((limb: (typeof limbs)[number]) => [
-        limb.bone,
-        {
-          bearing: seating?.[limb.bone]?.bearing ?? 1,
-          flat: seating?.[limb.bone]?.flat ?? 1,
-          ankle: ankleOf(limb),
-        },
-      ]),
+      limbs.map((limb: (typeof limbs)[number]) => {
+        const flat: number = seating?.[limb.bone]?.flat ?? 1;
+        return [
+          limb.bone,
+          {
+            bearing: seating?.[limb.bone]?.bearing ?? 1,
+            flat,
+            ankle: ankleOf(limb),
+            ...(flat > 0
+              ? {}
+              : {
+                  edge: physicalSupportFootprint(
+                    body.profile,
+                    segments,
+                    limb,
+                    settings.floor,
+                  ),
+                }),
+          },
+        ];
+      }),
+    );
+    // The body's centroidal angular momentum, and the capture point's shift
+    // for it (`physicalStanceBalance.momentum`, `spin`).
+    let whole: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    for (const segment of body.profile.segments)
+      whole = Vector3.add(
+        whole,
+        Vector3.scale(
+          segments.get(segment.bone)!.worldCom(),
+          segment.mass / body.profile.mass,
+        ),
+      );
+    const spun: IAutoMovieVector3 = physicalStanceBalance.momentum(
+      body.profile,
+      segments,
+      whole,
+    );
+    const g: number = Math.abs(settings.gravity.y);
+    const shift: IAutoMovieVector3 = physicalStanceBalance.spin(
+      spun,
+      Math.sqrt(g / Math.max(1e-6, whole.y - settings.floor)),
+      body.profile.mass,
+      g,
     );
     const stance: physicalStanceBalance.IResult | undefined =
       planted && authored
@@ -193,12 +230,16 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
             planted,
             center: authored,
             ...(landed ? { landed } : {}),
+            spin: shift,
             velocity: rootIntent.velocity,
-            // The torso is held by the stance solve's orientation rows, not by
-            // a servo moment outside it: a moment the contact rows do not
-            // bound asks the floor for more than the centre of pressure's
-            // room (Feng et al. 2013, Section III-B).
-            torque: swingHip(body, segments, recoveryBone, actuation),
+            // The swinging hip's reaction and the trunk's orientation servo,
+            // kept within the centre of pressure's room so the task never
+            // asks the floor for more than it can bear (Feng et al. 2013,
+            // Section III-B).
+            torque: Vector3.add(
+              swingHip(body, segments, recoveryBone, actuation),
+              orientation,
+            ),
             origin,
             strength: rootStrength,
             ...(integral
@@ -206,57 +247,44 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
               : {}),
           })
         : undefined;
-    const demand: IAutoMovieVector3 = stance?.force ?? { x: 0, y: 0, z: 0 };
-    const moment: IAutoMovieVector3 = stance?.torque ?? { x: 0, y: 0, z: 0 };
-    let points: physicalStanceBalance.IResult["points"] = stance?.points ?? [];
-    const allocated: IAutoMovieDistributePhysicalSupportWrench.IResult =
-      distributePhysicalSupportWrench({
-        origin,
-        force: demand,
-        torque: moment,
-        maximumForce: body.maximumRootForce * rootStrength,
-        points,
-        // Each foot bears at most its bearing share of the force bound, so a
-        // contact change ramps its load (Kim, Jorgensen and Sentis 2018).
-        loads: Object.fromEntries(
-          limbs.map((limb: (typeof limbs)[number]): [string, number] => [
-            limb.bone,
-            feet[limb.bone]!.bearing * body.maximumRootForce * rootStrength,
-          ]),
-        ),
-        ...(stance
-          ? {
-              priority: stance.priority,
-              normalization: stance.normalization,
-              effort: {
-                normal: physicalStanceBalance.EFFORT_NORMAL,
-                tangential: physicalStanceBalance.EFFORT_TANGENTIAL,
-              },
-              exactNormal: true,
-              yaw: stance.yaw,
-            }
-          : {}),
-      });
-    if (
-      Math.round(seconds * settings.rate * settings.substeps!) %
-        settings.substeps! ===
-      0
-    )
-      bound.supportWrenches.push({
-        body: body.id,
-        seconds: step / settings.rate,
-        origin: base.worldCom(),
-        requested: { force: demand, torque: moment },
-        allocated: { force: allocated.force, torque: allocated.torque },
-        residual: allocated.residual,
-        pointCount: allocated.forces.length,
-      });
-    let tracked: typeof allocated.forces = allocated.forces;
+    // The supports' ground reaction is the body's momentum task inside the
+    // motors' whole-body solve, with its contacts and joints (the strict
+    // support cascade, Herzog et al. 2016; solveXpbdArticulationContacts):
+    // the stance's centre-of-pressure wrench while a stance is planted, the
+    // mass centre's servo otherwise (`physicalCentroidalTask`).
+    if (!stance) {
+      submit(
+        input,
+        limbs,
+        physicalCentroidalTask({
+          profile: body.profile,
+          segments,
+          goals: input.goals,
+          root: bound.order.get(body.id)![0]!.bone,
+          rootGoal,
+          rootVelocity: rootIntent.velocity,
+          stiffness: body.rootStiffness * rootStrength,
+          damping: body.rootDamping * rootStrength,
+          maximumForce: body.maximumRootForce * rootStrength,
+          weight: body.compensateGravity
+            ? Vector3.scale(
+                settings.gravity,
+                body.profile.mass *
+                  rootStrength *
+                  (body.mode.kind === "exaggerated" ? body.mode.gravity : 1),
+              )
+            : { x: 0, y: 0, z: 0 },
+          torque: orientation,
+          dt,
+        }),
+      );
+      return;
+    }
     // The centre-of-pressure integral reads the realized centre of pressure
     // from the actual contact points weighted by their normal impulses (the
     // solver's summed contact wrench), not from the centre of mass's
     // acceleration (Stephens 2011, Eq. 5.31).
-    if (stance && integral) {
+    if (integral) {
       let weight: number = 0;
       let realized: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       for (const support of supports)
@@ -267,7 +295,6 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
             Vector3.scale(support.pressure, support.impulse),
           );
         }
-      const swinging: string | undefined = recoveryBone;
       physicalStanceBalance.integrate({
         state: integral,
         result: stance,
@@ -275,617 +302,22 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         frozen:
           stance.clamped ||
           !!pushed ||
-          swinging !== undefined ||
+          recoveryBone !== undefined ||
           !(weight > 0) ||
           limbs.some((limb): boolean => feet[limb.bone]!.flat < 1),
-        reset: integral.swing !== swinging,
+        reset: integral.swing !== recoveryBone,
         ...(weight > 0 ? { real: Vector3.scale(realized, 1 / weight) } : {}),
       });
-      integral.swing = swinging;
+      integral.swing = recoveryBone;
     }
-    // The stance's joint accelerations and contact forces are solved together
-    // once per control frame (`physicalStanceDynamics.stance`; TSID; Herzog et
-    // al. 2016), the base's acceleration following from its six rows; every
-    // substep each leg's torques are refreshed from that solution by one
-    // Newton-Euler pass, tau = M_a q''* + h_a - J_a^T lambda*, and the solved
-    // forces stand for the allocation. A bearing ankle's roll and pitch are
-    // its impedance's (`physicalStanceBalance.hold`): the solve takes them as
-    // given and adds no second centre-of-pressure feedback. A leg it cannot
-    // cover keeps the J^T of the allocated forces.
-    const field: IAutoMovieVector3 = Vector3.scale(
-      settings.gravity,
-      body.mode.kind === "exaggerated" ? body.mode.gravity : 1,
-    );
-    const solved: Set<string> = new Set();
-    const legs = limbs.flatMap((limb) => {
-      const joints: IAutoMoviePhysicalJoint[] = limb.chain.flatMap(
-        (bone: string): IAutoMoviePhysicalJoint[] => {
-          const joint: IAutoMoviePhysicalJoint | undefined =
-            body.profile.joints.find(
-              (candidate: IAutoMoviePhysicalJoint): boolean =>
-                candidate.child === bone,
-            );
-          return joint ? [joint] : [];
-        },
-      );
-      return joints.length === limb.chain.length ? [{ limb, joints }] : [];
+    submit(input, limbs, {
+      origin,
+      force: stance.force,
+      torque: stance.torque,
     });
-    const members: Set<string> = new Set(
-      legs.flatMap(({ limb }) => [...limb.chain, ...(limb.contacts ?? [])]),
-    );
-    const frameOf = (joint: IAutoMoviePhysicalJoint): IAutoMovieQuaternion =>
-      Quaternion.multiply(
-        segments.get(joint.parent)!.rotation(),
-        joint.parentFrame.rotation,
-      );
-    const worldAxis = (
-      joint: IAutoMoviePhysicalJoint,
-      axis: IAutoMoviePhysicalJointAxis,
-    ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(frameOf(joint), {
-        x: axis.axis === "x" ? 1 : 0,
-        y: axis.axis === "y" ? 1 : 0,
-        z: axis.axis === "z" ? 1 : 0,
-      });
-    const chainOf = (
-      limb: (typeof limbs)[number],
-      joints: IAutoMoviePhysicalJoint[],
-    ): physicalStanceDynamics.IJoint[] =>
-      joints.map((joint, index) => {
-        const parent: RigidBody = segments.get(joint.parent)!;
-        return {
-          pivot: Vector3.add(
-            physicalNativeVector(parent.translation()),
-            Quaternion.rotateVector(
-              parent.rotation(),
-              joint.parentFrame.position,
-            ),
-          ),
-          axes: joint.axes.map((axis: IAutoMoviePhysicalJointAxis) =>
-            worldAxis(joint, axis),
-          ),
-          bodies: [
-            rigidBody(segments.get(joint.child)!),
-            ...(index === joints.length - 1
-              ? (limb.contacts ?? [])
-                  .filter((bone: string): boolean => !limb.chain.includes(bone))
-                  .map((bone: string) => rigidBody(segments.get(bone)!))
-              : []),
-          ],
-        };
-      });
-    // A bearing ankle's roll and pitch axes: those not near the vertical.
-    const level = (
-      joint: IAutoMoviePhysicalJoint,
-      axis: IAutoMoviePhysicalJointAxis,
-    ): boolean => Math.abs(worldAxis(joint, axis).y) <= Math.SQRT1_2;
-    if (stance && body.balance && planted && legs.length > 0) {
-      // The spine and arms enter the solve as degrees of freedom hanging from
-      // the base (`physicalStanceBranches`), no longer as a rigid lump.
-      const tree: physicalStanceBranches.IResult = physicalStanceBranches({
-        profile: body.profile,
-        segments,
-        members,
-        root: body.profile.segments.find(
-          (segment): boolean =>
-            !body.profile.joints.some(
-              (joint): boolean => joint.child === segment.bone,
-            ),
-        )!.bone,
-        targets: planted,
-        gravity: field,
-      });
-      const store: Map<string, IStanceFrame> = frames.get(bound) ?? new Map();
-      frames.set(bound, store);
-      let frame: IStanceFrame | undefined = store.get(body.id);
-      // A touchdown or lift-off is solved again at once, not at the next
-      // frame (Feng et al. 2013, Section II-E).
-      const pattern: string = [
-        ...legs.map(({ limb }) => (feet[limb.bone]!.bearing > 0 ? "1" : "0")),
-        recoveryBone ?? "",
-      ].join("");
-      if (!frame || frame.step !== step || frame.pattern !== pattern) {
-        // TSID's contact gain: K_p = 10 per second squared, critically damped.
-        const problem = legs.map(({ limb, joints }) => {
-          const bearing: boolean = feet[limb.bone]!.bearing > 0;
-          const rows = bearing
-            ? points.filter((point) => point.bone === limb.bone)
-            : [];
-          const anchor = seating?.[limb.bone]?.anchor;
-          const foot: RigidBody = segments.get(limb.bone)!;
-          const ankle: IAutoMoviePhysicalJoint = joints[joints.length - 1]!;
-          let held: { velocity: number[]; error: number[] } | undefined;
-          if (bearing && anchor) {
-            const at: IAutoMovieVector3 = physicalNativeVector(
-              physicalSupportPoint(
-                { position: foot.translation(), rotation: foot.rotation() },
-                limb.localPoint,
-              ),
-            );
-            const delta: IAutoMovieQuaternion = Quaternion.multiply(
-              foot.rotation(),
-              Quaternion.inverse(anchor.rotation),
-            );
-            const norm: number = Math.hypot(delta.x, delta.y, delta.z);
-            const sign: number = delta.w < 0 ? -1 : 1;
-            const scale: number =
-              norm < 1e-12
-                ? 2 * sign
-                : (2 * Math.atan2(norm, Math.abs(delta.w)) * sign) / norm;
-            const spin: IAutoMovieVector3 = physicalNativeVector(foot.angvel());
-            const velocity: IAutoMovieVector3 = physicalNativeVector(
-              foot.linvel(),
-            );
-            const shift: IAutoMovieVector3 = Vector3.subtract(at, anchor.point);
-            held = {
-              velocity: [
-                spin.x,
-                spin.y,
-                spin.z,
-                velocity.x,
-                velocity.y,
-                velocity.z,
-              ],
-              error: [
-                delta.x * scale,
-                delta.y * scale,
-                delta.z * scale,
-                shift.x,
-                shift.y,
-                shift.z,
-              ],
-            };
-          }
-          // A bearing ankle's roll and pitch torque is its impedance's now,
-          // within what its allocated load can hold flat.
-          // The ankle impedance is a known passive torque in the bias: the solve
-          // leaves the ankle's feed-forward free and the motor adds the
-          // impedance (Herzog et al. 2016, Eq. 1).
-          const passive: Map<number, number> = new Map();
-          const local: IAutoMovieVector3 = bearing
-            ? Quaternion.rotateVector(
-                Quaternion.inverse(frameOf(ankle)),
-                physicalStanceBalance.hold({
-                  carriers: [
-                    ...new Set([limb.bone, ...(limb.contacts ?? [])]),
-                  ].map((bone: string): RigidBody => segments.get(bone)!),
-                  foot,
-                  shank: segments.get(ankle.parent)!,
-                  dt,
-                  rotation: anchor?.rotation ?? planted[limb.bone]!.rotation,
-                  ankle: feet[limb.bone]!.ankle,
-                  duration: body.balance!.duration,
-                  axes: ankle.axes.map((axis: IAutoMoviePhysicalJointAxis) =>
-                    worldAxis(ankle, axis),
-                  ),
-                }),
-              )
-            : { x: 0, y: 0, z: 0 };
-          const own = allocated.forces.filter(
-            (force) => force.bone === limb.bone,
-          );
-          const resultant: IAutoMovieVector3 = own.reduce(
-            (sum: IAutoMovieVector3, force): IAutoMovieVector3 =>
-              Vector3.add(sum, force.force),
-            { x: 0, y: 0, z: 0 },
-          );
-          let index: number = 0;
-          const bounds = joints.flatMap((joint) =>
-            joint.axes.map((axis: IAutoMoviePhysicalJointAxis) => {
-              const bound = {
-                lower: -(axis.reverseTorque ?? axis.maximumTorque),
-                upper: axis.maximumTorque,
-              };
-              if (bearing && joint === ankle && level(joint, axis)) {
-                const along: number[] = rows.map(
-                  (row) =>
-                    Quaternion.rotateVector(
-                      Quaternion.inverse(frameOf(ankle)),
-                      Vector3.cross(
-                        resultant,
-                        Vector3.subtract(row.point, feet[limb.bone]!.ankle),
-                      ),
-                    )[axis.axis],
-                );
-                const lowest: number = Math.min(0, ...along);
-                const highest: number = Math.max(0, ...along);
-                passive.set(
-                  index,
-                  Math.max(lowest, Math.min(highest, local[axis.axis])),
-                );
-              }
-              index++;
-              return bound;
-            }),
-          );
-          const yaw: boolean = joints.some((joint) =>
-            joint.axes.some((axis) => !level(joint, axis)),
-          );
-          const twist = stance.yaw.find((entry) => entry.bone === limb.bone);
-          return {
-            limb,
-            joints,
-            passive,
-            leg: {
-              joints: chainOf(limb, joints),
-              points: rows.map((row) => ({
-                point: row.point,
-                friction: row.friction,
-              })),
-              load:
-                feet[limb.bone]!.bearing * body.maximumRootForce * rootStrength,
-              ...(held ? { held } : {}),
-              yaw,
-              ...(yaw && twist
-                ? { twist: { center: twist.center, limit: twist.limit } }
-                : {}),
-              bounds,
-            } satisfies physicalStanceDynamics.ILeg,
-          };
-        });
-        const solution = physicalStanceDynamics.stance({
-          base: tree.base,
-          ...(tree.branches.size > 0 ? { branches: tree.branches } : {}),
-          legs: problem.map((entry) => entry.leg),
-          gravity: field,
-          stiffness: 10,
-          damping: 2 * Math.sqrt(10),
-          task: { force: stance.force, moment: stance.torque, origin },
-          // The torso's demand is kept within the moment the support can
-          // give it, M_max / I, so the orientation task never asks the
-          // stance for more than its centre of pressure's room.
-          orientation: {
-            acceleration: physicalStanceBalance.steady(
-              physicalStanceBalance.orient(
-                base.rotation(),
-                rootIntent.pose.rotation,
-                Vector3.subtract(
-                  physicalNativeVector(base.angvel()),
-                  rootIntent.angularVelocity,
-                ),
-                physicalStanceBalance.TORSO,
-              ),
-              stance.authority,
-              { x: tree.base.inertia[0]!, z: tree.base.inertia[8]! },
-            ),
-            weight: 1,
-          },
-          // The body's height, critically damped toward its goal at the
-          // torso's frequency (Khadiv et al. 2017, Table I).
-          height: {
-            acceleration:
-              physicalStanceBalance.TORSO *
-                physicalStanceBalance.TORSO *
-                (rootGoal.y - base.translation().y) -
-              2 *
-                physicalStanceBalance.TORSO *
-                (base.linvel().y - rootIntent.velocity.y),
-            weight: 1,
-          },
-          ...(frame?.solution
-            ? {
-                previous: problem.map((entry) => {
-                  const at: number = frame!.legs.findIndex(
-                    (leg) => leg.bone === entry.limb.bone,
-                  );
-                  return at >= 0 &&
-                    frame!.legs[at]!.points.length === entry.leg.points.length
-                    ? frame!.solution!.forces[at]!
-                    : [];
-                }),
-              }
-            : {}),
-        });
-        frame = {
-          step,
-          pattern,
-          solution,
-          legs: problem.map((entry) => ({
-            bone: entry.limb.bone,
-            points: entry.leg.points.map((p) => p.point),
-            carrier: (entry.limb.contacts ?? [entry.limb.bone])[0]!,
-            passive: [...entry.passive.entries()],
-            friction: entry.leg.points.map((p) => p.friction),
-          })),
-        };
-        store.set(body.id, frame);
-      }
-      const solution = frame.solution;
-      if (solution) {
-        const now: physicalStanceDynamics.IBody = tree.base;
-        const baseMotion = {
-          ...now,
-          acceleration: {
-            x: solution.base[0]!,
-            y: solution.base[1]!,
-            z: solution.base[2]!,
-          },
-          angularAcceleration: {
-            x: solution.base[3]!,
-            y: solution.base[4]!,
-            z: solution.base[5]!,
-          },
-        };
-        const solvedForces: typeof allocated.forces = [];
-        frame.legs.forEach((entry, index: number): void => {
-          const leg = legs.find(({ limb }) => limb.bone === entry.bone);
-          if (!leg) return;
-          const torque: number[] = physicalStanceDynamics.refresh(
-            baseMotion,
-            chainOf(leg.limb, leg.joints),
-            field,
-            entry.points,
-            solution.forces[index]!,
-            solution.acceleration[index]!,
-          );
-          if (!torque.every(Number.isFinite)) return;
-          let at: number = 0;
-          for (const joint of leg.joints) {
-            const local: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-            const rate: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-            for (const axis of joint.axes) {
-              const held: [number, number] | undefined = entry.passive.find(
-                ([k]) => k === at,
-              );
-              local[axis.axis] = torque[at]! - (held ? held[1] : 0);
-              rate[axis.axis] = solution.acceleration[index]![at]! * dt;
-              at++;
-            }
-            actuation.set(
-              joint.id,
-              Vector3.add(
-                actuation.get(joint.id) ?? { x: 0, y: 0, z: 0 },
-                local,
-              ),
-            );
-            dynamics?.set(joint.id, rate);
-          }
-          entry.points.forEach((point, k: number): void => {
-            solvedForces.push({
-              bone: entry.bone,
-              point,
-              force: solution.forces[index]![k]!,
-              friction: entry.friction[k]!,
-            });
-          });
-          solved.add(entry.bone);
-        });
-        // Every substep the branches' torques are refreshed from the solution.
-        if (solution.branches && tree.joints.length > 0) {
-          const torque: number[] = tree.refresh({
-            base: solution.base,
-            acceleration: solution.branches.acceleration,
-          });
-          let at: number = 0;
-          for (const joint of tree.joints) {
-            const local: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-            const rate: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-            for (const axis of joint.axes) {
-              local[axis] = torque[at] ?? 0;
-              rate[axis] = (solution.branches.acceleration[at] ?? 0) * dt;
-              at++;
-            }
-            if (![local.x, local.y, local.z].every(Number.isFinite)) continue;
-            actuation.set(
-              joint.id,
-              Vector3.add(
-                actuation.get(joint.id) ?? { x: 0, y: 0, z: 0 },
-                local,
-              ),
-            );
-            dynamics?.set(joint.id, rate);
-          }
-        }
-        tracked = solvedForces;
-        points = solvedForces.map((force) => ({
-          bone: force.bone,
-          carrier: frame!.legs.find((leg) => leg.bone === force.bone)!.carrier,
-          point: force.point,
-          friction: force.friction,
-        }));
-      }
-    } // Allocation preserves input order, including coincident points on different carriers.
-    for (const [index, contact] of tracked.entries()) {
-      if (solved.has(contact.bone)) continue;
-      const limb: (typeof limbs)[number] = limbs.find(
-        (candidate: (typeof limbs)[number]): boolean =>
-          candidate.bone === contact.bone,
-      )!;
-      accumulatePhysicalMotorTorques({
-        profile: body.profile,
-        segments,
-        chain: limb.chain,
-        carrier: points[index]!.carrier,
-        point: contact.point,
-        force: contact.force,
-        torque: { x: 0, y: 0, z: 0 },
-        reverse: true,
-        torques: actuation,
-      });
-    } // Every stance foot's support point is servoed in the world frame to its
-    // latched footprint through its leg's J^T: the swing controller with a
-    // stationary target (Coros, Beaudoin and van de Panne 2010, Section 3.2;
-    // Pratt et al., M2V2, Section VII-D), K = Lambda omega_n^2 and D = 2
-    // Lambda omega_n, bounded by twice the leg's weight. The target is the footprint
-    // latched where the foot actually stood when its stance began
-    // (`advancePhysicalBalance`), so the error is zero while the foot stays
-    // planted and it adds nothing to a borne foot; it keeps an unloaded foot
-    // where it was planted.
-    const servos: Map<string, IAutoMovieVector3> = new Map();
-    if (planted && body.balance)
-      for (const limb of limbs) {
-        // A held foot's contact row in the joint solve keeps it in place.
-        if (solved.has(limb.bone) && feet[limb.bone]!.bearing > 0) continue;
-        const rigid: RigidBody = segments.get(limb.bone)!;
-        const point: IAutoMovieVector3 = physicalNativeVector(
-          physicalSupportPoint(
-            { position: rigid.translation(), rotation: rigid.rotation() },
-            limb.localPoint,
-          ),
-        );
-        const goal: IAutoMovieVector3 =
-          seating?.[limb.bone]?.anchor?.point ??
-          physicalSupportPoint(planted[limb.bone]!, limb.localPoint);
-        // The gains are sized by the foot point's own effective mass, Lambda
-        // = (J M^-1 J^T)^-1 for the foot body at that point (Khatib 1987),
-        // in its least massive direction, so the servo cannot overdrive the
-        // point it moves; its damping is implicit (backward Euler), which
-        // stays stable at any gain over a substep.
-        const lever: IAutoMovieVector3 = Vector3.subtract(
-          point,
-          physicalNativeVector(rigid.worldCom()),
-        );
-        const inverse: SdpMatrix3 = rigid.effectiveWorldInvInertia();
-        const effective: number = Math.min(
-          ...[
-            { x: 1, y: 0, z: 0 },
-            { x: 0, y: 1, z: 0 },
-            { x: 0, y: 0, z: 1 },
-          ].map((axis: IAutoMovieVector3): number => {
-            const w: IAutoMovieVector3 = Vector3.cross(lever, axis);
-            return (
-              1 /
-              (rigid.invMass() +
-                w.x * w.x * inverse.m11 +
-                w.y * w.y * inverse.m22 +
-                w.z * w.z * inverse.m33 +
-                2 *
-                  (w.x * w.y * inverse.m12 +
-                    w.x * w.z * inverse.m13 +
-                    w.y * w.z * inverse.m23))
-            );
-          }),
-        );
-        const leg: number = [
-          ...new Set([...limb.chain, ...(limb.contacts ?? [])]),
-        ].reduce(
-          (sum: number, bone: string): number =>
-            sum +
-            (body.profile.segments.find((segment) => segment.bone === bone)
-              ?.mass ?? 0),
-          0,
-        );
-        const frequency: number =
-          physicalStanceBalance.HOLD_FREQUENCY / body.balance.duration;
-        const force: IAutoMovieVector3 = Tracking.force(
-          Vector3.subtract(goal, point),
-          physicalNativeVector(
-            rigid.velocityAtPoint(physicalNativeVector(point)),
-          ),
-          effective,
-          effective * frequency * frequency,
-          2 * effective * frequency,
-          2 * leg * Vector3.length(settings.gravity),
-          dt,
-        );
-        servos.set(limb.bone, force);
-        accumulatePhysicalMotorTorques({
-          profile: body.profile,
-          segments,
-          chain: limb.chain,
-          carrier: limb.bone,
-          point,
-          force,
-          torque: { x: 0, y: 0, z: 0 },
-          reverse: false,
-          torques: actuation,
-        });
-      }
-    // Every stance ankle adds a world-frame hold of its sole
-    // (`physicalStanceBalance.hold`), always on whatever the load, to the
-    // contact moment its allocation already gave it through J^T: the full
-    // sum (p_i - r_ankle) x f_i over the foot's allocated forces, the ankle
-    // height times the horizontal force included. Its motor is bounded each
-    // way by the moment the foot's allocated force F can have about the axis
-    // while its centre of pressure p stays on what it bears on, (-(p -
-    // r_ankle) x F) . a at the extreme vertex of its shrunken outline (its
-    // ankle point when not flat), plus the hold, under the joint's own
-    // strength (Koolen et al., capturability, Eqs. 18-20): a foot stays flat
-    // only while its centre of pressure stays inside.
-    if (ankleCaps && planted && body.balance)
-      for (const limb of limbs) {
-        const foot = feet[limb.bone]!;
-        const joint: IAutoMoviePhysicalJoint = body.profile.joints.find(
-          (candidate: IAutoMoviePhysicalJoint): boolean =>
-            candidate.child === limb.bone,
-        )!;
-        const frame: IAutoMovieQuaternion = Quaternion.multiply(
-          segments.get(joint.parent)!.rotation(),
-          joint.parentFrame.rotation,
-        );
-        const held: IAutoMovieVector3 = physicalStanceBalance.hold({
-          carriers: [...new Set([limb.bone, ...(limb.contacts ?? [])])].map(
-            (bone: string): RigidBody => segments.get(bone)!,
-          ),
-          foot: segments.get(limb.bone)!,
-          shank: segments.get(joint.parent)!,
-          dt,
-          rotation:
-            seating?.[limb.bone]?.anchor?.rotation ??
-            planted[limb.bone]!.rotation,
-          ankle: foot.ankle,
-          duration: body.balance.duration,
-          axes: joint.axes.map(
-            (axis: IAutoMoviePhysicalJointAxis): IAutoMovieVector3 =>
-              Quaternion.rotateVector(frame, {
-                x: axis.axis === "x" ? 1 : 0,
-                y: axis.axis === "y" ? 1 : 0,
-                z: axis.axis === "z" ? 1 : 0,
-              }),
-          ),
-        });
-        const hold: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.inverse(frame),
-          held,
-        );
-        actuation.set(
-          joint.id,
-          Vector3.add(actuation.get(joint.id) ?? { x: 0, y: 0, z: 0 }, hold),
-        );
-        // A foot the floor does not carry keeps its ordinary motor, its hold
-        // added; only a bearing foot's ankle is bounded by its contact.
-        if (!(foot.bearing > 0)) continue;
-        const resultant: IAutoMovieVector3 = tracked
-          .filter((force) => force.bone === limb.bone)
-          .reduce(
-            (sum: IAutoMovieVector3, force): IAutoMovieVector3 =>
-              Vector3.add(sum, force.force),
-            { x: 0, y: 0, z: 0 },
-          );
-        // The rows the allocation gave this foot: its outline drawn toward
-        // its ankle point by its flatness.
-        const bearing: IAutoMovieVector3[] = points
-          .filter((point): boolean => point.bone === limb.bone)
-          .map((point): IAutoMovieVector3 => point.point);
-        if (bearing.length === 0)
-          bearing.push({ ...foot.ankle, y: settings.floor });
-        // The torque, in the joint frame, the ankle must give its foot to hold
-        // the resultant at each vertex it may bear at: -(p - r_ankle) x F, the
-        // sign J^T gives a support's chain (`accumulatePhysicalMotorTorques`).
-        const moments: IAutoMovieVector3[] = bearing.map(
-          (point: IAutoMovieVector3): IAutoMovieVector3 =>
-            Quaternion.rotateVector(
-              Quaternion.inverse(frame),
-              Vector3.cross(resultant, Vector3.subtract(point, foot.ankle)),
-            ),
-        );
-        const bounds: Partial<
-          Record<"x" | "y" | "z", { up: number; down: number }>
-        > = {};
-        for (const axis of joint.axes) {
-          const along: number[] = moments.map(
-            (moment: IAutoMovieVector3): number => moment[axis.axis],
-          );
-          bounds[axis.axis] = {
-            up: Math.max(0, Math.max(...along) + hold[axis.axis]),
-            down: Math.max(0, -(Math.min(...along) + hold[axis.axis])),
-          };
-        }
-        ankleCaps.set(joint.id, bounds);
-      }
   } else if (rootDynamic && !actuation) {
-    base.addForce(physicalNativeVector(force), true);
-    base.addTorque(physicalNativeVector(rootTorque), true);
+    base.addForce(force);
+    base.addTorque(rootTorque);
   }
 }
 
@@ -898,7 +330,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
  */
 function swingHip(
   body: IAutoMoviePhysicalSimulationInput.IBody,
-  segments: ReadonlyMap<string, RigidBody>,
+  segments: ReadonlyMap<string, AutoMovieXpbdBody>,
   swing: string | undefined,
   torques: ReadonlyMap<string, IAutoMovieVector3>,
 ): IAutoMovieVector3 {
@@ -924,6 +356,66 @@ function swingHip(
   );
   return Quaternion.rotateVector(frame, local);
 }
+
+/**
+ * Set a body's momentum task for the motors' whole-body solve while a stance
+ * limb presses the floor, and keep in the cache, at its instants, the task's
+ * feasible split over the measured support points, a diagnostic of what the
+ * supports were asked.
+ */
+function submit(
+  input: trackPhysicalRoot.IInput,
+  limbs: readonly IAutoMovieFootfallPattern["limbs"][number][],
+  task: AutoMovieXpbdWorld.IRootTask,
+): void {
+  const { settings, body, bound, step, seconds } = input;
+  const points: (IAutoMovieCollectPhysicalSupports.IPoint & {
+    bone: string;
+  })[] = input.supports
+    .filter((support: IAutoMovieCollectPhysicalSupports.ISupport): boolean =>
+      limbs.some(
+        (limb: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
+          limb.bone === support.bone,
+      ),
+    )
+    .flatMap(
+      (
+        support: IAutoMovieCollectPhysicalSupports.ISupport,
+      ): (IAutoMovieCollectPhysicalSupports.IPoint & { bone: string })[] =>
+        support.samples.map(
+          (
+            sample: IAutoMovieCollectPhysicalSupports.IPoint,
+          ): IAutoMovieCollectPhysicalSupports.IPoint & { bone: string } => ({
+            bone: support.bone,
+            ...sample,
+          }),
+        ),
+    );
+  if (points.length > 0) input.world.rootTasks.set(input.base, task);
+  if (
+    Math.round(seconds * settings.rate * settings.substeps!) %
+      settings.substeps! !==
+    0
+  )
+    return;
+  const allocated: IAutoMovieDistributePhysicalSupportWrench.IResult =
+    distributePhysicalSupportWrench({
+      origin: task.origin,
+      force: task.force,
+      torque: task.torque,
+      maximumForce: body.maximumRootForce * input.target.strength,
+      points,
+    });
+  bound.supportWrenches.push({
+    body: body.id,
+    seconds: step / settings.rate,
+    origin: task.origin,
+    requested: { force: task.force, torque: task.torque },
+    allocated: { force: allocated.force, torque: allocated.torque },
+    residual: allocated.residual,
+    pointCount: allocated.forces.length,
+  });
+}
 /**
  * Transient native state and explicit policy, without retained wrappers or provider-specific selectors.
  *
@@ -938,7 +430,7 @@ export namespace trackPhysicalRoot {
     /** Admitted global physical settings. */ settings: IAutoMoviePhysicalSimulationInput.IInput;
     /** Admitted provider and controller. */ body: IAutoMoviePhysicalSimulationInput.IBody;
     /** Transient native maps and prediction destination. */ bound: Bound;
-    /** Native root wrapper. */ base: RigidBody;
+    /** Native root wrapper. */ base: AutoMovieXpbdBody;
     /** Whether the root is currently dynamically owned. */ rootDynamic: boolean;
     /** Independent root motor intent captured before actual-root fitting. */ rootIntent: IAutoMovieSamplePhysicalTarget.IResult;
     /** Effective effort after physical balance assessment. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
@@ -961,10 +453,6 @@ export namespace trackPhysicalRoot {
         }
       >
     >;
-    /** Filled with each planted ankle's motor bounds this step, by joint id and axis, newton metres. */ ankleCaps?: Map<
-      string,
-      Partial<Record<"x" | "y" | "z", { up: number; down: number }>>
-    >;
     /** The authored pose's centre of mass, world metres, moved with any landed step; internal actuation balances it. */ center?: IAutoMovieVector3;
     /** Whether a recovery step has landed, so the stance stands on a new polygon. */ landed?: boolean;
     /** The centre-of-pressure integral's persisted state, advanced in place (`physicalStanceBalance.integrate`). */ integral?: physicalStanceBalance.IIntegral;
@@ -975,74 +463,13 @@ export namespace trackPhysicalRoot {
       IAutoMovieVector3
     >;
     /** Actual solved floor witnesses with their measured impulses and centres of pressure. */ supports: IAutoMovieCollectPhysicalSupports.ISupport[];
-    /** Filled with the joints whose torques this step carry their stance chain's inverse dynamics, gravity included, each with the joint-velocity change the solve gives over the substep, joint frame, radians per second. */ dynamics?: Map<
-      string,
-      IAutoMovieVector3
-    >;
     /** Endpoint currently owned by recovery. */ recoveryBone?: string;
     /** Enclosing cache interval. */ step: number;
     /** Exact declared native tick time. */ seconds: number;
     /** Native integration duration. */ dt: number;
+    /** The world whose motors' solve takes the root's task. */ world: AutoMovieXpbdWorld;
+    /** Every segment's sampled goal, with the balance's root offset; the momentum task's reference pose. */ goals: Readonly<
+      Record<string, IAutoMovieSamplePhysicalTarget.IResult>
+    >;
   }
 }
-
-/** A native body as the stance dynamics reads it: mass, centre, world inertia and velocities. */
-function rigidBody(rigid: RigidBody): physicalStanceDynamics.IBody {
-  const frame: IAutoMovieQuaternion = Quaternion.multiply(
-    rigid.rotation(),
-    rigid.principalInertiaLocalFrame(),
-  );
-  const principal: IAutoMovieVector3 = physicalNativeVector(
-    rigid.principalInertia(),
-  );
-  const columns: IAutoMovieVector3[] = [
-    { x: 1, y: 0, z: 0 },
-    { x: 0, y: 1, z: 0 },
-    { x: 0, y: 0, z: 1 },
-  ].map((unit: IAutoMovieVector3): IAutoMovieVector3 => {
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(frame),
-      unit,
-    );
-    return Quaternion.rotateVector(frame, {
-      x: principal.x * local.x,
-      y: principal.y * local.y,
-      z: principal.z * local.z,
-    });
-  });
-  return {
-    mass: rigid.mass(),
-    center: physicalNativeVector(rigid.worldCom()),
-    inertia: [
-      columns[0]!.x,
-      columns[1]!.x,
-      columns[2]!.x,
-      columns[0]!.y,
-      columns[1]!.y,
-      columns[2]!.y,
-      columns[0]!.z,
-      columns[1]!.z,
-      columns[2]!.z,
-    ],
-    velocity: physicalNativeVector(rigid.linvel()),
-    angular: physicalNativeVector(rigid.angvel()),
-  };
-}
-
-/** One body's joint solve, kept for the control frame it was solved in. */
-interface IStanceFrame {
-  step: number;
-  /** The bearing feet and the swinging limb it was solved for. */
-  pattern: string;
-  solution: physicalStanceDynamics.ISolution | undefined;
-  legs: {
-    bone: string;
-    points: IAutoMovieVector3[];
-    carrier: string;
-    passive: [number, number][];
-    friction: number[];
-  }[];
-}
-
-/** The joint solves of the frames in progress, by binding and body. */
-const frames: WeakMap<Bound, Map<string, IStanceFrame>> = new WeakMap();

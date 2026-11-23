@@ -2,11 +2,6 @@
  * Borrowed mesh buffers and lattice-weld policy for edge-incidence inspection.
  *
  * Positions use one common length unit, weld counts cells per unit, and the optional sliver threshold is a dimensionless edge-to-height ratio. The producer checks triple layouts, index bounds, positive finite options and finite lattice coordinates; vertex-fan singularities and intersecting surfaces are outside this edge-incidence measure.
- *
- * @evidence contracts/development/design.md#principled-representation Positions use one common length unit, weld counts cells per unit, and the optional sliver threshold is a dimensionless edge-to-height ratio.
- * @evidence contracts/development/design.md#minimal-and-owned-surface measureAutoMovieMeshDefects serves render inspection using original vertex identities for located defects.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer checks triple layouts, index bounds, positive finite options and finite lattice coordinates; vertex-fan singularities and intersecting surfaces are outside this edge-incidence measure.
- * @evidence contracts/development/common.md#meaningful-documentation Borrowed mesh buffers and lattice-weld policy for edge-incidence inspection. Positions use one common length unit, weld counts cells per unit, and the optional sliver threshold is a dimensionless edge-to-height ratio.
  */
 export namespace IAutoMovieMeasureMeshDefects {
   /**
@@ -19,11 +14,6 @@ export namespace IAutoMovieMeasureMeshDefects {
    * Defects come in ascending order of the first triangle that carries them. Within one triangle its own `degenerate` or `sliver` defect comes first, then its edges in corner order: corner 0 to 1, 1 to 2, 2 to 0. An edge is listed once, at the first triangle that uses it. The same input always gives the same list.
    *
    * It throws a named `Error` for a position count not divisible by three, a corner count not divisible by three, an index that is not a whole number inside the position buffer, a `weld` or `sliver` that is not positive and finite, a vertex whose lattice coordinate is not finite, and more than 94 906 265 vertices. Only edge incidence is measured: a vertex where two fans touch and surfaces that cross each other are not found here.
-   *
-   * @evidence contracts/development/design.md#principled-representation Positions use one common length unit, weld counts cells per unit, and the optional sliver threshold is a dimensionless edge-to-height ratio.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface measureAutoMovieMeshDefects serves render inspection using original vertex identities for located defects.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer checks triple layouts, index bounds, positive finite options and finite lattice coordinates; vertex-fan singularities and intersecting surfaces are outside this edge-incidence measure.
-   * @evidence contracts/development/common.md#meaningful-documentation Borrowed mesh buffers and lattice-weld policy for edge-incidence inspection. Positions use one common length unit, weld counts cells per unit, and the optional sliver threshold is a dimensionless edge-to-height ratio.
    */
   export type IMesh = {
     /**
@@ -41,11 +31,6 @@ export namespace IAutoMovieMeasureMeshDefects {
    * Lattice identity and optional sliver classification for mesh-defect measurement. Welding rounds each scaled coordinate independently; close points on different rounding cells remain separate. Sliver aspect is measured on stored positions, not on the lattice, and equals longest edge divided by its altitude.
    *
    * Options are borrowed for one synchronous call; their numeric ranges are checked by measureAutoMovieMeshDefects before inspection. Omission uses the documented lattice default and disables only sliver classification.
-   *
-   * @evidence contracts/development/design.md#principled-representation Positions use one common length unit, weld counts cells per unit, and the optional sliver threshold is a dimensionless edge-to-height ratio.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface measureAutoMovieMeshDefects serves render inspection using original vertex identities for located defects.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer checks triple layouts, index bounds, positive finite options and finite lattice coordinates; vertex-fan singularities and intersecting surfaces are outside this edge-incidence measure.
-   * @evidence contracts/development/common.md#meaningful-documentation Borrowed mesh buffers and lattice-weld policy for edge-incidence inspection. Positions use one common length unit, weld counts cells per unit, and the optional sliver threshold is a dimensionless edge-to-height ratio.
    */
   export type IOptions = {
     /**

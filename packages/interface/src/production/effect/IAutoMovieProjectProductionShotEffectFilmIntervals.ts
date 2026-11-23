@@ -3,11 +3,6 @@ import type { IAutoMovieShotEffect } from "../../geometry/IAutoMovieShotEffect";
 
 /**
  * Inputs for projecting shot effect ownership through film source trims.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Inputs for projecting shot effect ownership through film source trims. Shot cues own [start, end) seconds; a source frame is included only when its rational boundary lies in that interval. Projection intersects this with each half-open source trim.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing shot records contribute no intervals because the builder owns availability diagnostics. Invalid cue seconds or an inconsistent clock throw rather than inventing frame bounds.
- * @evidence contracts/development/design.md#principled-representation Shot cues own [start, end) seconds; a source frame is included only when its rational boundary lies in that interval. Projection intersects this with each half-open source trim.
- * @evidence contracts/development/design.md#minimal-and-owned-surface projectProductionShotEffectFilmIntervals supplies materializeProductionFilmEffects with shot-owned film intervals for zone-conflict checks; the map needs only compiled effects.
  */
 export namespace IAutoMovieProjectProductionShotEffectFilmIntervals {
   /**
@@ -25,11 +20,6 @@ export namespace IAutoMovieProjectProductionShotEffectFilmIntervals {
    * start, an end not after its start, or an unrepresentable bound throws
    * `AutoMovieFilmEffectRuntimeError` with `film-effect-input-invalid`, as does an
    * inconsistent clock.
-   *
-   * @evidence contracts/development/design.md#principled-representation Shot cues own [start, end) seconds; a source frame is included only when its rational boundary lies in that interval. Projection intersects this with each half-open source trim.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface projectProductionShotEffectFilmIntervals supplies materializeProductionFilmEffects with shot-owned film intervals for zone-conflict checks; the map needs only compiled effects.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing shot records contribute no intervals because the builder owns availability diagnostics. Invalid cue seconds or an inconsistent clock throw rather than inventing frame bounds.
-   * @evidence contracts/development/common.md#meaningful-documentation Inputs for projecting shot effect ownership through film source trims. Shot cues own [start, end) seconds; a source frame is included only when its rational boundary lies in that interval. Projection intersects this with each half-open source trim.
    */
   export type IProps = {
     /**

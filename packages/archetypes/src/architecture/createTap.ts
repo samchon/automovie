@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The maker's taps, read. */
@@ -24,7 +24,7 @@ const UNREAD: string = "the listings read do not give it";
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The tap.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the tap stands, which way the spout reaches and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A body rod of the drawn height and diameter, a spout rod at the drawn outlet's height out to the drawn reach, and a lever box on its top that turns with the `lever` knob.
@@ -37,9 +37,9 @@ const UNREAD: string = "the listings read do not give it";
 export function createTap(
   params: createTap.IParams = {},
   seed?: number | string,
-): Archetype<createTap.Affordance, createTap.Dimension> {
-  const draw: ArchetypeDrawSession<createTap.Dimension> =
-    new ArchetypeDrawSession<createTap.Dimension>(
+): AutoMovieArchetype<createTap.Affordance, createTap.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createTap.Dimension> =
+    new AutoMovieArchetypeDrawSession<createTap.Dimension>(
       "tap",
       createTap.UNITS,
       seed,
@@ -48,13 +48,15 @@ export function createTap(
   const d: Record<createTap.Dimension, number> = draw.dimensions(
     createTap.BANDS,
   );
-  const builder: ArchetypeBuilder<createTap.Affordance, createTap.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: "mixer tap",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createTap.Affordance,
+    createTap.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: "mixer tap",
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const r: number = d.diameter / 2;
   const spout: number = createTap.SPOUT;
@@ -69,7 +71,7 @@ export function createTap(
   builder.affordance({
     id: "lever",
     kind: "knob",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, d.height + 0.012, 0),
       v(0, 1, 0),
       v(1, 0, 0),
@@ -83,7 +85,7 @@ export function createTap(
   builder.affordance({
     id: "spout",
     kind: "socket",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, at - spout / 2, d.reach - spout / 2),
       v(0, -1, 0),
       v(1, 0, 0),
@@ -128,7 +130,9 @@ export namespace createTap {
   export type Dimension = "height" | "diameter" | "reach" | "outlet" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     diameter: "m",
     reach: "m",
@@ -143,16 +147,22 @@ export namespace createTap {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(0.146, 0.169, GROHE),
-    diameter: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    height: AutoMovieArchetypeBand.metres(0.146, 0.169, GROHE),
+    diameter: AutoMovieArchetypeBand.metres(
       0.035,
       0.05,
       `the body's diameter: ${UNREAD}`,
       true,
     ),
-    reach: ArchetypeBand.metres(0.106, 0.109, GROHE),
-    outlet: ArchetypeBand.metres(0.056, 0.095, GROHE),
-    mass: ArchetypeBand.of("kg", 0.8, 2, `the weight: ${UNREAD}`, true),
+    reach: AutoMovieArchetypeBand.metres(0.106, 0.109, GROHE),
+    outlet: AutoMovieArchetypeBand.metres(0.056, 0.095, GROHE),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      0.8,
+      2,
+      `the weight: ${UNREAD}`,
+      true,
+    ),
   };
 }

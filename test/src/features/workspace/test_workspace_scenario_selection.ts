@@ -17,12 +17,14 @@ import {
  * 3. Invalid argv never reaches discovery; valid discovery admits no module and
  *    returns an execution filter for exactly the frozen selected basenames.
  * 4. Empty discovery and discovery failure cannot produce an execution filter.
+ * 5. A shard keeps every count-th name of the name-sorted selection, the slices
+ *    partition it, one slice keeps it all, and every malformed shard refuses.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls argv parsing, basename selection and discovery-filter preparation, observing accumulated terms, exact selected names, refusal before discovery and preserved discovery failure identity; silently widening a narrow request, admitting a discovery callback for execution or admitting later names fails.
  * @evidence contracts/development/testing.md#independent-expectations Literal argument groups and three authored basenames define expected accumulation and substring intersections; callback facts independently record discovery admission, and an explicit Error fixes failure identity without filesystem or parser-derived expected lists.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers default/repeated/equals groups, blank/valueless/unknown/positional refusals, include/exclude matches and empty intersections, fixed execution membership, empty discovery and discovery failure; real DynamicExecutor filesystem import behavior is not exercised.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers default/repeated/equals groups, blank/valueless/unknown/positional refusals, include/exclude matches and empty intersections, fixed execution membership, empty discovery and discovery failure, and a valid, partitioning, single and malformed shard; real DynamicExecutor filesystem import behavior is not exercised.
  * @evidence contracts/development/testing.md#execution-ownership The async test_workspace_scenario_selection entry owns every awaited preparation call and supplied discovery callback over resident names, with no module import, filesystem traversal, executor process or foreign-method replacement.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty argv, repeated groups, multiple terms, and equals forms preserve the).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty argv, repeated groups, multiple terms, and equals forms preserve the).
  */
 export async function test_workspace_scenario_selection(): Promise<void> {
   TestValidator.equals("default request", parseScenarioSelection([]), {
@@ -162,4 +164,47 @@ export async function test_workspace_scenario_selection(): Promise<void> {
     caught = error;
   }
   TestValidator.predicate("discovery failure is preserved", caught === failure);
+
+  // 5. Shards partition the sorted selection; malformed shards refuse.
+  TestValidator.equals(
+    "shard is admitted",
+    parseScenarioSelection(["--include=alpha", "--shard=2/8"]),
+    { include: ["alpha"], exclude: [], shard: { index: 2, count: 8 } },
+  );
+  for (const argv of [
+    ["--shard=8/8"],
+    ["--shard=0/0"],
+    ["--shard=-1/4"],
+    ["--shard=1.5/4"],
+    ["--shard=1"],
+    ["--shard"],
+    ["--shard=0/2", "--shard=1/2"],
+  ]) {
+    let shardRejected: boolean = false;
+    try {
+      parseScenarioSelection(argv);
+    } catch {
+      shardRejected = true;
+    }
+    TestValidator.predicate(`malformed shard ${argv.join(" ")}`, shardRejected);
+  }
+  const pool: string[] = ["e.ts", "c.ts", "a.ts", "d.ts", "b.ts"];
+  const slices: string[][] = [0, 1].map((index: number): string[] => [
+    ...selectScenarioNames(
+      { include: [], exclude: [], shard: { index, count: 2 } },
+      pool,
+    ),
+  ]);
+  TestValidator.equals("first slice of two", slices[0], ["a.ts", "c.ts", "e.ts"]);
+  TestValidator.equals("second slice of two", slices[1], ["b.ts", "d.ts"]);
+  TestValidator.equals(
+    "one slice keeps the whole selection",
+    [
+      ...selectScenarioNames(
+        { include: [], exclude: [], shard: { index: 0, count: 1 } },
+        pool,
+      ),
+    ],
+    ["a.ts", "b.ts", "c.ts", "d.ts", "e.ts"],
+  );
 }

@@ -1,104 +1,64 @@
-import { HorseHarness } from "../animals/HorseHarness";
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import { EquineHarness } from "../animals/EquineHarness";
 import {
-  type Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  type ArchetypeFriction,
-  type ArchetypeRide,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeDrawSession,
+  type AutoMovieArchetypeFriction,
+  type AutoMovieArchetypeRide,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { CART_BANDS } from "./CART_BANDS";
-import { CART_MODELS } from "./CART_MODELS";
-import { CartCoach } from "./CartCoach";
-import { CartDrawn } from "./CartDrawn";
 import { CartFit } from "./CartFit";
-import { CartLimber } from "./CartLimber";
-import { CartPushed } from "./CartPushed";
 import { cartTowing } from "./cartTowing";
+import { createCarriage } from "./createCarriage";
+import { createChariot } from "./createChariot";
+import { createHorseCart } from "./createHorseCart";
+import { createLimber } from "./createLimber";
+import { createRickshaw } from "./createRickshaw";
+import { createShoppingTrolley } from "./createShoppingTrolley";
+import { createWagon } from "./createWagon";
+import { createWheelbarrow } from "./createWheelbarrow";
+
+/** A saved recipe's producer as the dispatcher calls it: the selected producer admits the saved parameter union at run time. */
+type Producer = (
+  params: Omit<createCart.IParams, "kind">,
+  seed?: number | string,
+) => AutoMovieArchetype<createCart.Affordance, createCart.Dimension>;
 
 /**
  * A wheeled load carrier, pushed by hand or drawn: a shopping trolley, a wheelbarrow, a horse's two-wheeled cart, a runner's rickshaw, a pair's chariot, an artillery limber, a four-wheeled wagon or a closed carriage.
  *
- * The carrier stands on the floor with its front toward `+Z`. A trolley and a wheelbarrow are pushed from behind at `-Z`: a trolley by the one `handle` bar across its back, a wheelbarrow lifted and pushed by its two handles, `leftHandle` on `+X`; `load` is the floor of the basket or the tray. A drawn kind's (rear) axle runs along `X` under the origin, and its `coupling` is where it is drawn from, ahead along `+Z`: a cart's shafts at the horse's tugs, a rickshaw's shafts at the runner's hands, a chariot's, a limber's, a wagon's or a carriage's pole at its end. A wagon's and a carriage's front axle turns on `frontAxle` about its pivot, `wheelbase` ahead of the rear axle, carrying the pole. `ArchetypeRide.along` moves a pushed kind along a course, and `ArchetypeRide.towed` draws a drawn kind by its `coupling` behind a leader's hitch, a four-wheeler with `front` set to its pivot and `frontAxle`; each road wheel spins on a `knob` the ride turns by the distance covered. A cart drawn by a horse in harness takes its traces and driving lines from `lines`, which the towing ride lays between the two at every second.
+ * The carrier stands on the floor with its front toward `+Z`. A trolley and a wheelbarrow are pushed from behind at `-Z`: a trolley by the one `handle` bar across its back, a wheelbarrow lifted and pushed by its two handles, `leftHandle` on `+X`; `load` is the floor of the basket or the tray. A drawn kind's (rear) axle runs along `X` under the origin, and its `coupling` is where it is drawn from, ahead along `+Z`: a cart's shafts at the horse's tugs, a rickshaw's shafts at the runner's hands, a chariot's, a limber's, a wagon's or a carriage's pole at its end. A wagon's and a carriage's front axle turns on `frontAxle` about its pivot, `wheelbase` ahead of the rear axle, carrying the pole. `AutoMovieArchetypeRide.along` moves a pushed kind along a course, and `AutoMovieArchetypeRide.towed` draws a drawn kind by its `coupling` behind a leader's hitch, a four-wheeler with `front` set to its pivot and `frontAxle`; each road wheel spins on a `knob` the ride turns by the distance covered. A cart drawn by a horse in harness takes its traces and driving lines from `lines`, which the towing ride lays between the two at every second.
  *
  * @param params The kind, its read model and options, and any dimension the author fixes.
  * @param seed The seed that picks the model and its options and draws every dimension left free inside its band; absent, the first model and option, and each dimension the middle of its band.
  * @returns The carrier.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, one the kind lacks or one the model reads, or a model or option the kind does not offer.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, one the kind lacks or one the model reads, or a model or option the kind does not offer.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the carrier stands, where it is pushed or drawn from and where it is loaded.
- * @evidence contracts/development/implementation.md#principled-implementation Pick the read model whole, among a cart's only those made for a fixed horse, then its castors or shafts; draw the dimensions it leaves free inside the kind's bands and its own ranges; lay its figures over them; then build the kind on them: a pushed kind by `CartPushed`, a two-wheeled drawn kind by `CartDrawn`, the limber by `CartLimber`, a four-wheeled one by `CartCoach`; a horse's cart is first fitted to its horse by `CartFit`. A cart without read shafts takes the shafts that reach from the horse's point of shoulder past its point of buttock by the drawn clearance (`createHorse.rig`).
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One dispatch per family; each family is its own module.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every unread place a builder uses is a named provisional constant here, stating the source to read.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most about twenty parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
+ * @evidence contracts/development/implementation.md#principled-implementation Selects the canonical producer for the saved kind while preserving its original parameters and seed.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One validated kind selects its own producer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The saved parameters pass unchanged to the selected producer, which owns their admission and its provisional constants.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One kind check and one table lookup before the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createCart(
   params: createCart.IParams,
   seed?: number | string,
-): Archetype<createCart.Affordance, createCart.Dimension> {
-  const draw: ArchetypeDrawSession<createCart.Dimension> =
-    new ArchetypeDrawSession<createCart.Dimension>(
-      "cart",
-      createCart.UNITS,
-      seed,
-      params,
-    );
+): AutoMovieArchetype<createCart.Affordance, createCart.Dimension> {
   const kind: createCart.Kind = ArchetypeDraw.choice(
     "cart",
     "kind",
     params.kind,
     createCart.KINDS,
   );
-  // One read model of the kind, among those made for the horse when its height is fixed, then its castors or its shafts, their figures recorded first; the kind's bands and the model's own ranges draw what they leave.
-  const model: {
-    name: createCart.Model | undefined;
-    figures: Readonly<Partial<Record<createCart.Dimension, number>>>;
-  } = draw.model<createCart.Model>(
-    "model",
-    params.model,
-    params.model === undefined
-      ? CartFit.models(CART_MODELS.figures[kind], params)
-      : CART_MODELS.figures[kind],
-  );
-  draw.model<createCart.Castor>(
-    "castor",
-    params.castor,
-    CART_MODELS.castors[kind],
-  );
-  draw.model<createCart.Shaft>(
-    "shaft",
-    params.shaft,
-    model.name === undefined ? undefined : CART_MODELS.shafts[model.name],
-  );
-  draw.dimensions(
-    {
-      ...createCart.BANDS[kind],
-      ...(model.name === undefined ? {} : CART_MODELS.ranges[model.name]),
-    },
-    createCart.BANDS,
-  );
-  if (kind === "cart") CartFit.harness(draw);
-  const d: Partial<Record<createCart.Dimension, number>> = { ...draw.values };
-  const builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: createCart.NAMES[kind],
-      draw,
-    });
-  if (kind === "trolley") CartPushed.trolley(builder, d);
-  else if (kind === "wheelbarrow") CartPushed.wheelbarrow(builder, d);
-  else if (kind === "cart") CartDrawn.cart(builder, d);
-  else if (kind === "rickshaw") CartDrawn.rickshaw(builder, d);
-  else if (kind === "chariot") CartDrawn.chariot(builder, d);
-  else if (kind === "limber") CartLimber.build(builder, d);
-  else if (kind === "wagon") CartCoach.wagon(builder, d);
-  else CartCoach.carriage(builder, d);
-  return builder.build(d.mass!, createCart.RESTS[kind]);
+  // The selected producer validates its options from the saved parameter union.
+  const produce: Producer = createCart.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
 
 /**
@@ -110,6 +70,34 @@ export function createCart(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A horse-drawn kind draws the horse's withers height from `createHorse`'s band, and a cart takes the girth that height gives the horse, so the places it takes from the horse fit the horse that draws it; a rickshaw takes its shafts' height from the measured human wrist.
  */
 export namespace createCart {
+  /** The canonical factories for saved kinds, read after the catalogue loads. */
+  export const PRODUCERS = {
+    get trolley(): typeof createShoppingTrolley {
+      return createShoppingTrolley;
+    },
+    get wheelbarrow(): typeof createWheelbarrow {
+      return createWheelbarrow;
+    },
+    get cart(): typeof createHorseCart {
+      return createHorseCart;
+    },
+    get rickshaw(): typeof createRickshaw {
+      return createRickshaw;
+    },
+    get chariot(): typeof createChariot {
+      return createChariot;
+    },
+    get limber(): typeof createLimber {
+      return createLimber;
+    },
+    get wagon(): typeof createWagon {
+      return createWagon;
+    },
+    get carriage(): typeof createCarriage {
+      return createCarriage;
+    },
+  } satisfies Readonly<Record<Kind, unknown>>;
+
   /**
    * The read models by kind, picked whole (`CART_MODELS`): a cart's multi-use cart and the Dennett gig; a rickshaw's Edo-Tokyo Museum 89210382 and 90360001 and the Powerhouse 245268; a chariot's six from the tomb of Tutankhamun by Carter's object numbers; a carriage's Brewster, Miner, Stevens and Peters broughams. A trolley, a wheelbarrow, a limber and a wagon have none.
    */
@@ -171,14 +159,14 @@ export namespace createCart {
   };
 
   /**
-   * What each kind rests on and on what ground, for its body's friction (`ArchetypeFriction`): a wheelbarrow's pneumatic tyre on concrete, a wagon's iron tyres on stone. The other kinds' tyres no source read names, so their bodies carry no friction until one does: the trolley's castor treads, the cart's and the carriage's tyres (rubber or iron), the rickshaw's (the Hong Kong rules of 1882 give its tyre's width only), the chariot's (rawhide or wood) and the limber's.
+   * What each kind rests on and on what ground, for its body's friction (`AutoMovieArchetypeFriction`): a wheelbarrow's pneumatic tyre on concrete, a wagon's iron tyres on stone. The other kinds' tyres no source read names, so their bodies carry no friction until one does: the trolley's castor treads, the cart's and the carriage's tyres (rubber or iron), the rickshaw's (the Hong Kong rules of 1882 give its tyre's width only), the chariot's (rawhide or wood) and the limber's.
    */
   export const RESTS: Readonly<
     Record<
       Kind,
       {
-        rests?: ArchetypeFriction.Material;
-        ground?: ArchetypeFriction.Material;
+        rests?: AutoMovieArchetypeFriction.Material;
+        ground?: AutoMovieArchetypeFriction.Material;
       }
     >
   > = {
@@ -206,13 +194,13 @@ export namespace createCart {
   };
 
   /** A single horse's driving lines' length from the bit, metres: IVC Carriage's stock horse lines of 14 ft, "measure the distance from the horse's mouth to your hands, and then add at least an extra two feet" (https://cdn.shopify.com/s/files/1/0046/6819/4886/files/Reins.pdf). */
-  export const LINES: number = 14 * ArchetypeUnits.FOOT;
+  export const LINES: number = 14 * AutoMovieArchetypeUnits.FOOT;
 
   /** A single horse's driving line's width, metres: the 3/4 in leather reins IVC Carriage finds most hands, and a larger horse, prefer (https://cdn.shopify.com/s/files/1/0046/6819/4886/files/Reins.pdf). */
-  export const LINE: number = (3 / 4) * ArchetypeUnits.INCH;
+  export const LINE: number = (3 / 4) * AutoMovieArchetypeUnits.INCH;
 
-  /** A trace's radius, metres: in a single horse's harness a trace is the same leather strap as the rest of the harness, so it takes the harness's strap (`HorseHarness.ESTIMATES.strap`, a construction estimate no act reads, the strap's width unread). */
-  export const TRACE: number = HorseHarness.ESTIMATES.strap;
+  /** A trace's radius, metres: in a single horse's harness a trace is the same leather strap as the rest of the harness, so it takes the harness's strap (`EquineHarness.ESTIMATES.strap`, a construction estimate no act reads, the strap's width unread). */
+  export const TRACE: number = EquineHarness.ESTIMATES.strap;
 
   /** A rickshaw's seat above the ground, metres, a provisional value: not read at a source. The source to read is a museum record or a period rule that gives the seat's height (the Hong Kong rules of 1882 give its width and its distance to the footboard only). */
   export const RICKSHAW_SEAT: number = 0.9;
@@ -221,10 +209,10 @@ export namespace createCart {
   export const RICKSHAW_SHAFTS: number = 0.55;
 
   /** A rickshaw seat's width, metres: 21 in, the Hong Kong public rickshaw rules of 1882 (The China Mail, quoted at https://industrialhistoryhk.org/hong-kong-rickshaw-design/). */
-  export const RICKSHAW_SEAT_WIDTH: number = 21 * ArchetypeUnits.INCH;
+  export const RICKSHAW_SEAT_WIDTH: number = 21 * AutoMovieArchetypeUnits.INCH;
 
   /** A rickshaw's footboard ahead of its seat, metres: 23 in from the seat to the front of the footboard, the same rules, taken along the rickshaw. */
-  export const RICKSHAW_FOOTBOARD: number = 23 * ArchetypeUnits.INCH;
+  export const RICKSHAW_FOOTBOARD: number = 23 * AutoMovieArchetypeUnits.INCH;
 
   /** A limber's frame, read and derived from The Ordnance Manual (1861), p. 74 and p. 77 (https://archive.org/details/cu31924031187887/page/74). */
   export const LIMBER: Readonly<{
@@ -240,14 +228,14 @@ export namespace createCart {
     /** The pintle hook above the ground, metres, a provisional value: taken at the axle's height, not read. The source to read is the Ordnance Manual's limber plate or the Instruction for Field Artillery (1864). */
     pintle: number;
   }> = {
-    rear: (28.5 - 11.88) * ArchetypeUnits.INCH,
+    rear: (28.5 - 11.88) * AutoMovieArchetypeUnits.INCH,
     chest: {
-      length: 40 * ArchetypeUnits.INCH,
-      width: 18 * ArchetypeUnits.INCH,
-      depth: 14.75 * ArchetypeUnits.INCH,
+      length: 40 * AutoMovieArchetypeUnits.INCH,
+      width: 18 * AutoMovieArchetypeUnits.INCH,
+      depth: 14.75 * AutoMovieArchetypeUnits.INCH,
     },
     board: 0.025,
-    pintle: 28.5 * ArchetypeUnits.INCH,
+    pintle: 28.5 * AutoMovieArchetypeUnits.INCH,
   };
 
   /** A wagon's places beyond its bands, from the Army's specification (https://archive.org/details/specificationsf02deptgoog/page/n13) where read. */
@@ -260,7 +248,7 @@ export namespace createCart {
 
     /** The front axle's lock to either side, degrees, a provisional value: not read. The four-horse wagon's specification gives iron plates for the front wheels to strike in turning (pp. 9-16) but no angle; the source to read is a drawing of the running gear. */
     lock: number;
-  }> = { drop: 24 * ArchetypeUnits.INCH, bed: 0.15, lock: 35 };
+  }> = { drop: 24 * AutoMovieArchetypeUnits.INCH, bed: 0.15, lock: 35 };
 
   /** A carriage's places no museum record read gives, each a provisional value: the source to read is a carriage builder's draft of a brougham (The Hub, the Carriage Journal's drafts) or a museum record with these measurements. */
   export const CARRIAGE: Readonly<{
@@ -298,7 +286,7 @@ export namespace createCart {
    * The affordance ids; a kind lacks the ids of the parts it does not have:
    *
    * - `handle`: a trolley's push bar.
-   * - `leftHandle`, `rightHandle`: a wheelbarrow's handgrips on `+X` and `-X`.
+   * - `leftHandle`, `rightHandle`: the trolley's hand stations on its bar or the wheelbarrow's handgrips on `+X` and `-X`.
    * - `load`: the floor of a trolley's basket or a wheelbarrow's tray.
    * - `coupling`: where a drawn kind is drawn from: the middle between a cart's shafts at the horse's tugs or a rickshaw's at the runner's hands, or a chariot's or limber's pole end.
    * - `leftShaft`, `rightShaft`: a rickshaw's shafts where the runner's hands hold them, on `+X` and `-X`.
@@ -310,12 +298,12 @@ export namespace createCart {
    * - `pintle`: a limber's hook at its rear, which takes a gun's trail.
    * - `leftSpin`, `rightSpin`: a two-wheeled drawn kind's road wheels' roll about the axle, a positive travel rolling them forward.
    * - `frontAxle`: a wagon's or carriage's front axle turning about its pivot over the axle, positive to the left; the front wheels and drawbar pitch pivot ride it.
-   * - `drawbarPitch`: the actual front-axle hinge of a four-wheeler's fixed-length pole, about +X, positive lowering the forward end; coupling rides it. Its ±180 degrees are a principal-angle chart, not a measured working limit.
+   * - `drawbarPitch`: the front-axle hinge of a four-wheeler's fixed-length pole, about +X, positive lowering the forward end; coupling rides it. Its ±180 degrees are a principal-angle chart, not a measured working limit.
    * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: a four-wheeled kind's road wheels' roll, the front pair riding `frontAxle`.
    * - `bed`: a wagon body's floor, inside.
    * - `box`: a carriage driver's seat on the box at its front, facing forward.
    * - `leftLine`, `rightLine`: a cart's driving lines' held runs, each line's length behind its terret, each frame at the run's middle, the run pointing forward to the horse's terret; the driver's hands hold anywhere along it.
-   * - `leftLineGrip`, `rightLineGrip`: the modeled driver's hand stations, between the terrets and the ends of the lines.
+   * - `leftLineGrip`, `rightLineGrip`: the modeled driver's hand stations: a cart's between the terrets and the ends of the lines, a carriage's ahead of the box, where a team's reins are held.
    * - `leftLineEnd`, `rightLineEnd`: the ends behind the modeled hand stations, at the full line length measured from the terrets after subtracting the run forward of them.
    * - `leftDoor`, `rightDoor`: a carriage's doors' hinges at their front edges; a positive travel swings a door outward. `leftAperture`, `rightAperture`: the openings behind them, passed through into the carriage.
    */
@@ -402,7 +390,9 @@ export namespace createCart {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     handleHeight: "m",
@@ -447,30 +437,38 @@ export namespace createCart {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = CART_BANDS;
 
   /**
-   * Actual wheel/pivot support for generic towing; cartTowing owns admission.
+   * Wheel/pivot support for generic towing; cartTowing owns admission.
    *
-   * @param cart Actual createCart output in its neutral steering/drawbar pose.
+   * @param cart CreateCart output in its neutral steering/drawbar pose.
    * @returns Independent model-space metre support: one freely pitching wheel axle, or grounded front/rear axles with the declared drawbar hinge.
-   * @throws {RangeError} For another producer, invalid actual wheel-axis geometry or a front steering pivot outside its axle.
-   * @throws {ArchetypeRefusal} If the selected variant lacks a required wheel/steering affordance, including a pushed carrier without towing roles.
+   * @throws {RangeError} For another producer, invalid wheel-axis geometry or a front steering pivot outside its axle.
+   * @throws {AutoMovieArchetypeRefusal} If the selected variant lacks a required wheel/steering affordance, including a pushed carrier without towing roles.
    */
   export const towing: typeof cartTowing = cartTowing;
 
   /**
-   * The traces and the driving lines between a cart and the horse in harness that draws it, for `ArchetypeRide.towed`'s `lines`: a trace from each point of draft at the breast collar's end to its end of the cart's single tree, and a driving line from each bit ring through the neck strap's ring and the saddle's terret to the driver's held run (Harness Stuff: the reins pass from the bit through the rings on the breastplate's neck strap, then the saddle's terrets, to the driver).
+   * The traces and the driving lines between a cart and the horse in harness that draws it, for `AutoMovieArchetypeRide.towed`'s `lines`: a trace from each point of draft at the breast collar's end to its end of the cart's single tree, and a driving line from each bit ring through the neck strap's ring and the saddle's terret to the driver's held run (Harness Stuff: the reins pass from the bit through the rings on the breastplate's neck strap, then the saddle's terrets, to the driver).
    *
    * @param cart A `cart` kind, built for the horse that draws it.
+   * @param held Optional reader of the driver's displayed palm on each side at a film second; each driving line's held run then ends at that palm instead of its fixed material end.
    * @returns The four lines, the traces first, left before right.
-   * @throws {ArchetypeRefusal} When the cart is not a horse's two-wheeled cart.
+   * @throws {AutoMovieArchetypeRefusal} When the cart is not a horse's two-wheeled cart.
    *
    */
   export function lines(
-    cart: Archetype<Affordance, Dimension>,
-  ): ArchetypeRide.ILine[] {
-    return CartFit.lines(cart);
+    cart: AutoMovieArchetype<Affordance, Dimension>,
+    held?: Held,
+  ): AutoMovieArchetypeRide.ILine[] {
+    return CartFit.lines(cart, held);
   }
+
+  /** A driver's hand side. */
+  export type Side = "left" | "right";
+
+  /** A reader of the driver's displayed palm on a side at a film second, world metres, which a driving line's held run ends at. */
+  export type Held = (side: Side, seconds: number) => IAutoMovieVector3;
 }

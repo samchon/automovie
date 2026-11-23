@@ -11,11 +11,6 @@ import type { IAutoMovieSwivelSeed } from "./IAutoMovieSwivelSeed";
  * anchors and current endpoint/orientation/ROM/contact/branch checks, then
  * subdivide or fall back at unsupported events. The seed itself carries no
  * such certificate. Query arrival order must not choose a curve's anchors.
- *
- * @evidence contracts/development/design.md#principled-representation A seed and the width its swivel is refined to, the two facts a continued fit needs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The seed's two members and one tolerance.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends `IAutoMovieSwivelSeed` rather than repeating it.
- * @evidence contracts/development/common.md#meaningful-documentation Defines the degree-valued local bracket and its positive finite width, distinguishes local continuation from cold global-score identity, and assigns deterministic phase/current-goal validation to the curve owner.
  */
 export interface IAutoMovieSwivelNear extends IAutoMovieSwivelSeed {
   /**
@@ -25,4 +20,14 @@ export interface IAutoMovieSwivelNear extends IAutoMovieSwivelSeed {
    * An arbitrary score has no global objective-error or global-minimum bound.
    */
   tolerance: number;
+
+  /**
+   * Whether the seed is prescribed rather than continued: the chain is
+   * placed at the seed's swivel and branch exactly, in closed form
+   * (`fitHingedChainAt`), with no refinement or search. For a course that
+   * already chose the limb's swivel at this instant (a displayed limb read
+   * between the knots its course fitted), so the branch cannot change and
+   * no read sweeps. Absent, the seed is refined to `tolerance`.
+   */
+  prescribed?: boolean;
 }

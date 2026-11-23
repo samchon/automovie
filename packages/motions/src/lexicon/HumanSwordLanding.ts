@@ -20,6 +20,14 @@ import { StrikingRoll } from "../striking/StrikingRoll";
  * target first, in the leans' order, then the turned ones least strained
  * first (`StrikingRoll.strain`).
  *
+ * What the row fixes: the blade leans back toward where the cut came from
+ * by 0.35, 0.7, 0.1 and 1 of the line to the target, tried in that order
+ * (`LEANS`), then turns about the travel by 15, -15, 30, -30, 45 and -45
+ * degrees (`TURNS`); the steps of the search are 0.25 of the line, 15, 30
+ * and 10 degrees. All are provisional search resolutions. The row fixes no
+ * duration: a cut's duration is the sword timing model's, the edge at 6 to
+ * 10 m/s by skill (`IAutoMovieMotionHumanSword`).
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States what is placed, which freedoms are left and how the arm chooses among them.
  * @evidence contracts/development/design.md#principled-representation A cut's contact is the landing point, the travel and the two freedoms as tables of tried values.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The two tables and the frame, read by the cut.

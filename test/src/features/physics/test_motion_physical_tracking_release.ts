@@ -203,9 +203,10 @@ export async function test_motion_physical_tracking_release(): Promise<void> {
   await transferredSoftRelease();
 }
 
-/** Computed soft pressure cannot withdraw tracking unless a positive native response reached that receiver. */
+/** Computed soft pressure cannot withdraw tracking unless a positive response reached that receiver. */
 async function transferredSoftRelease(): Promise<void> {
-  for (const gain of [1, 1e-300]) {
+  // The smallest positive double scales a soft contact's impulse, well under one newton second, below half of itself, so the transfer rounds to exactly zero.
+  for (const gain of [1, Number.MIN_VALUE]) {
     const receiver: IAutoMoviePhysicalSimulationInput.IBody =
       PhysicalFixtures.body(
         "soft-receiver",
@@ -218,7 +219,7 @@ async function transferredSoftRelease(): Promise<void> {
       compliance: 1,
       impulse: gain,
       reason:
-        "Contact withdrawal follows actual transferred response, including native rounding",
+        "Contact withdrawal follows the actually transferred response, including its underflow to zero",
     };
     for (const target of receiver.targets) target.strength = 1;
     receiver.releaseOnContact = {

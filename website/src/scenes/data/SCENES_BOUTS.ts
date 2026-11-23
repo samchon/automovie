@@ -45,14 +45,14 @@ export const SCENES_BOUTS: readonly IScene[] = [
         0,
         [
           act("guard", {
-            seconds: 0.5,
+            duration: 0.5,
             style: "kickboxing",
             facing: at("blu", "face"),
           }),
           act("step", { direction: "right", steps: 2 }),
           act(
             "leanBack",
-            { from: at("blu", "handBackLeft") },
+            { target: at("blu", "handBackLeft") },
             { anchor: "kr-lean" },
           ),
           act("step", { direction: "forward", steps: 1 }),
@@ -74,20 +74,20 @@ export const SCENES_BOUTS: readonly IScene[] = [
           // composed first, so Kai's strikes are timed to these instants.
           act(
             "guard",
-            { seconds: 0.5, style: "kickboxing" },
+            { duration: 0.5, style: "kickboxing" },
             { anchor: "kr-shell" },
           ),
           act("braceImpact", {}, { anchor: "kr-brace" }),
-          act("guard", { seconds: 0.4, style: "kickboxing" }),
+          act("guard", { duration: 0.4, style: "kickboxing" }),
           act(
             "rearHook",
             { at: at("blu", "jawLeft") },
             { anchor: "kr-counter" },
           ),
-          act("guard", { seconds: 0.8, style: "kickboxing" }),
+          act("guard", { duration: 0.8, style: "kickboxing" }),
           act(
             "pushed",
-            { from: at("blu", "soleRight") },
+            { target: at("blu", "soleRight") },
             { anchor: "kr-teeped" },
           ),
           act("step", { direction: "forward", steps: 1 }),
@@ -114,7 +114,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
         180,
         [
           act("guard", {
-            seconds: 0.5,
+            duration: 0.5,
             style: "kickboxing",
             facing: at("red", "face"),
           }),
@@ -154,12 +154,12 @@ export const SCENES_BOUTS: readonly IScene[] = [
           act("highBlock", { against: "kr-feint2" }),
           act(
             "flinch",
-            { from: at("red", "handBackLeft"), intensity: 0.8 },
+            { target: at("red", "handBackLeft"), intensity: 0.8 },
             { sync: { of: "kr-body", event: "impact" } },
           ),
           act(
             "knockdown",
-            { from: at("red", "footTopRight"), seconds: 2 },
+            { target: at("red", "footTopRight"), hold: 2 },
             { sync: { of: "kr-ko", event: "impact" } },
           ),
         ],
@@ -182,7 +182,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
     [
       person("ana", "f1", 0, 0, 0, [
         act("guard", {
-          seconds: 1,
+          duration: 1,
           style: "boxing",
           facing: at("bea", "face"),
         }),
@@ -192,10 +192,14 @@ export const SCENES_BOUTS: readonly IScene[] = [
         act("cross", { at: at("bea", "chin") }, { anchor: "ba-cross" }),
         act("leadHook", { at: at("bea", "liver") }, { anchor: "ba-body" }),
         act("leadHook", { at: at("bea", "jawRight") }, { anchor: "ba-hook" }),
-        act("guard", { seconds: 1.2, style: "boxing" }, { anchor: "ba-shell" }),
+        act(
+          "guard",
+          { duration: 1.2, style: "boxing" },
+          { anchor: "ba-shell" },
+        ),
         act(
           "leanBack",
-          { from: at("bea", "handBackRight") },
+          { target: at("bea", "handBackRight") },
           { anchor: "ba-lean" },
         ),
         act("cross", { at: at("bea", "chin") }, { anchor: "ba-counter" }),
@@ -205,22 +209,22 @@ export const SCENES_BOUTS: readonly IScene[] = [
         act("rearHook", { at: at("bea", "jawLeft") }, { anchor: "ba-rhook" }),
         act(
           "guard",
-          { seconds: 1.4, style: "boxing" },
+          { duration: 1.4, style: "boxing" },
           { anchor: "ba-shell2" },
         ),
         act(
           "leanBack",
-          { from: at("bea", "handBackLeft") },
+          { target: at("bea", "handBackLeft") },
           { anchor: "ba-lean2" },
         ),
         act("cross", { at: at("bea", "chin") }, { anchor: "ba-fin1" }),
         act("leadHook", { at: at("bea", "jawRight") }, { anchor: "ba-fin2" }),
         act("step", { direction: "back", steps: 1, guard: "boxing" }),
-        act("guard", { seconds: 1.5, style: "boxing" }),
+        act("guard", { duration: 1.5, style: "boxing" }),
       ]),
       person("bea", "f2", 0, 1.55, 180, [
         act("guard", {
-          seconds: 1.4,
+          duration: 1.4,
           style: "boxing",
           facing: at("ana", "face"),
         }),
@@ -248,7 +252,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
         ),
         act(
           "flinch",
-          { from: at("ana", "handBackRight"), intensity: 0.6 },
+          { target: at("ana", "handBackRight"), intensity: 0.6 },
           { sync: { of: "ba-counter" } },
         ),
         act("elbowBlock", { against: "ba-jab3" }),
@@ -286,7 +290,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
         act("cover", { against: "ba-fin1" }),
         act("cover", { against: "ba-fin2" }),
         act("step", { direction: "back", steps: 1, guard: "boxing" }),
-        act("guard", { seconds: 1.5, style: "boxing" }),
+        act("guard", { duration: 1.5, style: "boxing" }),
       ]),
     ],
   ),
@@ -307,7 +311,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
     "wrestling-scramble",
     [
       person("red", "m1", 0, -0.21, 0, [
-        act("stand", { seconds: 0.4, sway: 0 }),
+        act("stand", { hold: 0.4, sway: 0 }),
         act("step", { direction: "left", steps: 1, length: 0.25 }),
         act("step", { direction: "right", steps: 1, length: 0.25 }),
         act("crouch", { depth: "partial", hold: 0.8 }),
@@ -319,10 +323,10 @@ export const SCENES_BOUTS: readonly IScene[] = [
         act("step", { direction: "back", steps: 1, length: 0.2 }),
         act("step", { direction: "left", steps: 1, length: 0.25 }),
         act("step", { direction: "right", steps: 1, length: 0.25 }),
-        act("stand", { seconds: 0.3, sway: 0 }),
+        act("stand", { hold: 0.3, sway: 0 }),
       ]),
       person("blue", "m2", -0.46, 0.9, 165, [
-        act("stand", { seconds: 0.4, sway: 0 }),
+        act("stand", { hold: 0.4, sway: 0 }),
         act("step", { direction: "right", steps: 1, length: 0.25 }),
         act("step", { direction: "left", steps: 1, length: 0.25 }),
         act("crouch", { depth: "partial", hold: 0.8 }),
@@ -334,7 +338,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
         act("step", { direction: "forward", steps: 1, length: 0.2 }),
         act("step", { direction: "right", steps: 1, length: 0.25 }),
         act("step", { direction: "left", steps: 1, length: 0.25 }),
-        act("stand", { seconds: 0.3, sway: 0 }),
+        act("stand", { hold: 0.3, sway: 0 }),
       ]),
     ],
     [],
@@ -373,7 +377,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
           handle: "grip",
           use: SceneBuild.BLADE_USE,
         }),
-        act("enGarde", { blade: "sabreR", seconds: 0.8 }),
+        act("enGarde", { blade: "sabreR", duration: 0.8 }),
         act("advance", { length: STEP }),
         act(
           "cut",
@@ -395,7 +399,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
           },
           { anchor: "sb-flank" },
         ),
-        act("enGarde", { blade: "sabreR", seconds: 0.6 }),
+        act("enGarde", { blade: "sabreR", duration: 0.6 }),
         act(
           "parry",
           { blade: "sabreR", line: "highOutside" },
@@ -407,7 +411,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
           { anchor: "sb-touch" },
         ),
         act("retreat", { length: STEP }),
-        act("ochs", { blade: "sabreR", seconds: 1 }),
+        act("ochs", { blade: "sabreR", duration: 1 }),
         act("advance", { length: STEP }),
         act("feint", { blade: "sabreR", target: at("blu", "shoulderLeft") }),
         act(
@@ -419,9 +423,9 @@ export const SCENES_BOUTS: readonly IScene[] = [
           },
           { anchor: "sb-lunge" },
         ),
-        act("enGarde", { blade: "sabreR", seconds: 2.4 }),
+        act("enGarde", { blade: "sabreR", duration: 2.4 }),
         act("voidStep", { length: 0.3 }, { anchor: "sb-hit" }),
-        act("alber", { blade: "sabreR", seconds: 1.6 }),
+        act("alber", { blade: "sabreR", duration: 1.6 }),
       ]),
       person("blu", "m2", 0, 1.55, 180, [
         act("pickUp", {
@@ -429,7 +433,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
           handle: "grip",
           use: SceneBuild.BLADE_USE,
         }),
-        act("enGarde", { blade: "sabreB", seconds: 0.8 }),
+        act("enGarde", { blade: "sabreB", duration: 0.8 }),
         act(
           "parry",
           { blade: "sabreB", against: "sb-head" },
@@ -451,11 +455,11 @@ export const SCENES_BOUTS: readonly IScene[] = [
         ),
         act(
           "flinch",
-          { from: at("red", "palmRight"), intensity: 0.5 },
+          { target: at("red", "palmRight"), intensity: 0.5 },
           { sync: { of: "sb-touch" } },
         ),
-        act("vomTag", { blade: "sabreB", seconds: 1 }),
-        act("pflug", { blade: "sabreB", seconds: 1.2 }),
+        act("vomTag", { blade: "sabreB", duration: 1 }),
+        act("pflug", { blade: "sabreB", duration: 1.2 }),
         act(
           "beat",
           { blade: "sabreB", against: "sb-lunge" },
@@ -471,7 +475,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
           { sync: { of: "sb-hit", event: "start", align: "stroke" } },
         ),
         act("retreat", { length: STEP }),
-        act("enGarde", { blade: "sabreB", seconds: 1.4 }),
+        act("enGarde", { blade: "sabreB", duration: 1.4 }),
       ]),
     ],
     [
@@ -503,10 +507,10 @@ export const SCENES_BOUTS: readonly IScene[] = [
           { target: at("ned", "cheekLeft") },
           { anchor: "br-slap" },
         ),
-        act("stand", { seconds: 0.7 }),
+        act("stand", { hold: 0.7 }),
         act(
           "slapped",
-          { from: at("ned", "handBackRight") },
+          { target: at("ned", "handBackRight") },
           { anchor: "br-sold" },
         ),
         act(
@@ -514,37 +518,37 @@ export const SCENES_BOUTS: readonly IScene[] = [
           { target: at("ned", "chestLeft") },
           { anchor: "br-shove" },
         ),
-        act("stand", { seconds: 0.1 }),
+        act("stand", { hold: 0.1 }),
         act(
           "rearHook",
           { at: at("ned", "jawLeft"), accuracy: "miss" },
           { anchor: "br-swing" },
         ),
         act("step", { direction: "back", steps: 1, length: 0.3 }),
-        act("guard", { seconds: 1, facing: at("ned", "face") }),
+        act("guard", { duration: 1, facing: at("ned", "face") }),
         act(
           "pushed",
-          { from: at("ned", "soleRight") },
+          { target: at("ned", "soleRight") },
           { anchor: "br-pushed" },
         ),
         act("step", { direction: "back", steps: 1, length: 0.3 }),
         act("step", { direction: "forward", steps: 1, length: 0.3 }),
         act(
           "knockdown",
-          { from: at("ned", "handBackRight") },
+          { target: at("ned", "handBackRight") },
           { anchor: "br-drop" },
         ),
       ]),
       person("ned", "m1", 0, 0.6, 180, [
         act(
           "grabbed",
-          { from: at("rex", "palmRight") },
+          { target: at("rex", "palmRight") },
           { sync: { of: "br-grab", event: "stroke" } },
         ),
-        act("leanBack", { from: at("rex", "palmRight") }),
+        act("leanBack", { target: at("rex", "palmRight") }),
         act(
           "slapped",
-          { from: at("rex", "palmRight") },
+          { target: at("rex", "palmRight") },
           { sync: { of: "br-slap", event: "stroke" } },
         ),
         act(
@@ -554,7 +558,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
         ),
         act(
           "pushed",
-          { from: at("rex", "palmRight") },
+          { target: at("rex", "palmRight") },
           { sync: { of: "br-shove", event: "stroke" } },
         ),
         act(
@@ -573,7 +577,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
           { sync: { of: "br-drop", event: "start", align: "impact" } },
         ),
         act("step", { direction: "back", steps: 1, length: 0.3 }),
-        act("guard", { seconds: 1, facing: at("rex", "face") }),
+        act("guard", { duration: 1, facing: at("rex", "face") }),
       ]),
     ],
   ),

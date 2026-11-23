@@ -1,9 +1,4 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -15,11 +10,10 @@ import type {
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCatchObject,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanPlacedAction,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
-  IAutoMovieMotionHumanThrowObjectLaunch,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -34,6 +28,7 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { courseArmAtPace } from "../compose/courseArmAtPace";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -41,8 +36,8 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGlove } from "./HumanGlove";
+import { catchObjectApproach } from "./catchObjectApproach";
 import { catchObjectFingers } from "./catchObjectFingers";
-import { throwObject } from "./throwObject";
 
 /**
  * Catching an object thrown by another action: the hands meet it where its
@@ -69,6 +64,10 @@ import { throwObject } from "./throwObject";
  * the object's velocity over `GIVE_TIME` (the issue's 0.05 to 0.15 m,
  * provisional), which is `secured`, then carry it to before the sternum and
  * hold it. Events: `reach`, `prepare`, `contact`, `secured`, `held`.
+ *
+ * The catch may start any time up to that `prepare` instant: with the throw,
+ * or later, as when the thrower cuts its own throw at the release to catch
+ * what it tossed (a juggle, a rhythmic toss).
  *
  * Not yet: hand closure timed by optical expansion (Savelsbergh et al.
  * 1991), a running catch (McLeod and Dienes 1996), a fumble, the catch
@@ -112,8 +111,11 @@ export namespace catchObject {
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
 
-  /** How far ahead of the root the object is met, arm lengths (provisional). */
-  export const REACH: number = 0.6;
+  /** How far ahead of the root the object is met, arm lengths (`catchObjectApproach.REACH`). */
+  export const REACH: number = catchObjectApproach.REACH;
+
+  /** The height a self-tossed object is caught at on its way down (`catchObjectApproach.TOSS`). */
+  export const TOSS: number = catchObjectApproach.TOSS;
 
   /** How far the hands give with the object after contact, metres (provisional). */
   export const GIVE: number = 0.1;
@@ -148,7 +150,7 @@ export namespace catchObject {
    * @evidence contracts/development/common.md#meaningful-documentation States the original throw/ball/glove/reach/start refusals, returned object path and composed hand plan; the namespace specifies interception, give and contact timing.
    * @evidence contracts/development/implementation.md#principled-implementation The interception is the root of the path's distance ahead, linear in the flight's time because a drag-free flight keeps its horizontal velocity; a path that does not close on the catcher never comes within reach, and one that meets the reach line far below the arms is refused by the shoulders' reach; each hand's twelve original palm rolls retain their actual elbow solve and separately ranked strain sweep before the same give/carry targets are composed.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Interception/timing and the shared object path precede each hand's rank loop and arm primitive. HumanHandTarget's shared frame/placement owner separates actual palm orientation from the glove correction and actual elbow searches.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all rolls, both original Bend sweeps, strict strain tie, pocket-correction-before-wrist subtraction order, phase paths, contacts, refusal bounds and timing; no achieved pose replaces the original target.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all rolls, the rank loop's Bend sweeps, strict strain tie; the runtime target's elbow is the named hanging place, pocket-correction-before-wrist subtraction order, phase paths, contacts, refusal bounds and timing; no achieved pose replaces the original target.
    * @evidence contracts/development/implementation.md#efficient-algorithms Entry FK requests only actual shoulders/hands. Each hand's rank loop prepares its fixed palm offset/rest basis and fixed trunk Bend geometry once across all twelve rolls, while all actual orientations, complete candidate sweeps and runtime targets remain. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed rank geometry and final hand-surface metadata are shared without answers; each roll/current target remains actual. Runtime Frame FK loans reach only actual raw sternum reads, and a public object call lends one local getter through its original full composition and final centre observation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rank-loop geometry releases before its hand primitive returns; the plan owns original launch/clock and constant-size hand/path metadata. Each runtime loan/local object getter releases per synchronous call; no candidate fit, sampled pose or query history is retained.
@@ -166,16 +168,23 @@ export namespace catchObject {
       context.start,
       "ball",
     ).radius;
-    const standing: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
+    const neutral: IAutoMovieMotionHumanPosture = stand
+      .plan({ ...context, params: { hold: 1 } })
       .posture(0);
     const frame: IAutoMovieMotionHumanFrame = {
-      origin: { ...standing.root, y: 0 },
-      yaw: standing.yaw,
+      origin: { ...neutral.root, y: 0 },
+      yaw: neutral.yaw,
     };
 
-    const timing: IInterception = interception ?? approach(context, frame, arm);
+    const timing: IInterception =
+      interception ?? catchObjectApproach.of(context, frame, arm);
     const contact: number = timing.contact;
+    // A staged overlay may meet the ball from a carrier such as an immersed
+    // body. Read its shoulders and elbow geometry at the interception.
+    const standing: IAutoMovieMotionHumanPosture =
+      interception === undefined
+        ? neutral
+        : (context.carrier?.posture(contact) ?? neutral);
     const meet: IAutoMovieVector3 = timing.before(contact);
     const along: IAutoMovieVector3 = Vector3.normalize(timing.speed);
     const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([
@@ -206,8 +215,8 @@ export namespace catchObject {
     )
       throw new HumanRefusal({
         kind: "reach",
-        axis: "from",
-        value: context.params.from,
+        axis: "partner",
+        value: context.params.partner,
         reason: `the object passes ${Vector3.length(Vector3.subtract(meet, shoulders)).toFixed(2)} m from the shoulders, beyond the arms`,
         fix: "stand on the throw's path, or aim the throw at the catcher",
       });
@@ -221,10 +230,10 @@ export namespace catchObject {
     if (contact - 0.1 < 0)
       throw new HumanRefusal({
         kind: "base",
-        axis: "from",
-        value: context.params.from,
+        axis: "partner",
+        value: context.params.partner,
         reason: `the catch starts ${(-contact + 0.1).toFixed(2)} s too late to prepare`,
-        fix: "start the catch when the throw starts, with nothing between that delays the catcher",
+        fix: "start the catch at least 0.1 s before the object arrives: with the throw, or cut from the thrower's own throw at its release",
       });
     const secured: number = contact + GIVE_TIME;
     const held: number = secured + 0.4;
@@ -286,7 +295,7 @@ export namespace catchObject {
     const sides: AutoMovieHumanSide[] =
       (context.params.hands ?? "two") === "two"
         ? ["left", "right"]
-        : [context.params.side ?? "right"];
+        : [context.params.hand ?? "right"];
     const pocket: IAutoMovieVector3 | undefined =
       context.params.glove === undefined
         ? undefined
@@ -337,14 +346,19 @@ export namespace catchObject {
         surface: "palm",
         shape: "relaxed",
         forward: fingers,
+        // The elbow hangs below the catching hand, a named place, so a read
+        // of the moving target never sweeps the elbow afresh.
+        bend: "hang",
       });
       let corrected:
         | ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareTarget>
         | undefined;
+      // The hand is taken from where the reach begins: before it a carrier's
+      // arm and fingers stay its own.
       return AutoMovieMotionHumanArm.move({
         body,
         side,
-        from: 0,
+        from: reach,
         to: duration,
         origin: AutoMovieMotionHumanArm.origin(
           body,
@@ -395,13 +409,42 @@ export namespace catchObject {
 
     const base: IAutoMovieMotionHumanActionPlan =
       AutoMovieMotionHumanBase.under(context, duration);
-    const composed: IAutoMovieMotionHumanActionPlan =
+    // The arm before the catch: the carrier's own as the reach begins,
+    // its goal for this arm stripped, or the entry's when nothing carries.
+    const before: (
+      side: AutoMovieHumanSide,
+    ) => IAutoMovieMotionHumanEntryState["pose"] = (
+      side: AutoMovieHumanSide,
+    ): IAutoMovieMotionHumanEntryState["pose"] => {
+      const carried: IAutoMovieMotionHumanPosture | undefined =
+        context.carrier?.posture(reach);
+      if (carried === undefined) return context.entry.pose;
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...carried.limbs };
+      delete limbs[side === "left" ? "leftArm" : "rightArm"];
+      return resolveHumanPosture(body, { ...carried, limbs });
+    };
+    // Each catching arm is one admitted course over where its goal is
+    // written, from the reach through the contact, the give and the carry,
+    // at the law's own pace, never refitted per second.
+    const composed: IAutoMovieMotionHumanActionPlan = sides.reduce(
+      (
+        plan: IAutoMovieMotionHumanActionPlan,
+        side: AutoMovieHumanSide,
+      ): IAutoMovieMotionHumanActionPlan =>
+        courseArmAtPace(
+          body,
+          plan,
+          side,
+          AutoMovieMotionHumanArm.angles(before(side), side),
+          { start: reach, ready: contact, relax: duration, end: duration },
+        ),
       composeAutoMovieMotionHumanAction({
         base,
         clock,
         contact: "contact",
         primitives: sides.map(hand),
-      });
+      }),
+    );
     return {
       ...composed,
       object: (seconds: number): IAutoMovieVector3 => {
@@ -413,61 +456,6 @@ export namespace catchObject {
           resolution,
         );
       },
-    };
-  }
-
-  /** Find where the ordinary drag-free throw first reaches the catcher's reach line. */
-  function approach(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,
-    frame: IAutoMovieMotionHumanFrame,
-    arm: number,
-  ): IInterception {
-    const placed: IAutoMovieMotionHumanPlacedAction = context.action(
-      context.params.from,
-    );
-    const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined =
-      throwObject.of(placed.plan);
-    if (launch === undefined)
-      throw new HumanRefusal({
-        kind: "participant",
-        axis: "from",
-        value: context.params.from,
-        feasible: {
-          kind: "alternatives",
-          values: ["the anchor of a throwObject action"],
-        },
-        reason: `${context.params.from} is a ${placed.name}, not a throw`,
-        fix: "give the throw an anchor and name that anchor in from",
-      });
-    const ahead: number = HumanFrame.local(frame, launch.point).z - REACH * arm;
-    const closing: number = -HumanFrame.local(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
-      launch.velocity,
-    ).z;
-    if (ahead <= 0 || !(closing > 0))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "from",
-        value: context.params.from,
-        reason:
-          ahead <= 0
-            ? "the throw starts within the reach"
-            : "the throw never comes within reach",
-        fix:
-          ahead <= 0
-            ? "stand farther from the thrower, beyond the arms' reach of the release"
-            : "stand on the throw's path, or aim the throw at the catcher",
-      });
-    const released: number = placed.start + launch.seconds - context.start;
-    const flight: number = ahead / closing;
-    return {
-      contact: released + flight,
-      speed: {
-        ...launch.velocity,
-        y: launch.velocity.y - AutoMovieGravity.STANDARD * flight,
-      },
-      before: (seconds: number): IAutoMovieVector3 =>
-        throwObject.path(launch, Math.max(0, seconds - released)),
     };
   }
 }

@@ -15,20 +15,10 @@ import type { IAutoMovieMotionHumanJacobian } from "./IAutoMovieMotionHumanJacob
  * chart's own derivative: the world rotation of the upper arm read at the
  * coordinate a hair either side, the shoulder's point fixed, the forearm
  * and the hand carried with it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation free: Zero-based indices of freely variable coordinates in c. chain: Pure synchronous forward-kinematics callback for the supplied coordinate vector; borrowed coordinates must remain stable for the call.
- * @evidence contracts/development/design.md#principled-representation free: Zero-based indices of freely variable coordinates in c. chain: Pure synchronous forward-kinematics callback for the supplied coordinate vector; borrowed coordinates must remain stable for the call.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanArmJacobian.ts (HumanArmJacobian.columns, return); posture/HumanArmJacobian.ts (HumanArmJacobian.read, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanJacobian.ITwist, IAutoMovieMotionHumanArmGeometry.IPlaced identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanArmJacobian {
   /**
    * One coordinate's motion of the arm's three segments, per coordinate unit: radians and metres at each segment's origin (the shoulder, the elbow, the wrist).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation upper: The upper arm's twist. lower: The forearm's twist. hand: The hand's twist.
-   * @evidence contracts/development/design.md#principled-representation upper: The upper arm's twist. lower: The forearm's twist. hand: The hand's twist.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanArmJacobian.ts (HumanArmJacobian.columns, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanJacobian.ITwist identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IColumn {
     /** The upper arm's twist. */
@@ -41,11 +31,6 @@ export namespace IAutoMovieMotionHumanArmJacobian {
 
   /**
    * An arm's chain placed at coordinates: each joint's point and each segment's world rotation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation An arm's chain placed at coordinates: each joint's point and each segment's world rotation.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "shoulder", "elbow", "wrist", "upper", "lower", "hand" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanArmJacobian.ts (HumanArmJacobian.read, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanArmGeometry.IPlaced identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IChain = Pick<
     IAutoMovieMotionHumanArmGeometry.IPlaced,
@@ -54,11 +39,6 @@ export namespace IAutoMovieMotionHumanArmJacobian {
 
   /**
    * One arm of a body on a pose, read at an arm moved by an offset in the planner's coordinates: every coordinate's column, and the chain at any coordinates, the forward kinematics the columns differentiate. Result returned by HumanArmJacobian.read. The coordinates read at, the free ones (a hinge's fixed angle is not), their columns in that order and the chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation free: Zero-based indices of freely variable coordinates in c. chain: Pure synchronous forward-kinematics callback for the supplied coordinate vector; borrowed coordinates must remain stable for the call.
-   * @evidence contracts/development/design.md#principled-representation free: Zero-based indices of freely variable coordinates in c. chain: Pure synchronous forward-kinematics callback for the supplied coordinate vector; borrowed coordinates must remain stable for the call.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanArmJacobian.ts (HumanArmJacobian.read, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanArmJacobian.IColumn, IAutoMovieMotionHumanArmJacobian.IChain identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IReadResult = {
     /** Nine planner coordinates: the shoulder chart's first three coordinates followed by elbow and wrist clinical-degree triples. */
@@ -69,14 +49,6 @@ export namespace IAutoMovieMotionHumanArmJacobian {
     columns: IAutoMovieMotionHumanArmJacobian.IColumn[];
     /**
      * Pure synchronous forward-kinematics callback for the supplied coordinate vector; borrowed coordinates must remain stable for the call.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanArmJacobian.IReadResult.chain: Pure synchronous forward-kinematics callback for the supplied coordinate vector; borrowed coordinates must remain stable for the call.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArmJacobian.IReadResult.chain is used through packages/motions/src/posture/HumanArmJacobian.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanArmJacobian.IReadResult.chain is used through packages/motions/src/posture/HumanArmJacobian.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArmJacobian.IReadResult.chain is used through packages/motions/src/posture/HumanArmJacobian.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanArmJacobian.IReadResult.chain is used through packages/motions/src/posture/HumanArmJacobian.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanArmJacobian.IReadResult.chain is used through packages/motions/src/posture/HumanArmJacobian.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanArmJacobian.IReadResult.chain is used through packages/motions/src/posture/HumanArmJacobian.ts.
      */
     chain: (c: readonly number[]) => IAutoMovieMotionHumanArmJacobian.IChain;
   };

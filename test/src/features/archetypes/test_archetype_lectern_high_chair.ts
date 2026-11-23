@@ -1,4 +1,8 @@
-import { ArchetypeUnits, createHighChair, createLectern } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeUnits,
+  createHighChair,
+  createLectern,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -31,22 +35,27 @@ export function test_archetype_lectern_high_chair(): void {
   // 1. The lectern.
   const lectern: ReturnType<typeof createLectern> = createLectern({}, 3);
   const top: IAutoMovieAffordance = lectern.affordance("top");
-  near("the surface's width", top.width!, 23 * ArchetypeUnits.INCH);
-  near("the surface's depth", top.depth!, 15.75 * ArchetypeUnits.INCH);
+  near("the surface's width", top.width!, 23 * AutoMovieArchetypeUnits.INCH);
+  near("the surface's depth", top.depth!, 15.75 * AutoMovieArchetypeUnits.INCH);
   const normal: ReturnType<typeof Vector3.create> = Quaternion.rotateVector(
     top.frame.rotation,
     Vector3.create(0, 1, 0),
   );
   near(
     "the surface's slope",
-    Math.atan2(normal.z, normal.y) / ArchetypeUnits.DEGREE,
+    Math.atan2(normal.z, normal.y) / AutoMovieArchetypeUnits.DEGREE,
     15,
   );
-  near("the surface's back edge", archetypeExtent(lectern, "y").high, 46 * ArchetypeUnits.INCH);
+  near(
+    "the surface's back edge",
+    archetypeExtent(lectern, "y").high,
+    46 * AutoMovieArchetypeUnits.INCH,
+  );
   near(
     "the front edge's height",
     lectern.affordance("front").frame.translation.y,
-    (46 - 15.75 * Math.sin(15 * ArchetypeUnits.DEGREE)) * ArchetypeUnits.INCH,
+    (46 - 15.75 * Math.sin(15 * AutoMovieArchetypeUnits.DEGREE)) *
+      AutoMovieArchetypeUnits.INCH,
   );
 
   // 2. The high chair.

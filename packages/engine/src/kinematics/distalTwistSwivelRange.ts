@@ -43,20 +43,10 @@ import { swivelArcs } from "./swivelArcs";
  * inside the range or stays outside it, so one test at a point of an
  * interval decides the whole interval (the joint-limit intervals of the
  * swivel, Tolani, Goswami and Badler 2000, section 3.2).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the premise, the equation the twist solves, which root is kept, why each reading is a sinusoid of the swivel, the four kinds of breakpoint and what one test decides.
- * @evidence contracts/development/design.md#principled-representation The breakpoints as swivels in degrees and the admission as a predicate of the swivel: the two things a nearest-admissible choice needs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two records and one reader, read by `distalEndSwivelNearest`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Exact roots and an exact test, never sampling; the equation is the twist solver's own, with its rest-carried axes and its zero.
  */
 export namespace distalTwistSwivelRange {
   /**
    * What the reader is given.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The twist axis, the two fixed directions of the zero-twist reading, the carried axis by swivel and the range.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The five inputs the equation needs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The range is rest-relative degrees about the axis itself, the angle the mid joint's articulation composes.
    */
   export interface IProps {
     /** The mid segment's twist axis in its own articulation frame, unit. */
@@ -70,14 +60,6 @@ export namespace distalTwistSwivelRange {
 
     /**
      * The end joint's flexion axis under the requested rotation, seen from the untwisted mid segment at a swivel, degrees (`K(s) e`), unit.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the reading's argument, its unit and the frame of the vector returned.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
      */
     carried: (swivel: number) => IAutoMovieVector3;
 
@@ -87,11 +69,6 @@ export namespace distalTwistSwivelRange {
 
   /**
    * The swivels' admission by the twist range.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation Breakpoints on the swivel's circle, a predicate constant between them, and the miss the range forces where it does not admit, as a bound over swivel intervals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members: the first two read by the nearest-admissible choice, the third by the sweep's bound.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The predicate is the closed form itself, not a lookup of sampled intervals.
    */
   export interface IRange {
     /** The swivels, degrees in [0, 360), at which the admission may change. */
@@ -99,14 +76,6 @@ export namespace distalTwistSwivelRange {
 
     /**
      * Whether the twist asked at a swivel, degrees, exists and lies inside the range.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and what a true answer means.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
      */
     admits: (swivel: number) => boolean;
 
@@ -132,14 +101,6 @@ export namespace distalTwistSwivelRange {
      * joints' tolerance (`ROM_TOLERANCE`), within which each of the two
      * angles may stand past its interval. Its premise is `ahead` unit and
      * perpendicular to `axis`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the arguments, the interval reader returned and its unit.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
      */
     miss: (
       middle: readonly [number, number],
@@ -152,14 +113,6 @@ export namespace distalTwistSwivelRange {
    *
    * @param props The twist axis, the zero-twist directions, the carried axis by swivel and the range.
    * @returns The breakpoints and the admission test.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result; the namespace states the derivation.
-   * @evidence contracts/development/implementation.md#principled-implementation Rodrigues' formula makes the zero-twist condition a first-order trigonometric equation in the twist and each of its coefficients a sinusoid of the swivel; the range's ends and the existence of a root are therefore sinusoid roots (Tolani, Goswami and Badler 2000, after Korein).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three samples, the sinusoids' coefficient vectors, the breakpoints by kind, then the test.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact roots; a swivel with no twist, or whose twist reads the half-turn alias, is refused rather than accepted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three carried axes once; at most twelve roots; a test costs one sine and cosine of the swivel, a handful of dot products and one arccos.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit and the roots are `swivelArcs`'s, shared with the joint boxes' arcs.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The test keeps three coefficient vectors and the fixed directions until its fit returns.
    */
   export function of(props: IProps): IRange {
     const u: IAutoMovieVector3 = props.axis;

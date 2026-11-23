@@ -1,5 +1,5 @@
 import {
-  ArchetypeFrame,
+  AutoMovieArchetypeFrame,
   createBellFrame,
   createLoadingTower,
 } from "@automovie/archetypes";
@@ -63,8 +63,16 @@ export function test_archetype_period_scenery(): void {
         nclose(at.y, y.high) &&
         nclose(at.z - surface.depth / 2, z.low) &&
         nclose(at.z + surface.depth / 2, z.high) &&
-        vclose(ArchetypeFrame.axis(surface.frame, "y"), { x: 0, y: 1, z: 0 }) &&
-        vclose(ArchetypeFrame.axis(surface.frame, "x"), { x: 1, y: 0, z: 0 }),
+        vclose(AutoMovieArchetypeFrame.axis(surface.frame, "y"), {
+          x: 0,
+          y: 1,
+          z: 0,
+        }) &&
+        vclose(AutoMovieArchetypeFrame.axis(surface.frame, "x"), {
+          x: 1,
+          y: 0,
+          z: 0,
+        }),
     );
   }
   const boarding: ReturnType<typeof archetypeExtent> = archetypeExtent(
@@ -127,7 +135,7 @@ export function test_archetype_period_scenery(): void {
       nclose(lintel.low, threshold.y + door.height) &&
       nclose(threshold.y, platformY) &&
       nclose(threshold.z, gangway.low) &&
-      nclose(ArchetypeFrame.axis(door.frame, "z").z, 1),
+      nclose(AutoMovieArchetypeFrame.axis(door.frame, "z").z, 1),
   );
   TestValidator.predicate(
     "wheel faces reach the ground",
