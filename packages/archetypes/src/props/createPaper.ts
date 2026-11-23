@@ -10,11 +10,17 @@ import { StationeryDraw } from "./StationeryDraw";
 /**
  * Loose paper sheet or folding map with a shared writing-surface contract.
  *
- * @param params The optional scene ID, paper format and any fixed dimension in metres or kilograms. The default format is a single sheet.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
- * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * A flat sheet's grip edge lies toward model `+Z` and its head edge toward
+ * model `-Z`, so `face` reads with model `-Z` as its top. A folded map's `face`
+ * rides its `fold`.
  *
+ * @param params The optional scene ID, paper format and any fixed dimension in
+ *   metres or kilograms. The default format is a single sheet.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
+ * @returns The model with its named contact frames in model space.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  * @evidence contracts/development/common.md#meaningful-documentation Loose paper sheet or folding map with a shared writing-surface contract.
  * @evidence contracts/development/implementation.md#principled-implementation The folded map has a fixed base and an equal moving panel with a crease at their boundary.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the saved recipe, then build this prop and its own contacts.
@@ -34,7 +40,10 @@ export function createPaper(
   seed?: number | string,
 ): AutoMovieArchetype<createPaper.Affordance, createPaper.Dimension>;
 
-/** A format selected by an authored scene resolves to one of the two paper models. */
+/**
+ * A format selected by an authored scene resolves to one of the two paper
+ * models.
+ */
 export function createPaper(
   params: createPaper.IParams,
   seed?: number | string,
@@ -172,7 +181,10 @@ export namespace createPaper {
   /** The dimensions both formats draw, in metres and the mass in kilograms. */
   export type Dimension = "length" | "mass" | "thickness" | "width";
 
-  /** Contacts present across both formats. Only the map has the crease and the layer grips. */
+  /**
+   * Contacts present across both formats. Only the map has the crease and the
+   * layer grips.
+   */
   export type Affordance =
     | "grip"
     | "face"

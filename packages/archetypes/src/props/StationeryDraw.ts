@@ -8,11 +8,17 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** Book trim sizes: a print service's list, and the UK paperback formats from a secondary source. */
+/**
+ * Book trim sizes: a print service's list, and the UK paperback formats from a
+ * secondary source.
+ */
 const BOOK: string =
   "Amazon KDP print options, trim sizes 12.7 x 20.32 cm to 15.6 x 23.39 cm (https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6); the smaller end is the UK A-format paperback, 110 x 178 mm (Wikipedia, Book size, https://en.wikipedia.org/wiki/Book_size)";
 
-/** Book thickness from a page count and a paper caliper, neither read at a primary source. */
+/**
+ * Book thickness from a page count and a paper caliper, neither read at a
+ * primary source.
+ */
 const THICKNESS: string =
   "150 to 650 pages inside the 24 to 828 page range of Amazon KDP (https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6) at about 0.06 mm per page, a printer's spine formula seen only in search results";
 
@@ -24,7 +30,10 @@ const PAPER: string =
 const PEN: string =
   "BIC Cristal, 14.45 cm without and 14.9 cm with its cap (Wikipedia, Bic Cristal, https://en.wikipedia.org/wiki/Bic_Cristal); barrel inside the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf)";
 
-/** Michelin's folded road map: its folded size read at the maker, its thickness and mass seen only in listings. */
+/**
+ * Michelin's folded road map: its folded size read at the maker, its thickness
+ * and mass seen only in listings.
+ */
 const MAP: string =
   "Michelin regional map, folded 11 x 25 cm (https://boutique.laventure.michelin.com/en/product/ouest-france-map-of-calvados-michelin/); 0.7 cm thick and 89 to 90 g, Michelin maps 333, 585 and 707 seen only in search results";
 
@@ -37,13 +46,9 @@ const NAMES: Readonly<Record<StationeryDraw.Kind, string>> = {
   map: "folded map",
 };
 
-/**
- * The seeded recipes originally published as `createStationery`.
- */
+/** The seeded recipes originally published as `createStationery`. */
 export namespace StationeryDraw {
-  /**
-   * The kinds.
-   */
+  /** The kinds. */
   export type Kind = "book" | "paper" | "pen" | "clipboard" | "map";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -58,14 +63,23 @@ export namespace StationeryDraw {
   /**
    * The affordance ids:
    *
-   * - `grip`: the hold: a book by the middle of its spine, the hand closing across its thickness (the frame's `+Y` is up, out of the cover) along the spine's length; a sheet pinched from above at its near edge, a clipboard or a map pinched at its `+Z` edge, a pen pinched 30 mm from its tip (an estimate).
-   * - `face`: the working face: a book's front cover, which rides the hinge; a sheet's, a clipboard's or a map's upper side; a pen's tip, facing along the pen.
+   * - `grip`: the hold: a book by the middle of its spine, the hand closing
+   *   across its thickness (the frame's `+Y` is up, out of the cover) along the
+   *   spine's length; a sheet pinched from above at its near edge, a clipboard
+   *   or a map pinched at its `+Z` edge, a pen pinched 30 mm from its tip (an
+   *   estimate).
+   * - `face`: the working face: a book's front cover, which rides the hinge; a
+   *   sheet's, a clipboard's or a map's upper side; a pen's tip, facing along
+   *   the pen.
    * - `hinge` and `edge`: a book's cover hinge and its riding fore-edge.
-   * - `page` and `page-edge`: a book's single leaf hinge and its riding fore-edge.
+   * - `page` and `page-edge`: a book's single leaf hinge and its riding
+   *   fore-edge.
    * - `fold` and `fold-edge`: a map's crease and its riding free edge.
-   * - `support-grip`: the `+Z` edge of the map's base panel, held across just that panel while folding.
+   * - `support-grip`: the `+Z` edge of the map's base panel, held across just
+   *   that panel while folding.
    *
-   * Each hinge lifts its part with positive travel from the closed position through 180 degrees.
+   * Each hinge lifts its part with positive travel from the closed position
+   * through 180 degrees.
    */
   export type Affordance =
     | "grip"
@@ -99,7 +113,8 @@ export namespace StationeryDraw {
   };
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside its band.
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which thing. */
@@ -112,17 +127,18 @@ export namespace StationeryDraw {
     id?: string;
   }
 
-  /**
-   * A model's read figures, by dimension.
-   */
+  /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /**
-   * The clipboards read: Esselte's 56055 and 604037, both A4.
-   */
+  /** The clipboards read: Esselte's 56055 and 604037, both A4. */
   export type Model = "56055" | "604037";
 
-  /** Each kind's models whole, the default first: Esselte's 232 x 3 x 349 mm clipboards (W x H x D), 168 g for the 56055 and 190 g for the 604037 (https://docs.rs-online.com/6055/A700000015150044.pdf, https://docs.rs-online.com/86b9/A700000015142764.pdf). */
+  /**
+   * Each kind's models whole, the default first: Esselte's 232 x 3 x 349 mm
+   * clipboards (W x H x D), 168 g for the 56055 and 190 g for the 604037
+   * (https://docs.rs-online.com/6055/A700000015150044.pdf,
+   * https://docs.rs-online.com/86b9/A700000015142764.pdf).
+   */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
   > = {
@@ -185,9 +201,7 @@ export namespace StationeryDraw {
     },
   };
 
-  /**
-   * What {@link prepare} prepares for its caller.
-   */
+  /** What {@link prepare} prepares for its caller. */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
@@ -199,11 +213,14 @@ export namespace StationeryDraw {
   /**
    * Prepare an empty builder and the previously recorded stationery dimensions.
    *
-   * @param params Fixed dimensions in metres or kilograms, an optional scene ID, and a model where the saved recipe has one.
-   * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+   * @param params Fixed dimensions in metres or kilograms, an optional scene
+   *   ID, and a model where the saved recipe has one.
+   * @param seed The seed that draws the saved dimensions and model, or
+   *   undefined for the original defaults.
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter
+   *   lies outside its admitted recipe.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,
@@ -240,9 +257,7 @@ export namespace StationeryDraw {
     return { builder, d };
   }
 
-  /**
-   * A paper panel's size.
-   */
+  /** A paper panel's size. */
   export interface IPanel {
     /** Across the panel, metres. */
     width: number;
@@ -255,7 +270,9 @@ export namespace StationeryDraw {
   }
 
   /**
-   * Register the edge pinch and working face of a writing surface.
+   * Register the edge pinch and working face of a writing surface. The grip
+   * lies on the near edge at `+Z`, so the face's top, its head or clip end, is
+   * toward `-Z`, the face frame's own `-Z`.
    *
    * @param builder The prop under construction.
    * @param dimensions The panel width, length and thickness in metres.

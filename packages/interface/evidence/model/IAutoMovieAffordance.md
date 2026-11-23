@@ -14,4 +14,4 @@ Point contacts require null extent. Stack-top admission checks finite XZ points 
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States model-local frame ownership, contact-axis convention, coincident seating, model-scoped ids, the stack-top convex XZ extent with null for point contacts, each optional dimension's unit and reader kinds, the seat's astride and mount flags, and what the articulation references name and require.
+States model-local frame ownership, contact-axis convention, a graphic-bearing surface's reading direction (local `+X` right, local `-Z` toward the top, read from `+Y`), coincident seating, model-scoped ids, the stack-top convex XZ extent with null for point contacts, each optional dimension's unit and reader kinds, the seat's astride and mount flags, and what the articulation references name and require.
