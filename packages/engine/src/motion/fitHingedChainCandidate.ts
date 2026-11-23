@@ -11,6 +11,7 @@ import type {
   IAutoMovieResolvedJointAngles,
   IAutoMovieRestFrame,
   IAutoMovieSolvedChainPlant,
+  IAutoMovieSwivelArcs,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -18,6 +19,7 @@ import { boxExcludedSwivels } from "../kinematics/boxExcludedSwivels";
 import { boxLeastSwivels } from "../kinematics/boxLeastSwivels";
 import { clinicalDeviation } from "../kinematics/clinicalDeviation";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
+import { distalEndSwivelAdmitted } from "../kinematics/distalEndSwivelAdmitted";
 import { distalEndSwivelArcs } from "../kinematics/distalEndSwivelArcs";
 import { distalEndSwivelMiss } from "../kinematics/distalEndSwivelMiss";
 import { distalEndSwivelNearest } from "../kinematics/distalEndSwivelNearest";
@@ -568,6 +570,11 @@ export function fitHingedChainCandidate(
     Math.abs(Vector3.dot(Vector3.normalize(lowerBasis.twist), along)) >
       1 - 1e-9;
   let ended: IEnd | undefined;
+  // The arc the chosen swivel's requested rotation is admitted in, and
+  // whether the arc a continued seed was admitted in vanished
+  // (`IAutoMovieSwivelSeed`), read once for the answer.
+  let admittedArc: IAutoMovieSwivelArcs.IArc | null = null;
+  let vanished: boolean = false;
 
   // The swivels of a branch at which the requested rotation reads the end
   // joint's immobile axis neutral (`immobileAxisSwivels`): the closed-form
@@ -796,10 +803,16 @@ export function fitHingedChainCandidate(
         ? {}
         : { incumbent: props.incumbent }),
       // Such a fit of a requested rotation on a limb whose mid segment twists
-      // distally starts from the swivel nearest its seed at which the end
-      // joint's box and the mid segment's twist range both admit the
-      // rotation (`distalEndSwivelNearest`), however far the target moved
-      // that set: the seed itself while it stays inside it.
+      // distally continues the arc of swivels its seed was admitted in, where
+      // the end joint's box and the mid segment's twist range both admit the
+      // rotation (Tolani, Goswami and Badler 2000, section 3.2.4): the seed
+      // itself while the arc still holds it, else the admitted swivel
+      // nearest it (`distalEndSwivelNearest`) only where that swivel's arc
+      // overlaps the seed's, the same connected arc moved by the target.
+      // Where none does, the arc vanished: the fit refines its seed alone
+      // and reports it (`IAutoMovieSwivelSeed.vanished`), so no fit jumps to
+      // another arc. A seed admitted in no arc follows an admitted swivel
+      // only within the refinement's own step.
       ...(props.near !== undefined &&
       rotation !== undefined &&
       lowerBasis.twistPlacement === "distal"
@@ -810,9 +823,29 @@ export function fitHingedChainCandidate(
             ): number | null => {
               const arcs: ReturnType<typeof distalEndSwivelArcs> =
                 arcsOf(posed);
-              return arcs === null
-                ? null
-                : distalEndSwivelNearest(arcs, twisting(posed), swivel);
+              if (arcs === null) return null;
+              const range: distalTwistSwivelRange.IRange | null =
+                twisting(posed);
+              const start: number | null = distalEndSwivelNearest(
+                arcs,
+                range,
+                swivel,
+              );
+              if (start === null || start === swivel) return start;
+              const held: IAutoMovieSwivelArcs.IArc | undefined =
+                props.near!.admitted;
+              if (held === undefined) {
+                const turn: number = start - swivel;
+                return Math.abs(turn - 360 * Math.round(turn / 360)) <=
+                  hingedArmSwivel.STEP
+                  ? start
+                  : null;
+              }
+              const around: IAutoMovieSwivelArcs.IArc | null =
+                distalEndSwivelAdmitted(arcs, range, start);
+              if (around !== null && overlapping(around, held)) return start;
+              vanished = true;
+              return null;
             },
           }
         : {}),
@@ -1061,6 +1094,23 @@ export function fitHingedChainCandidate(
                         closed: immobileRoots,
                       }),
                 }),
+      // The arc the chosen swivel's requested rotation is admitted in, which
+      // the seed carries for the fit continuing it.
+      ...(rotation !== undefined && lowerBasis.twistPlacement === "distal"
+        ? {
+            chosen: (
+              posed: ReturnType<typeof hingedArmSwivel.pose>,
+              swivel: number,
+            ): void => {
+              const arcs: ReturnType<typeof distalEndSwivelArcs> =
+                arcsOf(posed);
+              admittedArc =
+                arcs === null
+                  ? null
+                  : distalEndSwivelAdmitted(arcs, twisting(posed), swivel);
+            },
+          }
+        : {}),
       excluded: (
         upper: (swivel: number) => IAutoMovieQuaternion,
       ): ((low: number, high: number) => boolean) =>
@@ -1235,7 +1285,12 @@ export function fitHingedChainCandidate(
     upper,
     lower,
     shortfall: solved.shortfall,
-    seed: { swivel: solved.swivel, branch: solved.branch },
+    seed: {
+      swivel: solved.swivel,
+      branch: solved.branch,
+      ...(admittedArc === null ? {} : { admitted: admittedArc }),
+      ...(vanished ? { vanished: true } : {}),
+    },
     ...(strain === undefined
       ? {}
       : {
@@ -1306,6 +1361,19 @@ function endOf(
  * joints' tolerance.
  */
 const INSIDE: number = 1e-7;
+
+/**
+ * Whether two arcs of swivels, degrees, share a swivel: the second taken in the
+ * full turn that brings its centre nearest the first's.
+ */
+function overlapping(
+  a: IAutoMovieSwivelArcs.IArc,
+  b: IAutoMovieSwivelArcs.IArc,
+): boolean {
+  const shift: number =
+    360 * Math.round((a.from + a.to - b.from - b.to) / 2 / 360);
+  return b.from + shift <= a.to && a.from <= b.to + shift;
+}
 
 /** The hint side's full-weight distance (`hingedChainSide.SIDED`), metres. */
 const SIDED: number = hingedChainSide.SIDED;
