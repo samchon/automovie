@@ -78,6 +78,7 @@ export * from "./sound";
 export * from "./space";
 export * from "./text";
 export * from "./transformFormationBounds";
+export * from "./typography";
 export * from "./transformFormationPoint";
 export * from "./validation";
 export * from "./worldAlongRoute";

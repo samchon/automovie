@@ -21,6 +21,7 @@ export * from "./renderVideo.js";
 export * from "./picture/index.js";
 export * from "./scene/index.js";
 export * from "./screenplay/index.js";
+export * from "./typography/index.js";
 export * from "./IAutoMovieRenderAdapters.js";
 export * from "./IAutoMovieCapturedFrame.js";
 export * from "./IAutoMovieRenderResult.js";

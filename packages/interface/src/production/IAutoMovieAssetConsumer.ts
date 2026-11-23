@@ -60,6 +60,15 @@ export type IAutoMovieAssetConsumer =
     }
   | {
       /**
+       * Licensed TrueType font file a shot's `"asset"` font source names. Its provenance must carry `license`, which font admission requires.
+       */
+      kind: "font";
+
+      /** Exact font source id. */
+      id: string;
+    }
+  | {
+      /**
        * Observed plan, section, elevation, detail, or generated design study.
        *
        * The observation document owns this byte use; several buildings may cite readings from one sheet. Registration permits the document to cite exact image bytes and does not convert those bytes into built geometry.
