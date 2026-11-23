@@ -10,7 +10,7 @@ The span the arm is written over, the angles it holds at weight 0, the goal it s
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Sixteen members, all read by `carried` or by `AutoMovieMotionHumanArmPlanned`: seven that every carry needs, eight a planned arm reads (`span`, `perceived`, `tracked`, `together`, `on`, `disc`, `rests`, `grasp`) and the hand's `attitude`.
+Seventeen members, all read by `carried` or by `AutoMovieMotionHumanArmPlanned`: seven that every carry needs, nine a planned arm reads (`span`, `perceived`, `tracked`, `together`, `on`, `disc`, `rests`, `grasp`, `hold`) and the hand's `attitude`.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

@@ -42,7 +42,7 @@ States what is taken from the carry and what is added.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-An arm's task: its rest, its goal, its weight and its declared contacts, and the arm it ends at.
+An arm's task: its rest, its goal, its weight and its declared contacts, the seed of the law's own fit of its hold where the law gives one, and the arm it ends at.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

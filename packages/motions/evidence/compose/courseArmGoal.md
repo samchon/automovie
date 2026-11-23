@@ -6,7 +6,7 @@ States the defect it removes, how the goal is read, what is planned and what is 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A moving effector goal is a trajectory problem solved once with branch continuity and clearance (the planner's), never a fresh inverse kinematics solve per sample. The course leaves from the arm the display shows as it takes over (a plan starts from its displayed entry): the entry's at the action's start, and for a later start the plan's own arm as the display shows it there, its joints or the display's own swivel course of its goals from the entry (`courseLimbSwivels`, the same knots), never a cold fit of the goal, which may turn the arm another way for the same hand place.
+A moving effector goal is a trajectory problem solved once with branch continuity and clearance (the planner's), never a fresh inverse kinematics solve per sample. The course leaves from the arm the display shows as it takes over (a plan starts from its displayed entry): the entry's at the action's start, and for a later start the plan's own arm as the display shows it there, its joints or the display's own swivel course of its goals from the entry (`courseLimbSwivels`, the same knots), never a cold fit of the goal, which may turn the arm another way for the same hand place. A law that chose the hold's grasp by its own fit hands that fit's seed (`hold`), which the course's hold continues, so the law's search and its course take one solution.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

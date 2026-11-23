@@ -118,6 +118,7 @@ export namespace IAutoMovieMotionHumanArmPlanned {
     | "disc"
     | "on"
     | "span"
+    | "hold"
   > {
     /**
      * The arm at the end of the span, where it returns to another arm than it

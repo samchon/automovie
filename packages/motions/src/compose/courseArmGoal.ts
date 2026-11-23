@@ -280,6 +280,8 @@ export function courseArmGoal(
         // A hand on an implement the other hand carries rides that hand's
         // planned site (`IAutoMovieMotionHumanArmCarry.ICarry.on`).
         ...(arm.on === undefined ? {} : { on: arm.on }),
+        // The law's own fit of the hold's first goal, which the hold continues.
+        ...(arm.hold === undefined ? {} : { hold: arm.hold }),
         ...(props.pace === undefined ? {} : { pace: props.pace }),
         ...(arm.perceived === undefined ? {} : { perceived: arm.perceived }),
         ...(arm.tracked === undefined ? {} : { tracked: arm.tracked }),
@@ -390,7 +392,13 @@ export namespace courseArmGoal {
   export interface IArm extends Partial<
     Pick<
       IAutoMovieMotionHumanArmCarry.ICarry,
-      "disc" | "skinDistance" | "grasp" | "perceived" | "tracked" | "on"
+      | "disc"
+      | "skinDistance"
+      | "grasp"
+      | "perceived"
+      | "tracked"
+      | "on"
+      | "hold"
     >
   > {
     /** The arm. */

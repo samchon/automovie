@@ -29,10 +29,11 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
  * - The hold: every arm's goal at the instant, each arm on the base the planner
  *   already solved (`HumanLimbFit.fit`), the riding arm after the one it rides,
  *   on the pose that one placed: fitted at every frame, each continuing the
- *   frame before it (`IAutoMovieSwivelNear`), the first of a hold with no reach
- *   before it continuing the arms the course leaves from (their `rest`), so
- *   neither the branch nor the forearm's twist hops between two frames or away
- *   from the arm shown;
+ *   frame before it (`IAutoMovieSwivelNear`), the first continuing the law's
+ *   own fit of its goal where the law gives its seed (`hold`), or with no reach
+ *   before it the arms the course leaves from (their `rest`), so neither the
+ *   branch nor the forearm's twist hops between two frames or away from the arm
+ *   shown or chosen;
  * - The reach and the return: laid by the trajectory's own reader between the
  *   rest and the hold's arms, a blend in the optimiser's coordinates timed
  *   under the audit's speed bound (`HumanArmTrajectory.admitted` states it),
@@ -58,14 +59,16 @@ export namespace AutoMovieMotionHumanArmCourse {
     tempo?: number;
 
     /**
-     * Each arm's side, rest, return and the bone of another arm its grip rides,
-     * in the group's order.
+     * Each arm's side, rest, return, the bone of another arm its grip rides and
+     * the seed of the law's own fit of its hold's first goal, in the group's
+     * order.
      */
     arms: readonly {
       side: "left" | "right";
       rest: IAutoMovieMotionHumanArmAngles.IAngles;
       back?: IAutoMovieMotionHumanArmAngles.IAngles;
       on?: string;
+      hold?: IAutoMovieSwivelSeed;
     }[];
 
     /**
@@ -131,9 +134,11 @@ export namespace AutoMovieMotionHumanArmCourse {
 
     if (!times.some(holding)) return undefined;
 
-    // The hold continued frame by frame: its first instant fitted on its own
-    // or, with no reach before it, continuing the arms the course leaves from
-    // (`rested`), and every later one continuing the instant before it
+    // The hold continued frame by frame: its first instant continuing the
+    // law's own fit of its goal where the law gives its seed (`hold`), or,
+    // with no reach before it, the arms the course leaves from (`entered`),
+    // else fitted on its own, and every later one continuing the instant
+    // before it
     // (interval continuation of the swivel, an arm's
     // one free coordinate on its goal: Tolani, Goswami and Badler 2000,
     // section 3.2.4), so each instant is reached from its neighbour by the
@@ -152,18 +157,17 @@ export namespace AutoMovieMotionHumanArmCourse {
         (_: IProps["arms"][number], a: number): IAutoMovieHumanLimbGoal =>
           props.aimed(a, times[k]!),
       );
-    const knot = (k: number, from?: ISolved): IHeldFit => ({
+    const knot = (k: number, from?: IEntered): IHeldFit => ({
       k,
       ...fit(times[k]!, goals(k), from?.near ?? {}, from?.arms),
     });
     // A hold from the course's start, with no reach before it, starts on the
     // arms the course leaves from; after a reach the reader lays the way to
-    // whichever solution the hold's first instant takes.
+    // whichever solution the hold's first instant takes, the law's own where
+    // it gives that solution's seed.
     let previous: IHeldFit = knot(
       held[0]!,
-      span.ready > span.start + 1e-9
-        ? undefined
-        : rested(props, times[held[0]!]!),
+      entered(props, times[held[0]!]!, span.ready > span.start + 1e-9),
     );
     course.set(times[previous.k]!, previous.arms);
     for (let p: number = 1; p < held.length; ++p) {
@@ -322,21 +326,49 @@ function solver(
 }
 
 /**
- * The arms a course leaves from, as the hold's first instant continues them:
- * each arm's rest posed on the base the planner solved at that instant, and the
- * swivel and branch each shows there (`HumanLimbFit.seed`, in closed form). The
- * hold then starts on the solution of its goal nearest the arm shown, which a
- * plan starts from (its displayed entry), rather than on a cold fit's, which
- * may place the same hand with the elbow elsewhere: with no reach between them
- * (the hold from the course's start) that difference is a step.
+ * What a hold's first instant continues: the seeds of its arms' fits, and the
+ * arms posed in first where they stand on the course's own arms.
  */
-function rested(
+interface IEntered {
+  /** Each continued arm's seed. */
+  near: IAutoMovieMotionHumanResolveHumanPosture.INear;
+
+  /** The arms posed in before the fit, in the group's order; none when absent. */
+  arms?: readonly IAutoMovieMotionHumanArmClearance.IArm[];
+}
+
+/**
+ * What a hold's first instant continues. An arm whose law gives the seed of its
+ * own fit of the hold's first goal (`hold`, the grasp the law chose) continues
+ * that fit, one model between the law's search and its course. With no reach
+ * before the hold (the hold from the course's start), an arm continues the arm
+ * the course leaves from: its rest posed on the base the planner solved at that
+ * instant, and the swivel and branch it shows there (`HumanLimbFit.seed`, in
+ * closed form), the solution of its goal nearest the arm shown, which a plan
+ * starts from (its displayed entry), rather than a cold fit's, which may place
+ * the same hand with the elbow elsewhere: with no reach between them that
+ * difference is a step. After a reach, an arm with no seed of its law's is
+ * fitted on its own, the reader laying the way to it.
+ *
+ * @returns The continuation; none where every arm is fitted on its own.
+ */
+function entered(
   props: AutoMovieMotionHumanArmCourse.IProps,
   t: number,
-): ISolved {
+  reached: boolean,
+): IEntered | undefined {
+  if (
+    reached &&
+    props.arms.every(
+      (arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number]): boolean =>
+        arm.hold === undefined,
+    )
+  )
+    return undefined;
   let pose: IAutoMoviePose = props.at(t).pose;
-  for (const arm of props.arms)
-    pose = HumanArmClearance.posed(pose, arm.side, arm.rest);
+  if (!reached)
+    for (const arm of props.arms)
+      pose = HumanArmClearance.posed(pose, arm.side, arm.rest);
   const near: Partial<
     Record<
       AutoMovieHumanLimb,
@@ -347,21 +379,19 @@ function rested(
   > = {};
   for (const arm of props.arms) {
     const limb: AutoMovieHumanLimb = `${arm.side}Arm`;
-    const seed: IAutoMovieSwivelSeed | null = HumanLimbFit.seed(
-      props.body,
-      pose,
-      limb,
-    );
+    const seed: IAutoMovieSwivelSeed | null =
+      arm.hold ?? (reached ? null : HumanLimbFit.seed(props.body, pose, limb));
     if (seed !== null)
       near[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
   }
-  return {
-    arms: props.arms.map(
-      (
-        arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number],
-      ): IAutoMovieMotionHumanArmClearance.IArm => arm.rest,
-    ),
-    near,
-    pose,
-  };
+  return reached
+    ? { near }
+    : {
+        near,
+        arms: props.arms.map(
+          (
+            arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number],
+          ): IAutoMovieMotionHumanArmClearance.IArm => arm.rest,
+        ),
+      };
 }

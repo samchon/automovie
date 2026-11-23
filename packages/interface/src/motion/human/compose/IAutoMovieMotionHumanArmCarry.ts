@@ -1,5 +1,6 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
+import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
@@ -52,6 +53,16 @@ export namespace IAutoMovieMotionHumanArmCarry {
      * when absent.
      */
     back?: IAutoMovieMotionHumanArmAngles.IAngles;
+
+    /**
+     * The seed of the law's own fit of the hold's first goal (the grasp a law
+     * chose by its search): the swivel, branch, forearm twist and admitted arc
+     * the planned hold's first instant continues instead of fitting afresh, so
+     * the law's search and its course take one solution. The hold's first
+     * instant continues est where no reach comes before it, and is fitted on
+     * its own otherwise, when absent.
+     */
+    hold?: IAutoMovieSwivelSeed;
 
     /**
      * The goal the arm solves to at weight 1.
