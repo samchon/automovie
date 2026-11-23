@@ -168,7 +168,9 @@ export async function test_cli_render_alpha_delivery(): Promise<void> {
         report.layer,
         report.source.sha256 === sha256(film),
         report.profile,
-        (await fs.readdir(layer)).sort(),
+        (await fs.readdir(layer)).sort((left: string, right: string): number =>
+          left < right ? -1 : left > right ? 1 : 0,
+        ),
         backgrounds.every((background) => background === "transparent"),
         backgrounds.length,
       ],
@@ -196,12 +198,11 @@ export async function test_cli_render_alpha_delivery(): Promise<void> {
 
     // 4. A sample that differs blocks and keeps the layer.
     corrupt = true;
-    await renderAutoMovieVideo(fixture, run).then(
-      (): never => {
-        throw new Error("A layer with a foreign sample was published");
-      },
-      (): void => {},
-    );
+    const published: boolean = await renderAutoMovieVideo(fixture, run)
+      .then((): boolean => true)
+      .catch((): boolean => false);
+    if (published)
+      throw new Error("A layer with a foreign sample was published");
     const blocked = JSON.parse(
       await fs.readFile(path.join(layer, "render-report.json"), "utf8"),
     );

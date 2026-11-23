@@ -7,6 +7,7 @@ import {
   assertProductionAacProfile,
   assertProductionVideoProfile,
   auditAutoMovieDeliveryContent,
+  createAutoMovieLoudnessMeter,
   renderAutoMovieDrawnVideo,
   resolveProductionVideoProfile,
 } from "@automovie/render";
@@ -63,6 +64,7 @@ export async function test_cli_render_video_cut(): Promise<void> {
       render: {
         renderAutoMovieDrawnVideo,
         auditAutoMovieDeliveryContent,
+        createAutoMovieLoudnessMeter,
         AUTOMOVIE_MP4_SRGB_COLOUR,
         assertProductionAacProfile,
         assertProductionVideoProfile,
@@ -177,12 +179,10 @@ export async function test_cli_render_video_cut(): Promise<void> {
     cut = CUT;
     const kept: Buffer = await fs.readFile(video);
     encoded = header(false);
-    await renderAutoMovieVideo(fixture, run).then(
-      (): never => {
-        throw new Error("A limited-range file was published");
-      },
-      (): void => {},
-    );
+    const leaked: boolean = await renderAutoMovieVideo(fixture, run)
+      .then((): boolean => true)
+      .catch((): boolean => false);
+    if (leaked) throw new Error("A limited-range file was published");
     const blocked = JSON.parse(await fs.readFile(report, "utf8"));
     TestValidator.equals(
       "a blocked report no longer matches the kept film",

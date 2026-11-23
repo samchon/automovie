@@ -153,7 +153,9 @@ export async function test_draw_drawn_video_passes(): Promise<void> {
   // 2. The files.
   TestValidator.equals(
     "pass-tagged channel files beside the film's frames",
-    [...files.keys()].sort(),
+    [...files.keys()].sort((left: string, right: string): number =>
+      left < right ? -1 : left > right ? 1 : 0,
+    ),
     [
       "controls/frame_00000.depth.png",
       "controls/frame_00000.mask.png",
@@ -249,11 +251,11 @@ export async function test_draw_drawn_video_passes(): Promise<void> {
         throw new Error(`No sound file "${path}" in this fixture`);
       },
       encode: async (): Promise<void> => {},
-    }).then(
-      (): string => "",
-      (error: unknown): string =>
+    })
+      .then((): string => "")
+      .catch((error: unknown): string =>
         error instanceof Error ? error.message : String(error),
-    );
+      );
     TestValidator.predicate(
       `${passes.join(",")} is refused before drawing`,
       reason.includes(message) && refused.double.calls.length === 4,

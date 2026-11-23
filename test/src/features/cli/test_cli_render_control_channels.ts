@@ -177,7 +177,9 @@ export async function test_cli_render_control_channels(): Promise<void> {
       "the published channels and their record",
       [
         written.controls,
-        [...controls.keys()].sort(),
+        [...controls.keys()].sort((left: string, right: string): number =>
+          left < right ? -1 : left > right ? 1 : 0,
+        ),
         record.filmSha256 === report.source.sha256,
         record.filmSha256 ===
           sha256(await fs.readFile(path.join(out, "film.mp4"))),
@@ -203,7 +205,9 @@ export async function test_cli_render_control_channels(): Promise<void> {
             `frame_0000${index}.mask.png`,
           ]),
           "record.json",
-        ].sort(),
+        ].sort((left: string, right: string): number =>
+          left < right ? -1 : left > right ? 1 : 0,
+        ),
         true,
         true,
         ["depth", "mask"],
@@ -226,12 +230,10 @@ export async function test_cli_render_control_channels(): Promise<void> {
     // 4. A blocked attempt keeps the former film and channels.
     const keptFilm: Buffer = await fs.readFile(path.join(out, "film.mp4"));
     encoded = header(false);
-    await renderAutoMovieVideo(fixture("out"), run).then(
-      (): never => {
-        throw new Error("A limited-range file was published");
-      },
-      (): void => {},
-    );
+    const published: boolean = await renderAutoMovieVideo(fixture("out"), run)
+      .then((): boolean => true)
+      .catch((): boolean => false);
+    if (published) throw new Error("A limited-range file was published");
     const blocked = JSON.parse(
       await fs.readFile(path.join(out, "render-report.json"), "utf8"),
     );

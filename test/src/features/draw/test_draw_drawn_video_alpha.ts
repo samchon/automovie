@@ -182,11 +182,11 @@ export async function test_draw_drawn_video_alpha(): Promise<void> {
       throw new Error(`No sound file "${path}" in this fixture`);
     },
     encode: async (): Promise<void> => {},
-  }).then(
-    (): string => "",
-    (error: unknown): string =>
+  })
+    .then((): string => "")
+    .catch((error: unknown): string =>
       error instanceof Error ? error.message : String(error),
-  );
+    );
   TestValidator.predicate(
     "control passes are refused before drawing",
     reason.includes("transparent background") &&
