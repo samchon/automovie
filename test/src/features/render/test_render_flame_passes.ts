@@ -88,7 +88,9 @@ export function test_render_flame_passes(): void {
     };
   };
   const { flames: built, mounted, object } = prepare();
-  const mesh: THREE.Mesh = built.meshes[0]!;
+  const mesh: THREE.Mesh = object.object.getObjectByName(
+    "flame:candle-1/wick",
+  ) as THREE.Mesh;
 
   // 1. Identity.
   const mask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask({
@@ -155,7 +157,11 @@ export function test_render_flame_passes(): void {
         (value: number, index: number): boolean => value !== late[index],
       ) &&
       Array.from(
-        fresh.flames.meshes[0]!.geometry.getAttribute("position").array,
+        (
+          fresh.object.object.getObjectByName(
+            "flame:candle-1/wick",
+          ) as THREE.Mesh
+        ).geometry.getAttribute("position").array,
       ).every((value: number, index: number): boolean => value === late[index]),
   );
   built.dispose();

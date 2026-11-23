@@ -101,7 +101,9 @@ export async function test_render_surface_graphic_passes(): Promise<void> {
       resolveNode: (): ReturnType<typeof buildModel> => object,
     });
   graphics.apply(0);
-  const root: THREE.Group = graphics.roots[0]!;
+  const root: THREE.Group = object.object.getObjectByName(
+    "surface-graphic:phone-a/screen",
+  ) as THREE.Group;
 
   // 1. The palette entry.
   const mask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask({

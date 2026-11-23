@@ -101,7 +101,8 @@ export function test_archetype_lantern_globe(): void {
   );
   TestValidator.predicate(
     "the flame draws before the globe",
-    flames.meshes[0]!.renderOrder < globeMesh.renderOrder,
+    (object.object.getObjectByName("flame:lantern-1/burner") as THREE.Mesh)
+      .renderOrder < globeMesh.renderOrder,
   );
   flames.dispose();
 }

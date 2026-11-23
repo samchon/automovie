@@ -115,14 +115,15 @@ export async function test_render_surface_text(): Promise<void> {
     mounted.scene.updateMatrixWorld(true);
     return { graphics, mounted };
   };
-  const glyphs = (graphics: IAutoMovieSurfaceGraphicsObject): THREE.Mesh =>
-    graphics.roots[0]!.children[0]!.children[0]!.children[1] as THREE.Mesh;
+  const glyphs = (mounted: ReturnType<typeof buildScene>): THREE.Mesh =>
+    mounted.scene.getObjectByName("surface-graphic:stop-sign/face")!
+      .children[0]!.children[0]!.children[1] as THREE.Mesh;
 
   // 1 and 2. Front view: world +X is the reader's right, world +Y the top.
   const first: Awaited<ReturnType<typeof prepare>> = await prepare([
     source(bytes),
   ]);
-  const mesh: THREE.Mesh = glyphs(first.graphics);
+  const mesh: THREE.Mesh = glyphs(first.mounted);
   const scale: number = (size * face.depth!) / 1000;
   const left: number = face.frame.translation.x - face.width! / 2;
   const position: THREE.BufferAttribute = mesh.geometry.getAttribute(
@@ -181,7 +182,7 @@ export async function test_render_surface_text(): Promise<void> {
   ]);
   TestValidator.equals(
     "identical glyph buffers",
-    Array.from(glyphs(second.graphics).geometry.getAttribute("position").array),
+    Array.from(glyphs(second.mounted).geometry.getAttribute("position").array),
     Array.from(position.array),
   );
   first.graphics.dispose();

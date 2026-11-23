@@ -194,8 +194,15 @@ export async function test_render_surface_graphics(): Promise<void> {
       top: new THREE.Vector3(0, 0, -1).transformDirection(world),
     };
   };
+  // Each track's root, found by the name the mask joins it by.
+  const roots: THREE.Group[] = ["phone-a", "phone-b"].map(
+    (node: string, index: number): THREE.Group =>
+      objects[index]!.object.getObjectByName(
+        `surface-graphic:${node}/screen`,
+      ) as THREE.Group,
+  );
   const visibleKey = (index: number): THREE.Group =>
-    (graphics.roots[index]!.children[0]!.children as THREE.Group[]).find(
+    (roots[index]!.children[0]!.children as THREE.Group[]).find(
       (group: THREE.Group): boolean => group.visible,
     )!;
 
@@ -297,7 +304,7 @@ export async function test_render_surface_graphics(): Promise<void> {
   );
   TestValidator.equals(
     "only one key is shown",
-    (graphics.roots[0]!.children[0]!.children as THREE.Group[]).map(
+    (roots[0]!.children[0]!.children as THREE.Group[]).map(
       (group: THREE.Group): boolean => group.visible,
     ),
     [false, true],
@@ -313,6 +320,6 @@ export async function test_render_surface_graphics(): Promise<void> {
   graphics.dispose();
   TestValidator.predicate(
     "disposal detaches every root",
-    graphics.roots.every((root: THREE.Group): boolean => root.parent === null),
+    roots.every((root: THREE.Group): boolean => root.parent === null),
   );
 }

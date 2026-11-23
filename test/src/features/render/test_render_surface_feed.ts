@@ -113,8 +113,9 @@ export async function test_render_surface_feed(): Promise<void> {
       resolveNode: (): ReturnType<typeof buildModel> => object,
     });
   graphics.apply(0);
-  const mesh: THREE.Mesh = graphics.roots[0]!.children[0]!.children[0]!
-    .children[1] as THREE.Mesh;
+  const mesh: THREE.Mesh = object.object.getObjectByName(
+    "surface-graphic:desk-laptop/screen",
+  )!.children[0]!.children[0]!.children[1] as THREE.Mesh;
   const material: THREE.MeshBasicMaterial =
     mesh.material as THREE.MeshBasicMaterial;
   const map: THREE.Texture = material.map!;

@@ -87,9 +87,11 @@ export async function test_render_graphics_plate(): Promise<void> {
   mounted.scene.fog = fog;
   mounted.scene.background = backdrop;
   const graphicMeshes: Set<THREE.Object3D> = new Set();
-  graphics.roots[0]!.traverse((entry: THREE.Object3D): void => {
-    if ((entry as THREE.Mesh).isMesh === true) graphicMeshes.add(entry);
-  });
+  object.object
+    .getObjectByName("surface-graphic:phone-a/screen")!
+    .traverse((entry: THREE.Object3D): void => {
+      if ((entry as THREE.Mesh).isMesh === true) graphicMeshes.add(entry);
+    });
   const before: Map<THREE.Mesh, THREE.Material | THREE.Material[]> = new Map();
   mounted.scene.traverse((entry: THREE.Object3D): void => {
     if ((entry as THREE.Mesh).isMesh === true)

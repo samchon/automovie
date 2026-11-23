@@ -115,7 +115,6 @@ export function prepareAutoMovieFlames(
 
   let disposed: boolean = false;
   return {
-    meshes,
     apply: (seconds: number): void => {
       if (!Number.isFinite(seconds))
         throw new RangeError(`Flames cannot be sampled at ${seconds} s`);

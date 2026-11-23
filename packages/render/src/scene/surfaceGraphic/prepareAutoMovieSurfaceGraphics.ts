@@ -216,7 +216,6 @@ export async function prepareAutoMovieSurfaceGraphics(
 
   let disposed: boolean = false;
   return {
-    roots,
     apply: (seconds: number): void => {
       if (
         !Number.isFinite(seconds) ||

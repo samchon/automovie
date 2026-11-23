@@ -97,7 +97,9 @@ export function test_render_flame_emission(): void {
       models: [candle],
       resolveNode: (): ReturnType<typeof buildModel> => object,
     });
-  const mesh: THREE.Mesh = flames.meshes[0]!;
+  const mesh: THREE.Mesh = object.object.getObjectByName(
+    "flame:candle-1/wick",
+  ) as THREE.Mesh;
   const material: THREE.MeshBasicMaterial =
     mesh.material as THREE.MeshBasicMaterial;
 
@@ -157,7 +159,8 @@ export function test_render_flame_emission(): void {
   TestValidator.predicate(
     "15.92 cd/m² white matches the Lambertian card within 1 %",
     Math.abs(
-      (unbound.meshes[0]!.material as THREE.MeshBasicMaterial).color.r - card,
+      ((object.object.getObjectByName("flame:candle-1/wick") as THREE.Mesh)
+        .material as THREE.MeshBasicMaterial.color.r) - card,
     ) /
       card <=
       0.01,

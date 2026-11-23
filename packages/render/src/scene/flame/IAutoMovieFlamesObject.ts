@@ -1,17 +1,12 @@
-import type * as THREE from "three";
-
 /**
  * A shot's flames, built and mounted on their props.
  *
- * `prepareAutoMovieFlames` returns it. The caller owns it until `dispose`.
+ * `prepareAutoMovieFlames` returns it. The caller owns it until `dispose`. Each
+ * cue's mesh is named `flame:<node>/<cue id>` and parented to its prop's model
+ * object at the emitter frame, so a host finds it by that name in the scene it
+ * mounted, as the semantic mask does.
  */
 export interface IAutoMovieFlamesObject {
-  /**
-   * One mesh per cue, in cue order, each named `flame:<node>/<cue id>` and
-   * parented to its prop's model object at the emitter frame.
-   */
-  readonly meshes: readonly THREE.Mesh[];
-
   /**
    * Shape every flame for shot-local `seconds`, show the ones burning and hide
    * the rest. The shape is evaluated at exactly `seconds`, not at the light's
